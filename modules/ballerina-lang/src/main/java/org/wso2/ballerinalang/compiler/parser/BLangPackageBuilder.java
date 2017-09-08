@@ -48,11 +48,13 @@ import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
@@ -65,6 +67,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -108,6 +115,8 @@ public class BLangPackageBuilder {
 
     private Stack<RecordTypeLiteralNode> recordTypeLiteralNodes = new Stack<>();
 
+    private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
+
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
     private Stack<StructNode> structStack = new Stack<>();
@@ -123,6 +132,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
+
+    private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
@@ -299,6 +310,61 @@ public class BLangPackageBuilder {
 
     private void addStmtToCurrentBlock(StatementNode statement) {
         this.blockNodeStack.peek().addStatement(statement);
+    }
+
+    public void startTryCatchFinallyStmt() {
+        this.tryCatchFinallyNodesStack.push((BLangTryCatchFinally) TreeBuilder.createTryCatchFinallyNode());
+        startBlock();
+    }
+
+    public void addTryClause(DiagnosticPos pos) {
+        BLangBlockStmt tryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        tryBlock.pos = pos;
+        tryCatchFinallyNodesStack.peek().tryBody = tryBlock;
+    }
+
+    public void startCatchClause() {
+        startBlock();
+    }
+
+    public void addCatchClause(DiagnosticPos poc, String paramName) {
+        BLangSimpleVariableReference varRef =
+                (BLangSimpleVariableReference) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.variableName = createIdentifier(paramName);
+
+        BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
+        variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
+        variableNode.name = (BLangIdentifier) createIdentifier(paramName);
+        variableNode.expr = varRef;
+
+        BLangCatch catchNode = (BLangCatch) TreeBuilder.createCatchNode();
+        catchNode.pos = poc;
+        catchNode.body = (BLangBlockStmt) this.blockNodeStack.pop();
+        catchNode.param = variableNode;
+        tryCatchFinallyNodesStack.peek().catchBlocks.add(catchNode);
+    }
+
+    public void startFinallyBlock() {
+        startBlock();
+    }
+
+    public void addFinallyBlock(DiagnosticPos poc) {
+        tryCatchFinallyNodesStack.peek().finallyBody = (BLangBlockStmt) this.blockNodeStack.pop();
+        tryCatchFinallyNodesStack.peek().finallyBody.pos = poc;
+    }
+
+    public void addTryCatchFinallyStmt(DiagnosticPos poc) {
+        BLangTryCatchFinally stmtNode = tryCatchFinallyNodesStack.pop();
+        stmtNode.pos = poc;
+        this.blockNodeStack.peek().addStatement(stmtNode);
+    }
+
+    public void addThrowStmt(DiagnosticPos poc) {
+        ExpressionNode throwExpr = this.exprNodeStack.pop();
+        BLangThrow throwNode = (BLangThrow) TreeBuilder.createThrowNode();
+        throwNode.pos = poc;
+        throwNode.expr = (BLangExpression) throwExpr;
+        this.blockNodeStack.peek().addStatement(throwNode);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -643,6 +709,57 @@ public class BLangPackageBuilder {
                     .createAssignmentNode(lVariableReferenceList, (BLangExpression) rExprNode, isVarDeclaration);
             this.blockNodeStack.peek().addStatement(assignmentNode);
         }
+    }
+
+    public void startTransactionStmt() {
+        transactionNodeStack.push((BLangTransaction) TreeBuilder.createTransactionNode());
+        startBlock();
+    }
+
+    public void addTransactionBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        transactionBlock.pos = pos;
+        transactionNode.setTransactionBody(transactionBlock);
+    }
+
+    public void startFailedBlock() {
+        startBlock();
+    }
+
+    public void addFailedBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        failedBlock.pos = pos;
+        transactionNode.setFailedBody(failedBlock);
+    }
+
+    public void startCommittedBlock() {
+        startBlock();
+    }
+
+    public void addCommittedBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        committedBlock.pos = pos;
+        transactionNode.setCommittedBody(committedBlock);
+    }
+
+    public void startAbortedBlock() {
+        startBlock();
+    }
+
+    public void addAbortedBlock(DiagnosticPos pos) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        abortedBlock.pos = pos;
+        transactionNode.setAbortedBody(abortedBlock);
+    }
+
+    public void endTransactionStmt(DiagnosticPos pos) {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
+        transaction.pos = pos;
+        this.blockNodeStack.peek().addStatement(transaction);
     }
 
     public void addAbortStatement() {

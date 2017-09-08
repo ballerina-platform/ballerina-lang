@@ -28,6 +28,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class BLangThrow extends BLangStatement implements ThrowNode {
     public BLangExpression expr;
 
+    public BLangThrow() {
+    }
+
     public BLangThrow(BLangExpression expr) {
         this.expr = expr;
     }
@@ -45,5 +48,10 @@ public class BLangThrow extends BLangStatement implements ThrowNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.THROW;
+    }
+
+    @Override
+    public String toString() {
+        return "throw[" + String.valueOf(expr) + "]";
     }
 }
