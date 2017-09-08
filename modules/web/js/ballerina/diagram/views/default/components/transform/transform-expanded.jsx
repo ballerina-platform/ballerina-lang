@@ -30,6 +30,7 @@ import ASTNode from '../../../../../ast/node';
 import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import Tree from './tree';
 import FunctionInv from './function';
+import Operator from './operator';
 import { getLangServerClientInstance } from './../../../../../../langserver/lang-server-client-controller';
 import { getResolvedTypeData } from './../../../../../../langserver/lang-server-utils';
 import ASTFactory from '../../../../../ast/ast-factory';
@@ -186,6 +187,20 @@ class TransformExpanded extends React.Component {
 
         if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
+        }
+        if (ASTFactory.isBinaryExpression(rightExpression)
+                    || ASTFactory.isUnaryExpression(rightExpression)) {
+            const targetId = leftExpression.getExpressionString().trim() + ':' + viewId;
+            if (ASTFactory.isBinaryExpression(rightExpression)) {
+                const leftId = rightExpression.getLeftExpression().getExpressionString().trim() + ':' + viewId;
+                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
+                const rightId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
+                this.drawConnection(rightId, rightExpression.getID() + ':1:' + viewId);
+            } else {
+                const leftId = rightExpression.children[0].getExpressionString().trim() + ':' + viewId;
+                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
+            }
+            this.drawConnection(rightExpression.getID() + ':return:0:' + viewId, targetId);
         }
     }
 
@@ -902,6 +917,7 @@ class TransformExpanded extends React.Component {
         const inputs = [];
         const outputs = [];
         const functions = [];
+        const operators = [];
 
         if (this.state.vertices.length > 0) {
             inputNodes.forEach((inputNode) => {
@@ -941,7 +957,25 @@ class TransformExpanded extends React.Component {
                         funcDetails.assignmentStmt = child;
                     });
                     functions.push(...funcInvs);
-                }
+                } else if (ASTFactory.isBinaryExpression(rightExpression)
+                            || ASTFactory.isUnaryExpression(rightExpression)) {
+                    const operatorInfo = {};
+                    operatorInfo.name = rightExpression.getOperator();
+                    operatorInfo.parameters = [];
+                    operatorInfo.returnParams = [];
+                    operatorInfo.parameters[0] = { name: rightExpression.getID() + ':0',
+                        displayName: '',
+                        type: 'var' };
+                    if (ASTFactory.isBinaryExpression(rightExpression)) {
+                        operatorInfo.parameters[1] = { name: rightExpression.getID() + ':1',
+                            displayName: '',
+                            type: 'var' };
+                    }
+                    operatorInfo.returnParams.push({ name: rightExpression.getID() + ':return:0',
+                        displayName: '',
+                        type: 'var' });
+                    operators.push({ operator: operatorInfo, opStmt: rightExpression });
+                 }
             });
         }
         return (
@@ -1030,6 +1064,19 @@ class TransformExpanded extends React.Component {
                                             foldedEndpoints={this.state.foldedEndpoints}
                                             isCollapsed={this.state.foldedFunctions[funcInv.getID()]}
                                             onHeaderClick={this.foldFunction}
+                                        />
+                                    ))
+                                }
+                                {
+                                    operators.map(({ operator, opStmt }) => (
+                                        <Operator
+                                            key={opStmt.getID()}
+                                            operator={operator}
+                                            opStmt={opStmt}
+                                            recordSourceElement={this.recordSourceElement}
+                                            recordTargetElement={this.recordTargetElement}
+                                            viewId={this.props.model.getID()}
+                                            onEndpointRemove={this.removeEndpoint}
                                         />
                                     ))
                                 }

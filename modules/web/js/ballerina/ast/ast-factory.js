@@ -1507,6 +1507,15 @@ ASTFactory.isBinaryExpression = function (child) {
 };
 
 /**
+ * instanceof check for unaryExpression
+ * @param {ASTNode} child - The ast node.
+ * @returns {boolean} - true if same type, else false
+ */
+ASTFactory.isUnaryExpression = function (child) {
+    return child instanceof unaryExpression;
+};
+
+/**
  * instanceof check for ConnectorInitExpression
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
