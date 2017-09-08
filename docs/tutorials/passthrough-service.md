@@ -95,4 +95,9 @@ Now that you have added a service, you need a connector to connect to the extern
     ![alt text](../images/MoreConnectors.png)
 1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
     ![alt text](../images/addConnector.gif)
-1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
+1. Add the endpoint URL (https://www.googleapis.com/books/v1/) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
+    ![alt text](../images/endpointURL.png)
+    > The endpoint URL, in this instance, is not the complete URL and does not include the title or the book and other details. You can directly add the complete URL here if you wish. This is not done in this scenario for the purposes of the tutorial and to highlight a different means of achieving the same outcome, i.e., the title will be appended in the request.
+1. Add a HTTP GET request by dragging it from the tool palette to the canvas.
+    ![alt text](../images/addGET.gif)
+
