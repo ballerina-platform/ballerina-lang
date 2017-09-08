@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.AnnAttrValue;
@@ -30,13 +29,19 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
- * Created by rajith on 9/4/17.
+ * {@code ServerConnectorRegistry} This will hold all server connectors registered at ballerina side.
+ * It will also be responsible for notifying service registration events to the connector implementation.
+ *
+ * @since 0.94
  */
 public class ServerConnectorRegistry {
 
@@ -54,21 +59,41 @@ public class ServerConnectorRegistry {
             if (!serverConnectorMap.containsKey(serverConnector.getProtocolPackage())) {
                 serverConnectorMap.put(serverConnector.getProtocolPackage(), serverConnector);
             } else {
-                //todo throw error saying already exist
+                throw new BLangRuntimeException("Multiple server connectors in the runtime for" +
+                        " given protocol package - " + serverConnector.getProtocolPackage());
             }
         });
     }
 
-    public void complete() {
-        serverConnectorMap.values().forEach(sc -> sc.complete());
+    /**
+     * This method will notify underline server connectors about the deployment complete event.
+     */
+    public void deploymentComplete() {
+        serverConnectorMap.values().forEach(sc -> sc.deploymentComplete());
     }
 
+    /**
+     * This method is used to register service to relevant server connector implementation.
+     *
+     * @param serviceInfo to be registered.
+     */
     public void registerService(ServiceInfo serviceInfo) {
         if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
-            //todo throw
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
+                    serviceInfo.getProtocolPkgPath());
         }
         Service service = buildService(serviceInfo);
         serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
+    }
+
+    /**
+     * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
+     *
+     * @param protocolPkgPath of the server connector.
+     * @return
+     */
+    public BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
+        return serverConnectorMap.get(protocolPkgPath);
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
@@ -86,7 +111,7 @@ public class ServerConnectorRegistry {
             service.addResource(resource.getName(), resource);
         }
         //todo
-        return null;
+        return service;
     }
 
 
@@ -147,6 +172,8 @@ public class ServerConnectorRegistry {
                 for (int i = 0; i < length; i++) {
                     annotationValues[i] = getAttributeValue(annAttributeValues[i]);
                 }
+                annotationValue = new BAnnAttrValue(AnnotationValueType.ARRAY);
+                annotationValue.setAnnotationValueArray(annotationValues);
                 break;
             default:
 

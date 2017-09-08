@@ -72,9 +72,9 @@ under the License.
         </classes>
     </test>
 
-    <!--<test name="ballerina-interceptor-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-interceptor-test-suite">
+        <classes>
+            <class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>
+        </classes>
+    </test>
 </suite>

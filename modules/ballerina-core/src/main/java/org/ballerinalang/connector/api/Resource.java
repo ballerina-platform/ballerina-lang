@@ -15,16 +15,37 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.api;
 
 /**
- * Created by rajith on 9/4/17.
+ * {@code Resource} This API provides the functionality to access Resource level details in the
+ * respective server connector.
+ *
+ * @since 0.94
  */
 public interface Resource {
+
+    /**
+     * This method returns the resource name.
+     *
+     * @return resource name.
+     */
     String getName();
 
+    /**
+     * This method returns the corresponding service name.
+     *
+     * @return service name.
+     */
     String getServiceName();
 
+    /**
+     * This method will return annotation for the given package path and annotation name.
+     *
+     * @param pkgPath of the annotation.
+     * @param name  of the annotation.
+     * @return matching annotation.
+     */
     Annotation getAnnotation(String pkgPath, String name);
+
 }

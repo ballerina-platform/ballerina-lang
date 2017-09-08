@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,10 +29,15 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Native function to get payload as Blob..
@@ -41,14 +46,15 @@ import org.wso2.carbon.messaging.BinaryCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getBinaryPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.BLOB)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in blob format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+        value = "The request message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "blob",
         value = "The blob representation of the message payload") })
 public class GetBinaryPayload extends AbstractNativeFunction {
@@ -59,13 +65,13 @@ public class GetBinaryPayload extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BBlob result;
         try {
-            BMessage msg = (BMessage) getRefArgument(context, 0);
-            if (msg.isAlreadyRead()) {
-                result = new BBlob((byte[]) msg.getMessageDataSource().getDataObject());
+            BStruct requestStruct = (BStruct) getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            if (httpCarbonMessage.isAlreadyRead()) {
+                result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
             } else {
-                BinaryCarbonMessage binaryCarbonMessage = (BinaryCarbonMessage) msg.value();
-                byte[] arr = binaryCarbonMessage.readBytes().array();
-                result = new BBlob(arr);
+                result = new BBlob(toByteArray(httpCarbonMessage.getInputStream()));
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -74,5 +80,17 @@ public class GetBinaryPayload extends AbstractNativeFunction {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
         return getBValues(result);
+    }
+
+    private static byte[] toByteArray(InputStream input) throws IOException {
+        byte[] buffer = new byte[4096];
+        int n1;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (; -1 != (n1 = input.read(buffer));) {
+            output.write(buffer, 0, n1);
+        }
+        byte[] bytes = output.toByteArray();
+        output.close();
+        return bytes;
     }
 }

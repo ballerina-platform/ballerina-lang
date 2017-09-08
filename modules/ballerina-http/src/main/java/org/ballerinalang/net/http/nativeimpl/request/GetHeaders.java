@@ -54,8 +54,8 @@ public class GetHeaders extends AbstractNativeFunction {
 //        MessageValue msg = (MessageValue) getArgument(ctx, 0);
 //        String headerName = getArgument(ctx, 1).stringValue();
 //        String[] headerValue = msg.getHeaders(headerName);
-
-        // TODO Fix this with the proper arrays implementation
+//
+//         TODO Fix this with the proper arrays implementation
 //        ArrayValue<BString> headers = new ArrayValue<>(headerValue.length);
 //        int i = 0;
 //        for (String header : headerValue) {

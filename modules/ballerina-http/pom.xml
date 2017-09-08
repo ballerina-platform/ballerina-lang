@@ -245,8 +245,7 @@
         </package.repository.provider.class>
         <native.constructs.provider.package>org.ballerinalang.http</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaHttpConstructsProvider</native.constructs.provider.class>
-        <ballerina.system.package.repository>true</ballerina.system.package.repository>
-        
+
         <!-- Path to the generated natives ballerina files temp directory -->
         <!--<generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>-->
         <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>

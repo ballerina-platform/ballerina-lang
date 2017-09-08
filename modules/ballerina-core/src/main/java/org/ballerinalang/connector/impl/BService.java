@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.Annotation;
@@ -26,10 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by rajith on 9/4/17.
+ * {@code BService} This is the implementation for the {@code Service} API.
+ *
+ * @since 0.94
  */
 public class BService extends AbstractServiceResource implements Service {
-    String name;
+    private String name;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
