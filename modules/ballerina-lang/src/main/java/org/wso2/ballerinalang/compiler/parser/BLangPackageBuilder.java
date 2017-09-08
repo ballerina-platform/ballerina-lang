@@ -294,7 +294,7 @@ public class BLangPackageBuilder {
     public void addLiteralValue(Object value) {
         LiteralNode litExpr = TreeBuilder.createLiteralExpression();
         litExpr.setValue(value);
-        this.exprNodeStack.push(litExpr);
+        addExpressionNode(litExpr);
     }
 
     public void addArrayInitExpr(DiagnosticPos pos, boolean argsAvailable) {
@@ -307,7 +307,7 @@ public class BLangPackageBuilder {
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         arrayLiteral.expressionNodes = argExprList;
         arrayLiteral.pos = pos;
-        exprNodeStack.push(arrayLiteral);
+        addExpressionNode(arrayLiteral);
     }
 
     public void addKeyValueRecord() {
