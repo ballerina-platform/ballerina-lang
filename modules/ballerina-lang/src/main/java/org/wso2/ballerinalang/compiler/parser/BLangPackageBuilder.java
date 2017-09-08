@@ -41,6 +41,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -440,23 +442,27 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(varRef);
     }
 
-    public void createInvocationNode(DiagnosticPos pos, boolean argsAvailable) {
+    public void createFunctionInvocation(DiagnosticPos pos, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         if (argsAvailable) {
             invocationNode.argsExpressions = exprNodeListStack.pop();
         }
-        ExpressionNode expressionNode = exprNodeStack.pop();
-        if (expressionNode instanceof BLangSimpleVariableReference) {
-            BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) expressionNode;
-            invocationNode.functionName = varRef.variableName;
-            invocationNode.packIdentifier = varRef.packageIdentifier;
-        } else if (expressionNode instanceof BLangFieldBasedAccess) {
-            BLangFieldBasedAccess fieldRef = (BLangFieldBasedAccess) expressionNode;
-            invocationNode.functionName = fieldRef.fieldName;
-            invocationNode.packIdentifier = createIdentifier(null);
-            invocationNode.variableReferenceNode = fieldRef;
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        invocationNode.functionName = nameReference.name;
+        invocationNode.packIdentifier = nameReference.pkgAlias;
+        addExpressionNode(invocationNode);
+    }
+
+    public void createInvocationNode(DiagnosticPos pos, String invocation, boolean argsAvailable) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        if (argsAvailable) {
+            invocationNode.argsExpressions = exprNodeListStack.pop();
         }
+        invocationNode.variableReferenceNode = (VariableReferenceNode) exprNodeStack.pop();
+        invocationNode.functionName = createIdentifier(invocation);
+        invocationNode.packIdentifier = createIdentifier(null);
         addExpressionNode(invocationNode);
     }
 
@@ -793,5 +799,12 @@ public class BLangPackageBuilder {
 
     public void endIfElseNode() {
         addStmtToCurrentBlock(ifElseStatementStack.pop());
+    }
+
+    public void addExpressionStmt(DiagnosticPos pos) {
+        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.pos = pos;
+        exprStmt.expr = (BLangExpression) exprNodeStack.pop();
+        addStmtToCurrentBlock(exprStmt);
     }
 }

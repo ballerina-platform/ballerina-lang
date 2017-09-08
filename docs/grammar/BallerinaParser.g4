@@ -226,7 +226,7 @@ statement
     |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-    |   functionInvocationStatement
+    |   expressionStmt
     |   transformStatement
     |   transactionStatement
     |   abortStatement
@@ -394,10 +394,11 @@ commentStatement
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationReference
+    |   variableReference invocation                                            # invocationReference
     ;
 
 field
@@ -412,12 +413,20 @@ xmlAttrib
     : AT (LEFT_BRACKET expression RIGHT_BRACKET)?
     ;
 
+functionInvocation
+    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+invocation
+    : DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
-functionInvocationStatement
-    :   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS SEMICOLON
+expressionStmt
+    :   expression SEMICOLON
     ;
 
 transactionStatement

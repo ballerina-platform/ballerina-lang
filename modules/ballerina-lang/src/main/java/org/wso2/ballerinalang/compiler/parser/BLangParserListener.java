@@ -1229,8 +1229,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
-        boolean argsAvailable = ctx.expressionList() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), argsAvailable);
+        boolean argsAvailable = ctx.functionInvocation().expressionList() != null;
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), argsAvailable);
     }
 
     @Override
@@ -1244,6 +1244,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createIndexBasedAccessNode(getCurrentPos(ctx));
     }
 
+    @Override
+    public void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx) {
+        boolean argsAvailable = ctx.invocation().expressionList() != null;
+        String invocation = ctx.invocation().Identifier().getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), invocation, argsAvailable);
+    }
+
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         this.pkgBuilder.startExprNodeList();
     }
@@ -1252,18 +1259,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
         this.pkgBuilder.endExprNodeList(ctx.getChildCount() / 2 + 1);
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) { }
+
+    @Override
+    public void exitExpressionStmt(BallerinaParser.ExpressionStmtContext ctx) {
+        this.pkgBuilder.addExpressionStmt(getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
