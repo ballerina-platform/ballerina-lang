@@ -1,6 +1,7 @@
 package ballerina.user;
 
 import ballerina.doc;
+import ballerina.utils;
 
 @doc:Description {value:"Returns the current user's country."}
 @doc:Return {value:"string: current user's country if it can be determined, an empty string otherwise"}
@@ -17,3 +18,7 @@ native function getLanguage () (string);
 @doc:Description {value:"Returns the current user's name."}
 @doc:Return {value:"string: current user's name if it can be determined, an empty string otherwise"}
 native function getCountry () (string);
+
+@doc:Description {value:"Returns the current user's locale."}
+@doc:Return {value:"string: current user's locale"}
+native function getLocale () (utils:Locale);

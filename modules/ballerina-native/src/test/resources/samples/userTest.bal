@@ -1,4 +1,5 @@
 import ballerina.user;
+import ballerina.utils;
 
 function testGetHome () (string) {
     return user:getHome();
@@ -14,4 +15,9 @@ function testGetLanguage () (string) {
 
 function testGetCountry () (string) {
     return user:getCountry();
+}
+
+function testGetLocale () (string, string) {
+    utils:Locale locale = user:getLocale();
+    return locale.language, locale.countryCode;
 }

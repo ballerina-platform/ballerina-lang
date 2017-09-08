@@ -73,4 +73,18 @@ public class UserTest {
         String expectedValue = System.getProperty("user.country");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
+
+    @Test
+    public void testGetLocale() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetLocale", args);
+        Assert.assertTrue(returns.length == 2);
+        Assert.assertTrue(returns[0] instanceof BString);
+        String expectedLanguage = System.getProperty("user.language");
+        Assert.assertEquals(returns[0].stringValue(), expectedLanguage);
+
+        Assert.assertTrue(returns[1] instanceof BString);
+        String expectedCountryCode = System.getProperty("user.country");
+        Assert.assertEquals(returns[1].stringValue(), expectedCountryCode);
+    }
 }
