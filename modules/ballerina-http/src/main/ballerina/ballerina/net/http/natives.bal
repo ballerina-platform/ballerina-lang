@@ -2,6 +2,12 @@ package ballerina.net.http;
 
 import ballerina.doc;
 
+struct request {
+}
+
+struct response {
+}
+
 @doc:Description { value:"Gets the request URL from the message"}
 @doc:Param { value:"m: The message object" }
 @doc:Return { value:"string: The request URL value" }
