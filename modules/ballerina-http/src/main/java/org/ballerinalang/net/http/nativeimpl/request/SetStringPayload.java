@@ -20,34 +20,32 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
 
 /**
  * Native function to get payload as String..
- * ballerina.model.messages:setStringPayload
+ * ballerina.net.http:setStringPayload
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "setStringPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
                 @Argument(name = "payload", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the message payload using a string object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The current message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
         value = "The string payload object") })
 public class SetStringPayload extends AbstractNativeFunction {
@@ -56,16 +54,6 @@ public class SetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
-        String payload = getStringArgument(context, 0);
-        // Clone the message without content
-        CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
-        msg.setValue(cmsg);
-        msg.setMessageDataSource(payload);
-        msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
-        if (log.isDebugEnabled()) {
-            log.debug("Setting new payload: " + payload);
-        }
-        return VOID_RETURN;
+        return RequestResponseUtil.setStringPayload(context, this, log);
     }
 }

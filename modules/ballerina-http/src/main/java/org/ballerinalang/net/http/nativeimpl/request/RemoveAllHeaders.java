@@ -20,34 +20,37 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function to remove all headers of carbon message.
  *
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "removeAllHeaders",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http")},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Removes all transport headers from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 public class RemoveAllHeaders extends AbstractNativeFunction {
+
+    private static final Logger log = LoggerFactory.getLogger(RemoveAllHeaders.class);
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
-        msg.value().getHeaders().clear();
-        return VOID_RETURN;
+        return RequestResponseUtil.removeAllHeaders(context, this, log);
     }
 }

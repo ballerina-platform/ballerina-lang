@@ -20,13 +20,13 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,16 +35,17 @@ import org.slf4j.LoggerFactory;
  * ballerina.model.messages:removeHeader
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "removeHeader",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Removes a transport header from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The header name") })
 public class RemoveHeader extends AbstractNativeFunction {
@@ -53,12 +54,6 @@ public class RemoveHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
-        String headerName = getStringArgument(context, 0);
-        msg.removeHeader(headerName);
-        if (log.isDebugEnabled()) {
-            log.debug("Remove header:" + headerName);
-        }
-        return VOID_RETURN;
+        return RequestResponseUtil.removeHeader(context, this, log);
     }
 }

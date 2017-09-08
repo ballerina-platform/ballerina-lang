@@ -20,46 +20,39 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Set the payload of the Message as a JSON.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "setJsonPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
                 @Argument(name = "payload", type = TypeEnum.JSON)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the message payload using a JSON object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The current message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
         value = "The JSON payload object") })
 public class SetJsonPayload extends AbstractNativeFunction {
 
+    private static final Logger log = LoggerFactory.getLogger(SetJsonPayload.class);
+
     @Override
     public BValue[] execute(Context ctx) {
-        // Accessing First Parameter Value.
-        BMessage msg = (BMessage) getRefArgument(ctx, 0);
-        BJSON payload = (BJSON) getRefArgument(ctx, 1);
-        // Clone the message without content
-        CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
-        msg.setValue(cmsg);
-        msg.setMessageDataSource(payload);
-        msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        return VOID_RETURN;
+        return RequestResponseUtil.setJsonPayload(ctx, this, log);
     }
 }
