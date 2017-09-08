@@ -30,6 +30,19 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt committedBody;
     public BLangBlockStmt abortedBody;
 
+    public BLangTransaction() {
+    }
+
+    public BLangTransaction(BLangBlockStmt transactionBody,
+                            BLangBlockStmt failedBody,
+                            BLangBlockStmt committedBody,
+                            BLangBlockStmt abortedBody) {
+        this.transactionBody = transactionBody;
+        this.failedBody = failedBody;
+        this.committedBody = committedBody;
+        this.abortedBody = abortedBody;
+    }
+
     @Override
     public BLangBlockStmt getTransactionBody() {
         return transactionBody;
