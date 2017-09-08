@@ -18,10 +18,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 
+/**
+ * Class for the try catch statement.
+ * @class TryCatchStatement
+ * */
 class TryCatchStatement extends React.Component {
 
     constructor(props) {
@@ -31,6 +34,7 @@ class TryCatchStatement extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
+
         const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             {children}
@@ -45,6 +49,17 @@ TryCatchStatement.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
+    model: PropTypes.shape({
+        viewState: PropTypes.shape({
+            bBox: PropTypes.shape({
+                x: PropTypes.number.isRequired,
+                y: PropTypes.number.isRequired,
+                w: PropTypes.number.isRequired,
+                h: PropTypes.number.isRequired,
+            }),
+        }).isRequired,
+        getChildren: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 TryCatchStatement.contextTypes = {
