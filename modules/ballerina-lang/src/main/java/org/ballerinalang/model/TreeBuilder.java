@@ -44,8 +44,11 @@ import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.ThrowNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
+import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -82,8 +85,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -136,7 +142,19 @@ public class TreeBuilder {
     public static BlockNode createBlockNode() {
         return new BLangBlockStmt();
     }
-    
+
+    public static TryCatchFinallyNode createTryCatchFinallyNode() {
+        return new BLangTryCatchFinally();
+    }
+
+    public static CatchNode createCatchNode() {
+        return new BLangCatch();
+    }
+
+    public static ThrowNode createThrowNode() {
+        return new BLangThrow();
+    }
+
     public static LiteralNode createLiteralExpression() {
         return new BLangLiteral();
     }
