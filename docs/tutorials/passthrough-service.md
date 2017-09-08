@@ -37,7 +37,7 @@ If you are accessing a resource within this service, like book titles for exampl
 
 This is how resources and services can equate to the URL that you are calling.
 
-In addition to this, there can be a query parameter added to the title. In this scenario, you are querying books that have "WSO2" in the title, so the title is as follows.
+In addition to this, there can be a query parameter added to the title. In this scenario, you are querying books that have "WSO2" in the title, so the URL is as follows.
 
 > http://localhost:9090/books/title?title=wso2
 
