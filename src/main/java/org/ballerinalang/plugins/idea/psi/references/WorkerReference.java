@@ -22,6 +22,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.JoinClauseNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,9 @@ public class WorkerReference extends BallerinaElementReference {
         if (scopeNode == null) {
             return null;
         }
+        if (scopeNode instanceof JoinClauseNode) {
+            scopeNode = (ScopeNode) scopeNode.getParent();
+        }
         List<WorkerDeclarationNode> workerDeclarations = BallerinaPsiImplUtil.getWorkerDeclarationsInScope(scopeNode);
         for (WorkerDeclarationNode workerDeclaration : workerDeclarations) {
             IdentifierPSINode workerName = PsiTreeUtil.getChildOfType(workerDeclaration, IdentifierPSINode.class);
@@ -65,6 +69,9 @@ public class WorkerReference extends BallerinaElementReference {
         ScopeNode scopeNode = PsiTreeUtil.getParentOfType(identifier, ScopeNode.class);
         if (scopeNode == null) {
             return results.toArray(new LookupElement[results.size()]);
+        }
+        if (scopeNode instanceof JoinClauseNode) {
+            scopeNode = (ScopeNode) scopeNode.getParent();
         }
         List<WorkerDeclarationNode> workerDeclarations = BallerinaPsiImplUtil.getWorkerDeclarationsInScope(scopeNode);
         results.addAll(BallerinaCompletionUtils.createWorkerLookupElements(workerDeclarations));
