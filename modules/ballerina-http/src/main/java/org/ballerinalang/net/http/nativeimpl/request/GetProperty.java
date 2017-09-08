@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -55,19 +56,6 @@ public class GetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
-        String propertyName = getStringArgument(context, 0);
-
-        Object propertyValue = msg.getProperty(propertyName);
-
-        if (propertyValue == null) {
-            return VOID_RETURN;
-        }
-
-        if (propertyValue instanceof String) {
-            return getBValues(new BString((String) propertyValue));
-        } else {
-            throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
-        }
+        return RequestResponseUtil.getProperty(context, this, null);
     }
 }

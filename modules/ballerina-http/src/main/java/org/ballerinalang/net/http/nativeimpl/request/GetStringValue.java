@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
@@ -56,16 +57,6 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 public class GetStringValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
-        CarbonMessage carbonMessage = msg.value();
-        String mapKey = getStringArgument(context, 0);
-        String mapValue = null;
-        if (carbonMessage instanceof MapCarbonMessage) {
-            mapValue = ((MapCarbonMessage) carbonMessage).getValue(mapKey);
-        }
-        if (mapValue == null) {
-            throw new BallerinaException("Given property " + mapKey + " is not found in the Map message");
-        }
-        return getBValues(new BString(mapValue));
+        return RequestResponseUtil.getStringValue(context, this, null);
     }
 }

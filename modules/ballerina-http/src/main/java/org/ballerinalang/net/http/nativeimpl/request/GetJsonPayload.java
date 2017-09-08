@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -56,32 +57,6 @@ public class GetJsonPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BJSON result = null;
-        try {
-            // Accessing First Parameter Value.
-//            BMessage msg = (BMessage) getRefArgument(ctx, 0);
-            BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
-
-            if (httpCarbonMessage.isAlreadyRead()) {
-                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
-                if (payload instanceof BJSON) {
-                    result = (BJSON) payload;
-                } else {
-                    // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(httpCarbonMessage.getMessageDataSource().getMessageAsString());
-                }
-            } else {
-                result = new BJSON(httpCarbonMessage.getInputStream());
-                httpCarbonMessage.setMessageDataSource(result);
-                httpCarbonMessage.setAlreadyRead(true);
-            }
-        } catch (Throwable e) {
-//            ErrorHandler.handleJsonException(OPERATION, e);
-        }
-
-        // Setting output value.
-        return getBValues(result);
+        return RequestResponseUtil.getJsonPayload(context, this, null);
     }
 }

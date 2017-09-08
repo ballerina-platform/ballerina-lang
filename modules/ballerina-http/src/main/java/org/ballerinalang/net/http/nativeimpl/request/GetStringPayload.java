@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,23 +58,6 @@ public class GetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BString result;
-        try {
-            BMessage msg = (BMessage) getRefArgument(context, 0);
-            if (msg.isAlreadyRead()) {
-                result = new BString(msg.getMessageDataSource().getMessageAsString());
-            } else {
-                String payload = MessageUtils.getStringFromInputStream(msg.value().getInputStream());
-                result = new BString(payload);
-                msg.setMessageDataSource(payload);
-                msg.setAlreadyRead(true);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-        }
-        return getBValues(result);
+        return RequestResponseUtil.getStringPayload(context, this, log);
     }
 }

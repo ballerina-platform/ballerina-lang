@@ -12,6 +12,9 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -36,18 +39,9 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         value = "The header value") })
 public class GetHeader extends AbstractNativeFunction {
 
+    private static final Logger log = LoggerFactory.getLogger(GetHeader.class);
+
     public BValue[] execute(Context context) {
-        BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-
-        String headerName = getStringArgument(context, 0);
-        String headerValue = httpCarbonMessage.getHeader(headerName);
-
-//        if (headerValue == null) {
-//            TODO: should NOT handle error for null headers, need to return `ballerina null`
-//            ErrorHandler.handleUndefineHeader(headerName);
-//        }
-        return getBValues(new BString(headerValue));
+        return RequestResponseUtil.getHeader(context, this, log);
     }
 }
