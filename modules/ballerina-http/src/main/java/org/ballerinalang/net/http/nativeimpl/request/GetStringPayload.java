@@ -21,8 +21,8 @@ package org.ballerinalang.net.http.nativeimpl.request;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -30,28 +30,26 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to get payload as String..
  * ballerina.model.messages:getStringPayload
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.lang.messages",
         functionName = "getStringPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http")},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in string format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-                                                                        value = "The current request object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "The message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The string representation of the message payload") })
 public class GetStringPayload extends AbstractNativeFunction {
@@ -60,25 +58,6 @@ public class GetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BString result;
-        try {
-            BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-            if (httpCarbonMessage.isAlreadyRead()) {
-                result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
-            } else {
-                String payload = MessageUtils.getStringFromInputStream(httpCarbonMessage.getInputStream());
-                result = new BString(payload);
-                httpCarbonMessage.setMessageDataSource(new StringDataSource(payload));
-                httpCarbonMessage.setAlreadyRead(true);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.stringValue());
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
-        }
-        return getBValues(result);
+        return RequestResponseUtil.getStringPayload(context, this, log);
     }
 }

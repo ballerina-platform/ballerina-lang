@@ -20,8 +20,13 @@ package org.ballerinalang.net.http.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -33,7 +38,10 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.MapCarbonMessage;
+import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -97,6 +105,131 @@ public class RequestResponseUtil {
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
+        return abstractNativeFunction.getBValues(result);
+    }
+
+    public static BValue[] getHeader(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
+
+        String headerName = abstractNativeFunction.getStringArgument(context, 0);
+        String headerValue = httpCarbonMessage.getHeader(headerName);
+
+//        if (headerValue == null) {
+//            TODO: should NOT handle error for null headers, need to return `ballerina null`
+//            ErrorHandler.handleUndefineHeader(headerName);
+//        }
+        return abstractNativeFunction.getBValues(new BString(headerValue));
+    }
+
+    public static BValue[] getJsonPayload(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+        BJSON result = null;
+        try {
+            // Accessing First Parameter Value.
+            //            BMessage msg = (BMessage) getRefArgument(ctx, 0);
+            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+
+            if (httpCarbonMessage.isAlreadyRead()) {
+                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
+                if (payload instanceof BJSON) {
+                    result = (BJSON) payload;
+                } else {
+                    // else, build the JSON from the string representation of the payload.
+                    result = new BJSON(httpCarbonMessage.getMessageDataSource().getMessageAsString());
+                }
+            } else {
+                result = new BJSON(httpCarbonMessage.getInputStream());
+                httpCarbonMessage.setMessageDataSource(result);
+                httpCarbonMessage.setAlreadyRead(true);
+            }
+        } catch (Throwable e) {
+            //            ErrorHandler.handleJsonException(OPERATION, e);
+        }
+
+        // Setting output value.
+        return abstractNativeFunction.getBValues(result);
+    }
+
+    public static BValue[] getProperty(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+        BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+        String propertyName = abstractNativeFunction.getStringArgument(context, 0);
+
+        Object propertyValue = msg.getProperty(propertyName);
+
+        if (propertyValue == null) {
+            return AbstractNativeFunction.VOID_RETURN;
+        }
+
+        if (propertyValue instanceof String) {
+            return abstractNativeFunction.getBValues(new BString((String) propertyValue));
+        } else {
+            throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
+        }
+    }
+
+    public static BValue[] getStringPayload(Context context, AbstractNativeFunction abstractNativeFunction,
+            Logger log) {
+        BString result;
+        try {
+            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+            if (msg.isAlreadyRead()) {
+                result = new BString(msg.getMessageDataSource().getMessageAsString());
+            } else {
+                String payload = MessageUtils.getStringFromInputStream(msg.value().getInputStream());
+                result = new BString(payload);
+                msg.setMessageDataSource(payload);
+                msg.setAlreadyRead(true);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Payload in String:" + result.stringValue());
+            }
+        } catch (Throwable e) {
+            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
+        }
+        return abstractNativeFunction.getBValues(result);
+    }
+
+    public static BValue[] getXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+        BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+        CarbonMessage carbonMessage = msg.value();
+        String mapKey = abstractNativeFunction.getStringArgument(context, 0);
+        String mapValue = null;
+        if (carbonMessage instanceof MapCarbonMessage) {
+            mapValue = ((MapCarbonMessage) carbonMessage).getValue(mapKey);
+        }
+        if (mapValue == null) {
+            throw new BallerinaException("Given property " + mapKey + " is not found in the Map message");
+        }
+        return abstractNativeFunction.getBValues(new BString(mapValue));
+    }
+
+    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction, Logger log) {
+        BXML result = null;
+        try {
+            // Accessing First Parameter Value.
+            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+
+            if (msg.isAlreadyRead()) {
+                MessageDataSource payload = msg.getMessageDataSource();
+                if (payload instanceof BXML) {
+                    // if the payload is already xml, return it as it is.
+                    result = (BXML) payload;
+                } else {
+                    // else, build the xml from the string representation of the payload.
+                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
+                }
+            } else {
+                result = XMLUtils.parse(msg.value().getInputStream());
+                msg.setMessageDataSource(result);
+                msg.setAlreadyRead(true);
+            }
+        } catch (Throwable e) {
+            //            ErrorHandler.handleJsonException(OPERATION, e);
+        }
+        // Setting output value.
         return abstractNativeFunction.getBValues(result);
     }
 
