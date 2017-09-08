@@ -44,15 +44,17 @@ public class BConsoleLogHandler extends BLogHandler {
         Date date = new Date(logRecord.getTimestamp());
         String level = logRecord.getLevel().name();
         String msg = logRecord.getMessage();
-        String location = logRecord.getLocation();
-        String lineNumber = logRecord.getLineNumber();
+        String packageName = logRecord.getPackageName();
+        String callableUnitName = logRecord.getCallableUnitName();
+        String fileName = logRecord.getFileName();
+        int lineNumber = logRecord.getLineNumber();
         String workerName = logRecord.getWorkerName();
         String error = logRecord.getError() != null ? logRecord.getError() : "";
 
         return logMsgBuilder
                 .append(String.format("%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL", date)).append(' ')
-                .append(level).append(" [").append(location).append("] [")
-                .append(lineNumber).append("] [")
+                .append(level).append(" [").append(packageName).append(":").append(callableUnitName).append("] [")
+                .append(fileName).append(":").append(lineNumber).append("] [")
                 .append(workerName).append("] - ")
                 .append('\"').append(msg).append('\"')
                 .append(' ').append(error)

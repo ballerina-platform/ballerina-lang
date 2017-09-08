@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -26,6 +27,7 @@ import org.ballerinalang.services.dispatchers.session.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -50,6 +52,8 @@ public class Context {
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
     private Session currentSession = null;
+    private WorkerInfo workerInfo;
+    private BLangVM bLangVM;
 
     private int startIP;
     private BStruct unhandledError;
@@ -197,5 +201,21 @@ public class Context {
 
     public void setCurrentSession(Session currentSession) {
         this.currentSession = currentSession;
+    }
+
+    public WorkerInfo getWorkerInfo() {
+        return workerInfo;
+    }
+
+    public void setWorkerInfo(WorkerInfo workerInfo) {
+        this.workerInfo = workerInfo;
+    }
+
+    public BLangVM getBLangVM() {
+        return bLangVM;
+    }
+
+    public void setBLangVM(BLangVM bLangVM) {
+        this.bLangVM = bLangVM;
     }
 }

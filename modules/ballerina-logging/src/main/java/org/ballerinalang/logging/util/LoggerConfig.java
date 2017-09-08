@@ -16,31 +16,40 @@
  * under the License.
  */
 
-package org.ballerinalang.logging.handlers;
-
-import org.ballerinalang.logging.BLogRecord;
-import org.ballerinalang.logging.util.BLogLevel;
+package org.ballerinalang.logging.util;
 
 /**
- * Base log handler class for Ballerina log API
+ * A POJO for holding logger config info from the log.yml file
  *
  * @since 0.94
  */
-public abstract class BLogHandler {
+public class LoggerConfig {
 
-    protected BLogLevel level;
+    private String name;
+    private String logLevel;
+    private String logFormat;
 
-    public BLogHandler() {
-        this.level = BLogLevel.ALL; // By default, allow any log record to be logged
+    public String getName() {
+        return name;
     }
 
-    public abstract void publish(BLogRecord logRecord);
-
-    protected boolean isLoggable(BLogLevel level) {
-        return this.level.value() <= level.value() ? true : false;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public BLogLevel getLogLevel() {
-        return level;
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
+    }
+
+    public String getLogFormat() {
+        return logFormat;
+    }
+
+    public void setLogFormat(String logFormat) {
+        this.logFormat = logFormat;
     }
 }

@@ -29,8 +29,10 @@ public class BLogRecord {
 
     private long timestamp;
     private BLogLevel level;
-    private String location;
-    private String lineNumber;
+    private String packageName;
+    private String callableUnitName;
+    private int lineNumber;
+    private String fileName;
     private String workerName;
     private String msg;
     private String error;
@@ -38,6 +40,7 @@ public class BLogRecord {
     public BLogRecord(BLogLevel level, String msg) {
         this.level = level;
         this.msg = msg;
+        this.timestamp = System.currentTimeMillis();
     }
 
     public long getTimestamp() {
@@ -52,20 +55,36 @@ public class BLogRecord {
         return level;
     }
 
-    public String getLocation() {
-        return location;
+    public String getPackageName() {
+        return packageName;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
-    public String getLineNumber() {
+    public String getCallableUnitName() {
+        return callableUnitName;
+    }
+
+    public void setCallableUnitName(String callableUnitName) {
+        this.callableUnitName = callableUnitName;
+    }
+
+    public int getLineNumber() {
         return lineNumber;
     }
 
-    public void setLineNumber(String lineNumber) {
+    public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getWorkerName() {

@@ -32,7 +32,7 @@ public enum BLogLevel {
         this.levelValue = levelValue;
     }
 
-    public int getLevelValue() {
+    public int value() {
         return levelValue;
     }
 }

@@ -60,6 +60,7 @@ public class BLangVMWorkers {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+            workerContext.setWorkerInfo(workerInfo);
 
             if (properties != null) {
                 properties.forEach((property, value) -> workerContext.setProperty(property, value));

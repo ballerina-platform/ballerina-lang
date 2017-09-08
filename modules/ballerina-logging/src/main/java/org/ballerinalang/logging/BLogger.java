@@ -21,6 +21,10 @@ package org.ballerinalang.logging;
 import org.ballerinalang.logging.handlers.BConsoleLogHandler;
 import org.ballerinalang.logging.handlers.BLogHandler;
 import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.logging.util.BLogLevelMapper;
+import org.ballerinalang.logging.util.Constants;
+
+import java.util.logging.LogManager;
 
 /**
  * Logger for the Ballerina log API
@@ -29,46 +33,21 @@ import org.ballerinalang.logging.util.BLogLevel;
  */
 public class BLogger {
 
-    private BLogLevel level;
+    private BLogLevel level; // system log level
     private String name;
     private BLogHandler logHandler;
-
-    public BLogger(BLogLevel level, String name) {
-        this.level = level;
-        this.name = name;
-    }
+    private BLogManager logManager;
 
     public BLogger(String name) {
         this.name = name;
         this.logHandler = new BConsoleLogHandler();
-
-        String logLevel = System.getProperty("log.level");
-        if(logLevel != null) {
-            this.level = BLogLevel.valueOf(logLevel);
-        } else {
-            this.level = BLogLevel.INFO; // Default log level: INFO
-        }
+        this.logManager = (BLogManager)BLogManager.getLogManager();
     }
 
-    public void log(BLogLevel level, String msg, LogContext logCtx) {
-        if (!isLoggable(level)) {
+    public void log(BLogRecord logRecord) {
+        if (!isLoggable(logRecord.getLevel(), logRecord.getPackageName())) {
             return;
         }
-
-        log(level, msg, null, logCtx);
-    }
-
-    public void log(BLogLevel level, String msg, String error, LogContext logCtx) {
-        if (!isLoggable(level)) {
-            return;
-        }
-
-        BLogRecord logRecord = new BLogRecord(level, msg);
-        logRecord.setTimestamp(logCtx.getTimestamp());
-        logRecord.setLocation(logCtx.getPackageName() + ":" + logCtx.getLocation());
-        logRecord.setLineNumber(logCtx.getLineNumber());
-        logRecord.setWorkerName(logCtx.getWorkerName());
-        logRecord.setError(error);
 
         logHandler.publish(logRecord);
     }
@@ -97,7 +76,7 @@ public class BLogger {
         this.logHandler = logHandler;
     }
 
-    private boolean isLoggable(BLogLevel level) {
-        return this.level.getLevelValue() <= level.getLevelValue() ? true : false;
+    private boolean isLoggable(BLogLevel level, String pkg) {
+        return pkg != null && logManager.getPackageLogLevel(pkg).value() <= level.value();
     }
 }

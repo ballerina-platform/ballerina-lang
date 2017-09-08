@@ -27,8 +27,8 @@ import java.util.logging.Level;
  */
 public class BLogLevelMapper {
 
-    public static String getBallerinaLogLevel(Level level) {
-        switch (level.getName()) {
+    public static String getBallerinaLogLevel(String level) {
+        switch (level) {
             case "SEVERE":
                 return "ERROR";
             case "WARNING":
@@ -43,6 +43,35 @@ public class BLogLevelMapper {
                 return "DEBUG";
             case "FINEST":
                 return "TRACE";
+            case "ALL":
+                return "ALL";
+            case "OFF":
+                return "OFF";
+            default:
+                return "<UNDEFINED>";
+        }
+    }
+
+    public static String getBallerinaLogLevel(Level level) {
+        return getBallerinaLogLevel(level.getName());
+    }
+
+    public static String getJDKLogLevel(String level) {
+        switch (level) {
+            case "ERROR":
+                return "SEVERE";
+            case "WARN":
+                return "WARNING";
+            case "INFO":
+                return "INFO";
+            case "DEBUG":
+                return "FINE";
+            case "TRACE":
+                return "FINEST";
+            case "ALL":
+                return "ALL";
+            case "OFF":
+                return "OFF";
             default:
                 return "<UNDEFINED>";
         }

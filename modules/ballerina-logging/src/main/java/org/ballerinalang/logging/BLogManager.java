@@ -18,12 +18,23 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.logging.util.BLogLevelMapper;
+import org.ballerinalang.logging.util.ConfigMapper;
+import org.ballerinalang.logging.util.Constants;
+import org.ballerinalang.logging.util.LogConfiguration;
+import org.ballerinalang.logging.util.LoggerConfig;
+import org.ballerinalang.logging.util.PackageConfig;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -52,16 +63,38 @@ public class BLogManager extends LogManager {
 
     private Logger httpTraceLogger;
 
+    private HashMap<String, BLogLevel> logLevelMap = new HashMap<>();
+
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
-        Properties properties = new Properties();
-        properties.load(ins);
-        properties.forEach((k, v) -> {
-            String val = substituteVariables((String) v);
-            properties.setProperty((String) k, val);
-        });
+        Properties defaultConfigs = getDefaultConfiguration();
+        readConfigFile(ins, defaultConfigs);
 
-        super.readConfiguration(propertiesToInputStream(properties));
+        super.readConfiguration(propertiesToInputStream(defaultConfigs));
+    }
+
+    private void readConfigFile(InputStream in, Properties properties) {
+        Yaml configFile = new Yaml();
+        LogConfiguration configuration = configFile.loadAs(in, LogConfiguration.class);
+
+        List<LoggerConfig> loggers = configuration.getLoggers();
+        if (loggers != null) {
+            loggers.forEach(l -> {
+                String name = ConfigMapper.mapConfiguration(l.getName());
+                properties.setProperty(name + ".level", BLogLevelMapper.getJDKLogLevel(l.getLogLevel()));
+                properties.setProperty(name + ".format", BLogLevelMapper.getJDKLogLevel(l.getLogFormat()));
+            });
+        }
+
+        List<PackageConfig> packages = configuration.getPackages();
+        if (packages != null) {
+            packages.forEach(p -> logLevelMap.put(p.getName(), BLogLevel.valueOf(p.getLogLevel())));
+        }
+    }
+
+    public BLogLevel getPackageLogLevel(String pkg) {
+        BLogLevel level = logLevelMap.get(pkg);
+        return level != null ? level : BLogLevel.valueOf(this.getProperty(Constants.BALLERINA_LEVEL));
     }
 
     public void setHttpTraceLogHandler() throws IOException {
@@ -128,5 +161,28 @@ public class BLogManager extends LogManager {
                 outputStream.close();
             }
         }
+    }
+
+    private Properties getDefaultConfiguration() {
+        Properties properties = new Properties();
+
+        // Configurations for BRE log
+        properties.setProperty(Constants.BRELOG_FILE_HANDLER_LEVEL, Level.WARNING.getName());
+        properties.setProperty(Constants.BRELOG_FILE_HANDLER_PATTERN,
+                               System.getProperty("ballerina.home") + File.separator + "logs" + File.separator +
+                                       "bre.log");
+        properties.setProperty(Constants.BRELOG_FILE_HANDLER_LIMIT, String.valueOf(1000000));
+        properties.setProperty(Constants.BRELOG_FILE_HANDLER_APPEND, "true");
+        properties.setProperty(Constants.BRELOG_FILE_HANDLER_FORMATTER, Constants.DEFAULT_LOG_FORMATTER);
+        properties.setProperty(Constants.DEFAULT_LOG_FORMATTER_FORMAT, Constants.DEFAULT_LOG_FORMAT);
+
+        // Configurations for HTTP trace log
+        properties.setProperty(Constants.HTTP_TRACELOG_FORMATTER_FORMAT, Constants.HTTP_TRACELOG_FORMAT);
+
+        // Root logger configurations
+        properties.setProperty(Constants.HANDLERS, Constants.BRELOG_FILE_HANDLER);
+        properties.setProperty(Constants.LEVEL, Level.WARNING.getName());
+
+        return properties;
     }
 }
