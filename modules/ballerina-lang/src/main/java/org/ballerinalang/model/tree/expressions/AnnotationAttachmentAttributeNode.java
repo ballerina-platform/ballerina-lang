@@ -15,37 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util;
-
-import org.ballerinalang.util.diagnostic.Diagnostic;
+package org.ballerinalang.model.tree.expressions;
 
 /**
  * @since 0.94
  */
-public class BDiagnostic implements Diagnostic {
+public interface AnnotationAttachmentAttributeNode extends ExpressionNode {
 
-    public Kind kind;
-    public BDiagnosticSource source;
-    public DiagnosticPos pos;
-    public String msg;
+    String getName();
 
-    @Override
-    public Kind getKind() {
-        return kind;
-    }
+    void setName(String name);
 
-    @Override
-    public DiagnosticSource getSource() {
-        return source;
-    }
+    AnnotationAttachmentAttributeValueNode getValue();
 
-    @Override
-    public DiagnosticPosition getPosition() {
-        return pos;
-    }
-
-    @Override
-    public String getMessage() {
-        return msg;
-    }
+    void setValue(AnnotationAttachmentAttributeValueNode value);
 }

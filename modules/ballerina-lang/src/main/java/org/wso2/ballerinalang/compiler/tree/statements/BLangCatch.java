@@ -30,6 +30,9 @@ public class BLangCatch extends BLangNode implements CatchNode {
     public BLangVariable param;
     public BLangBlockStmt body;
 
+    public BLangCatch() {
+    }
+
     public BLangCatch(BLangVariable param, BLangBlockStmt body) {
         this.param = param;
         this.body = body;
@@ -53,5 +56,10 @@ public class BLangCatch extends BLangNode implements CatchNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.CATCH;
+    }
+
+    @Override
+    public String toString() {
+        return NodeKind.CATCH + "(" + String.valueOf(param) + "){" + String.valueOf(body) + "}";
     }
 }

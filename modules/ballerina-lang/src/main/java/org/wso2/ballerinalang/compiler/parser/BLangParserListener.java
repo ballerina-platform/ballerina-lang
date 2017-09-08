@@ -26,10 +26,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
-import org.wso2.ballerinalang.compiler.util.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     
     @Override 
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
-        this.pkgBuilder.addVar(ctx.Identifier().getText(), false);
+        this.pkgBuilder.addVar(getCurrentPos(ctx), ctx.Identifier().getText(),
+                false, ctx.annotationAttachment().size());
     }
     
     /**
@@ -139,48 +139,74 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitDefinition(BallerinaParser.DefinitionContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) { }
+    @Override
+    public void enterServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
+        this.pkgBuilder.startServiceDef();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) { }
+    @Override
+    public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
+        this.pkgBuilder.endServiceDef(ctx.Identifier(0).getText(), ctx.Identifier(1).getText());
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterServiceBody(BallerinaParser.ServiceBodyContext ctx) { }
+    @Override
+    public void enterServiceBody(BallerinaParser.ServiceBodyContext ctx) {
+        this.pkgBuilder.startBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitServiceBody(BallerinaParser.ServiceBodyContext ctx) { }
+    @Override
+    public void exitServiceBody(BallerinaParser.ServiceBodyContext ctx) {
+        this.pkgBuilder.addServiceBody();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) { }
+    @Override
+    public void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
+        this.pkgBuilder.startResourceDef();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) { }
+    @Override
+    public void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
+        this.pkgBuilder.endResourceDef(ctx.Identifier().getText(), ctx.annotationAttachment().size());
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { 
+    @Override
+    public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
         this.pkgBuilder.startBlock();
     }
     
@@ -199,17 +225,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { 
+    @Override
+    public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         this.pkgBuilder.startFunctionDef();
     }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
+    @Override
+    public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         this.pkgBuilder.endFunctionDef();
     }
+
     /**
      * {@inheritDoc}
      *
@@ -256,7 +286,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { 
-        this.pkgBuilder.endConnectorDef(ctx.Identifier().getText());
+        this.pkgBuilder.endConnectorDef(getCurrentPos(ctx), ctx.Identifier().getText());
     }
     
     /**
@@ -286,17 +316,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { 
         this.pkgBuilder.startActionDef();
     }
-    
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override 
-    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { 
-        this.pkgBuilder.endActionDef();
+    @Override
+    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
+        this.pkgBuilder.endActionDef(ctx.annotationAttachment().size());
     }
-    
+
     /**
      * {@inheritDoc}
      *
@@ -313,7 +343,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { 
-        this.pkgBuilder.endStructDef(ctx.Identifier().getText());
+        this.pkgBuilder.endStructDef(getCurrentPos(ctx), ctx.Identifier().getText());
     }
     
     /**
@@ -687,7 +717,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) { }
+    public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
+        this.pkgBuilder.setAnnotationAttachmentName(ctx.nameReference().getText());
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -715,7 +748,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
         String attrName = ctx.Identifier().getText();
-        this.pkgBuilder.createAnnotationKeyValue(attrName, getCurrentPos(ctx));
+        this.pkgBuilder.createAnnotAttachmentAttribute(attrName, getCurrentPos(ctx));
     }
 
     /**
@@ -805,8 +838,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { 
-        this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText());
+    @Override
+    public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
+        this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText(), ctx.ASSIGN() != null);
     }
 
     @Override
@@ -824,7 +858,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addKeyValueRecord();
     }
 
-    @Override public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
+    @Override
+    public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
         boolean argsAvailable = ctx.expressionList() != null;
         this.pkgBuilder.addArrayInitExpr(getCurrentPos(ctx), argsAvailable);
     }
@@ -870,7 +905,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { 
-        log("assignmentStatement");
     }
     /**
      * {@inheritDoc}
@@ -900,49 +934,80 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) { }
+    @Override
+    public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
+        this.pkgBuilder.startIfElseNode();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) { }
+    @Override
+    public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
+        this.pkgBuilder.endIfElseNode();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterIfClause(BallerinaParser.IfClauseContext ctx) { }
+    @Override
+    public void enterIfClause(BallerinaParser.IfClauseContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitIfClause(BallerinaParser.IfClauseContext ctx) { }
+    @Override
+    public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
+        this.pkgBuilder.addIfBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) { }
+    @Override
+    public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
+        // else-if clause is also modeled as an if-else statement
+        this.pkgBuilder.startIfElseNode();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) { }
+    @Override
+    public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
+        this.pkgBuilder.addElseIfBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterElseClause(BallerinaParser.ElseClauseContext ctx) { }
+    @Override
+    public void enterElseClause(BallerinaParser.ElseClauseContext ctx) {
+        this.pkgBuilder.startBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitElseClause(BallerinaParser.ElseClauseContext ctx) { }
+    @Override
+    public void exitElseClause(BallerinaParser.ElseClauseContext ctx) {
+        this.pkgBuilder.addElseBlock();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1051,66 +1116,47 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterThrowStatement(BallerinaParser.ThrowStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) { }
+
+    @Override
+    public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
+        this.pkgBuilder.startTryCatchFinallyStmt();
+    }
+
+    @Override
+    public void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
+        this.pkgBuilder.addTryCatchFinallyStmt(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) {
+        this.pkgBuilder.addTryClause(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) {
+        this.pkgBuilder.startCatchClause();
+    }
+
+    @Override
+    public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) {
+        String paramName = ctx.Identifier().getText();
+        this.pkgBuilder.addCatchClause(getCurrentPos(ctx), paramName);
+    }
+
+    @Override
+    public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        this.pkgBuilder.startFinallyBlock();
+    }
+
+    @Override
+    public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        this.pkgBuilder.addFinallyBlock(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) {
+        this.pkgBuilder.addThrowStmt(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1215,8 +1261,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
-        boolean argsAvailable = ctx.expressionList() != null;
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), argsAvailable);
+        boolean argsAvailable = ctx.functionInvocation().expressionList() != null;
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), argsAvailable);
     }
 
     @Override
@@ -1230,6 +1276,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createIndexBasedAccessNode(getCurrentPos(ctx));
     }
 
+    @Override
+    public void exitInvocationReference(BallerinaParser.InvocationReferenceContext ctx) {
+        boolean argsAvailable = ctx.invocation().expressionList() != null;
+        String invocation = ctx.invocation().Identifier().getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), invocation, argsAvailable);
+    }
+
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         this.pkgBuilder.startExprNodeList();
     }
@@ -1238,36 +1291,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
         this.pkgBuilder.endExprNodeList(ctx.getChildCount() / 2 + 1);
     }
+
+    @Override
+    public void exitExpressionStmt(BallerinaParser.ExpressionStmtContext ctx) {
+        this.pkgBuilder.addExpressionStmt(getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) { }
+    @Override public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        this.pkgBuilder.startTransactionStmt();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) { }
+    @Override public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
+        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
+    @Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1279,37 +1332,49 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+    @Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        this.pkgBuilder.startFailedBlock();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+    @Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+        this.pkgBuilder.addFailedBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
+    @Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        this.pkgBuilder.startAbortedBlock();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
+    @Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        this.pkgBuilder.addAbortedBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
+    @Override public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        this.pkgBuilder.startCommittedBlock();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
+    @Override public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        this.pkgBuilder.addCommittedBlock(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1335,7 +1400,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
+    @Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
+        this.pkgBuilder.addRetrytmt();
+    }
 
     /**
      * {@inheritDoc}
@@ -1543,7 +1610,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override 
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { 
-        this.pkgBuilder.addVar(ctx.Identifier().getText(), ctx.simpleLiteral() != null);
+        this.pkgBuilder.addVar(getCurrentPos(ctx), ctx.Identifier().getText(),
+                ctx.simpleLiteral() != null, 0);
     }
     
     /**
@@ -1816,11 +1884,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override public void visitErrorNode(ErrorNode node) { }
     
-    private void log(Object value) {
-        PrintStream writer = System.out;
-        writer.println(value);
-    }
-
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine();

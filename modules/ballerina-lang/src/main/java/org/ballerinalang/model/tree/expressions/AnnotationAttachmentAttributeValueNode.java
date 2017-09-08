@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface AnnotationAttributeValueNode extends ExpressionNode {
+public interface AnnotationAttachmentAttributeValueNode extends ExpressionNode {
 
     Node getValue();
 
-    List<AnnotationAttributeValueNode> getValueArray();
+    List<AnnotationAttachmentAttributeValueNode> getValueArray();
 
     void setValue(Node value);
 
-    void addValue(AnnotationAttributeValueNode value);
+    void addValue(AnnotationAttachmentAttributeValueNode value);
 }

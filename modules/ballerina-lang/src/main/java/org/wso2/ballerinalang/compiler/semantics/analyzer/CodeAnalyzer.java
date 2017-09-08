@@ -34,9 +34,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.util.BDiagnostic;
-import org.wso2.ballerinalang.compiler.util.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
 /**
  * This represents the code analyzing pass of semantic analysis. 
@@ -158,8 +158,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIf ifStmt) {
         boolean originalDeadCode = this.deadCode;
         this.checkStatementExecutionValidity(ifStmt);
-        boolean ifTrue = this.isBooleanTrue(ifStmt.expr);
-        boolean ifFalse = this.isBooleanFalse(ifStmt.expr);
+        boolean ifTrue = this.isBooleanTrue(ifStmt.condition);
+        boolean ifFalse = this.isBooleanFalse(ifStmt.condition);
         boolean extendedDeadCode = false;
         if (ifFalse) {
             this.deadCode = true;

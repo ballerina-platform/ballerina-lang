@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,18 +27,27 @@ import java.util.Map;
 public class CompilerContext {
 
     private Map<Key<?>, Object> props = new HashMap<>();
+    private Map<Class<?>, Object> objects = new HashMap<>();
 
     public CompilerContext() {
     }
 
     public <V> void put(Key<V> key, V value) {
-        // TODO Check for duplicates
         props.put(key, value);
     }
 
     @SuppressWarnings("unchecked")
     public <V> V get(Key<V> key) {
         return (V) props.get(key);
+    }
+
+    public <V> void put(Class<V> clazz, V value) {
+        objects.put(clazz, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <V> V get(Class<V> clazz) {
+        return (V) objects.get(clazz);
     }
 
     /**

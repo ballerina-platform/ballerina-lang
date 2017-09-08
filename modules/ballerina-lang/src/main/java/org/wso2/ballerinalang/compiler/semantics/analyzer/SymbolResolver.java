@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -35,6 +36,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -47,9 +50,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolTable symTable;
     private Names names;
+    private DiagnosticLog dlog;
 
     private SymbolEnv env;
-    private BType result;
+    private BType resultType;
     private String errMsgKey;
 
     public static SymbolResolver getInstance(CompilerContext context) {
@@ -66,24 +70,25 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
+        this.dlog = DiagnosticLog.getInstance(context);
     }
 
 
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
-        visitBuiltInTypeNode(names.fromTypeKind(valueTypeNode.typeKind));
+        visitBuiltInTypeNode(valueTypeNode.pos, valueTypeNode.typeKind);
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        visitBuiltInTypeNode(names.fromTypeKind(builtInRefType.typeKind));
+        visitBuiltInTypeNode(builtInRefType.pos, builtInRefType.typeKind);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {
         // The value of the dimensions field should always be >= 1
-        result = resolveTypeNode(arrayTypeNode.elemtype, env, errMsgKey);
+        resultType = resolveTypeNode(arrayTypeNode.elemtype, env, errMsgKey);
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
-            result = new BArrayType(result);
+            resultType = new BArrayType(resultType);
         }
     }
 
@@ -96,9 +101,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
 
-    boolean checkForUniqueSymbol(BSymbol symbol, Scope scope) {
-        if (lookupSymbol(scope, symbol.name, symbol.tag) != null) {
-            // TODO out.println("duplicate symbol detected: " + symbol.name);
+    boolean checkForUniqueSymbol(DiagnosticPos pos, BSymbol symbol, Scope scope) {
+        if (lookupSymbol(scope, symbol.name, symbol.tag) != symTable.notFoundSymbol) {
+            dlog.error(pos, "duplicate.symbol", symbol.name);
             return false;
         }
 
@@ -120,7 +125,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.errMsgKey = preErrMsgKey;
 
-        return result;
+        return resultType;
     }
 
     BSymbol lookupSymbol(Scope scope, Name name, int expSymbolTag) {
@@ -129,15 +134,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (entry.symbol.tag == expSymbolTag) {
                 return entry.symbol;
             }
+            entry = entry.next;
         }
 
-        // TODO return error symbol with error type.
-        return null;
+        return symTable.notFoundSymbol;
     }
 
-    private void visitBuiltInTypeNode(Name name) {
-        BSymbol typeSymbol = lookupSymbol(symTable.rootScope,
-                name, SymbolTags.TYPE);
-        result = typeSymbol.type;
+    private void visitBuiltInTypeNode(DiagnosticPos pos, TypeKind typeKind) {
+        Name typeName = names.fromTypeKind(typeKind);
+        BSymbol typeSymbol = lookupSymbol(symTable.rootScope, typeName, SymbolTags.TYPE);
+        if (typeSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, errMsgKey, typeName);
+        }
+
+        resultType = typeSymbol.type;
     }
 }

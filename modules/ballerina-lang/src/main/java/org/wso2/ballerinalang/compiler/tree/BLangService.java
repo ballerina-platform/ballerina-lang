@@ -23,8 +23,9 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,7 +39,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     
     public BLangIdentifier name;
     public BLangIdentifier protocolPkgIdentifier;
-    public List<BLangVariable> vars;
+    public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -73,13 +74,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public List<BLangVariable> getVariables() {
+    public List<BLangVariableDef> getVariables() {
         return vars;
     }
     
     @Override
-    public void addVariable(VariableNode var) {
-        this.getVariables().add((BLangVariable) var);
+    public void addVariable(VariableDefinitionNode var) {
+        this.getVariables().add((BLangVariableDef) var);
     }
 
     @Override
@@ -89,7 +90,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     
     @Override
     public void addResource(ResourceNode resource) {
-        this.getResources().add((BLangResource) resource);
+        this.resources.add((BLangResource) resource);
     }
 
     @Override
@@ -120,5 +121,11 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.SERVICE;
+    }
+
+    @Override
+    public String toString() {
+        return "BLangService: " + flags + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
+                + vars + " " + resources;
     }
 }

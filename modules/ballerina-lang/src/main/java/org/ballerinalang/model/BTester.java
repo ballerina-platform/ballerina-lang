@@ -17,16 +17,26 @@
 */
 package org.ballerinalang.model;
 
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+
+import java.io.PrintStream;
 
 /**
  * Tester class.
  */
 public class BTester {
-    
+
+    private static PrintStream out = System.out;
+
     public static void main(String[] args) throws Exception {
-        Compiler.getInstance(new CompilerContext()).compile();
+        CompilerContext context = new CompilerContext();
+        DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());
+        //context.put(DiagnosticListener.class, listener);
+
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile();
     }
 
 }
