@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.math:exp.
+ * Native function ballerina.lang.math:sqrt.
  *
  * @since 0.90
  */

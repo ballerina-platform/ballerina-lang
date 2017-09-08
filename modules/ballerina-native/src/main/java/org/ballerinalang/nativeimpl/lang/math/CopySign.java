@@ -27,15 +27,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.math:pow.
+ * Native function ballerina.lang.math:copySign.
  *
- * @since 0.90
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
         functionName = "copySign",
-        args = {@Argument(name = "a", type = TypeEnum.FLOAT),
-                @Argument(name = "b", type = TypeEnum.FLOAT)},
+        args = {@Argument(name = "magnitude", type = TypeEnum.FLOAT),
+                @Argument(name = "sign", type = TypeEnum.FLOAT)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )

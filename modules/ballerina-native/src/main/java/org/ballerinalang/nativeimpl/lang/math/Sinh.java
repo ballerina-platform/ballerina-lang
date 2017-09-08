@@ -27,9 +27,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.math:exp.
+ * Native function ballerina.lang.math:sinh.
  *
- * @since 0.94
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
