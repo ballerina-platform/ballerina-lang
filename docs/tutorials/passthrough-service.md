@@ -12,6 +12,7 @@ This tutorial consists of the following main sections.
 - [View the Swagger definition for your service](view-the-swagger-definition-for-your-service)
 - [Add a client connector](add-a-client-connector)
 - [Call the client connector](call-the-client-connector)
+- [Extract content from the JSON](extract-content-from-the-json)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). it is also recommended to try to [write your first program](../first-program.md) and [write a main program](../main-program.md) as some concepts are explored in detail in those tutorials.
 
