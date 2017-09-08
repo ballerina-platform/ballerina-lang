@@ -19,8 +19,8 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Ballerina function to set a message property.
@@ -36,17 +37,18 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * ballerina.model.messages:getProperty
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "getProperty",
-        args = {@Argument(name = "msg", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
                 @Argument(name = "propertyName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)}, // TODO: Ballerina only supports string properties ATM
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Retrieve a message property") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "msg",
-        value = "The current message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "The name of the property") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
@@ -55,10 +57,12 @@ public class GetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
+        BStruct requestStruct = (BStruct) getRefArgument(context, 0);
         String propertyName = getStringArgument(context, 0);
 
-        Object propertyValue = msg.getProperty(propertyName);
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
 
         if (propertyValue == null) {
             return VOID_RETURN;

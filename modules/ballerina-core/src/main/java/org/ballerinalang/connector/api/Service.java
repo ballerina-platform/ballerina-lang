@@ -27,5 +27,10 @@ public interface Service {
 
     Annotation getAnnotation(String pkgPath, String name);
 
-    Resource[] getResources();
+    /**
+     * This method will return Resources associated with the service as a array.
+     *
+     * @return resources array.
+     */
+    Resource[]  getResources();
 }

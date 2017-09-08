@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -29,21 +29,23 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.carbon.messaging.MessageDataSource;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Get the payload of the Message as a XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "getXmlPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in XML format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
         value = "The XML representation of the message payload") })
 public class GetXMLPayload extends AbstractNativeFunction {
@@ -55,21 +57,23 @@ public class GetXMLPayload extends AbstractNativeFunction {
         BXML result = null;
         try {
             // Accessing First Parameter Value.
-            BMessage msg = (BMessage) getRefArgument(context, 0);
+            BStruct requestStruct = (BStruct) getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
             
-            if (msg.isAlreadyRead()) {
-                MessageDataSource payload = msg.getMessageDataSource();
+            if (httpCarbonMessage.isAlreadyRead()) {
+                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
                 if (payload instanceof BXML) {
                     // if the payload is already xml, return it as it is.
                     result = (BXML) payload;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
+                    result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                result = XMLUtils.parse(msg.value().getInputStream());
-                msg.setMessageDataSource(result);
-                msg.setAlreadyRead(true);
+                result = XMLUtils.parse(httpCarbonMessage.getInputStream());
+                httpCarbonMessage.setMessageDataSource(result);
+                httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
 //            ErrorHandler.handleJsonException(OPERATION, e);

@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to set given header to carbon message.
@@ -36,17 +37,18 @@ import org.slf4j.LoggerFactory;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http",
         functionName = "setHeader",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the value of a transport header") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The header name") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
@@ -57,11 +59,14 @@ public class SetHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getRefArgument(context, 0);
+        BStruct requestStruct = (BStruct) getRefArgument(context, 0);
         String headerName = getStringArgument(context, 0);
         String headerValue = getStringArgument(context, 1);
-        // Set new header.
-        msg.setHeader(headerName, headerValue);
+
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        httpCarbonMessage.setHeader(headerName, headerValue);
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Set " + headerName + " header with value: " + headerValue);
         }
