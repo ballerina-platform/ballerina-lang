@@ -38,7 +38,7 @@ import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
@@ -58,7 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -131,7 +131,7 @@ public class BLangPackageBuilder {
 
     private Stack<AnnotationNode> annotationStack = new Stack<>();
 
-    private Stack<AnnotationAttributeValueNode> annotAttribValStack = new Stack<>();
+    private Stack<AnnotationAttachmentAttributeValueNode> annotAttribValStack = new Stack<>();
 
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
@@ -679,14 +679,16 @@ public class BLangPackageBuilder {
     }
 
     public void createAnnotationTypeAttributeValue(DiagnosticPos currentPos) {
-        BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        BLangAnnotAttachmentAttributeValue annotAttrVal =
+                (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(annotAttachmentStack.pop());
         annotAttribValStack.push(annotAttrVal);
     }
 
     public void createArrayTypeAttributeValue(DiagnosticPos currentPos) {
-        BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        BLangAnnotAttachmentAttributeValue annotAttrVal =
+                (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         while (!annotAttribValStack.isEmpty()) {
             annotAttrVal.addValue(annotAttribValStack.pop());
@@ -694,12 +696,13 @@ public class BLangPackageBuilder {
         annotAttribValStack.push(annotAttrVal);
     }
 
-    public void createAnnotationKeyValue(String attrName, DiagnosticPos currentPos) {
+    public void createAnnotAttachmentAttribute(String attrName, DiagnosticPos currentPos) {
         annotAttachmentStack.peek().addAttribute(attrName, annotAttribValStack.pop());
     }
 
     private void createAnnotAttribValueFromExpr(DiagnosticPos currentPos) {
-        BLangAnnotAttributeValue annotAttrVal = (BLangAnnotAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        BLangAnnotAttachmentAttributeValue annotAttrVal =
+                (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.setValue(exprNodeStack.pop());
         annotAttribValStack.push(annotAttrVal);

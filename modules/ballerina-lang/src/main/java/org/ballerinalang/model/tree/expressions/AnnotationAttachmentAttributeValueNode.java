@@ -15,23 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.ballerinalang.model.tree.Node;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface AnnotationAttachmentNode extends Node {
+public interface AnnotationAttachmentAttributeValueNode extends ExpressionNode {
 
-    IdentifierNode getAnnotationName();
+    Node getValue();
 
-    void setAnnotationName(IdentifierNode name);
+    List<AnnotationAttachmentAttributeValueNode> getValueArray();
 
-    List<AnnotationAttachmentAttributeNode> geAttributes();
+    void setValue(Node value);
 
-    void addAttribute(String attrName, AnnotationAttachmentAttributeValueNode value);
+    void addValue(AnnotationAttachmentAttributeValueNode value);
 }

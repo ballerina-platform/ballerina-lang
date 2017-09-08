@@ -17,20 +17,16 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.Node;
-
-import java.util.List;
-
 /**
  * @since 0.94
  */
-public interface AnnotationAttributeValueNode extends ExpressionNode {
+public interface AnnotationAttachmentAttributeNode extends ExpressionNode {
 
-    Node getValue();
+    String getName();
 
-    List<AnnotationAttributeValueNode> getValueArray();
+    void setName(String name);
 
-    void setValue(Node value);
+    AnnotationAttachmentAttributeValueNode getValue();
 
-    void addValue(AnnotationAttributeValueNode value);
+    void setValue(AnnotationAttachmentAttributeValueNode value);
 }

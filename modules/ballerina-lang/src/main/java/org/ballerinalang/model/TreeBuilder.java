@@ -33,7 +33,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
@@ -75,7 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -257,8 +257,8 @@ public class TreeBuilder {
         return new BLangAnnotAttribute();
     }
 
-    public static AnnotationAttributeValueNode createAnnotAttributeValueNode() {
-        return new BLangAnnotAttributeValue();
+    public static AnnotationAttachmentAttributeValueNode createAnnotAttributeValueNode() {
+        return new BLangAnnotAttachmentAttributeValue();
     }
 
     public static AnnotationAttachmentNode createAnnotAttachmentNode() {

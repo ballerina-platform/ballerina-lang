@@ -748,7 +748,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
         String attrName = ctx.Identifier().getText();
-        this.pkgBuilder.createAnnotationKeyValue(attrName, getCurrentPos(ctx));
+        this.pkgBuilder.createAnnotAttachmentAttribute(attrName, getCurrentPos(ctx));
     }
 
     /**
