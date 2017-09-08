@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util;
+package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
 

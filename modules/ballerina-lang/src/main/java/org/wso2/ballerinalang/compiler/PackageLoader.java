@@ -75,7 +75,7 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.packages = new HashMap<>();
 
-        Path sourceRoot = Paths.get("/home/laf/Desktop/test");
+        Path sourceRoot = Paths.get("/Users/sameera/rewrite-compiler/bal");
         this.programRepo = loadFSProgramRepository(sourceRoot);
     }
 

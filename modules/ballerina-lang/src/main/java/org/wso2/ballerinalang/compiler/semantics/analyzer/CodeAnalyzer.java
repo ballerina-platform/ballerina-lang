@@ -34,8 +34,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.util.BDiagnostic;
-import org.wso2.ballerinalang.compiler.util.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
