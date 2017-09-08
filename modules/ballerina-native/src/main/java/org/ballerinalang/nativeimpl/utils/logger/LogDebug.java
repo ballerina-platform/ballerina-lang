@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.BLogRecord;
 import org.ballerinalang.logging.BLogger;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -50,7 +50,8 @@ public class LogDebug extends AbstractLogFunction {
     private static final BLogger logger = new BLogger(LogDebug.class.getCanonicalName());
 
     public BValue[] execute(Context ctx) {
-        logger.log(BLogLevel.DEBUG, getRefArgument(ctx, 0).stringValue(), prepareLogContext(ctx));
+        BLogRecord logRecord = createLogRecord(ctx, BLogLevel.DEBUG);
+        logger.log(logRecord);
         return VOID_RETURN;
     }
 }

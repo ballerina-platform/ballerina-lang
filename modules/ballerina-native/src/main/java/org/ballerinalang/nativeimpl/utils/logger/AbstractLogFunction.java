@@ -20,7 +20,10 @@ package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.BLogRecord;
 import org.ballerinalang.logging.LogContext;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -36,35 +39,54 @@ import org.ballerinalang.util.codegen.WorkerInfo;
  */
 public abstract class AbstractLogFunction extends AbstractNativeFunction {
 
-    protected LogContext prepareLogContext(Context ctx) {
-        long timestamp = System.currentTimeMillis();
+    protected BLogRecord createLogRecord(Context ctx, BLogLevel level) {
         StackFrame stackFrame = ctx.getControlStackNew().getStack()[ctx.getControlStackNew().fp - 1];
         CallableUnitInfo callableUnitInfo = stackFrame.getCallableUnitInfo();
 
         String packageName = callableUnitInfo.getPackageInfo().getPkgPath();
 
-        String location = "";
+        String callableUnitName = "";
         if (callableUnitInfo instanceof FunctionInfo || callableUnitInfo instanceof ActionInfo) {
-            location = callableUnitInfo.getName();
+            callableUnitName = callableUnitInfo.getName();
         } else if (callableUnitInfo instanceof ResourceInfo) {
-            location = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + "." + callableUnitInfo.getName();
+            callableUnitName = ctx.getServiceInfo().getName() + "." + callableUnitInfo.getName();
         }
 
         WorkerInfo workerInfo = ctx.getWorkerInfo();
         String workerName = workerInfo != null ? workerInfo.getWorkerName() : "default";
 
-        StringBuilder lineNumber = new StringBuilder();
-        LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(
-                ctx.getBLangVM().getCurrentIP() - 1);
-        lineNumber.append(lineNumberInfo.getFileName()).append(':').append(lineNumberInfo.getLineNumber());
+        LineNumberInfo lineNumberInfo =
+                callableUnitInfo.getPackageInfo().getLineNumberInfo(ctx.getBLangVM().getCurrentIP() - 1);
+        String fileName = lineNumberInfo.getFileName();
+        int lineNumber = lineNumberInfo.getLineNumber();
 
-        LogContext logCtx = new LogContext();
-        logCtx.setLocation(location);
-        logCtx.setPackageName(packageName);
-        logCtx.setWorkerName(workerName);
-        logCtx.setLineNumber(lineNumber.toString());
-        logCtx.setTimestamp(timestamp);
+//        LogContext logCtx = new LogContext();
+//        logCtx.setLocation(callableUnitName);
+//        logCtx.setPackageName(packageName);
+//        logCtx.setWorkerName(workerName);
+//        logCtx.setLineNumber(String.valueOf(lineNumber));
+//        logCtx.setTimestamp(timestamp);
 
-        return logCtx;
+        BLogRecord logRecord = new BLogRecord(level, getRefArgument(ctx, 0).stringValue());
+        logRecord.setPackageName(packageName);
+        logRecord.setCallableUnitName(callableUnitName);
+        logRecord.setFileName(fileName);
+        logRecord.setLineNumber(lineNumber);
+        logRecord.setWorkerName(workerName);
+
+        return logRecord;
+    }
+
+    protected boolean isLoggable(BLogLevel level, String pkg) {
+//        BLogManager logManager = (BLogManager) BLogManager.getLogManager();
+//        String property = pkg + ".level";
+//
+//        if(logManager.getProperty(property) != null) {
+//            return level.value() >=  logManager.getProperty(property)).intValue();
+//        } else {
+//            // If no package level configs are set, use the Ballerina root log level
+//            return level.value() >= BLogLevel.parse(logManager.getProperty(Constants.BALLERINA_LEVEL)).intValue();
+//        }
+        return true;
     }
 }
