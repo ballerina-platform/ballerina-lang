@@ -18,24 +18,41 @@
 package org.ballerinalang.compiler;
 
 /**
- * List of all available command-line options.
- *
  * @since 0.94
  */
-public enum CompilerOptionName {
+public enum CompilerPhase {
 
-    SOURCE_ROOT("-sourceroot"),
+    DEFINE("define"),
 
-    COMPILER_PHASE("compilerPhase");
+    TYPE_CHECK("typeCheck"),
 
-    public final String name;
+    CODE_ANALYZE("codeAnalyze"),
 
-    CompilerOptionName(String name) {
-        this.name = name;
+    CODE_GEN("codeGen");
+
+    private String value;
+
+    CompilerPhase(String value) {
+        this.value = value;
+    }
+
+    public static CompilerPhase fromValue(String value) {
+        switch (value) {
+            case "define":
+                return DEFINE;
+            case "typeCheck":
+                return TYPE_CHECK;
+            case "codeAnalyze":
+                return CODE_ANALYZE;
+            case "codeGen":
+                return CODE_GEN;
+            default:
+                throw new IllegalArgumentException("invalid compiler phase: " + value);
+        }
     }
 
     @Override
     public String toString() {
-        return name;
+        return value;
     }
 }

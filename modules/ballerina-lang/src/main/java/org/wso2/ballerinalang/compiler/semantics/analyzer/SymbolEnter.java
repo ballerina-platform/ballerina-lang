@@ -130,7 +130,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
 
-        //definePackageLevelVariables
+        // TODO Define package level variables
     }
 
     public void visit(BLangImportPackage importPkgNode) {

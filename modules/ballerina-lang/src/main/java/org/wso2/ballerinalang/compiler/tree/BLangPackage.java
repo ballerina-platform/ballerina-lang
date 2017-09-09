@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -51,6 +52,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangAnnotation> annotations;
 
     public BPackageSymbol symbol;
+    public List<TopLevelNode> topLevelNodes;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
@@ -62,6 +64,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.annotations = new ArrayList<>();
+
+        this.topLevelNodes = new ArrayList<>();
     }
 
     @Override
@@ -127,36 +131,43 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl) {
         this.xmlnsList.add((BLangXMLNS) xmlnsDecl);
+        this.topLevelNodes.add(xmlnsDecl);
     }
 
     @Override
     public void addGlobalVariable(VariableNode globalVar) {
         this.globalVars.add((BLangVariable) globalVar);
+        this.topLevelNodes.add(globalVar);
     }
 
     @Override
     public void addService(ServiceNode service) {
         this.services.add((BLangService) service);
+        this.topLevelNodes.add(service);
     }
 
     @Override
     public void addConnector(ConnectorNode connector) {
         this.connectors.add((BLangConnector) connector);
+        this.topLevelNodes.add(connector);
     }
 
     @Override
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
+        this.topLevelNodes.add(function);
     }
 
     @Override
     public void addStruct(StructNode struct) {
         this.structs.add((BLangStruct) struct);
+        this.topLevelNodes.add(struct);
     }
 
     @Override
-    public void addAnnotation(AnnotatableNode annotation) {
+    public void addAnnotation(AnnotationNode annotation) {
         this.annotations.add((BLangAnnotation) annotation);
+        this.topLevelNodes.add(annotation);
     }
 
     @Override

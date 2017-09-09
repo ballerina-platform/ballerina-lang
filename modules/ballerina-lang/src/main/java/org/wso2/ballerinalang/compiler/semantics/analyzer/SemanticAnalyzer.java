@@ -20,9 +20,13 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -62,6 +66,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
     }
+
+    public BLangPackage analyze(BLangPackage pkgNode) {
+        pkgNode.accept(this);
+        return pkgNode;
+    }
+
+    // Visitor methods
+
+    public void visit(BLangPackage pkgNode) {
+        // First visit all the imported packages
+
+        // Then visit each top-level element sorted using the compilation unit
+        pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+    }
+
+    public void visit(BLangImportPackage importPkgNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLNS xmlnsNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFunction funcNode) {
+        throw new AssertionError();
+    }
+
 
     BType analyzeStmtNode(BLangStatement stmtNode) {
         return null;

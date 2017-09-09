@@ -77,7 +77,7 @@ public class PackageLoader {
         loadPackageRepository(context);
     }
 
-    public BPackageSymbol loadEntryPackage(String sourcePkg) {
+    public BLangPackage loadEntryPackage(String sourcePkg) {
         // TODO Implement the support for loading a source package
         BLangIdentifier version = new BLangIdentifier();
         version.setValue("0.0.0");
@@ -85,18 +85,20 @@ public class PackageLoader {
         PackageEntity pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         log("* Package Entity: " + pkgEntity);
 
-        BPackageSymbol pSymbol;
+        BLangPackage pkgNode;
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
-            BLangPackage pkgNode = this.sourceCompile((PackageSource) pkgEntity);
+            pkgNode = this.sourceCompile((PackageSource) pkgEntity);
 
-            pSymbol = symbolEnter.definePackage(pkgNode);
+            BPackageSymbol pSymbol = symbolEnter.definePackage(pkgNode);
+            pkgNode.symbol = pSymbol;
             packages.put(pkgId, pSymbol);
         } else {
             // This is a compiled package.
-            pSymbol = null;
+            // TODO Throw an error. Entry package cannot be a compiled package
+            throw new RuntimeException("TODO Entry package cannot be a compiled package");
         }
 
-        return pSymbol;
+        return pkgNode;
     }
 
     private BLangPackage sourceCompile(PackageSource pkgSource) {

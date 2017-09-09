@@ -62,6 +62,6 @@ public interface PackageNode extends Node {
 
     List<? extends AnnotationNode> getAnnotations();
 
-    void addAnnotation(AnnotatableNode annotation);
+    void addAnnotation(AnnotationNode annotation);
 
 }

@@ -17,8 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 /**
  * @since 0.94
@@ -28,7 +32,11 @@ public class Compiler {
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
 
+    private CompilerOptions options;
     private PackageLoader pkgLoader;
+    private SemanticAnalyzer semAnalyzer;
+
+    private CompilerPhase compilerPhase;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -39,14 +47,46 @@ public class Compiler {
     }
 
     public Compiler(CompilerContext context) {
-        //TODO This constructor should accept command line arguments and other compiler arguments
         context.put(COMPILER_KEY, this);
 
+        this.options = CompilerOptions.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
+        this.semAnalyzer = SemanticAnalyzer.getInstance(context);
+
+        this.compilerPhase = getCompilerPhase();
     }
 
     public void compile(String sourcePkg) {
-        BPackageSymbol pSymbol = pkgLoader.loadEntryPackage(sourcePkg);
-        // TODO Impliment CompilerPolicy.. Phases, PARSE, SEMANTIC_ANALYSIS, CODE_ANALYSIS, CODEGEN etc.
+        switch (compilerPhase) {
+            case DEFINE:
+                define(sourcePkg);
+                break;
+            case TYPE_CHECK:
+                typeCheck(define(sourcePkg));
+                break;
+            case CODE_ANALYZE:
+                typeCheck(define(sourcePkg));
+                break;
+            case CODE_GEN:
+                typeCheck(define(sourcePkg));
+                break;
+        }
+    }
+
+    private BLangPackage define(String sourcePkg) {
+        return pkgLoader.loadEntryPackage(sourcePkg);
+    }
+
+    private BLangPackage typeCheck(BLangPackage pkgNode) {
+        return semAnalyzer.analyze(pkgNode);
+    }
+
+    private CompilerPhase getCompilerPhase() {
+        String phaseName = options.get(CompilerOptionName.COMPILER_PHASE);
+        if (phaseName == null || phaseName.isEmpty()) {
+            return CompilerPhase.CODE_GEN;
+        }
+
+        return CompilerPhase.fromValue(phaseName);
     }
 }
