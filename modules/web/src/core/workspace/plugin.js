@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
 import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
-import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
+import { REGIONS } from './../layout/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -167,7 +166,7 @@ class WorkspacePlugin extends Plugin {
      * @inheritdoc
      */
     onAfterInitialRender() {
-        const { editor, command } = this.appContext;
+        const { editor } = this.appContext;
         this.openedFiles.forEach((file) => {
             // no need to activate this editor
             // as this is loading from history.
@@ -175,7 +174,6 @@ class WorkspacePlugin extends Plugin {
             // to activate depending on editor tabs history
             editor.open(file, false);
         });
-        command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, 'sample-editor-tab-view');
     }
 
     /**
@@ -211,21 +209,6 @@ class WorkspacePlugin extends Plugin {
                         ],
                     },
                     displayOnLoad: true,
-                },
-                {
-                    id: 'sample-editor-tab-view',
-                    component: (props) => { return (<div>{props.content}</div>); },
-                    propsProvider: () => {
-                        return {
-                            content: 'sample content',
-                        };
-                    },
-                    region: REGIONS.EDITOR_TABS,
-                    // region specific options for editor-tabs views
-                    regionOptions: {
-                        tabTitle: 'Custom Editor Tab View',
-                        tabIcon: 'down',
-                    },
                 },
             ],
             [DIALOGS]: [
