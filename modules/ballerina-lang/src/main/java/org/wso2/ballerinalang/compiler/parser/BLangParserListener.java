@@ -240,18 +240,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endFunctionDef();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) { }
+    @Override
+    public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+        this.pkgBuilder.startLambdaFunctionDef();
+    }
+
+    @Override
+    public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), ctx.parameterList() != null,
+                ctx.returnParameters() != null,
+                ctx.returnParameters() != null && ctx.returnParameters().typeList() != null);
+    }
     /**
      * {@inheritDoc}
      *
@@ -1513,19 +1512,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override public void exitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx) { }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) { }
-
     @Override
     public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), ctx.getChild(1).getText());
@@ -1631,6 +1617,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override 
     public void enterTypeList(BallerinaParser.TypeListContext ctx) { 
         this.pkgBuilder.startProcessingTypeNodeList();
+    }
+
+    @Override
+    public void exitTypeList(BallerinaParser.TypeListContext ctx) {
+        this.pkgBuilder.endProcessingTypeNodeList(ctx.typeName().size());
     }
 
     /**

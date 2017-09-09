@@ -17,8 +17,14 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.FunctionNode;
+
 /**
  * @since 0.94
  */
 public interface LambdaFunctionNode extends ExpressionNode {
+
+    FunctionNode getFunctionNode();
+
+    void setFunctionNode(FunctionNode functionNode);
 }
