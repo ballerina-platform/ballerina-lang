@@ -54,6 +54,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -65,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
@@ -150,6 +152,8 @@ public class BLangPackageBuilder {
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
+    protected int lambdaFunctionCount = 0;
+
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
     }
@@ -163,14 +167,7 @@ public class BLangPackageBuilder {
     }
 
     public void addArrayType(DiagnosticPos pos, int dimensions) {
-        BLangType eType;
-        if (!this.typeNodeListStack.empty()) {
-            List<TypeNode> typeNodeList = this.typeNodeListStack.peek();
-            eType = (BLangType) typeNodeList.get(typeNodeList.size() - 1);
-            typeNodeList.remove(typeNodeList.size() - 1);
-        } else {
-            eType = (BLangType) this.typeNodeStack.pop();
-        }
+        BLangType eType = (BLangType) this.typeNodeStack.pop();
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
         arrayTypeNode.pos = pos;
         arrayTypeNode.elemtype = eType;
@@ -242,11 +239,7 @@ public class BLangPackageBuilder {
     }
 
     private void addType(TypeNode typeNode) {
-        if (!this.typeNodeListStack.empty()) {
-            this.typeNodeListStack.peek().add(typeNode);
-        } else {
-            this.typeNodeStack.push(typeNode);
-        }
+        this.typeNodeStack.push(typeNode);
     }
 
     public void addNameReference(String pkgName, String name) {
@@ -309,6 +302,25 @@ public class BLangPackageBuilder {
         if (paramsAvail) {
             this.varListStack.pop().forEach(invNode::addParameter);
         }
+    }
+
+    public void startLambdaFunctionDef() {
+        startFunctionDef();
+        BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
+        lambdaFunction.setName(createIdentifier("$lambda$" + lambdaFunctionCount++));
+        lambdaFunction.addFlag(Flag.LAMBDA);
+    }
+
+    public void addLambdaFunctionDef(DiagnosticPos pos, boolean paramsAvail, boolean retParamsAvail,
+                                     boolean retParamTypeOnly) {
+        BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
+        lambdaFunction.pos = pos;
+        endCallableUnitSignature(lambdaFunction.getName().value, paramsAvail, retParamsAvail, retParamTypeOnly);
+        BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaExpr.function = lambdaFunction;
+        lambdaExpr.pos = pos;
+        addExpressionNode(lambdaExpr);
+        endFunctionDef();
     }
 
     public void addVariableDefStatement(String identifier, boolean exprAvailable) {
@@ -661,6 +673,12 @@ public class BLangPackageBuilder {
 
     public void startProcessingTypeNodeList() {
         this.typeNodeListStack.push(new ArrayList<>());
+    }
+
+    public void endProcessingTypeNodeList(int size) {
+        for (int i = 0; i < size; i++) {
+            this.typeNodeListStack.peek().add(0, typeNodeStack.pop());
+        }
     }
 
     public void startAnnotationDef() {

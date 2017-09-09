@@ -23,5 +23,6 @@ package org.ballerinalang.model.elements;
 public enum Flag {
     PUBLIC,
     NATIVE,
+    LAMBDA,
     CONST;
 }
