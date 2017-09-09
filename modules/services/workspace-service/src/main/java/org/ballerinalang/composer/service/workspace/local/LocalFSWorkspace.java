@@ -94,10 +94,6 @@ public class LocalFSWorkspace implements Workspace {
                 dirs.add(jsnObj);
             }
         }
-        JsonObject pathObj = getJsonObjForFile(ioPath, true);
-        JsonObject response = new JsonObject();
-        response.add("path", pathObj);
-        response.add("dirs", dirs);
         return dirs;
     }
 

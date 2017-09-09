@@ -21,8 +21,9 @@ import { CONTRIBUTIONS } from './../../core/plugin/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID } from './constants';
+import { PLUGIN_ID, DIALOG } from './constants';
 
+import AboutDialog from './dialogs/AboutDialog';
 /**
  * Help plugin.
  *
@@ -41,11 +42,21 @@ class HelpPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
             [MENUS]: getMenuDefinitions(this),
+            [DIALOGS]: [
+                {
+                    id: DIALOG.ABOUT,
+                    component: AboutDialog,
+                    propsProvider: () => {
+                        return {
+                        };
+                    },
+                },
+            ],
         };
     }
 }

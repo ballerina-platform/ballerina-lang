@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/FileTree';
@@ -103,27 +104,35 @@ class FileOpenDialog extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-                <FileTree
-                    onSelect={
-                        (node) => {
-                            this.setState({
-                                error: '',
-                                selectedNode: node,
-                                filePath: node.id,
-                            });
+                <Scrollbars
+                    style={{
+                        width: 608,
+                        height: 500,
+                    }}
+                    autoHide
+                >
+                    <FileTree
+                        onSelect={
+                            (node) => {
+                                this.setState({
+                                    error: '',
+                                    selectedNode: node,
+                                    filePath: node.id,
+                                });
+                            }
                         }
-                    }
-                    onOpen={
-                        (node) => {
-                            this.setState({
-                                error: '',
-                                selectedNode: node,
-                                filePath: node.id,
-                            });
-                            this.onFileOpen();
+                        onOpen={
+                            (node) => {
+                                this.setState({
+                                    error: '',
+                                    selectedNode: node,
+                                    filePath: node.id,
+                                });
+                                this.onFileOpen();
+                            }
                         }
-                    }
-                />
+                    />
+                </Scrollbars>
             </Dialog>
         );
     }

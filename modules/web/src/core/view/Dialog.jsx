@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import { Modal, Button, Alert } from 'react-bootstrap';
 
 /**
@@ -32,7 +31,7 @@ class Dialog extends React.Component {
             <Modal
                 show={this.props.show}
                 onHide={this.close}
-                dialogClassName="composer-dialog"
+                dialogClassName={'composer-dialog ' + this.props.className}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.title}</Modal.Title>
@@ -41,18 +40,9 @@ class Dialog extends React.Component {
                             {this.props.error}
                         </Alert>
                     }
-                    <hr className="modal-body-seperator" />
                 </Modal.Header>
                 <Modal.Body>
-                    <Scrollbars
-                        style={{
-                            width: 608,
-                            height: 500,
-                        }}
-                        autoHide
-                    >
                         {this.props.children}
-                    </Scrollbars>
                 </Modal.Body>
                 <Modal.Footer>
                     {this.props.actions}
@@ -71,8 +61,9 @@ Dialog.propTypes = {
     onHide: PropTypes.func,
     title: PropTypes.node.isRequired,
     children: PropTypes.node.isRequired,
-    actions: PropTypes.node.isRequired,
+    actions: PropTypes.node,
     error: PropTypes.node,
+    className: PropTypes.string,
 };
 
 Dialog.defaultProps = {
@@ -80,6 +71,8 @@ Dialog.defaultProps = {
     closeAction: false,
     onHide: () => {},
     error: '',
+    actions: '',
+    className: '',
 };
 
 export default Dialog;

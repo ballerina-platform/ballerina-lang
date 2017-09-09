@@ -21,4 +21,8 @@ export const LABELS = {
     ABOUT: 'About',
 };
 
+export const DIALOG = {
+    ABOUT: 'composer.dialog.about',
+};
+
 export const PLUGIN_ID = 'composer.plugin.help';
