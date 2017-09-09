@@ -916,7 +916,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.getChild(0).getText().equals("var")) {
             isVarDeclaration = true;
         }
-        this.pkgBuilder.addAssignmentStatement(isVarDeclaration);
+        this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), isVarDeclaration);
     }
 
     @Override
@@ -1025,13 +1025,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterWhileStatement(BallerinaParser.WhileStatementContext ctx) { }
+    @Override public void enterWhileStatement(BallerinaParser.WhileStatementContext ctx) {
+        this.pkgBuilder.startWhileStmt();
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitWhileStatement(BallerinaParser.WhileStatementContext ctx) { }
+    @Override public void exitWhileStatement(BallerinaParser.WhileStatementContext ctx) {
+        this.pkgBuilder.addWhileStmt(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1043,7 +1047,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) { }
+    @Override public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) {
+        this.pkgBuilder.addContinueStatement(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1055,7 +1061,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) { }
+    @Override public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) {
+        this.pkgBuilder.addBreakStatement(getCurrentPos(ctx));
+    }
     /**
      * {@inheritDoc}
      *
@@ -1387,7 +1395,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
-        this.pkgBuilder.addAbortStatement();
+        this.pkgBuilder.addAbortStatement(getCurrentPos(ctx));
     }
     /**
      * {@inheritDoc}

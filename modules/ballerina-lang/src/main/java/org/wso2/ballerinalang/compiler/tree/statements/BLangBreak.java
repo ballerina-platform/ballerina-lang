@@ -34,4 +34,9 @@ public class BLangBreak extends BLangStatement implements BreakNode {
     public NodeKind getKind() {
         return NodeKind.BREAK;
     }
+
+    @Override
+    public String toString() {
+        return "Break";
+    }
 }

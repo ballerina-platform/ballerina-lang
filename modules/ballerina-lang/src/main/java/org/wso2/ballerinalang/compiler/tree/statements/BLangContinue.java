@@ -35,4 +35,9 @@ public class BLangContinue extends BLangStatement implements ContinueNode {
     public NodeKind getKind() {
         return NodeKind.CONTINUE;
     }
+
+    @Override
+    public String toString() {
+        return "Continue";
+    }
 }
