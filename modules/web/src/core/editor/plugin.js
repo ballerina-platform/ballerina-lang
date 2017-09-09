@@ -41,7 +41,8 @@ class EditorPlugin extends Plugin {
      */
     constructor(props) {
         super(props);
-        this.editors = [];
+        this.editorDefinitions = [];
+        this.activeEditor = undefined;
     }
 
     /**
@@ -57,8 +58,8 @@ class EditorPlugin extends Plugin {
      * @param {Object} editorDef Editor Definition
      */
     registerEditor(editorDef) {
-        if (_.findIndex(this.editors, ['id', editorDef.id]) === -1) {
-            this.editors.push(editorDef);
+        if (_.findIndex(this.editorDefinitions, ['id', editorDef.id]) === -1) {
+            this.editorDefinitions.push(editorDef);
         } else {
             log.error(`Duplicate editor def found with ID ${editorDef.id}.`);
         }
@@ -71,9 +72,9 @@ class EditorPlugin extends Plugin {
      * @param {boolean} activateEditor Indicate whether to activate this editor
      */
     open(file, activateEditor = true) {
-        const editor = _.find(this.editors, ['extension', file.extension]);
-        if (!_.isNil(editor)) {
-            this.appContext.command.dispatch(COMMANDS.OPEN_FILE_IN_EDITOR, { file, editor, activateEditor });
+        const editorDefinition = _.find(this.editorDefinitions, ['extension', file.extension]);
+        if (!_.isNil(editorDefinition)) {
+            this.appContext.command.dispatch(COMMANDS.OPEN_FILE_IN_EDITOR, { file, editorDefinition, activateEditor });
         } else {
             log.error(`No editor is found to open file type ${file.extension}`);
         }
@@ -86,7 +87,19 @@ class EditorPlugin extends Plugin {
         super.init(config);
         return {
             open: this.open.bind(this),
+            getActiveEditor: () => {
+                return this.activeEditor;
+            },
         };
+    }
+
+    /**
+     * Set active editor
+     *
+     * @param {EditorTab} editor
+     */
+    setActiveEditor(editor) {
+        this.activeEditor = editor;
     }
 
     /**

@@ -4,18 +4,18 @@ import { EVENTS } from './../constants';
 /**
  * Class to represent an editor tab
  */
-class EditorTab extends EventChannel {
+class Editor extends EventChannel {
 
     /**
      * Creates an editor tab
      * @param {File} file Target file
-     * @param {Object} editor Editor Definition
+     * @param {Object} definition Editor Definition
      */
-    constructor(file, editor) {
+    constructor(file, definition) {
         super();
         this._file = file;
-        this._editor = editor;
-        this._customTitleClass = editor.tabTitleClass || '';
+        this._definition = definition;
+        this._customTitleClass = definition.tabTitleClass || '';
     }
 
     /**
@@ -42,15 +42,15 @@ class EditorTab extends EventChannel {
     /**
      * Returns editor definition
      */
-    get editor() {
-        return this._editor;
+    get definition() {
+        return this._definition;
     }
 
     /**
-     * Sets editor
+     * Sets editor definition
      */
-    set editor(editor) {
-        this._editor = editor;
+    set definition(definition) {
+        this._definition = definition;
     }
 
     /**
@@ -70,4 +70,4 @@ class EditorTab extends EventChannel {
 
 }
 
-export default EditorTab;
+export default Editor;

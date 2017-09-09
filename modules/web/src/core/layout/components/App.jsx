@@ -111,7 +111,7 @@ class App extends React.Component {
      */
     setLeftPanelState(showLeftPanel, leftPanelSize) {
         const { history } = this.props.appContext.pref;
-        if (_.isNil(leftPanelSize) ) {
+        if (_.isNil(leftPanelSize)) {
             const sizeFromHistory = history.get(HISTORY.LEFT_PANEL_SIZE);
             leftPanelSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
                                     ? sizeFromHistory : leftPanelDefaultSize;
@@ -130,7 +130,7 @@ class App extends React.Component {
      */
     setBottomPanelState(showBottomPanel, bottomPanelSize) {
         const { history } = this.props.appContext.pref;
-        if (_.isNil(bottomPanelSize) ) {
+        if (_.isNil(bottomPanelSize)) {
             const sizeFromHistory = history.get(HISTORY.BOTTOM_PANEL_SIZE);
             bottomPanelSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
                                     ? sizeFromHistory : bottomPanelDefaultSize;
@@ -180,7 +180,7 @@ class App extends React.Component {
                                 this.leftRightSplitPane.setState({
                                     resized: false,
                                     draggedSize: undefined,
-                                });      
+                                });
                                 this.setLeftPanelState(!_.isNil(newView));
                             }
                         }

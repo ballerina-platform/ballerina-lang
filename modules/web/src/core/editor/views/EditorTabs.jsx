@@ -7,7 +7,7 @@ import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
 import { VIEWS, HISTORY, COMMANDS, EVENTS } from './../constants';
-import EditorTab from './../model/EditorTab';
+import Editor from './../model/Editor';
 
 /**
  * Editor Tabs
@@ -32,7 +32,7 @@ class EditorTabs extends View {
         const { command, pref: { history } } = this.props.editorPlugin.appContext;
 
         this.state = {
-            activeEditor: history.get(HISTORY.ACTIVE_EDITOR),
+            activeEditorID: history.get(HISTORY.ACTIVE_EDITOR),
             openedEditors: [],
         };
         command.on(COMMANDS.OPEN_FILE_IN_EDITOR, this.onOpenFileInEditor);
@@ -42,64 +42,68 @@ class EditorTabs extends View {
      * On command open-file-in-editor
      * @param {Object} command args
      */
-    onOpenFileInEditor({ activateEditor, file, editor }) {
+    onOpenFileInEditor({ activateEditor, file, editorDefinition }) {
         const { openedEditors } = this.state;
-        const editorTab = new EditorTab(file, editor);
-        openedEditors.push(editorTab);
-        if (activateEditor || _.isNil(this.state.activeEditor)) {
-            this.setActiveEditor(editorTab.id);
+        const editor = new Editor(file, editorDefinition);
+        openedEditors.push(editor);
+        if (activateEditor || _.isNil(this.state.activeEditorID)) {
+            this.setActiveEditor(editor);
         } else {
             this.forceUpdate();
         }
-        editorTab.on(EVENTS.UPDATE_TAB_TITLE, () => {
+        editor.on(EVENTS.UPDATE_TAB_TITLE, () => {
             this.forceUpdate();
         });
     }
 
     /**
      * Set Active editor
-     * @param {String} filePath Path
+     * @param {Editor} editor tab instanc
      */
-    setActiveEditor(path) {
+    setActiveEditor(editor) {
+        if (_.isNil(editor)) {
+            return;
+        }
         const { pref: { history } } = this.props.editorPlugin.appContext;
-        history.put(HISTORY.ACTIVE_EDITOR, path);
-        this.state.activeEditor = path;
+        history.put(HISTORY.ACTIVE_EDITOR, editor.id);
+        this.state.activeEditorID = editor.id;
         this.forceUpdate();
+        this.props.editorPlugin.setActiveEditor(editor);
     }
 
     /**
      * On Tab Close
-     * @param {EditorTab} editorTab Editor tab instance
+     * @param {Editor} targetEditor Editor instance
      */
-    onTabClose(targetEditorTab) {
+    onTabClose(targetEditor) {
         const { workspace } = this.props.editorPlugin.appContext;
-        const searchByID = editorTab => editorTab.id === targetEditorTab.id;
-        const editorTabIndex = _.findIndex(this.state.openedEditors, searchByID);
-        const newActiveEditorTabIndex = editorTabIndex > 0 ? editorTabIndex - 1 : 1;
-        const newActiveEditorTabKey = !_.isNil(this.state.openedEditors[newActiveEditorTabIndex])
-                                ? this.state.openedEditors[newActiveEditorTabIndex].id
+        const searchByID = editor => editor.id === targetEditor.id;
+        const editorIndex = _.findIndex(this.state.openedEditors, searchByID);
+        const newActiveEditorIndex = editorIndex > 0 ? editorIndex - 1 : 1;
+        const newActiveEditor = !_.isNil(this.state.openedEditors[newActiveEditorIndex])
+                                ? this.state.openedEditors[newActiveEditorIndex]
                                 : undefined;
         _.remove(this.state.openedEditors, searchByID);
-        this.setActiveEditor(newActiveEditorTabKey);
-        workspace.closeFile(targetEditorTab.file);
+        this.setActiveEditor(newActiveEditor);
+        workspace.closeFile(targetEditor.file);
     }
 
     /**
      * Make an editor tab
-     * @param {EditorTab} editorTab Editor tab
+     * @param {Editor} editor Editor tab
      */
-    makeTabPane(editorTab) {
-        const { file, editor, editor: { customPropsProvider } } = editorTab;
+    makeTabPane(editor) {
+        const { file, definition, definition: { customPropsProvider } } = editor;
         return (
             <TabPane
                 tab={
-                    <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editorTab.customTitleClass}`}>
+                    <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
                         <i className="fw fw-ballerina tab-icon" />
                         {file.name}
                         <button
                             type="button"
                             className="close close-tab pull-right"
-                            onClick={() => this.onTabClose(editorTab)}
+                            onClick={() => this.onTabClose(editor)}
                         >
                             ×
                         </button>
@@ -108,9 +112,9 @@ class EditorTabs extends View {
                 data-extra="tabpane"
                 key={file.fullPath}
             >
-                <editor.component
-                    editorTab={editorTab}
-                    isActive={this.state.activeEditor === file.fullPath}
+                <definition.component
+                    editorTab={editor}
+                    isActive={this.state.activeEditorID === file.fullPath}
                     file={file}
                     commandProxy={this.props.editorPlugin.appContext.command}
                     {...customPropsProvider()}
@@ -124,16 +128,17 @@ class EditorTabs extends View {
      */
     render() {
         const tabs = [];
-        this.state.openedEditors.forEach((editorTab) => {
-            tabs.push(this.makeTabPane(editorTab));
+        this.state.openedEditors.forEach((editor) => {
+            tabs.push(this.makeTabPane(editor));
         });
 
         return (
             <div className="editor-area" >
                 <Tabs
-                    activeKey={this.state.activeEditor}
+                    activeKey={this.state.activeEditorID}
                     onChange={(key) => {
-                        this.setActiveEditor(key);
+                        const editor = _.find(this.state.openedEditors, ['id', key]);
+                        this.setActiveEditor(editor);
                     }}
                     renderTabBar={() =>
                         (
