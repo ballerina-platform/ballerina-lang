@@ -37,4 +37,5 @@ public class SymbolTags {
     public static final int ANNOTATION = 1024;
     public static final int ANNOTATION_ATTRIBUTE = 2048;
     public static final int ERROR = 4096;
+    public static final int ENUM = 8192;
 }

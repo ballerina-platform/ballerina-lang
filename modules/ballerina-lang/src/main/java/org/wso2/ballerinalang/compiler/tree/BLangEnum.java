@@ -15,16 +15,48 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
 
+
+package org.wso2.ballerinalang.compiler.tree;
+
+import org.ballerinalang.model.tree.EnumNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BreakNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangBreak extends BLangStatement implements BreakNode {
+public class BLangEnum extends BLangNode implements EnumNode {
+
+    public BLangIdentifier name;
+    public List<BLangIdentifier> enumFields;
+
+    public BLangEnum() {
+        this.enumFields = new ArrayList<>();
+    }
+
+    @Override
+    public BLangIdentifier getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(IdentifierNode name) {
+        this.name = (BLangIdentifier) name;
+    }
+
+    @Override
+    public List<BLangIdentifier> getEnumFields() {
+        return enumFields;
+    }
+
+    public void addEnumField(IdentifierNode enumField) {
+        this.enumFields.add((BLangIdentifier) enumField);
+    }
+
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -32,11 +64,11 @@ public class BLangBreak extends BLangStatement implements BreakNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.BREAK;
+        return NodeKind.ENUM;
     }
 
     @Override
     public String toString() {
-        return "Break";
+        return "BLangEnum: " + this.name + " -> " + this.enumFields;
     }
 }

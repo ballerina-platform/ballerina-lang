@@ -15,48 +15,47 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.WhileNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangWhile extends BLangStatement implements WhileNode {
-    public BLangExpression expr;
-    public BLangBlockStmt body;
+public class BLangAnnotAttachmentAttributeValue extends BLangExpression
+        implements AnnotationAttachmentAttributeValueNode {
 
-    public BLangWhile() {
-    }
+    public Node value;
+    public List<AnnotationAttachmentAttributeValueNode> arrayValues;
 
-    public BLangWhile(BLangExpression expr, BLangBlockStmt body) {
-        this.expr = expr;
-        this.body = body;
-    }
-
-    @Override
-    public BLangExpression getCondition() {
-        return expr;
+    public BLangAnnotAttachmentAttributeValue() {
+        arrayValues = new ArrayList<>();
     }
 
     @Override
-    public BLangBlockStmt getBody() {
-        return body;
+    public Node getValue() {
+        return value;
     }
 
     @Override
-    public void setCondition(ExpressionNode condition) {
-        this.expr = (BLangExpression) condition;
+    public List<AnnotationAttachmentAttributeValueNode> getValueArray() {
+        return arrayValues;
     }
 
     @Override
-    public void setBody(BlockNode body) {
-        this.body = (BLangBlockStmt) body;
+    public void setValue(Node value) {
+        this.value = value;
+    }
+
+    @Override
+    public void addValue(AnnotationAttachmentAttributeValueNode value) {
+        this.arrayValues.add(value);
     }
 
     @Override
@@ -66,12 +65,11 @@ public class BLangWhile extends BLangStatement implements WhileNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHILE;
+        return NodeKind.ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE;
     }
 
     @Override
     public String toString() {
-        return "While: (" + expr + ") "
-                + (body != null ? " {" + String.valueOf(body) + "}" : "");
+        return "BLangAnnotAttributeValue: " + (value != null ? value.toString() : arrayValues.toString());
     }
 }

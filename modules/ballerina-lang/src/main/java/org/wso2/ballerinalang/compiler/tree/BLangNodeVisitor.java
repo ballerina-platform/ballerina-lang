@@ -17,7 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -99,6 +100,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangEnum enumNode) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangVariable varNode) {
         throw new AssertionError();
     }
@@ -119,6 +124,13 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangAnnotAttachmentAttributeValue bLangAnnotAttributeValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangAnnotAttachmentAttribute bLangAnnotAttachmentAttribute) {
+        throw new AssertionError();
+    }
 
     // Statements
     public void visit(BLangBlockStmt blockNode) {
@@ -199,14 +211,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttributeValue bLangAnnotAttributeValue) {
-        throw new AssertionError();
-    }
-    
     public void visit(BLangXMLQName bLangXMLQName) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
         throw new AssertionError();
     }
@@ -214,19 +222,19 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
         throw new AssertionError();
     }

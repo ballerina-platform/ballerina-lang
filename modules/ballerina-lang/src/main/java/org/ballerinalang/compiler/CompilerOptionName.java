@@ -15,28 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
-
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BreakNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+package org.ballerinalang.compiler;
 
 /**
+ * List of all available command-line options.
+ *
  * @since 0.94
  */
-public class BLangBreak extends BLangStatement implements BreakNode {
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public enum CompilerOptionName {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.BREAK;
+    SOURCE_ROOT("-sourceroot");
+
+    public final String name;
+
+    CompilerOptionName(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return "Break";
+        return name;
     }
 }
