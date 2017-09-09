@@ -54,7 +54,7 @@ public class BEnumType extends BType implements EnumType {
     public static class BEnumField implements EnumField {
 
         public Name name;
-        
+
         public BEnumField(Name name) {
             this.name = name;
         }
