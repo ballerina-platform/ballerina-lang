@@ -31,7 +31,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  */
 public class BTester {
 
-    private static PrintStream out = System.out;
+    private static PrintStream out = System.err;
     private static CompilerOptions options;
 
     public static void main(String[] args) throws Exception {
