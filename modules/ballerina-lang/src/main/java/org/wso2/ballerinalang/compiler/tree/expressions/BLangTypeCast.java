@@ -59,7 +59,7 @@ public class BLangTypeCast extends BLangExpression implements TypeCastNode {
 
     @Override
     public String toString() {
-        return "(" + typeName + ") " + String.valueOf(rExpr);
+        return "(" + String.valueOf(typeName) + ") " + String.valueOf(rExpr);
     }
 
 }
