@@ -49,7 +49,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,8 +57,10 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE statement* workerDeclaration* RIGHT_BRACE
+    : LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
+    | LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
     ;
+
 
 functionDefinition
     :   NATIVE FUNCTION  callableUnitSignature SEMICOLON
@@ -78,7 +80,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :   LEFT_BRACE variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -145,7 +147,8 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE statement* workerDeclaration*RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
+    |   workerDefinition LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
     ;
 
 workerDefinition
@@ -263,7 +266,11 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN  expression)? SEMICOLON
+    ;
+
+connectorDeclarationStmt
+    : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -291,7 +298,8 @@ filterInitExpressionList
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | expression) SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
     ;
 
 variableReferenceList
@@ -333,7 +341,7 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    : FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
+    : FORK LEFT_BRACE connectorDeclarationStmt* workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
