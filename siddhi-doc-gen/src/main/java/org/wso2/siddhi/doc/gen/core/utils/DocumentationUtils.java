@@ -22,6 +22,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -62,6 +63,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -331,22 +333,96 @@ public class DocumentationUtils {
     }
 
     /**
-     * Deploy the mkdocs website on GitHub pages
+     * Build the mkdocs site using the mkdocs config file
      *
      * @param mkdocsConfigFile The mkdocs configuration file
-     * @param version          The version of the documentation
      * @param logger           The maven logger
+     * @return true if the documentation generation is successful
      */
-    public static void deployMkdocsOnGitHubPages(File mkdocsConfigFile, String version, Log logger) {
+    public static boolean generateMkdocsSite(File mkdocsConfigFile, Log logger) {
+        boolean isDocumentationGenerationSuccessful = false;
         try {
+            // Building the mkdocs site
             executeCommand(new String[] {Constants.MKDOCS_COMMAND,
-                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND,
-                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT,
+                    Constants.MKDOCS_BUILD_COMMAND,
+                    Constants.MKDOCS_BUILD_COMMAND_CLEAN_ARGUEMENT,
+                    Constants.MKDOCS_BUILD_COMMAND_CONFIG_FILE_ARGUMENT,
                     mkdocsConfigFile.getAbsolutePath(),
-                    Constants.MKDOCS_GITHUB_DEPLOY_COMMAND_MESSAGE_ARGUMENT,
-                    String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version)}, logger);
+                    Constants.MKDOCS_BUILD_COMMAND_SITE_DIRECTORY_ARGUMENT,
+                    Constants.MKDOCS_SITE_DIRECTORY}, logger);
+            isDocumentationGenerationSuccessful = true;
         } catch (Throwable t) {
-            logger.warn("Failed to execute mkdocs gh-deploy. Skipping deployment of documentation.", t);
+            logger.warn("Failed to generate the mkdocs site.", t);
+        }
+        return isDocumentationGenerationSuccessful;
+    }
+
+    /**
+     * Deploy the mkdocs website on GitHub pages
+     *
+     * @param version       The version of the documentation
+     * @param baseDirectory The base directory of the project
+     * @param logger        The maven logger
+     */
+    public static void deployMkdocsOnGitHubPages(String version, File baseDirectory, Log logger) {
+        try {
+            // Change to github pages branch
+            executeCommand(new String[]{Constants.GIT_COMMAND,
+                    Constants.GIT_STASH_COMMAND}, logger);
+
+            // Change to gh-pages branch. This will not do anything if a new branch was created in the last command.
+            executeCommand(new String[]{Constants.GIT_COMMAND,
+                    Constants.GIT_CHECKOUT_COMMAND,
+                    Constants.GIT_GH_PAGES_BRANCH}, logger);
+
+            // Create branch if it does not exist. This will fail if the branch exists and will not do anything.
+            executeCommand(new String[]{Constants.GIT_COMMAND,
+                    Constants.GIT_CHECKOUT_COMMAND,
+                    Constants.GIT_CHECKOUT_COMMAND_ORPHAN_ARGUMENT,
+                    Constants.GIT_GH_PAGES_BRANCH}, logger);
+            
+            executeCommand(new String[]{Constants.GIT_COMMAND,
+                    Constants.GIT_PULL_COMMAND,
+                    Constants.GIT_REMOTE,
+                    Constants.GIT_GH_PAGES_BRANCH}, logger);
+
+            // Getting the site that was built by mkdocs
+            File siteDirectory = new File(Constants.MKDOCS_SITE_DIRECTORY);
+            FileUtils.copyDirectory(siteDirectory, baseDirectory);
+            String[] siteDirectoryContent = siteDirectory.list();
+
+            // Pushing the site to GitHub (Assumes that site/ directory is ignored by git)
+            if (siteDirectoryContent != null && siteDirectoryContent.length > 0) {
+                List<String> gitAddCommand = new ArrayList<>();
+                Collections.addAll(gitAddCommand, Constants.GIT_COMMAND,
+                        Constants.GIT_ADD_COMMAND);
+                Collections.addAll(gitAddCommand, siteDirectoryContent);
+                executeCommand(gitAddCommand.toArray(new String[gitAddCommand.size()]), logger);
+
+                List<String> gitCommitCommand = new ArrayList<>();
+                Collections.addAll(gitCommitCommand, Constants.GIT_COMMAND,
+                        Constants.GIT_COMMIT_COMMAND,
+                        Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
+                        String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
+                        Constants.GIT_COMMIT_COMMAND_FILES_ARGUMENT);
+                Collections.addAll(gitCommitCommand, siteDirectoryContent);
+                executeCommand(gitCommitCommand.toArray(new String[gitCommitCommand.size()]), logger);
+
+                executeCommand(new String[]{Constants.GIT_COMMAND,
+                        Constants.GIT_PUSH_COMMAND,
+                        Constants.GIT_REMOTE,
+                        Constants.GIT_GH_PAGES_BRANCH}, logger);
+            }
+
+            // Changing back to master branch
+            executeCommand(new String[] {Constants.GIT_COMMAND,
+                    Constants.GIT_CHECKOUT_COMMAND,
+                    Constants.GIT_MASTER_BRANCH}, logger);
+            executeCommand(new String[]{Constants.GIT_COMMAND,
+                    Constants.GIT_STASH_COMMAND,
+                    Constants.GIT_STASH_POP_COMMAND}, logger);
+        } catch (Throwable t) {
+            logger.warn("Failed to deploy the documentation on github pages.", t);
         }
     }
 
@@ -364,7 +440,7 @@ public class DocumentationUtils {
         try {
             executeCommand(new String[] {Constants.GIT_COMMAND,
                     Constants.GIT_ADD_COMMAND,
-                    docsDirectory}, logger);
+                    docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
             executeCommand(new String[] {Constants.GIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
@@ -373,8 +449,8 @@ public class DocumentationUtils {
                     docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
             executeCommand(new String[] {Constants.GIT_COMMAND,
                     Constants.GIT_PUSH_COMMAND,
-                    Constants.GIT_PUSH_COMMAND_REMOTE,
-                    Constants.GIT_PUSH_COMMAND_REMOTE_BRANCH}, logger);
+                    Constants.GIT_REMOTE,
+                    Constants.GIT_MASTER_BRANCH}, logger);
         } catch (Throwable t) {
             logger.warn("Failed to update the documentation on GitHub repository", t);
         }
