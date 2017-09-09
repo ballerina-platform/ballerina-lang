@@ -41,12 +41,14 @@ class LayoutPlugin extends Plugin {
     constructor() {
         super();
         this.dialogs = [];
+        this.views = [];
         this.layout = {
             [REGIONS.HEADER]: [],
             [REGIONS.ACTIVITY_BAR]: [],
             [REGIONS.LEFT_PANEL]: [],
             [REGIONS.RIGHT_PANEL]: [],
             [REGIONS.EDITOR_AREA]: [],
+            [REGIONS.EDITOR_TABS]: [],
             [REGIONS.BOTTOM_PANEL]: [],
         };
         this.addViewToLayout = this.addViewToLayout.bind(this);
@@ -72,6 +74,7 @@ class LayoutPlugin extends Plugin {
      * @param {Object} view definition
      */
     addViewToLayout(view) {
+        this.views.push(view);
         this.layout[view.region].push(view);
     }
 

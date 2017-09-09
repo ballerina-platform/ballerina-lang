@@ -2,7 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import log from 'log';
-import { COMMANDS, EVENTS } from './constants';
+import { COMMANDS, EVENTS, REGIONS } from './constants';
+import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
 
 /**
  * Provides command handler definitions of layout manager plugin.
@@ -14,8 +15,29 @@ export function getHandlerDefinitions(layoutManager) {
     return [
         {
             cmdID: COMMANDS.SHOW_VIEW,
-            handler: (id, region, viewProps) => {
-               
+            handler: (id) => {
+                const view = _.find(layoutManager.views, ['id', id]);
+                if (!_.isNil(view)) {
+                    const { region, component, propsProvider,
+                            regionOptions: { tabTitle, tabIcon } } = view;
+                    switch (region) {
+                        case REGIONS.EDITOR_TABS: {
+                            const { command: { dispatch } } = layoutManager.appContext;
+                            dispatch(EDITOR_COMMANDS.OPEN_CUSTOM_EDITOR_TAB, {
+                                id,
+                                title: tabTitle,
+                                icon: tabIcon,
+                                component,
+                                propsProvider,
+                            });
+                        }
+                            break;
+                        // TODO: Implement show view for other regions
+                        default: log.warn('Cannot find region to render');
+                    }
+                } else {
+                    log.error(`Cannot find a view with id ${id}`);
+                }
             },
         },
         {

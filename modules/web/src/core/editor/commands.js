@@ -16,5 +16,15 @@ export function getCommandDefinitions() {
                 editor: PropTypes.objectOf(Object).isRequired,
             },
         },
+        {
+            id: COMMANDS.OPEN_CUSTOM_EDITOR_TAB,
+            argTypes: {
+                id: PropTypes.string.isRequired,
+                title: PropTypes.string.isRequired,
+                icon: PropTypes.string.isRequired,
+                component: PropTypes.node.isRequired,
+                propsProvider: PropTypes.func.isRequired,
+            },
+        },
     ];
 }

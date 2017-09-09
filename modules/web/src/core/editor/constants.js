@@ -1,5 +1,6 @@
 export const COMMANDS = {
     OPEN_FILE_IN_EDITOR: 'open-file-in-editor',
+    OPEN_CUSTOM_EDITOR_TAB: 'open-custom-editor-tab',
 };
 
 export const EVENTS = {
