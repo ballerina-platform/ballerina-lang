@@ -29,4 +29,8 @@ public interface WhileNode extends StatementNode {
     ExpressionNode getCondition();
 
     BlockNode getBody();
+
+    void setCondition(ExpressionNode condition);
+
+    void setBody(BlockNode body);
 }

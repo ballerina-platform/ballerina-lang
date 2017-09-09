@@ -44,13 +44,12 @@ import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
-import org.ballerinalang.model.tree.statements.AbortNode;
-import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.WhileNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -70,8 +69,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -362,7 +365,7 @@ public class BLangPackageBuilder {
     public void addTryCatchFinallyStmt(DiagnosticPos poc) {
         BLangTryCatchFinally stmtNode = tryCatchFinallyNodesStack.pop();
         stmtNode.pos = poc;
-        this.blockNodeStack.peek().addStatement(stmtNode);
+        addStmtToCurrentBlock(stmtNode);
     }
 
     public void addThrowStmt(DiagnosticPos poc) {
@@ -370,7 +373,7 @@ public class BLangPackageBuilder {
         BLangThrow throwNode = (BLangThrow) TreeBuilder.createThrowNode();
         throwNode.pos = poc;
         throwNode.expr = (BLangExpression) throwExpr;
-        this.blockNodeStack.peek().addStatement(throwNode);
+        addStmtToCurrentBlock(throwNode);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -730,14 +733,40 @@ public class BLangPackageBuilder {
         tempAnnotAttachments.forEach(annot -> annotatableNode.addAnnotationAttachment(annot));
     }
 
-    public void addAssignmentStatement(boolean isVarDeclaration) {
+    public void addAssignmentStatement(DiagnosticPos pos, boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         List<ExpressionNode> lExprList = exprNodeListStack.pop();
-        AssignmentNode assignmentNode = TreeBuilder.createAssignmentNode();
+        BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentNode.setExpression(rExprNode);
         assignmentNode.setDeclaredWithVar(isVarDeclaration);
+        assignmentNode.pos = pos;
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
-        this.blockNodeStack.peek().addStatement(assignmentNode);
+        addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void startWhileStmt() {
+        startBlock();
+    }
+
+    public void addWhileStmt(DiagnosticPos pos) {
+        WhileNode whileNode = TreeBuilder.createWhileNode();
+        whileNode.setCondition(exprNodeStack.pop());
+        BLangBlockStmt whileBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        whileBlock.pos = pos;
+        whileNode.setBody(whileBlock);
+        addStmtToCurrentBlock(whileNode);
+    }
+
+    public void addContinueStatement(DiagnosticPos pos) {
+        BLangContinue continueNode = (BLangContinue) TreeBuilder.createContinueNode();
+        continueNode.pos = pos;
+        addStmtToCurrentBlock(continueNode);
+    }
+
+    public void addBreakStatement(DiagnosticPos pos) {
+        BLangBreak breakNode = (BLangBreak) TreeBuilder.createBreakNode();
+        breakNode.pos = pos;
+        addStmtToCurrentBlock(breakNode);
     }
 
     public void startTransactionStmt() {
@@ -788,12 +817,13 @@ public class BLangPackageBuilder {
     public void endTransactionStmt(DiagnosticPos pos) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
-        this.blockNodeStack.peek().addStatement(transaction);
+        addStmtToCurrentBlock(transaction);
     }
 
-    public void addAbortStatement() {
-        AbortNode abortNode = TreeBuilder.createAbortNode();
-        this.blockNodeStack.peek().addStatement(abortNode);
+    public void addAbortStatement(DiagnosticPos pos) {
+        BLangAbort abortNode = (BLangAbort) TreeBuilder.createAbortNode();
+        abortNode.pos = pos;
+        addStmtToCurrentBlock(abortNode);
     }
 
     public void startIfElseNode() {

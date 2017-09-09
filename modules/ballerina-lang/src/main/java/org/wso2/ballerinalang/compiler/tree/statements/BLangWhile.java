@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -28,6 +30,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class BLangWhile extends BLangStatement implements WhileNode {
     public BLangExpression expr;
     public BLangBlockStmt body;
+
+    public BLangWhile() {
+    }
 
     public BLangWhile(BLangExpression expr, BLangBlockStmt body) {
         this.expr = expr;
@@ -45,6 +50,16 @@ public class BLangWhile extends BLangStatement implements WhileNode {
     }
 
     @Override
+    public void setCondition(ExpressionNode condition) {
+        this.expr = (BLangExpression) condition;
+    }
+
+    @Override
+    public void setBody(BlockNode body) {
+        this.body = (BLangBlockStmt) body;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -52,5 +67,11 @@ public class BLangWhile extends BLangStatement implements WhileNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.WHILE;
+    }
+
+    @Override
+    public String toString() {
+        return "While: (" + expr + ") "
+                + (body != null ? " {" + String.valueOf(body) + "}" : "");
     }
 }
