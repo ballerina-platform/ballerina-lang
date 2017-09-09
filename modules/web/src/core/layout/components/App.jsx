@@ -54,9 +54,13 @@ class App extends React.Component {
         // handle window resize events
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
+            const showBottomPanel = !this.state.showBottomPanel;
+            const bottomPanelSize = !showBottomPanel ? 0 : bottomPanelDefaultSize;
+            history.put(HISTORY.BOTTOM_PANEL_IS_ACTIVE, showBottomPanel);
+            history.put(HISTORY.BOTTOM_PANEL_SIZE, bottomPanelSize);
             this.setState({
-                showBottomPanel: !this.state.showBottomPanel,
-                bottomPanelSize: !this.state.showBottomPanel ? 0 : bottomPanelDefaultSize,
+                showBottomPanel,
+                bottomPanelSize,
             });
         });
     }
