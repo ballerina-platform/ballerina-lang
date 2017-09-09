@@ -15,28 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+
+import org.ballerinalang.model.symbols.EnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ENUM;
 
 /**
  * @since 0.94
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    ANNOTATION,
-    CONSTANT,
-    PACKAGE_VARIABLE,
+public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
-
-    OTHER
+    public BEnumSymbol(Name name, BType type, BSymbol owner) {
+        super(ENUM, name, type, owner);
+    }
 }

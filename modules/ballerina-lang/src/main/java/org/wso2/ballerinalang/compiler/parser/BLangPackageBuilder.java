@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -52,6 +53,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -127,7 +129,11 @@ public class BLangPackageBuilder {
     private Stack<PackageID> pkgIdStack = new Stack<>();
     
     private Stack<StructNode> structStack = new Stack<>();
-        
+
+    private Stack<EnumNode> enumStack = new Stack<>();
+
+    private Stack<IdentifierNode> identifierStack = new Stack<>();
+
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
@@ -586,7 +592,26 @@ public class BLangPackageBuilder {
         this.varListStack.pop().forEach(structNode::addField);
         this.compUnit.addTopLevelNode(structNode);
     }
-    
+
+    public void startEnumDef(DiagnosticPos currentPos) {
+        BLangEnum bLangEnum = (BLangEnum) TreeBuilder.createEnumNode();
+        bLangEnum.pos = currentPos;
+        this.enumStack.add(bLangEnum);
+    }
+
+    public void endEnumDef(String identifier) {
+        EnumNode enumNode = this.enumStack.pop();
+        enumNode.setName(this.createIdentifier(identifier));
+        while (!this.identifierStack.empty()) {
+            enumNode.addEnumField(this.identifierStack.pop());
+        }
+        this.compUnit.addTopLevelNode(enumNode);
+    }
+
+    public void addEnumFieldList(List<String> enumFieldList) {
+        enumFieldList.forEach(identifier -> this.identifierStack.push(this.createIdentifier(identifier)));
+    }
+
     public void startConnectorDef() {
         ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
         attachAnnotations(connectorNode);

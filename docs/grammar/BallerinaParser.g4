@@ -37,6 +37,7 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   enumDefinition
     |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -95,6 +96,14 @@ structBody
 
 annotationDefinition
     : ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+    ;
+
+enumDefinition
+    : ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
+    ;
+
+enumFieldList
+    : Identifier (COMMA Identifier)*
     ;
 
 globalVariableDefinition

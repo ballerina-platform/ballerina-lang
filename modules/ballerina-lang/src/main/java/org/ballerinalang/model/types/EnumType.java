@@ -15,28 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+
+package org.ballerinalang.model.types;
+
+import org.ballerinalang.model.Name;
+
+import java.util.List;
 
 /**
+ * {@code EnumType} represents the type of a enum in Ballerina.
+ *
  * @since 0.94
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    ANNOTATION,
-    CONSTANT,
-    PACKAGE_VARIABLE,
+public interface EnumType extends Type {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+  /**
+   * @since 0.94
+   */
+  interface EnumField {
+    Name getName();
+  }
 
-    OTHER
+  List<? extends EnumField> getFields();
+
 }

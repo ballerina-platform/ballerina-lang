@@ -15,28 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+
+package org.ballerinalang.model.tree;
+
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    ANNOTATION,
-    CONSTANT,
-    PACKAGE_VARIABLE,
+public interface EnumNode extends TopLevelNode {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+  IdentifierNode getName();
 
-    OTHER
+  void setName(IdentifierNode name);
+
+  List<? extends IdentifierNode> getEnumFields();
+
+  void addEnumField(IdentifierNode enumField);
+
 }
