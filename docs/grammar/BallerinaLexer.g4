@@ -17,6 +17,7 @@ CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
 ANNOTATION  : 'annotation' ;
+ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
 CONST       : 'const' ;
 TYPEMAPPER  : 'typemapper' ;

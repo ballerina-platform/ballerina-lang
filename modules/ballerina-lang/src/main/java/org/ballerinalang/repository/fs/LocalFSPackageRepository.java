@@ -15,28 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.ballerinalang.repository.fs;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BreakNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import java.nio.file.Paths;
 
 /**
+ * This represents a local file system based {@link PackageRepository}.
+ *
  * @since 0.94
  */
-public class BLangBreak extends BLangStatement implements BreakNode {
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public class LocalFSPackageRepository extends GeneralFSPackageRepository {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.BREAK;
+    public LocalFSPackageRepository(String basePath) {
+        super(Paths.get(basePath));
     }
-
-    @Override
-    public String toString() {
-        return "Break";
-    }
+    
 }

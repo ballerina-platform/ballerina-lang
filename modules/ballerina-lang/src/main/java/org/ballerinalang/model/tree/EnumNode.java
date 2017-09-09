@@ -15,28 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BreakNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+package org.ballerinalang.model.tree;
+
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangBreak extends BLangStatement implements BreakNode {
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public interface EnumNode extends TopLevelNode {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.BREAK;
-    }
+  IdentifierNode getName();
 
-    @Override
-    public String toString() {
-        return "Break";
-    }
+  void setName(IdentifierNode name);
+
+  List<? extends IdentifierNode> getEnumFields();
+
+  void addEnumField(IdentifierNode enumField);
+
 }

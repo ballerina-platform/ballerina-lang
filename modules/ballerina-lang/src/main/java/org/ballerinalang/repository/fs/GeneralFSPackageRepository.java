@@ -33,15 +33,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This represents a local file system based {@link PackageRepository}.
+ * This represents a general file system based {@link PackageRepository}.
  *
  * @since 0.94
  */
-public class FSPackageRepository implements PackageRepository {
+public class GeneralFSPackageRepository implements PackageRepository {
 
     private Path basePath;
 
-    public FSPackageRepository(Path basePath) {
+    public GeneralFSPackageRepository(Path basePath) {
         this.basePath = basePath;
     }
 
@@ -187,7 +187,7 @@ public class FSPackageRepository implements PackageRepository {
 
         @Override
         public PackageRepository getPackageRepository() {
-            return FSPackageRepository.this;
+            return GeneralFSPackageRepository.this;
         }
 
         @Override

@@ -81,7 +81,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void resetPackage() {
         this.pkgId = null;
         this.compUnitNode = null;
-        this.loopCount = 0;
         this.deadCode = false;
     }
     

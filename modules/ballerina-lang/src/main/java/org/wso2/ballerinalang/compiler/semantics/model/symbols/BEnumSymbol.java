@@ -15,28 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BreakNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+
+import org.ballerinalang.model.symbols.EnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ENUM;
 
 /**
  * @since 0.94
  */
-public class BLangBreak extends BLangStatement implements BreakNode {
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.BREAK;
-    }
-
-    @Override
-    public String toString() {
-        return "Break";
+    public BEnumSymbol(Name name, BType type, BSymbol owner) {
+        super(ENUM, name, type, owner);
     }
 }

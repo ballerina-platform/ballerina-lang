@@ -22,7 +22,7 @@ import org.ballerinalang.repository.CompositePackageRepository;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.fs.FSPackageRepository;
+import org.ballerinalang.repository.fs.LocalFSPackageRepository;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.PrintStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,7 +120,7 @@ public class PackageLoader {
         if (programRepo == null) {
             // create the default program repo
             String sourceRoot = options.get(SOURCE_ROOT);
-            programRepo = new FSPackageRepository(Paths.get(sourceRoot));
+            programRepo = new LocalFSPackageRepository(sourceRoot);
         }
 
         this.packageRepo = new CompositePackageRepository(

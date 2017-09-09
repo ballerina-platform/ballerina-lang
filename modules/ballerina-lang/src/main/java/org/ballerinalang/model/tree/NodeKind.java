@@ -37,6 +37,7 @@ public enum NodeKind {
     COMMENT,
     CONNECTOR,
     CONTINUE,
+    ENUM,
     EXPRESSION_STATEMENT,
     FUNCTION,
     IDENTIFIER,
@@ -65,4 +66,5 @@ public enum NodeKind {
     RECODE_LITERAL_EXPR,
     BINARY_EXPR,
     UNARY_EXPR,
+    LAMBDA,
 }

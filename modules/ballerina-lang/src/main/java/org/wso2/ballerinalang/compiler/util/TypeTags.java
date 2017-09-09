@@ -36,6 +36,7 @@ public class TypeTags {
     public static final int PACKAGE = 12;
     public static final int NONE = 13;
     public static final int VOID = 14;
+    public static final int ENUM = 15;
 
     private TypeTags() {
     }
