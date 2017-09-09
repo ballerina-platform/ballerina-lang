@@ -123,7 +123,7 @@ public class BLangPackageBuilder {
 
     private Stack<EnumNode> enumStack = new Stack<>();
 
-    private Stack<List<IdentifierNode>> identifierNodeListStack = new Stack<>();
+    private Stack<IdentifierNode> identifierStack = new Stack<>();
         
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
     
@@ -586,14 +586,14 @@ public class BLangPackageBuilder {
     public void endEnumDef(String identifier) {
         EnumNode enumNode = this.enumStack.pop();
         enumNode.setName(this.createIdentifier(identifier));
-        this.identifierNodeListStack.pop().forEach(identifierNode -> enumNode.addEnumField(identifierNode));
+        while (!this.identifierStack.empty()) {
+            enumNode.addEnumField(this.identifierStack.pop());
+        }
         this.compUnit.addTopLevelNode(enumNode);
     }
 
     public void addEnumFieldList(List<String> enumFieldList) {
-        List<IdentifierNode> identifierList = new ArrayList<>();
-        enumFieldList.forEach(identifier -> identifierList.add(this.createIdentifier(identifier)));
-        this.identifierNodeListStack.push(identifierList);
+        enumFieldList.forEach(identifier -> this.identifierStack.push(this.createIdentifier(identifier)));
     }
     
     public void startConnectorDef() {
