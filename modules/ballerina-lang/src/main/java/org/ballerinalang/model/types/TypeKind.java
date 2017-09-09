@@ -55,6 +55,7 @@ public enum TypeKind {
     MAP("map"),
     PACKAGE("package"),
     STRUCT("struct"),
+    ENUM("enum"),
     CONNECTOR("connector"),
     ARRAY("[]"),
     VOID(""),
