@@ -359,7 +359,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
-        this.pkgBuilder.startEnumDef();
+        this.pkgBuilder.startEnumDef(getCurrentPos(ctx));
     }
 
     /**

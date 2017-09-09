@@ -52,6 +52,7 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -579,8 +580,10 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(structNode);
     }
 
-    public void startEnumDef() {
-        this.enumStack.add(TreeBuilder.createEnumNode());
+    public void startEnumDef(DiagnosticPos currentPos) {
+        BLangEnum bLangEnum = (BLangEnum) TreeBuilder.createEnumNode();
+        bLangEnum.pos = currentPos;
+        this.enumStack.add(bLangEnum);
     }
 
     public void endEnumDef(String identifier) {
