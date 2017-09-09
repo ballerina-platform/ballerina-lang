@@ -54,14 +54,7 @@ class App extends React.Component {
         // handle window resize events
         window.addEventListener('resize', this.handleWindowResize.bind(this));
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
-            const showBottomPanel = !this.state.showBottomPanel;
-            const bottomPanelSize = !showBottomPanel ? 0 : bottomPanelDefaultSize;
-            history.put(HISTORY.BOTTOM_PANEL_IS_ACTIVE, showBottomPanel);
-            history.put(HISTORY.BOTTOM_PANEL_SIZE, bottomPanelSize);
-            this.setState({
-                showBottomPanel,
-                bottomPanelSize,
-            });
+            this.setBottomPanelState(!this.state.showBottomPanel);
         });
     }
 
@@ -111,6 +104,45 @@ class App extends React.Component {
         );
     }
 
+     /**
+     * Update left panel state
+     * @param {boolean} showLeftPanel 
+     * @param {number} leftPanelSize 
+     */
+    setLeftPanelState(showLeftPanel, leftPanelSize) {
+        const { history } = this.props.appContext.pref;
+        if (_.isNil(leftPanelSize) ) {
+            const sizeFromHistory = history.get(HISTORY.LEFT_PANEL_SIZE);
+            leftPanelSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
+                                    ? sizeFromHistory : leftPanelDefaultSize;
+        }
+        history.put(HISTORY.LEFT_PANEL_SIZE, leftPanelSize);
+        this.setState({
+            showLeftPanel,
+            leftPanelSize,
+        });
+    }
+
+    /**
+     * Update bottom panel state
+     * @param {boolean} showBottomPanel 
+     * @param {number} bottomPanelSize 
+     */
+    setBottomPanelState(showBottomPanel, bottomPanelSize) {
+        const { history } = this.props.appContext.pref;
+        if (_.isNil(bottomPanelSize) ) {
+            const sizeFromHistory = history.get(HISTORY.BOTTOM_PANEL_SIZE);
+            bottomPanelSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
+                                    ? sizeFromHistory : bottomPanelDefaultSize;
+        }
+        history.put(HISTORY.BOTTOM_PANEL_IS_ACTIVE, showBottomPanel);
+        history.put(HISTORY.BOTTOM_PANEL_SIZE, bottomPanelSize);
+        this.setState({
+            showBottomPanel,
+            bottomPanelSize,
+        });
+    }
+
 
     /**
      * @inheritdoc
@@ -127,15 +159,12 @@ class App extends React.Component {
                     className="left-right-split-pane"
                     minSize={this.state.showLeftPanel ? leftPanelDefaultSize : 0}
                     maxSize={leftPanelMaxSize}
-                    defaultSize={this.state.leftPanelSize}
+                    defaultSize={this.state.showLeftPanel ? this.state.leftPanelSize : 0}
                     onDragFinished={(size) => {
-                        this.props.appContext.pref.history.put(HISTORY.LEFT_PANEL_SIZE, size);
+                        this.setLeftPanelState(true, size);
                         this.leftRightSplitPane.setState({
                             resized: false,
                             draggedSize: undefined,
-                        });
-                        this.setState({
-                            leftPanelSize: size,
                         });
                     }
                     }
@@ -148,22 +177,11 @@ class App extends React.Component {
                         height={this.state.documentHeight - (headerHeight)}
                         onActiveViewChange={
                             (newView) => {
-                                if (_.isNil(newView)) {
-                                    this.setState({
-                                        showLeftPanel: false,
-                                        leftPanelSize: 0,
-                                    });
-                                } else {
-                                    this.setState({
-                                        showLeftPanel: true,
-                                        leftPanelSize: this.props.appContext.pref.history.get(HISTORY.LEFT_PANEL_SIZE)
-                                                            || leftPanelDefaultSize,
-                                    });
-                                }
                                 this.leftRightSplitPane.setState({
                                     resized: false,
                                     draggedSize: undefined,
-                                });
+                                });      
+                                this.setLeftPanelState(!_.isNil(newView));
                             }
                         }
                     >
@@ -176,16 +194,13 @@ class App extends React.Component {
                         primary="second"
                         minSize={this.state.showBottomPanel ? bottomPanelDefaultSize : 0}
                         maxSize={bottomPanelMaxSize}
-                        defaultSize={this.state.bottomPanelSize}
+                        defaultSize={this.state.showBottomPanel ? this.state.bottomPanelSize : 0}
                         onDragFinished={(size) => {
-                            this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, size);
                             this.topBottomSplitPane.setState({
                                 resized: false,
                                 draggedSize: undefined,
                             });
-                            this.setState({
-                                bottomPanelSize: size,
-                            });
+                            this.setBottomPanelState(true, size);
                         }
                         }
                         pane1Style={{
@@ -198,36 +213,18 @@ class App extends React.Component {
                         <BottomPanel
                             onClose={
                                 () => {
-                                    this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_IS_ACTIVE, false);
-                                    this.setState({
-                                        showBottomPanel: false,
-                                        bottomPanelSize: 0,
-                                    });
+                                    this.setBottomPanelState(false);
                                 }
                             }
                             onToggleMaximizedState={
                                 (isMaximized) => {
                                     const newSize = isMaximized ? bottomPanelMaxSize : bottomPanelDefaultSize;
-                                    this.props.appContext.pref.history.put(HISTORY.BOTTOM_PANEL_SIZE, newSize);
-                                    this.setState({
-                                        bottomPanelSize: newSize,
-                                    });
+                                    this.setBottomPanelState(true, newSize);
                                 }
                             }
                             onActiveViewChange={
                                 (newView) => {
-                                    if (_.isNil(newView)) {
-                                        this.setState({
-                                            showBottomPanel: false,
-                                            bottomPanelSize: 0,
-                                        });
-                                    } else {
-                                        this.setState({
-                                            showBottomPanel: true,
-                                            bottomPanelSize: this.props.appContext.pref.history.get(HISTORY.BOTTOM_PANEL_SIZE)
-                                                                || leftPanelDefaultSize,
-                                        });
-                                    }
+                                    this.setBottomPanelState(!_.isNil(newView));
                                     this.topBottomSplitPane.setState({
                                         resized: false,
                                         draggedSize: undefined,
