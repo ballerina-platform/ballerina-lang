@@ -21,9 +21,20 @@ class BottomPanel extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            maximized: false,
+            maximized: this.props.maximize,
             activeView: context.history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW) || undefined,
         };
+    }
+
+     /**
+     * @inheritdoc
+     */
+    componentWillReceiveProps(newProps) {
+        if(this.state.maximized !== newProps.maximize) {
+            this.setState({
+                maximized: newProps.maximize,
+            });
+        }
     }
 
     /**
@@ -117,6 +128,7 @@ class BottomPanel extends React.Component {
 }
 
 BottomPanel.propTypes = {
+    maximize: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     onToggleMaximizedState: PropTypes.func.isRequired,
     onActiveViewChange: PropTypes.func.isRequired,

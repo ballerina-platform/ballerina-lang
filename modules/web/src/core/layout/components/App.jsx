@@ -211,6 +211,7 @@ class App extends React.Component {
                             {this.getViewsForRegion(REGIONS.EDITOR_AREA)}
                         </EditorArea>
                         <BottomPanel
+                            maximize={this.state.showBottomPanel && this.state.bottomPanelSize === bottomPanelMaxSize}
                             onClose={
                                 () => {
                                     this.setBottomPanelState(false);
