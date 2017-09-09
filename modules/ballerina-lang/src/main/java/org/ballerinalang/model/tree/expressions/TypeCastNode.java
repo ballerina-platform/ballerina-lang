@@ -17,10 +17,21 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.types.TypeNode;
+
 /**
  * (string) a
  *
  * @since 0.94
  */
 public interface TypeCastNode extends ExpressionNode {
+
+    ExpressionNode getRightExpression();
+
+    void setRightExpression(ExpressionNode expressionNode);
+
+    TypeNode getTypeName();
+
+    void setTypeName(TypeNode typeName);
+
 }

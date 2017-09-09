@@ -70,6 +70,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -519,6 +521,22 @@ public class BLangPackageBuilder {
         binaryExpressionNode.leftExpression = exprNodeStack.pop();
         binaryExpressionNode.operator = OperatorKind.valueFrom(operator);
         addExpressionNode(binaryExpressionNode);
+    }
+
+    public void createTypeCastExpr(DiagnosticPos pos) {
+        BLangTypeCast typeCastNode = (BLangTypeCast) TreeBuilder.createTypeCastNode();
+        typeCastNode.pos = pos;
+        typeCastNode.rExpr = exprNodeStack.pop();
+        typeCastNode.typeName = typeNodeStack.pop();
+        addExpressionNode(typeCastNode);
+    }
+
+    public void createTypeConversionExpr(DiagnosticPos pos) {
+        BLangTypeConversion typeConversionNode = (BLangTypeConversion) TreeBuilder.createTypeConversionNode();
+        typeConversionNode.pos = pos;
+        typeConversionNode.rExpr = exprNodeStack.pop();
+        typeConversionNode.typeName = typeNodeStack.pop();
+        addExpressionNode(typeConversionNode);
     }
 
     public void createUnaryExpr(DiagnosticPos pos, String operator) {

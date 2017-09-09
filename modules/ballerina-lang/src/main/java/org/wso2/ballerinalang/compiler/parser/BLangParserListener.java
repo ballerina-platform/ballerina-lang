@@ -1563,7 +1563,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) { }
+    @Override
+    public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+        this.pkgBuilder.createTypeCastExpr(getCurrentPos(ctx));
+    }
 
     @Override
     public void exitBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
@@ -1585,7 +1588,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) { }
+    @Override
+    public void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) {
+        this.pkgBuilder.createTypeConversionExpr(getCurrentPos(ctx));
+    }
 
     @Override
     public void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) {

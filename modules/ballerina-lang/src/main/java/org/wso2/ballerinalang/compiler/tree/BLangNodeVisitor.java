@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -197,6 +199,14 @@ public abstract class BLangNodeVisitor {
 
     // Expressions
     public void visit(BLangLiteral literalNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTypeCast typeCastNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTypeConversion typeConversionNode) {
         throw new AssertionError();
     }
 

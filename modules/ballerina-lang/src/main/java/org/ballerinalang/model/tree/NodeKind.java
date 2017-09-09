@@ -67,4 +67,6 @@ public enum NodeKind {
     BINARY_EXPR,
     UNARY_EXPR,
     LAMBDA,
+    TYPE_CAST_EXPR,
+    TYPE_CONVERSION_EXPR,
 }
