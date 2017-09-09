@@ -28,7 +28,7 @@ import java.io.PrintStream;
  */
 public class DefaultDiagnosticListener implements DiagnosticListener {
 
-    private PrintStream console = System.out;
+    private PrintStream console = System.err;
 
     @Override
     public void received(Diagnostic diagnostic) {
