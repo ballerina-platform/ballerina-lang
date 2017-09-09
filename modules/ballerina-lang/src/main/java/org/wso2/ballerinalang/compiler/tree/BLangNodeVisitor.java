@@ -17,7 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
@@ -116,6 +117,13 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangAnnotAttachmentAttributeValue bLangAnnotAttributeValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangAnnotAttachmentAttribute bLangAnnotAttachmentAttribute) {
+        throw new AssertionError();
+    }
 
     // Statements
     public void visit(BLangBlockStmt blockNode) {
@@ -195,11 +203,6 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangVariableReference varRefNode) {
         throw new AssertionError();
     }
-
-    public void visit(BLangAnnotAttributeValue bLangAnnotAttributeValue) {
-        throw new AssertionError();
-    }
-
     // Type nodes
     public void visit(BLangValueType valueType) {
         throw new AssertionError();

@@ -28,8 +28,6 @@ public class Compiler {
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
 
-    private CompilerContext context;
-
     private PackageLoader pkgLoader;
 
     public static Compiler getInstance(CompilerContext context) {
@@ -42,14 +40,13 @@ public class Compiler {
 
     public Compiler(CompilerContext context) {
         //TODO This constructor should accept command line arguments and other compiler arguments
-        this.context = context;
-        this.context.put(COMPILER_KEY, this);
+        context.put(COMPILER_KEY, this);
 
         this.pkgLoader = PackageLoader.getInstance(context);
     }
 
-    public void compile() {
-        BPackageSymbol pSymbol = pkgLoader.loadEntryPackage("foo.bal");
+    public void compile(String sourcePkg) {
+        BPackageSymbol pSymbol = pkgLoader.loadEntryPackage(sourcePkg);
         // TODO Impliment CompilerPolicy.. Phases, PARSE, SEMANTIC_ANALYSIS, CODE_ANALYSIS, CODEGEN etc.
     }
 }

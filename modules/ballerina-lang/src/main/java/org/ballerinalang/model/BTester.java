@@ -17,16 +17,40 @@
 */
 package org.ballerinalang.model;
 
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+
+import java.io.PrintStream;
+
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Tester class.
  */
 public class BTester {
-    
+
+    private static PrintStream out = System.err;
+    private static CompilerOptions options;
+
     public static void main(String[] args) throws Exception {
-        Compiler.getInstance(new CompilerContext()).compile();
+        // -sorceroot == current directory
+
+        CompilerContext context = new CompilerContext();
+        options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
+
+        // How to set a custom diagnostic listener
+        DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());
+        //context.put(DiagnosticListener.class, listener);
+
+
+        // How to set a custom program dir package repository
+        //context.put(PackageRepository.class, repo);
+
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile("foo.bal");
     }
 
 }

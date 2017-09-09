@@ -15,37 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util;
-
-import org.ballerinalang.util.diagnostic.Diagnostic;
+package org.ballerinalang.compiler;
 
 /**
+ * List of all available command-line options.
+ *
  * @since 0.94
  */
-public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
+public enum CompilerOptionName {
 
-    public String pkgName;
-    public String pkgVersion;
-    public String cUnitName;
+    SOURCE_ROOT("-sourceroot");
 
-    public BDiagnosticSource(String packageName, String packageVersion, String compUnitName) {
-        this.pkgName = packageName;
-        this.pkgVersion = packageVersion;
-        this.cUnitName = compUnitName;
+    public final String name;
+
+    CompilerOptionName(String name) {
+        this.name = name;
     }
 
     @Override
-    public String getPackageName() {
-        return pkgName;
-    }
-
-    @Override
-    public String getPackageVersion() {
-        return pkgVersion;
-    }
-
-    @Override
-    public String getCompilationUnitName() {
-        return cUnitName;
+    public String toString() {
+        return name;
     }
 }

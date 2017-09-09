@@ -17,44 +17,42 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.AnnotationAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangAnnotAttributeValue extends BLangExpression implements AnnotationAttributeValueNode {
+public class BLangAnnotAttachmentAttribute extends BLangExpression implements AnnotationAttachmentAttributeNode {
 
-    public Node value;
-    public List<AnnotationAttributeValueNode> arrayValues;
+    public String name;
+    public AnnotationAttachmentAttributeValueNode value;
 
-    public BLangAnnotAttributeValue() {
-        arrayValues = new ArrayList<>();
-    }
-    
-    @Override
-    public Node getValue() {
-        return value;
-    }
-
-    @Override
-    public List<AnnotationAttributeValueNode> getValueArray() {
-        return arrayValues;
-    }
-
-    @Override
-    public void setValue(Node value) {
+    public BLangAnnotAttachmentAttribute(String name, AnnotationAttachmentAttributeValueNode value) {
+        this.name = name;
         this.value = value;
     }
 
     @Override
-    public void addValue(AnnotationAttributeValueNode value) {
-        this.arrayValues.add(value);
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public AnnotationAttachmentAttributeValueNode getValue() {
+        return value;
+    }
+
+    @Override
+    public void setValue(AnnotationAttachmentAttributeValueNode value) {
+        this.value = value;
     }
 
     @Override
@@ -64,11 +62,11 @@ public class BLangAnnotAttributeValue extends BLangExpression implements Annotat
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ANNOTATION_ATTRIBUTE_VALUE;
+        return NodeKind.ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE;
     }
 
     @Override
     public String toString() {
-        return "BLangAnnotAttributeValue: " + (value != null ? value.toString() : arrayValues.toString());
+        return "BLangAnnotAttributeValue: " + name + " " + value;
     }
 }

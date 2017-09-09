@@ -29,13 +29,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * This class contains methods to load a given package symbol.
@@ -48,15 +50,12 @@ public class PackageLoader {
     private static final CompilerContext.Key<PackageLoader> PACKAGE_LOADER_KEY =
             new CompilerContext.Key<>();
 
-    private CompilerContext context;
-
+    private CompilerOptions options;
     private Parser parser;
-
     private SymbolEnter symbolEnter;
 
-    private PackageRepository programRepo;
-
     private Map<PackageID, BPackageSymbol> packages;
+    private PackageRepository packageRepo;
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -68,15 +67,14 @@ public class PackageLoader {
     }
 
     public PackageLoader(CompilerContext context) {
-        this.context = context;
-        this.context.put(PACKAGE_LOADER_KEY, this);
+        context.put(PACKAGE_LOADER_KEY, this);
 
+        this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.packages = new HashMap<>();
 
-        Path sourceRoot = Paths.get("/Users/sameera/rewrite-compiler/bal");
-        this.programRepo = loadFSProgramRepository(sourceRoot);
+        this.packages = new HashMap<>();
+        loadPackageRepository(context);
     }
 
     public BPackageSymbol loadEntryPackage(String sourcePkg) {
@@ -84,7 +82,7 @@ public class PackageLoader {
         BLangIdentifier version = new BLangIdentifier();
         version.setValue("0.0.0");
         PackageID pkgId = new PackageID(new ArrayList<>(), version);
-        PackageEntity pkgEntity = this.programRepo.loadPackage(pkgId, sourcePkg);
+        PackageEntity pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         log("* Package Entity: " + pkgEntity);
 
         BPackageSymbol pSymbol;
@@ -115,9 +113,19 @@ public class PackageLoader {
         printer.println(obj);
     }
 
-    public PackageRepository loadFSProgramRepository(Path basePath) {
-        return new CompositePackageRepository(this.loadSystemRepository(), this.loadUserRepository(),
-                new FSPackageRepository(basePath));
+    private void loadPackageRepository(CompilerContext context) {
+        // Initialize program dir repository a.k.a entry package repository
+        PackageRepository programRepo = context.get(PackageRepository.class);
+        if (programRepo == null) {
+            // create the default program repo
+            String sourceRoot = options.get(SOURCE_ROOT);
+            programRepo = new FSPackageRepository(Paths.get(sourceRoot));
+        }
+
+        this.packageRepo = new CompositePackageRepository(
+                this.loadSystemRepository(),
+                this.loadUserRepository(),
+                programRepo);
     }
 
     private PackageRepository loadSystemRepository() {

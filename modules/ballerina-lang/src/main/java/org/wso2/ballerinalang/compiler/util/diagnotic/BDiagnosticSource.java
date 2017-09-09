@@ -15,28 +15,37 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.util.diagnotic;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BreakNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * @since 0.94
  */
-public class BLangBreak extends BLangStatement implements BreakNode {
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
+public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
+
+    public String pkgName;
+    public String pkgVersion;
+    public String cUnitName;
+
+    public BDiagnosticSource(String packageName, String packageVersion, String compUnitName) {
+        this.pkgName = packageName;
+        this.pkgVersion = packageVersion;
+        this.cUnitName = compUnitName;
     }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.BREAK;
+    public String getPackageName() {
+        return pkgName;
     }
 
     @Override
-    public String toString() {
-        return "Break";
+    public String getPackageVersion() {
+        return pkgVersion;
+    }
+
+    @Override
+    public String getCompilationUnitName() {
+        return cUnitName;
     }
 }

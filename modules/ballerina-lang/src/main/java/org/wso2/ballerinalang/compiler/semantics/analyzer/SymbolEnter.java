@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -144,21 +145,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol structSymbol = Symbols.createStructSymbol(
                 names.fromIdNode(structNode.name), null, env.scope.owner);
         structNode.symbol = structSymbol;
-        defineSymbol(structSymbol);
+        defineSymbol(structNode.pos, structSymbol);
     }
 
     public void visit(BLangConnector connectorNode) {
         BSymbol conSymbol = Symbols.createConnectorSymbol(
                 names.fromIdNode(connectorNode.name), null, env.scope.owner);
         connectorNode.symbol = conSymbol;
-        defineSymbol(conSymbol);
+        defineSymbol(connectorNode.pos, conSymbol);
     }
 
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = Symbols.createServiceSymbol(
                 names.fromIdNode(serviceNode.name), null, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
-        defineSymbol(serviceSymbol);
+        defineSymbol(serviceNode.pos, serviceSymbol);
     }
 
     public void visit(BLangFunction funcNode) {
@@ -194,7 +195,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Add it to the enclosing scope
         // Find duplicates
         varNode.symbol = varSymbol;
-        if (symResolver.checkForUniqueSymbol(varSymbol, enclScope)) {
+        if (symResolver.checkForUniqueSymbol(varNode.pos, varSymbol, enclScope)) {
             enclScope.define(varSymbol.name, varSymbol);
         }
     }
@@ -306,7 +307,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol) {
         invokableNode.symbol = funcSymbol;
-        defineSymbol(funcSymbol);
+        defineSymbol(invokableNode.pos, funcSymbol);
         defineInvokableSymbolParams(invokableNode, funcSymbol);
     }
 
@@ -331,9 +332,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.retParams = retParamSymbols;
     }
 
-    private void defineSymbol(BSymbol symbol) {
+    private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(symbol, env.scope)) {
+        if (symResolver.checkForUniqueSymbol(pos, symbol, env.scope)) {
             env.scope.define(symbol.name, symbol);
         }
     }
