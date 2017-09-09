@@ -29,27 +29,27 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNode {
 
-    public ExpressionNode keyExpr;
-    public ExpressionNode valueExpr;
+    public ExpressionNode name;
+    public ExpressionNode value;
 
     @Override
-    public ExpressionNode getKey() {
-        return keyExpr;
+    public ExpressionNode getName() {
+        return name;
     }
 
     @Override
-    public void setKey(ExpressionNode key) {
-        this.keyExpr = key;
+    public void setName(ExpressionNode name) {
+        this.name = name;
     }
 
     @Override
     public ExpressionNode getValue() {
-        return valueExpr;
+        return value;
     }
 
     @Override
     public void setValue(ExpressionNode value) {
-        this.valueExpr = value;
+        this.value = value;
     }
 
     @Override
@@ -64,6 +64,6 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
 
     @Override
     public String toString() {
-        return "BLangXMLAttribute: " + keyExpr + "=" + valueExpr;
+        return "BLangXMLAttribute: " + name + "=" + value;
     }
 }

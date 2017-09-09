@@ -980,11 +980,11 @@ public class BLangPackageBuilder {
     }
 
     public void createXMLAttribute(DiagnosticPos pos) {
-        ExpressionNode valueExpr = exprNodeStack.pop();
-        ExpressionNode keyExpr = exprNodeStack.pop();
+        ExpressionNode attrValue = exprNodeStack.pop();
+        ExpressionNode attrName = exprNodeStack.pop();
         BLangXMLAttribute xmlAttribute = (BLangXMLAttribute) TreeBuilder.createXMLAttributeNode();
-        xmlAttribute.valueExpr = valueExpr;
-        xmlAttribute.keyExpr = keyExpr;
+        xmlAttribute.value = attrValue;
+        xmlAttribute.name = attrName;
         xmlAttribute.pos = pos;
         xmlAttributeNodeStack.push(xmlAttribute);
     }

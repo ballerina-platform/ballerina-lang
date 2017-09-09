@@ -22,9 +22,9 @@ package org.ballerinalang.model.tree.expressions;
  */
 public interface XMLAttributeNode extends ExpressionNode {
 
-    ExpressionNode getKey();
+    ExpressionNode getName();
 
-    void setKey(ExpressionNode key);
+    void setName(ExpressionNode name);
 
     ExpressionNode getValue();
 
