@@ -30,6 +30,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class BLangExpressionStmt extends BLangStatement implements ExpressionStatementNode {
     public BLangExpression expr;
 
+    public BLangExpressionStmt() {
+    }
+
     public BLangExpressionStmt(BLangExpression expr) {
         this.expr = expr;
     }
@@ -47,5 +50,10 @@ public class BLangExpressionStmt extends BLangStatement implements ExpressionSta
     @Override
     public NodeKind getKind() {
         return NodeKind.EXPRESSION_STATEMENT;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(expr);
     }
 }

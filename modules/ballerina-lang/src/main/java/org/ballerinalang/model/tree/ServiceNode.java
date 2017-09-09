@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+
 import java.util.List;
 
 /**
@@ -32,9 +34,9 @@ public interface ServiceNode extends AnnotatableNode, TopLevelNode {
     
     void setProtocolPackageIdentifier(IdentifierNode protocolPkgIdentifier);
 
-    List<? extends VariableNode> getVariables();
+    List<? extends VariableDefinitionNode> getVariables();
     
-    void addVariable(VariableNode var);
+    void addVariable(VariableDefinitionNode var);
 
     List<? extends ResourceNode> getResources();
     

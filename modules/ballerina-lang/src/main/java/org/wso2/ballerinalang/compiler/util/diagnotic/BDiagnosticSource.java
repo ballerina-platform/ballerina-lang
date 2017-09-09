@@ -15,28 +15,37 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
+package org.wso2.ballerinalang.compiler.util.diagnotic;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * @since 0.94
  */
-public class BLangResource extends BLangInvokableNode implements ResourceNode {
+public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
 
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
+    public String pkgName;
+    public String pkgVersion;
+    public String cUnitName;
+
+    public BDiagnosticSource(String packageName, String packageVersion, String compUnitName) {
+        this.pkgName = packageName;
+        this.pkgVersion = packageVersion;
+        this.cUnitName = compUnitName;
     }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.RESOURCE;
+    public String getPackageName() {
+        return pkgName;
     }
-    
+
     @Override
-    public String toString() {
-        return "BLangResource: " + super.toString();
+    public String getPackageVersion() {
+        return pkgVersion;
+    }
+
+    @Override
+    public String getCompilationUnitName() {
+        return cUnitName;
     }
 }
