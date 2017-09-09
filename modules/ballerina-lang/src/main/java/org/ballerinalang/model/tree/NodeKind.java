@@ -66,4 +66,5 @@ public enum NodeKind {
     RECODE_LITERAL_EXPR,
     BINARY_EXPR,
     UNARY_EXPR,
+    LAMBDA,
 }
