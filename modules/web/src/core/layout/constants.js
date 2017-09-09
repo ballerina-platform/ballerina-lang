@@ -29,12 +29,13 @@ export const HISTORY = {
 };
 
 export const REGIONS = {
-    HEADER: 'HEADER',
-    ACTIVITY_BAR: 'ACTIVITY_BAR',
-    LEFT_PANEL: 'LEFT_PANEL',
-    RIGHT_PANEL: 'RIGHT_PANEL',
-    EDITOR_AREA: 'EDITOR_AREA',
-    BOTTOM_PANEL: 'BOTTOM_PANEL',
+    HEADER: 'composer.layout.region.header',
+    ACTIVITY_BAR: 'composer.layout.region.activity-bar',
+    LEFT_PANEL: 'composer.layout.region.left-panel',
+    RIGHT_PANEL: 'composer.layout.region.right-panel',
+    EDITOR_AREA: 'composer.layout.region.editor-area',
+    EDITOR_TABS: 'composer.layout.region.editor-tabs',
+    BOTTOM_PANEL: 'composer.layout.region.bottom-panel',
 };
 
 export const PLUGIN_ID = 'composer.plugin.layout.manager';
