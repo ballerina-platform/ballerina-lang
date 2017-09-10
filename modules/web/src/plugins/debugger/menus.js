@@ -16,6 +16,7 @@ export function getMenuDefinitions(debuggerInstance) {
                 return true;
             },
             icon: '',
+            order: 21,
             type: MENU_DEF_TYPES.ROOT,
         },
         {

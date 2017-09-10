@@ -66,9 +66,10 @@ class MenuPlugin extends Plugin {
      *
      */
     generateMenuFromDefinitions() {
-        const roots = _.filter(this.menus, ['type', MENU_DEF_TYPES.ROOT]);
-        const groups = _.filter(this.menus, ['type', MENU_DEF_TYPES.GROUP]);
-        const items = _.filter(this.menus, ['type', MENU_DEF_TYPES.ITEM]);
+        const sortedMenus = _.sortBy(this.menus, ['order']);
+        const roots = _.filter(sortedMenus, ['type', MENU_DEF_TYPES.ROOT]);
+        const groups = _.filter(sortedMenus, ['type', MENU_DEF_TYPES.GROUP]);
+        const items = _.filter(sortedMenus, ['type', MENU_DEF_TYPES.ITEM]);
 
         const findRoot = (id) => {
             return _.find(roots, ['id', id]);

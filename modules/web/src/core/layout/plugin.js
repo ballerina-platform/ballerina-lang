@@ -111,6 +111,7 @@ class LayoutPlugin extends Plugin {
                         return true;
                     },
                     icon: '',
+                    order: 3,
                     type: MENU_TYPES.ROOT,
                 },
                 {

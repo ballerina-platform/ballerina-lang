@@ -16,6 +16,7 @@ export function getMenuDefinitions(workspaceManager) {
                 return true;
             },
             icon: '',
+            order: 0,
             type: MENU_DEF_TYPES.ROOT,
         },
         {
