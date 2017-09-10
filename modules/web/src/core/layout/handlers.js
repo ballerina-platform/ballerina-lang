@@ -4,6 +4,7 @@ import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, EVENTS, REGIONS } from './constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
+import { withReRenderSupport } from './components/utils';
 
 /**
  * Provides command handler definitions of layout manager plugin.
@@ -18,8 +19,9 @@ export function getHandlerDefinitions(layoutManager) {
             handler: (id) => {
                 const view = _.find(layoutManager.views, ['id', id]);
                 if (!_.isNil(view)) {
-                    const { region, component, propsProvider,
+                    const { region, component, propsProvider, pluginID,
                             regionOptions: { tabTitle, tabIcon } } = view;
+                            
                     switch (region) {
                         case REGIONS.EDITOR_TABS: {
                             const { command: { dispatch } } = layoutManager.appContext;
@@ -27,7 +29,7 @@ export function getHandlerDefinitions(layoutManager) {
                                 id,
                                 title: tabTitle,
                                 icon: tabIcon,
-                                component,
+                                component: withReRenderSupport(component, pluginID),
                                 propsProvider,
                             });
                         }

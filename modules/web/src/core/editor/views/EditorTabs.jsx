@@ -75,6 +75,7 @@ class EditorTabs extends View {
      */
     setActiveEditor(editor) {
         if (_.isNil(editor)) {
+            this.forceUpdate();
             return;
         }
         const { pref: { history } } = this.props.editorPlugin.appContext;
