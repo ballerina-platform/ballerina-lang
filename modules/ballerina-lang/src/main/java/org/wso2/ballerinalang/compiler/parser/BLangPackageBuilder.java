@@ -40,6 +40,7 @@ import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -626,6 +628,23 @@ public class BLangPackageBuilder {
 
     public void endFunctionDef() {
         this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
+    }
+
+    public void startWorker() {
+        //TODO: Add check for fork-join.
+        WorkerNode workerNode = TreeBuilder.createWorkerNode();
+        this.invokableNodeStack.push(workerNode);
+        startBlock();
+    }
+
+    public void addWorker(DiagnosticPos pos, String workerName) {
+        // TODO : Add check for fork-join.
+        BLangWorker worker = (BLangWorker) this.invokableNodeStack.pop();
+        worker.setName(createIdentifier(workerName));
+        worker.pos = pos;
+        worker.setBody(this.blockNodeStack.pop());
+        this.invokableNodeStack.peek().addWorker(worker);
+        this.invokableNodeStack.peek().addFlag(Flag.PARALLEL);
     }
 
     public void endCallableUnitBody() {

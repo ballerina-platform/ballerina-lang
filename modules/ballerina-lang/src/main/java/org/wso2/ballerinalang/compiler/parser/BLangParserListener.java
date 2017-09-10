@@ -631,18 +631,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
         this.pkgBuilder.addConstVariable(ctx.Identifier().getText());
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) { }
+
+    @Override
+    public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        this.pkgBuilder.startWorker();
+    }
+
+    @Override
+    public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        String workerName = null;
+        if (ctx.workerDefinition() != null) {
+            workerName = ctx.workerDefinition().Identifier().getText();
+        }
+        this.pkgBuilder.addWorker(getCurrentPos(ctx), workerName);
+    }
     /**
      * {@inheritDoc}
      *
