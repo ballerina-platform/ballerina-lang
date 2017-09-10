@@ -158,8 +158,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIf ifStmt) {
         boolean originalDeadCode = this.deadCode;
         this.checkStatementExecutionValidity(ifStmt);
-        boolean ifTrue = this.isBooleanTrue(ifStmt.condition);
-        boolean ifFalse = this.isBooleanFalse(ifStmt.condition);
+        boolean ifTrue = this.isBooleanTrue(ifStmt.expr);
+        boolean ifFalse = this.isBooleanFalse(ifStmt.expr);
         boolean extendedDeadCode = false;
         if (ifFalse) {
             this.deadCode = true;

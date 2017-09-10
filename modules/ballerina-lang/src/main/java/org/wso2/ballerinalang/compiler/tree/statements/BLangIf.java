@@ -29,13 +29,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.94
  */
 public class BLangIf extends BLangStatement implements IfNode {
-    public BLangExpression condition;
+    public BLangExpression expr;
     public BLangBlockStmt body;
     public BLangStatement elseStmt;
 
     @Override
     public BLangExpression getCondition() {
-        return condition;
+        return expr;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BLangIf extends BLangStatement implements IfNode {
 
     @Override
     public void setCondition(ExpressionNode condition) {
-        this.condition = (BLangExpression) condition;
+        this.expr = (BLangExpression) condition;
     }
 
     @Override
@@ -75,6 +75,6 @@ public class BLangIf extends BLangStatement implements IfNode {
 
     @Override
     public String toString() {
-        return "BLangIf: (" + condition + ") " + body + (elseStmt != null ? (" Else: " + elseStmt) : "");
+        return "BLangIf: (" + expr + ") " + body + (elseStmt != null ? (" Else: " + elseStmt) : "");
     }
 }

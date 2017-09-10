@@ -30,8 +30,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -140,6 +142,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
     }
+
+    public void visit(BLangIf ifNode) {
+        typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
+        analyzeStmt(ifNode.body, env);
+
+        if (ifNode.elseStmt != null) {
+            analyzeStmt(ifNode.elseStmt, env);
+        }
+    }
+
+    public void visit(BLangWhile whileNode) {
+        typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
+        analyzeStmt(whileNode.body, env);
+    }
+
 
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
