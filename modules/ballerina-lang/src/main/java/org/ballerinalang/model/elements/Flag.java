@@ -21,8 +21,24 @@ package org.ballerinalang.model.elements;
  * @since 0.94
  */
 public enum Flag {
+    /**
+     * Indicates Flagged node is a public node.
+     */
     PUBLIC,
+    /**
+     * Indicates Flagged node is a native construct.
+     */
     NATIVE,
+    /**
+     * Indicates Flagged node is a Lambda.
+     */
     LAMBDA,
-    CONST;
+    /**
+     * Indicates Flagged node is a constant node.
+     */
+    CONST,
+    /**
+     * Indicates Flagged Node executes in parallel workers.
+     */
+    PARALLEL,
 }

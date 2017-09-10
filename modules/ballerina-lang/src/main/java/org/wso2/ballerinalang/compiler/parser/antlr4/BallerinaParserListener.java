@@ -598,6 +598,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#connectorVarDefStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterConnectorVarDefStatement(BallerinaParser.ConnectorVarDefStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#connectorVarDefStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitConnectorVarDefStatement(BallerinaParser.ConnectorVarDefStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#mapStructLiteral}.
 	 * @param ctx the parse tree
 	 */
@@ -1498,12 +1508,12 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitXmlItem(BallerinaParser.XmlItemContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#children}.
+	 * Enter a parse tree produced by {@link BallerinaParser#content}.
 	 * @param ctx the parse tree
 	 */
 	void enterContent(BallerinaParser.ContentContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#children}.
+	 * Exit a parse tree produced by {@link BallerinaParser#content}.
 	 * @param ctx the parse tree
 	 */
 	void exitContent(BallerinaParser.ContentContext ctx);

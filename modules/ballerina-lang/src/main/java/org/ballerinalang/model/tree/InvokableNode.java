@@ -41,5 +41,10 @@ public interface InvokableNode extends AnnotatableNode {
     BlockNode getBody();
     
     void setBody(BlockNode body);
-    
+
+    void addWorker(WorkerNode worker);
+
+    List<? extends WorkerNode> getWorkers();
+
+    void setWorkerNodes(List<WorkerNode> workerNodesList);
 }

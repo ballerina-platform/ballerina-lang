@@ -15,24 +15,22 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
+package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+
+import java.util.List;
 
 /**
- * Temporary data structure for storing name-reference;
- *
  * @since 0.94
  */
-public class BLangNameReference {
-    public IdentifierNode pkgAlias;
-    public IdentifierNode name;
-    public DiagnosticPos pos;
+public interface ConnectorInitNode extends ExpressionNode {
 
-    public BLangNameReference(IdentifierNode pkgAlias, IdentifierNode name, DiagnosticPos poc) {
-        this.pkgAlias = pkgAlias;
-        this.name = name;
-        this.pos = poc;
-    }
+    UserDefinedTypeNode getConnectorType();
+
+    List<? extends ExpressionNode> getExpressions();
+
+    void addExpression(ExpressionNode expressionNode);
+
+    List<? extends ConnectorInitNode> getFilterConnectos();
 }

@@ -17,22 +17,27 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.WorkerNode;
 
 /**
- * Temporary data structure for storing name-reference;
+ * Implementation of {@link WorkerNode}.
  *
  * @since 0.94
  */
-public class BLangNameReference {
-    public IdentifierNode pkgAlias;
-    public IdentifierNode name;
-    public DiagnosticPos pos;
+public class BLangWorker extends BLangInvokableNode implements WorkerNode {
 
-    public BLangNameReference(IdentifierNode pkgAlias, IdentifierNode name, DiagnosticPos poc) {
-        this.pkgAlias = pkgAlias;
-        this.name = name;
-        this.pos = poc;
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.WORKER;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+    }
+
+    @Override
+    public String toString() {
+        return "BLangWorker: " + super.toString();
     }
 }

@@ -15,24 +15,12 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerinalang.compiler.tree;
-
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+package org.ballerinalang.model.tree;
 
 /**
- * Temporary data structure for storing name-reference;
+ * Represents a worker node.
  *
  * @since 0.94
  */
-public class BLangNameReference {
-    public IdentifierNode pkgAlias;
-    public IdentifierNode name;
-    public DiagnosticPos pos;
-
-    public BLangNameReference(IdentifierNode pkgAlias, IdentifierNode name, DiagnosticPos poc) {
-        this.pkgAlias = pkgAlias;
-        this.name = name;
-        this.pos = poc;
-    }
+public interface WorkerNode extends InvokableNode {
 }
