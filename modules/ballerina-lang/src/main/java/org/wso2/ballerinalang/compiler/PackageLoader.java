@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.AggregatedPackageRepository;
 import org.ballerinalang.repository.CompositePackageRepository;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.fs.LocalFSPackageRepository;
+import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -35,6 +37,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
@@ -130,7 +133,11 @@ public class PackageLoader {
     }
 
     private PackageRepository loadSystemRepository() {
-        return null;
+        ServiceLoader<SystemPackageRepositoryProvider> loader = ServiceLoader.load(
+                SystemPackageRepositoryProvider.class);
+        AggregatedPackageRepository repo = new AggregatedPackageRepository();
+        loader.forEach(e -> repo.addRepository(e.loadRepository()));
+        return repo;
     }
 
     private PackageRepository loadExtensionRepository() {

@@ -37,7 +37,7 @@ public class JARPackageRepository extends GeneralFSPackageRepository {
             return Paths.get(JARPackageRepository.class.getResource(basePath).toURI());
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 
 }
