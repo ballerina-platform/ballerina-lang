@@ -17,12 +17,13 @@
  */
 
 import _ from 'lodash';
+import log from 'log';
 import BallerinaASTFactory from '../../../../../ast/ast-factory';
 import DefaultBallerinaASTFactory from '../../../../../ast/default-ast-factory';
-import TransformMap from './transform-map';
+import Mapper from './transform-node-mapper';
 
 /**
- * Transform node managing class
+ * Transform node manager
  * @class TransformNodeManager
  */
 class TransformNodeManager {
@@ -36,12 +37,17 @@ class TransformNodeManager {
         this._transformStmt = _.get(args, 'transformStmt');
         this._typeLattice = _.get(args, 'typeLattice');
         this._environment = _.get(args, 'environment');
-        this._transformMap = new TransformMap({ transformStmt: this._transformStmt });
+        this._mapper = new Mapper({ transformStmt: this._transformStmt });
     }
 
+    /**
+     * Set transform statement
+     * @param {any} transformStmt transform statement
+     * @memberof TransformNodeManager
+     */
     setTransformStmt(transformStmt) {
         this._transformStmt = transformStmt;
-        this._transformMap.setTransformStmt(this._transformStmt);
+        this._mapper.setTransformStmt(this._transformStmt);
     }
 
     /**
@@ -69,6 +75,13 @@ class TransformNodeManager {
         return { safe: true, type: 'implicit' };
     }
 
+    /**
+     * Check validity of a source to target mapping based on the types
+     * @param {any} source source type
+     * @param {any} target target type
+     * @returns {boolean} compatibility
+     * @memberof TransformNodeManager
+     */
     isConnectionValid(source, target) {
         if (this.getCompatibility(source, target)) {
             return true;
@@ -76,6 +89,13 @@ class TransformNodeManager {
         return false;
     }
 
+    /**
+     * Get the vertex expression by name of the vertex
+     * @param {any} name name
+     * @param {any} isField whether a struct field or a variable
+     * @returns {Expression} vertex expression
+     * @memberof TransformNodeManager
+     */
     getVertexExpression(name, isField) {
         let expression;
         if (isField) {
@@ -83,11 +103,15 @@ class TransformNodeManager {
         } else {
             expression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
         }
-
         expression.setExpressionFromString(name);
         return expression;
     }
 
+    /**
+     * Creates the statement edge based on the connection drawn
+     * @param {any} connection connection created
+     * @memberof TransformNodeManager
+     */
     createStatementEdge(connection) {
         const { source, target } = connection;
         let sourceExpression;
@@ -98,95 +122,34 @@ class TransformNodeManager {
             return;
         }
 
+        // create source and target expressions
         if (source.endpointKind === 'input') {
-            sourceExpression = this.getCompatibleSourceExpression(
-                this.getVertexExpression(source.name, source.isField), compatibility.type, target.type);
+            sourceExpression = this.getVertexExpression(source.name, source.isField);
         }
         if (target.endpointKind === 'output') {
             targetExpression = this.getVertexExpression(target.name, target.isField);
         }
 
+        // create or modify statements as per the connection.
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
-            // Connection is from source struct to target struct.
-
-            // remove any existing target mappings to draw the new one
-            const assStmt = this._transformMap.getOutputMapping(targetExpression.getExpressionString());
-            if (assStmt) {
-                this._transformStmt.removeChild(assStmt, true);
-            }
-            const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            const varRefList = BallerinaASTFactory.createVariableReferenceList();
-            varRefList.addChild(targetExpression);
-            assignmentStmt.addChild(varRefList, 0);
-
-            assignmentStmt.addChild(sourceExpression, 1);
-
-            if (!compatibility.safe) {
-                const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
-                varRefList.addChild(errorVarRef);
-            }
-            this._transformStmt.addChild(assignmentStmt);
+            // Connection is from source variable to a target variable.
+            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, compatibility);
             return;
         }
 
         if (source.endpointKind === 'input') {
-            // Connection source is a struct and target is not a struct.
-            // Target could be a function node.
-            const funcNode = target.funcInv;
-            const index = target.index;
-
-            let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
-            if (target.isField &&
-                BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
-                refType = funcNode.children[index];
+            if (target.funcInv) {
+                this._mapper.createInputToFunctionMapping(sourceExpression, target, compatibility);
+                return;
             }
-            funcNode.removeChild(funcNode.children[index], true);
-            // check function parameter is a struct and mapping is a complex mapping
-            if (target.isField && _.find(this.state.vertices, (struct) => {
-                return struct.typeName === this.getFunctionVertices(funcNode).parameters[index].type;
-            })) {
-                const keyValEx = BallerinaASTFactory.createKeyValueExpression();
-                const nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-
-                const propChain = (target.name).split('.').splice(1);
-
-                nameVarRefExpression.setExpressionFromString(propChain[0]);
-                keyValEx.addChild(nameVarRefExpression);
-                keyValEx.addChild(sourceExpression);
-                refType.addChild(keyValEx);
-                funcNode.addChild(refType, index);
-            } else {
-                if (compatibility.safe) {
-                    funcNode.addChild(sourceExpression, index);
-                    return;
-                }
-
-                const assignmentStmt = this.findEnclosingAssignmentStatement(funcNode);
-                const argumentExpression = this.getTempVertexExpression(sourceExpression,
-                    this._transformStmt.getIndexOfChild(assignmentStmt));
-
-                funcNode.addChild(argumentExpression, index);
-            }
-            return;
         }
 
         if (target.endpointKind === 'output') {
-            // Connection source is not a struct and target is a struct.
-            // Source is a function node.
-            const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
-            const rightExpression = this.getCompatibleSourceExpression(source.funcInv, compatibility.type, target.type);
-            assignmentStmtSource.removeChild(source.funcInv, true);
-            assignmentStmtSource.addChild(rightExpression, 1, true);
-            assignmentStmtSource.setIsDeclaredWithVar(false);
-
-            const lexpr = assignmentStmtSource.getLeftExpression();
-            lexpr.removeChild(lexpr.getChildren()[source.index], true);
-            lexpr.addChild(targetExpression, source.index);
-
-            if (!compatibility.safe) {
-                const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
-                lexpr.addChild(errorVarRef);
+            if (source.funcInv) {
+                this._mapper.createFunctionToOutputMapping(targetExpression, source, target, compatibility);
+                return;
             }
+            log.error('Only function nodes are supported for complex mappings');
             return;
         }
 
@@ -211,6 +174,14 @@ class TransformNodeManager {
     }
 
     getTempVertexExpression(sourceExpression, assignmentStmtIndex) {
+        const tempVarName = this.getTempVarName(sourceExpression);
+        this.insertExplicitAssignmentStatement(tempVarName, sourceExpression, assignmentStmtIndex - 1);
+        const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+        tempVarRefExpr.setExpressionFromString(tempVarName);
+        return tempVarRefExpr;
+    }
+
+    getTempVarName(sourceExpression) {
         const varNameRegex = new RegExp('__temp[\\d]*');
         const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
         const tempVarIdentifiers = [];
@@ -237,11 +208,7 @@ class TransformNodeManager {
         if (tempVarIdentifiers.length > 0) {
             index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(6), 10) + 1;
         }
-        const tempVarName = '__temp' + index;
-        this.insertExplicitAssignmentStatement(tempVarName, sourceExpression, assignmentStmtIndex - 1);
-        const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-        tempVarRefExpr.setExpressionFromString(tempVarName);
-        return tempVarRefExpr;
+        return '__temp' + index;
     }
 
     insertExplicitAssignmentStatement(tempVarName, sourceExpression, index) {
@@ -257,11 +224,16 @@ class TransformNodeManager {
         this._transformStmt.addChild(tempVarAssignmentStmt, index, true);
     }
 
+    /**
+     * Remove statement edge based on the removed connection
+     * @param {any} connection connection removed
+     * @memberof TransformNodeManager
+     */
     removeStatementEdge(connection) {
         const { source, target } = connection;
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             const assignmentStmt = _.find(this._transformStmt.getChildren(), (child) => {
-                if (!BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                if (BallerinaASTFactory.isAssignmentStatement(child)) {
                     return child.getLeftExpression().getChildren().find((leftExpression) => {
                         const leftExpressionStr = leftExpression.getExpressionString().trim();
                         const rightExpressionStr = this.getMappingExpression(
@@ -573,26 +545,6 @@ class TransformNodeManager {
         variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
         node.addChild(variableDefinitionStatement, newVarIndex);
         return variableDefinitionStatement;
-    }
-
-    getCompatibleSourceExpression(sourceExpression, compatibilityType, targetType) {
-        switch (compatibilityType) {
-            case 'explicit' : {
-                const typeCastExp = BallerinaASTFactory.createTypeCastExpression();
-                typeCastExp.addChild(sourceExpression);
-                typeCastExp.setTargetType(targetType);
-                return typeCastExp;
-            }
-            case 'conversion' : {
-                const typeConversionExp = BallerinaASTFactory.createTypeConversionExpression();
-                typeConversionExp.addChild(sourceExpression);
-                typeConversionExp.setTargetType(targetType);
-                return typeConversionExp;
-            }
-            case 'implicit' :
-            default :
-                return sourceExpression;
-        }
     }
 
     updateVariable(node, varName, statementString, type) {
