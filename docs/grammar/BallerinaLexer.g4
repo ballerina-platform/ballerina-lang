@@ -82,6 +82,7 @@ LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
+QUESTION_MARK       : '?' ;
 
 // Arithmetic operators
 

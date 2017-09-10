@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -617,6 +618,14 @@ public class BLangPackageBuilder {
         unaryExpressionNode.expressionNode = exprNodeStack.pop();
         unaryExpressionNode.operator = OperatorKind.valueFrom(operator);
         addExpressionNode(unaryExpressionNode);
+    }
+
+    public void createTernaryExpr(DiagnosticPos pos) {
+        BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExpr.pos = pos;
+        ternaryExpr.elseExpr = (BLangExpression) exprNodeStack.pop();
+        ternaryExpr.thenExpr = (BLangExpression) exprNodeStack.pop();
+        ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
     public void endFunctionDef() {

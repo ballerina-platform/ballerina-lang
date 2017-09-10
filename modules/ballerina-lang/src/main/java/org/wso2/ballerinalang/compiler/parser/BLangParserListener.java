@@ -1535,6 +1535,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createUnaryExpr(getCurrentPos(ctx), ctx.getChild(0).getText());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitTernaryExpression(BallerinaParser.TernaryExpressionContext ctx) {
+        this.pkgBuilder.createTernaryExpr(getCurrentPos(ctx));
+    }
+
     @Override
     public void exitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx) {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), ctx.getChild(1).getText());

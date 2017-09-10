@@ -17,22 +17,15 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-
-import java.util.List;
-
 /**
- * i = foo:getName(a, b);
- *
  * @since 0.94
  */
-public interface InvocationNode extends VariableReferenceNode {
+public interface TernaryExpressionNode extends ExpressionNode {
 
-    IdentifierNode getPackageIdentifier();
+    ExpressionNode getCondition();
 
-    IdentifierNode getFunctionName();
+    ExpressionNode getThenExpression();
 
-    List<? extends ExpressionNode> getArgumentExpressions();
-
-    VariableReferenceNode getVariableReferenceNode();
+    ExpressionNode getElseExpression();
 }
+

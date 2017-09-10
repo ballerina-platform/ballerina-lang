@@ -80,4 +80,5 @@ public enum NodeKind {
     XML_QUOTED_STRING,
     TYPE_CAST_EXPR,
     TYPE_CONVERSION_EXPR,
+    TERNARY_EXPR
 }
