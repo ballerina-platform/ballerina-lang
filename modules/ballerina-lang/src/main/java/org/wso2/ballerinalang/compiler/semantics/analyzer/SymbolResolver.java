@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -142,7 +142,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void visitBuiltInTypeNode(DiagnosticPos pos, TypeKind typeKind) {
         Name typeName = names.fromTypeKind(typeKind);
-        BSymbol typeSymbol = lookupSymbol(symTable.rootScope, typeName, SymbolTags.TYPE);
+        BSymbol typeSymbol = lookupSymbol(symTable.rootScope, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, errMsgKey, typeName);
         }

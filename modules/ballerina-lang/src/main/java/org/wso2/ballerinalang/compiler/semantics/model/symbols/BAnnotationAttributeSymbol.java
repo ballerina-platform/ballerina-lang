@@ -21,7 +21,7 @@ import org.ballerinalang.model.symbols.AnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ANNOTATION_ATTRIBUTE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION_ATTRIBUTE;
 
 /**
  * @since 0.94

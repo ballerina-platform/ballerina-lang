@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 /**
  * @since 0.94
@@ -28,7 +29,7 @@ public class BDiagnostic implements Diagnostic {
     public BDiagnosticSource source;
     public DiagnosticPos pos;
     public String msg;
-    public String code;
+    public DiagnosticCode code;
 
     public BDiagnostic() {
     }
@@ -64,7 +65,7 @@ public class BDiagnostic implements Diagnostic {
     }
 
     @Override
-    public String getCode() {
+    public DiagnosticCode getCode() {
         return code;
     }
 }

@@ -19,8 +19,11 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -196,14 +199,30 @@ public abstract class BLangNodeVisitor {
 
 
     // Expressions
-    public void visit(BLangLiteral literalNode) {
+
+    public void visit(BLangLiteral literalExpr) {
         throw new AssertionError();
     }
 
-    public void visit(BLangVariableReference varRefNode) {
+    public void visit(BLangSimpleVarRef varRefExpr) {
         throw new AssertionError();
     }
+
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangInvocation invocationExpr) {
+        throw new AssertionError();
+    }
+
+
     // Type nodes
+
     public void visit(BLangValueType valueType) {
         throw new AssertionError();
     }

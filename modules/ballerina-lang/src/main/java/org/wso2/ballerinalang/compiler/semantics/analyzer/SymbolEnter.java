@@ -54,6 +54,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+
 /**
  * @since 0.94
  */
@@ -89,7 +91,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgNode.symbol = symTable.rootPkg;
+        this.rootPkgNode.symbol = symTable.rootPkgSymbol;
     }
 
     public BPackageSymbol definePackage(BLangPackage pkgNode) {
@@ -206,9 +208,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
         BPackageSymbol pSymbol;
         if (pkgNode.pkgDecl == null) {
-            pSymbol = new BPackageSymbol(PackageID.EMPTY, symTable.rootPkg);
+            pSymbol = new BPackageSymbol(PackageID.EMPTY, symTable.rootPkgSymbol);
         } else {
-            pSymbol = new BPackageSymbol(pkgNode.pkgDecl.pkgId, symTable.rootPkg);
+            pSymbol = new BPackageSymbol(pkgNode.pkgDecl.pkgId, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
         pSymbol.scope = new Scope(pSymbol);
@@ -254,6 +256,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void addTopLevelNode(BLangPackage pkgNode, TopLevelNode node) {
         NodeKind kind = node.getKind();
+
+        // Here we keep all the top-level nodes of a compilation unit (aka file) in exact same
+        // order as they appear in the compilation unit. This list contains all the top-level
+        // nodes of all the compilation units grouped by the compilation unit.
+        // This allows other compiler phases to visit top-level nodes in the exact same order
+        // as they appear in compilation units. This is required for error reporting.
+        if (kind != NodeKind.PACKAGE_DECLARATION && kind != IMPORT) {
+            pkgNode.topLevelNodes.add(node);
+        }
+
         switch (kind) {
             case PACKAGE_DECLARATION:
                 // TODO verify the rules..
@@ -339,7 +351,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineNode(BLangNode node, SymbolEnv env) {
+    public void defineNode(BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         node.accept(this);

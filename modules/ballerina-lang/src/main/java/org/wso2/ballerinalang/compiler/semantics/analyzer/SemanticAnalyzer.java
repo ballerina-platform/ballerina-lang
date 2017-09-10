@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -27,7 +29,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -42,6 +46,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
     private Names names;
     private TypeChecker typeChecker;
 
@@ -63,6 +68,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         context.put(SYMBOL_ANALYZER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
     }
@@ -72,13 +78,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return pkgNode;
     }
 
+
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
         // First visit all the imported packages
 
+        SymbolEnv pkgEnv = SymbolEnv.getPkgEnv(pkgNode,
+                pkgNode.symbol.scope, symTable.rootPkgNode);
+
         // Then visit each top-level element sorted using the compilation unit
-        pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -90,16 +100,58 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        throw new AssertionError();
+        BSymbol funcSymbol = funcNode.symbol;
+        SymbolEnv funcEnv = SymbolEnv.getFunctionEnv(funcNode, funcSymbol.scope, env);
+
+        // Check for native functions
+        analyzeStmt(funcNode.body, funcEnv);
+
+    }
+
+    public void visit(BLangVariable varNode) {
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            // This is a variable declared in a function, an action or a resource
+            // If the variable is parameter then the variable symbol is already defined
+            if (varNode.symbol == null) {
+                symbolEnter.defineNode(varNode, env);
+            }
+        }
+
+        // Analyze the init expression
+        if (varNode.expr != null) {
+            // Here we create a new symbol environment to catch self references by keep the current
+            // variable symbol in the symbol environment
+            // e.g. int a = x + a;
+            SymbolEnv varInitEnv = SymbolEnv.getVarInitEnv(varNode, varNode.symbol, env);
+            typeChecker.checkExpr(varNode.expr, varInitEnv, varNode.symbol.type);
+        }
+        varNode.type = varNode.symbol.type;
     }
 
 
-    BType analyzeStmtNode(BLangStatement stmtNode) {
-        return null;
+    // Statements
+
+    public void visit(BLangBlockStmt blockNode) {
+        SymbolEnv blockEnv = SymbolEnv.getBlockEnv(blockNode, env);
+        blockNode.statements.forEach(stmt -> analyzeStmt(stmt, blockEnv));
+    }
+
+    public void visit(BLangVariableDef varDefNode) {
+        analyzeDef(varDefNode.var, env);
+    }
+
+
+    BType analyzeDef(BLangNode node, SymbolEnv env) {
+        return analyzeNode(node, env);
+    }
+
+    BType analyzeStmt(BLangStatement stmtNode, SymbolEnv env) {
+        return analyzeNode(stmtNode, env);
     }
 
     void visitStmtNodes(List<BLangStatement> stmtNodes) {
-        stmtNodes.forEach(this::analyzeStmtNode);
+//        stmtNodes.forEach(this::analyzeStmtNode);
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env) {
@@ -121,16 +173,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.errMsgKey = preErrMsgKey;
 
         return resType;
-    }
-
-
-    //
-
-    public void visit(BLangVariable varNode) {
-        // Define the variable symbol
-        // Analyze the init expression
-        // TODO
-
-//        throw new AssertionError();
     }
 }
