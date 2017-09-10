@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import EventChannel from 'event_channel';
 
-import { ACTIVATION_POLICIES } from './constants';
+import { ACTIVATION_POLICIES, EVENTS } from './constants';
 
 /**
  * Base class for the plugins
@@ -91,6 +91,13 @@ class Plugin extends EventChannel {
      */
     getContributions() {
         return {};
+    }
+
+    /**
+     * Invoking re-render will make all views contributed via this plugin re-render.
+     */
+    reRender() {
+        this.trigger(EVENTS.RE_RENDER);
     }
 }
 

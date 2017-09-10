@@ -33,5 +33,11 @@ export function getCommandDefinitions() {
                 default: 'ctrl+`',
             },
         },
+        {
+            id: COMMANDS.RE_RENDER_PLUGIN,
+            argTypes: {
+                id: PropTypes.string.isRequired,
+            },
+        },
     ];
 }

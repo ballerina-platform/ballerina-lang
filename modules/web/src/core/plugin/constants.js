@@ -13,3 +13,7 @@ export const CONTRIBUTIONS = {
     MENUS: 'menus',
     VIEWS: 'views',
 };
+
+export const EVENTS = {
+    RE_RENDER: 're-render',
+}

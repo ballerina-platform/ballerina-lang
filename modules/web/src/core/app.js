@@ -23,11 +23,13 @@ import { CONTEXT_NAMESPACES } from './constants';
 
 import CommandPlugin from './command/plugin';
 import LayoutPlugin from './layout/plugin';
+import { COMMANDS as LAYOUT_COMMANDS } from './layout/constants';
 import MenuPlugin from './menu/plugin';
 import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
 import PreferencesPlugin from './preferences/plugin';
 import { makeImutable } from './utils/object-utils';
+import { EVENTS } from './plugin/constants';
 
 /**
  * Composer Application
@@ -145,6 +147,7 @@ class Application {
      * @param {Plugin} plugin plugin instance
      */
     _discoverContributions(plugin) {
+        const pluginID = plugin.getID();
         const contributions = plugin.getContributions();
 
         const commands = _.get(contributions, CONTRIBUTIONS.COMMANDS, []);
@@ -164,6 +167,7 @@ class Application {
         });
 
         views.forEach((viewDef) => {
+            viewDef.pluginID = pluginID;
             this.layoutPlugin.addViewToLayout(viewDef);
         });
 
@@ -190,6 +194,9 @@ class Application {
             if (plugin.getActivationPolicy().type === ACTIVATION_POLICIES.APP_STARTUP) {
                 plugin.activate(this.appContext);
             }
+            plugin.on(EVENTS.RE_RENDER, () => {
+                this.commandPlugin.dispatch(LAYOUT_COMMANDS.RE_RENDER_PLUGIN, { id: plugin.getID() });
+            });
         });
         this.layoutPlugin.render();
         // Finished Activating all the plugins.

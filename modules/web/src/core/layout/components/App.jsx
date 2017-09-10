@@ -7,6 +7,7 @@ import EditorArea from './EditorArea';
 import BottomPanel from './BottomPanel';
 import Header from './Header';
 import { REGIONS, HISTORY, EVENTS } from './../constants';
+import { withReRenderSupport } from './utils';
 
 const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
@@ -97,8 +98,8 @@ class App extends React.Component {
      * @param {Object} viewDef View Definition
      */
     createViewFromViewDef(viewDef) {
-        const { component, propsProvider } = viewDef;
-        const View = component;
+        const { component, propsProvider, pluginID } = viewDef;
+        const View = withReRenderSupport(component, pluginID);
         return (
             <View {...propsProvider()} key={viewDef.id} definition={viewDef} />
         );

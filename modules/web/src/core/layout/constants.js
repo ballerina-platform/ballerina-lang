@@ -4,6 +4,7 @@ export const COMMANDS = {
     SHOW_VIEW: 'show-view',
     HIDE_VIEW: 'hide-view',
     TOGGLE_BOTTOM_PANEL: 'toggle-bottom-panel',
+    RE_RENDER_PLUGIN: 're-render-plugin',
 };
 
 export const EVENTS = {
