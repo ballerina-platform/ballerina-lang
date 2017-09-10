@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.codegen;
 
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -41,5 +42,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         context.put(CODE_GENERATOR_KEY, this);
     }
 
-    
+
+    public void generate(BLangPackage pkgNode) {
+
+    }
 }
