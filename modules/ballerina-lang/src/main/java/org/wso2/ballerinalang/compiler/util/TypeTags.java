@@ -35,10 +35,11 @@ public class TypeTags {
     public static final int ENUM = 11;
     public static final int ARRAY = 12;
     public static final int PACKAGE = 13;
-    public static final int NULL = 14;
-    public static final int NONE = 15;
-    public static final int VOID = 16;
-    public static final int ERROR = 17;
+    public static final int INVOKABLE = 14;
+    public static final int NULL = 15;
+    public static final int NONE = 16;
+    public static final int VOID = 17;
+    public static final int ERROR = 18;
 
     private TypeTags() {
     }

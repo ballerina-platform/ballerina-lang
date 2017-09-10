@@ -38,7 +38,6 @@ public enum OperatorKind {
     LESS_THAN("<"),
     LESS_EQUAL("<="),
     POW("^"),
-    NEW("new"),
     NOT("!"),
     LENGTHOF("lengthof"),
     TYPEOF("typeof");
@@ -47,6 +46,10 @@ public enum OperatorKind {
 
     OperatorKind(String opValue) {
         this.opValue = opValue;
+    }
+
+    public String value() {
+        return opValue;
     }
 
     @Override

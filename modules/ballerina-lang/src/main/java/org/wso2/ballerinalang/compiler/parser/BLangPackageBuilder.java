@@ -67,7 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -78,7 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -535,11 +535,11 @@ public class BLangPackageBuilder {
     }
 
     public void createBinaryExpr(DiagnosticPos pos, String operator) {
-        BLangBinaryExpression binaryExpressionNode = (BLangBinaryExpression) TreeBuilder.createBinaryExpressionNode();
+        BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         binaryExpressionNode.pos = pos;
-        binaryExpressionNode.rightExpression = exprNodeStack.pop();
-        binaryExpressionNode.leftExpression = exprNodeStack.pop();
-        binaryExpressionNode.operator = OperatorKind.valueFrom(operator);
+        binaryExpressionNode.rhsExpr = (BLangExpression) exprNodeStack.pop();
+        binaryExpressionNode.lhsExpr = (BLangExpression) exprNodeStack.pop();
+        binaryExpressionNode.opKind = OperatorKind.valueFrom(operator);
         addExpressionNode(binaryExpressionNode);
     }
 
@@ -560,7 +560,7 @@ public class BLangPackageBuilder {
     }
 
     public void createUnaryExpr(DiagnosticPos pos, String operator) {
-        BLangUnaryExpression unaryExpressionNode = (BLangUnaryExpression) TreeBuilder.createUnaryExpressionNode();
+        BLangUnaryExpr unaryExpressionNode = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         unaryExpressionNode.pos = pos;
         unaryExpressionNode.expressionNode = exprNodeStack.pop();
         unaryExpressionNode.operator = OperatorKind.valueFrom(operator);

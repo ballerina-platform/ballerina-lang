@@ -21,6 +21,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BLOB;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
@@ -40,6 +43,10 @@ public class BType implements ValueType {
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
         this.tsymbol = tsymbol;
+    }
+
+    public List<BType> getReturnTypes() {
+        return new ArrayList<>(0);
     }
 
     @Override

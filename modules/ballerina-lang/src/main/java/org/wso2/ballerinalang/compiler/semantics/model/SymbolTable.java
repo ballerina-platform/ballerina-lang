@@ -20,11 +20,14 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.OperatorKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -33,6 +36,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.model.types.TypeKind.BLOB;
 import static org.ballerinalang.model.types.TypeKind.BOOLEAN;
@@ -111,7 +117,9 @@ public class SymbolTable {
         // Initialize error type;
         this.errType = new BErrorType(null);
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, Names.INVALID, errType, rootPkgSymbol);
-        initializeType(errType, errSymbol);
+        defineType(errType, errSymbol);
+
+        defineOperators();
     }
 
     public BType getTypeFromTag(int tag) {
@@ -144,11 +152,84 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        initializeType(type, new BTypeSymbol(SymTag.TYPE, name, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, name, type, rootPkgSymbol));
     }
 
-    private void initializeType(BType type, BTypeSymbol tSymbol) {
+    private void defineType(BType type, BTypeSymbol tSymbol) {
         type.tsymbol = tSymbol;
         rootScope.define(tSymbol.name, tSymbol);
+    }
+
+    private void defineOperators() {
+        // Binary operator symbols
+        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType, -1);
+        defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType, -1);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, -1);
+        defineBinaryOperator(OperatorKind.ADD, stringType, stringType, floatType, -1);
+        defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, -1);
+        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, -1);
+
+        defineBinaryOperator(OperatorKind.SUB, floatType, intType, intType, -1);
+        defineBinaryOperator(OperatorKind.SUB, intType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.SUB, floatType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);
+
+        defineBinaryOperator(OperatorKind.DIV, floatType, intType, intType, -1);
+        defineBinaryOperator(OperatorKind.DIV, intType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.DIV, floatType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.DIV, intType, intType, intType, -1);
+
+        defineBinaryOperator(OperatorKind.MUL, floatType, intType, intType, -1);
+        defineBinaryOperator(OperatorKind.MUL, intType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.MUL, floatType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.MUL, intType, intType, intType, -1);
+
+
+        // Unary operator symbols
+        defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
+        defineUnaryOperator(OperatorKind.ADD, intType, intType, -1);
+
+        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, -1);
+        defineUnaryOperator(OperatorKind.SUB, intType, intType, -1);
+
+        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, -1);
+
+    }
+
+    private void defineBinaryOperator(OperatorKind kind,
+                                      BType lhsType,
+                                      BType rhsType,
+                                      BType retType,
+                                      int opcode) {
+        List<BType> paramTypes = new ArrayList<>(2);
+        paramTypes.add(lhsType);
+        paramTypes.add(rhsType);
+        List<BType> retTypes = new ArrayList<>(1);
+        retTypes.add(retType);
+        defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
+    }
+
+    private void defineUnaryOperator(OperatorKind kind,
+                                     BType type,
+                                     BType retType,
+                                     int opcode) {
+        List<BType> paramTypes = new ArrayList<>(2);
+        paramTypes.add(type);
+        List<BType> retTypes = new ArrayList<>(1);
+        retTypes.add(retType);
+        defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
+    }
+
+    private void defineOperator(Name name,
+                                List<BType> paramTypes,
+                                List<BType> retTypes,
+                                int opcode) {
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, opType, rootPkgSymbol, opcode);
+        rootScope.define(name, symbol);
     }
 }

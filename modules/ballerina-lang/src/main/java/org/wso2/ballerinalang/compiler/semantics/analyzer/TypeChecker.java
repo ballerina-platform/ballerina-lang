@@ -19,17 +19,20 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -77,6 +80,10 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
+    }
+
+    public BType checkExpr(BLangExpression expr, SymbolEnv env) {
+        return checkExpr(expr, env, symTable.noType);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType) {
@@ -134,6 +141,27 @@ public class TypeChecker extends BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangBinaryExpr binaryExpr) {
+        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
+        BType rhsType = checkExpr(binaryExpr.rhsExpr, env);
+
+        // Look up operator symbol
+        BSymbol symbol = symResolver.resolveBinaryOperator(binaryExpr.pos,
+                binaryExpr.opKind, lhsType, rhsType);
+        if (symbol == symTable.notFoundSymbol) {
+            binaryExpr.type = symTable.errType;
+            return;
+        }
+
+        // type check return type with the exp type
+        BOperatorSymbol opSymbol = (BOperatorSymbol) symbol;
+        resultType = checkType(binaryExpr, opSymbol.type.getReturnTypes().get(0), expType);
+    }
+
+    public void visit(BLangUnaryExpr unaryExpr) {
+        throw new AssertionError();
+    }
+
 
     // Private methods
 
@@ -145,6 +173,8 @@ public class TypeChecker extends BLangNodeVisitor {
         node.type = type;
         if (expType.tag == TypeTags.ERROR) {
             return expType;
+        } else if (expType.tag == TypeTags.NONE) {
+            return type;
         } else if (type.tag == expType.tag) {
             return type;
         }

@@ -17,14 +17,17 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -38,6 +41,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -73,6 +79,45 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
+    public boolean checkForUniqueSymbol(DiagnosticPos pos, BSymbol symbol, Scope scope) {
+        if (lookupSymbol(scope, symbol.name, symbol.tag) != symTable.notFoundSymbol) {
+            dlog.error(pos, "duplicate.symbol", symbol.name);
+            return false;
+        }
+
+        return true;
+    }
+
+    public BSymbol resolveBinaryOperator(DiagnosticPos pos,
+                                         OperatorKind opKind,
+                                         BType lhsType,
+                                         BType rhsType) {
+        ScopeEntry entry = symTable.rootScope.lookup(names.fromString(opKind.value()));
+        List<BType> types = new ArrayList<>(2);
+        types.add(lhsType);
+        types.add(rhsType);
+
+        BSymbol symbol = resolveOperator(entry, types);
+        if (symbol == symTable.notFoundSymbol) {
+            // operator '+' not defined for 'int' and 'xml'
+            dlog.error(pos, "binary.op.incompatible.types", opKind, lhsType, rhsType);
+        }
+        return symbol;
+    }
+
+    public BSymbol resolveUnaryOperator(DiagnosticPos pos,
+                                        OperatorKind opKind,
+                                        BType type) {
+        ScopeEntry entry = symTable.rootScope.lookup(names.fromString(opKind.value()));
+        List<BType> types = new ArrayList<>(2);
+        types.add(type);
+
+        BSymbol symbol = resolveOperator(entry, types);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(pos, "unary.op.incompatible.type", opKind, type);
+        }
+        return symbol;
+    }
 
     // visit type nodes
 
@@ -101,15 +146,31 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
 
-    boolean checkForUniqueSymbol(DiagnosticPos pos, BSymbol symbol, Scope scope) {
-        if (lookupSymbol(scope, symbol.name, symbol.tag) != symTable.notFoundSymbol) {
-            dlog.error(pos, "duplicate.symbol", symbol.name);
-            return false;
+    private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
+        BSymbol foundSymbol = symTable.notFoundSymbol;
+        while (entry != NOT_FOUND_ENTRY) {
+            BOperatorSymbol opSymbol = (BOperatorSymbol) entry.symbol;
+            BInvokableType opType = (BInvokableType) opSymbol.type;
+            if (types.size() == opType.paramTypes.size()) {
+                boolean match = true;
+                for (int i = 0; i < types.size(); i++) {
+                    if (types.get(i).tag != opType.paramTypes.get(i).tag) {
+                        match = false;
+                    }
+                }
+
+                if (match) {
+                    foundSymbol = opSymbol;
+                    break;
+                }
+            }
+
+
+            entry = entry.next;
         }
 
-        return true;
+        return foundSymbol;
     }
-
 
     BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, "unknown.type");

@@ -17,25 +17,18 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+
 /**
  * @since 0.94
  */
-public class SymTag {
+public class BOperatorSymbol extends BInvokableSymbol {
 
-    public static final int NIL = 0;
-    public static final int PACKAGE = 1;
-    public static final int TYPE = 2;
-    public static final int STRUCT = 4;
-    public static final int CONNECTOR = 8;
-    public static final int SERVICE = 8;
-    public static final int VARIABLE = 16;
-    public static final int VALUE = 32;
-    public static final int INVOKABLE = 64;
-    public static final int FUNCTION = 192;
-    public static final int ACTION = 320;
-    public static final int RESOURCE = 576;
-    public static final int ANNOTATION = 1024;
-    public static final int ANNOTATION_ATTRIBUTE = 2048;
-    public static final int ERROR = 4096;
-    public static final int ENUM = 8192;
+    public int opcode;
+
+    public BOperatorSymbol(Name name, BType type, BSymbol owner, int opcode) {
+        super(SymTag.INVOKABLE, name, type, owner);
+        this.opcode = opcode;
+    }
 }

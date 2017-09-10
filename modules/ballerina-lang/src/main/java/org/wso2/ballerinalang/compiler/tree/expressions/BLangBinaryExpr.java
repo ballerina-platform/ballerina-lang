@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -28,24 +27,25 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.94
  */
-public class BLangBinaryExpression extends BLangExpression implements BinaryExpressionNode {
+public class BLangBinaryExpr extends BLangExpression implements BinaryExpressionNode {
 
-    public ExpressionNode leftExpression, rightExpression;
-    public OperatorKind operator;
+    public BLangExpression lhsExpr;
+    public BLangExpression rhsExpr;
+    public OperatorKind opKind;
 
     @Override
-    public ExpressionNode getLeftExpression() {
-        return leftExpression;
+    public BLangExpression getLeftExpression() {
+        return lhsExpr;
     }
 
     @Override
-    public ExpressionNode getRightExpression() {
-        return rightExpression;
+    public BLangExpression getRightExpression() {
+        return rhsExpr;
     }
 
     @Override
     public OperatorKind getOperatorKind() {
-        return operator;
+        return opKind;
     }
 
     @Override
@@ -55,10 +55,11 @@ public class BLangBinaryExpression extends BLangExpression implements BinaryExpr
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
     public String toString() {
-        return String.valueOf(leftExpression) + String.valueOf(operator) + String.valueOf(rightExpression);
+        return String.valueOf(lhsExpr) + String.valueOf(opKind) + String.valueOf(rhsExpr);
     }
 }

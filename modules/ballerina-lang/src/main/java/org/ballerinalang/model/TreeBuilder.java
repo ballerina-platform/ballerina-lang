@@ -92,7 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -102,7 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -246,7 +246,7 @@ public class TreeBuilder {
     }
 
     public static BinaryExpressionNode createBinaryExpressionNode() {
-        return new BLangBinaryExpression();
+        return new BLangBinaryExpr();
     }
 
     public static TypeCastNode createTypeCastNode() {
@@ -258,7 +258,7 @@ public class TreeBuilder {
     }
 
     public static UnaryExpressionNode createUnaryExpressionNode() {
-        return new BLangUnaryExpression();
+        return new BLangUnaryExpr();
     }
 
     public static LambdaFunctionNode createLambdaFunctionNode() {
