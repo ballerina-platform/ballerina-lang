@@ -1197,54 +1197,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
+
+    @Override
+    public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), ctx.Identifier().getText());
+    }
+
     @Override public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterWorkerReply(BallerinaParser.WorkerReplyContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) { }
+
+    @Override
+    public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
+        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), ctx.Identifier().getText());
+    }
     /**
      * {@inheritDoc}
      *

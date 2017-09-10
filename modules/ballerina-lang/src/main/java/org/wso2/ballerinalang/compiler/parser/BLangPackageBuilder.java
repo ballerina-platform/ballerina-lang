@@ -103,6 +103,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1027,6 +1029,20 @@ public class BLangPackageBuilder {
 
     public void endIfElseNode() {
         addStmtToCurrentBlock(ifElseStatementStack.pop());
+    }
+
+    public void addWorkerSendStmt(DiagnosticPos pos, String workerName) {
+        BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
+        workerSendNode.workerIdentifier = createIdentifier(workerName);
+        workerSendNode.expressions = exprNodeListStack.pop();
+        addStmtToCurrentBlock(workerSendNode);
+    }
+
+    public void addWorkerReceiveStmt(DiagnosticPos pos, String workerName) {
+        BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        workerReceiveNode.workerIdentifier = createIdentifier(workerName);
+        workerReceiveNode.expressions = exprNodeListStack.pop();
+        addStmtToCurrentBlock(workerReceiveNode);
     }
 
     public void addExpressionStmt(DiagnosticPos pos) {

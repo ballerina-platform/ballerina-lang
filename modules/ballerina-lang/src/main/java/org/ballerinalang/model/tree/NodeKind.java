@@ -60,6 +60,8 @@ public enum NodeKind {
     VARIABLE_REF,
     WHILE,
     WORKER,
+    WORKER_SEND,
+    WORKER_RECEIVE,
     XMLNS,
     /* Expressions */
     INVOCATION,

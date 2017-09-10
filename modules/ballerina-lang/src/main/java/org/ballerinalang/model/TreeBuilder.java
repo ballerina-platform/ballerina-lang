@@ -69,6 +69,8 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
+import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
+import org.ballerinalang.model.tree.statements.WorkerSendNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
@@ -127,6 +129,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -331,6 +335,14 @@ public class TreeBuilder {
 
     public static WorkerNode createWorkerNode() {
         return new BLangWorker();
+    }
+
+    public static WorkerReceiveNode createWorkerReceiveNode() {
+        return new BLangWorkerReceive();
+    }
+
+    public static WorkerSendNode createWorkerSendNode() {
+        return new BLangWorkerSend();
     }
 
     public static WhileNode createWhileNode() {
