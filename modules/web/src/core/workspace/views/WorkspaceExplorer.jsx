@@ -1,8 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import View from './../../view/view';
 import FileTree from './../../view/FileTree';
-import { VIEWS, EVENTS } from './../constants';
+import { VIEWS, EVENTS, COMMANDS } from './../constants';
 
 /**
  * Woprkspace Explorer
@@ -25,6 +26,7 @@ class WorkspaceExplorer extends View {
             this.forceUpdate();
         });
         this.onOpen = this.onOpen.bind(this);
+        this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
     }
 
     /**
@@ -35,6 +37,14 @@ class WorkspaceExplorer extends View {
         if (node.type === 'file') {
             this.props.workspaceManager.openFile(node.id);
         }
+    }
+
+    /**
+     * On click open program dir
+     */
+    onClickOpenProgramDir() {
+        const { command: { dispatch } } = this.props.workspaceManager.appContext;
+        dispatch(COMMANDS.SHOW_FOLDER_OPEN_WIZARD);
     }
 
     /**
@@ -49,7 +59,14 @@ class WorkspaceExplorer extends View {
             ));
         });
         return (
-            <div>
+            <div className="workspace-explorer">
+                {_.isEmpty(trees) && 
+                    <div className="open-folder-btn-wrapper" onClick={this.onClickOpenProgramDir} > 
+                        <span className="open-folder-button">
+                            <i className="fw fw-folder-open"></i>Open Program Directory
+                        </span>
+                    </div>
+                }
                 {trees}
             </div>
         );
