@@ -43,7 +43,8 @@ import javax.tools.StandardLocation;
  * 
  * @since 0.94
  */
-@SupportedAnnotationTypes ("org.ballerinalang.annotation.JavaSPIService")
+@SupportedAnnotationTypes({ "org.ballerinalang.annotation.JavaSPIService",
+        "org.ballerinalang.annotation.natives.BallerinaFunction" })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
