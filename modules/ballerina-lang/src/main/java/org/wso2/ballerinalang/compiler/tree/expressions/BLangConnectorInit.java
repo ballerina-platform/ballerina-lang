@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,10 +37,12 @@ public class BLangConnectorInit extends BLangExpression implements ConnectorInit
 
     public BLangUserDefinedType connectorType;
     public List<ExpressionNode> argsExpressions;
-    public ConnectorInitNode parentConnectorInitNode, nextFilterConnector;
+    public List<ConnectorInitNode> filterConnectors;
 
 
     public BLangConnectorInit() {
+        argsExpressions = new ArrayList<>();
+        filterConnectors = new ArrayList<>();
     }
 
     @Override
@@ -58,23 +61,8 @@ public class BLangConnectorInit extends BLangExpression implements ConnectorInit
     }
 
     @Override
-    public ConnectorInitNode getParentConnectorInitNode() {
-        return parentConnectorInitNode;
-    }
-
-    @Override
-    public void setParentConnectorInitExpression(ConnectorInitNode connectorInitNode) {
-        this.parentConnectorInitNode = connectorInitNode;
-    }
-
-    @Override
-    public ConnectorInitNode getNextFilterConnectorInitNode() {
-        return nextFilterConnector;
-    }
-
-    @Override
-    public void setNextFilterConnectorInitNode(ConnectorInitNode connectorInitNode) {
-        this.nextFilterConnector = connectorInitNode;
+    public List<ConnectorInitNode> getFilterConnectos() {
+        return this.filterConnectors;
     }
 
     @Override
@@ -89,8 +77,7 @@ public class BLangConnectorInit extends BLangExpression implements ConnectorInit
     @Override
     public String toString() {
         return "BLangConnectorInit: " + connectorType +
-                (parentConnectorInitNode != null ? " of " + parentConnectorInitNode.getConnectorType() : "") +
-                "(" + (argsExpressions != null ? Arrays.toString(argsExpressions.toArray()) : "") + ")" +
-                (nextFilterConnector != null ? " -> " + nextFilterConnector : "");
+                " (" + (argsExpressions != null ? Arrays.toString(argsExpressions.toArray()) : "") + ") " +
+                (!filterConnectors.isEmpty() ? " with " + Arrays.toString(filterConnectors.toArray()) : "");
     }
 }

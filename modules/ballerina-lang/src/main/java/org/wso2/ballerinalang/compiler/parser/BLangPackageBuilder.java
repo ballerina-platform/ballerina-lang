@@ -391,22 +391,9 @@ public class BLangPackageBuilder {
         }
         ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
-            ConnectorInitNode current = connectorInitNodeStack.pop();
-            current.setParentConnectorInitExpression(connectorInitNode);
-            if (previous != null) {
-                previous.setNextFilterConnectorInitNode(current);
-            } else {
-                // This the first Filter connector in chain.
-                this.addExpressionNode(current);
-            }
-            previous = current;
+            connectorInitNode.filterConnectors.add(0, connectorInitNodeStack.pop());
         }
-        if (previous != null) {
-            previous.setNextFilterConnectorInitNode(connectorInitNode);
-        } else {
-            // There is no filter connectors.
-            this.addExpressionNode(connectorInitNode);
-        }
+        this.addExpressionNode(connectorInitNode);
     }
 
     public void addFilterConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {

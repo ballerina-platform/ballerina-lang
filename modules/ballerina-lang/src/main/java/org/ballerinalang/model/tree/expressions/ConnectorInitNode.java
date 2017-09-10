@@ -32,12 +32,5 @@ public interface ConnectorInitNode extends ExpressionNode {
 
     void addExpression(ExpressionNode expressionNode);
 
-    // TODO: check whether is there another way of link filter connectors.
-    ConnectorInitNode getParentConnectorInitNode();
-
-    void setParentConnectorInitExpression(ConnectorInitNode connectorInitNode);
-
-    ConnectorInitNode getNextFilterConnectorInitNode();
-
-    void setNextFilterConnectorInitNode(ConnectorInitNode connectorInitNode);
+    List<? extends ConnectorInitNode> getFilterConnectos();
 }
