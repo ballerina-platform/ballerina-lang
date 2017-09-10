@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -31,7 +32,6 @@ import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
@@ -1541,7 +1541,7 @@ public class FilterTestCase1 {
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery44() throws InterruptedException {
         log.info("Filter test44");
 
@@ -1554,7 +1554,7 @@ public class FilterTestCase1 {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery45() throws InterruptedException {
         log.info("Filter test45");
 
@@ -1567,7 +1567,7 @@ public class FilterTestCase1 {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery46() throws InterruptedException {
         log.info("Filter test46");
 
@@ -1580,7 +1580,7 @@ public class FilterTestCase1 {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery47() throws InterruptedException {
         log.info("Filter test47");
 
@@ -1593,7 +1593,7 @@ public class FilterTestCase1 {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery48() throws InterruptedException {
         log.info("Filter test48");
 
@@ -1620,7 +1620,7 @@ public class FilterTestCase1 {
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery49() throws InterruptedException {
         log.info("Filter test49");
 
@@ -1647,7 +1647,7 @@ public class FilterTestCase1 {
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testFilterQuery50() throws InterruptedException {
         log.info("Filter test50");
 
