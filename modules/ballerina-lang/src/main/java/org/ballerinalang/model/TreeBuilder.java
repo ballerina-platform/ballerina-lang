@@ -44,7 +44,16 @@ import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.TypeCastNode;
+import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
+import org.ballerinalang.model.tree.expressions.XMLCommentLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLProcessingInstructionLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLQNameNode;
+import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
+import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -91,7 +100,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -231,6 +249,14 @@ public class TreeBuilder {
         return new BLangBinaryExpression();
     }
 
+    public static TypeCastNode createTypeCastNode() {
+        return new BLangTypeCast();
+    }
+
+    public static TypeConversionNode createTypeConversionNode() {
+        return new BLangTypeConversion();
+    }
+
     public static UnaryExpressionNode createUnaryExpressionNode() {
         return new BLangUnaryExpression();
     }
@@ -305,5 +331,33 @@ public class TreeBuilder {
 
     public static BreakNode createBreakNode() {
         return new BLangBreak();
+    }
+    
+    public static XMLQNameNode createXMLQNameNode() {
+        return new BLangXMLQName();
+    }
+    
+    public static XMLAttributeNode createXMLAttributeNode() {
+        return new BLangXMLAttribute();
+    }
+    
+    public static XMLElementLiteralNode createXMLElementLiteralNode() {
+        return new BLangXMLElementLiteral();
+    }
+    
+    public static XMLTextLiteralNode createXMLTextLiteralNode() {
+        return new BLangXMLTextLiteral();
+    }
+    
+    public static XMLCommentLiteralNode createXMLCommentLiteralNode() {
+        return new BLangXMLCommentLiteral();
+    }
+    
+    public static XMLProcessingInstructionLiteralNode createXMLProcessingIntsructionLiteralNode() {
+        return new BLangXMLProcInsLiteral();
+    }
+    
+    public static XMLQuotedStringNode createXMLQuotedStringNode() {
+        return new BLangXMLQuotedString();
     }
 }

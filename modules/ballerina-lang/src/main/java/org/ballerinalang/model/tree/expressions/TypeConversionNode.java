@@ -17,10 +17,21 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.types.TypeNode;
+
 /**
  * <string>i
  *
  * @since 0.94
  */
 public interface TypeConversionNode extends ExpressionNode {
+
+    ExpressionNode getExpression();
+
+    void setExpression(ExpressionNode expressionNode);
+
+    TypeNode getTypeName();
+
+    void setTypeName(TypeNode typeName);
+
 }

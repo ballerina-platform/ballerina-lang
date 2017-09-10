@@ -24,6 +24,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -220,6 +229,41 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTypeCast typeCastNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTypeConversion typeConversionNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLQName bLangXMLQName) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLAttribute bLangXMLAttribute) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
+        throw new AssertionError();
+    }
 
     // Type nodes
 
