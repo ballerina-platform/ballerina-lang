@@ -24,7 +24,7 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, EVENTS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY } from './constants';
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
@@ -119,7 +119,7 @@ class WorkspacePlugin extends Plugin {
                 this.openedFolders.push(folderPath);
                 const { pref: { history } } = this.appContext;
                 history.put(HISTORY.OPENED_FOLDERS, this.openedFolders);
-                this.trigger(EVENTS.OPEN_FOLDER, folderPath);
+                this.reRender();
             }
             resolve();
         });

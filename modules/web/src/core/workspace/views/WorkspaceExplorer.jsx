@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import View from './../../view/view';
 import FileTree from './../../view/FileTree';
-import { VIEWS, EVENTS, COMMANDS } from './../constants';
+import { VIEWS, COMMANDS } from './../constants';
 
 /**
  * Woprkspace Explorer
@@ -22,9 +22,6 @@ class WorkspaceExplorer extends View {
      */
     constructor(props) {
         super(props);
-        props.workspaceManager.on(EVENTS.OPEN_FOLDER, () => {
-            this.forceUpdate();
-        });
         this.onOpen = this.onOpen.bind(this);
         this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
     }

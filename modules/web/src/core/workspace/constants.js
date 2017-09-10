@@ -8,8 +8,6 @@ export const COMMANDS = {
 export const EVENTS = {
     DIRTY_STATE_CHANGE: 'dirty-state-change',
     CONTENT_MODIFIED: 'content-modified',
-    OPEN_FOLDER: 'open-folder',
-    OPEN_FILE: 'open-file',
 };
 
 export const VIEWS = {
