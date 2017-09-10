@@ -51,6 +51,7 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -98,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -173,6 +175,8 @@ public class BLangPackageBuilder {
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
+
+    private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
@@ -633,20 +637,68 @@ public class BLangPackageBuilder {
     }
 
     public void startWorker() {
-        //TODO: Add check for fork-join.
         WorkerNode workerNode = TreeBuilder.createWorkerNode();
         this.invokableNodeStack.push(workerNode);
         startBlock();
     }
 
     public void addWorker(DiagnosticPos pos, String workerName) {
-        // TODO : Add check for fork-join.
         BLangWorker worker = (BLangWorker) this.invokableNodeStack.pop();
         worker.setName(createIdentifier(workerName));
         worker.pos = pos;
         worker.setBody(this.blockNodeStack.pop());
-        this.invokableNodeStack.peek().addWorker(worker);
-        this.invokableNodeStack.peek().addFlag(Flag.PARALLEL);
+        if (this.forkJoinNodesStack.empty()) {
+            this.invokableNodeStack.peek().addWorker(worker);
+            this.invokableNodeStack.peek().addFlag(Flag.PARALLEL);
+        } else {
+            ((BLangForkJoin) this.forkJoinNodesStack.peek()).workers.add(worker);
+        }
+    }
+
+    public void startForkJoinStmt() {
+        this.forkJoinNodesStack.push(TreeBuilder.createForkJoinNode());
+    }
+
+    public void addForkJoinStmt(DiagnosticPos pos) {
+        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.pop();
+        forkJoin.pos = pos;
+        this.addStmtToCurrentBlock(forkJoin);
+    }
+
+    public void startJoinCause() {
+        startBlock();
+    }
+
+    public void addJoinCause() {
+        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
+        forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
+    }
+
+    public void addJoinCondition(String joinType, List<String> workerNames, int joinCount) {
+        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
+        forkJoin.joinedWorkerCount = joinCount;
+        forkJoin.joinType = ForkJoinNode.JoinType.valueOf(joinType);
+        workerNames.forEach(s -> forkJoin.joinedWorkers.add((BLangIdentifier) createIdentifier(s)));
+    }
+
+    public void startTimeoutCause() {
+        startBlock();
+    }
+
+    public void addTimeoutCause(String paramName) {
+        BLangSimpleVarRef varRef =
+                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.variableName = (BLangIdentifier) createIdentifier(paramName);
+
+        BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
+        variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
+        variableNode.name = (BLangIdentifier) createIdentifier(paramName);
+        variableNode.expr = varRef;
+
+        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
+        forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
+        forkJoin.timeoutExpression = this.exprNodeStack.pop();
+        forkJoin.timeoutVariable = variableNode;
     }
 
     public void endCallableUnitBody() {
@@ -1031,10 +1083,11 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(ifElseStatementStack.pop());
     }
 
-    public void addWorkerSendStmt(DiagnosticPos pos, String workerName) {
+    public void addWorkerSendStmt(DiagnosticPos pos, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.workerIdentifier = createIdentifier(workerName);
         workerSendNode.expressions = exprNodeListStack.pop();
+        workerSendNode.isForkJoinSend = isForkJoinSend;
         addStmtToCurrentBlock(workerSendNode);
     }
 

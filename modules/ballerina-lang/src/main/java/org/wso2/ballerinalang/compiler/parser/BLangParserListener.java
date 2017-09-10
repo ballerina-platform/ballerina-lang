@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -1072,66 +1073,63 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) {
         this.pkgBuilder.addBreakStatement(getCurrentPos(ctx));
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) { }
+
+    @Override
+    public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
+        this.pkgBuilder.startForkJoinStmt();
+    }
+
+    @Override
+    public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
+        this.pkgBuilder.addForkJoinStmt(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        this.pkgBuilder.startJoinCause();
+    }
+
+    @Override
+    public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        this.pkgBuilder.addJoinCause();
+    }
+
+    @Override
+    public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+        List<String> workerNames = new ArrayList<>();
+        if (ctx.Identifier() != null) {
+            workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
+        }
+        int joinCount = 0;
+        if (ctx.IntegerLiteral() != null) {
+            try {
+                joinCount = Integer.valueOf(ctx.IntegerLiteral().getText());
+            } catch (NumberFormatException ex) {
+                // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
+                // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
+            }
+        }
+        this.pkgBuilder.addJoinCondition("SOME", workerNames, joinCount);
+    }
+
+    @Override
+    public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+        List<String> workerNames = new ArrayList<>();
+        if (ctx.Identifier() != null) {
+            workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
+        }
+        this.pkgBuilder.addJoinCondition("ALL", workerNames, -1);
+    }
+
+    @Override
+    public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
+        this.pkgBuilder.startTimeoutCause();
+    }
+
+    @Override
+    public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
+        this.pkgBuilder.addTimeoutCause(ctx.Identifier().getText());
+    }
 
     @Override
     public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
@@ -1200,10 +1198,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), ctx.Identifier().getText());
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), ctx.Identifier().getText(), false);
     }
 
-    @Override public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
+    @Override
+    public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) {
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), "FORK", true);
+    }
 
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {

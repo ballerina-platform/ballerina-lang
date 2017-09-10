@@ -36,6 +36,7 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
     public List<ExpressionNode> expressions;
     public IdentifierNode workerIdentifier;
+    public boolean isForkJoinSend;
 
     public BLangWorkerSend() {
         this.expressions = new ArrayList<>();
@@ -54,6 +55,11 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     @Override
     public void setWorkerName(IdentifierNode identifierNode) {
         this.workerIdentifier = identifierNode;
+    }
+
+    @Override
+    public boolean isForkJoinedSend() {
+        return isForkJoinSend;
     }
 
     @Override

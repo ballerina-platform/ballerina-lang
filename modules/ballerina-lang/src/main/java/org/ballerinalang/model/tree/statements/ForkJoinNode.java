@@ -17,11 +17,39 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.WorkerNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
+import java.util.List;
+
 /**
  * @since 0.94
  */
 public interface ForkJoinNode extends StatementNode {
-    // workers
-    // join
-    // timeout..
+
+    List<? extends WorkerNode> getWorkers();
+
+    List<? extends IdentifierNode> getJoinedWorkerIdentifiers();
+
+    JoinType getJoinType();
+
+    int getJoinCount();
+
+    BlockNode getJoinBody();
+
+    ExpressionNode getTimeOutExpression();
+
+    VariableNode getTimeOutVariable();
+
+    BlockNode getTimeoutBody();
+
+    /**
+     * Join type.
+     */
+    enum JoinType {
+        SOME,
+        ALL
+    }
 }

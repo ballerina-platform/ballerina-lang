@@ -39,6 +39,7 @@ public enum NodeKind {
     CONTINUE,
     ENUM,
     EXPRESSION_STATEMENT,
+    FORKJOIN,
     FUNCTION,
     IDENTIFIER,
     IF,
