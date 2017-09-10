@@ -37,6 +37,6 @@ public @interface JavaSPIService {
      * 
      * @return the interface name
      */
-    Class<?> value();
+    String value();
     
 }

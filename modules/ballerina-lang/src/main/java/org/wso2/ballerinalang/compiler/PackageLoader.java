@@ -137,6 +137,7 @@ public class PackageLoader {
                 SystemPackageRepositoryProvider.class);
         AggregatedPackageRepository repo = new AggregatedPackageRepository();
         loader.forEach(e -> repo.addRepository(e.loadRepository()));
+        log("* System Repo: " + repo.getRepositories());
         return repo;
     }
 

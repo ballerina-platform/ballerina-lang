@@ -21,9 +21,11 @@ import org.ballerinalang.annotation.JavaSPIService;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -55,9 +57,19 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private void processJavaSPIServices(RoundEnvironment roundEnv) {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(JavaSPIService.class);
-        List<String> implClasses = elements.stream().map(e -> this.extractClassName(e)).collect(Collectors.toList());
-        if (!implClasses.isEmpty()) {
-            this.createServiceFile(JavaSPIService.class.getName(), implClasses);
+        Map<String, List<String>> entries = new HashMap<>();
+        String interfaceName;
+        for (Element element : elements) {
+            interfaceName = element.getAnnotation(JavaSPIService.class).value();
+            List<String> implClasses = entries.get(interfaceName);
+            if (implClasses == null) {
+                implClasses = new ArrayList<>();
+                entries.put(interfaceName, implClasses);
+            }
+            implClasses.add(this.extractClassName(element));
+        }
+        if (!entries.isEmpty()) {
+            entries.forEach(this::createServiceFile);
         }
     }
     

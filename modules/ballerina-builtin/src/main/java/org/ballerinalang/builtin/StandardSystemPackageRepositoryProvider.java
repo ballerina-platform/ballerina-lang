@@ -27,7 +27,7 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
  * 
  * @since 0.94
  */
-@JavaSPIService(SystemPackageRepositoryProvider.class)
+@JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class StandardSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
     private static final String JAR_SYSTEM_LIB_LOCATION = "/META-INF/ballerina/";

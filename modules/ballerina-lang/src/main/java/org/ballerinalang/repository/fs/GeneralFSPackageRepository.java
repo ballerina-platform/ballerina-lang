@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public class GeneralFSPackageRepository implements PackageRepository {
 
-    private Path basePath;
+    protected Path basePath;
 
     public GeneralFSPackageRepository(Path basePath) {
         this.basePath = basePath;
