@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.PackageSource;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
@@ -78,13 +80,23 @@ public class Parser {
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
-            BLangParserListener listener = new BLangParserListener(compUnit, diagnosticSrc);
+            BLangParserListener listener;
+            if (isWSPreserving()) {
+                listener = new BLangWSPreservingParserListener(tokenStream, compUnit, diagnosticSrc);
+            } else {
+                listener = new BLangParserListener(compUnit, diagnosticSrc);
+            }
             parser.addParseListener(listener);
             parser.compilationUnit();
             return compUnit;
         } catch (IOException e) {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
         }
+    }
+
+    private boolean isWSPreserving() {
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        return Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
     }
 
     private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {

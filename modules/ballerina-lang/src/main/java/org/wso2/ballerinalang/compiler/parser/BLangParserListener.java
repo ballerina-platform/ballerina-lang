@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -2362,6 +2363,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
+    }
+
+    protected Set<WSToken> getWS(ParserRuleContext ctx) {
+        return null;
     }
 
     private Stack<String> getTemplateTextFragments(List<TerminalNode> nodes) {
