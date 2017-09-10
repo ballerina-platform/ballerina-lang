@@ -15,7 +15,7 @@ export const MENUS = {
 
 export const LABELS = {
     HELP: 'Help',
-    WELCOME: 'Welcome Page',
+    WELCOME: 'Welcome',
     REFERENCE: 'Ballerina by Example',
     REPORT: 'Report Issue',
     ABOUT: 'About',
@@ -24,5 +24,10 @@ export const LABELS = {
 export const DIALOG = {
     ABOUT: 'composer.dialog.about',
 };
+
+export const VIEWS = {
+    WELCOME: 'welcome',
+};
+
 
 export const PLUGIN_ID = 'composer.plugin.help';

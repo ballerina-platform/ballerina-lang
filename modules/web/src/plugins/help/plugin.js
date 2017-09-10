@@ -21,9 +21,10 @@ import { CONTRIBUTIONS } from './../../core/plugin/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, DIALOG } from './constants';
-
+import { PLUGIN_ID, DIALOG, VIEWS as HELP_VIEWS, LABELS} from './constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
 import AboutDialog from './dialogs/AboutDialog';
+import WelcomeView from '../../../js/welcome-page/welcome';
 /**
  * Help plugin.
  *
@@ -41,8 +42,16 @@ class HelpPlugin extends Plugin {
     /**
      * @inheritdoc
      */
+    onAfterInitialRender() {
+        const { command } = this.appContext;
+        command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, HELP_VIEWS.WELCOME);
+    }
+
+    /**
+     * @inheritdoc
+     */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, DIALOGS, VIEWS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
@@ -54,6 +63,22 @@ class HelpPlugin extends Plugin {
                     propsProvider: () => {
                         return {
                         };
+                    },
+                },
+            ],
+            [VIEWS]: [
+                {
+                    id: HELP_VIEWS.WELCOME,
+                    component: WelcomeView,
+                    propsProvider: () => {
+                        return {
+                            content: 'sample content',
+                        };
+                    },
+                    region: REGIONS.EDITOR_TABS,
+                    // region specific options for editor-tabs views
+                    regionOptions: {
+                        tabTitle: LABELS.WELCOME,
                     },
                 },
             ],
