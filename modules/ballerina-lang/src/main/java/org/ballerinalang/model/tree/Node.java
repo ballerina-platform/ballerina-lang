@@ -18,6 +18,9 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
+import org.wso2.ballerinalang.compiler.parser.WSToken;
+
+import java.util.Set;
 
 /**
  * {@code Node} is the base interface for all tree nodes in Ballerina abstract syntax tree.
@@ -28,7 +31,9 @@ import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
  */
 public interface Node {
 
-    // TODO DD Visitor method.. and whitespaces
+    void addWS(Set<WSToken> wsTokens);
+
+    Set<WSToken> getWS();
 
     /**
      * Returns the kind of this node.
