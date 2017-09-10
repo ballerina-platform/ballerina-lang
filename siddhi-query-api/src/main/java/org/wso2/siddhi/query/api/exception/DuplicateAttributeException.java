@@ -22,15 +22,12 @@ package org.wso2.siddhi.query.api.exception;
  */
 public class DuplicateAttributeException extends SiddhiAppValidationException {
 
-    public DuplicateAttributeException(String message) {
-        super(message);
+    public DuplicateAttributeException(String message, int[] queryContextStartIndex,
+                                       int[] queryContextEndIndex, String siddhiAppName, String siddhiAppString) {
+        super(message, queryContextStartIndex, queryContextEndIndex, siddhiAppName, siddhiAppString);
     }
 
-    public DuplicateAttributeException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
-
-    public DuplicateAttributeException(Throwable throwable) {
-        super(throwable);
+    public DuplicateAttributeException(String message, int[] queryContextStartIndex, int[] queryContextEndIndex) {
+        super(message, queryContextStartIndex, queryContextEndIndex);
     }
 }

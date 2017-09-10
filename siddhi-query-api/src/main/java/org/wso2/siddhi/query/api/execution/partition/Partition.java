@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.query.api.execution.partition;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
@@ -36,12 +37,15 @@ import java.util.Map;
  * {@linkplain org.wso2.siddhi.query.api.execution.partition.Partition} class is used to represent the definition of
  * a partition for a Siddhi instance.
  */
-public class Partition implements ExecutionElement {
+public class Partition implements ExecutionElement, SiddhiElement {
 
+    private static final long serialVersionUID = 1L;
     private Map<String, PartitionType> partitionTypeMap = new HashMap<String, PartitionType>();
     private List<Query> queryList = new ArrayList<Query>();
     private List<String> queryNameList = new ArrayList<String>();
     private List<Annotation> annotations = new ArrayList<Annotation>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public static Partition partition() {
         return new Partition();
@@ -84,7 +88,8 @@ public class Partition implements ExecutionElement {
         }
         if (name != null && queryNameList.contains(name)) {
             throw new SiddhiAppValidationException("Cannot add Query as another Execution Element already uses " +
-                    "its name=" + name + " within the same Partition");
+                    "its name=" + name + " within the same Partition",
+                    element.getQueryContextStartIndex(), element.getQueryContextEndIndex());
         }
         queryNameList.add(name);
         this.queryList.add(query);
@@ -96,7 +101,8 @@ public class Partition implements ExecutionElement {
         if (partitionTypeMap.containsKey(partitionedStream)) {
             throw new SiddhiAppValidationException("Duplicate partition for Stream " + partitionedStream + "!, "
                     + partitionType.toString() + " cannot be added as " + partitionTypeMap.get(partitionType
-                    .getStreamId()) + " already exist.");
+                    .getStreamId()) + " already exist.", partitionType.getQueryContextStartIndex(),
+                    partitionType.getQueryContextEndIndex());
         }
         partitionTypeMap.put(partitionType.getStreamId(), partitionType);
     }
@@ -154,5 +160,25 @@ public class Partition implements ExecutionElement {
         result = 31 * result + (queryList != null ? queryList.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

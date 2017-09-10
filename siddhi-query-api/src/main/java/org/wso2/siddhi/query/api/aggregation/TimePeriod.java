@@ -17,7 +17,8 @@
  */
 package org.wso2.siddhi.query.api.aggregation;
 
-import java.io.Serializable;
+import org.wso2.siddhi.query.api.SiddhiElement;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,11 +27,13 @@ import java.util.List;
  * Time Period API. This defines all the time durations supported in Incremental Aggregation,
  * and the relevant operators
  */
-public class TimePeriod implements Serializable {
+public class TimePeriod implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private Operator operator;
     private List<Duration> durations;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     private TimePeriod(Operator operator) {
         this.durations = new ArrayList<>();
@@ -80,6 +83,26 @@ public class TimePeriod implements Serializable {
         int result = operator.hashCode();
         result = 31 * result + (durations != null ? durations.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 
     /**

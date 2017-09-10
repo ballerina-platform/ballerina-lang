@@ -45,11 +45,14 @@ public class OptionHolder {
         }
         for (Map.Entry<String, String> entry : dynamicOptions.entrySet()) {
             options.put(entry.getKey(), new Option(entry.getKey(), null,
-                                                   new TemplateBuilder(streamDefinition, entry.getValue())));
+                    new TemplateBuilder(streamDefinition, entry.getValue())));
         }
-
-        staticOptions.keySet().forEach(key -> staticOptionsKeys.add(key));
-        dynamicOptions.keySet().forEach(key -> dynamicOptionsKeys.add(key));
+        for (String key : staticOptions.keySet()) {
+            staticOptionsKeys.add(key);
+        }
+        for (String key : dynamicOptions.keySet()) {
+            dynamicOptionsKeys.add(key);
+        }
     }
 
     public Option validateAndGetOption(String optionKey) {

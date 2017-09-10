@@ -19,6 +19,8 @@
 package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
+import org.wso2.siddhi.core.util.ExceptionUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +37,7 @@ public class ByteSerializer {
     private ByteSerializer() {
     }
 
-    public static byte[] objectToByte(Object obj) {
+    public static byte[] objectToByte(Object obj, SiddhiAppContext siddhiAppContext) {
         long start = System.currentTimeMillis();
         byte[] out = null;
         if (obj != null) {
@@ -45,18 +47,19 @@ public class ByteSerializer {
                 oos.writeObject(obj);
                 out = baos.toByteArray();
             } catch (IOException e) {
-                log.error("Error when writing byte array. " + e.getMessage(), e);
+                log.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error when writing byte array.", e);
                 return null;
             }
         }
         long end = System.currentTimeMillis();
         if (log.isDebugEnabled()) {
-            log.debug("Encoded in :" + (end - start) + " msec");
+            log.debug("For SiddhiApp '" + siddhiAppContext.getName() + "'. Encoded in :" + (end - start) + " msec");
         }
         return out;
     }
 
-    public static Object byteToObject(byte[] bytes) {
+    public static Object byteToObject(byte[] bytes, SiddhiAppContext siddhiAppContext) {
         long start = System.currentTimeMillis();
         Object out = null;
         if (bytes != null) {
@@ -65,10 +68,12 @@ public class ByteSerializer {
                 ObjectInputStream ois = new ObjectInputStream(bios);
                 out = ois.readObject();
             } catch (IOException e) {
-                log.error("Error when writing to object. " + e.getMessage(), e);
+                log.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error when writing to object.", e);
                 return null;
             } catch (ClassNotFoundException e) {
-                log.error("Error when writing to object. " + e.getMessage(), e);
+                log.error(ExceptionUtil.getMessageWithContext(e, siddhiAppContext) +
+                        " Error when writing to object.", e);
                 return null;
             }
         }

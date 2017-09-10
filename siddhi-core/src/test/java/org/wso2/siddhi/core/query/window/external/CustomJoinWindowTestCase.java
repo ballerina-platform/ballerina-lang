@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
@@ -380,7 +380,7 @@ public class CustomJoinWindowTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testWindowAfterWindow() throws InterruptedException {
         log.info("Test traditional window for a stream out of window");
 
@@ -703,5 +703,5 @@ public class CustomJoinWindowTestCase {
             siddhiAppRuntime.shutdown();
         }
     }
-    
+
 }

@@ -54,13 +54,4 @@ public class TableDefinition extends AbstractDefinition {
         }
     }
 
-    @Override
-    public String toString() {
-        return "TableDefinition{" +
-                "id='" + id + '\'' +
-                ", attributeList=" + attributeList +
-                ", annotations=" + annotations +
-                '}';
-    }
-
 }

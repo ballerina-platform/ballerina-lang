@@ -58,7 +58,9 @@ public class State {
     public static AbsentStreamStateElement logicalNot(StreamStateElement streamStateElement) {
         if (streamStateElement.getBasicSingleInputStream().getStreamReferenceId() != null) {
             throw new SiddhiAppValidationException("NOT pattern cannot have reference id but found " +
-                    streamStateElement.getBasicSingleInputStream().getStreamReferenceId());
+                    streamStateElement.getBasicSingleInputStream().getStreamReferenceId(),
+                    streamStateElement.getBasicSingleInputStream().getQueryContextStartIndex(),
+                    streamStateElement.getBasicSingleInputStream().getQueryContextEndIndex());
         }
         return new AbsentStreamStateElement(streamStateElement.getBasicSingleInputStream());
     }

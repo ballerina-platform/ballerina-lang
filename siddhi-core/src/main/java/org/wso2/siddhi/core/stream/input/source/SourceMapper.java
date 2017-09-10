@@ -39,6 +39,7 @@ public abstract class SourceMapper implements SourceEventListener {
     private String mapType;
     private String sourceType;
     private List<AttributeMapping> transportMappings;
+    private SiddhiAppContext siddhiAppContext;
 
     public final void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
                            List<AttributeMapping> attributeMappings, String sourceType,
@@ -49,6 +50,7 @@ public abstract class SourceMapper implements SourceEventListener {
         this.mapType = mapType;
         this.sourceType = sourceType;
         this.transportMappings = transportMappings;
+        this.siddhiAppContext = siddhiAppContext;
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader, siddhiAppContext);
     }
 
@@ -72,7 +74,8 @@ public abstract class SourceMapper implements SourceEventListener {
     public abstract Class[] getSupportedInputEventClasses();
 
     public final void setInputHandler(InputHandler inputEventHandler) {
-        this.inputEventHandler = new InputEventHandler(inputEventHandler, transportMappings, trpProperties, sourceType);
+        this.inputEventHandler = new InputEventHandler(inputEventHandler, transportMappings, trpProperties, sourceType,
+                siddhiAppContext);
     }
 
     public final void onEvent(Object eventObject, String[] transportProperties) {

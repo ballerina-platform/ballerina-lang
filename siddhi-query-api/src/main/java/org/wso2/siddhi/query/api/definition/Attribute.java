@@ -17,16 +17,18 @@
  */
 package org.wso2.siddhi.query.api.definition;
 
-import java.io.Serializable;
+import org.wso2.siddhi.query.api.SiddhiElement;
 
 /**
  * Attributes of the Siddhi Definitions
  */
-public class Attribute implements Serializable {
+public class Attribute implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private String name;
     private Type type;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public Attribute(String name, Type type) {
         this.name = name;
@@ -75,6 +77,26 @@ public class Attribute implements Serializable {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 
     /**

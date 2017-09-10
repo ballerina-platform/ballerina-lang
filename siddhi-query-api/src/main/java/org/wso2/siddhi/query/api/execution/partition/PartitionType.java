@@ -18,11 +18,12 @@
 
 package org.wso2.siddhi.query.api.execution.partition;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
+
 /**
- * Created by suho on 7/3/14.
+ * Type of Siddhi partition
  */
-public interface PartitionType {
+public interface PartitionType extends SiddhiElement {
 
-    public String getStreamId();
-
+    String getStreamId();
 }

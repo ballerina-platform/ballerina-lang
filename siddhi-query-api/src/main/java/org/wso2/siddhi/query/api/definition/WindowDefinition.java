@@ -99,11 +99,6 @@ public class WindowDefinition extends StreamDefinition {
 
     @Override
     public String toString() {
-        return "WindowDefinition{" +
-                "id='" + id + '\'' +
-                ", attributeList=" + attributeList +
-                ", annotations=" + annotations +
-                ", window=" + window +
-                '}';
+        return super.toString() + " " + window.toString();
     }
 }

@@ -362,7 +362,7 @@ group_by_query_selection
     ;
 
 query_section
-    : group_by_query_selection having?
+    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
     ;
 
 group_by
@@ -721,8 +721,8 @@ DOT : '.';
 TRIPLE_DOT : '...';
 OPEN_PAR : '(';
 CLOSE_PAR : ')';
-OPEN_SQARE_BRACKETS : '[';
-CLOASE_SQARE_BRACKETS : ']';
+OPEN_SQUARE_BRACKETS : '[';
+CLOSE_SQUARE_BRACKETS : ']';
 COMMA : ',';
 ASSIGN : '=';
 STAR : '*';

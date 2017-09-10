@@ -18,6 +18,7 @@
 package org.wso2.siddhi.query.api.expression;
 
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.condition.And;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 import org.wso2.siddhi.query.api.expression.condition.In;
@@ -37,14 +38,14 @@ import org.wso2.siddhi.query.api.expression.math.Mod;
 import org.wso2.siddhi.query.api.expression.math.Multiply;
 import org.wso2.siddhi.query.api.expression.math.Subtract;
 
-import java.io.Serializable;
-
 /**
  * Siddhi expression
  */
-public abstract class Expression implements Serializable {
+public abstract class Expression implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public static StringConstant value(String value) {
         return new StringConstant(value);
@@ -142,6 +143,26 @@ public abstract class Expression implements Serializable {
 
     public static Expression isNullInnerStream(String streamId, int streamIndex) {
         return new IsNull(streamId, streamIndex, true);
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 
     /**

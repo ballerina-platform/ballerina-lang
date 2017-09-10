@@ -17,19 +17,20 @@
  */
 package org.wso2.siddhi.query.api.execution.query;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-
-import java.io.Serializable;
 
 /**
  * Siddhi Query
  */
-public class StoreQuery implements Serializable {
+public class StoreQuery implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private InputStore inputStore;
     private Selector selector = new Selector();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public static StoreQuery query() {
         return new StoreQuery();
@@ -83,5 +84,25 @@ public class StoreQuery implements Serializable {
         int result = inputStore != null ? inputStore.hashCode() : 0;
         result = 31 * result + (selector != null ? selector.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

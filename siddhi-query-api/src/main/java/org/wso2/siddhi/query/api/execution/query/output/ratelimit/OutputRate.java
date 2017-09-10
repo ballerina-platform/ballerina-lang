@@ -17,19 +17,20 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.ratelimit;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.exception.UnsupportedAttributeTypeException;
 import org.wso2.siddhi.query.api.expression.constant.Constant;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
-import java.io.Serializable;
-
 /**
  * Rate limiting of query output
  */
-public abstract class OutputRate implements Serializable {
+public abstract class OutputRate implements SiddhiElement {
     private static final long serialVersionUID = 1L;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public static EventOutputRate perEvents(Constant events) {
         if (events instanceof LongConstant) {
@@ -57,6 +58,26 @@ public abstract class OutputRate implements Serializable {
         return new SnapshotOutputRate(longConstant.getValue());
     }
 
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
+    }
+
     /**
      * Output rate limiting types
      */
@@ -66,5 +87,4 @@ public abstract class OutputRate implements Serializable {
         LAST,
         SNAPSHOT
     }
-
 }

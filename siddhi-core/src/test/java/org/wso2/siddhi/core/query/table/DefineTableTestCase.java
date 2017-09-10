@@ -30,7 +30,6 @@ import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.HashMap;
@@ -237,7 +236,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQuery15() throws InterruptedException {
         log.info("testTableDefinition15 - OUT 0");
 

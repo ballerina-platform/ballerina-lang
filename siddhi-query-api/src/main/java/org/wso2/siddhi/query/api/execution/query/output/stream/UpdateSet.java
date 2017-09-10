@@ -18,20 +18,22 @@
 
 package org.wso2.siddhi.query.api.execution.query.output.stream;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Updating UpdateSet Attribute for UpdateStream
  */
-public class UpdateSet implements Serializable {
+public class UpdateSet implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private List<SetAttribute> setAttributeList = new ArrayList<>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public UpdateSet set(Variable tableVariable, Expression assignmentExpression) {
         setAttributeList.add(new SetAttribute(tableVariable, assignmentExpression));
@@ -69,14 +71,36 @@ public class UpdateSet implements Serializable {
                 '}';
     }
 
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
+    }
+
     /**
      * Attribute assignment for updates
      */
-    public static class SetAttribute implements Serializable {
+    public static class SetAttribute implements SiddhiElement {
 
         private static final long serialVersionUID = 1L;
         private Variable tableVariable;
         private Expression assignmentExpression;
+        private int[] queryContextStartIndex;
+        private int[] queryContextEndIndex;
 
         public SetAttribute(Variable tableVariable, Expression assignmentExpression) {
             this.tableVariable = tableVariable;
@@ -122,6 +146,26 @@ public class UpdateSet implements Serializable {
                     "tableVariable=" + tableVariable +
                     ", assignmentExpression=" + assignmentExpression +
                     '}';
+        }
+
+        @Override
+        public int[] getQueryContextStartIndex() {
+            return queryContextStartIndex;
+        }
+
+        @Override
+        public void setQueryContextStartIndex(int[] lineAndColumn) {
+            queryContextStartIndex = lineAndColumn;
+        }
+
+        @Override
+        public int[] getQueryContextEndIndex() {
+            return queryContextEndIndex;
+        }
+
+        @Override
+        public void setQueryContextEndIndex(int[] lineAndColumn) {
+            queryContextEndIndex = lineAndColumn;
         }
     }
 }

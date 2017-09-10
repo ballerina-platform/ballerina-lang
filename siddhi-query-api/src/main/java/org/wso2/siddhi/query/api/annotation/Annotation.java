@@ -17,20 +17,22 @@
  */
 package org.wso2.siddhi.query.api.annotation;
 
-import java.io.Serializable;
+import org.wso2.siddhi.query.api.SiddhiElement;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Annotation for siddhi functions and extensions
  */
-public class Annotation implements Serializable {
+public class Annotation implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private String name;
     private ArrayList<Element> elements = new ArrayList<Element>();
     private ArrayList<Annotation> annotations = new ArrayList<Annotation>();
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public Annotation(String name) {
         this.name = name;
@@ -91,10 +93,13 @@ public class Annotation implements Serializable {
     }
 
     public List<Annotation> getAnnotations(String name) {
-        return annotations
-                .stream()
-                .filter(annotation -> annotation.getName().equalsIgnoreCase(name))
-                .collect(Collectors.toList());
+        List<Annotation> results = new ArrayList<>();
+        for (Annotation annotation : annotations) {
+            if (annotation.getName().equalsIgnoreCase(name)) {
+                results.add(annotation);
+            }
+        }
+        return results;
     }
 
     public Annotation annotation(Annotation annotation) {
@@ -104,11 +109,31 @@ public class Annotation implements Serializable {
 
     @Override
     public String toString() {
-        return "Annotation{" +
-                "name='" + name + '\'' +
-                ", elements=" + elements +
-                ", annotations=" + annotations +
-                '}';
+        StringBuilder definitionBuilder = new StringBuilder("@").append(name).append("( ");
+        if (elements != null && elements.size() > 0) {
+            boolean isFirst = true;
+            for (Element element : elements) {
+                if (!isFirst) {
+                    definitionBuilder.append(", ");
+                } else {
+                    isFirst = false;
+                }
+                definitionBuilder.append(element.toString());
+            }
+        }
+        if (annotations != null && annotations.size() > 0) {
+            boolean isFirst = true;
+            for (Annotation annotation : annotations) {
+                if (!isFirst) {
+                    definitionBuilder.append(", ");
+                } else {
+                    isFirst = false;
+                }
+                definitionBuilder.append(annotation.toString());
+            }
+        }
+        definitionBuilder.append(")");
+        return definitionBuilder.toString();
     }
 
     @Override
@@ -138,5 +163,25 @@ public class Annotation implements Serializable {
         result = 31 * result + (elements != null ? elements.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

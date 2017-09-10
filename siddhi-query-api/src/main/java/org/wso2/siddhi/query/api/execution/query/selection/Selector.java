@@ -17,23 +17,25 @@
  */
 package org.wso2.siddhi.query.api.execution.query.selection;
 
+import org.wso2.siddhi.query.api.SiddhiElement;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Selector selecting query output stream attributes
  */
-public class Selector implements Serializable {
+public class Selector implements SiddhiElement {
 
     private static final long serialVersionUID = 1L;
     private List<OutputAttribute> selectionList = new ArrayList<OutputAttribute>();
     private List<Variable> groupByList = new ArrayList<Variable>();
     private Expression havingExpression;
+    private int[] queryContextStartIndex;
+    private int[] queryContextEndIndex;
 
     public static Selector selector() {
         return new Selector();
@@ -60,8 +62,8 @@ public class Selector implements Serializable {
     private void checkSelection(OutputAttribute newAttribute) {
         for (OutputAttribute attribute : selectionList) {
             if (attribute.getRename().equals(newAttribute.getRename())) {
-                throw new DuplicateAttributeException(attribute.getRename() + " is already defined as an output " +
-                        "attribute ");
+                throw new DuplicateAttributeException(newAttribute.getRename() + " is already defined as an output " +
+                        "attribute ", newAttribute.getQueryContextStartIndex(), attribute.getQueryContextEndIndex());
             }
         }
     }
@@ -143,5 +145,25 @@ public class Selector implements Serializable {
         result = 31 * result + (groupByList != null ? groupByList.hashCode() : 0);
         result = 31 * result + (havingExpression != null ? havingExpression.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int[] getQueryContextStartIndex() {
+        return queryContextStartIndex;
+    }
+
+    @Override
+    public void setQueryContextStartIndex(int[] lineAndColumn) {
+        queryContextStartIndex = lineAndColumn;
+    }
+
+    @Override
+    public int[] getQueryContextEndIndex() {
+        return queryContextEndIndex;
+    }
+
+    @Override
+    public void setQueryContextEndIndex(int[] lineAndColumn) {
+        queryContextEndIndex = lineAndColumn;
     }
 }

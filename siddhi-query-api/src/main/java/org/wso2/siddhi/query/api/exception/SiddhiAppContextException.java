@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,13 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.expression.constant;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
+package org.wso2.siddhi.query.api.exception;
 
 /**
- * Constant
+ * Exception for considering context while throwing extensions
  */
-public interface Constant extends SiddhiElement {
+public interface SiddhiAppContextException {
 
+    void setQueryContextIndexIfAbsent(int[] queryContextStartIndex,
+                                      int[] queryContextEndIndex, String siddhiAppName, String siddhiAppString);
+
+    int[] getQueryContextStartIndex();
+
+    int[] getQueryContextEndIndex();
+
+    String getMessageWithOutContext();
 }
