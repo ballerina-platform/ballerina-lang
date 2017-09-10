@@ -148,7 +148,6 @@ constantDefinition
 
 workerDeclaration
     :   workerDefinition LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
-    |   workerDefinition LEFT_BRACE connectorVarDefStatement* workerDeclaration+ RIGHT_BRACE
     ;
 
 workerDefinition
@@ -341,7 +340,7 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    : FORK LEFT_BRACE connectorVarDefStatement* workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
+    : FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
