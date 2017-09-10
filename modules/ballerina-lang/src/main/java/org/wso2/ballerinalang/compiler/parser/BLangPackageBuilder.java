@@ -526,7 +526,7 @@ public class BLangPackageBuilder {
     public void createTypeCastExpr(DiagnosticPos pos) {
         BLangTypeCast typeCastNode = (BLangTypeCast) TreeBuilder.createTypeCastNode();
         typeCastNode.pos = pos;
-        typeCastNode.rExpr = exprNodeStack.pop();
+        typeCastNode.expr = exprNodeStack.pop();
         typeCastNode.typeName = typeNodeStack.pop();
         addExpressionNode(typeCastNode);
     }
@@ -534,7 +534,7 @@ public class BLangPackageBuilder {
     public void createTypeConversionExpr(DiagnosticPos pos) {
         BLangTypeConversion typeConversionNode = (BLangTypeConversion) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
-        typeConversionNode.rExpr = exprNodeStack.pop();
+        typeConversionNode.expr = exprNodeStack.pop();
         typeConversionNode.typeName = typeNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }

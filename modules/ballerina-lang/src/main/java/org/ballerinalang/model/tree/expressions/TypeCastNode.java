@@ -26,9 +26,9 @@ import org.ballerinalang.model.tree.types.TypeNode;
  */
 public interface TypeCastNode extends ExpressionNode {
 
-    ExpressionNode getRightExpression();
+    ExpressionNode getExpression();
 
-    void setRightExpression(ExpressionNode expressionNode);
+    void setExpression(ExpressionNode expressionNode);
 
     TypeNode getTypeName();
 

@@ -28,15 +28,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangTypeConversion extends BLangExpression implements TypeConversionNode {
 
-    public ExpressionNode rExpr;
+    public ExpressionNode expr;
     public TypeNode typeName;
 
-    public ExpressionNode getRightExpression() {
-        return rExpr;
+    public ExpressionNode getExpression() {
+        return expr;
     }
 
-    public void setRightExpression(ExpressionNode rExpr) {
-        this.rExpr = rExpr;
+    public void setExpression(ExpressionNode expr) {
+        this.expr = expr;
     }
 
     public TypeNode getTypeName() {
@@ -59,7 +59,7 @@ public class BLangTypeConversion extends BLangExpression implements TypeConversi
 
     @Override
     public String toString() {
-        return "<" + String.valueOf(typeName) + "> " + String.valueOf(rExpr);
+        return "<" + String.valueOf(typeName) + "> " + String.valueOf(expr);
     }
 
 }
