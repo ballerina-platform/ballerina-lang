@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 /**
  * @since 0.94
  */
-public class SymbolTags {
+public class SymTag {
 
     public static final int NIL = 0;
     public static final int PACKAGE = 1;
@@ -31,7 +31,7 @@ public class SymbolTags {
     public static final int VARIABLE = 16;
     public static final int VALUE = 32;
     public static final int INVOKABLE = 64;
-    public static final int FUNCTION = 128;
+    public static final int FUNCTION = 192;
     public static final int ACTION = 256;
     public static final int RESOURCE = 512;
     public static final int ANNOTATION = 1024;

@@ -22,7 +22,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.PACKAGE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
  * @since 0.94

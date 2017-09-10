@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Implementation of {@link IndexBasedAccessNode}.
@@ -42,5 +43,10 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
     @Override
     public String toString() {
         return String.valueOf(expression) + "[" + String.valueOf(index) + "]";
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

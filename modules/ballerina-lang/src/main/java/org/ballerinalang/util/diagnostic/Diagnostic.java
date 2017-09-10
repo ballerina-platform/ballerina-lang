@@ -69,5 +69,5 @@ public interface Diagnostic {
 
     String getMessage();
 
-    String getCode();
+    DiagnosticCode getCode();
 }

@@ -21,12 +21,12 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ACTION;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.CONNECTOR;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.FUNCTION;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.RESOURCE;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.SERVICE;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.STRUCT;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ACTION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CONNECTOR;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.FUNCTION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.RESOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.SERVICE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.STRUCT;
 
 /**
  * @since 0.94

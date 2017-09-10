@@ -32,11 +32,13 @@ public class TypeTags {
     public static final int DATATABLE = 8;
     public static final int STRUCT = 9;
     public static final int CONNECTOR = 10;
-    public static final int ARRAY = 11;
-    public static final int PACKAGE = 12;
-    public static final int NONE = 13;
-    public static final int VOID = 14;
-    public static final int ENUM = 15;
+    public static final int ENUM = 11;
+    public static final int ARRAY = 12;
+    public static final int PACKAGE = 13;
+    public static final int NULL = 14;
+    public static final int NONE = 15;
+    public static final int VOID = 16;
+    public static final int ERROR = 17;
 
     private TypeTags() {
     }

@@ -41,7 +41,7 @@ public class BTester {
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(COMPILER_PHASE, "define");
+        options.put(COMPILER_PHASE, "typeCheck");
 
         // How to set a custom diagnostic listener
         DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());

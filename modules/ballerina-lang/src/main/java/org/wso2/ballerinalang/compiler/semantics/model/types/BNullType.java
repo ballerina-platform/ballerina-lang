@@ -15,21 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
-
-import org.ballerinalang.model.symbols.EnumSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ENUM;
+import org.ballerinalang.model.types.NullType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * @since 0.94
  */
-public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
+public class BNullType extends BType implements NullType {
 
-    public BEnumSymbol(Name name, BType type, BSymbol owner) {
-        super(ENUM, name, type, owner);
+    public BNullType() {
+        super(TypeTags.NULL, null);
     }
 }

@@ -21,7 +21,7 @@ import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.VARIABLE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
 /**
  * @since 0.94

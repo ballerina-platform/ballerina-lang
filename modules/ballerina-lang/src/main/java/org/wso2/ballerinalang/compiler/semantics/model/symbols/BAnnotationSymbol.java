@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymbolTags.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
 
 /**
  * @since 0.94

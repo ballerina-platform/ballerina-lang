@@ -75,7 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpression;
@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public class BLangPackageBuilder {
     private Stack<List<TypeNode>> typeNodeListStack = new Stack<>();
 
     private Stack<BlockNode> blockNodeStack = new Stack<>();
-    
+
     private Stack<VariableNode> varStack = new Stack<>();
 
     private Stack<List<VariableNode>> varListStack = new Stack<>();
@@ -146,7 +147,7 @@ public class BLangPackageBuilder {
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
     private Stack<PackageID> pkgIdStack = new Stack<>();
-    
+
     private Stack<StructNode> structStack = new Stack<>();
 
     private Stack<EnumNode> enumStack = new Stack<>();
@@ -154,7 +155,7 @@ public class BLangPackageBuilder {
     private Stack<IdentifierNode> identifierStack = new Stack<>();
 
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
-    
+
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
 
     private Stack<AnnotationNode> annotationStack = new Stack<>();
@@ -168,7 +169,7 @@ public class BLangPackageBuilder {
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
-    
+
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     protected int lambdaFunctionCount = 0;
@@ -374,9 +375,9 @@ public class BLangPackageBuilder {
     }
 
     public void addCatchClause(DiagnosticPos poc, String paramName) {
-        BLangSimpleVariableReference varRef =
-                (BLangSimpleVariableReference) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.variableName = createIdentifier(paramName);
+        BLangSimpleVarRef varRef =
+                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.variableName = (BLangIdentifier) createIdentifier(paramName);
 
         BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
         variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
@@ -417,9 +418,11 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(expressionNode);
     }
 
-    public void addLiteralValue(Object value) {
-        LiteralNode litExpr = TreeBuilder.createLiteralExpression();
-        litExpr.setValue(value);
+    public void addLiteralValue(DiagnosticPos pos, int typeTag, Object value) {
+        BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        litExpr.pos = pos;
+        litExpr.typeTag = typeTag;
+        litExpr.value = value;
         addExpressionNode(litExpr);
     }
 
@@ -483,11 +486,11 @@ public class BLangPackageBuilder {
 
     public void createSimpleVariableReference(DiagnosticPos pos) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangSimpleVariableReference varRef = (BLangSimpleVariableReference) TreeBuilder
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.packageIdentifier = nameReference.pkgAlias;
-        varRef.variableName = nameReference.name;
+        varRef.packageIdentifier = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.variableName = (BLangIdentifier) nameReference.name;
         this.exprNodeStack.push(varRef);
     }
 
@@ -584,13 +587,13 @@ public class BLangPackageBuilder {
         nameComps.forEach(e -> nameCompNodes.add(this.createIdentifier(e)));
         this.pkgIdStack.add(new PackageID(nameCompNodes, versionNode));
     }
-    
+
     public void populatePackageDeclaration() {
         PackageDeclarationNode pkgDecl = TreeBuilder.createPackageDeclarationNode();
         pkgDecl.setPackageID(this.pkgIdStack.pop());
         this.compUnit.addTopLevelNode(pkgDecl);
     }
-    
+
     public void addImportPackageDeclaration(String alias) {
         ImportPackageNode impDecl = TreeBuilder.createImportPackageNode();
         IdentifierNode aliasNode;
@@ -619,7 +622,7 @@ public class BLangPackageBuilder {
         VariableNode var = this.generateBasicVarNode(identifier, exprAvailable);
         this.compUnit.addTopLevelNode(var);
     }
-    
+
     public void addConstVariable(String identifier) {
         VariableNode var = this.generateBasicVarNode(identifier, true);
         var.addFlag(Flag.CONST);
@@ -664,7 +667,7 @@ public class BLangPackageBuilder {
         attachAnnotations(connectorNode);
         this.connectorNodeStack.push(connectorNode);
     }
-    
+
     public void startConnectorBody() {
         /* end of connector definition header, so let's populate 
          * the connector information before processing the body */
@@ -680,14 +683,14 @@ public class BLangPackageBuilder {
         /* action node list to contain the actions of the connector */
         this.actionNodeStack.add(new ArrayList<>());
     }
-    
+
     public void endConnectorDef(DiagnosticPos pos, String identifier) {
         BLangConnector connectorNode = (BLangConnector) this.connectorNodeStack.pop();
         connectorNode.pos = pos;
         connectorNode.setName(this.createIdentifier(identifier));
         this.compUnit.addTopLevelNode(connectorNode);
     }
-    
+
     public void endConnectorBody() {
         ConnectorNode connectorNode = this.connectorNodeStack.peek();
         this.blockNodeStack.pop().getStatements().forEach(
@@ -715,6 +718,7 @@ public class BLangPackageBuilder {
             this.typeNodeListStack.peek().add(0, typeNodeStack.pop());
         }
     }
+
     public void startAnnotationDef(DiagnosticPos pos) {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
@@ -1024,7 +1028,7 @@ public class BLangPackageBuilder {
     }
 
     public void createXMLQuotedLiteral(Stack<String> precedingTextFragments, String endingText, QuoteType quoteType,
-            DiagnosticPos pos) {
+                                       DiagnosticPos pos) {
         List<ExpressionNode> templateExprs =
                 getExpressionsInTemplate(precedingTextFragments, endingText, pos, NodeKind.LITERAL);
         BLangXMLQuotedString quotedString = (BLangXMLQuotedString) TreeBuilder.createXMLQuotedStringNode();
@@ -1042,7 +1046,7 @@ public class BLangPackageBuilder {
 
     public void createXMLTextLiteral(String text, DiagnosticPos pos) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        addLiteralValue(text);
+        addLiteralValue(pos, TypeTags.STRING, text);
         ExpressionNode textLiteral = exprNodeStack.pop();
         xmlTextLiteral.addTextFragment(textLiteral);
         xmlTextLiteral.pos = pos;
@@ -1073,10 +1077,10 @@ public class BLangPackageBuilder {
     }
 
     public void createXMLPILiteral(String targetQName, String endingText, Stack<String> precedingTextFragments,
-            DiagnosticPos pos) {
+                                   DiagnosticPos pos) {
         List<ExpressionNode> dataExprs =
                 getExpressionsInTemplate(precedingTextFragments, endingText, pos, NodeKind.LITERAL);
-        addLiteralValue(targetQName);
+        addLiteralValue(pos, TypeTags.STRING, targetQName);
         LiteralNode target = (LiteralNode) exprNodeStack.pop();
 
         BLangXMLProcInsLiteral xmlProcInsLiteral =
@@ -1089,7 +1093,7 @@ public class BLangPackageBuilder {
     }
 
     private List<ExpressionNode> getExpressionsInTemplate(Stack<String> precedingTextFragments, String endingText,
-            DiagnosticPos pos, NodeKind targetStrExprKind) {
+                                                          DiagnosticPos pos, NodeKind targetStrExprKind) {
         List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
 
         if (endingText != null && !endingText.isEmpty()) {
@@ -1117,7 +1121,7 @@ public class BLangPackageBuilder {
         if (targetExprKind == NodeKind.XML_TEXT_LITERAL) {
             createXMLTextLiteral(strContent, pos);
         } else {
-            addLiteralValue(strContent);
+            addLiteralValue(pos, TypeTags.STRING, strContent);
         }
     }
 }

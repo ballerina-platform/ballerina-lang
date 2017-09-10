@@ -17,11 +17,14 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 /**
  * @since 0.94
@@ -40,15 +43,63 @@ public class SymbolEnv {
 
     public BLangInvokableNode enclInvokable;
 
+    public BVarSymbol enclVarSym;
+
     public SymbolEnv enclEnv;
 
     public SymbolEnv(BLangNode node, Scope scope) {
         this.scope = scope;
         this.node = node;
-        enclPkg = null;
-        enclConnector = null;
-        enclService = null;
-        enclInvokable = null;
-        enclEnv = null;
+        this.enclPkg = null;
+        this.enclConnector = null;
+        this.enclService = null;
+        this.enclInvokable = null;
+        this.enclEnv = null;
+        this.enclVarSym = null;
+    }
+
+    public void copyTo(SymbolEnv target) {
+        target.enclPkg = this.enclPkg;
+        target.enclConnector = this.enclConnector;
+        target.enclService = this.enclService;
+        target.enclInvokable = this.enclInvokable;
+        target.enclVarSym = this.enclVarSym;
+        target.enclEnv = this;
+    }
+
+    public static SymbolEnv getPkgEnv(BLangPackage node,
+                                      Scope scope,
+                                      BLangPackage rootPkgNode) {
+        SymbolEnv env = new SymbolEnv(node, scope);
+        env.enclPkg = rootPkgNode;
+        return env;
+    }
+
+    public static SymbolEnv getFunctionEnv(BLangInvokableNode node,
+                                           Scope scope,
+                                           SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv getBlockEnv(BLangBlockStmt block, SymbolEnv env) {
+        // Create a scope for the block node if one doesn't exists
+        Scope scope = block.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            block.scope = scope;
+        }
+
+        SymbolEnv symbolEnv = new SymbolEnv(block, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv getVarInitEnv(BLangVariable node, BVarSymbol enclVarSym, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.enclVarSym = enclVarSym;
+        return symbolEnv;
     }
 }

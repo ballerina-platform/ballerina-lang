@@ -17,25 +17,28 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Implementation of SimpleVariableReferenceNode.
  *
  * @since 0.94
  */
-public class BLangSimpleVariableReference extends BLangVariableReference implements SimpleVariableReferenceNode {
+public class BLangSimpleVarRef extends BLangVariableReference implements SimpleVariableReferenceNode {
 
-    public IdentifierNode packageIdentifier, variableName;
+    public BLangIdentifier packageIdentifier;
+
+    public BLangIdentifier variableName;
 
     @Override
-    public IdentifierNode getPackageIdentifier() {
+    public BLangIdentifier getPackageIdentifier() {
         return packageIdentifier;
     }
 
     @Override
-    public IdentifierNode getVariableName() {
+    public BLangIdentifier getVariableName() {
         return variableName;
     }
 
@@ -47,5 +50,10 @@ public class BLangSimpleVariableReference extends BLangVariableReference impleme
         }
         br.append(String.valueOf(variableName));
         return br.toString();
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

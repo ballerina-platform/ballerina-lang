@@ -15,21 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
-
-import org.ballerinalang.model.symbols.EnumSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ENUM;
+package org.ballerinalang.util.diagnostic;
 
 /**
+ * This clas contains a list of diagnostic codes.
+ *
  * @since 0.94
  */
-public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
+public enum DiagnosticCode {
 
-    public BEnumSymbol(Name name, BType type, BSymbol owner) {
-        super(ENUM, name, type, owner);
+    INCOMPATIBLE_TYPES("incompatible.types");
+
+    private String strCode;
+
+    DiagnosticCode(String value) {
+        this.strCode = value;
     }
 }
