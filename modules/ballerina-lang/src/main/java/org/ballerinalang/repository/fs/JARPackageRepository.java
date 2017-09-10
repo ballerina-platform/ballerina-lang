@@ -17,9 +17,15 @@
 */
 package org.ballerinalang.repository.fs;
 
+import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This represents a jar file based {@link PackageRepository}.
@@ -34,10 +40,26 @@ public class JARPackageRepository extends GeneralFSPackageRepository {
     
     private static Path generatePath(String basePath) {
         try {
-            return Paths.get(JARPackageRepository.class.getResource(basePath).toURI());
-        } catch (URISyntaxException e) {
+            URI uri = JARPackageRepository.class.getResource(basePath).toURI();
+            initFS(uri);
+            Path result = Paths.get(uri);
+            return result;
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    private static void initFS(URI uri) throws IOException {
+        Map<String, String> env = new HashMap<>(); 
+        env.put("create", "true");
+        try {
+            FileSystems.newFileSystem(uri, env);
+        } catch (FileSystemAlreadyExistsException ignore) { }
+    }
+    
+    @Override
+    public String toString() {
+        return "JARPackageRepository: " + this.basePath.toUri();
     }
 
 }
