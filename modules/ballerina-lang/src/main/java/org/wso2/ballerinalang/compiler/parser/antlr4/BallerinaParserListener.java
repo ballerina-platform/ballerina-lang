@@ -1498,12 +1498,12 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitXmlItem(BallerinaParser.XmlItemContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#content}.
+	 * Enter a parse tree produced by {@link BallerinaParser#children}.
 	 * @param ctx the parse tree
 	 */
 	void enterContent(BallerinaParser.ContentContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#content}.
+	 * Exit a parse tree produced by {@link BallerinaParser#children}.
 	 * @param ctx the parse tree
 	 */
 	void exitContent(BallerinaParser.ContentContext ctx);

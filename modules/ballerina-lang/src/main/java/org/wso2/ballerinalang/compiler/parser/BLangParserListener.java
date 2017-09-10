@@ -26,11 +26,13 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @since 0.94
@@ -147,7 +149,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        this.pkgBuilder.startServiceDef();
+        this.pkgBuilder.startServiceDef(getCurrentPos(ctx));
     }
 
     /**
@@ -369,7 +371,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
-        this.pkgBuilder.startAnnotationDef();
+        this.pkgBuilder.startAnnotationDef(getCurrentPos(ctx));
     }
 
     /**
@@ -977,7 +979,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
-        this.pkgBuilder.startIfElseNode();
+        this.pkgBuilder.startIfElseNode(getCurrentPos(ctx));
     }
 
     /**
@@ -1016,7 +1018,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         // else-if clause is also modeled as an if-else statement
-        this.pkgBuilder.startIfElseNode();
+        this.pkgBuilder.startIfElseNode(getCurrentPos(ctx));
     }
 
     /**
@@ -1719,108 +1721,181 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterContent(BallerinaParser.ContentContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitContent(BallerinaParser.ContentContext ctx) { }
+    @Override
+    public void exitContent(BallerinaParser.ContentContext ctx) {
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterComment(BallerinaParser.CommentContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitComment(BallerinaParser.CommentContext ctx) { }
+    @Override
+    public void exitComment(BallerinaParser.CommentContext ctx) {
+        Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLCommentTemplateText());
+        String endingString = getTemplateEndingStr(ctx.XMLCommentText());
+        endingString = endingString.substring(0, endingString.length() - 3);
+        this.pkgBuilder.createXMLCommentLiteral(stringFragments, endingString, getCurrentPos(ctx));
+
+        if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
+            this.pkgBuilder.addChildToXMLElement();
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterElement(BallerinaParser.ElementContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitElement(BallerinaParser.ElementContext ctx) { }
+    @Override
+    public void exitElement(BallerinaParser.ElementContext ctx) {
+        if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
+            this.pkgBuilder.addChildToXMLElement();
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterStartTag(BallerinaParser.StartTagContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitStartTag(BallerinaParser.StartTagContext ctx) { }
+    @Override
+    public void exitStartTag(BallerinaParser.StartTagContext ctx) {
+        this.pkgBuilder.startXMLElement(getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterCloseTag(BallerinaParser.CloseTagContext ctx) { }
+    @Override
+    public void enterCloseTag(BallerinaParser.CloseTagContext ctx) {
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitCloseTag(BallerinaParser.CloseTagContext ctx) { }
+    @Override
+    public void exitCloseTag(BallerinaParser.CloseTagContext ctx) {
+        this.pkgBuilder.endXMLElement();
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterEmptyTag(BallerinaParser.EmptyTagContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitEmptyTag(BallerinaParser.EmptyTagContext ctx) { }
+    @Override
+    public void exitEmptyTag(BallerinaParser.EmptyTagContext ctx) {
+        this.pkgBuilder.startXMLElement(getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterProcIns(BallerinaParser.ProcInsContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitProcIns(BallerinaParser.ProcInsContext ctx) { }
+    @Override
+    public void exitProcIns(BallerinaParser.ProcInsContext ctx) {
+        String targetQName = ctx.XML_TAG_SPECIAL_OPEN().getText();
+        // removing the starting '<?' and the trailing whitespace
+        targetQName = targetQName.substring(2, targetQName.length() - 1);
+
+        Stack<String> textFragments = getTemplateTextFragments(ctx.XMLPITemplateText());
+        String endingText = getTemplateEndingStr(ctx.XMLPIText());
+        endingText = endingText.substring(0, endingText.length() - 2);
+        
+        this.pkgBuilder.createXMLPILiteral(targetQName, endingText, textFragments, getCurrentPos(ctx));
+        
+        if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
+            this.pkgBuilder.addChildToXMLElement();
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterAttribute(BallerinaParser.AttributeContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitAttribute(BallerinaParser.AttributeContext ctx) { }
+    @Override
+    public void exitAttribute(BallerinaParser.AttributeContext ctx) {
+        this.pkgBuilder.createXMLAttribute(getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterText(BallerinaParser.TextContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitText(BallerinaParser.TextContext ctx) { }
+    @Override
+    public void exitText(BallerinaParser.TextContext ctx) {
+        Stack<String> textFragments = getTemplateTextFragments(ctx.XMLTemplateText());
+        String endingText = getTemplateEndingStr(ctx.XMLText());
+        if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
+            this.pkgBuilder.addXMLTextToElement(textFragments, endingText, getCurrentPos(ctx));
+        } else {
+            this.pkgBuilder.createXMLTextLiteral(textFragments, endingText, getCurrentPos(ctx));
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1839,36 +1914,72 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) { }
+    @Override
+    public void exitXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) {
+        Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLSingleQuotedTemplateString());
+        String endingString = getTemplateEndingStr(ctx.XMLSingleQuotedString());
+        this.pkgBuilder.createXMLQuotedLiteral(stringFragments, endingString, QuoteType.SINGLE_QUOTE,
+                getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterXmlDoubleQuotedString(BallerinaParser.XmlDoubleQuotedStringContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitXmlDoubleQuotedString(BallerinaParser.XmlDoubleQuotedStringContext ctx) { }
+    @Override
+    public void exitXmlDoubleQuotedString(BallerinaParser.XmlDoubleQuotedStringContext ctx) {
+        Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLDoubleQuotedTemplateString());
+        String endingString = getTemplateEndingStr(ctx.XMLDoubleQuotedString());
+        this.pkgBuilder.createXMLQuotedLiteral(stringFragments, endingString, QuoteType.DOUBLE_QUOTE,
+                getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) { }
+    @Override
+    public void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) {
+        if (ctx.expression() != null) {
+            return;
+        }
+
+        List<TerminalNode> qnames = ctx.XMLQName();
+        String prefix = null;
+        String localname = null;
+
+        if (qnames.size() > 1) {
+            prefix = qnames.get(0).getText();
+            localname = qnames.get(1).getText();
+        } else {
+            localname = qnames.get(0).getText();
+        }
+
+        this.pkgBuilder.createXMLQName(getCurrentPos(ctx), localname, prefix);
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1944,5 +2055,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
+    }
+
+    private Stack<String> getTemplateTextFragments(List<TerminalNode> nodes) {
+        Stack<String> templateStrFragments = new Stack<>();
+        nodes.forEach(node -> {
+            if (node == null) {
+                templateStrFragments.push(null);
+            } else {
+                String str = node.getText();
+                templateStrFragments.push(str.substring(0, str.length() - 2));
+            }
+        });
+        return templateStrFragments;
+    }
+
+    private String getTemplateEndingStr(TerminalNode node) {
+        return node == null ? null : node.getText();
     }
 }
