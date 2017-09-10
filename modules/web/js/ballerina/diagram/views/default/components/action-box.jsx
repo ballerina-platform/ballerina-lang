@@ -87,8 +87,9 @@ class ActionBox extends React.Component {
             <image
                 width={iconSize}
                 height={iconSize}
-                className="property-pane-action-button-delete"
-                onClick={this.props.onDelete}
+                className={this.props.disableButtons.delete ? 'property-pane-action-button-delete-disabled'
+                    : 'property-pane-action-button-delete'}
+                onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}
                 xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
                 x={bBox.x + horizontalGap}
                 y={y}
@@ -106,11 +107,12 @@ class ActionBox extends React.Component {
             <image
                 width={iconSize}
                 height={iconSize}
-                className="property-pane-action-button-jump"
+                className={this.props.disableButtons.jump ? 'property-pane-action-button-jump-disabled'
+                    : 'property-pane-action-button-jump'}
                 xlinkHref={ImageUtil.getSVGIconString('code-design')}
                 x={bBox.x + (iconSize * (numIcons - 1)) + (horizontalGap * numIcons)}
                 y={y}
-                onClick={this.props.onJumptoCodeLine}
+                onClick={this.props.disableButtons.jump ? () => {} : this.props.onJumptoCodeLine}
             >
                 <title>Jump to Source</title> </image>
         </g>);
@@ -130,12 +132,22 @@ ActionBox.propTypes = {
     onBreakpointClick: PropTypes.func,
     onDelete: PropTypes.func.isRequired,
     onJumptoCodeLine: PropTypes.func.isRequired,
+    disableButtons: PropTypes.shape({
+        debug: PropTypes.bool.isRequired,
+        delete: PropTypes.bool.isRequired,
+        jump: PropTypes.bool.isRequired,
+    }),
 };
 
 ActionBox.defaultProps = {
     show: false,
     isBreakpoint: false,
-    onBreakpointClick: () => {},
+    onBreakpointClick: undefined,
+    disableButtons: {
+        debug: false,
+        delete: false,
+        jump: false,
+    },
 };
 
 

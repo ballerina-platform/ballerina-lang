@@ -305,6 +305,7 @@ class BlockStatementDecorator extends React.Component {
                     onDelete={this.onDelete}
                     onJumptoCodeLine={this.onJumpToCodeLine}
                     onBreakpointClick={this.props.onBreakpointClick}
+                    disableButtons={this.props.disabledButtons}
                 />}
                 {
                     <g className={utilClassName}>
@@ -325,6 +326,11 @@ BlockStatementDecorator.defaultProps = {
     utilities: null,
     parameterBbox: null,
     expression: null,
+    disabledButtons: {
+        debug: false,
+        delete: false,
+        jump: false,
+    },
 };
 
 BlockStatementDecorator.propTypes = {
@@ -358,6 +364,11 @@ BlockStatementDecorator.propTypes = {
     }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
+    disabledButtons: PropTypes.shape({
+        debug: PropTypes.bool.isRequired,
+        delete: PropTypes.bool.isRequired,
+        jump: PropTypes.bool.isRequired,
+    }),
 };
 
 BlockStatementDecorator.contextTypes = {
