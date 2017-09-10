@@ -61,7 +61,7 @@ public class BallerinaParser extends Parser {
 		RULE_annotationAttributeValue = 40, RULE_annotationAttributeArray = 41, 
 		RULE_statement = 42, RULE_transformStatement = 43, RULE_transformStatementBody = 44, 
 		RULE_expressionAssignmentStatement = 45, RULE_expressionVariableDefinitionStatement = 46, 
-		RULE_variableDefinitionStatement = 47, RULE_connectorDeclarationStmt = 48, 
+		RULE_variableDefinitionStatement = 47, RULE_connectorVarDefStatement = 48, 
 		RULE_mapStructLiteral = 49, RULE_mapStructKeyValue = 50, RULE_arrayLiteral = 51, 
 		RULE_connectorInitExpression = 52, RULE_filterInitExpression = 53, RULE_filterInitExpressionList = 54, 
 		RULE_assignmentStatement = 55, RULE_variableReferenceList = 56, RULE_ifElseStatement = 57, 
@@ -98,7 +98,7 @@ public class BallerinaParser extends Parser {
 		"annotationAttachment", "annotationAttributeList", "annotationAttribute", 
 		"annotationAttributeValue", "annotationAttributeArray", "statement", "transformStatement", 
 		"transformStatementBody", "expressionAssignmentStatement", "expressionVariableDefinitionStatement", 
-		"variableDefinitionStatement", "connectorDeclarationStmt", "mapStructLiteral", 
+		"variableDefinitionStatement", "connectorVarDefStatement", "mapStructLiteral", 
 		"mapStructKeyValue", "arrayLiteral", "connectorInitExpression", "filterInitExpression", 
 		"filterInitExpressionList", "assignmentStatement", "variableReferenceList", 
 		"ifElseStatement", "ifClause", "elseIfClause", "elseClause", "iterateStatement", 
@@ -745,11 +745,11 @@ public class BallerinaParser extends Parser {
 	public static class ServiceBodyContext extends ParserRuleContext {
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
-		public List<ConnectorDeclarationStmtContext> connectorDeclarationStmt() {
-			return getRuleContexts(ConnectorDeclarationStmtContext.class);
+		public List<ConnectorVarDefStatementContext> connectorVarDefStatement() {
+			return getRuleContexts(ConnectorVarDefStatementContext.class);
 		}
-		public ConnectorDeclarationStmtContext connectorDeclarationStmt(int i) {
-			return getRuleContext(ConnectorDeclarationStmtContext.class,i);
+		public ConnectorVarDefStatementContext connectorVarDefStatement(int i) {
+			return getRuleContext(ConnectorVarDefStatementContext.class,i);
 		}
 		public List<VariableDefinitionStatementContext> variableDefinitionStatement() {
 			return getRuleContexts(VariableDefinitionStatementContext.class);
@@ -795,7 +795,7 @@ public class BallerinaParser extends Parser {
 					{
 					{
 					setState(316);
-					connectorDeclarationStmt();
+					connectorVarDefStatement();
 					}
 					} 
 				}
@@ -926,11 +926,11 @@ public class BallerinaParser extends Parser {
 	public static class CallableUnitBodyContext extends ParserRuleContext {
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
-		public List<ConnectorDeclarationStmtContext> connectorDeclarationStmt() {
-			return getRuleContexts(ConnectorDeclarationStmtContext.class);
+		public List<ConnectorVarDefStatementContext> connectorVarDefStatement() {
+			return getRuleContexts(ConnectorVarDefStatementContext.class);
 		}
-		public ConnectorDeclarationStmtContext connectorDeclarationStmt(int i) {
-			return getRuleContext(ConnectorDeclarationStmtContext.class,i);
+		public ConnectorVarDefStatementContext connectorVarDefStatement(int i) {
+			return getRuleContext(ConnectorVarDefStatementContext.class,i);
 		}
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
@@ -980,7 +980,7 @@ public class BallerinaParser extends Parser {
 						{
 						{
 						setState(350);
-						connectorDeclarationStmt();
+						connectorVarDefStatement();
 						}
 						} 
 					}
@@ -1018,7 +1018,7 @@ public class BallerinaParser extends Parser {
 					{
 					{
 					setState(364);
-					connectorDeclarationStmt();
+					connectorVarDefStatement();
 					}
 					}
 					setState(369);
@@ -1351,11 +1351,11 @@ public class BallerinaParser extends Parser {
 	public static class ConnectorBodyContext extends ParserRuleContext {
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
-		public List<ConnectorDeclarationStmtContext> connectorDeclarationStmt() {
-			return getRuleContexts(ConnectorDeclarationStmtContext.class);
+		public List<ConnectorVarDefStatementContext> connectorVarDefStatement() {
+			return getRuleContexts(ConnectorVarDefStatementContext.class);
 		}
-		public ConnectorDeclarationStmtContext connectorDeclarationStmt(int i) {
-			return getRuleContext(ConnectorDeclarationStmtContext.class,i);
+		public ConnectorVarDefStatementContext connectorVarDefStatement(int i) {
+			return getRuleContext(ConnectorVarDefStatementContext.class,i);
 		}
 		public List<VariableDefinitionStatementContext> variableDefinitionStatement() {
 			return getRuleContexts(VariableDefinitionStatementContext.class);
@@ -1401,7 +1401,7 @@ public class BallerinaParser extends Parser {
 					{
 					{
 					setState(426);
-					connectorDeclarationStmt();
+					connectorVarDefStatement();
 					}
 					} 
 				}
@@ -2489,11 +2489,11 @@ public class BallerinaParser extends Parser {
 		}
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
-		public List<ConnectorDeclarationStmtContext> connectorDeclarationStmt() {
-			return getRuleContexts(ConnectorDeclarationStmtContext.class);
+		public List<ConnectorVarDefStatementContext> connectorVarDefStatement() {
+			return getRuleContexts(ConnectorVarDefStatementContext.class);
 		}
-		public ConnectorDeclarationStmtContext connectorDeclarationStmt(int i) {
-			return getRuleContext(ConnectorDeclarationStmtContext.class,i);
+		public ConnectorVarDefStatementContext connectorVarDefStatement(int i) {
+			return getRuleContext(ConnectorVarDefStatementContext.class,i);
 		}
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
@@ -2545,7 +2545,7 @@ public class BallerinaParser extends Parser {
 						{
 						{
 						setState(583);
-						connectorDeclarationStmt();
+						connectorVarDefStatement();
 						}
 						} 
 					}
@@ -2585,7 +2585,7 @@ public class BallerinaParser extends Parser {
 					{
 					{
 					setState(599);
-					connectorDeclarationStmt();
+					connectorVarDefStatement();
 					}
 					}
 					setState(604);
@@ -4100,7 +4100,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ConnectorDeclarationStmtContext extends ParserRuleContext {
+	public static class ConnectorVarDefStatementContext extends ParserRuleContext {
 		public NameReferenceContext nameReference() {
 			return getRuleContext(NameReferenceContext.class,0);
 		}
@@ -4110,23 +4110,23 @@ public class BallerinaParser extends Parser {
 		public ConnectorInitExpressionContext connectorInitExpression() {
 			return getRuleContext(ConnectorInitExpressionContext.class,0);
 		}
-		public ConnectorDeclarationStmtContext(ParserRuleContext parent, int invokingState) {
+		public ConnectorVarDefStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_connectorDeclarationStmt; }
+		@Override public int getRuleIndex() { return RULE_connectorVarDefStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConnectorDeclarationStmt(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterConnectorVarDefStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorDeclarationStmt(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorVarDefStatement(this);
 		}
 	}
 
-	public final ConnectorDeclarationStmtContext connectorDeclarationStmt() throws RecognitionException {
-		ConnectorDeclarationStmtContext _localctx = new ConnectorDeclarationStmtContext(_ctx, getState());
-		enterRule(_localctx, 96, RULE_connectorDeclarationStmt);
+	public final ConnectorVarDefStatementContext connectorVarDefStatement() throws RecognitionException {
+		ConnectorVarDefStatementContext _localctx = new ConnectorVarDefStatementContext(_ctx, getState());
+		enterRule(_localctx, 96, RULE_connectorVarDefStatement);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -5217,11 +5217,11 @@ public class BallerinaParser extends Parser {
 		public TerminalNode FORK() { return getToken(BallerinaParser.FORK, 0); }
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
-		public List<ConnectorDeclarationStmtContext> connectorDeclarationStmt() {
-			return getRuleContexts(ConnectorDeclarationStmtContext.class);
+		public List<ConnectorVarDefStatementContext> connectorVarDefStatement() {
+			return getRuleContexts(ConnectorVarDefStatementContext.class);
 		}
-		public ConnectorDeclarationStmtContext connectorDeclarationStmt(int i) {
-			return getRuleContext(ConnectorDeclarationStmtContext.class,i);
+		public ConnectorVarDefStatementContext connectorVarDefStatement(int i) {
+			return getRuleContext(ConnectorVarDefStatementContext.class,i);
 		}
 		public List<WorkerDeclarationContext> workerDeclaration() {
 			return getRuleContexts(WorkerDeclarationContext.class);
@@ -5267,7 +5267,7 @@ public class BallerinaParser extends Parser {
 				{
 				{
 				setState(951);
-				connectorDeclarationStmt();
+				connectorVarDefStatement();
 				}
 				}
 				setState(956);

@@ -41,6 +41,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -172,6 +174,8 @@ public class BLangPackageBuilder {
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
+    private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
+
     protected int lambdaFunctionCount = 0;
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
@@ -196,10 +200,10 @@ public class BLangPackageBuilder {
         addType(arrayTypeNode);
     }
 
-    public void addUserDefineType(DiagnosticPos pos) {
+    public void addUserDefineType() {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.pos = pos;
+        userDefinedType.pos = nameReference.pos;
         userDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         userDefinedType.typeName = (BLangIdentifier) nameReference.name;
 
@@ -262,8 +266,8 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(typeNode);
     }
 
-    public void addNameReference(String pkgName, String name) {
-        nameReferenceStack.push(new BLangNameReference(createIdentifier(pkgName), createIdentifier(name)));
+    public void addNameReference(String pkgName, String name, DiagnosticPos currentPos) {
+        nameReferenceStack.push(new BLangNameReference(createIdentifier(pkgName), createIdentifier(name), currentPos));
     }
 
     public void startVarList() {
@@ -353,6 +357,59 @@ public class BLangPackageBuilder {
         }
         varDefNode.setVariable(var);
         addStmtToCurrentBlock(varDefNode);
+    }
+
+    public void addConnectorVarDeclaration(String identifier, boolean exprAvailable) {
+        VariableDefinitionNode varDefNode = TreeBuilder.createVariableDefinitionNode();
+
+        VariableNode var = TreeBuilder.createVariableNode();
+        var.setName(this.createIdentifier(identifier));
+        addUserDefineType();
+        var.setTypeNode(this.typeNodeStack.pop());
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        varDefNode.setVariable(var);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    public void addConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {
+        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
+        connectorInitNode.pos = pos;
+        addUserDefineType();
+        connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
+        if (exprAvailable) {
+            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+        }
+        ConnectorInitNode previous = null;
+        while (!connectorInitNodeStack.empty()) {
+            ConnectorInitNode current = connectorInitNodeStack.pop();
+            current.setParentConnectorInitExpression(connectorInitNode);
+            if (previous != null) {
+                previous.setNextFilterConnectorInitNode(current);
+            } else {
+                // This the first Filter connector in chain.
+                this.addExpressionNode(current);
+            }
+            previous = current;
+        }
+        if (previous != null) {
+            previous.setNextFilterConnectorInitNode(connectorInitNode);
+        } else {
+            // There is no filter connectors.
+            this.addExpressionNode(connectorInitNode);
+        }
+    }
+
+    public void addFilterConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {
+        BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
+        connectorInitNode.pos = pos;
+        addUserDefineType();
+        connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
+        if (exprAvailable) {
+            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+        }
+        this.connectorInitNodeStack.push(connectorInitNode);
     }
 
     private void addStmtToCurrentBlock(StatementNode statement) {

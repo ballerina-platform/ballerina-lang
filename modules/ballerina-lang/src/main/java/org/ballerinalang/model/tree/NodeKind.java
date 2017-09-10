@@ -59,6 +59,7 @@ public enum NodeKind {
     VARIABLE,
     VARIABLE_REF,
     WHILE,
+    WORKER,
     XMLNS,
     /* Expressions */
     INVOCATION,
@@ -66,6 +67,7 @@ public enum NodeKind {
     RECODE_LITERAL_EXPR,
     BINARY_EXPR,
     UNARY_EXPR,
+    CONNECTOR_INIT_EXPR,
     LAMBDA,
     XML_QNAME,
     XML_ELEMENT_LITERAL,

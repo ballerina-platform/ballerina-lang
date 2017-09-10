@@ -49,7 +49,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorVarDefStatement* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,8 +57,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
-    | LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
+    | LEFT_BRACE connectorVarDefStatement* workerDeclaration+ RIGHT_BRACE
     ;
 
 
@@ -80,7 +80,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorVarDefStatement* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -147,8 +147,8 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
-    |   workerDefinition LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
+    |   workerDefinition LEFT_BRACE connectorVarDefStatement* workerDeclaration+ RIGHT_BRACE
     ;
 
 workerDefinition
@@ -269,7 +269,7 @@ variableDefinitionStatement
     :   typeName Identifier (ASSIGN  expression)? SEMICOLON
     ;
 
-connectorDeclarationStmt
+connectorVarDefStatement
     : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
@@ -341,7 +341,7 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    : FORK LEFT_BRACE connectorDeclarationStmt* workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
+    : FORK LEFT_BRACE connectorVarDefStatement* workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'

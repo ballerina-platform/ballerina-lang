@@ -37,6 +37,7 @@ import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
+import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
@@ -93,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -263,6 +265,10 @@ public class TreeBuilder {
 
     public static LambdaFunctionNode createLambdaFunctionNode() {
         return new BLangLambdaFunction();
+    }
+
+    public static ConnectorInitNode createConnectorInitNode() {
+        return new BLangConnectorInit();
     }
 
     public static StructNode createStructNode() {

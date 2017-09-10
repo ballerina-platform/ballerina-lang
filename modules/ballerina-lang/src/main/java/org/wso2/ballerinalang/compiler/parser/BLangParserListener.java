@@ -673,7 +673,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitReferenceTypeName(BallerinaParser.ReferenceTypeNameContext ctx) {
         if (ctx.nameReference() != null) {
-            this.pkgBuilder.addUserDefineType(getCurrentPos(ctx));
+            this.pkgBuilder.addUserDefineType();
         }
     }
 
@@ -870,21 +870,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override public void exitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) { }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
         this.pkgBuilder.addVariableDefStatement(ctx.Identifier().getText(), ctx.ASSIGN() != null);
+    }
+
+    @Override
+    public void exitConnectorVarDefStatement(BallerinaParser.ConnectorVarDefStatementContext ctx) {
+        this.pkgBuilder.addConnectorVarDeclaration(ctx.Identifier().getText(), ctx.ASSIGN() != null);
     }
 
     @Override
@@ -907,49 +900,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean argsAvailable = ctx.expressionList() != null;
         this.pkgBuilder.addArrayInitExpr(getCurrentPos(ctx), argsAvailable);
     }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
+
+    @Override
+    public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
+        boolean argsAvailable = ctx.expressionList() != null;
+        this.pkgBuilder.addConnectorInitExpression(getCurrentPos(ctx), argsAvailable);
     }
+
+    @Override public void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) {
+        boolean argsAvailable = ctx.expressionList() != null;
+        this.pkgBuilder.addFilterConnectorInitExpression(getCurrentPos(ctx), argsAvailable);
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1616,10 +1578,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier().size() == 2) {
             String pkgName = ctx.Identifier(0).getText();
             String name = ctx.Identifier(1).getText();
-            this.pkgBuilder.addNameReference(pkgName, name);
+            this.pkgBuilder.addNameReference(pkgName, name, getCurrentPos(ctx));
         } else {
             String name = ctx.Identifier(0).getText();
-            this.pkgBuilder.addNameReference(null, name);
+            this.pkgBuilder.addNameReference(null, name, getCurrentPos(ctx));
         }
     }
 
