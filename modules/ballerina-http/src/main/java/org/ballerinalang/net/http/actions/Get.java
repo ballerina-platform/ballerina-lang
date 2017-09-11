@@ -47,9 +47,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
                 @Argument(name = "c",
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
-                @Argument(name = "m", type = TypeEnum.MESSAGE)
+                @Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+                        structPackage = "ballerina.net.http")
         },
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Response",
+                structPackage = "ballerina.net.http")},
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeEnum.STRING)
         })
@@ -63,8 +65,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         value = "Connector")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
         value = "Request path")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "message")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+        value = "The request message") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "response",
+        value = "The response message") })
 public class Get extends AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(Get.class);

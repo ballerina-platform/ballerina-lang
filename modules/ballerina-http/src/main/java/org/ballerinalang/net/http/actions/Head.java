@@ -48,9 +48,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
-                @Argument(name = "m", type = TypeEnum.MESSAGE)
+                @Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+                        structPackage = "ballerina.net.http")
         },
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Response",
+                structPackage = "ballerina.net.http")},
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeEnum.STRING)
         })
@@ -60,10 +62,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         value = "A connector object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
         value = "Resource path ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "A message object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The response message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+        value = "The request message") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "response",
+        value = "The response message") })
 @Component(
         name = "action.net.http.head",
         immediate = true,
