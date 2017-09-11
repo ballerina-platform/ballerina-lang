@@ -75,7 +75,6 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         if (onTextMessageResource == null) {
             return;
         }
-
         BStruct wsConnection = WebSocketConnectionManager.getInstance().
                 getConnection(webSocketTextMessage.getChannelSession().getId());
 
@@ -92,7 +91,23 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        throw new BallerinaConnectorException("Binary messages are not supported!");
+        WebSocketService wsService = WebSocketDispatcher.findService(webSocketBinaryMessage);
+        Resource onBinaryMessageResource =
+                WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
+        if (onBinaryMessageResource == null) {
+            return;
+        }
+        BStruct wsConnection = WebSocketConnectionManager.getInstance().
+                getConnection(webSocketBinaryMessage.getChannelSession().getId());
+        BStruct wsBinaryFrame = wsService.createBinaryFrameStruct();
+        wsBinaryFrame.setBlobField(0, webSocketBinaryMessage.getByteArray());
+        if (webSocketBinaryMessage.isFinalFragment()) {
+            wsBinaryFrame.setBooleanField(0, 1);
+        } else {
+            wsBinaryFrame.setBooleanField(0, 0);
+        }
+        BValue[] bValues = {wsConnection, wsBinaryFrame};
+        Executor.execute(onBinaryMessageResource, bValues);
     }
 
     @Override

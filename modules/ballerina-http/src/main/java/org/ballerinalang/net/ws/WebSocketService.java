@@ -71,6 +71,11 @@ public class WebSocketService implements Service {
                                            Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
     }
 
+    public BStruct createBinaryFrameStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
+    }
+
     public BStruct createCloseFrameStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
                                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
