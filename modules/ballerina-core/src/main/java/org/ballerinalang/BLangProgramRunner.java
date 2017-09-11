@@ -27,8 +27,9 @@ import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -118,40 +119,43 @@ public class BLangProgramRunner {
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
 
+        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
+
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);
         }
 
-        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
-
-        // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = arrayArgs;
-        int[] argRegs = {0};
-        BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);
+        BValue[] valueArgs = new BValue[args.length];
+        for (int i = 0; i < args.length; i++) {
+            valueArgs[i] = new BString(args[i]);
+        }
 
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         controlStackNew.pushFrame(stackFrame);
 
-        BLangVM bLangVM = new BLangVM(programFile);
-        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            // This will start the websocket server.
-            debugManager.mainInit(programFile, bContext);
-            debugManager.holdON();
+        if (mainFuncInfo.getWorkerInfoEntries().length > 0) {
+            BLangVMWorkers.invoke(programFile, mainFuncInfo, stackFrame, bContext, defaultWorkerInfo,
+             valueArgs, new int[0], null);
         } else {
-            bLangVM.run(bContext);
-        }
+            BLangVM bLangVM = new BLangVM(programFile);
+            bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
+            if (ModeResolver.getInstance().isDebugEnabled()) {
+                VMDebugManager debugManager = VMDebugManager.getInstance();
+                // This will start the websocket server.
+                debugManager.mainInit(programFile, bContext);
+                debugManager.holdON();
+            } else {
+                bLangVM.run(bContext);
+            }
 
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
+            if (bContext.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
         }
     }
 

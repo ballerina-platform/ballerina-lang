@@ -61,6 +61,7 @@ public class StackFrame {
     CallableUnitInfo callableUnitInfo;
     PackageInfo packageInfo;
     WorkerInfo workerInfo;
+    boolean isCalleeReturned;
 
     // To Support old native function and action invocation
     // TODO Refactor this when native function and action invocations are improved.
@@ -184,6 +185,14 @@ public class StackFrame {
 
     public BRefType[] getRefRegs() {
         return refRegs;
+    }
+
+    public boolean isCalleeReturned() {
+        return isCalleeReturned;
+    }
+
+    public void setCalleeReturned(boolean calleeReturned) {
+        isCalleeReturned = calleeReturned;
     }
 
     public void setLongLocalVars(long[] longLocalVars) {

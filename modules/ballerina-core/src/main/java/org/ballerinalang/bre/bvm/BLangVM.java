@@ -726,6 +726,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.REP:
                     handleReply(operands, sf);
+                    sf.setCalleeReturned(true);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -733,6 +734,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
                     break;
                 case InstructionCodes.FRET:
@@ -741,6 +743,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
                     break;
                 case InstructionCodes.SRET:
@@ -749,6 +752,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
                     break;
                 case InstructionCodes.BRET:
@@ -757,6 +761,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
                     break;
                 case InstructionCodes.LRET:
@@ -765,6 +770,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
                     break;
                 case InstructionCodes.RRET:
@@ -773,6 +779,7 @@ public class BLangVM {
                     currentSF = controlStack.getCurrentFrame();
                     callersSF = controlStack.getStack()[controlStack.fp - 1];
                     callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.setCalleeReturned(true);
                     callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
                     break;
                 case InstructionCodes.RET:
@@ -2593,19 +2600,22 @@ public class BLangVM {
         } else {
             defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
         }
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
 
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+        if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
+            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context, defaultWorkerInfo,
+                    funcCallCPEntry.getRetRegs(), null);
+        } else {
 
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+            StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+            controlStack.pushFrame(calleeSF);
 
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+            // Copy arg values from the current StackFrame to the new StackFrame
+            copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+            // TODO Improve following two lines
+            this.constPool = calleeSF.packageInfo.getConstPoolEntries();
+            this.code = calleeSF.packageInfo.getInstructions();
+            ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+        }
 
     }
 
@@ -2615,20 +2625,23 @@ public class BLangVM {
         StackFrame callerSF = controlStack.getCurrentFrame();
 
         WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
 
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+        if (callableUnitInfo.getWorkerInfoEntries().length > 0) {
+            // Invoke other workers
+            BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs, context,
+                    defaultWorkerInfo, funcCallCPEntry.getRetRegs(), null);
+        } else {
 
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+            StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+            controlStack.pushFrame(calleeSF);
 
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
+            // Copy arg values from the current StackFrame to the new StackFrame
+            copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+            // TODO Improve following two lines
+            this.constPool = calleeSF.packageInfo.getConstPoolEntries();
+            this.code = calleeSF.packageInfo.getInstructions();
+            ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+        }
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
@@ -3555,7 +3568,6 @@ public class BLangVM {
             if (match != null) {
                 break;
             }
-
             controlStack.popFrame();
             context.setError(currentFrame.errorThrown);
             if (controlStack.getCurrentFrame() == null) {

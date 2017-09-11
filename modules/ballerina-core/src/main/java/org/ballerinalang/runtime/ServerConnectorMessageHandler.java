@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.interceptors.BLangVMInterceptors;
 import org.ballerinalang.runtime.interceptors.ServiceInterceptorCallback;
@@ -235,17 +236,23 @@ public class ServerConnectorMessageHandler {
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
-        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs, properties);
 
-        BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-        if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
-            VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
-            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            context.setDebugEnabled(true);
-            debugManager.setDebuggerContext(context);
+        BValue[] valueArgs = {new BMessage(resourceMessage)};
+
+        if (resourceInfo.getWorkerInfoEntries().length > 0) {
+            BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo,
+                    callerSF, context, defaultWorkerInfo, valueArgs, retRegs, properties);
+        } else {
+            BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
+            if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
+                VMDebugManager debugManager = VMDebugManager.getInstance();
+                context.setAndInitDebugInfoHolder(new DebugInfoHolder());
+                context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+                context.setDebugEnabled(true);
+                debugManager.setDebuggerContext(context);
+            }
+            bLangVM.run(context);
         }
-        bLangVM.run(context);
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {

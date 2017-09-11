@@ -1137,6 +1137,10 @@ public class BLangModelBuilder {
         currentCUBuilder.setNodeLocation(sourceLocation);
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
 
+        for (ParameterDef parameterDef : parentCUBuilder.peek().returnParamList) {
+            currentCUBuilder.addReturnParameter(parameterDef);
+        }
+
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty() && !parentCUBuilder.isEmpty()) {
             parentCUBuilder.peek().addWorker(worker);

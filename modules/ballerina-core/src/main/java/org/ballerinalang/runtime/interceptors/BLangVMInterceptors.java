@@ -25,6 +25,7 @@ import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.model.ServiceInterceptor;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -76,41 +77,46 @@ public interface BLangVMInterceptors {
         // Now create callee's stackframe
         int[] retRegs = {0, 0};
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
-        StackFrame calleeSF = new StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
-        controlStackNew.pushFrame(calleeSF);
 
-        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
+        if (functionInfo.getWorkerInfoEntries().length > 0) {
+            BValue[] valueArgs = {bMessage};
+            // Execute workers
+            BLangVMWorkers.invoke(serviceInterceptor.getProgramFile(), functionInfo,
+                    callerSF, context, defaultWorkerInfo, valueArgs, retRegs, null);
+        } else {
+            StackFrame calleeSF = new StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
+            controlStackNew.pushFrame(calleeSF);
 
-        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
+            CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
-        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+            long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
+            double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+            String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+            // Setting the zero values for strings
+            Arrays.fill(stringLocalVars, "");
 
-        refLocalVars[0] = bMessage;
+            int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+            byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
+            BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
-        calleeSF.setLongLocalVars(longLocalVars);
-        calleeSF.setDoubleLocalVars(doubleLocalVars);
-        calleeSF.setStringLocalVars(stringLocalVars);
-        calleeSF.setIntLocalVars(intLocalVars);
-        calleeSF.setByteLocalVars(byteLocalVars);
-        calleeSF.setRefLocalVars(refLocalVars);
+            refLocalVars[0] = bMessage;
 
-        // Execute workers
-        BLangVMWorkers.invoke(serviceInterceptor.getProgramFile(), functionInfo, calleeSF, retRegs);
-        // Execute Default worker.
-        BLangVM bLangVM = new BLangVM(serviceInterceptor.getProgramFile());
-        context.setStartIP(codeAttribInfo.getCodeAddrs());
-        bLangVM.run(context);
+            calleeSF.setLongLocalVars(longLocalVars);
+            calleeSF.setDoubleLocalVars(doubleLocalVars);
+            calleeSF.setStringLocalVars(stringLocalVars);
+            calleeSF.setIntLocalVars(intLocalVars);
+            calleeSF.setByteLocalVars(byteLocalVars);
+            calleeSF.setRefLocalVars(refLocalVars);
+            // Execute Default worker.
+            BLangVM bLangVM = new BLangVM(serviceInterceptor.getProgramFile());
+            context.setStartIP(codeAttribInfo.getCodeAddrs());
+            bLangVM.run(context);
 
-        if (context.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
-            LOGGER.error("error in service interception, " + stackTraceStr);
-            throw new BLangRuntimeException(BLangVMErrors.getErrorMessage(context.getError()));
+            if (context.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+                LOGGER.error("error in service interception, " + stackTraceStr);
+                throw new BLangRuntimeException(BLangVMErrors.getErrorMessage(context.getError()));
+            }
         }
 
         return new ServiceInterceptor.Result(callerSF.getIntRegs()[0] == 1, (BMessage) callerSF.getRefRegs()[0]);

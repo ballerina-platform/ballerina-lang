@@ -167,76 +167,80 @@ public class BLangFunctions {
 
         // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
-        controlStackNew.pushFrame(calleeSF);
 
-        int longParamCount = 0;
-        int doubleParamCount = 0;
-        int stringParamCount = 0;
-        int intParamCount = 0;
-        int refParamCount = 0;
-        int byteParamCount = 0;
+        if (functionInfo.getWorkerInfoEntries().length > 0) {
+            // Execute workers
+            BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, context, defaultWorkerInfo,
+                    args, retRegs, null);
+        } else {
+            org.ballerinalang.bre.bvm.StackFrame calleeSF =
+                    new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
+            controlStackNew.pushFrame(calleeSF);
 
-        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
+            int longParamCount = 0;
+            int doubleParamCount = 0;
+            int stringParamCount = 0;
+            int intParamCount = 0;
+            int refParamCount = 0;
+            int byteParamCount = 0;
 
-        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
-        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
+            CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
-        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
-        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+            long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
+            double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+            String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+            // Setting the zero values for strings
+            Arrays.fill(stringLocalVars, "");
 
-        for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
-            BType argType = functionInfo.getParamTypes()[i];
-            switch (argType.getTag()) {
-                case TypeTags.INT_TAG:
-                    longLocalVars[longParamCount] = ((BInteger) args[i]).intValue();
-                    longParamCount++;
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    doubleLocalVars[doubleParamCount] = ((BFloat) args[i]).floatValue();
-                    doubleParamCount++;
-                    break;
-                case TypeTags.STRING_TAG:
-                    stringLocalVars[stringParamCount] = args[i].stringValue();
-                    stringParamCount++;
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
-                    intParamCount++;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    byteLocalVars[byteParamCount] = ((BBlob) args[i]).blobValue();
-                    byteParamCount++;
-                    break;
-                default:
-                    refLocalVars[refParamCount] = (BRefType) args[i];
-                    refParamCount++;
-                    break;
+            int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+            byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
+            BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+
+            for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
+                BType argType = functionInfo.getParamTypes()[i];
+                switch (argType.getTag()) {
+                    case TypeTags.INT_TAG:
+                        longLocalVars[longParamCount] = ((BInteger) args[i]).intValue();
+                        longParamCount++;
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        doubleLocalVars[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                        doubleParamCount++;
+                        break;
+                    case TypeTags.STRING_TAG:
+                        stringLocalVars[stringParamCount] = args[i].stringValue();
+                        stringParamCount++;
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                        intParamCount++;
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        byteLocalVars[byteParamCount] = ((BBlob) args[i]).blobValue();
+                        byteParamCount++;
+                        break;
+                    default:
+                        refLocalVars[refParamCount] = (BRefType) args[i];
+                        refParamCount++;
+                        break;
+                }
             }
-        }
 
-        calleeSF.setLongLocalVars(longLocalVars);
-        calleeSF.setDoubleLocalVars(doubleLocalVars);
-        calleeSF.setStringLocalVars(stringLocalVars);
-        calleeSF.setIntLocalVars(intLocalVars);
-        calleeSF.setByteLocalVars(byteLocalVars);
-        calleeSF.setRefLocalVars(refLocalVars);
+            calleeSF.setLongLocalVars(longLocalVars);
+            calleeSF.setDoubleLocalVars(doubleLocalVars);
+            calleeSF.setStringLocalVars(stringLocalVars);
+            calleeSF.setIntLocalVars(intLocalVars);
+            calleeSF.setByteLocalVars(byteLocalVars);
+            calleeSF.setRefLocalVars(refLocalVars);
 
-        // Execute workers
-        BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs);
+            BLangVM bLangVM = new BLangVM(bLangProgram);
+            context.setStartIP(codeAttribInfo.getCodeAddrs());
+            bLangVM.run(context);
 
-        BLangVM bLangVM = new BLangVM(bLangProgram);
-        context.setStartIP(codeAttribInfo.getCodeAddrs());
-        bLangVM.run(context);
-
-        if (context.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
+            if (context.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
         }
 
         longRegCount = 0;

@@ -19,14 +19,12 @@ function testWorkerScenario1()(boolean c) {
         b <- default;
         system:println("Hello, World from worker w2");
         true -> default;
-        return;
     }
     worker w3 {
         boolean b;
         b <- default;
         system:println("Hello, World! from worker w3");
         true -> default;
-        return;
     }
 }
 
