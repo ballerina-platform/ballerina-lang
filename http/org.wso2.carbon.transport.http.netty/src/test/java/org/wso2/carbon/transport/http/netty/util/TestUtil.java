@@ -39,11 +39,19 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 import org.wso2.carbon.transport.http.netty.util.server.HttpServer;
 import org.wso2.carbon.transport.http.netty.util.server.HttpsServer;
 import org.wso2.carbon.transport.http.netty.util.server.ServerThread;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -215,6 +223,30 @@ public class TestUtil {
         // Create Bootstrap Configuration from listener parameters
         ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
         return ServerBootstrapConfiguration.getInstance();
+    }
+
+    public static TransportsConfiguration getConfiguration(String configFileLocation) {
+        TransportsConfiguration transportsConfiguration;
+
+        File file = new File(TestUtil.class.getResource(configFileLocation).getFile());
+        if (file.exists()) {
+            try (Reader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1)) {
+                Yaml yaml = new Yaml(new CustomClassLoaderConstructor
+                                             (TransportsConfiguration.class,
+                                              TransportsConfiguration.class.getClassLoader()));
+                yaml.setBeanAccess(BeanAccess.FIELD);
+                transportsConfiguration = yaml.loadAs(in, TransportsConfiguration.class);
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Error while loading " + configFileLocation + " configuration file", e);
+            }
+        } else { // return a default config
+            log.warn("Netty transport configuration file not found in: " + configFileLocation +
+                             " ,hence using default configuration");
+            transportsConfiguration = TransportsConfiguration.getDefault();
+        }
+
+        return transportsConfiguration;
     }
 }
 

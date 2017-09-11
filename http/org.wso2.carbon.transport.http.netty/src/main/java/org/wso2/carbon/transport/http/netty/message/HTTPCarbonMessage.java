@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -269,5 +271,51 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     public HttpConnectorListener getResponseListener() {
         return this.listener;
+    }
+
+    /**
+     * Copy Message properties and transport headers
+     *
+     * @param carbonMessage CarbonMessage
+     * @return CarbonMessage
+     */
+    public HTTPCarbonMessage cloneCarbonMessageWithOutData(CarbonMessage carbonMessage) {
+        HTTPCarbonMessage newCarbonMessage = new HTTPCarbonMessage();
+        newCarbonMessage.setBufferContent(carbonMessage.isBufferContent());
+
+        List<Header> transportHeaders = carbonMessage.getHeaders().getClone();
+        newCarbonMessage.setHeaders(transportHeaders);
+
+        Map<String, Object> propertiesMap = carbonMessage.getProperties();
+        propertiesMap.forEach(newCarbonMessage::setProperty);
+
+        newCarbonMessage.setWriter(carbonMessage.getWriter());
+        newCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
+        return newCarbonMessage;
+    }
+
+    /**
+     * Copy the Full carbon message with data
+     *
+     * @param carbonMessage CarbonMessage
+     * @return carbonMessage
+     */
+    public HTTPCarbonMessage cloneCarbonMessageWithData(CarbonMessage carbonMessage) {
+
+        HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
+        httpCarbonMessage.setBufferContent(carbonMessage.isBufferContent());
+
+        List<Header> transportHeaders = carbonMessage.getHeaders().getClone();
+        httpCarbonMessage.setHeaders(transportHeaders);
+
+        Map<String, Object> propertiesMap = carbonMessage.getProperties();
+        propertiesMap.forEach((key, value) -> httpCarbonMessage.setProperty(key, value));
+
+        httpCarbonMessage.setWriter(carbonMessage.getWriter());
+        httpCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
+
+        carbonMessage.getCopyOfFullMessageBody().forEach(buffer -> httpCarbonMessage.addMessageBody(buffer));
+        httpCarbonMessage.setEndOfMsgAdded(true);
+        return httpCarbonMessage;
     }
 }

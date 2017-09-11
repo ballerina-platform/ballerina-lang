@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Util class that provides common functionality.
  */
-public class HTTPMessageUtil {
+public class HTTPConnectorUtil {
 
     /**
      * Convert {@link CarbonMessage} to a {@link HTTPCarbonMessage}.
@@ -131,14 +131,18 @@ public class HTTPMessageUtil {
      * Extract sender configuration from transport configuration.
      *
      * @param transportsConfiguration {@link TransportsConfiguration} which sender configurations should be extracted.
+     * @param scheme
      * @return extracted {@link SenderConfiguration}.
      */
-    public static SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration) {
+    public static SenderConfiguration getSenderConfiguration(TransportsConfiguration transportsConfiguration,
+                                                             String scheme) {
         Map<String, SenderConfiguration> senderConfigurations =
                 transportsConfiguration.getSenderConfigurations().stream().collect(Collectors
                         .toMap(senderConf ->
                                 senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
-        return senderConfigurations.get("http");
+
+        return Constants.HTTPS_SCHEME.equals(scheme) ?
+                senderConfigurations.get(Constants.HTTPS_SCHEME) : senderConfigurations.get(Constants.HTTP_SCHEME);
     }
 
     /**
@@ -191,9 +195,9 @@ public class HTTPMessageUtil {
                 properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
         int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
         ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String schema = properties.get(Constants.HTTP_SCHEME);
-        if (schema != null && schema.equals("https")) {
-            config.setScheme(schema);
+        String scheme = properties.get(Constants.SCHEME);
+        if (scheme != null && scheme.equals(Constants.HTTPS_SCHEME)) {
+            config.setScheme(scheme);
             config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
             config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
             config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
