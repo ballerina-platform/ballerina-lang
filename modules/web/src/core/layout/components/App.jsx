@@ -107,8 +107,8 @@ class App extends React.Component {
 
      /**
      * Update left panel state
-     * @param {boolean} showLeftPanel 
-     * @param {number} leftPanelSize 
+     * @param {boolean} showLeftPanel
+     * @param {number} leftPanelSize
      */
     setLeftPanelState(showLeftPanel, leftPanelSize) {
         const { history } = this.props.appContext.pref;
@@ -126,8 +126,8 @@ class App extends React.Component {
 
     /**
      * Update bottom panel state
-     * @param {boolean} showBottomPanel 
-     * @param {number} bottomPanelSize 
+     * @param {boolean} showBottomPanel
+     * @param {number} bottomPanelSize
      */
     setBottomPanelState(showBottomPanel, bottomPanelSize) {
         const { history } = this.props.appContext.pref;

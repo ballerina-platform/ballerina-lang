@@ -303,3 +303,23 @@ export function parseFragment(fragment) {
 export function getPathSeperator() {
     return pathSeperator;
 }
+
+/**
+ * Invokes the try-it proxy.
+ * @export
+ * @param {Object} tryItPayload The request body.
+ * @returns {Object} The response.
+ */
+export function invokeTryIt(tryItPayload, protocol) {
+    const endpoint = getServiceEndpoint('tryItService') + '/' + protocol;
+    const headers = {
+        'Content-Type': 'text/plain; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, tryItPayload, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}

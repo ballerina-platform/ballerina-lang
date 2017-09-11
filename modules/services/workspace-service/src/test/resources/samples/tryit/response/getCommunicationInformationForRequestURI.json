@@ -1,0 +1,17 @@
+{
+  "responseCode": "200",
+  "responseBody": "",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+    "transfer-encoding": "chunked"
+  },
+  "returnedRequestHeaders": {
+    "Content-Type": "",
+    "Host": "localhost:9595",
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Accept-Encoding": "gzip,deflate"
+  },
+  "requestUrl": "http://localhost:9595/stockquote/all"
+}

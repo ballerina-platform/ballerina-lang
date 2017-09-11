@@ -28,6 +28,7 @@ import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
+import org.ballerinalang.composer.service.workspace.rest.TryItService;
 import org.ballerinalang.composer.service.workspace.rest.WorkspaceService;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
 import org.ballerinalang.composer.service.workspace.rest.exception.DefaultExceptionMapper;
@@ -182,6 +183,7 @@ public class WorkspaceServiceRunner {
                 .deploy(new BLangFileRestService())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
                 .deploy(new TypeLatticeService())
+                .deploy(new TryItService())
                 .start();
 
 
