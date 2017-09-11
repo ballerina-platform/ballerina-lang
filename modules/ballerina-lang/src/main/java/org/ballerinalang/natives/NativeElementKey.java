@@ -26,30 +26,38 @@ public class NativeElementKey {
 
     private NativeElementType type;
     
-    private String name;
+    private String packageName;
     
-    public NativeElementKey(NativeElementType type, String name) {
+    private String elementName;
+        
+    public NativeElementKey(NativeElementType type, String packageName, String elementName) {
         this.type = type;
-        this.name = name;
+        this.packageName = packageName;
+        this.elementName = elementName;
     }
 
     public NativeElementType getType() {
         return type;
     }
 
-    public String getName() {
-        return name;
+    public String getPackageName() {
+        return packageName;
+    }
+    
+    public String getElementName() {
+        return elementName;
     }
     
     @Override
     public boolean equals(Object rhs) {
-        return (rhs instanceof NativeElementKey && ((NativeElementKey) rhs).name.equals(this.name) 
+        return (rhs instanceof NativeElementKey && ((NativeElementKey) rhs).packageName.equals(this.packageName) 
+                && ((NativeElementKey) rhs).elementName.equals(this.elementName) 
                 && ((NativeElementKey) rhs).type.equals(this.type));
     }
     
     @Override
     public int hashCode() {
-        return (this.type.name() + "#" + this.name).hashCode(); 
+        return (this.type.name() + "#" + this.packageName + "#" + this.elementName).hashCode(); 
     }
     
 }
