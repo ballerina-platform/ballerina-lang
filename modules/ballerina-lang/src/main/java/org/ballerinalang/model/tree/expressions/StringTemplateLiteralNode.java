@@ -26,6 +26,8 @@ import java.util.List;
  * @since 0.94
  */
 public interface StringTemplateLiteralNode extends ExpressionNode {
-    // TODO Design StringList
+
     List<? extends ExpressionNode> getExpressions();
+
+    void addExpressions(ExpressionNode expression);
 }

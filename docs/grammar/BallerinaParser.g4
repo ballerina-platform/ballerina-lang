@@ -613,10 +613,6 @@ stringTemplateLiteral
     ;
 
 stringTemplateContent
-    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
-    |   stringTemplateText
-    ;
-
-stringTemplateText
-    :   StringTemplateText
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
+    |   StringTemplateText
     ;
