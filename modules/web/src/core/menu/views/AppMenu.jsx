@@ -88,58 +88,58 @@ class ApplicationMenu extends View {
         }
 
         switch (type) {
-        case MENU_DEF_TYPES.ROOT:
-            return (
-                <SubMenu className="root-item" disabled={!item.isActive()} title={label} key={id}>
-                    {children}
-                </SubMenu >
-            );
-        case MENU_DEF_TYPES.GROUP:
-            return (
-                <SubMenu
-                    disabled={!item.isActive()}
-                    title={
+            case MENU_DEF_TYPES.ROOT:
+                return (
+                    <SubMenu className="root-item" disabled={!item.isActive()} title={label} key={id}>
+                        {children}
+                    </SubMenu >
+                );
+            case MENU_DEF_TYPES.GROUP:
+                return (
+                    <SubMenu
+                        disabled={!item.isActive()}
+                        title={
+                            <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
+                                <div style={{ position: 'absolute', left: '5px' }}>
+                                    <i className={`fw fw-${item.icon}`} />
+                                </div>
+                                <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
+                                    {label}
+                                </div>
+                                <div style={{ position: 'absolute', right: '0px' }}>
+                                    <i className={'fw fw-right'} style={{ marginRight: '5px' }} />
+                                </div>
+                                <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
+                                    {label}
+                                </div>
+                            </div>
+                        }
+                        key={id}
+                    >
+                        {children}
+                    </SubMenu >
+                );
+            case MENU_DEF_TYPES.ITEM:
+                return (
+                    <MenuItem disabled={!item.isActive()} key={id} menuDef={item}>
                         <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
-                            <div style={{ position: 'absolute', left: '5px' }}>
+                            <div style={{ position: 'absolute', left: '7px' }}>
                                 <i className={`fw fw-${item.icon}`} />
                             </div>
-                            <div className="menu-label" style={{ position: 'absolute', left: '25px' }}>
+                            <div className="menu-label" style={{ position: 'absolute', left: '27px' }}>
                                 {label}
                             </div>
-                            <div style={{ position: 'absolute', right: '0px' }}>
-                                <i className={'fw fw-right'} style={{ marginRight: '5px' }} />
+                            <div className="menu-label" style={{ position: 'absolute', right: '7px' }}>
+                                {shortcutLabel}
                             </div>
                             <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
-                                {label}
+                                {label} {shortcutLabel}
                             </div>
                         </div>
-                    }
-                    key={id}
-                >
-                    {children}
-                </SubMenu >
-            );
-        case MENU_DEF_TYPES.ITEM:
-            return (
-                <MenuItem disabled={!item.isActive()} key={id} menuDef={item}>
-                    <div style={{ display: 'block', minHeight: '14px', paddingRight: '10px' }}>
-                        <div style={{ position: 'absolute', left: '7px' }}>
-                            <i className={`fw fw-${item.icon}`} />
-                        </div>
-                        <div className="menu-label" style={{ position: 'absolute', left: '27px' }}>
-                            {label}
-                        </div>
-                        <div className="menu-label" style={{ position: 'absolute', right: '7px' }}>
-                            {shortcutLabel}
-                        </div>
-                        <div style={{ opacity: '0', margin: '0 25px 0 25px', cursor: 'default' }}>
-                            {label} {shortcutLabel}
-                        </div>
-                    </div>
-                </MenuItem>
-            );
-        default:
-            return (<div />);
+                    </MenuItem>
+                );
+            default:
+                return (<div />);
         }
     }
 }

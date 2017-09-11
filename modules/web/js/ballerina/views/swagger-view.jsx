@@ -21,6 +21,7 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
+import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import ASTFactory from '../ast/ast-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 import SwaggerParser from './../../swagger-parser/swagger-parser';
@@ -28,8 +29,8 @@ import { getSwaggerDefinition } from '../../api-client/api-client';
 import ServiceDefinition from '../ast/service-definition';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 
+
 const ace = global.ace;
-const SwaggerEditorBundle = global.SwaggerEditorBundle;
 const AceUndoManager = ace.acequire('ace/undomanager').UndoManager;
 
 /**
@@ -198,7 +199,6 @@ class SwaggerView extends React.Component {
                     // Update host url if try it url is available.
                     const swaggerJson = JSON.parse(swaggerDefinition);
                     if (_.isNil(swaggerJson.host) && this.tryItUrl && _.split(this.tryItUrl, '//', 2).length === 2) {
-                        
                         swaggerJson.host = _.split(this.tryItUrl, '//', 2)[1];
                         swaggerDefinition = JSON.stringify(swaggerJson);
                     }
