@@ -47,14 +47,15 @@ import java.net.URLDecoder;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getFormParams",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
+                structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets formParam map from HTTP message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The request message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
+        value = "The response message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "map",
         value = "The map of form params") })
 public class GetFormParams extends AbstractNativeFunction {

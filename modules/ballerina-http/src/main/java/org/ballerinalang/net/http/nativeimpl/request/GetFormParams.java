@@ -47,7 +47,7 @@ import java.net.URLDecoder;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getFormParams",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
         isPublic = true

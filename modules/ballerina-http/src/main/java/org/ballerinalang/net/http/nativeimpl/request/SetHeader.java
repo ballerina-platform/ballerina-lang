@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setHeader",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the value of a transport header") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-                                                                        value = "The current request object") })
+        value = "The current request message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The header name") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",

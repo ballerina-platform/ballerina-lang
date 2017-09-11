@@ -39,14 +39,14 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setStatusCode",
-        args = {@Argument(name = "response", type = TypeEnum.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "statusCode", type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the HTTP StatusCode on the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "response",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
         value = "A response message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "statusCode",
         value = "HTTP status code") })
