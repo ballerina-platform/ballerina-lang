@@ -29,7 +29,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.util.Optional;
 
@@ -103,7 +103,7 @@ public class HttpDispatcher {
 
     public static CarbonCallback getCallback(HTTPCarbonMessage httpCarbonMessage) {
         return (cMsg) -> {
-            HTTPCarbonMessage carbonMessage = HTTPMessageUtil.convertCarbonMessage(cMsg);
+            HTTPCarbonMessage carbonMessage = HTTPConnectorUtil.convertCarbonMessage(cMsg);
             try {
                 //Process CORS if exists.
                 if (httpCarbonMessage.getHeader("Origin") != null) {

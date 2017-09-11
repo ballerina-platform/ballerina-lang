@@ -29,7 +29,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnecto
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.ProtocolException;
 import javax.websocket.Session;
@@ -45,7 +45,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         try {
             Session session = webSocketInitMessage.handshake();
-            CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(webSocketInitMessage);
+            CarbonMessage carbonMessage = HTTPConnectorUtil.convertWebSocketInitMessage(webSocketInitMessage);
             HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketInitMessage);
             WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
             Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
@@ -57,7 +57,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketTextMessage(webSocketTextMessage);
+        CarbonMessage carbonMessage = HTTPConnectorUtil.convertWebSocketTextMessage(webSocketTextMessage);
         HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketTextMessage);
         Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
         Executor.submit(resource, carbonMessage, null);
@@ -75,7 +75,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketCloseMessage(webSocketCloseMessage);
+        CarbonMessage carbonMessage = HTTPConnectorUtil.convertWebSocketCloseMessage(webSocketCloseMessage);
         Session serverSession = webSocketCloseMessage.getChannelSession();
         WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
         HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketCloseMessage);
