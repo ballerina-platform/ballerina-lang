@@ -18,7 +18,6 @@ package org.ballerinalang.natives.connectors;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.DefaultBalCallback;
