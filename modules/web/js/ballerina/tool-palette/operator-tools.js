@@ -2,6 +2,12 @@ import DefaultASTFactory from '../ast/default-ast-factory';
 
 const operatorStatementCreator = DefaultASTFactory.createTransformAssignmentOperatorStatement
 
+const getSeperator = id => ({
+    id,
+    name: '',
+    seperator: true,
+});
+
 const addOpTool = {
     id: 'add',
     name: 'Add',
@@ -150,13 +156,81 @@ export const binaryOpTools = [
     subtractOpTool,
     devideOpTool,
     multiplyOpTool,
+    getSeperator('sep-numeric'),
+    powerOpTool,
+    getSeperator('sep-power'),
     lessThanOpTool,
     greaterThanOpTool,
     lessThanOrEqualOpTool,
     greaterThanOrEqualOpTool,
     equalOpTool,
     notEqualOpTool,
+    getSeperator('sep-boolean'),
     andOpTool,
     orOpTool,
-    powerOpTool,
+];
+
+const plusOpTool = {
+    id: 'plus',
+    name: 'Plus',
+    cssClass: 'icon fw fw-add',
+    title: 'Plus',
+    meta: {
+        defaultExpression: '+ 1',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
+const minusOpTool = {
+    id: 'minus',
+    name: 'Minus',
+    cssClass: 'icon fw fw-minus',
+    title: 'Minus',
+    meta: {
+        defaultExpression: '- 1',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
+const notOpTool = {
+    id: 'not',
+    name: 'Not',
+    cssClass: 'icon fw fw-not',
+    title: 'Not',
+    meta: {
+        defaultExpression: '! false',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
+const lengthOfOpTool = {
+    id: 'lengthof',
+    name: 'Length Of',
+    cssClass: 'icon fw fw-lengthof',
+    title: 'Length Of',
+    meta: {
+        defaultExpression: 'lengthof a',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
+const typeOfOpTool = {
+    id: 'typeof',
+    name: 'Type Of',
+    cssClass: 'icon fw fw-typeof',
+    title: 'Type Of',
+    meta: {
+        defaultExpression: 'typeof a',
+    },
+    nodeFactoryMethod: operatorStatementCreator,
+};
+
+export const unaryOpTools = [
+    plusOpTool,
+    minusOpTool,
+    getSeperator('sep-plus-minus'),
+    notOpTool,
+    getSeperator('sep-not'),
+    lengthOfOpTool,
+    typeOfOpTool,
 ];

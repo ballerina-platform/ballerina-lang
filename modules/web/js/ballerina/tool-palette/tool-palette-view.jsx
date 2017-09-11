@@ -28,7 +28,7 @@ import ToolGroup from './../tool-palette/tool-group';
 import DefaultASTFactory from '../ast/default-ast-factory';
 import BallerinaASTRoot from '../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
-import {binaryOpTools} from './operator-tools'
+import {binaryOpTools, unaryOpTools} from './operator-tools'
 
 class ToolsPanel extends React.Component {
 
@@ -121,12 +121,20 @@ class TransformPane extends React.Component {
             toolDefinitions: binaryOpTools,
         });
 
+        const unaryOpToolGroup = new ToolGroup({
+            toolGroupName: 'unary operators',
+            toolGroupID: 'unary-operators-tool-group',
+            toolOrder: 'horizontal',
+            toolDefinitions: unaryOpTools,
+        });
+
         return (
             <div>
                 {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
                 <ToolGroupView group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
                 <ToolsPanel name="Operators">
                     <ToolGroupView group={binaryOpToolGroup} showGridStyles={false} />
+                    <ToolGroupView group={unaryOpToolGroup} showGridStyles={false} />
                 </ToolsPanel>
                 <ToolsPanel name="Libraries">
                     {this.props.library}
