@@ -123,6 +123,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -192,8 +193,9 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    public void addValueType(DiagnosticPos pos, String typeName) {
+    public void addValueType(DiagnosticPos pos, Set<WSToken> ws, String typeName) {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.addWS(ws);
         typeNode.pos = pos;
         typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName));
 
@@ -302,9 +304,10 @@ public class BLangPackageBuilder {
         return node;
     }
 
-    public void addVar(DiagnosticPos pos, String identifier, boolean exprAvailable, int annotCount) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, identifier, exprAvailable);
+    public void addVar(DiagnosticPos pos, Set<WSToken> ws, String identifier, boolean exprAvailable, int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var, annotCount);
+        var.pos = pos;
         if (this.varListStack.empty()) {
             this.varStack.push(var);
         } else {
@@ -312,10 +315,11 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void endCallableUnitSignature(String identifier, boolean paramsAvail,
+    public void endCallableUnitSignature(Set<WSToken> ws, String identifier, boolean paramsAvail,
                                          boolean retParamsAvail, boolean retParamTypeOnly) {
         InvokableNode invNode = this.invokableNodeStack.peek();
         invNode.setName(this.createIdentifier(identifier));
+        invNode.addWS(ws);
         if (retParamsAvail) {
             if (retParamTypeOnly) {
                 this.typeNodeListStack.pop().forEach(e -> {
@@ -344,16 +348,17 @@ public class BLangPackageBuilder {
         lambdaFunction.addFlag(Flag.LAMBDA);
     }
 
-    public void addLambdaFunctionDef(DiagnosticPos pos, boolean paramsAvail, boolean retParamsAvail,
+    public void addLambdaFunctionDef(DiagnosticPos pos, Set<WSToken> ws, boolean paramsAvail, boolean retParamsAvail,
                                      boolean retParamTypeOnly) {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.pos = pos;
-        endCallableUnitSignature(lambdaFunction.getName().value, paramsAvail, retParamsAvail, retParamTypeOnly);
+        endCallableUnitSignature(ws, lambdaFunction.getName().value, paramsAvail, retParamsAvail, retParamTypeOnly);
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = lambdaFunction;
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
-        endFunctionDef();
+        // TODO: is null correct here
+        endFunctionDef(null);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos, String identifier, boolean exprAvailable) {
@@ -623,8 +628,10 @@ public class BLangPackageBuilder {
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
-    public void endFunctionDef() {
-        this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
+    public void endFunctionDef(Set<WSToken> ws) {
+        FunctionNode function = (FunctionNode) this.invokableNodeStack.pop();
+        function.addWS(ws);
+        this.compUnit.addTopLevelNode(function);
     }
 
     public void startWorker() {
@@ -695,8 +702,10 @@ public class BLangPackageBuilder {
         forkJoin.timeoutVariable = variableNode;
     }
 
-    public void endCallableUnitBody() {
-        this.invokableNodeStack.peek().setBody(this.blockNodeStack.pop());
+    public void endCallableUnitBody(Set<WSToken> ws) {
+        BlockNode block = this.blockNodeStack.pop();
+        block.addWS(ws);
+        this.invokableNodeStack.peek().setBody(block);
     }
 
     public void addPackageId(List<String> nameComps, String version) {
@@ -718,7 +727,7 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(pkgDecl);
     }
 
-    public void addImportPackageDeclaration(String alias) {
+    public void addImportPackageDeclaration(Set<WSToken> ws, String alias) {
         ImportPackageNode impDecl = TreeBuilder.createImportPackageNode();
         IdentifierNode aliasNode;
         if (alias != null) {
@@ -728,13 +737,16 @@ public class BLangPackageBuilder {
         }
         impDecl.setPackageID(this.pkgIdStack.pop());
         impDecl.setAlias(aliasNode);
+        impDecl.addWS(ws);
         this.compUnit.addTopLevelNode(impDecl);
     }
 
-    private VariableNode generateBasicVarNode(DiagnosticPos pos, String identifier, boolean exprAvailable) {
+    private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<WSToken> ws, String identifier, boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        IdentifierNode name = this.createIdentifier(identifier);
+        name.addWS(ws);
+        var.setName(name);
         var.setTypeNode(this.typeNodeStack.pop());
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
@@ -742,13 +754,13 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    public void addGlobalVariable(DiagnosticPos pos, String identifier, boolean exprAvailable) {
-        VariableNode var = this.generateBasicVarNode(pos, identifier, exprAvailable);
+    public void addGlobalVariable(DiagnosticPos pos, Set<WSToken> ws, String identifier, boolean exprAvailable) {
+        VariableNode var = this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         this.compUnit.addTopLevelNode(var);
     }
 
-    public void addConstVariable(DiagnosticPos pos, String identifier) {
-        VariableNode var = this.generateBasicVarNode(pos, identifier, true);
+    public void addConstVariable(DiagnosticPos pos, Set<WSToken> ws, String identifier) {
+        VariableNode var = this.generateBasicVarNode(pos, ws, identifier, true);
         var.addFlag(Flag.CONST);
         this.compUnit.addTopLevelNode(var);
     }
