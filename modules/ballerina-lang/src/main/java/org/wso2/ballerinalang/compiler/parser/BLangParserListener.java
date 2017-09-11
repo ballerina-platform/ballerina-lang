@@ -1790,9 +1790,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Stack<String> textFragments = getTemplateTextFragments(ctx.XMLPITemplateText());
         String endingText = getTemplateEndingStr(ctx.XMLPIText());
         endingText = endingText.substring(0, endingText.length() - 2);
-        
+
         this.pkgBuilder.createXMLPILiteral(targetQName, endingText, textFragments, getCurrentPos(ctx));
-        
+
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
             this.pkgBuilder.addChildToXMLElement();
         }
@@ -1940,24 +1940,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) { }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void enterStringTemplateText(BallerinaParser.StringTemplateTextContext ctx) { }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitStringTemplateText(BallerinaParser.StringTemplateTextContext ctx) { }
+    @Override public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
+        Stack<String> stringFragments = getTemplateTextFragments(ctx.StringTemplateExpressionStart());
+        String endingText = getTemplateEndingStr(ctx.StringTemplateText());
+        this.pkgBuilder.createStringTemplateLiteral(stringFragments, endingText, getCurrentPos(ctx));
+    }
 
     /**
      * {@inheritDoc}

@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
@@ -1231,6 +1232,16 @@ public class BLangPackageBuilder {
         xmlProcInsLiteral.target = target;
 
         addExpressionNode(xmlProcInsLiteral);
+    }
+
+    public void createStringTemplateLiteral(Stack<String> precedingTextFragments, String endingText,
+            DiagnosticPos pos) {
+        BLangStringTemplateLiteral stringTemplateLiteral =
+                (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
+        stringTemplateLiteral.expressions =
+                getExpressionsInTemplate(precedingTextFragments, endingText, pos, NodeKind.LITERAL);
+        stringTemplateLiteral.pos = pos;
+        addExpressionNode(stringTemplateLiteral);
     }
 
     private List<ExpressionNode> getExpressionsInTemplate(Stack<String> precedingTextFragments, String endingText,

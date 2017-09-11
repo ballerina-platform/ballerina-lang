@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
@@ -277,6 +278,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangStringTemplateLiteral bLangStringTemplateLiteral) {
         throw new AssertionError();
     }
 
