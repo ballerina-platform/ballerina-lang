@@ -1,7 +1,5 @@
 package org.ballerinalang.model;
 
-import org.antlr.v4.runtime.Token;
-
 /**
  * Represent a white space in the source code. There is a Whitespace for each non-whitespace token in source.
  * Whitespaces are indexed by the the proceeding token's index, and therefor unique to the index number.
@@ -19,10 +17,6 @@ public class Whitespace implements Comparable<Whitespace> {
         this.index = index;
         this.ws = ws;
         this.previous = previous;
-    }
-
-    public Whitespace(String s, Token token) {
-        this(token.getTokenIndex(), s, token.getText());
     }
 
     public String getWs() {

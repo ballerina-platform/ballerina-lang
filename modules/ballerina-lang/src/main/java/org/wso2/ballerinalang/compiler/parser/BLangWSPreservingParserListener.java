@@ -100,13 +100,13 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
                 if (j >= rangeEnd) {
                     if (!lastTokenWasHidden) {
                         // capturing (non-exiting) WS at the end of range (when there is no space between ranges).
-                        ws.push(new Whitespace("", previousNonWS));
+                        ws.push(new Whitespace(previousNonWS.getTokenIndex(), "", previousNonWS.getText()));
                     }
                     break;
                 }
                 // capturing (non-exiting) WS between two default tokens.
                 if (!lastTokenWasHidden) {
-                    ws.push(new Whitespace("", previousNonWS));
+                    ws.push(new Whitespace(previousNonWS.getTokenIndex(), "", previousNonWS.getText()));
                 }
                 lastTokenWasHidden = false;
                 previousNonWS = token;
@@ -116,7 +116,7 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
                     ws.peek().appendWS(token.getText());
                 } else {
                     // capturing (non-zero-len) WS.
-                    ws.push(new Whitespace(token.getText(), previousNonWS));
+                    ws.push(new Whitespace(previousNonWS.getTokenIndex(), token.getText(), previousNonWS.getText()));
                 }
                 lastTokenWasHidden = true;
             }
