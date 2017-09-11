@@ -51,9 +51,9 @@ import javax.tools.StandardLocation;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
-    private static final String NATIVE_FUNCTION_PROVIDER_PACKAGE_NAME = "nativeFunctionProviderPackage";
+    private static final String NATIVE_ENTITY_PROVIDER_PACKAGE_NAME = "nativeEntityProviderPackage";
     
-    private static final String NATIVE_FUNCTION_PROVIDER_CLASS_NAME = "nativeFunctionProviderClass";
+    private static final String NATIVE_ENTITY_PROVIDER_CLASS_NAME = "nativeEntityProviderClass";
 
     private static final String JAVA_SPI_SERVICES_BASE_PATH = "META-INF/services/";
     
@@ -67,22 +67,30 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         this.processJavaSPIServices(roundEnv);
-        this.processNativeFunctions(roundEnv);
+        this.processNativeEntities(roundEnv);
         return true;
     }
     
-    private void processNativeFunctions(RoundEnvironment roundEnv) {
+    private void populateNativeFunctions(RoundEnvironment roundEnv, List<NativeElementDef> nativeDefs) {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
-        List<NativeElementDef> nativeDefs = new ArrayList<>();
         for (Element element : elements) {
             nativeDefs.add(this.functionToDef(element.getAnnotation(BallerinaFunction.class), element));
         }
+    }
+    
+    private void processNativeEntities(RoundEnvironment roundEnv) {
+        List<NativeElementDef> nativeDefs = new ArrayList<>();
+        this.populateNativeFunctions(roundEnv, nativeDefs);
         if (nativeDefs.isEmpty()) {
             return;
         }
+        this.generateNativeEntityProviderSource(nativeDefs);
+    }
+    
+    private void generateNativeEntityProviderSource(List<NativeElementDef> nativeDefs) {
         Map<String, String> options = this.processingEnv.getOptions();
-        String targetPackageName = options.get(NATIVE_FUNCTION_PROVIDER_PACKAGE_NAME);
-        String targetClassName = options.get(NATIVE_FUNCTION_PROVIDER_CLASS_NAME);
+        String targetPackageName = options.get(NATIVE_ENTITY_PROVIDER_PACKAGE_NAME);
+        String targetClassName = options.get(NATIVE_ENTITY_PROVIDER_CLASS_NAME);
         Writer writer = null;
         try {
             JavaFileObject javaFile = this.processingEnv.getFiler().createSourceFile(

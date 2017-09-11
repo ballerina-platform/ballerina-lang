@@ -97,8 +97,8 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeFunctionProviderPackage>org.ballerinalang.codegen.natives</nativeFunctionProviderPackage>
-                        <nativeFunctionProviderClass>StandardNativeElementProvider</nativeFunctionProviderClass>
+                        <nativeEntityProviderPackage>org.ballerinalang.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
                 <executions>
