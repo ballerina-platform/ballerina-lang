@@ -19,7 +19,10 @@ package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 
 /**
  * {@code BResource} This is the implementation for the {@code Resource} API.
@@ -60,5 +63,12 @@ public class BResource extends AbstractServiceResource  implements Resource {
     public Annotation getAnnotation(String pkgPath, String name) {
         String key = pkgPath + ":" + name;
         return annotationMap.get(key);
+    }
+
+    @Override
+    public LocalVariableInfo[] getLocalVariables() {
+        LocalVariableAttributeInfo attributeInfo = (LocalVariableAttributeInfo) resourceInfo.getAttributeInfo
+                (AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+        return attributeInfo.getLocalVariableInfoEntries();
     }
 }
