@@ -31,6 +31,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMes
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.net.ProtocolException;
@@ -75,8 +76,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         if (onTextMessageResource == null) {
             return;
         }
-        BStruct wsConnection = WebSocketConnectionManager.getInstance().
-                getConnection(webSocketTextMessage.getChannelSession().getId());
+        BStruct wsConnection = getWSConnection(webSocketTextMessage);
 
         BStruct wsTextFrame = wsService.createTextFrameStruct();
         wsTextFrame.setStringField(0, webSocketTextMessage.getText());
@@ -97,8 +97,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         if (onBinaryMessageResource == null) {
             return;
         }
-        BStruct wsConnection = WebSocketConnectionManager.getInstance().
-                getConnection(webSocketBinaryMessage.getChannelSession().getId());
+        BStruct wsConnection = getWSConnection(webSocketBinaryMessage);
         BStruct wsBinaryFrame = wsService.createBinaryFrameStruct();
         wsBinaryFrame.setBlobField(0, webSocketBinaryMessage.getByteArray());
         if (webSocketBinaryMessage.isFinalFragment()) {
@@ -122,8 +121,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         if (onCloseResource == null) {
             return;
         }
-        BStruct wsConnection = WebSocketConnectionManager.getInstance().
-                getConnection(webSocketCloseMessage.getChannelSession().getId());
+        BStruct wsConnection = getWSConnection(webSocketCloseMessage);
         BStruct wsCloseFrame = wsService.createCloseFrameStruct();
         wsCloseFrame.setIntField(0, webSocketCloseMessage.getCloseCode());
         wsCloseFrame.setStringField(0, webSocketCloseMessage.getCloseReason());
@@ -138,8 +136,16 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     }
 
     @Override
-    public void onIdleTimeout(Session session) {
-        throw new BallerinaConnectorException("Idle timeout is not supported yet");
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
+        WebSocketService wsService = WebSocketDispatcher.findService(controlMessage);
+        Resource onIdleTimeoutResource =
+                WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
+        if (onIdleTimeoutResource == null) {
+            return;
+        }
+        BStruct wsConnection = getWSConnection(controlMessage);
+        BValue[] bValues = {wsConnection};
+        Executor.execute(onIdleTimeoutResource, bValues);
     }
 
 
@@ -161,5 +167,9 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         } catch (ProtocolException e) {
             throw new BallerinaException("Error occurred during handshake");
         }
+    }
+
+    private BStruct getWSConnection(WebSocketMessage webSocketMessage) {
+        return WebSocketConnectionManager.getInstance().getConnection(webSocketMessage.getChannelSession().getId());
     }
 }
