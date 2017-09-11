@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Get the Headers of the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.request",
         functionName = "getHeaders",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                 structPackage = "ballerina.net.http"),

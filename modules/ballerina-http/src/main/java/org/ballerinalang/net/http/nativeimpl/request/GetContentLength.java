@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
  * Get Content-Length header from the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.request",
         functionName = "getContentLength",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},

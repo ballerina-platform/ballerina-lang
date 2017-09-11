@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * ballerina.model.messages:getStringPayload
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.response",
         functionName = "getStringPayload",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http")},

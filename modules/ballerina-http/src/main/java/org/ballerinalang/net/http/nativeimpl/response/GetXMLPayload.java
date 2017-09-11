@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
  * Get the payload of the Message as a XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.response",
         functionName = "getXmlPayload",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http")},

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * Set the payload of the Message as a XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.request",
         functionName = "setXmlPayload",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),

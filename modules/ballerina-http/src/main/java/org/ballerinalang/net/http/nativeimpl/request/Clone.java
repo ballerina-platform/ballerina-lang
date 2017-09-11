@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * ballerina.model.messages:clone
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.request",
         functionName = "clone",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},

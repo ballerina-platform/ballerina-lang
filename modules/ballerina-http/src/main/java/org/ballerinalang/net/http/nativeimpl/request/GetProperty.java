@@ -34,7 +34,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
  * ballerina.model.messages:getProperty
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.request",
         functionName = "getProperty",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),

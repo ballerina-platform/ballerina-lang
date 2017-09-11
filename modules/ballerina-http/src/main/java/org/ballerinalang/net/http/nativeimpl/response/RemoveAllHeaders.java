@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.response",
         functionName = "removeAllHeaders",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http")},

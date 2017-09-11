@@ -34,7 +34,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Native function to set a custom Http Reason Phrase.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.response",
         functionName = "setReasonPhrase",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
