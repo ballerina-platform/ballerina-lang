@@ -16,13 +16,9 @@
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -30,7 +26,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
-import org.wso2.carbon.messaging.MessageDataSource;
 
 /**
  * Get the payload of the Message as a XML.
@@ -38,7 +33,8 @@ import org.wso2.carbon.messaging.MessageDataSource;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getXmlPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )

@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
@@ -319,8 +319,7 @@ public class RequestResponseUtil {
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
         httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE, org.ballerinalang
-                .nativeimpl.lang.utils.Constants.APPLICATION_JSON);
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         return abstractNativeFunction.VOID_RETURN;
     }
 
@@ -347,8 +346,7 @@ public class RequestResponseUtil {
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
         StringDataSource stringDataSource = new StringDataSource(payload);
         httpCarbonMessage.setMessageDataSource(stringDataSource);
-        httpCarbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE, org.ballerinalang
-                .nativeimpl.lang.utils.Constants.TEXT_PLAIN);
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
         }
@@ -363,8 +361,21 @@ public class RequestResponseUtil {
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
         httpCarbonMessage.setMessageDataSource(payload);
-        httpCarbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE, org.ballerinalang
-                .nativeimpl.lang.utils.Constants.APPLICATION_XML);
+        httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         return abstractNativeFunction.VOID_RETURN;
+    }
+
+    public static BValue[] getContentLenghth(Context context, AbstractNativeFunction abstractNativeFunction,
+            Logger log) {
+        int contentLength = -1;
+        BMessage bMsg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+        String lengthStr = (String) bMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
+
+        try {
+            contentLength = Integer.parseInt(lengthStr);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("Invalid content length");
+        }
+        return abstractNativeFunction.getBValues(new BInteger(contentLength));
     }
 }

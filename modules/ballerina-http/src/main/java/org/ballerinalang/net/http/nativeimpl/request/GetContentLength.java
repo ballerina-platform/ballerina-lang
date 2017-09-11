@@ -1,20 +1,20 @@
-/**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * <p>
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- **/
+ */
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
@@ -30,28 +30,25 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
 
 /**
- *  Get the payload of the Message as a JSON.
+ * Get Content-Length header from the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
-        functionName = "getJsonPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
-                          structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.JSON)},
+        packageName = "ballerina.net.http",
+        functionName = "getContentLength",
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the message payload in JSON format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
-        value = "The JSON reresentation of the message payload") })
-public class GetJsonPayload extends AbstractNativeFunction {
-
-    private static final String OPERATION = "get json payload";
+        value = "Gets the Content-Length header from the message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "A message object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
+        value = "length of the message") })
+public class GetContentLength extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getJsonPayload(context, this, null);
+        return RequestResponseUtil.getContentLenghth(context, this, null);
     }
 }
