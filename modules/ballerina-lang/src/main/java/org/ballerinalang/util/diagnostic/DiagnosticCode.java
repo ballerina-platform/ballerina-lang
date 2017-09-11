@@ -24,11 +24,21 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    INCOMPATIBLE_TYPES("incompatible.types");
+    INCOMPATIBLE_TYPES("incompatible.types"),
+    UNKNOWN_TYPE("unknown.type"),
+    REDECLARED_SYMBOL("redeclared.symbol"),
+    UNDEFINED_SYMBOL("undefined.symbol"),
+    BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
+    UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
+    SELF_REFERENCE_VAR("self.reference.var");
 
-    private String strCode;
+    private String value;
 
     DiagnosticCode(String value) {
-        this.strCode = value;
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

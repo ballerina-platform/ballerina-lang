@@ -70,4 +70,9 @@ public class BType implements ValueType {
                 return TypeKind.OTHER;
         }
     }
+
+    @Override
+    public String toString() {
+        return getKind().typeName();
+    }
 }

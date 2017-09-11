@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -60,7 +61,7 @@ public class TypeChecker extends BLangNodeVisitor {
      */
     private BType expType;
 
-    private String errMsgKey;
+    private DiagnosticCode diagCode;
     private BType resultType;
 
 
@@ -87,22 +88,22 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType) {
-        return checkExpr(expr, env, expType, "incompatible.types");
+        return checkExpr(expr, env, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, String errMsgKey) {
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
-        String preErrMsgKey = this.errMsgKey;
+        DiagnosticCode preDiagCode = this.diagCode;
 
         // TODO Check the possibility of using a try/finally here
         this.env = env;
         this.expType = expType;
-        this.errMsgKey = errMsgKey;
+        this.diagCode = diagCode;
         expr.accept(this);
         this.env = prevEnv;
         this.expType = preExpType;
-        this.errMsgKey = preErrMsgKey;
+        this.diagCode = preDiagCode;
 
         return resultType;
     }
@@ -113,7 +114,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLiteral literalExpr) {
         resultType = checkType(literalExpr,
                 symTable.getTypeFromTag(literalExpr.typeTag),
-                expType, errMsgKey);
+                expType, diagCode);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -121,7 +122,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbol(env.scope, varName, SymTag.VARIABLE);
 
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(varRefExpr.pos, "undefined.symbol", varName.toString());
+            dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             varRefExpr.type = symTable.errType;
             return;
         }
@@ -166,10 +167,10 @@ public class TypeChecker extends BLangNodeVisitor {
     // Private methods
 
     private BType checkType(BLangNode node, BType type, BType expType) {
-        return checkType(node, type, expType, "incompatible.types");
+        return checkType(node, type, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
-    private BType checkType(BLangNode node, BType type, BType expType, String errKey) {
+    private BType checkType(BLangNode node, BType type, BType expType, DiagnosticCode diagCode) {
         node.type = type;
         if (expType.tag == TypeTags.ERROR) {
             return expType;
@@ -182,13 +183,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO Add more logic to check type compatibility assignability etc.
 
         // e.g. incompatible types: expected 'int', found 'string'
-        dlog.error(node.pos, errKey, expType, type);
+        dlog.error(node.pos, diagCode, expType, type);
         return node.type = symTable.errType;
     }
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
-            dlog.error(pos, "self.reference", varSymbol.name);
+            dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
     }
 }

@@ -18,8 +18,13 @@
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Diagnostic logger.
@@ -27,8 +32,16 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  * @since 0.94
  */
 public class DiagnosticLog {
+
     private static final CompilerContext.Key<DiagnosticLog> DIAGNOSTIC_LOG_KEY =
             new CompilerContext.Key<>();
+
+    private static ResourceBundle messages =
+            ResourceBundle.getBundle("compiler", Locale.getDefault());
+
+    private static String errMsgKeyPrefix = "error" + ".";
+    private static String warningMsgKeyPrefix = "warning" + ".";
+    private static String noteMsgKeyPrefix = "note" + ".";
 
     private DiagnosticListener listener;
 
@@ -50,19 +63,30 @@ public class DiagnosticLog {
         }
     }
 
-    public void error(DiagnosticPos pos, String key, Object... args) {
-
-        // TODO generate the proper message with args
-        String msg = key;
-        BDiagnostic diagnostic = new BDiagnostic(
-                Diagnostic.Kind.ERROR, pos.src, pos, msg);
+    public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(errMsgKeyPrefix, code, args);
+        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.ERROR,
+                pos.src, pos, code, msg);
 
         listener.received(diagnostic);
     }
 
-    public void warning(DiagnosticPos pos, String key, Object... args) {
+    public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(warningMsgKeyPrefix, code, args);
+        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.WARNING,
+                pos.src, pos, code, msg);
+        listener.received(diagnostic);
     }
 
-    public void note(DiagnosticPos pos, String key, Object... args) {
+    public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(noteMsgKeyPrefix, code, args);
+        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.NOTE,
+                pos.src, pos, code, msg);
+        listener.received(diagnostic);
+    }
+
+    private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
+        String msgKey = messages.getString(prefix + code.getValue());
+        return MessageFormat.format(msgKey, args);
     }
 }

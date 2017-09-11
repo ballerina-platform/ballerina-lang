@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -60,7 +61,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private BType resultType;
-    private String errMsgKey;
+    private DiagnosticCode diagCode;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -81,7 +82,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, BSymbol symbol, Scope scope) {
         if (lookupSymbol(scope, symbol.name, symbol.tag) != symTable.notFoundSymbol) {
-            dlog.error(pos, "duplicate.symbol", symbol.name);
+            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
 
@@ -100,7 +101,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol symbol = resolveOperator(entry, types);
         if (symbol == symTable.notFoundSymbol) {
             // operator '+' not defined for 'int' and 'xml'
-            dlog.error(pos, "binary.op.incompatible.types", opKind, lhsType, rhsType);
+            dlog.error(pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES, opKind, lhsType, rhsType);
         }
         return symbol;
     }
@@ -114,7 +115,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BSymbol symbol = resolveOperator(entry, types);
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, "unary.op.incompatible.type", opKind, type);
+            dlog.error(pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES, opKind, type);
         }
         return symbol;
     }
@@ -131,7 +132,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangArrayType arrayTypeNode) {
         // The value of the dimensions field should always be >= 1
-        resultType = resolveTypeNode(arrayTypeNode.elemtype, env, errMsgKey);
+        resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             resultType = new BArrayType(resultType);
         }
@@ -173,18 +174,18 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
-        return resolveTypeNode(typeNode, env, "unknown.type");
+        return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
     }
 
-    BType resolveTypeNode(BLangType typeNode, SymbolEnv env, String errMsgKey) {
+    BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
-        String preErrMsgKey = this.errMsgKey;
+        DiagnosticCode preDiagCode = this.diagCode;
 
         this.env = env;
-        this.errMsgKey = errMsgKey;
+        this.diagCode = diagCode;
         typeNode.accept(this);
         this.env = prevEnv;
-        this.errMsgKey = preErrMsgKey;
+        this.diagCode = preDiagCode;
 
         return resultType;
     }
@@ -205,7 +206,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         Name typeName = names.fromTypeKind(typeKind);
         BSymbol typeSymbol = lookupSymbol(symTable.rootScope, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, errMsgKey, typeName);
+            dlog.error(pos, diagCode, typeName);
         }
 
         resultType = typeSymbol.type;

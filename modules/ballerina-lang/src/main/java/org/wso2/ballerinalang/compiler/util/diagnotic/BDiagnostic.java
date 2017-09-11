@@ -37,10 +37,12 @@ public class BDiagnostic implements Diagnostic {
     public BDiagnostic(Kind kind,
                        BDiagnosticSource source,
                        DiagnosticPos pos,
+                       DiagnosticCode code,
                        String msg) {
         this.kind = kind;
         this.source = source;
         this.pos = pos;
+        this.code = code;
         this.msg = msg;
     }
 
