@@ -111,5 +111,4 @@ public class ServiceInfo extends StructureTypeInfo {
         }
         return uriTemplate;
     }
-
 }

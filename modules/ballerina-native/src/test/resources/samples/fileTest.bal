@@ -35,6 +35,12 @@ function testWrite(blob content, string targetPath) {
     files:write(content, target);
 }
 
+function testWriteNewLine(blob content, string targetPath) {
+    files:File target = {path : targetPath};
+    files:open(target, "w");
+    files:writeln(content, target);
+}
+
 function testWriteWithoutOpening(blob content, string targetPath) {
     files:File target = {path : targetPath};
     files:write(content, target);

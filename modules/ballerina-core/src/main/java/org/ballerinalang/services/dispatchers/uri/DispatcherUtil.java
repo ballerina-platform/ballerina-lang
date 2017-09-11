@@ -23,11 +23,20 @@ import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utilities related to dispatcher processing.
  */
 public class DispatcherUtil {
+
+    private static String[] allMethods = new String[]{Constants.HTTP_METHOD_GET, Constants.HTTP_METHOD_HEAD
+            , Constants.HTTP_METHOD_POST, Constants.HTTP_METHOD_DELETE
+            , Constants.HTTP_METHOD_PUT, Constants.HTTP_METHOD_OPTIONS};
 
     public static boolean isMatchingMethodExist(ResourceInfo resourceInfo, String method) {
         String[] rHttpMethods = getHttpMethods(resourceInfo);
@@ -91,5 +100,52 @@ public class DispatcherUtil {
             values[i] = annAttributeValues[i].getStringValue();
         }
         return values;
+    }
+
+    public static String getServiceBasePath(ServiceInfo service) {
+        String basePath = service.getName();
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
+
+        if (annotationInfo != null) {
+            AnnAttributeValue annAttributeValue = annotationInfo.getAttributeValue
+                    (Constants.ANN_CONFIG_ATTR_BASE_PATH);
+            if (annAttributeValue != null && annAttributeValue.getStringValue() != null &&
+                    !annAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annAttributeValue.getStringValue();
+            }
+        }
+
+        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+        return basePath;
+    }
+
+    public static String concatValues(List<String> stringValues, boolean spaceSeparated) {
+        StringBuilder builder = new StringBuilder();
+        String separator = spaceSeparated ? " " : ", ";
+        for (int x = 0; x < stringValues.size(); ++x) {
+            builder.append(stringValues.get(x));
+            if (x != stringValues.size() - 1) {
+                builder.append(separator);
+            }
+        }
+        return builder.toString();
+    }
+
+    public static List<String> validateAllowMethods(List<String> cachedMethods) {
+        if (cachedMethods != null && cachedMethods.size() != 0) {
+            if (cachedMethods.contains(Constants.HTTP_METHOD_GET)) {
+                cachedMethods.add(Constants.HTTP_METHOD_HEAD);
+            }
+            cachedMethods.add(Constants.HTTP_METHOD_OPTIONS);
+            cachedMethods = cachedMethods.stream().distinct().collect(Collectors.toList());
+        }
+        return cachedMethods;
+    }
+
+    public static List<String> addAllMethods() {
+        return Arrays.stream(allMethods).collect(Collectors.toList());
     }
 }
