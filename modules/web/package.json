@@ -105,9 +105,9 @@
     "react-json-view": "^1.12.0",
     "react-split-pane": "^0.1.66",
     "react-transition-group": "^1.1.2",
-    "react-treeview": "^0.4.7",
     "react-treebeard": "^2.0.3",
     "select2": "^4.0.3",
+    "swagger-editor-dist": "^3.1.7",
     "typeahead.js": "^0.11.1",
     "unused-files-webpack-plugin": "^3.0.1",
     "uuid": "^3.1.0"

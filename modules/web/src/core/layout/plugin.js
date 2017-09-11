@@ -115,7 +115,7 @@ class LayoutPlugin extends Plugin {
                     type: MENU_TYPES.ROOT,
                 },
                 {
-                    id: MENU_IDS.TOGGOLE_BOTTOM_PANEL,
+                    id: MENU_IDS.TOGGLE_BOTTOM_PANEL,
                     label: LABELS.TOGGLE_BOTTOM_PANLEL,
                     isActive: (appContext) => {
                         return true;
