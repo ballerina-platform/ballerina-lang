@@ -229,7 +229,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         garbageCollected.forEach(content -> content.release());
     }
 
-    public HTTPCarbonMessage cloneWithData() {
+    public HTTPCarbonMessage cloneCarbonMessageWithData() {
         HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
         // Add message body
         int length = getFullMessageLength();
@@ -248,7 +248,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         return cMsg;
     }
 
-    public HTTPCarbonMessage cloneWithoutData() {
+    public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
         HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
         // set headers
         cMsg.setHeaders(getHeaders().getAll());

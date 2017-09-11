@@ -67,7 +67,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
             try {
                 InputStream inputStream = httpRequest.getInputStream();
 
-                CarbonMessage newMsg = httpRequest.cloneWithoutData();
+                CarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                 OutputStream outputStream = newMsg.getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
@@ -98,7 +98,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                         executor.execute(() -> {
                             InputStream inputStream = httpMessage.getInputStream();
 
-                            CarbonMessage newMsg = httpMessage.cloneWithoutData();
+                            CarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                             OutputStream outputStream = newMsg.getOutputStream();
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputStream);

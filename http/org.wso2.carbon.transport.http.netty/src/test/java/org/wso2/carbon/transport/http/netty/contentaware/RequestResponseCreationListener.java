@@ -89,7 +89,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                 byteBuff.put(array);
                 byteBuff.flip();
-                CarbonMessage carbonMessage = httpResponse.cloneWithoutData();
+                CarbonMessage carbonMessage = httpResponse.cloneCarbonMessageWithOutData();
                 if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                     carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
                 }
@@ -124,7 +124,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                     String requestValue = new String(byteBuffer.array());
                     byte[] arry = responseValue.getBytes("UTF-8");
 
-                    CarbonMessage newMsg = httpRequest.cloneWithoutData();
+                    CarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                     if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                         newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
                     }
@@ -173,7 +173,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                                     ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                                     byteBuff.put(array);
                                     byteBuff.flip();
-                                    CarbonMessage carbonMessage = httpResponse.cloneWithoutData();
+                                    CarbonMessage carbonMessage = httpResponse.cloneCarbonMessageWithOutData();
                                     if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                                         carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
                                                 String.valueOf(array.length));

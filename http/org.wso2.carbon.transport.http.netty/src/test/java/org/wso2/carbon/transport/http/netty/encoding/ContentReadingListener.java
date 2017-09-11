@@ -52,7 +52,7 @@ public class ContentReadingListener implements HttpConnectorListener {
                 String response = new String(ByteStreams.toByteArray(inputStream), Charset.defaultCharset());
                 String alteredContent = "Altered " + response + " content";
 
-                CarbonMessage newMsg = httpMessage.cloneWithoutData();
+                CarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                 newMsg.addMessageBody(ByteBuffer.wrap(alteredContent.getBytes(Charset.defaultCharset())));
                 newMsg.setEndOfMsgAdded(true);
 

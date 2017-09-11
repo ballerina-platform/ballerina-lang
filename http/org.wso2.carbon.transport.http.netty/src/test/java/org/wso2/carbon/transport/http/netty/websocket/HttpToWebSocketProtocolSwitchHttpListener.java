@@ -43,7 +43,7 @@ public class HttpToWebSocketProtocolSwitchHttpListener implements HttpConnectorL
         executor.execute(() -> {
             try {
                 int length = httpRequest.getFullMessageLength();
-                HTTPCarbonMessage cMsg = httpRequest.cloneWithData();
+                HTTPCarbonMessage cMsg = httpRequest.cloneCarbonMessageWithData();
                 cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                 cMsg.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(length));
                 cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
