@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getBinaryPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.BLOB)},
         isPublic = true

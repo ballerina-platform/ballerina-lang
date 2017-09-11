@@ -35,14 +35,15 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getContentLength",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+                          structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the Content-Length header from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "A message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+        value = "The request message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
         value = "length of the message") })
 public class GetContentLength extends AbstractNativeFunction {
