@@ -48,6 +48,7 @@ public enum TypeKind {
      */
     BLOB("blob"),
 
+    TYPE("type"),
     DATATABLE("datatable"),
     JSON("json"),
     XML("xml"),
