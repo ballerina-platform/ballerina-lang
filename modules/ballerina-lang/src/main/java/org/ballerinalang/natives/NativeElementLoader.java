@@ -15,11 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler;
+package org.ballerinalang.natives;
 
-import org.ballerinalang.natives.NativeElementRepository;
 import org.ballerinalang.spi.NativeElementProvider;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ServiceLoader;
 
@@ -30,19 +28,16 @@ public class NativeElementLoader {
     
     private NativeElementRepository nativeElementRepo;
 
-    private static final CompilerContext.Key<NativeElementLoader> NATIVE_ELEMENT_LOADER_KEY =
-            new CompilerContext.Key<>();
+    private static NativeElementLoader instance;
 
-    public static NativeElementLoader getInstance(CompilerContext context) {
-        NativeElementLoader codeGenerator = context.get(NATIVE_ELEMENT_LOADER_KEY);
-        if (codeGenerator == null) {
-            codeGenerator = new NativeElementLoader(context);
+    public static NativeElementLoader getInstance() {
+        if (instance == null) {
+            instance = new NativeElementLoader();
         }
-        return codeGenerator;
+        return instance;
     }
 
-    public NativeElementLoader(CompilerContext context) {
-        context.put(NATIVE_ELEMENT_LOADER_KEY, this);
+    public NativeElementLoader() {
         this.nativeElementRepo = new NativeElementRepository();
         ServiceLoader.load(NativeElementProvider.class).forEach(e -> e.populateNatives(this.nativeElementRepo));
     }
