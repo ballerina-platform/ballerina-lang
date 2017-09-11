@@ -118,11 +118,6 @@ native function clone (http:Response res) (message);
 @doc:Param { value:"value: The header value" }
 native function setHeader (http:Response res, string key, string value);
 
-@doc:Description { value:"Sets the message payload using a map object"}
-@doc:Param { value:"res: The response message" }
-@doc:Param { value:"payload: The map payload object" }
-native function setMapPayload (http:Response res, map payload);
-
 @doc:Description { value:"To get the value for a string property in a map type message"}
 @doc:Param { value:"res: The response message" }
 @doc:Param { value:"propertyName: Name of the property" }

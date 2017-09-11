@@ -56,15 +56,6 @@ native function getUpgradeHeaders(Connection conn) (map<string>);
 @doc:Return {value:"string: Value of the key if exists else null"}
 native function getUpgradeHeader(Connection conn, string key) (string);
 
-@doc:Description {value:"Get a map of all the path parameters"}
-@doc:Return {value:"map<string>: Map of all the path parameters"}
-native function getPathParams(Connection conn) (map<string>);
-
-@doc:Description {value:"Get the value of path parameter for a given key"}
-@doc:Param {value:"key: Key of the path parameter"}
-@doc:Return {value:"string: Value of the path parameter"}
-native function getPathParam(Connection conn, string key) (string);
-
 @doc:Description {value:"Push text to the connection"}
 @doc:Param {value:"text: Text which should be sent"}
 native function pushText(Connection conn, string text);
@@ -72,15 +63,6 @@ native function pushText(Connection conn, string text);
 @doc:Description {value:"Push binary data to the connection"}
 @doc:Param {value:"data: Binary data which should be sent"}
 native function pushBinary(Connection conn, blob data);
-
-@doc:Description {value:"Ping the connection for Heartbeat"}
-@doc:Param {value:"frame: Ping WebSocket frame"}
-@doc:Return {value:"frame: Pong WebSocket frame"}
-native function ping(Connection conn, PingFrame frame) (PongFrame frame);
-
-@doc:Description {value:"Send pong to the connection"}
-@doc:Param {value:"frame: Pong WebSocket frame"}
-native function pong(Connection conn, PongFrame frame);
 
 @doc:Description {value:"WebSocket client connector for connecting to WebSocket backend"}
 @doc:Param {value:"url: WebSocket url for the backend"}
@@ -96,7 +78,7 @@ connector ClientConnector(string url, string callbackService) {
 
     @doc:Description {value:"set custom headers"}
     @doc:Param {value:"customHeaders: custom headers which should be added."}
-    native action addCustomHeaders(map<string, string> customHeaders);
+    native action addCustomHeaders(map<string> customHeaders);
 
     @doc:Description {value:"Add custom header"}
     @doc:Param {value:"key: key of the header"}
