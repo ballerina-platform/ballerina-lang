@@ -231,36 +231,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         garbageCollected.forEach(content -> content.release());
     }
 
-    public HTTPCarbonMessage cloneCarbonMessageWithData() {
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
-        // Add message body
-        int length = getFullMessageLength();
-        List<ByteBuffer> fullMessage = getFullMessageBody();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-        fullMessage.forEach(buffer -> byteBuffer.put(buffer));
-        byteBuffer.flip();
-        cMsg.addMessageBody(byteBuffer);
-        cMsg.setEndOfMsgAdded(true);
-        // set headers
-        cMsg.setHeaders(getHeaders().getAll());
-        // Set properties
-        getProperties().entrySet().forEach(
-                entry -> cMsg.setProperty(entry.getKey(), entry.getValue())
-        );
-        return cMsg;
-    }
-
-    public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
-        // set headers
-        cMsg.setHeaders(getHeaders().getAll());
-        // Set properties
-        getProperties().entrySet().forEach(
-                entry -> cMsg.setProperty(entry.getKey(), entry.getValue())
-        );
-        return cMsg;
-    }
-
     public ServerConnectorFuture getHTTPConnectorFuture() {
         return this.serverConnectorFuture;
     }
@@ -276,45 +246,43 @@ public class HTTPCarbonMessage extends CarbonMessage {
     /**
      * Copy Message properties and transport headers
      *
-     * @param carbonMessage CarbonMessage
      * @return CarbonMessage
      */
-    public HTTPCarbonMessage cloneCarbonMessageWithOutData(CarbonMessage carbonMessage) {
+    public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
         HTTPCarbonMessage newCarbonMessage = new HTTPCarbonMessage();
-        newCarbonMessage.setBufferContent(carbonMessage.isBufferContent());
+        newCarbonMessage.setBufferContent(this.isBufferContent());
 
-        List<Header> transportHeaders = carbonMessage.getHeaders().getClone();
+        List<Header> transportHeaders = this.getHeaders().getClone();
         newCarbonMessage.setHeaders(transportHeaders);
 
-        Map<String, Object> propertiesMap = carbonMessage.getProperties();
+        Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(newCarbonMessage::setProperty);
 
-        newCarbonMessage.setWriter(carbonMessage.getWriter());
-        newCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
+        newCarbonMessage.setWriter(this.getWriter());
+        newCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
         return newCarbonMessage;
     }
 
     /**
      * Copy the Full carbon message with data
      *
-     * @param carbonMessage CarbonMessage
      * @return carbonMessage
      */
-    public HTTPCarbonMessage cloneCarbonMessageWithData(CarbonMessage carbonMessage) {
+    public HTTPCarbonMessage cloneCarbonMessageWithData() {
 
         HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
-        httpCarbonMessage.setBufferContent(carbonMessage.isBufferContent());
+        httpCarbonMessage.setBufferContent(this.isBufferContent());
 
-        List<Header> transportHeaders = carbonMessage.getHeaders().getClone();
+        List<Header> transportHeaders = this.getHeaders().getClone();
         httpCarbonMessage.setHeaders(transportHeaders);
 
-        Map<String, Object> propertiesMap = carbonMessage.getProperties();
-        propertiesMap.forEach((key, value) -> httpCarbonMessage.setProperty(key, value));
+        Map<String, Object> propertiesMap = this.getProperties();
+        propertiesMap.forEach(httpCarbonMessage::setProperty);
 
-        httpCarbonMessage.setWriter(carbonMessage.getWriter());
-        httpCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
+        httpCarbonMessage.setWriter(this.getWriter());
+        httpCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
 
-        carbonMessage.getCopyOfFullMessageBody().forEach(buffer -> httpCarbonMessage.addMessageBody(buffer));
+        this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
         httpCarbonMessage.setEndOfMsgAdded(true);
         return httpCarbonMessage;
     }
