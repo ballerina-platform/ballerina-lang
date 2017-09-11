@@ -18,6 +18,7 @@
 package org.ballerinalang.codegen;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.annotation.natives.BallerinaFunction;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -29,12 +30,14 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 /**
@@ -48,7 +51,18 @@ import javax.tools.StandardLocation;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
+    private static final String NATIVE_FUNCTION_PROVIDER_PACKAGE_NAME = "nativeFunctionProviderPackage";
+    
+    private static final String NATIVE_FUNCTION_PROVIDER_CLASS_NAME = "nativeFunctionProviderClass";
+
     private static final String JAVA_SPI_SERVICES_BASE_PATH = "META-INF/services/";
+    
+    private ProcessingEnvironment processingEnv;
+    
+    @Override
+    public void init(ProcessingEnvironment processingEnv) {
+        this.processingEnv = processingEnv;
+    }
     
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -58,7 +72,40 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     }
     
     private void processNativeFunctions(RoundEnvironment roundEnv) {
-        //Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
+        List<NativeElementDef> nativeDefs = new ArrayList<>();
+        for (Element element : elements) {
+            nativeDefs.add(this.functionToDef(element.getAnnotation(BallerinaFunction.class), element));
+        }
+        if (nativeDefs.isEmpty()) {
+            return;
+        }
+        Map<String, String> options = this.processingEnv.getOptions();
+        String targetPackageName = options.get(NATIVE_FUNCTION_PROVIDER_PACKAGE_NAME);
+        String targetClassName = options.get(NATIVE_FUNCTION_PROVIDER_CLASS_NAME);
+        Writer writer = null;
+        try {
+            JavaFileObject javaFile = this.processingEnv.getFiler().createSourceFile(
+                    targetPackageName + "." + targetClassName);
+            writer = javaFile.openWriter();
+            this.generateNativeElementProviderCode(writer, targetPackageName, targetClassName, nativeDefs);
+        } catch (IOException e) {
+            throw new RuntimeException("Error processing native functions: " + e.getMessage(), e);
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException ignore) { }
+        }
+    }
+    
+    private NativeElementDef functionToDef(BallerinaFunction func, Element element) {
+        NativeFunctionDef def = new NativeFunctionDef();
+        def.pkg = func.packageName();
+        def.name = func.functionName();
+        def.className = this.extractClassName(element);
+        return def;
     }
     
     private void processJavaSPIServices(RoundEnvironment roundEnv) {
@@ -99,6 +146,56 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private String extractClassName(Element element) {
         return ((TypeElement) element).getQualifiedName().toString();
+    }
+    
+    private void generateNativeElementProviderCode(Writer writer, String pkgName, String className, 
+            List<NativeElementDef> elements) {
+        try {
+            writer.write("package " + pkgName + ";\n\n");
+            writer.write("import org.ballerinalang.annotation.JavaSPIService;\n");
+            writer.write("import org.ballerinalang.natives.NativeElementKey;\n");
+            writer.write("import org.ballerinalang.natives.NativeElementRepository;\n");
+            writer.write("import org.ballerinalang.natives.NativeElementType;\n");
+            writer.write("import org.ballerinalang.spi.NativeElementProvider;\n\n");
+            writer.write("@JavaSPIService (\"org.ballerinalang.spi.NativeElementProvider\")\n");
+            writer.write("public class " + className + " implements NativeElementProvider {\n\n");
+            writer.write("\t@Override\n");
+            writer.write("\tpublic void populateNatives(NativeElementRepository repo) {\n");
+            for (NativeElementDef element : elements) {
+                writer.write("\t\trepo.addEntry(new NativeElementKey(" + element.code() + ");\n");
+            }
+            writer.write("\t}\n\n");
+            writer.write("}\n");
+        } catch (IOException e) {
+            throw new RuntimeException("Error in generating native element definitions: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * @since 0.94
+     */
+    private interface NativeElementDef {
+        
+        String code();
+        
+    }
+    
+    /**
+     * @since 0.94
+     */
+    private class NativeFunctionDef implements NativeElementDef {
+        
+        public String pkg;
+        
+        public String name;
+        
+        public String className;
+        
+        public String code() {
+            return "NativeElementType.FUNCTION, \"" + this.pkg + 
+                    "\", \"" + this.name + "\"), \"" + this.className + "\"";
+        }
+        
     }
     
 }

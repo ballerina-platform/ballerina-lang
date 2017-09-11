@@ -26,14 +26,32 @@ import java.util.Map;
  */
 public class NativeElementRepository {
 
-    private Map<NativeElementKey, NativeElement> entries = new HashMap<>();
+    private Map<NativeElementKey, String> entries = new HashMap<>();
     
-    public void addEntry(NativeElementKey key, NativeElement value) {
-        this.entries.put(key, value);
+    private Map<NativeElementKey, NativeElement> nativeElementCache = new HashMap<>();
+    
+    public void addEntry(NativeElementKey key, String className) {
+        this.entries.put(key, className);
     }
     
-    public NativeElement lookup(NativeElementKey key) {
+    public String lookupEntry(NativeElementKey key) {
         return this.entries.get(key);
+    }
+    
+    public NativeElement loadNativeElement(NativeElementKey key) {
+        NativeElement result = this.nativeElementCache.get(key);
+        if (result == null) {
+            String className = this.lookupEntry(key);
+            if (className != null) {
+                try {
+                    result = (NativeElement) Class.forName(className).newInstance();
+                    this.nativeElementCache.put(key, result);
+                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                    throw new RuntimeException("Error in loading native element: " + e.getMessage(), e);
+                }
+            }
+        }
+        return result;
     }
     
 }
