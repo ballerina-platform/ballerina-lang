@@ -35,14 +35,14 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getJsonPayload",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in JSON format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
         value = "The request message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
         value = "The JSON representation of the message payload") })

@@ -36,14 +36,14 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setReasonPhrase",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "reasonPhrase", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets a custom HTTP Reason phrase") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
         value = "A response message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "reasonPhrase",
         value = "Reason phrase value") })

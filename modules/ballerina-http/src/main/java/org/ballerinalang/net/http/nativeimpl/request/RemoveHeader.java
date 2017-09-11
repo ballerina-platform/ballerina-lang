@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "removeHeader",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING)},
         isPublic = true
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Removes a transport header from the message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-                                                                        value = "The current request object") })
+        value = "The current request message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The header name") })
 public class RemoveHeader extends AbstractNativeFunction {

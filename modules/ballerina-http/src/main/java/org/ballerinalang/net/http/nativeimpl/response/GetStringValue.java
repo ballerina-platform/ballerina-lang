@@ -35,7 +35,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getStringValue",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "propertyName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
@@ -43,8 +43,8 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "To get the value for a string property in a map type message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
-        value = "message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
+        value = "A response message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "Name of the property") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",

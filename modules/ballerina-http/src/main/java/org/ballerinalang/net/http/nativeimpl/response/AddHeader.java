@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "addHeader",
-        args = {@Argument(name = "response", type = TypeEnum.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Adds a transport header to the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "response",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
         value = "The response message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The header name") })

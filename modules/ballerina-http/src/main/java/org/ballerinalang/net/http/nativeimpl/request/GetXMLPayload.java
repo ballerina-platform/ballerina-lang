@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getXmlPayload",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true

@@ -35,15 +35,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getHeaders",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+                structPackage = "ballerina.net.http"),
                 @Argument(name = "headerName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets transport headers from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+        value = "The request message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "headerName",
         value = "The header name") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string[]",
