@@ -23,12 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.Request;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Base64;
-import java.io.File;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Base64;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.OPTIONS;
@@ -77,7 +77,7 @@ public class FileContentProvider {
 
             try {
                 String filePath = this.contextRoot + File.separator + "images" + File.separator + "connectors" +
-                        File.separator + "resource.svg";
+                        File.separator + connectorIconRequest.getConnectorName() + ".svg";
                 InputStream inputStream = new FileInputStream(new File(filePath));
                 responseJson = getImageResponse(inputStream, "svg");
             } catch (IOException e) {
@@ -111,7 +111,6 @@ public class FileContentProvider {
         }
 
         String encodedContent = "data:image/svg+xml;base64," + Base64.getEncoder().encodeToString(baos.toByteArray());
-        logger.info(encodedContent);
         response.addProperty("status", "success");
         response.addProperty("extension", extension);
         response.addProperty("content", encodedContent);

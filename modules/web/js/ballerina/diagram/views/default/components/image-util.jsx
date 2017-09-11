@@ -86,14 +86,14 @@ class ImageUtils {
             async: false,
             dataType: 'json',
             success(response) {
-                if (response.status === 'succes') {
+                if (response.status === 'success') {
                     data = response.content;
                 } else {
-                    data = this.getSVGIconString('tool-icons/connector-white');
+                    data = this.getSVGIconString('tool-icons/connector');
                 }
             },
             error() {
-                data = this.getSVGIconString('tool-icons/connector-white');
+                data = this.getSVGIconString('tool-icons/connector');
             },
         });
         return data;
