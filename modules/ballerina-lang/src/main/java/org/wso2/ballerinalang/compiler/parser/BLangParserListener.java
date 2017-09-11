@@ -751,7 +751,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
-        this.pkgBuilder.addConstVariable(getCurrentPos(ctx),getWS(ctx), ctx.Identifier().getText());
+        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override

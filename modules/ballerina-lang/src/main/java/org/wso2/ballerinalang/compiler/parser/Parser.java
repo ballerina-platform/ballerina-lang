@@ -43,6 +43,7 @@ import java.io.IOException;
 public class Parser {
 
     private static final CompilerContext.Key<Parser> PARSER_KEY = new CompilerContext.Key<>();
+    private final boolean preserveWhitespace;
 
     private CompilerContext context;
 
@@ -58,6 +59,9 @@ public class Parser {
     public Parser(CompilerContext context) {
         this.context = context;
         this.context.put(PARSER_KEY, this);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
     }
 
     public BLangPackage parse(PackageSource pkgSource) {
@@ -80,13 +84,7 @@ public class Parser {
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
-            BLangParserListener listener;
-            if (isWSPreserving()) {
-                listener = new BLangWSPreservingParserListener(tokenStream, compUnit, diagnosticSrc);
-            } else {
-                listener = new BLangParserListener(compUnit, diagnosticSrc);
-            }
-            parser.addParseListener(listener);
+            parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
             return compUnit;
         } catch (IOException e) {
@@ -94,9 +92,14 @@ public class Parser {
         }
     }
 
-    private boolean isWSPreserving() {
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        return Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
+    private BLangParserListener newListener(CommonTokenStream tokenStream,
+                                            CompilationUnitNode compUnit,
+                                            BDiagnosticSource diagnosticSrc) {
+        if (this.preserveWhitespace) {
+            return new BLangWSPreservingParserListener(tokenStream, compUnit, diagnosticSrc);
+        } else {
+            return new BLangParserListener(compUnit, diagnosticSrc);
+        }
     }
 
     private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {

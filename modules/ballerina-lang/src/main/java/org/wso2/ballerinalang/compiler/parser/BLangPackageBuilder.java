@@ -746,7 +746,10 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(impDecl);
     }
 
-    private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable) {
+    private VariableNode generateBasicVarNode(DiagnosticPos pos,
+                                              Set<Whitespace> ws,
+                                              String identifier,
+                                              boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
