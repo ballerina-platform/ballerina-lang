@@ -511,6 +511,32 @@ public class ArrayTest {
     }
 
     @Test
+    public void testDoubleArraySort() {
+        BArray<BDouble> bDoubleBArray = new BArray<>(BDouble.class);
+        bDoubleBArray.add(0, new BDouble(20.0));
+        bDoubleBArray.add(1, new BDouble(11.0));
+        bDoubleBArray.add(2, new BDouble(12.0));
+        BValue[] args = {bDoubleBArray};
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testDoubleArraySort", args);
+        Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(0)).doubleValue(), 11.0);
+        Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(1)).doubleValue(), 12.0);
+        Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(2)).doubleValue(), 20.0);
+    }
+
+    @Test
+    public void testIntArraySort() {
+        BArray<BInteger> bArray = new BArray<>(BInteger.class);
+        bArray.add(0, new BInteger(20));
+        bArray.add(1, new BInteger(11));
+        bArray.add(2, new BInteger(12));
+        BValue[] args = {bArray};
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testIntArraySort", args);
+        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), 11);
+        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(1)).intValue(), 12);
+        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(2)).intValue(), 20);
+    }
+
+    @Test
     public void testStringArraySort() {
         final String v1 = "currency";
         final String v2 = "states";
