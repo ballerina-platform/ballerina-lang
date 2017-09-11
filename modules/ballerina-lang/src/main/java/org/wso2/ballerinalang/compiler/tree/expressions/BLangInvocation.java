@@ -39,6 +39,10 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public List<ExpressionNode> argsExpressions = new ArrayList<>();
     public VariableReferenceNode variableReferenceNode;
 
+    public boolean isMultiReturnExpr() {
+        return true;
+    }
+
     @Override
     public IdentifierNode getPackageIdentifier() {
         return packIdentifier;

@@ -15,17 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
+package org.wso2.ballerinalang.util;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
-/**
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/***
  * @since 0.94
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public class Lists {
 
-    public boolean isMultiReturnExpr() {
-        return false;
+    @SafeVarargs
+    public static <E> List<E> of(E... values) {
+        List<E> list = new ArrayList<>();
+        Collections.addAll(list, values);
+        return list;
     }
 }

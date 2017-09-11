@@ -30,7 +30,8 @@ public enum DiagnosticCode {
     UNDEFINED_SYMBOL("undefined.symbol"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
-    SELF_REFERENCE_VAR("self.reference.var");
+    SELF_REFERENCE_VAR("self.reference.var"),
+    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch");
 
     private String value;
 

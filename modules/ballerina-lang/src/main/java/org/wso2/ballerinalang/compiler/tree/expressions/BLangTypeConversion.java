@@ -47,6 +47,10 @@ public class BLangTypeConversion extends BLangExpression implements TypeConversi
         this.typeName = typeName;
     }
 
+    public boolean isMultiReturnExpr() {
+        return true;
+    }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.TYPE_CONVERSION_EXPR;

@@ -47,6 +47,10 @@ public class BLangTypeCast extends BLangExpression implements TypeCastNode {
         this.typeName = typeName;
     }
 
+    public boolean isMultiReturnExpr() {
+        return true;
+    }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.TYPE_CAST_EXPR;

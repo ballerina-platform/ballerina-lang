@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
 
@@ -126,7 +127,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // variable symbol in the symbol environment
             // e.g. int a = x + a;
             SymbolEnv varInitEnv = SymbolEnv.getVarInitEnv(varNode, varNode.symbol, env);
-            typeChecker.checkExpr(varNode.expr, varInitEnv, varNode.symbol.type);
+            typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
         }
         varNode.type = varNode.symbol.type;
     }
@@ -144,7 +145,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
-        typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
+        typeChecker.checkExpr(ifNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(ifNode.body, env);
 
         if (ifNode.elseStmt != null) {
@@ -153,10 +154,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWhile whileNode) {
-        typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
+        typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
         analyzeStmt(whileNode.body, env);
     }
-
 
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
