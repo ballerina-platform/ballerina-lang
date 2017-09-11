@@ -18,7 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.jms;
 
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -27,8 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.jms.contract.JMSListener;
+import org.wso2.carbon.transport.jms.contract.JMSServerConnector;
+import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
+import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.HashMap;
@@ -42,6 +43,8 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
     // Map <ServiceId, Service>
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
+    // Map <ServiceId, JMSServerConnector>
+    private Map<String, JMSServerConnector> connectorMap = new HashMap<>();
 
     @Override
     public String getProtocol() {
@@ -71,10 +74,10 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(ServiceInfo service) {
 
         AnnAttachmentInfo jmsConfig = service.getAnnotationAttachmentInfo(Constants.JMS_PACKAGE,
-                Constants.ANNOTATION_JMS_CONFIG);
+                Constants.ANNOTATION_JMS_CONFIGURATION);
 
         if (jmsConfig == null) {
-            return;
+            throw new BallerinaException("Error jms 'configuration' annotation missing in " + service.getName());
         }
 
         Map<String, String> configParams = JMSUtils.preProcessJmsConfig(jmsConfig);
@@ -82,11 +85,15 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
         String serviceId = service.getName();
         serviceInfoMap.put(serviceId, service);
         configParams.putIfAbsent(JMSConstants.PARAM_DESTINATION_NAME, serviceId);
-        ServerConnector serverConnector = BallerinaConnectorManager.getInstance()
-                .createServerConnector(Constants.PROTOCOL_JMS, serviceId, configParams);
+
+        JMSListener jmsListener = new JMSListenerImpl();
         try {
+            JMSServerConnector serverConnector = new JMSConnectorFactoryImpl().createServerConnector(serviceId,
+                    configParams, jmsListener);
+            //TODO check already exist
+            connectorMap.put(serviceId, serverConnector);
             serverConnector.start();
-        } catch (ServerConnectorException e) {
+        } catch (JMSConnectorException e) {
             throw new BallerinaException("Error when starting to listen to the queue/topic while " + serviceId +
                     " deployment", e);
         }
@@ -97,12 +104,12 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
         String serviceId = service.getName();
         try {
             if (serviceInfoMap.get(serviceId) != null) {
-                ServerConnector serverConnector = BallerinaConnectorManager.getInstance().getServerConnector(serviceId);
+                JMSServerConnector serverConnector = connectorMap.get(serviceId);
                 if (null != serverConnector) {
                     serverConnector.stop();
                 }
             }
-        } catch (ServerConnectorException e) {
+        } catch (JMSConnectorException e) {
             throw new BallerinaException("Error while stopping the jms server connector related with the service " +
                     serviceId, e);
         }

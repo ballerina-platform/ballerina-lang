@@ -1,6 +1,6 @@
 struct Person {
-    string first_name;
-    string last_name;
+    string firstName;
+    string lastName;
     int age;
     string city;
 }
@@ -12,7 +12,7 @@ struct Employee {
 }
 
 function emptyTransform() (string, int, string){
-    Person p = {first_name:"John", last_name:"Doe", age:30, city:"London"};
+    Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = {};
     transform {
     }

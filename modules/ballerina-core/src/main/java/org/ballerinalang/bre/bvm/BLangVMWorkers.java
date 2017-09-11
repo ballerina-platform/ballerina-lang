@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -51,7 +52,7 @@ import java.util.concurrent.ExecutorService;
 public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                              StackFrame callerSF, int[] argRegs) {
+                              StackFrame callerSF, int[] argRegs, Map<String, Object> properties) {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
@@ -59,6 +60,10 @@ public class BLangVMWorkers {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+
+            if (properties != null) {
+                properties.forEach((property, value) -> workerContext.setProperty(property, value));
+            }
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
             StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
@@ -74,6 +79,11 @@ public class BLangVMWorkers {
             executor.submit(workerRunner);
         }
 
+    }
+
+    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF,
+                                                                                                    int[] argRegs) {
+        invoke(programFile, callableUnitInfo, callerSF, argRegs, null);
     }
 
     static class WorkerExecutor implements Callable<WorkerResult> {

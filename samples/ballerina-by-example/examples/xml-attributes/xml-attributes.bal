@@ -18,13 +18,13 @@ function main (string[] args) {
     // An attribute that is not bound to a namespace can be accessed using the string representation of the name.
     system:println(x1@["count"]);
 
-    // Accessing an attribute using with a dynamic name.
+    // Accessing an attribute using a dynamic name.
     string attributeName = "count";
     system:println(x1@[attributeName]);
 
     // Update an attribute.
     x1@[ns0:status] = "Not Available";
-    system:println(x1@[attributeName]);
+    system:println(x1@[ns0:status]);
 
     // Getting all the attributes at once, can be done. However this cannot be assigned to any variable.
     system:println(x1@);
