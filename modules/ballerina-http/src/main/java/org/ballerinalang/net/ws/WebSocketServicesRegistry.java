@@ -60,6 +60,7 @@ public class WebSocketServicesRegistry {
         if (isClientService) {
             registerClientService(service);
         } else {
+
             String upgradePath = findFullWebSocketUpgradePath(service);
             // TODO: Add properties to propMap after adding config annotation to WebSocket.
             Set<ListenerConfiguration> listenerConfigurationSet =
@@ -198,11 +199,12 @@ public class WebSocketServicesRegistry {
      */
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
+
+        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANN_NAME_CONFIG);
         String serviceName = service.getName();
         String basePath;
-        Annotation configAnnotationInfo = service.getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
-        if (configAnnotationInfo != null) {
-            AnnAttrValue annotationAttributeBasePathValue = configAnnotationInfo.getAnnAttrValue
+        if (configAnnotation != null) {
+            AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
                     (Constants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
                     !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
@@ -216,21 +218,7 @@ public class WebSocketServicesRegistry {
                                                  + serviceName);
         }
 
-        // Find WebSocket Upgrade Path.
-        String webSocketUpgradePath;
-        Annotation webSocketUpgradePathAnnotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
-        if (webSocketUpgradePathAnnotation != null &&
-                webSocketUpgradePathAnnotation.getAnnAttrValue(Constants.VALUE_ATTRIBUTE) != null) {
-            webSocketUpgradePath = webSocketUpgradePathAnnotation.
-                    getAnnAttrValue(Constants.VALUE_ATTRIBUTE).getStringValue();
-        } else {
-            webSocketUpgradePath = service.getName();
-        }
-
-        basePath = refactorUri(basePath);
-        webSocketUpgradePath = refactorUri(webSocketUpgradePath);
-        return refactorUri(basePath.concat(webSocketUpgradePath));
+        return refactorUri(basePath);
     }
 
     /**

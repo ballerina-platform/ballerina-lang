@@ -21,7 +21,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpService;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
@@ -47,8 +46,8 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
 
     @Override
     public void serviceUnregistered(Service service) throws BallerinaConnectorException {
-        HttpService httpService = new HttpService(service);
-        WebSocketServicesRegistry.getInstance().unregisterService(httpService);
+        WebSocketService webSocketService = new WebSocketService(service);
+        WebSocketServicesRegistry.getInstance().unregisterService(webSocketService);
     }
 
     @Override
