@@ -44,7 +44,6 @@ class WelcomeView extends React.Component {
      * @memberof WelcomeView
      */
     render() {
-        const userGuideURL = this.props.userGuide;
         return (<div className="initial-background-container welcome-page">
             <div className="container-fluid welcome-wrapper">
                 <div className="media media-welcome-container">
@@ -63,17 +62,17 @@ class WelcomeView extends React.Component {
                             </a>
                         </div>
 
-                        <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
-                        <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
-                        <button id="btn-welcome-open-dir" className="btn btn-secondary"> Open Directory</button>
+                        <button id="btn-welcome-new" className="btn btn-primary" onClick={this.props.createNew}>Create New </button>
+                        <button id="btn-welcome-open" className="btn btn-secondary" onClick={this.props.openFile}> Open File</button>
+                        <button id="btn-welcome-open-dir" className="btn btn-secondary" onClick={this.props.openDirectory}> Open Directory</button>
 
                         <ul className="nav nav-pills">
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
                             <li >
-                                <a href={userGuideURL} target="_blank" rel="noopener noreferrer">
-                                    <i className="fw fw-document" /> User Guide </a></li>
+                                <a href={this.props.referenceUrl} target="_blank" rel="noopener noreferrer">
+                                    <i className="fw fw-document" /> Ballerina by Example </a></li>
                         </ul>
                     </div>
                     <div className="media-body">

@@ -23,6 +23,7 @@ import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, DIALOG, VIEWS as HELP_VIEWS, LABELS} from './constants';
 import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
+import { COMMANDS as WORKSPACE_COMMANDS } from './../../core/workspace/constants';
 import AboutDialog from './dialogs/AboutDialog';
 import WelcomeView from '../../../js/welcome-page/welcome';
 /**
@@ -45,6 +46,20 @@ class HelpPlugin extends Plugin {
     onAfterInitialRender() {
         const { command } = this.appContext;
         command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, HELP_VIEWS.WELCOME);
+    }
+
+    createNewHandler() {
+        console.log(this);
+    }
+
+    openFileHandler() {
+        const { command } = this.appContext;
+        command.dispatch(WORKSPACE_COMMANDS.SHOW_FILE_OPEN_WIZARD, '');
+    }
+
+    openDirectoryHandler() {
+        const { command } = this.appContext;
+        command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
     }
 
     /**
@@ -72,7 +87,10 @@ class HelpPlugin extends Plugin {
                     component: WelcomeView,
                     propsProvider: () => {
                         return {
-                            content: 'sample content',
+                            createNew: this.createNewHandler.bind(this),
+                            openFile: this.openFileHandler.bind(this),
+                            openDirectory: this.openDirectoryHandler.bind(this),
+                            referenceUrl: this.config.reference_url,
                         };
                     },
                     region: REGIONS.EDITOR_TABS,

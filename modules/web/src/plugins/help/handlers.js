@@ -1,4 +1,4 @@
-import { COMMANDS, DIALOG } from './constants';
+import { COMMANDS, DIALOG, VIEWS as HELP_VIEWS } from './constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
 /**
  * Provides command handler definitions of debugger plugin.
@@ -11,7 +11,8 @@ export function getHandlerDefinitions(plugin) {
         {
             cmdID: COMMANDS.SHOW_WELCOME,
             handler: () => {
-                // TODO
+                const { command } = plugin.appContext;
+                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, HELP_VIEWS.WELCOME);
             },
         },
         {
