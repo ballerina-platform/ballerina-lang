@@ -112,6 +112,6 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     }
 
     @Override
-    public void onIdleTimeout(Session session) {
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
     }
 }

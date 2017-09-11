@@ -132,9 +132,10 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     }
 
     @Override
-    public void onIdleTimeout(Session session) {
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         this.isIdleTimeout = true;
         try {
+            Session session = controlMessage.getChannelSession();
             session.close();
         } catch (IOException e) {
             log.error("Error occurred while closing the connection: " + e.getMessage());

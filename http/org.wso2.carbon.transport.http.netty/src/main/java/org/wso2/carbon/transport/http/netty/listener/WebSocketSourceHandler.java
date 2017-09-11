@@ -136,7 +136,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
-                connectorFuture.notifyWSIdleTimeout(channelSession);
+                notifyIdleTimeout();
             }
         }
     }
@@ -228,6 +228,13 @@ public class WebSocketSourceHandler extends SourceHandler {
                 new WebSocketControlMessageImpl(WebSocketControlSignal.PONG, byteBuffer);
         webSocketControlMessage = setupCommonProperties(webSocketControlMessage);
         connectorFuture.notifyWSListener((WebSocketControlMessage) webSocketControlMessage);
+    }
+
+    private void notifyIdleTimeout() throws ServerConnectorException {
+        WebSocketMessageImpl websocketControlMessage =
+                new WebSocketControlMessageImpl(WebSocketControlSignal.IDLE_TIMEOUT, null);
+        websocketControlMessage = setupCommonProperties(websocketControlMessage);
+        connectorFuture.notifyWSIdleTimeout((WebSocketControlMessage) websocketControlMessage);
     }
 
     private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketMessage) {

@@ -33,5 +33,10 @@ public enum WebSocketControlSignal {
     /**
      * Heartbeat response signal.
      */
-    PONG;
+    PONG,
+
+    /**
+     * Idle timeout indicator.
+     */
+    IDLE_TIMEOUT;
 }

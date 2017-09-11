@@ -31,8 +31,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
-import javax.websocket.Session;
-
 /**
  * Server connector future implementation
  */
@@ -116,11 +114,11 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void notifyWSIdleTimeout(Session session) throws ServerConnectorException {
+    public void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws ServerConnectorException {
         if (wsConnectorListener == null) {
             throw new ServerConnectorException("WebSocket connector listener is not set");
         }
-        wsConnectorListener.onIdleTimeout(session);
+        wsConnectorListener.onIdleTimeout(controlMessage);
     }
 
     @Override

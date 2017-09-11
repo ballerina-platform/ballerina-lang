@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
-import javax.websocket.Session;
-
 /**
  * Message processor for WebSocket inbound messages.
  */
@@ -72,8 +70,8 @@ public interface WebSocketConnectorListener {
     /**
      * This is triggered in a IdleTimeout for WebSocket.
      *
-     * @param session Session for a given WebSocket connection.
+     * @param controlMessage message which indicates idle timeout.
      */
-    void onIdleTimeout(Session session);
+    void onIdleTimeout(WebSocketControlMessage controlMessage);
 
 }

@@ -78,6 +78,6 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
     }
 
     @Override
-    public void onIdleTimeout(Session session) {
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
     }
 }
