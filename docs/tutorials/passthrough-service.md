@@ -127,5 +127,7 @@ Now that you have added a service, you need a connector to connect to the extern
 1. Drag and drop this onto the main program in the canvas. This automatically applies this function on message m since that is the default message.
     ![alt text](../images/getJSONPayload2.gif)
 1. Rename the JSON as `j`.
+
     ![alt text](../images/JSONName.png)
-1. 
+1. Add a variable from the tool palette to the main function in the canvas.
+    ![alt text](../images/JSONVariable.gif)
