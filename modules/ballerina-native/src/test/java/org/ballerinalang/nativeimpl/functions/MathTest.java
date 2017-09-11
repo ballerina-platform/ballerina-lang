@@ -113,15 +113,6 @@ public class MathTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.5433773235341761, DELTA);
     }
 
-    @Test(description = "Test 'addExact' function in ballerina.lang.math package")
-    public void testAddExact() {
-        BValue[] args = {new BInteger(5), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "addExactTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-    }
-
     @Test(description = "Test 'asin' function in ballerina.lang.math package")
     public void testAsin() {
         BValue[] args = {new BFloat(0.027415567780803774)};
@@ -194,15 +185,6 @@ public class MathTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 11.591953275521519, DELTA);
     }
 
-    @Test(description = "Test 'decrementExact' function in ballerina.lang.math package")
-    public void testDecrementExact() {
-        BValue[] args = {new BInteger(-152)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "decrementExactTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -153);
-    }
-
     @Test(description = "Test 'expm1' function in ballerina.lang.math package")
     public void testExpm1() {
         BValue[] args = {new BFloat(0.5)};
@@ -266,15 +248,6 @@ public class MathTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 229.31999999999744, DELTA);
     }
 
-    @Test(description = "Test 'incrementExact' function in ballerina.lang.math package")
-    public void testIncrementExact() {
-        BValue[] args = {new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "incrementExactTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
-    }
-
     @Test(description = "Test 'log' function in ballerina.lang.math package")
     public void testLog() {
         BValue[] args = {new BFloat(60984.1)};
@@ -300,51 +273,6 @@ public class MathTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 6.90875477931522, DELTA);
-    }
-
-    @Test(description = "Test 'maxInt' function in ballerina.lang.math package")
-    public void testMaxInt() {
-        BValue[] args = {new BInteger(5), new BInteger(10)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "maxIntTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BInteger) returns[0]).intValue() == 10);
-    }
-
-    @Test(description = "Test 'maxFloat' function in ballerina.lang.math package")
-    public void testMaxFloat() {
-        BValue[] args = {new BFloat(60984.1), new BFloat(-497.99)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "maxFloatTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BFloat) returns[0]).floatValue() == 60984.1);
-    }
-
-    @Test(description = "Test 'minInt' function in ballerina.lang.math package")
-    public void testMinInt() {
-        BValue[] args = {new BInteger(5), new BInteger(10)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "minIntTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BInteger) returns[0]).intValue() == 5);
-    }
-
-    @Test(description = "Test 'minFloat' function in ballerina.lang.math package")
-    public void testMinFloat() {
-        BValue[] args = {new BFloat(60984.1), new BFloat(-497.99)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "minFloatTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BFloat) returns[0]).floatValue() == -497.99);
-    }
-
-    @Test(description = "Test 'multiplyExact' function in ballerina.lang.math package")
-    public void testMultiplyExact() {
-        BValue[] args = {new BInteger(-4), new BInteger(3)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "multiplyExactTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -12);
     }
 
     @Test(description = "Test 'negateExact' function in ballerina.lang.math package")
@@ -437,15 +365,6 @@ public class MathTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), -11.548739357257748, DELTA);
     }
 
-    @Test(description = "Test 'subtractExact' function in ballerina.lang.math package")
-    public void testSubtractExact() {
-        BValue[] args = {new BInteger(5), new BInteger(10)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "subtractExactTest", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -5);
-    }
-
     @Test(description = "Test 'tan' function in ballerina.lang.math package")
     public void testTan() {
         BValue[] args = {new BFloat(0.7853981633974483)};
@@ -490,5 +409,4 @@ public class MathTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.1368683772161603E-13, DELTA);
     }
-
 }

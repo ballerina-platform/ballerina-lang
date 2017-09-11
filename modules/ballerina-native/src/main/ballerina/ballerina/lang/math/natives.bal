@@ -44,12 +44,6 @@ native function absInt (int val) (int);
 @doc:Return { value:"float: arc cosine value" }
 native function acos (float val) (float);
 
-@doc:Description { value:"Returns the sum of its arguments"}
-@doc:Param { value:"a: the first value" }
-@doc:Param { value:"b: the second value" }
-@doc:Return { value:"float: the result" }
-native function addExact (int a, int b) (int);
-
 @doc:Description { value:"Returns the arc sine of a value"}
 @doc:Param { value:"val: value to get the arc sine" }
 @doc:Return { value:"float: arc sine value" }
@@ -95,11 +89,6 @@ native function cos (float val) (float);
 @doc:Return { value:"float: The hyperbolic cosine of given float value" }
 native function cosh (float val) (float);
 
-@doc:Description { value:"Returns the argument decremented by one"}
-@doc:Param { value:"val: the value to decrement" }
-@doc:Return { value:"int: the result" }
-native function decrementExact (int val) (int);
-
 @doc:Description { value:"Returns (e to the power of x) -1"}
 @doc:Param { value:"val: The exponent to raise e to in the computation" }
 @doc:Return { value:"float: the result" }
@@ -141,11 +130,6 @@ native function hypot (float a, float b) (float);
 @doc:Return { value:"float: the remainder when a is divided by b" }
 native function IEEEremainder (float a, float b) (float);
 
-@doc:Description { value:"Returns the argument incremented by one"}
-@doc:Param { value:"val: the value to increment" }
-@doc:Return { value:"int: the result" }
-native function incrementExact (int val) (int);
-
 @doc:Description { value:"Returns the natural logarithm (base e) of a float value"}
 @doc:Param { value:"val: a float value" }
 @doc:Return { value:"float: the result" }
@@ -160,36 +144,6 @@ native function log10 (float val) (float);
 @doc:Param { value:"val: a float value" }
 @doc:Return { value:"float: the natural log of x + 1" }
 native function log1p (float val) (float);
-
-@doc:Description { value:"Returns the greater of two int values"}
-@doc:Param { value:"a: an int value" }
-@doc:Param { value:"b: an int value" }
-@doc:Return { value:"int: the larger of a and b" }
-native function maxInt (int a, int b) (int);
-
-@doc:Description { value:"Returns the greater of two float values"}
-@doc:Param { value:"a: a float value" }
-@doc:Param { value:"b: a float value" }
-@doc:Return { value:"float: the larger of a and b" }
-native function maxFloat (float a, float b) (float);
-
-@doc:Description { value:"Returns the smaller of two int values"}
-@doc:Param { value:"a: an int value" }
-@doc:Param { value:"b: an int value" }
-@doc:Return { value:"int: the smaller of a and b" }
-native function minInt (int a, int b) (int);
-
-@doc:Description { value:"Returns the smaller of two float values"}
-@doc:Param { value:"a: a float value" }
-@doc:Param { value:"b: a float value" }
-@doc:Return { value:"float: the smaller of a and b" }
-native function minFloat (float a, float b) (float);
-
-@doc:Description { value:"Returns the product of the arguments"}
-@doc:Param { value:"a: an int value" }
-@doc:Param { value:"b: an int value" }
-@doc:Return { value:"int: the result" }
-native function multiplyExact (int a, int b) (int);
 
 @doc:Description { value:"Returns the negation of the argument"}
 @doc:Param { value:"val: the value to negate" }
@@ -246,12 +200,6 @@ native function sin (float val) (float);
 @doc:Return { value:"float: the hyperbolic sine of a given float" }
 native function sinh (float val) (float);
 
-@doc:Description { value:"Returns the difference of the arguments"}
-@doc:Param { value:"a: the first value" }
-@doc:Param { value:"b: the second value to subtract from the first" }
-@doc:Return { value:"int: the result" }
-native function subtractExact (int a, int b) (int);
-
 @doc:Description { value:"Returns the trigonometric tangent of an angle"}
 @doc:Param { value:"val: an angle, in radians" }
 @doc:Return { value:"float: the tangent of the argument" }
@@ -278,25 +226,3 @@ native function toRadians (float val) (float);
 @doc:Param { value:"val: the floating-point value whose ulp is to be returned" }
 @doc:Return { value:"float: the size of an ulp of the argument" }
 native function ulp (float val) (float);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

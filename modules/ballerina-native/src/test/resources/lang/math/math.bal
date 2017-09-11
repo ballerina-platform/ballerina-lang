@@ -32,10 +32,6 @@ function acosTest(float a) (float) {
     return math:acos(a);
 }
 
-function addExactTest(int a, int b) (int) {
-    return math:addExact(a, b);
-}
-
 function asinTest(float a) (float) {
     return math:asin(a);
 }
@@ -68,10 +64,6 @@ function coshTest(float value) (float) {
     return math:cosh(value);
 }
 
-function decrementExactTest(int value) (int) {
-    return math:decrementExact(value);
-}
-
 function expm1Test(float value) (float) {
     return math:expm1(value);
 }
@@ -100,10 +92,6 @@ function IEEEremainderTest(float a, float b) (float) {
     return math:IEEEremainder(a, b);
 }
 
-function incrementExactTest(int a) (int) {
-    return math:incrementExact(a);
-}
-
 function logTest(float value) (float) {
     return math:log(value);
 }
@@ -114,26 +102,6 @@ function log10Test(float value) (float) {
 
 function log1pTest(float value) (float) {
     return math:log1p(value);
-}
-
-function maxIntTest(int a, int b) (int) {
-    return math:maxInt(a, b);
-}
-
-function maxFloatTest(float a, float b) (float) {
-    return math:maxFloat(a, b);
-}
-
-function minIntTest(int a, int b) (int) {
-    return math:minInt(a, b);
-}
-
-function minFloatTest(float a, float b) (float) {
-    return math:minFloat(a, b);
-}
-
-function multiplyExactTest(int a, int b) (int) {
-    return math:multiplyExact(a, b);
 }
 
 function negateExactTest(int value) (int) {
@@ -174,10 +142,6 @@ function sinTest(float value) (float) {
 
 function sinhTest(float value) (float) {
     return math:sinh(value);
-}
-
-function subtractExactTest(int a, int b) (int) {
-    return math:subtractExact(a, b);
 }
 
 function tanTest(float value) (float) {
