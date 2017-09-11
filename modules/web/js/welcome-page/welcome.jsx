@@ -44,8 +44,8 @@ class WelcomeView extends React.Component {
      * @memberof WelcomeView
      */
     render() {
-        const userGuideURL = 'this.props.application.config.menu_bar.help_urls.user_guide_url';
-        return (<div className="initial-background-container">
+        const userGuideURL = this.props.userGuide;
+        return (<div className="initial-background-container welcome-page">
             <div className="container-fluid welcome-wrapper">
                 <div className="media media-welcome-container">
                     <div className="media-left">
@@ -53,7 +53,7 @@ class WelcomeView extends React.Component {
                             <a href={undefined}>
                                 <img
                                     className="img-responsive"
-                                    src="images/BallerinaLogo.svg"
+                                    src="images/BallerinaLogoWelcome.svg"
                                     alt="logo"
                                     onLoad={() => this.setState({ logoLoaded: true })}
                                 />
@@ -94,6 +94,7 @@ class WelcomeView extends React.Component {
 }
 
 WelcomeView.propTypes = {
+    userGuide: PropTypes.string.isRequired,
 };
 
 export default WelcomeView;
