@@ -1077,6 +1077,7 @@ class TransformExpanded extends React.Component {
                                             recordTargetElement={this.recordTargetElement}
                                             viewId={this.props.model.getID()}
                                             onEndpointRemove={this.removeEndpoint}
+                                            onConnectPointMouseEnter={this.onConnectPointMouseEnter}
                                         />
                                     ))
                                 }
