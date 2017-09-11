@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setStringPayload",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "payload", type = TypeEnum.STRING)},
         isPublic = true
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the message payload using a string object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-        value = "The current request object") })
+        value = "The current request message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
         value = "The string payload object") })
 public class SetStringPayload extends AbstractNativeFunction {

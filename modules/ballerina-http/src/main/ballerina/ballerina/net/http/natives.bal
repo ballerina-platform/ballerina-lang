@@ -2,10 +2,10 @@ package ballerina.net.http;
 
 import ballerina.doc;
 
-struct request {
+struct Request {
 }
 
-struct response {
+struct Response {
 }
 
 connector ClientConnector (string serviceUri) {
