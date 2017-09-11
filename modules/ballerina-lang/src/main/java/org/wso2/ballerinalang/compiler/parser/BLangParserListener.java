@@ -795,7 +795,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
         String attrName = ctx.Identifier().getText();
-        this.pkgBuilder.createAnnotAttachmentAttribute(attrName, getCurrentPos(ctx));
+        this.pkgBuilder.createAnnotAttachmentAttribute(getCurrentPos(ctx), attrName);
     }
 
     /**
@@ -1690,7 +1690,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLCommentTemplateText());
         String endingString = getTemplateEndingStr(ctx.XMLCommentText());
         endingString = endingString.substring(0, endingString.length() - 3);
-        this.pkgBuilder.createXMLCommentLiteral(stringFragments, endingString, getCurrentPos(ctx));
+        this.pkgBuilder.createXMLCommentLiteral(getCurrentPos(ctx), stringFragments, endingString);
 
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
             this.pkgBuilder.addChildToXMLElement();
@@ -1791,7 +1791,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String endingText = getTemplateEndingStr(ctx.XMLPIText());
         endingText = endingText.substring(0, endingText.length() - 2);
 
-        this.pkgBuilder.createXMLPILiteral(targetQName, endingText, textFragments, getCurrentPos(ctx));
+        this.pkgBuilder.createXMLPILiteral(getCurrentPos(ctx), targetQName, textFragments, endingText);
 
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
             this.pkgBuilder.addChildToXMLElement();
@@ -1832,9 +1832,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Stack<String> textFragments = getTemplateTextFragments(ctx.XMLTemplateText());
         String endingText = getTemplateEndingStr(ctx.XMLText());
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
-            this.pkgBuilder.addXMLTextToElement(textFragments, endingText, getCurrentPos(ctx));
+            this.pkgBuilder.addXMLTextToElement(getCurrentPos(ctx), textFragments, endingText);
         } else {
-            this.pkgBuilder.createXMLTextLiteral(textFragments, endingText, getCurrentPos(ctx));
+            this.pkgBuilder.createXMLTextLiteral(getCurrentPos(ctx), textFragments, endingText);
         }
     }
 
@@ -1866,8 +1866,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitXmlSingleQuotedString(BallerinaParser.XmlSingleQuotedStringContext ctx) {
         Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLSingleQuotedTemplateString());
         String endingString = getTemplateEndingStr(ctx.XMLSingleQuotedString());
-        this.pkgBuilder.createXMLQuotedLiteral(stringFragments, endingString, QuoteType.SINGLE_QUOTE,
-                getCurrentPos(ctx));
+        this.pkgBuilder.createXMLQuotedLiteral(getCurrentPos(ctx), stringFragments, endingString,
+                QuoteType.SINGLE_QUOTE);
     }
 
     /**
@@ -1886,8 +1886,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void exitXmlDoubleQuotedString(BallerinaParser.XmlDoubleQuotedStringContext ctx) {
         Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLDoubleQuotedTemplateString());
         String endingString = getTemplateEndingStr(ctx.XMLDoubleQuotedString());
-        this.pkgBuilder.createXMLQuotedLiteral(stringFragments, endingString, QuoteType.DOUBLE_QUOTE,
-                getCurrentPos(ctx));
+        this.pkgBuilder.createXMLQuotedLiteral(getCurrentPos(ctx), stringFragments, endingString,
+                QuoteType.DOUBLE_QUOTE);
     }
 
     /**
@@ -1949,7 +1949,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override public void exitStringTemplateContent(BallerinaParser.StringTemplateContentContext ctx) {
         Stack<String> stringFragments = getTemplateTextFragments(ctx.StringTemplateExpressionStart());
         String endingText = getTemplateEndingStr(ctx.StringTemplateText());
-        this.pkgBuilder.createStringTemplateLiteral(stringFragments, endingText, getCurrentPos(ctx));
+        this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), stringFragments, endingText);
     }
 
     /**

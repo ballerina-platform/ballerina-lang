@@ -370,31 +370,31 @@ public class TreeBuilder {
     public static BreakNode createBreakNode() {
         return new BLangBreak();
     }
-    
+
     public static XMLQNameNode createXMLQNameNode() {
         return new BLangXMLQName();
     }
-    
+
     public static XMLAttributeNode createXMLAttributeNode() {
         return new BLangXMLAttribute();
     }
-    
+
     public static XMLElementLiteralNode createXMLElementLiteralNode() {
         return new BLangXMLElementLiteral();
     }
-    
+
     public static XMLTextLiteralNode createXMLTextLiteralNode() {
         return new BLangXMLTextLiteral();
     }
-    
+
     public static XMLCommentLiteralNode createXMLCommentLiteralNode() {
         return new BLangXMLCommentLiteral();
     }
-    
+
     public static XMLProcessingInstructionLiteralNode createXMLProcessingIntsructionLiteralNode() {
         return new BLangXMLProcInsLiteral();
     }
-    
+
     public static XMLQuotedStringNode createXMLQuotedStringNode() {
         return new BLangXMLQuotedString();
     }
