@@ -118,7 +118,6 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
-import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -189,7 +188,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
-    private int failedBlockCount = 0;
     private boolean isWithinWorker = false;
     private SymbolScope currentScope;
     private SymbolScope currentPackageScope;
@@ -1179,12 +1177,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
             }
 
-            if (stmt instanceof RetryStmt && failedBlockCount < 1) {
-                BLangExceptionHelper.throwSemanticError(stmt,
-                        SemanticErrors.RETRY_STMT_NOT_ALLOWED_HERE);
-            }
-
-
             if (isWithinWorker) {
                 if (stmt instanceof ReplyStmt) {
                     BLangExceptionHelper.throwSemanticError(stmt,
@@ -1197,7 +1189,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (stmt instanceof BreakStmt || stmt instanceof ContinueStmt || stmt instanceof ReplyStmt ||
-                    stmt instanceof AbortStmt || stmt instanceof RetryStmt) {
+                    stmt instanceof AbortStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
 
@@ -1503,12 +1495,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(TransactionStmt transactionStmt) {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
+        Expression retryCountExpression = transactionStmt.getRetryCountExpression();
+        if (retryCountExpression != null) {
+            retryCountExpression.accept(this);
+            checkRetryCountExpressionValidity(transactionStmt, retryCountExpression);
+        }
         transactionStmtCount--;
         TransactionStmt.FailedBlock failedBlock = transactionStmt.getFailedBlock();
         if (failedBlock != null) {
-            failedBlockCount++;
             failedBlock.getFailedBlockStmt().accept(this);
-            failedBlockCount--;
         }
         TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
         if (abortedBlock != null) {
@@ -1520,15 +1515,30 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    @Override
-    public void visit(AbortStmt abortStmt) {
-
+    private static void checkRetryCountExpressionValidity(TransactionStmt stmt, Expression retryCountExpression) {
+        boolean error = true;
+        if (retryCountExpression instanceof BasicLiteral) {
+            if (retryCountExpression.getType().getTag() == TypeTags.INT_TAG) {
+                if (((BasicLiteral) retryCountExpression).getBValue().intValue() >= 0) {
+                    error = false;
+                }
+            }
+        } else if (retryCountExpression instanceof VariableReferenceExpr) {
+            VariableDef variableDef = ((SimpleVarRefExpr) retryCountExpression).getVariableDef();
+            if (variableDef.getKind() == VariableDef.Kind.CONSTANT) {
+                if (variableDef.getType().getTag() == TypeTags.INT_TAG) {
+                    error = false;
+                }
+            }
+        }
+        if (error) {
+            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_COUNT);
+        }
     }
 
     @Override
-    public void visit(RetryStmt retryStmt) {
-        retryStmt.getRetryCountExpression().accept(this);
-        checkRetryStmtValidity(retryStmt);
+    public void visit(AbortStmt abortStmt) {
+
     }
 
     @Override
@@ -4146,34 +4156,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
             parent = parent.getParent();
-        }
-    }
-
-    private static void checkRetryStmtValidity(RetryStmt stmt) {
-        //Check whether the retry statement is root level statement in the failed block
-        StatementKind parentStmtType = stmt.getParent().getKind();
-        if (StatementKind.FAILED_BLOCK != parentStmtType) {
-            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_STMT_LOCATION);
-        }
-        //Only non negative integer constants and integer literals are allowed as retry count;
-        Expression retryCountExpr = stmt.getRetryCountExpression();
-        boolean error = true;
-        if (retryCountExpr instanceof BasicLiteral) {
-            if (retryCountExpr.getType().getTag() == TypeTags.INT_TAG) {
-                if (((BasicLiteral) retryCountExpr).getBValue().intValue() >= 0) {
-                    error = false;
-                }
-            }
-        } else if (retryCountExpr instanceof VariableReferenceExpr) {
-            VariableDef variableDef = ((SimpleVarRefExpr) retryCountExpr).getVariableDef();
-            if (variableDef.getKind() == VariableDef.Kind.CONSTANT) {
-                if (variableDef.getType().getTag() == TypeTags.INT_TAG) {
-                    error = false;
-                }
-            }
-        }
-        if (error) {
-            BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.INVALID_RETRY_COUNT);
         }
     }
 

@@ -12,8 +12,11 @@ function main (string[] args) {
     testDB.update("CREATE TABLE IF NOT EXISTS SALARY (ID INT, MON_SALARY FLOAT)",
                   emptyParams);
     //Here is the transaction block. You can use a Try catch here since update action can
-    //throw errors due to SQL errors, connection pool errors etc.
-    transaction {
+    //throw errors due to SQL errors, connection pool errors etc. The retry count is the number times
+    //the transaction is tried before aborting. By default a transaction is tried three
+    //times before aborting. Only integer literals or constants are
+    //allowed for retry count.
+    transaction with retries(4) {
         //This is the first action participate in the transaction.
         sql:Parameter[] parameters = [];
         int count = testDB.update("INSERT INTO CUSTOMER(ID,NAME)
@@ -37,11 +40,6 @@ function main (string[] args) {
         //will execute each time transaction is failed until retry count
         //is reached.
         system:println("Transaction failed");
-        //The retry count is the number times the transaction is
-        //tried before aborting. By default a transaction is tried three
-        //times before aborting. Only integer literals or constants are
-        //allowed for retry count.
-        retry 4;
     } aborted {
         //The aborted block will be executed if the transaction is
         //aborted using an abort statement or failed even after retrying

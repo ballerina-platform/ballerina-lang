@@ -106,7 +106,6 @@ import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
-import org.ballerinalang.model.statements.RetryStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.StatementKind;
@@ -1193,6 +1192,8 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(TransactionStmt transactionStmt) {
         ++transactionIndex;
+        IntegerCPEntry transactionIndexCPEntry = new IntegerCPEntry(transactionIndex);
+        int transactionIndexCPEntryIndex = currentPkgInfo.addCPEntry(transactionIndexCPEntry);
         Expression retryCountExpression = transactionStmt.getRetryCountExpression();
         int retryCountAvailable = 0;
         if (retryCountExpression != null) {
@@ -1205,12 +1206,12 @@ public class CodeGenerator implements NodeVisitor {
         abortInstructions.push(gotoStartOfAbortedBlock);
 
         //start transaction
-        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
+        emit(new Instruction(InstructionCodes.TR_BEGIN, transactionIndexCPEntryIndex, retryCountAvailable));
         int startIP = nextIP();
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
 
         //retry transaction
-        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndex, -1);
+        Instruction retryInstruction = new Instruction(InstructionCodes.TR_RETRY, transactionIndexCPEntryIndex, -1);
         emit(retryInstruction);
 
         //process transaction statements
@@ -1264,11 +1265,6 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(AbortStmt abortStmt) {
         generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
-    }
-
-    @Override
-    public void visit(RetryStmt retryStmt) {
-
     }
 
     @Override

@@ -239,6 +239,7 @@ public class BLangVM {
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
+        int transactionIndex;
 
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 

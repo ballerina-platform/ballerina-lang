@@ -275,7 +275,7 @@ function testLocalTransactionFailed () (string, int) {
     string a = "beforetx";
     int count = -1;
     try {
-        transaction {
+        transaction with retries(4){
             a = a + " inTrx";
             testDB.update("Insert into Customers
                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 111, 5000.75, 'USA')",
@@ -285,7 +285,6 @@ function testLocalTransactionFailed () (string, int) {
                                        parameters);
         } failed {
             a = a + " inFld";
-            retry 4;
         } aborted {
             a = a + " inAbrt";
         } committed {
@@ -316,7 +315,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     int count = -1;
     int i = 0;
     try {
-        transaction {
+        transaction with retries(4) {
             a = a + " inTrx";
                 testDB.update("Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 222, 5000.75, 'USA')",
@@ -333,7 +332,6 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         } failed {
             a = a + " inFld";
             i = i + 1;
-            retry 4;
         } aborted {
             a = a + " inAbrt";
         } committed {

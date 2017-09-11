@@ -1204,6 +1204,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransactionPropertyInitStatement(BallerinaParser.TransactionPropertyInitStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransactionPropertyInitStatementList(BallerinaParser.TransactionPropertyInitStatementListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1264,13 +1288,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
+	@Override public void enterRetriesStatement(BallerinaParser.RetriesStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) { }
+	@Override public void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

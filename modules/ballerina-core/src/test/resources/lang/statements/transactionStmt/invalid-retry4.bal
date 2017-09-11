@@ -1,10 +1,9 @@
 function testTransaction(int i) (string) {
     string a = "start";
-    transaction {
+    transaction with retries(4), retries(3) {
         a = a + " inTrx";
     } failed {
         a = a + " inFailed";
-        retry 4.5;
     } committed {
         a = a + " inTrx";
     }

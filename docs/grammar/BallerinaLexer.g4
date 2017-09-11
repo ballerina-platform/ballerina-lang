@@ -63,7 +63,7 @@ ABORT       : 'abort' ;
 ABORTED     : 'aborted' ;
 COMMITTED   : 'committed' ;
 FAILED      : 'failed' ;
-RETRY       : 'retry' ;
+RETRIES     : 'retries';
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
