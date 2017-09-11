@@ -8,36 +8,6 @@ struct request {
 struct response {
 }
 
-@doc:Description { value:"Gets the request URL from the message"}
-@doc:Param { value:"m: The request message" }
-@doc:Return { value:"string: The request URL value" }
-native function getRequestURL (request req) (string);
-
-@doc:Description { value:"Gets the HTTP status code from the message"}
-@doc:Param { value:"m: A request message" }
-@doc:Return { value:"int: http status code" }
-native function getStatusCode (request req) (int);
-
-@doc:Description { value:"Gets the Content-Length header from the message"}
-@doc:Param { value:"m: A request message" }
-@doc:Return { value:"int: length of the message" }
-native function getContentLength (request req) (int);
-
-@doc:Description { value:"Gets the HTTP method from the message"}
-@doc:Param { value:"m: A request message" }
-@doc:Return { value:"string: http method value" }
-native function getMethod (request req) (string);
-
-@doc:Description { value:"Sets the Content-Length header on the message"}
-@doc:Param { value:"m: A request message" }
-@doc:Param { value:"contentLength: Length of the message" }
-native function setContentLength (request req, int contentLength);
-
-@doc:Description { value:"Gets formParam map from HTTP message"}
-@doc:Param { value:"m: The request message" }
-@doc:Return { value:"map: The map of form params" }
-native function getFormParams (request req) (map);
-
 @doc:Description { value:"Sets the HTTP StatusCode on the message"}
 @doc:Param { value:"m: A message object" }
 @doc:Param { value:"statusCode: HTTP status code" }
