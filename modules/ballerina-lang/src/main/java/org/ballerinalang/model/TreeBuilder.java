@@ -46,6 +46,7 @@ import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
@@ -108,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
@@ -368,32 +370,36 @@ public class TreeBuilder {
     public static BreakNode createBreakNode() {
         return new BLangBreak();
     }
-    
+
     public static XMLQNameNode createXMLQNameNode() {
         return new BLangXMLQName();
     }
-    
+
     public static XMLAttributeNode createXMLAttributeNode() {
         return new BLangXMLAttribute();
     }
-    
+
     public static XMLElementLiteralNode createXMLElementLiteralNode() {
         return new BLangXMLElementLiteral();
     }
-    
+
     public static XMLTextLiteralNode createXMLTextLiteralNode() {
         return new BLangXMLTextLiteral();
     }
-    
+
     public static XMLCommentLiteralNode createXMLCommentLiteralNode() {
         return new BLangXMLCommentLiteral();
     }
-    
+
     public static XMLProcessingInstructionLiteralNode createXMLProcessingIntsructionLiteralNode() {
         return new BLangXMLProcInsLiteral();
     }
-    
+
     public static XMLQuotedStringNode createXMLQuotedStringNode() {
         return new BLangXMLQuotedString();
+    }
+
+    public static StringTemplateLiteralNode createStringTemplateLiteralNode() {
+        return new BLangStringTemplateLiteral();
     }
 }
