@@ -52,7 +52,8 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
         Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
         if (onHandshakeResource != null) {
-            ConnectorFuture future = Executor.submit(onHandshakeResource, );
+            BValue[] bValues = new BValue[0];
+            ConnectorFuture future = Executor.submit(onHandshakeResource, bValues);
             future.setConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
                 public void notifySuccess(BValue response) {
@@ -72,10 +73,25 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        CarbonMessage carbonMessage = HTTPConnectorUtil.convertWebSocketTextMessage(webSocketTextMessage);
-        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketTextMessage);
-        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
-        Executor.submit(resource, carbonMessage, null);
+        WebSocketService wsService = WebSocketDispatcher.findService(webSocketTextMessage);
+        Resource onTextMessageResource =
+                WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
+        if (onTextMessageResource == null) {
+            return;
+        }
+
+        BStruct wsConnection = WebSocketConnectionManager.getInstance().
+                getConnection(webSocketTextMessage.getChannelSession().getId());
+
+        BStruct wsTextFrame = wsService.createWSTextFrameStruct();
+        wsTextFrame.setStringField(0, webSocketTextMessage.getText());
+        if (webSocketTextMessage.isFinalFragment()) {
+            wsTextFrame.setBooleanField(0, 1);
+        } else {
+            wsTextFrame.setBooleanField(0, 0);
+        }
+        BValue[] bValues = {wsConnection, wsTextFrame};
+        Executor.submit(onTextMessageResource, bValues);
     }
 
     @Override
