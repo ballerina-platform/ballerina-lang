@@ -20,7 +20,7 @@
         }],
         "grammars": [{
             "language": "ballerina",
-            "scopeName": "source.bal",
+            "scopeName": "source.ballerina",
             "path": "./syntaxes/ballerina.tmLanguage"
         }]
     }
