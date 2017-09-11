@@ -39,5 +39,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
+        log.error("Error in http server connector", throwable);
     }
 }

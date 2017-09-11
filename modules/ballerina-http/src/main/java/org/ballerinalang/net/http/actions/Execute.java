@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
@@ -108,10 +109,9 @@ public class Execute extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String httpVerb = getStringArgument(context, 0);
         String path = getStringArgument(context, 1);
-        BMessage bMessage = (BMessage) getRefArgument(context, 1);
-
-        // Prepare the message
-        CarbonMessage cMsg = bMessage.value();
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
+        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
         prepareRequest(bConnector, path, cMsg);
 
         // If the verb is not specified, use the verb in incoming message
