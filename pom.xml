@@ -80,11 +80,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -226,7 +221,6 @@
 
     <modules>
         <module>modules/ballerina-lang</module>
-        <module>modules/ballerina-codegen</module>
         <module>modules/ballerina-builtin</module>
         <module>modules/launcher</module>
         <module>modules/ballerina-samples</module>
