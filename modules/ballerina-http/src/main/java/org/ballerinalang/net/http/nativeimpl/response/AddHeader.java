@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -26,35 +26,37 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to clone the message.
- * ballerina.model.messages:clone
+ * Native function to add given header to carbon message.
+ * ballerina.model.messages:addHeader
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
-        functionName = "clone",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
-                          structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        functionName = "addHeader",
+        args = {@Argument(name = "response", type = TypeEnum.STRUCT, structType = "Response",
+                          structPackage = "ballerina.net.http"),
+                @Argument(name = "key", type = TypeEnum.STRING),
+                @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Clones and creates a new instance of a message object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The new instance of the message object ") })
-public class Clone  extends AbstractNativeFunction {
+        value = "Adds a transport header to the message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "response",
+        value = "The response message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
+        value = "The header name") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "The header value") })
+public class AddHeader extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(AddHeader.class);
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.clone(context, this, log);
+        return RequestResponseUtil.addHeader(context, this, log);
     }
 }

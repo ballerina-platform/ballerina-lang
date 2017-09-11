@@ -35,7 +35,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getJsonPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
@@ -45,7 +45,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
         value = "The request message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
-        value = "The JSON reresentation of the message payload") })
+        value = "The JSON representation of the message payload") })
 public class GetJsonPayload extends AbstractNativeFunction {
 
     private static final String OPERATION = "get json payload";

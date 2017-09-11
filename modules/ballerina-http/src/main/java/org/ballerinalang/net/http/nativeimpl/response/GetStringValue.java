@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -28,33 +28,30 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Native function to clone the message.
- * ballerina.model.messages:clone
+ * ballerina.model.messages:getStringValue
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
-        functionName = "clone",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
-                          structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        functionName = "getStringValue",
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
+                @Argument(name = "propertyName", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Clones and creates a new instance of a message object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The new instance of the message object ") })
-public class Clone  extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(AddHeader.class);
-
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "To get the value for a string property in a map type message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+        value = "message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
+        value = "Name of the property") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
+        value = "The value of the map property") })
+public class GetStringValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.clone(context, this, log);
+        return RequestResponseUtil.getStringValue(context, this, null);
     }
 }

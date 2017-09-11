@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -47,14 +47,13 @@ import java.net.URLDecoder;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getFormParams",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
-                          structPackage = "ballerina.net.http")},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets formParam map from HTTP message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The request message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "map",
         value = "The map of form params") })

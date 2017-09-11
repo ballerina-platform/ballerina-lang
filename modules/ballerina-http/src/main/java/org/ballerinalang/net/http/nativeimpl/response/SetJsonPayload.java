@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -36,20 +36,21 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setJsonPayload",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "payload", type = TypeEnum.JSON)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the message payload using a JSON object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
                                                                         value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
         value = "The JSON payload object") })
 public class SetJsonPayload extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(SetJsonPayload.class);
+    private static final Logger log = LoggerFactory.getLogger(
+            SetJsonPayload.class);
 
     @Override
     public BValue[] execute(Context ctx) {

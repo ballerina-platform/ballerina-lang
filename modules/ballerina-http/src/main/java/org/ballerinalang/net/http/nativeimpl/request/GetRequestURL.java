@@ -38,14 +38,14 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getRequestURL",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the request URL from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
         value = "The request message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The request URL value") })

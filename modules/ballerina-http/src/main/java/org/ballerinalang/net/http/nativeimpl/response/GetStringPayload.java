@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -32,29 +32,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to clone the message.
- * ballerina.model.messages:clone
+ * Native function to get payload as String..
+ * ballerina.model.messages:getStringPayload
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
-        functionName = "clone",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        functionName = "getStringPayload",
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Clones and creates a new instance of a message object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The new instance of the message object ") })
-public class Clone  extends AbstractNativeFunction {
+        value = "Gets the message payload in string format") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
+        value = "The string representation of the message payload") })
+public class GetStringPayload extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(AddHeader.class);
+    private static final Logger log = LoggerFactory.getLogger(
+            GetStringPayload.class);
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.clone(context, this, log);
+        return RequestResponseUtil.getStringPayload(context, this, log);
     }
 }

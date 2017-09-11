@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -25,35 +25,38 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ballerina function to set a message property.
  * <br>
- * ballerina.model.messages:getProperty
+ * ballerina.net.http:setProperty
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
-        functionName = "getProperty",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        packageName = "ballerina.net.http",
+        functionName = "setProperty",
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
-                @Argument(name = "propertyName", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)}, // TODO: Ballerina only supports string properties ATM
+                @Argument(name = "propertyName", type = TypeEnum.STRING),
+                @Argument(name = "propertyValue", type = TypeEnum.STRING)}, //TODO: property value could be of any type
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Retrieve a message property") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-        value = "The request message") })
+        value = "Sets a message property") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+                                                                        value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "The name of the property") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The property value") })
-public class GetProperty extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyValue",
+        value = "The value of the property") })
+public class SetProperty extends AbstractNativeFunction {
+
+    private static final Logger log = LoggerFactory.getLogger(SetProperty.class);
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getProperty(context, this, null);
+        return RequestResponseUtil.setProperty(context, this, log);
     }
 }

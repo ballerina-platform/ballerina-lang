@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -36,7 +36,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getProperty",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "propertyName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)}, // TODO: Ballerina only supports string properties ATM
@@ -44,7 +44,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Retrieve a message property") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
         value = "The request message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "The name of the property") })

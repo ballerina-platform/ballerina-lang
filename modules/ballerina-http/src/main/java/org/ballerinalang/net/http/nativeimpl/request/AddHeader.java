@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "addHeader",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},

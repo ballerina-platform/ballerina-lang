@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.request;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -26,35 +26,35 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to clone the message.
- * ballerina.model.messages:clone
+ * Native function to get payload as String..
+ * ballerina.net.http:setStringPayload
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
-        functionName = "clone",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
-                          structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        packageName = "ballerina.net.http",
+        functionName = "setStringPayload",
+        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+                          structPackage = "ballerina.net.http"),
+                @Argument(name = "payload", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Clones and creates a new instance of a message object") })
+        value = "Sets the message payload using a string object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The new instance of the message object ") })
-public class Clone  extends AbstractNativeFunction {
+        value = "The current request object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
+        value = "The string payload object") })
+public class SetStringPayload extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(AddHeader.class);
+    private static final Logger log = LoggerFactory.getLogger(
+            SetStringPayload.class);
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.clone(context, this, log);
+        return RequestResponseUtil.setStringPayload(context, this, log);
     }
 }
