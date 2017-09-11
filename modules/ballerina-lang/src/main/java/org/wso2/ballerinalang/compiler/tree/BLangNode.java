@@ -17,12 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.Node;
-import org.wso2.ballerinalang.compiler.parser.WSToken;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -39,7 +38,7 @@ public abstract class BLangNode implements Node {
      * The position of this node in the source file.
      */
     public DiagnosticPos pos;
-    private Set<WSToken> ws;
+    private Set<Whitespace> ws;
 
     public DiagnosticPos getPosition() {
         return pos;
@@ -48,16 +47,16 @@ public abstract class BLangNode implements Node {
     public abstract void accept(BLangNodeVisitor visitor);
 
     @Override
-    public Set<WSToken> getWS() {
+    public Set<Whitespace> getWS() {
         return ws;
     }
 
     @Override
-    public void addWS(Set<WSToken> ws) {
+    public void addWS(Set<Whitespace> whitespaces) {
         if (this.ws == null) {
-            this.ws = ws;
+            this.ws = whitespaces;
         } else {
-            this.ws.addAll(ws);
+            this.ws.addAll(whitespaces);
         }
     }
 }

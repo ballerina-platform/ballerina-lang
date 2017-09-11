@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
-import org.wso2.ballerinalang.compiler.parser.WSToken;
 
 import java.util.Set;
 
@@ -31,9 +31,9 @@ import java.util.Set;
  */
 public interface Node {
 
-    void addWS(Set<WSToken> wsTokens);
+    void addWS(Set<Whitespace> whitespaces);
 
-    Set<WSToken> getWS();
+    Set<Whitespace> getWS();
 
     /**
      * Returns the kind of this node.

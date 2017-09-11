@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
@@ -2365,7 +2366,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
     }
 
-    protected Set<WSToken> getWS(ParserRuleContext ctx) {
+    protected Set<Whitespace> getWS(ParserRuleContext ctx) {
         return null;
     }
 
