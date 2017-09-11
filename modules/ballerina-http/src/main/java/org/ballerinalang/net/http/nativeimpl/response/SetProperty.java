@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * ballerina.net.http:setProperty
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.response",
         functionName = "setProperty",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),

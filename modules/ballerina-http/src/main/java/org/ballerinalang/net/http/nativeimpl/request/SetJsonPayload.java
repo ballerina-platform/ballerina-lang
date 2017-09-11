@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Set the payload of the Message as a JSON.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.request",
         functionName = "setJsonPayload",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),

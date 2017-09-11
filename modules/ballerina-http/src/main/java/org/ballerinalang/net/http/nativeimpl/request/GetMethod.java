@@ -36,7 +36,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Get HTTP Method from the message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.request",
         functionName = "getMethod",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},

@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
  *  Get the payload of the Message as a JSON.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.request",
         functionName = "getJsonPayload",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},

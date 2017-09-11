@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * Get the Headers of the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.response",
         functionName = "getHeader",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http"),

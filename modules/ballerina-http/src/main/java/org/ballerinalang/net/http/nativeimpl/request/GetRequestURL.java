@@ -36,7 +36,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Get the request url of the Message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.request",
         functionName = "getRequestURL",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},

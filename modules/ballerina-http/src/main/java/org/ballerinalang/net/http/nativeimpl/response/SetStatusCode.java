@@ -37,7 +37,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  * Set HTTP StatusCode to the message.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.response",
         functionName = "setStatusCode",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),

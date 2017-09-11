@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * ballerina.net.http:setStringPayload
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.request",
         functionName = "setStringPayload",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),

@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
  * ballerina.model.messages:getStringValue
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.messages",
+        packageName = "ballerina.net.http.response",
         functionName = "getStringValue",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),

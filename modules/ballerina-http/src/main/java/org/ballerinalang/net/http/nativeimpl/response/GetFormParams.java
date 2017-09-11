@@ -45,7 +45,7 @@ import java.net.URLDecoder;
  * @since 0.93
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.http.response",
         functionName = "getFormParams",
         args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
