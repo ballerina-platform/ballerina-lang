@@ -45,8 +45,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         try {
             Session session = webSocketInitMessage.handshake();
-            CarbonMessage carbonMessage = HTTPConnectorUtil.convertWebSocketInitMessage(webSocketInitMessage);
-            HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketInitMessage);
+            HttpService service = WebSocketDispatcher.findService(webSocketInitMessage);
             WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
             Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
             Executor.submit(resource, carbonMessage, null);

@@ -41,8 +41,8 @@ public class WebSocketServerConnector implements BallerinaServerConnector {
 
     @Override
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
-        HttpService httpService = new HttpService(service);
-        WebSocketServicesRegistry.getInstance().registerServiceEndpoint(httpService);
+        WebSocketService wsService = new WebSocketService(service);
+        WebSocketServicesRegistry.getInstance().registerServiceEndpoint(wsService);
     }
 
     @Override
