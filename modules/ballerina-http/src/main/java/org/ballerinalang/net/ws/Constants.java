@@ -33,7 +33,7 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
     public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
 
-    public static final String WEBSOCKET_PACKAGE_PATH = "ballerina.net.ws";
+    public static final String WEBSOCKET_PACKAGE_NAME = "ballerina.net.ws";
 
     public static final String PROTOCOL_WEBSOCKET = "ws";
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";

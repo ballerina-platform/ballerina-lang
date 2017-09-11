@@ -86,7 +86,7 @@ public class Connect extends AbstractNativeAction {
     private BStruct createWSConnectionStruct(Context context, Session session, BStruct wsParentConnection) {
 
         //gather package details from natives
-        PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_PATH);
+        PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
         StructInfo wsConnectionStructInfo =
                 wsConnectionPackageInfo.getStructInfo(Constants.STRUCT_WEBSOCKET_CONNECTION);
 

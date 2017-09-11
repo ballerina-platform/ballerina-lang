@@ -57,7 +57,7 @@ public class PushText extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
+                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
             throw new BallerinaException("This function is only working with WebSocket services");
         }
 

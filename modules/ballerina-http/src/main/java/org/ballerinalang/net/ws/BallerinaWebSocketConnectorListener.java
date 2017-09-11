@@ -19,9 +19,15 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.impl.ConnectorUtils;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpService;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -43,14 +49,24 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        try {
-            Session session = webSocketInitMessage.handshake();
-            HttpService service = WebSocketDispatcher.findService(webSocketInitMessage);
-            WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
-            Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-            Executor.submit(resource, carbonMessage, null);
-        } catch (ProtocolException e) {
-            throw new BallerinaConnectorException("Error occurred during WebSocket handshake", e);
+        WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
+        Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
+        if (onHandshakeResource != null) {
+            ConnectorFuture future = Executor.submit(onHandshakeResource, );
+            future.setConnectorFutureListener(new ConnectorFutureListener() {
+                @Override
+                public void notifySuccess(BValue response) {
+                   handleHandshake(webSocketInitMessage, wsService);
+                }
+
+                @Override
+                public void notifyFailure(BallerinaConnectorException ex) {
+                    throw new BallerinaException("Error: " + ex.getMessage());
+                }
+            });
+
+        } else {
+            handleHandshake(webSocketInitMessage, wsService);
         }
     }
 
@@ -90,5 +106,26 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     @Override
     public void onIdleTimeout(Session session) {
         throw new BallerinaConnectorException("Idle timeout is not supported yet");
+    }
+
+
+    private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
+        try {
+            Session session = initMessage.handshake();
+            BStruct wsConnection = wsService.createWSConnectionStruct();
+            wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+            wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
+
+            WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
+
+            Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
+            BValue[] bValues = {wsConnection};
+            if (onOpenResource == null) {
+                return;
+            }
+            Executor.submit(onOpenResource, bValues);
+        } catch (ProtocolException e) {
+            throw new BallerinaException("Error occurred during handshake");
+        }
     }
 }

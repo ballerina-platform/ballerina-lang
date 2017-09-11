@@ -21,6 +21,8 @@ package org.ballerinalang.net.ws;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.impl.ConnectorUtils;
+import org.ballerinalang.model.values.BStruct;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,5 +59,10 @@ public class WebSocketService implements Service {
 
     public Resource getResourceByName(String resourceName) {
         return resourceMap.get(resourceName);
+    }
+
+    public BStruct createWSConnectionStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                    Constants.STRUCT_WEBSOCKET_CONNECTION);
     }
 }

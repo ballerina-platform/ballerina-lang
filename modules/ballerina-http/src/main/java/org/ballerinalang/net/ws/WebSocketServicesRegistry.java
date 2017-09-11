@@ -219,7 +219,7 @@ public class WebSocketServicesRegistry {
         // Find WebSocket Upgrade Path.
         String webSocketUpgradePath;
         Annotation webSocketUpgradePathAnnotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
+                Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
         if (webSocketUpgradePathAnnotation != null &&
                 webSocketUpgradePathAnnotation.getAnnAttrValue(Constants.VALUE_ATTRIBUTE) != null) {
             webSocketUpgradePath = webSocketUpgradePathAnnotation.
@@ -241,7 +241,7 @@ public class WebSocketServicesRegistry {
      */
     private boolean isWebSocketClientService(WebSocketService service) {
         Annotation annotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
+                Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
         return !(annotation == null);
     }
 

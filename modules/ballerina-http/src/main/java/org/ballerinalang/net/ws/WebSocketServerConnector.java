@@ -36,7 +36,7 @@ import java.util.List;
 public class WebSocketServerConnector implements BallerinaServerConnector {
     @Override
     public String getProtocolPackage() {
-        return Constants.WEBSOCKET_PACKAGE_PATH;
+        return Constants.WEBSOCKET_PACKAGE_NAME;
     }
 
     @Override
