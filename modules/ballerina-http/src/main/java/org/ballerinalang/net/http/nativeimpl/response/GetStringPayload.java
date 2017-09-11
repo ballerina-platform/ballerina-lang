@@ -38,15 +38,15 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getStringPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in string format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
+        value = "A response message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The string representation of the message payload") })
 public class GetStringPayload extends AbstractNativeFunction {

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setProperty",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "propertyName", type = TypeEnum.STRING),
                 @Argument(name = "propertyValue", type = TypeEnum.STRING)}, //TODO: property value could be of any type
@@ -45,8 +45,8 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets a message property") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
-                                                                        value = "The current request object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
+        value = "A response message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "The name of the property") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyValue",

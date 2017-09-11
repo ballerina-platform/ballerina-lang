@@ -33,15 +33,15 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getXmlPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in XML format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
+        value = "A response message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
         value = "The XML representation of the message payload") })
 public class GetXMLPayload extends AbstractNativeFunction {
