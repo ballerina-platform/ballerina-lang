@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import DefaultASTFactory from '../ast/default-ast-factory';
 
 const operatorStatementCreator = DefaultASTFactory.createTransformAssignmentOperatorStatement
@@ -33,7 +51,7 @@ const subtractOpTool = {
 const devideOpTool = {
     id: 'devide',
     name: 'Devide',
-    cssClass: 'icon fw fw-devide',
+    cssClass: 'icon fw fw-error',
     title: 'Devide',
     meta: {
         defaultExpression: '0 / 1',
@@ -44,7 +62,7 @@ const devideOpTool = {
 const multiplyOpTool = {
     id: 'multiply',
     name: 'Multiply',
-    cssClass: 'icon fw fw-multiply',
+    cssClass: 'icon fw fw-error',
     title: 'Multiply',
     meta: {
         defaultExpression: '0 * 0',
@@ -55,7 +73,7 @@ const multiplyOpTool = {
 const powerOpTool = {
     id: 'power',
     name: 'Power',
-    cssClass: 'icon fw fw-power',
+    cssClass: 'icon fw fw-error',
     title: 'Power',
     meta: {
         defaultExpression: '1 ^ 1',
@@ -66,7 +84,7 @@ const powerOpTool = {
 const lessThanOpTool = {
     id: 'lessThan',
     name: 'Less Than',
-    cssClass: 'icon fw fw-lessThan',
+    cssClass: 'icon fw fw-error',
     title: 'Less Than',
     meta: {
         defaultExpression: '0 < 0',
@@ -77,7 +95,7 @@ const lessThanOpTool = {
 const greaterThanOpTool = {
     id: 'greaterThan',
     name: 'Greater Than',
-    cssClass: 'icon fw fw-greaterThan',
+    cssClass: 'icon fw fw-error',
     title: 'Greater Than',
     meta: {
         defaultExpression: '0 > 0',
@@ -88,7 +106,7 @@ const greaterThanOpTool = {
 const lessThanOrEqualOpTool = {
     id: 'lessThanOrEqual',
     name: 'LT Or Equal To',
-    cssClass: 'icon fw fw-lessThanOrEqual',
+    cssClass: 'icon fw fw-error',
     title: 'LT Or Equal To',
     meta: {
         defaultExpression: '0 <= 0',
@@ -99,7 +117,7 @@ const lessThanOrEqualOpTool = {
 const greaterThanOrEqualOpTool = {
     id: 'greaterThanOrEqual',
     name: 'GT Or Equal To',
-    cssClass: 'icon fw fw-greaterThanOrEqual',
+    cssClass: 'icon fw fw-error',
     title: 'GT Or Equal To',
     meta: {
         defaultExpression: '0 >= 0',
@@ -110,7 +128,7 @@ const greaterThanOrEqualOpTool = {
 const equalOpTool = {
     id: 'equal',
     name: 'Equal To',
-    cssClass: 'icon fw fw-equal',
+    cssClass: 'icon fw fw-error',
     title: 'Equal To',
     meta: {
         defaultExpression: '0 == 0',
@@ -121,7 +139,7 @@ const equalOpTool = {
 const notEqualOpTool = {
     id: 'notEqual',
     name: 'Not Equal To',
-    cssClass: 'icon fw fw-notEqual',
+    cssClass: 'icon fw fw-error',
     title: 'Not Equal To',
     meta: {
         defaultExpression: '0 != 0',
@@ -132,7 +150,7 @@ const notEqualOpTool = {
 const andOpTool = {
     id: 'and',
     name: 'And',
-    cssClass: 'icon fw fw-and',
+    cssClass: 'icon fw fw-error',
     title: 'And',
     meta: {
         defaultExpression: 'true && true',
@@ -143,7 +161,7 @@ const andOpTool = {
 const orOpTool = {
     id: 'or',
     name: 'Or',
-    cssClass: 'icon fw fw-or',
+    cssClass: 'icon fw fw-error',
     title: 'Or',
     meta: {
         defaultExpression: 'true || true',
@@ -156,16 +174,15 @@ export const binaryOpTools = [
     subtractOpTool,
     devideOpTool,
     multiplyOpTool,
-    getSeperator('sep-numeric'),
     powerOpTool,
-    getSeperator('sep-power'),
+    getSeperator('sep-numeric'),
     lessThanOpTool,
     greaterThanOpTool,
     lessThanOrEqualOpTool,
     greaterThanOrEqualOpTool,
     equalOpTool,
     notEqualOpTool,
-    getSeperator('sep-boolean'),
+    getSeperator('sep-conditional'),
     andOpTool,
     orOpTool,
 ];
@@ -195,7 +212,7 @@ const minusOpTool = {
 const notOpTool = {
     id: 'not',
     name: 'Not',
-    cssClass: 'icon fw fw-not',
+    cssClass: 'icon fw fw-error',
     title: 'Not',
     meta: {
         defaultExpression: '! false',
@@ -206,7 +223,7 @@ const notOpTool = {
 const lengthOfOpTool = {
     id: 'lengthof',
     name: 'Length Of',
-    cssClass: 'icon fw fw-lengthof',
+    cssClass: 'icon fw fw-error',
     title: 'Length Of',
     meta: {
         defaultExpression: 'lengthof a',
@@ -217,7 +234,7 @@ const lengthOfOpTool = {
 const typeOfOpTool = {
     id: 'typeof',
     name: 'Type Of',
-    cssClass: 'icon fw fw-typeof',
+    cssClass: 'icon fw fw-error',
     title: 'Type Of',
     meta: {
         defaultExpression: 'typeof a',
@@ -228,9 +245,7 @@ const typeOfOpTool = {
 export const unaryOpTools = [
     plusOpTool,
     minusOpTool,
-    getSeperator('sep-plus-minus'),
     notOpTool,
-    getSeperator('sep-not'),
     lengthOfOpTool,
     typeOfOpTool,
 ];
