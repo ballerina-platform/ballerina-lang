@@ -18,6 +18,7 @@
 package org.ballerinalang.codegen;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.annotation.natives.BallerinaFunction;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -53,7 +54,13 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         this.processJavaSPIServices(roundEnv);
+        this.processNativeFunctions(roundEnv);
         return true;
+    }
+    
+    private void processNativeFunctions(RoundEnvironment roundEnv) {
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
+        System.out.println("**** XXXX: " + elements);
     }
     
     private void processJavaSPIServices(RoundEnvironment roundEnv) {

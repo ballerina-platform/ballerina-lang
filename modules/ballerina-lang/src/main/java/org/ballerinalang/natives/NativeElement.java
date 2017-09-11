@@ -18,10 +18,8 @@
 package org.ballerinalang.natives;
 
 /**
+ * This marks an implementation as a native element.
+ * 
  * @since 0.94
  */
-public interface NativeFunction extends NativeElement {
-
-    Object[] execute(Object[] args);
-    
-}
+public interface NativeElement { }

@@ -18,10 +18,13 @@
 package org.ballerinalang.natives;
 
 /**
+ * Represents a native element type.
+ * 
  * @since 0.94
  */
-public interface NativeFunction extends NativeElement {
+public enum NativeElementType {
 
-    Object[] execute(Object[] args);
+    FUNCTION,
+    ACTION
     
 }

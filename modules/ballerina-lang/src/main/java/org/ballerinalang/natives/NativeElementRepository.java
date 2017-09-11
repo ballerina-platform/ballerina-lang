@@ -17,11 +17,23 @@
 */
 package org.ballerinalang.natives;
 
-/**
- * @since 0.94
- */
-public interface NativeFunction extends NativeElement {
+import java.util.HashMap;
+import java.util.Map;
 
-    Object[] execute(Object[] args);
+/**
+ * This represents a native element repository, that would be populated by any
+ * native element provider.
+ */
+public class NativeElementRepository {
+
+    private Map<NativeElementKey, NativeElement> entries = new HashMap<>();
+    
+    public void addEntry(NativeElementKey key, NativeElement value) {
+        this.entries.put(key, value);
+    }
+    
+    public NativeElement lookup(NativeElementKey key) {
+        return this.entries.get(key);
+    }
     
 }

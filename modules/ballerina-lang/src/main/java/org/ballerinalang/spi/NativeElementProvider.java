@@ -15,13 +15,20 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.natives;
+package org.ballerinalang.spi;
+
+import org.ballerinalang.natives.NativeElementRepository;
 
 /**
- * @since 0.94
+ * This represents the Java SPI for a Ballerina native element provider.
  */
-public interface NativeFunction extends NativeElement {
+public interface NativeElementProvider {
 
-    Object[] execute(Object[] args);
+    /**
+     * Populates the given {@link NativeElementRepository} with the known native elements.
+     * 
+     * @param repo the {@link NativeElementRepository} to be enriched
+     */
+    void populateNatives(NativeElementRepository repo);
     
 }
