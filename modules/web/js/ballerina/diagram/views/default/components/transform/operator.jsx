@@ -25,7 +25,7 @@ export default class Operator extends React.Component {
     render() {
         const {
             key, operator, opStmt, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv, onEndpointRemove
+            parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter,
         } = this.props;
 
         operator.parameters.forEach((param, index) => {
@@ -57,6 +57,7 @@ export default class Operator extends React.Component {
                             endpoints={operator.parameters}
                             viewId={viewId}
                             onEndpointRemove={onEndpointRemove}
+                            onConnectPointMouseEnter={onConnectPointMouseEnter}
                         />
                     </div>
                     <div className='func-output'>
@@ -66,6 +67,7 @@ export default class Operator extends React.Component {
                             endpoints={operator.returnParams}
                             viewId={viewId}
                             onEndpointRemove={onEndpointRemove}
+                            onConnectPointMouseEnter={onConnectPointMouseEnter}
                         />
                     </div>
                 </div>
