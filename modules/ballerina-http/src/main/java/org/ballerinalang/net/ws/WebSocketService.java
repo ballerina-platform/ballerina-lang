@@ -61,13 +61,18 @@ public class WebSocketService implements Service {
         return resourceMap.get(resourceName);
     }
 
-    public BStruct createWSConnectionStruct() {
+    public BStruct createConnectionStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
     }
 
-    public BStruct createWSTextFrameStruct() {
+    public BStruct createTextFrameStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
                                            Constants.STRUCT_WEBSOCKET_TEXT_FRAME);
+    }
+
+    public BStruct createCloseFrameStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
 }

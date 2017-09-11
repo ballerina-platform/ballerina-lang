@@ -23,19 +23,15 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.impl.ConnectorUtils;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.ProtocolException;
 import javax.websocket.Session;
@@ -83,7 +79,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         BStruct wsConnection = WebSocketConnectionManager.getInstance().
                 getConnection(webSocketTextMessage.getChannelSession().getId());
 
-        BStruct wsTextFrame = wsService.createWSTextFrameStruct();
+        BStruct wsTextFrame = wsService.createTextFrameStruct();
         wsTextFrame.setStringField(0, webSocketTextMessage.getText());
         if (webSocketTextMessage.isFinalFragment()) {
             wsTextFrame.setBooleanField(0, 1);
@@ -106,12 +102,19 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        CarbonMessage carbonMessage = HTTPConnectorUtil.convertWebSocketCloseMessage(webSocketCloseMessage);
-        Session serverSession = webSocketCloseMessage.getChannelSession();
-        WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
-        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketCloseMessage);
-        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
-        Executor.submit(resource, carbonMessage, null);
+        WebSocketService wsService = WebSocketDispatcher.findService(webSocketCloseMessage);
+        Resource onCloseResource = WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_CLOSE);
+        if (onCloseResource == null) {
+            return;
+        }
+        BStruct wsConnection = WebSocketConnectionManager.getInstance().
+                getConnection(webSocketCloseMessage.getChannelSession().getId());
+        BStruct wsCloseFrame = wsService.createCloseFrameStruct();
+        wsCloseFrame.setIntField(0, webSocketCloseMessage.getCloseCode());
+        wsCloseFrame.setStringField(0, webSocketCloseMessage.getCloseReason());
+
+        BValue[] bValues = {wsConnection, wsCloseFrame};
+        Executor.submit(onCloseResource, bValues);
     }
 
     @Override
@@ -128,7 +131,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
         try {
             Session session = initMessage.handshake();
-            BStruct wsConnection = wsService.createWSConnectionStruct();
+            BStruct wsConnection = wsService.createConnectionStruct();
             wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
             wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
 
