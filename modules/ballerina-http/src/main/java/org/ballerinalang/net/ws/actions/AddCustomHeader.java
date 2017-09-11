@@ -32,41 +32,38 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 
 /**
- * Initialize the WebSocket client connector.
+ * Add custom header to the client connector.
  *
  * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "<init>",
+        actionName = "addCustomHeader",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "callbackService", type = TypeEnum.STRING)
+                @Argument(name = "key", type = TypeEnum.STRING),
+                @Argument(name = "value", type = TypeEnum.STRING),
         })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
-                                              value = "Initialize the connection") })
+                                              value = "Add custom header") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
                                                                         value = "WebSocket Client Connector") })
 @Component(
-        name = "action.net.ws.init",
+        name = "action.net.ws.addCustomHeader",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Init extends AbstractNativeAction {
+public class AddCustomHeader extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        String remoteUrl = bconnector.getStringField(0);
-        String clientServiceName = bconnector.getStringField(1);
+        String key = getStringArgument(context, 0);
+        String value = getStringArgument(context, 1);
 
-        WSSenderConfiguration senderConfiguration = new WSSenderConfiguration();
-        senderConfiguration.setRemoteAddress(remoteUrl);
-        senderConfiguration.setTarget(clientServiceName);
-        bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
+        WSSenderConfiguration senderConfiguration =
+                (WSSenderConfiguration) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        senderConfiguration.addHeader(key, value);
         return null;
     }
 }

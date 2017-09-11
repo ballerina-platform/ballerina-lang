@@ -379,4 +379,16 @@ public class RequestResponseUtil {
         }
         return abstractNativeFunction.getBValues(new BInteger(contentLength));
     }
+
+    public static BValue[] getContentLength(Context context, AbstractNativeFunction abstractNativeFunction,
+                                            Logger log) {
+        try {
+            BMessage bMsg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+            long contentLength = abstractNativeFunction.getIntArgument(context, 0);
+            bMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+        } catch (ClassCastException e) {
+            throw new BallerinaException("Invalid message or Content-Length");
+        }
+        return abstractNativeFunction.VOID_RETURN;
+    }
 }

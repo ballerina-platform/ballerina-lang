@@ -16,10 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws.nativeimpl.connectionstore;
+package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,41 +28,48 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.nio.ByteBuffer;
 import javax.websocket.Session;
 
-
 /**
- * Store the connection globally for the use of other services.
+ * Push binary data to the other end of the connection.
+ *
+ * @since 0.94
  */
+
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "storeConnection",
-        args = {
-                @Argument(name = "connectionName", type = TypeEnum.STRING)
-        },
+        functionName = "pushBinary",
+        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+                          structPackage = "ballerina.net.ws"),
+                @Argument(name = "binaryData", type = TypeEnum.BLOB)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Store the connection globally for the " +
-                             "use of other services.") })
+                     attributes = { @Attribute(name = "value", value = "This pushes binary data from server to the " +
+                             "the same client who sent the message.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionName", value = "Name of the connection") })
-public class StoreConnection extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "binaryData", value = "Binary data which should be sent") })
+public class PushBinary extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
 
-        if (context.getServiceInfo() == null) {
-            throw new BallerinaException("This function is only working with services");
+        if (context.getServiceInfo() == null ||
+                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
+            throw new BallerinaException("This function is only working with WebSocket services");
         }
 
-        CarbonMessage carbonMessage = context.getCarbonMessage();
-        String connectionName = getStringArgument(context, 0);
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-        WebSocketConnectionManager.getInstance().storeConnection(connectionName, session);
+        try {
+            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+            byte[] binaryData = getBlobArgument(context, 0);
+            session.getBasicRemote().sendBinary(ByteBuffer.wrap(binaryData));
+        } catch (Throwable e) {
+            throw new BallerinaException("Cannot send the message. Error occurred.");
+        }
         return VOID_RETURN;
     }
 }

@@ -16,49 +16,55 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.ws.nativeimpl.connectiongroup;
+package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import javax.websocket.Session;
+
 /**
- * Remove a connection group from {@link WebSocketConnectionManager}.
+ * Get the ID of the connection.
+ *
+ * @since 0.94
  */
+
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "removeConnectionGroup",
-        args = {
-                @Argument(name = "connectionGroupName", type = TypeEnum.STRING)
-        },
+        functionName = "getID",
+        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+                          structPackage = "ballerina.net.ws")},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Removes connection group.")})
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group")})
-public class RemoveConnectionGroup extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "value", value = "Get the unique ID of the connection") })
+@BallerinaAnnotation(annotationName = "Return",
+                     attributes = {@Attribute(name = "string", value = "ID of the connection")})
+public class GetID extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
 
-        if (context.getServiceInfo() == null) {
-            throw new BallerinaException("This function is only working with services");
+        if (context.getServiceInfo() == null ||
+                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
+            throw new BallerinaException("This function is only working with WebSocket services");
         }
 
-        String connectionGroupName = getStringArgument(context, 0);
-        boolean connectionGroupRemoved = WebSocketConnectionManager.getInstance().
-                removeConnectionGroup(connectionGroupName);
-        if (!connectionGroupRemoved) {
-            throw new BallerinaException("Connection group name " + connectionGroupName +
-                                                 " not exists. Cannot remove the connection group.");
-        }
-        return VOID_RETURN;
+        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        String id = session.getId();
+        return getBValues(new BString(id));
     }
 }
