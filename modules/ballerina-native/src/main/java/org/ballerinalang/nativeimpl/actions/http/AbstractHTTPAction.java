@@ -36,7 +36,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -142,9 +142,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
+            String scheme = (String) message.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
-            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+                    BallerinaConnectorManager.getInstance().getHttpClientConnector(scheme);
+            HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
             future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
 
@@ -181,9 +182,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
+            String scheme = (String) message.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    BallerinaConnectorManager.getInstance().getHTTPHttpClientConnector();
-            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+                    BallerinaConnectorManager.getInstance().getHttpClientConnector(scheme);
+            HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
             future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
         } catch (Exception e) {
