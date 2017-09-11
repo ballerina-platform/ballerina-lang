@@ -235,7 +235,8 @@ public class RequestResponseUtil {
 
     private static BStruct createRequestStruct(Context context) {
         //gather package details from natives
-        PackageInfo sessionPackageInfo = context.getProgramFile().getPackageInfo("ballerina.net.http");
+        PackageInfo sessionPackageInfo = context.getProgramFile()
+                .getPackageInfo("ballerina.net.http.request");
         StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo("Request");
 
         //create session struct
@@ -250,11 +251,11 @@ public class RequestResponseUtil {
         if (httpCarbonMessage.getMessageDataSource() != null &&
                 httpCarbonMessage.getMessageDataSource() instanceof BallerinaMessageDataSource) {
             // Clone the headers and the properties map of this message
-            clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithOutData(httpCarbonMessage);
+            clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithOutData();
             clonedHttpCarbonMessage.setMessageDataSource(((BallerinaMessageDataSource) httpCarbonMessage
                     .getMessageDataSource()).clone());
         } else {
-            clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithData(httpCarbonMessage);
+            clonedHttpCarbonMessage = httpCarbonMessage.cloneCarbonMessageWithData();
         }
         return clonedHttpCarbonMessage;
     }
