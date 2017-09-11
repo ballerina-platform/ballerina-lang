@@ -4,7 +4,7 @@ function main (string[] args) {
     int a = 10;
     int b = 0;
 
-    //Here’s a basic example.
+    //Here’s a basic example for scenario with if condition.
     if (a == 10) {
         system:println("a == 10");
     }

@@ -15,7 +15,7 @@ import ballerina.net.http;
 service<jms> jmsService {
     resource onMessage (message m) {
         // Retrieve the string payload using native function and set as a 
-        // json payload.
+        // JSON payload.
         messages:setJsonPayload(m, messages:getJsonPayload(m));
         // Remove unrelated JMS headers
         messages:removeHeader(m, jms:HEADER_CORRELATION_ID);
@@ -27,7 +27,7 @@ service<jms> jmsService {
         messages:removeHeader(m, jms:HEADER_EXPIRATION);
         messages:removeHeader(m, jms:HEADER_MESSAGE_TYPE);
         messages:removeHeader(m, jms:HEADER_REDELIVERED);
-        // send the JSON payload to the HTTP endpoint
+        // Send the JSON payload to the HTTP endpoint.
         http:ClientConnector nyseEP2 = 
                         create http:ClientConnector("http://localhost:8080");
         message response = nyseEP2.post("/my-webapp/echo", m);

@@ -2,7 +2,7 @@ import ballerina.net.http;
 import ballerina.lang.xmls;
 import ballerina.lang.messages;
 import ballerina.doc;
-@doc:Description {value:"Consumes and Produces annotations contain MIME types as an array of strings."}
+@doc:Description {value:"Consumes and Produces annotation attributes contain MIME types as an array of strings."}
 service<http> infoService {
 
     @http:resourceConfig {

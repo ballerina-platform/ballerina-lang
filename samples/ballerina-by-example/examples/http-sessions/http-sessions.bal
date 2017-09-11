@@ -8,7 +8,7 @@ service<http> session {
         methods:["GET"]
     }
     resource sayHello (message m) {
-        //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
+        //The createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
         http:Session session = http:createSessionIfAbsent(m);
         string result;
         message response = {};
@@ -28,7 +28,7 @@ service<http> session {
         methods:["GET"]
     }
     resource doTask (message m) {
-        //getSession() returns an existing session for a valid session id. otherwise null.
+        //The getSession() function returns an existing session for a valid session id. otherwise null.
         http:Session session = http:getSession(m);
         string attributeValue;
         message response = {};

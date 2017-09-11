@@ -9,7 +9,7 @@ function main (string[] args) {
     system:println("[default -> w1] i: " + i + " k: " + k);
     // Send a messages to worker 'w1'. This message contains two values of type int and float.
     i, k -> w1;
-    // Receive a message from worker w1. This message contains a json typed value.
+    // Receive a message from worker w1. This message contains a 'json' typed value.
     json j = {};
     j <- w1;
     system:println("[default <- w1] j: " + jsons:toString(j));

@@ -5,7 +5,7 @@ import ballerina.doc;
 @doc:Description {value:"Service is invoke using BasePath value (/hbr)."}
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
-    @doc:Description {value:"http:GET{} annotation declares the HTTP method."}
+    @doc:Description {value:"The http:resourceConfig{} annotation with GET method declares the HTTP method."}
     @http:resourceConfig {
         methods:["GET"],
         path:"/route"
@@ -21,10 +21,10 @@ service<http> headerBasedRouting {
 
         message response = {};
         if (nameString == "location") {
-        //"post" represent the POST action of HTTP connector. Route payload to relevant service.
+        //The "post" represent the POST action of HTTP connector. Route payload to relevant service.
             response = locationEP.post("/v2/594e12271100001f13d6d3a6", m);
         } else {
-        //"get" action can be used to make http GET call.
+        //The "get" action can be used to make http GET call.
             message newMessage = {};
             response = weatherEP.get
               ("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newMessage);

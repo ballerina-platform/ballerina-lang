@@ -8,7 +8,7 @@ function main (string[] args) {
     sql:ClientConnector testDB = create sql:ClientConnector(
       sql:MYSQL, "localhost", 3306, "testdb", "test", "test", properties);
     //Create a DB table using update action.If the DDL
-    //statement execution is success update action returns 0
+    //statement execution is success update action returns 0.
     sql:Parameter[] params = [];
     int ret = testDB.update("CREATE TABLE IF NOT EXISTS STUDENT(ID INT AUTO_INCREMENT,
                     AGE INT, NAME VARCHAR(255), PRIMARY KEY (ID))", params);
@@ -36,7 +36,7 @@ function main (string[] args) {
     //generated columns other than the auto incremented key, those column
     //names should be given as an array. The values of the auto incremented
     //column and the auto generated columns are returned as string array.
-    //Similar to the update action inserted row count is also returned.
+    //Similar to the update action, the inserted row count is also returned.
     string[] keyColumns = [];
     string[] ids;
     ret, ids = testDB.updateWithGeneratedKeys("INSERT INTO STUDENT
@@ -53,7 +53,7 @@ function main (string[] args) {
     system:println(jsonRes);
 
     //A Batch of data can be inserted using  batchUpdate action. Number
-    //of inserted rows for each insert in batch is returned as an array
+    //of inserted rows for each insert in the batch is returned as an array.
     sql:Parameter p1 = {sqlType:"integer", value:10};
     sql:Parameter p2 = {sqlType:"varchar", value:"Smith"};
     sql:Parameter[] item1 = [p1, p2];

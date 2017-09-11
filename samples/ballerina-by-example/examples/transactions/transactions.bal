@@ -37,7 +37,7 @@ function main (string[] args) {
         //will execute each time transaction is failed until retry count
         //is reached.
         system:println("Transaction failed");
-        //The retry count is the number times the transaction is
+        //The retry count is the number of times the transaction is
         //tried before aborting. By default a transaction is tried three
         //times before aborting. Only integer literals or constants are
         //allowed for retry count.

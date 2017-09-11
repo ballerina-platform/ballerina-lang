@@ -2,7 +2,7 @@
 # and use `ballerina run websocket-connection-store.bal`.
 $ ballerina run websocket-connection-store.bal
 # Make sure to use multiple clients for this example (at least 2 clients)
-# sample json string: {"command":"send", "id":"0", "msg":"hi 0"}
+# sample JSON string: {"command":"send", "id":"0", "msg":"hi 0"}
 
 # To check the sample, you can use Chrome or Firefox javascript console and run the below commands <br>
 $ var ws = new WebSocket("ws://localhost:9090/store/ws");
