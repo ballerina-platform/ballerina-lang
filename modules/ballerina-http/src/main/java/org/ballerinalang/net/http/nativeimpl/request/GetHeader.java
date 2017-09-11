@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getHeader",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "headerName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets a transport header from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
         value = "The request message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "headerName",
         value = "The header name") })

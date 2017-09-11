@@ -36,14 +36,14 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setJsonPayload",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "payload", type = TypeEnum.JSON)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the message payload using a JSON object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
                                                                         value = "The current request object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
         value = "The JSON payload object") })

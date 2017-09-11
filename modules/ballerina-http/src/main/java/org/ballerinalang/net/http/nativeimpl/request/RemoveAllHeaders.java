@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "removeAllHeaders",
-        args = {@Argument(name = "request", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "request",
                           structPackage = "ballerina.net.http")},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Removes all transport headers from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "request",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
                                                                         value = "The current request object") })
 public class RemoveAllHeaders extends AbstractNativeFunction {
 
