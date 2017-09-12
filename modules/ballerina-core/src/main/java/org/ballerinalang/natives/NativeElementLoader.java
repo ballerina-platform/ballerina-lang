@@ -17,8 +17,11 @@
 */
 package org.ballerinalang.natives;
 
+import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.spi.NativeElementProvider;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
@@ -29,6 +32,8 @@ public class NativeElementLoader {
     private NativeElementRepository nativeElementRepo;
 
     private static NativeElementLoader instance;
+    
+    private Map<NativeElementKey, NativeUnit> nativeElementCache = new HashMap<>();
 
     public static NativeElementLoader getInstance() {
         if (instance == null) {
@@ -44,6 +49,22 @@ public class NativeElementLoader {
 
     public NativeElementRepository getNativeElementRepository() {
         return nativeElementRepo;
+    }
+    
+    public NativeUnit loadNativeElement(NativeElementKey key) {
+        NativeUnit result = this.nativeElementCache.get(key);
+        if (result == null) {
+            String className = this.nativeElementRepo.lookupEntry(key);
+            if (className != null) {
+                try {
+                    result = (NativeUnit) Class.forName(className).newInstance();
+                    this.nativeElementCache.put(key, result);
+                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                    throw new RuntimeException("Error in loading native element: " + e.getMessage(), e);
+                }
+            }
+        }
+        return result;
     }
     
 }
