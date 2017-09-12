@@ -18,7 +18,7 @@
 package org.ballerinalang.codegen;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.annotation.natives.BallerinaFunction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -33,6 +33,7 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -49,6 +50,7 @@ import javax.tools.StandardLocation;
 @SupportedAnnotationTypes({ "org.ballerinalang.annotation.JavaSPIService",
         "org.ballerinalang.annotation.natives.BallerinaFunction" })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedOptions({ "nativeEntityProviderPackage", "nativeEntityProviderClass" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private static final String NATIVE_ENTITY_PROVIDER_PACKAGE_NAME = "nativeEntityProviderPackage";
