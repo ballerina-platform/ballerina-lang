@@ -173,32 +173,23 @@ public class SymbolTable {
 
     private void defineOperators() {
         // Binary operator symbols
-        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType, -1);
-        defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, -1);
+        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, -1);
+        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, -1);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, -1);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, -1);
 
-        defineBinaryOperator(OperatorKind.SUB, floatType, intType, intType, -1);
-        defineBinaryOperator(OperatorKind.SUB, intType, floatType, intType, -1);
-        defineBinaryOperator(OperatorKind.SUB, floatType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);
 
-        defineBinaryOperator(OperatorKind.DIV, floatType, intType, intType, -1);
-        defineBinaryOperator(OperatorKind.DIV, intType, floatType, intType, -1);
-        defineBinaryOperator(OperatorKind.DIV, floatType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.DIV, intType, intType, intType, -1);
 
-        defineBinaryOperator(OperatorKind.MUL, floatType, intType, intType, -1);
-        defineBinaryOperator(OperatorKind.MUL, intType, floatType, intType, -1);
-        defineBinaryOperator(OperatorKind.MUL, floatType, floatType, intType, -1);
+        defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.MUL, intType, intType, intType, -1);
-
 
         // Unary operator symbols
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
