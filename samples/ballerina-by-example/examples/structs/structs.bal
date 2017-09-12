@@ -29,4 +29,5 @@ function main (string[] args) {
     p1.name = "Peter";
     p1.age = 25;
     system:println(p1);
+    system:println(p2);
 }

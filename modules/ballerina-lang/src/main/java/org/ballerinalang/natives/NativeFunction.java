@@ -20,7 +20,7 @@ package org.ballerinalang.natives;
 /**
  * @since 0.94
  */
-public interface NativeFunction {
+public interface NativeFunction extends NativeElement {
 
     Object[] execute(Object[] args);
     

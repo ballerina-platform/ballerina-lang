@@ -309,6 +309,20 @@ public class FileTest {
         Assert.assertEquals(byteContent.blobValue(), getBytesFromFile(targetFile), "Written wrong content");
     }
 
+    @Test
+    public void testWriteNewLine() throws IOException {
+        String targetPath = "temp/writeln-file.txt";
+        File targetFile = new File(targetPath);
+        byte[] content = "Sample Text".getBytes();
+        byte[] newline = ("Sample Text" + System.lineSeparator()).getBytes();
+        BBlob byteContent = new BBlob(content);
+        BBlob byteNewLine = new BBlob(newline);
+        BValue[] args = { byteContent, new BString(targetPath) };
+        BLangFunctions.invokeNew(programFile, "testWriteNewLine", args);
+        Assert.assertTrue(targetFile.exists(), "File not created");
+        Assert.assertEquals(getBytesFromFile(targetFile), byteNewLine.blobValue(), "Written wrong content");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to write to " +
             "file: file is not opened in write or append mode.*")
