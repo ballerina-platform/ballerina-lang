@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -55,7 +55,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
         try {
             String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
-            WSSenderConfiguration configuration = new WSSenderConfiguration(remoteUrl);
+            WSClientConnectorConfig configuration = new WSClientConnectorConfig(remoteUrl);
             configuration.setTarget("myService");
             WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
 

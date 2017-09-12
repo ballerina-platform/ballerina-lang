@@ -20,7 +20,7 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
@@ -41,7 +41,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     private final int idleTimeout;
     private final Map<String, String> customHeaders;
 
-    public WebSocketClientConnectorImpl(WSSenderConfiguration configuration) {
+    public WebSocketClientConnectorImpl(WSClientConnectorConfig configuration) {
         this.remoteUrl = configuration.getRemoteAddress();
         this.target = configuration.getTarget();
         this.subProtocols = configuration.getSubProtocolsAsCSV();

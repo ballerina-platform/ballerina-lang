@@ -25,7 +25,7 @@ import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketClientConnectorImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
@@ -69,7 +69,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
     }
 
     @Override
-    public WebSocketClientConnector createWsClientConnector(WSSenderConfiguration senderConfiguration) {
+    public WebSocketClientConnector createWsClientConnector(WSClientConnectorConfig senderConfiguration) {
         return new WebSocketClientConnectorImpl(senderConfiguration);
     }
 }
