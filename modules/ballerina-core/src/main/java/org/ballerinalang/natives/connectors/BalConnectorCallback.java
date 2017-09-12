@@ -17,11 +17,14 @@
 package org.ballerinalang.natives.connectors;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -67,8 +70,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     @Override
     public void done(CarbonMessage carbonMessage) {
-        BMessage bMessage = new BMessage(carbonMessage);
-        valueRef = bMessage;
+        valueRef = createResponseStruct(this.context);;
         context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
         responseArrived = true;
 
@@ -84,6 +86,19 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     public Context getContext() {
         return context;
+    }
+
+    private BStruct createResponseStruct(Context context) {
+        //gather package details from natives
+        PackageInfo sessionPackageInfo = context.getProgramFile()
+                .getPackageInfo("ballerina.net.http.request");
+        StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo("Request");
+
+        //create session struct
+        BStructType structType = sessionStructInfo.getType();
+        BStruct bStruct = new BStruct(structType);
+
+        return bStruct;
     }
 
 }

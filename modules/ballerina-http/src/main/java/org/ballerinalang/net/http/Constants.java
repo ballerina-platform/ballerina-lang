@@ -122,7 +122,12 @@ public class Constants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
+    public static final String REQUEST = "request";
+    public static final String RESPONSE = "response";
+    public static final String HTTP_CARBON_MESSAGE = "httpCarbonMessage";
+    public static final String TYPE_STRING = "string";
 
+    public static final String TRANSPORT_MESSAGE = "transport_message";
 
     /**
      * Content type HTTP header.

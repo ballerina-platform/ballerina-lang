@@ -26,6 +26,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -34,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
 import java.io.PrintStream;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -62,6 +64,11 @@ public class HttpServerConnector implements BallerinaServerConnector {
         HTTPServicesRegistry.getInstance().registerService(httpService);
         Map<String, List<String>> serviceCorsMap = CorsRegistry.getInstance().getServiceCors(httpService);
         for (Resource resource : httpService.getResources()) {
+            try {
+                validateResourceSignature(resource);
+            } catch (InvalidParameterException e) {
+                throw new BallerinaConnectorException(e.getMessage());
+            }
             Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
                     Constants.ANN_NAME_RESOURCE_CONFIG);
             String subPathAnnotationVal;
@@ -186,5 +193,28 @@ public class HttpServerConnector implements BallerinaServerConnector {
             return Constants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    private void validateResourceSignature(Resource resource) {
+        LocalVariableInfo[] parameters = resource.getLocalVariables();
+        boolean isRequestAvailable = false;
+        boolean isResponseAvailable = false;
+        for (LocalVariableInfo variable : parameters) {
+            if (variable.getVariableType().getPackagePath() != null
+                    && variable.getVariableType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)) {
+                if (variable.getVariableType().getName().equals(Constants.REQUEST)) {
+                    isRequestAvailable = true;
+                } else if (variable.getVariableType().getName().equals(Constants.RESPONSE)) {
+                    isResponseAvailable = true;
+                }
+            } else {
+                if (!variable.getVariableType().getName().equals(Constants.TYPE_STRING)) {
+                    throw new InvalidParameterException("incompatible resource signature parameter types");
+                }
+            }
+        }
+        if (!isRequestAvailable || !isResponseAvailable) {
+            throw new InvalidParameterException("missing resource signature mandatory parameters");
+        }
     }
 }

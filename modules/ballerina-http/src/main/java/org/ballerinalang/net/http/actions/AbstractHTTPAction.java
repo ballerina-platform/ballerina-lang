@@ -37,7 +37,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -145,7 +145,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             HttpClientConnector clientConnector =
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
-            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+            HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
             future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
 
@@ -184,7 +184,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             HttpClientConnector clientConnector =
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
-            HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(message);
+            HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(message);
             HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
             future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
         } catch (Exception e) {
@@ -234,7 +234,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onError(Throwable throwable) {
-
+            throw new BallerinaException(throwable.getMessage());
         }
     }
 

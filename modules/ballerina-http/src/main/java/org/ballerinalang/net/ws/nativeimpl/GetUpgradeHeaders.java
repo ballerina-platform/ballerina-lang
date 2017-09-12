@@ -1,0 +1,76 @@
+/*
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+package org.ballerinalang.net.ws.nativeimpl;
+
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.Map;
+
+/**
+ * Get all the upgrade headers.
+ *
+ * @since 0.94
+ */
+
+@BallerinaFunction(
+        packageName = "ballerina.net.ws",
+        functionName = "getUpgradeHeaders",
+        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+                          structPackage = "ballerina.net.ws")},
+        returnType = {@ReturnType(type = TypeEnum.MAP)},
+        isPublic = true
+)
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = { @Attribute(name = "value", value = "Get upgrade headers") })
+@BallerinaAnnotation(annotationName = "Return",
+                     attributes = {@Attribute(name = "map", value = "map of all the headers")})
+public class GetUpgradeHeaders extends AbstractNativeFunction {
+
+    @Override
+    public BValue[] execute(Context context) {
+
+        if (context.getServiceInfo() == null ||
+                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
+            throw new BallerinaException("This function is only working with WebSocket services");
+        }
+
+        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+        Map<String, String> upgradeHeaders =
+                (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
+        BMap<BString, BString> bUpgradeHeaders = new BMap<>();
+        upgradeHeaders.entrySet().forEach(
+                upgradeHeader -> bUpgradeHeaders.put(new BString(upgradeHeader.getKey()),
+                                                     new BString(upgradeHeader.getValue()))
+        );
+        return getBValues(bUpgradeHeaders);
+    }
+}
