@@ -21,12 +21,12 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -196,19 +196,19 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
     private void validateResourceSignature(Resource resource) {
-        LocalVariableInfo[] parameters = resource.getLocalVariables();
+        List<ParamDetail> paramDetails = resource.getParamDetails();
         boolean isRequestAvailable = false;
         boolean isResponseAvailable = false;
-        for (LocalVariableInfo variable : parameters) {
-            if (variable.getVariableType().getPackagePath() != null
-                    && variable.getVariableType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)) {
-                if (variable.getVariableType().getName().equals(Constants.REQUEST)) {
+        for (ParamDetail parameter : paramDetails) {
+            if (parameter.getVarType().getPackagePath() != null
+                    && parameter.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)) {
+                if (parameter.getVarType().getName().equals(Constants.REQUEST)) {
                     isRequestAvailable = true;
-                } else if (variable.getVariableType().getName().equals(Constants.RESPONSE)) {
+                } else if (parameter.getVarType().getName().equals(Constants.RESPONSE)) {
                     isResponseAvailable = true;
                 }
             } else {
-                if (!variable.getVariableType().getName().equals(Constants.TYPE_STRING)) {
+                if (!parameter.getVarType().getName().equals(Constants.TYPE_STRING)) {
                     throw new InvalidParameterException("incompatible resource signature parameter types");
                 }
             }
