@@ -97,11 +97,8 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
 
         // Deploying the documentation
-        if (DocumentationUtils.generateMkdocsSite(mkdocsConfigFile, getLog())) {
-            DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
-                    mavenProject.getVersion(), getLog());
-            DocumentationUtils.deployMkdocsOnGitHubPages(mavenProject.getVersion(), rootMavenProject.getBasedir(),
-                    getLog());
-        }
+        DocumentationUtils.deployMkdocsOnGitHubPages(mkdocsConfigFile, mavenProject.getVersion(), getLog());
+        DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
+                mavenProject.getVersion(), getLog());
     }
 }

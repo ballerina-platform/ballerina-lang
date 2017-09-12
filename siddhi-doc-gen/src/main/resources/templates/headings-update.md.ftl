@@ -21,7 +21,7 @@
     <#assign repositoryOwner = "wso2">
 <#else>
     <#assign repositoryOwner = "wso2-extensions">
-    <#assign extensionRepositoryName = extensionRepositoryName?replace(CONSTANTS.FREEMARKER_EXTENSION_REPOSITORY_PARENT_POSTFIX, "", "r")>
+    <#assign extensionRepositoryName = extensionRepositoryName?replace(CONSTANTS.GITHUB_EXTENSION_REPOSITORY_PARENT_POSTFIX, "", "r")>
 </#if>
 <#macro renderLine line>
 ${line}
