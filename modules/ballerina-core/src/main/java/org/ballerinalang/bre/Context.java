@@ -44,6 +44,7 @@ public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
     private ControlStackNew controlStackNew;
+    //TODO remove below after jms and ftp full migration.
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     private BConnectorFuture connectorFuture;

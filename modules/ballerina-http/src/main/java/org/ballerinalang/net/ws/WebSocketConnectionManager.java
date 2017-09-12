@@ -18,26 +18,10 @@
 
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import javax.websocket.Session;
 
 /**
  * This contains all the sessions which are received via a {@link org.wso2.carbon.messaging.CarbonMessage}.

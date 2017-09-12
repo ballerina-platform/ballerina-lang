@@ -64,11 +64,9 @@ public class HttpServerConnector implements BallerinaServerConnector {
         HTTPServicesRegistry.getInstance().registerService(httpService);
         Map<String, List<String>> serviceCorsMap = CorsRegistry.getInstance().getServiceCors(httpService);
         for (Resource resource : httpService.getResources()) {
-            try {
-                validateResourceSignature(resource);
-            } catch (InvalidParameterException e) {
-                throw new BallerinaConnectorException(e.getMessage());
-            }
+
+            validateResourceSignature(resource);
+
             Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
                     Constants.ANN_NAME_RESOURCE_CONFIG);
             String subPathAnnotationVal;
@@ -113,17 +111,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     @Override
     public void deploymentComplete() throws BallerinaConnectorException {
-        try {
-            // Starting up HTTP Server connectors
-            //TODO move this to a common location and use in both http and ws server connectors
-            PrintStream outStream = System.out;
-            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
-                    .startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
-                    "server connector " + serverConnector));
-        } catch (ServerConnectorException e) {
-            throw new BallerinaConnectorException(e);
-        }
+        HttpUtil.startPendingHttpConnectors();
     }
 
     public HttpService findService(CarbonMessage cMsg) {
@@ -179,14 +167,14 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     private String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
         for (Object key : sortedServiceURIs) {
-            if (requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
-                if (requestURIPath.length() > key.toString().length()) {
-                    if (requestURIPath.charAt(key.toString().length()) == '/') {
-                        return key.toString();
-                    }
-                } else {
-                    return key.toString();
-                }
+            if (!requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
+                continue;
+            }
+            if (requestURIPath.length() <= key.toString().length()) {
+                return key.toString();
+            }
+            if (requestURIPath.charAt(key.toString().length()) == '/') {
+                return key.toString();
             }
         }
         if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {
@@ -197,24 +185,41 @@ public class HttpServerConnector implements BallerinaServerConnector {
 
     private void validateResourceSignature(Resource resource) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        boolean isRequestAvailable = false;
-        boolean isResponseAvailable = false;
-        for (ParamDetail parameter : paramDetails) {
-            if (parameter.getVarType().getPackagePath() != null
-                    && parameter.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)) {
-                if (parameter.getVarType().getName().equals(Constants.REQUEST)) {
-                    isRequestAvailable = true;
-                } else if (parameter.getVarType().getName().equals(Constants.RESPONSE)) {
-                    isResponseAvailable = true;
-                }
-            } else {
-                if (!parameter.getVarType().getName().equals(Constants.TYPE_STRING)) {
-                    throw new InvalidParameterException("incompatible resource signature parameter types");
-                }
-            }
+
+        if (paramDetails.size() < 2) {
+            throw new BallerinaConnectorException("resource signature parameter count should be more than two");
         }
-        if (!isRequestAvailable || !isResponseAvailable) {
-            throw new InvalidParameterException("missing resource signature mandatory parameters");
+
+        //Validate request parameter
+        ParamDetail reqParamDetail = paramDetails.get(0);
+        if (reqParamDetail == null) {
+            throw new BallerinaConnectorException("request parameter cannot be null");
+        }
+        if (reqParamDetail.getVarType().getPackagePath() == null
+                || !reqParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                || !reqParamDetail.getVarType().getName().equals(Constants.REQUEST)) {
+            throw new BallerinaConnectorException("request parameter should be of type - "
+                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
+        }
+
+        //validate response parameter
+        ParamDetail respParamDetail = paramDetails.get(1);
+        if (respParamDetail == null) {
+            throw new BallerinaConnectorException("response parameter cannot be null");
+        }
+        if (respParamDetail.getVarType().getPackagePath() == null
+                || !respParamDetail.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)
+                || !respParamDetail.getVarType().getName().equals(Constants.RESPONSE)) {
+            throw new BallerinaConnectorException("response parameter should be of type - "
+                    + Constants.PROTOCOL_PACKAGE_HTTP + ":" + Constants.REQUEST);
+        }
+
+        //validate rest of the parameters
+        for (int i = 2; i < paramDetails.size(); i++) {
+            ParamDetail paramDetail = paramDetails.get(i);
+            if (!paramDetail.getVarType().getName().equals(Constants.TYPE_STRING)) {
+                throw new BallerinaConnectorException("incompatible resource signature parameter type");
+            }
         }
     }
 }
