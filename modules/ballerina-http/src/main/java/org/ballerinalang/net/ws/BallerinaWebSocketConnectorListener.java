@@ -160,7 +160,9 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
         try {
-            Session session = initMessage.handshake();
+            String[] subProtocols = wsService.getNegotiableSubProtocols();
+            int idleTImeoutInSeconds = wsService.getIdleTimeoutInSeconds();
+            Session session = initMessage.handshake(subProtocols, true, idleTImeoutInSeconds * 1000);
             BStruct wsConnection = wsService.createConnectionStruct();
             wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
             wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
