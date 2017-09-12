@@ -70,7 +70,9 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     @Override
     public void done(CarbonMessage carbonMessage) {
-        valueRef = createResponseStruct(this.context);;
+        BStruct response = createResponseStruct(this.context);
+        response.addNativeData("transport_message", carbonMessage);
+
         context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
         responseArrived = true;
 

@@ -128,3 +128,7 @@ native function setMapPayload (http:Response res, map payload);
 @doc:Param { value:"propertyName: Name of the property" }
 @doc:Return { value:"string: The value of the map property" }
 native function getStringValue (http:Response res, string propertyName) (string);
+
+@doc:Description { value:"To get the value for a string property in a map type message"}
+@doc:Param { value:"res: The response message" }
+native function send (http:Response res);
