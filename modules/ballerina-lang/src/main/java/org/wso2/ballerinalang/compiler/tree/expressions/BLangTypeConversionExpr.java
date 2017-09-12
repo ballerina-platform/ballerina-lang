@@ -19,17 +19,23 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypeCastNode;
+import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangTypeCast extends BLangExpression implements TypeCastNode {
+public class BLangTypeConversionExpr extends BLangExpression implements TypeConversionNode, MultiReturnExpr {
 
     public ExpressionNode expr;
     public TypeNode typeName;
+    public List<BType> types = new ArrayList<>(0);
+
 
     public ExpressionNode getExpression() {
         return expr;
@@ -53,7 +59,7 @@ public class BLangTypeCast extends BLangExpression implements TypeCastNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TYPE_CAST_EXPR;
+        return NodeKind.TYPE_CONVERSION_EXPR;
     }
 
     @Override
@@ -63,7 +69,16 @@ public class BLangTypeCast extends BLangExpression implements TypeCastNode {
 
     @Override
     public String toString() {
-        return "(" + String.valueOf(typeName) + ") " + String.valueOf(expr);
+        return "<" + String.valueOf(typeName) + "> " + String.valueOf(expr);
     }
 
+    @Override
+    public List<BType> getTypes() {
+        return types;
+    }
+
+    @Override
+    public void setTypes(List<BType> types) {
+        this.types = types;
+    }
 }

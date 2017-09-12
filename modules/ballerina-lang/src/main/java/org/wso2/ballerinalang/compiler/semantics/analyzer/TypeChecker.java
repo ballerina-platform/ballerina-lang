@@ -20,12 +20,12 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -33,7 +33,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -170,14 +173,61 @@ public class TypeChecker extends BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTypeCastExpr castExpr) {
+        BType targetType = symResolver.resolveTypeNode(castExpr.typeNode, env);
+        BType sourceType = checkExpr(castExpr.expr, env, Lists.of(symTable.noType)).get(0);
+
+        // Lookup type explicit cast operator symbol
+        BSymbol symbol = symResolver.resolveExplicitCastOperator(castExpr.pos, sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            castExpr.type = symTable.errType;
+            return;
+        }
+
+        BCastOperatorSymbol castSym = (BCastOperatorSymbol) symbol;
+        // If this cast is an unsafe cast, then there MUST to be two l variables
+        // resulting two expected types
+        // If this is an safe cast, then the error variable is optional
+        if (!castSym.safe && expTypes.size() < 2) {
+            dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CAST_ATTEMPT, sourceType, targetType);
+        } else if (castSym.safe && expTypes.size() < 2) {
+            expTypes.add(symTable.errStructType);
+        }
+
+        resultTypes = checkTypes(castExpr, castSym.type.getReturnTypes(), expTypes);
+    }
+
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        throw new AssertionError();
+    }
+
 
     // Private methods
 
-    private BType checkType(BLangNode node, BType type, BType expType) {
+    private List<BType> checkTypes(BLangExpression node, List<BType> types, List<BType> expTypes) {
+        checkAssignmentMismatch(node, expTypes);
+        if (types.size() != expTypes.size()) {
+            dlog.error(node.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expTypes.size(), types.size());
+        }
+
+        List<BType> resTypes = new ArrayList<>();
+        for (int i = 0; i < types.size(); i++) {
+            resTypes.add(checkType(node, types.get(i), expTypes.get(i)));
+        }
+
+        if (node.isMultiReturnExpr()) {
+            MultiReturnExpr multiReturnExpr = (MultiReturnExpr) node;
+            multiReturnExpr.setTypes(resTypes);
+        }
+
+        return resTypes;
+    }
+
+    private BType checkType(BLangExpression node, BType type, BType expType) {
         return checkType(node, type, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
-    private BType checkType(BLangNode node, BType type, BType expType, DiagnosticCode diagCode) {
+    private BType checkType(BLangExpression node, BType type, BType expType, DiagnosticCode diagCode) {
         node.type = type;
         if (expType.tag == TypeTags.ERROR) {
             return expType;

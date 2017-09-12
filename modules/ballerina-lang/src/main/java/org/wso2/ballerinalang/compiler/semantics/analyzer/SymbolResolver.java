@@ -89,6 +89,21 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
+    public BSymbol resolveExplicitCastOperator(DiagnosticPos pos,
+                                                BType sourceType,
+                                                BType targetType) {
+        ScopeEntry entry = symTable.rootScope.lookup(Names.CAST_OP);
+        List<BType> types = new ArrayList<>(2);
+        types.add(sourceType);
+        types.add(targetType);
+
+        BSymbol symbol = resolveOperator(entry, types);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        }
+        return symbol;
+    }
+
     public BSymbol resolveBinaryOperator(DiagnosticPos pos,
                                          OperatorKind opKind,
                                          BType lhsType,
@@ -123,11 +138,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
-        visitBuiltInTypeNode(valueTypeNode.pos, valueTypeNode.typeKind);
+        visitBuiltInTypeNode(valueTypeNode, valueTypeNode.typeKind);
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        visitBuiltInTypeNode(builtInRefType.pos, builtInRefType.typeKind);
+        visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {
@@ -202,13 +217,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    private void visitBuiltInTypeNode(DiagnosticPos pos, TypeKind typeKind) {
+    private void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind) {
         Name typeName = names.fromTypeKind(typeKind);
         BSymbol typeSymbol = lookupSymbol(symTable.rootScope, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, diagCode, typeName);
+            dlog.error(typeNode.pos, diagCode, typeName);
         }
 
-        resultType = typeSymbol.type;
+        resultType = typeNode.type = typeSymbol.type;
     }
 }

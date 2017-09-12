@@ -18,7 +18,7 @@
 package org.ballerinalang.util.diagnostic;
 
 /**
- * This clas contains a list of diagnostic codes.
+ * This class contains a list of diagnostic codes.
  *
  * @since 0.94
  */
@@ -31,7 +31,13 @@ public enum DiagnosticCode {
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
     SELF_REFERENCE_VAR("self.reference.var"),
-    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch");
+    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
+
+    // Cast and conversion related codes
+    INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
+    UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
+    UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt")
+    ;
 
     private String value;
 

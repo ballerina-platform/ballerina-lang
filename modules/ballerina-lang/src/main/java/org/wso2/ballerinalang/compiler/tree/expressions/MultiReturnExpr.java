@@ -15,23 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
+import java.util.List;
 
 /**
- * (string) a
- *
  * @since 0.94
  */
-public interface TypeCastNode extends ExpressionNode {
+public interface MultiReturnExpr extends ExpressionNode {
 
-    ExpressionNode getExpression();
+    List<BType> getTypes();
 
-    void setExpression(ExpressionNode expressionNode);
-
-    TypeNode getTypeNode();
-
-    void setTypeNode(TypeNode typeNode);
-
+    void setTypes(List<BType> types);
 }

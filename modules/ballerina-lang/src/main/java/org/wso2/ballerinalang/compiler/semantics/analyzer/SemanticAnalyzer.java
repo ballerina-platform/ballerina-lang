@@ -87,7 +87,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         // First visit all the imported packages
 
-        SymbolEnv pkgEnv = SymbolEnv.getPkgEnv(pkgNode,
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
                 pkgNode.symbol.scope, symTable.rootPkgNode);
 
         // Then visit each top-level element sorted using the compilation unit

@@ -47,7 +47,6 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -82,8 +81,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -551,11 +550,13 @@ public class BLangPackageBuilder {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         if (argsAvailable) {
-            invocationNode.argsExpressions = exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
         }
+
         BLangNameReference nameReference = nameReferenceStack.pop();
-        invocationNode.functionName = nameReference.name;
-        invocationNode.packIdentifier = nameReference.pkgAlias;
+        invocationNode.functionName = (BLangIdentifier) nameReference.name;
+        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         addExpressionNode(invocationNode);
     }
 
@@ -563,11 +564,13 @@ public class BLangPackageBuilder {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         if (argsAvailable) {
-            invocationNode.argsExpressions = exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
         }
-        invocationNode.variableReferenceNode = (VariableReferenceNode) exprNodeStack.pop();
-        invocationNode.functionName = createIdentifier(invocation);
-        invocationNode.packIdentifier = createIdentifier(null);
+
+        invocationNode.variableReferenceNode = (BLangVariableReference) exprNodeStack.pop();
+        invocationNode.functionName = (BLangIdentifier) createIdentifier(invocation);
+        invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
     }
 
@@ -597,15 +600,15 @@ public class BLangPackageBuilder {
     }
 
     public void createTypeCastExpr(DiagnosticPos pos) {
-        BLangTypeCast typeCastNode = (BLangTypeCast) TreeBuilder.createTypeCastNode();
+        BLangTypeCastExpr typeCastNode = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
         typeCastNode.pos = pos;
-        typeCastNode.expr = exprNodeStack.pop();
-        typeCastNode.typeName = typeNodeStack.pop();
+        typeCastNode.expr = (BLangExpression) exprNodeStack.pop();
+        typeCastNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeCastNode);
     }
 
     public void createTypeConversionExpr(DiagnosticPos pos) {
-        BLangTypeConversion typeConversionNode = (BLangTypeConversion) TreeBuilder.createTypeConversionNode();
+        BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.expr = exprNodeStack.pop();
         typeConversionNode.typeName = typeNodeStack.pop();

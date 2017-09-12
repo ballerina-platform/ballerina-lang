@@ -67,9 +67,9 @@ public class SymbolEnv {
         target.enclEnv = this;
     }
 
-    public static SymbolEnv getPkgEnv(BLangPackage node,
-                                      Scope scope,
-                                      BLangPackage rootPkgNode) {
+    public static SymbolEnv createPkgEnv(BLangPackage node,
+                                         Scope scope,
+                                         BLangPackage rootPkgNode) {
         SymbolEnv env = new SymbolEnv(node, scope);
         env.enclPkg = rootPkgNode;
         return env;
