@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.natives;
 
+import org.ballerinalang.model.types.TypeKind;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,14 +28,103 @@ import java.util.Map;
  */
 public class NativeElementRepository {
 
-    private Map<NativeElementKey, String> entries = new HashMap<>();
+    private Map<String, NativeFunctionDef> nativeFuncEntries = new HashMap<>();
+    
+    private Map<String, NativeActionDef> nativeActionEntries = new HashMap<>();
+    
+    public void registerNativeFunction(NativeFunctionDef nativeFuncDef) {
+        this.nativeFuncEntries.put(functionToKey(nativeFuncDef.getPkgName(), 
+                nativeFuncDef.getCallableName()), nativeFuncDef);
+    }
+    
+    public void registerNativeAction(NativeActionDef nativeActionDef) {
+        this.nativeActionEntries.put(actionToKey(nativeActionDef.getPkgName(), 
+                nativeActionDef.getConnectorName(), nativeActionDef.getCallableName()), nativeActionDef);
+    }
+    
+    public static String functionToKey(String pkgName, String functionName) {
+        return "F#" + pkgName + "#" + functionName;
+    }
+    
+    public static String actionToKey(String pkgName, String connectorName, String actionName) {
+        return "A#" + pkgName + "#" + connectorName + "#" + actionName;
+    }
+    
+    public NativeFunctionDef lookupNativeFunction(String pkgName, String functionName) {
+        return this.nativeFuncEntries.get(functionToKey(pkgName, functionName));
+    }
+    
+    public NativeActionDef lookupNativeAction(String pkgName, String connectorName, String actionName) {
+        return this.nativeActionEntries.get(actionToKey(pkgName, connectorName, actionName));
+    }
+
+    /**
+     * This class represents a native function definition.
+     * 
+     * @since 0.94
+     */
+    public static class NativeFunctionDef {
+
+        private String pkgName;
         
-    public void addEntry(NativeElementKey key, String className) {
-        this.entries.put(key, className);
+        private String callableName;
+        
+        private String className;
+        
+        private TypeKind[] argTypes;
+        
+        private TypeKind[] retTypes;
+        
+        public NativeFunctionDef(String pkgName, String callableName, TypeKind[] argTypes, 
+                TypeKind[] retTypes, String className) {
+            this.pkgName = pkgName;
+            this.callableName = callableName;
+            this.argTypes = argTypes;
+            this.retTypes = retTypes;
+            this.className = className;
+        }
+
+        public String getPkgName() {
+            return pkgName;
+        }
+
+        public String getCallableName() {
+            return callableName;
+        }
+        
+        public String getClassName() {
+            return className;
+        }
+        
+        public TypeKind[] getArgTypes() {
+            return argTypes;
+        }
+        
+        public TypeKind[] getRetTypes() {
+            return retTypes;
+        }
+        
     }
     
-    public String lookupEntry(NativeElementKey key) {
-        return this.entries.get(key);
+    /**
+     * This class represents a native action definition.
+     * 
+     * @since 0.94
+     */
+    public static class NativeActionDef extends NativeFunctionDef {
+
+        private String connectorName;
+        
+        public NativeActionDef(String pkgName, String connectorName, String actionDef, 
+                TypeKind[] argTypes, TypeKind[] retTypes, String className) {
+            super(pkgName, actionDef, argTypes, retTypes, className);
+            this.connectorName = connectorName;
+        }
+
+        public String getConnectorName() {
+            return connectorName;
+        }
+        
     }
-    
+
 }
