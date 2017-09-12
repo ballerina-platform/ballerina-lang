@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * HTTP connector listener for Ballerina.
  */
@@ -36,8 +39,14 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        ConnectorFuture future = Executor.submit(HttpDispatcher.findResource(httpCarbonMessage),
-                httpCarbonMessage);
+        Resource resource = HttpDispatcher.findResource(httpCarbonMessage);
+        Map<String, Object> properties = null;
+        if (httpCarbonMessage.getProperty(Constants.SRC_HANDLER) != null) {
+            Object srcHandler = httpCarbonMessage.getProperty(Constants.SRC_HANDLER);
+            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        }
+        ConnectorFuture future = Executor.submit(resource,
+                properties, HttpDispatcher.getSignatureParameters(resource, httpCarbonMessage));
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(HttpDispatcher
                 .getCallback(httpCarbonMessage));
         future.setConnectorFutureListener(futureListener);

@@ -27,10 +27,10 @@ import org.ballerinalang.model.values.BValue;
 public class BallerinaWorkerThread implements Runnable {
 
     private Resource resource;
-    private ConnectorFuture connectorFuture;
+    private BConnectorFuture connectorFuture;
     private BValue[] values;
 
-    public BallerinaWorkerThread(Resource resource, ConnectorFuture connectorFuture, BValue... values) {
+    public BallerinaWorkerThread(Resource resource, BConnectorFuture connectorFuture, BValue... values) {
         this.resource = resource;
         this.connectorFuture = connectorFuture;
         this.values = values;

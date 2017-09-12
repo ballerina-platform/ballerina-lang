@@ -52,7 +52,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
         if (onHandshakeResource != null) {
             BValue[] bValues = new BValue[0];
-            ConnectorFuture future = Executor.submit(onHandshakeResource, bValues);
+            ConnectorFuture future = Executor.submit(onHandshakeResource, null, bValues);
             future.setConnectorFutureListener(new ConnectorFutureListener() {
                 @Override
                 public void notifySuccess(BValue response) {
@@ -98,7 +98,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
             wsTextFrame.setBooleanField(0, 0);
         }
         BValue[] bValues = {wsConnection, wsTextFrame};
-        Executor.submit(onTextMessageResource, bValues);
+        Executor.submit(onTextMessageResource, null, bValues);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         wsCloseFrame.setStringField(0, webSocketCloseMessage.getCloseReason());
 
         BValue[] bValues = {wsConnection, wsCloseFrame};
-        Executor.submit(onCloseResource, bValues);
+        Executor.submit(onCloseResource, null, bValues);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
             if (onOpenResource == null) {
                 return;
             }
-            Executor.submit(onOpenResource, bValues);
+            Executor.submit(onOpenResource, null, bValues);
         } catch (ProtocolException e) {
             throw new BallerinaException("Error occurred during handshake");
         }

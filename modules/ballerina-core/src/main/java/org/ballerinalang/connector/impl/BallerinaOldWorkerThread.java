@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.connector.impl;
 
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Resource;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.model.values.BValue;
+
+import java.util.Map;
 
 /**
  * Worker Thread which is responsible for request processing.
@@ -28,17 +28,19 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class BallerinaOldWorkerThread implements Runnable {
 
     private Resource resource;
-    private CarbonMessage resourceMessage;
+    private BValue[] bValues;
     private BConnectorFuture connectorFuture;
+    private Map<String, Object> properties;
 
-    public BallerinaOldWorkerThread(Resource resource, CarbonMessage carbonMessage,
-                                    BConnectorFuture connectorFuture) {
+    public BallerinaOldWorkerThread(Resource resource, BConnectorFuture connectorFuture,
+                                    Map<String, Object> properties, BValue... bValues) {
         this.resource = resource;
-        this.resourceMessage = carbonMessage;
         this.connectorFuture = connectorFuture;
+        this.properties = properties;
+        this.bValues = bValues;
     }
 
     public void run() {
-        ResourceExecutor.execute(resource, connectorFuture, resourceMessage);
+        ResourceExecutor.execute(resource, connectorFuture, properties, bValues);
     }
 }
