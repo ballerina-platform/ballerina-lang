@@ -145,11 +145,8 @@ class TransformExpanded extends React.Component {
     createConnection(statement) {
         const viewId = this.props.model.getID();
 
-        if (ASTFactory.isCommentStatement(statement)) {
-            return;
-        }
-
-        if (ASTFactory.isVariableDefinitionStatement(statement)) {
+        if (ASTFactory.isCommentStatement(statement)
+            || (ASTFactory.isVariableDefinitionStatement(statement))) {
             return;
         }
 
@@ -161,8 +158,7 @@ class TransformExpanded extends React.Component {
         // There can be multiple left expressions.
         // E.g. : e.name, e.username = p.first_name;
         const leftExpression = statement.getLeftExpression();
-        const rightExpression = this.transformNodeManager
-                                    .getMappingExpression(statement.getRightExpression());
+        const rightExpression = this.transformNodeManager.getResolvedExpression(statement.getRightExpression(), statement);
 
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
@@ -307,7 +303,7 @@ class TransformExpanded extends React.Component {
             } else {
                 let target;
                 let source;
-                expression = this.transformNodeManager.getMappingExpression(expression);
+                expression = this.transformNodeManager.getResolvedExpression(expression, statement);
                 if (ASTFactory.isKeyValueExpression(expression.children[0])) {
                 // if parameter is a key value expression, iterate each expression and draw connections
                     _.forEach(expression.children, (propParam) => {
@@ -320,7 +316,7 @@ class TransformExpanded extends React.Component {
                         this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                     });
                 } else {
-                    expression = this.transformNodeManager.getMappingExpression(expression);
+                    expression = this.transformNodeManager.getResolvedExpression(expression);
                     let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                     let folded = false;
                     if (!this.sourceElements[sourceId]) {
@@ -631,13 +627,11 @@ class TransformExpanded extends React.Component {
             this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
             this.transformOverlayDraggingContentDiv.classList.add('drop-valid');
         }
-        console.log(isValid);
     }
 
     onTransformDropZoneActivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model;
-        const model = this.props.model;
 
         if (dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
@@ -1027,7 +1021,7 @@ class TransformExpanded extends React.Component {
                     return;
                 }
                 let rightExpression = child.getRightExpression();
-                rightExpression = this.transformNodeManager.getMappingExpression(rightExpression);
+                rightExpression = this.transformNodeManager.getResolvedExpression(rightExpression, child);
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
                     const funcInvs = this.findFunctionInvocations(rightExpression);

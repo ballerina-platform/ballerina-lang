@@ -173,57 +173,6 @@ class TransformNodeManager {
         target.funcInv.addChild(source.funcInv, target.index);
     }
 
-    getTempVertexExpression(sourceExpression, assignmentStmtIndex) {
-        const tempVarName = this.getTempVarName(sourceExpression);
-        this.insertExplicitAssignmentStatement(tempVarName, sourceExpression, assignmentStmtIndex - 1);
-        const tempVarRefExpr = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-        tempVarRefExpr.setExpressionFromString(tempVarName);
-        return tempVarRefExpr;
-    }
-
-    getTempVarName(sourceExpression) {
-        const varNameRegex = new RegExp('__temp[\\d]*');
-        const assignmentStmts = this._transformStmt.filterChildren(BallerinaASTFactory.isAssignmentStatement);
-        const tempVarIdentifiers = [];
-        let tempVarFound;
-        assignmentStmts.forEach((assStmt) => {
-            const rightExp = assStmt.getRightExpression();
-            assStmt.getLeftExpression().getChildren().forEach((leftExpr) => {
-                if (varNameRegex.test(leftExpr.getExpressionString())) {
-                    if (rightExp.getExpressionString() === sourceExpression.getExpressionString()) {
-                        tempVarFound = leftExpr;
-                    } else {
-                        tempVarIdentifiers.push(leftExpr.getExpressionString());
-                    }
-                }
-            });
-        });
-
-        if (tempVarFound) {
-            return tempVarFound;
-        }
-
-        tempVarIdentifiers.sort();
-        let index = 1;
-        if (tempVarIdentifiers.length > 0) {
-            index = Number.parseInt(tempVarIdentifiers[tempVarIdentifiers.length - 1].substring(6), 10) + 1;
-        }
-        return '__temp' + index;
-    }
-
-    insertExplicitAssignmentStatement(tempVarName, sourceExpression, index) {
-        const tempVarAssignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-        const varRefList = BallerinaASTFactory.createVariableReferenceList();
-        varRefList.setExpressionFromString(tempVarName);
-        tempVarAssignmentStmt.addChild(varRefList, 0);
-        tempVarAssignmentStmt.addChild(sourceExpression, 1);
-        tempVarAssignmentStmt.setIsDeclaredWithVar(true);
-        const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
-        varRefList.addChild(errorVarRef);
-        index = (index < 0) ? 0 : index;
-        this._transformStmt.addChild(tempVarAssignmentStmt, index, true);
-    }
-
     /**
      * Remove statement edge based on the removed connection
      * @param {any} connection connection removed
@@ -464,29 +413,16 @@ class TransformNodeManager {
      * that needs to be mapped in the view. Similarly if the source is a temp variable,
      * corresponding expression that needs to be mapped is also found here.
      * @param {Expression} expression lhs or rhs expression
-     * @param {boolean} isTempResolved should the mapping for temp vars be resolved
      * @returns {Expression} mapping expression
      * @memberof TransformNodeManager
      */
-    getMappingExpression(expression, isTempResolved = true) {
-        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
-            return expression;
+    getResolvedExpression(expression, statement) {
+        const mapExp = this._mapper.getMappableExpression(expression);
+        if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)
+            && this._mapper.isTempVariable(mapExp, statement)) {
+            return this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp));
         }
-        if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
-            if (isTempResolved && (expression.getVariableName().startsWith('__temp'))) {
-                const assignmentStmt = this.findAssignedVertexForTemp(expression);
-                if (assignmentStmt) {
-                    return this.getMappingExpression(assignmentStmt.getRightExpression());
-                }
-                return expression;
-            }
-            return expression;
-        }
-        if (BallerinaASTFactory.isTypeConversionExpression(expression) ||
-                BallerinaASTFactory.isTypeCastExpression(expression)) {
-            return expression.getRightExpression();
-        }
-        return expression;
+        return mapExp;
     }
 
     findTempVarUsages(tempVarName) {
