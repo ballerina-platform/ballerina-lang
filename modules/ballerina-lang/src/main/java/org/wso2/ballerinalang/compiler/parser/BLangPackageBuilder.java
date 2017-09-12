@@ -648,8 +648,11 @@ public class BLangPackageBuilder {
         worker.pos = pos;
         worker.setBody(this.blockNodeStack.pop());
         if (this.forkJoinNodesStack.empty()) {
-            this.invokableNodeStack.peek().addWorker(worker);
-            this.invokableNodeStack.peek().addFlag(Flag.PARALLEL);
+            InvokableNode invokableNode = this.invokableNodeStack.peek();
+            invokableNode.getParameters().forEach(worker::addParameter);
+            invokableNode.getReturnParameters().forEach(worker::addReturnParameter);
+            invokableNode.addWorker(worker);
+            invokableNode.addFlag(Flag.PARALLEL);
         } else {
             ((BLangForkJoin) this.forkJoinNodesStack.peek()).workers.add(worker);
         }
