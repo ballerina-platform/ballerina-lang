@@ -111,8 +111,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCast;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -268,11 +268,11 @@ public class TreeBuilder {
     }
 
     public static TypeCastNode createTypeCastNode() {
-        return new BLangTypeCast();
+        return new BLangTypeCastExpr();
     }
 
     public static TypeConversionNode createTypeConversionNode() {
-        return new BLangTypeConversion();
+        return new BLangTypeConversionExpr();
     }
 
     public static UnaryExpressionNode createUnaryExpressionNode() {

@@ -21,59 +21,52 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ACTION;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CONNECTOR;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.FUNCTION;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.RESOURCE;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.SERVICE;
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.STRUCT;
-
 /**
  * @since 0.94
  */
 public class Symbols {
 
     public static BTypeSymbol createStructSymbol(Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(STRUCT, name, type, owner);
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.STRUCT, name, type, owner);
         typeSymbol.kind = SymbolKind.STRUCT;
         return typeSymbol;
     }
 
     public static BTypeSymbol createConnectorSymbol(Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(CONNECTOR, name, type, owner);
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.CONNECTOR, name, type, owner);
         typeSymbol.kind = SymbolKind.CONNECTOR;
         return typeSymbol;
     }
 
     public static BTypeSymbol createServiceSymbol(Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SERVICE, name, type, owner);
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SERVICE, name, type, owner);
         typeSymbol.kind = SymbolKind.SERVICE;
         return typeSymbol;
     }
 
     public static BInvokableSymbol createFunctionSymbol(Name name, BType type, BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(FUNCTION, name, type, owner);
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, name, type, owner);
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
     }
 
     public static BInvokableSymbol createActionSymbol(Name name, BType type, BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(ACTION, name, type, owner);
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.ACTION, name, type, owner);
         symbol.kind = SymbolKind.ACTION;
         return symbol;
     }
 
     public static BInvokableSymbol createResourceSymbol(Name name, BType type, BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(RESOURCE, name, type, owner);
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, name, type, owner);
         symbol.kind = SymbolKind.RESOURCE;
         return symbol;
     }
 
-    public static BTypeSymbol createTypeSymbol(int kind,
+    public static BTypeSymbol createTypeSymbol(int symTag,
                                                Name name,
                                                BType type,
                                                BSymbol owner) {
-        return new BTypeSymbol(kind, name, type, owner);
+        return new BTypeSymbol(symTag, name, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,

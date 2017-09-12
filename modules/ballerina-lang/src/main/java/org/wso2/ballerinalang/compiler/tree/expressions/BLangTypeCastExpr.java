@@ -19,32 +19,38 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypeConversionNode;
+import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangTypeConversion extends BLangExpression implements TypeConversionNode {
+public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, MultiReturnExpr {
 
-    public ExpressionNode expr;
-    public TypeNode typeName;
+    public BLangExpression expr;
+    public BLangType typeNode;
+    public List<BType> types = new ArrayList<>(0);
 
     public ExpressionNode getExpression() {
         return expr;
     }
 
     public void setExpression(ExpressionNode expr) {
-        this.expr = expr;
+        this.expr = (BLangExpression) expr;
     }
 
-    public TypeNode getTypeName() {
-        return typeName;
+    public BLangType getTypeNode() {
+        return typeNode;
     }
 
-    public void setTypeName(TypeNode typeName) {
-        this.typeName = typeName;
+    public void setTypeNode(TypeNode typeNode) {
+        this.typeNode = (BLangType) typeNode;
     }
 
     public boolean isMultiReturnExpr() {
@@ -53,7 +59,7 @@ public class BLangTypeConversion extends BLangExpression implements TypeConversi
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TYPE_CONVERSION_EXPR;
+        return NodeKind.TYPE_CAST_EXPR;
     }
 
     @Override
@@ -63,7 +69,16 @@ public class BLangTypeConversion extends BLangExpression implements TypeConversi
 
     @Override
     public String toString() {
-        return "<" + String.valueOf(typeName) + "> " + String.valueOf(expr);
+        return "(" + String.valueOf(typeNode) + ") " + String.valueOf(expr);
     }
 
+    @Override
+    public List<BType> getTypes() {
+        return types;
+    }
+
+    @Override
+    public void setTypes(List<BType> types) {
+        this.types = types;
+    }
 }
