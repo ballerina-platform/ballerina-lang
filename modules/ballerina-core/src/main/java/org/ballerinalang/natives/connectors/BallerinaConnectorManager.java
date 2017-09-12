@@ -18,6 +18,7 @@
 package org.ballerinalang.natives.connectors;
 
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
@@ -87,7 +88,7 @@ public class BallerinaConnectorManager {
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
-        if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
+        if (System.getProperty(Constants.HTTP_TRACELOG) != null) {
             try {
                 ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
             } catch (IOException e) {
@@ -168,7 +169,7 @@ public class BallerinaConnectorManager {
             }
         }
 
-        if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
+        if (System.getProperty(Constants.HTTP_TRACELOG) != null) {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
@@ -330,7 +331,7 @@ public class BallerinaConnectorManager {
         SenderConfiguration senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
 
-        if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
+        if (System.getProperty(Constants.HTTP_TRACELOG) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
 

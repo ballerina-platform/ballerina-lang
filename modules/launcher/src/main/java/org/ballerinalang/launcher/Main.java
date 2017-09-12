@@ -18,13 +18,13 @@
 
 package org.ballerinalang.launcher;
 
-import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -232,7 +231,7 @@ public class Main {
             }
 
             if (httpTraceLogEnabled) {
-                System.setProperty(BLogManager.HTTP_TRACE_LOGGER, BLogManager.LOG_DEST_CONSOLE);
+                System.setProperty(Constants.HTTP_TRACELOG, Constants.LOG_DEST_CONSOLE);
             }
 
             if(logLevel != null) {

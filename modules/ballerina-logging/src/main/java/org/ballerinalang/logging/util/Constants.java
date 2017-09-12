@@ -23,6 +23,9 @@ package org.ballerinalang.logging.util;
  */
 public class Constants {
 
+    /* LOG DESTINATIONS */
+    public static final String LOG_DEST_CONSOLE = "__console";
+
     /* HANDLERS */
     public static final String JUL_CONSOLE_HANDLER = "java.util.logging.ConsoleHandler";
     public static final String JUL_CONSOLE_HANDLER_LEVEL = JUL_CONSOLE_HANDLER + ".level";

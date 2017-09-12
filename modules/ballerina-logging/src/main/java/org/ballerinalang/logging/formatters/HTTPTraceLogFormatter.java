@@ -34,8 +34,11 @@ import java.util.logging.LogRecord;
  */
 public class HTTPTraceLogFormatter extends Formatter {
 
-    private static String format = BLogManager.getLogManager().getProperty(
-            HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
+    private final String format;
+
+    public HTTPTraceLogFormatter() {
+        format = BLogManager.getLogManager().getProperty(HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
+    }
 
     @Override
     public String format(LogRecord record) {
