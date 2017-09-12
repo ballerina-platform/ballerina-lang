@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.siddhi</groupId>
         <artifactId>siddhi</artifactId>
-        <version>4.0.0-M69</version>
+        <version>4.0.0-M70-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
