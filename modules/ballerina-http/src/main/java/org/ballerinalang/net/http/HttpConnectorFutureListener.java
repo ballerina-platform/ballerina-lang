@@ -37,7 +37,9 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifySuccess(CarbonMessage carbonMessage) {
-
+        if (carbonCallback != null) {
+            carbonCallback.done(carbonMessage);
+        }
     }
 
     @Override

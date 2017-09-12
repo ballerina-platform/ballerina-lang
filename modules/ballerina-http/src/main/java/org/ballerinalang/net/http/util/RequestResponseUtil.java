@@ -47,6 +47,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 

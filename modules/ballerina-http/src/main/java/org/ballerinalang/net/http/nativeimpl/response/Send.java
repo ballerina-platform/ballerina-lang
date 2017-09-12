@@ -56,7 +56,7 @@ public class Send extends AbstractNativeFunction {
         BStruct requestStruct = (BStruct) getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(Constants.TRANSPORT_MESSAGE);
-        context.getBalCallback().done(httpCarbonMessage);
+        context.getConnectorFuture().notifySuccess(httpCarbonMessage);
         return VOID_RETURN;
     }
 }
