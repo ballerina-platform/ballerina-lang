@@ -18,14 +18,11 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.connector.impl.BConnectorFuture;
-import org.ballerinalang.connector.impl.BallerinaOldWorkerThread;
 import org.ballerinalang.connector.impl.BallerinaWorkerThread;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
 
@@ -63,8 +60,8 @@ public class Executor {
      */
     public static ConnectorFuture submit(Resource resource, BValue... values) {
         BConnectorFuture connectorFuture = new BConnectorFuture();
-        ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaWorkerThread(resource, connectorFuture, values));
+//        ThreadPoolFactory.getInstance().getExecutor().
+//                execute(new BallerinaWorkerThread(resource, connectorFuture, values));
         return connectorFuture;
     }
 
@@ -79,7 +76,7 @@ public class Executor {
     public static ConnectorFuture submit(Resource resource, Map<String, Object> properties, BValue... values) {
         BConnectorFuture connectorFuture = new BConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaOldWorkerThread(resource, connectorFuture, properties, values));
+                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, values));
         return connectorFuture;
     }
 

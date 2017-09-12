@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code BConnectorFuture} This is the implementation for the {@code ConnectorFuture} API.
@@ -33,71 +33,36 @@ public class BConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
 
     private BValue response;
-    private BallerinaConnectorException ex;
-
-    private CarbonMessage tempResMsg;
-    private CarbonMessage tempErrorMsg;
-    private Exception exTemp;
+    private BallerinaException ex;
 
     @Override
     public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
         this.connectorFutureListener = futureListener;
-//        if (response != null) {
-//            connectorFutureListener.notifySuccess(response);
-//        } else if (ex != null) {
-//            connectorFutureListener.notifyFailure(ex);
-//        }
-//        response = null;
-//        ex = null;
-        //Temp logic until full migration
-        if (tempResMsg != null) {
-            connectorFutureListener.notifySuccess(tempResMsg);
-        } else if (exTemp != null) {
-            connectorFutureListener.notifyFailure(exTemp, tempErrorMsg);
+        if (response != null) {
+            connectorFutureListener.notifyReply(response);
+        } else if (ex != null) {
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
         }
-        tempResMsg = null;
-        tempErrorMsg = null;
-        exTemp = null;
+        response = null;
+        ex = null;
     }
 
-    public void notifySuccess(BValue response) {
+    public void notifyReply(BValue response) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
-            connectorFutureListener.notifySuccess(response);
+            connectorFutureListener.notifyReply(response);
         } else {
             this.response = response;
         }
     }
 
-    public void notifyFailure(BallerinaConnectorException ex) {
+    public void notifyFailure(BallerinaException ex) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
-            connectorFutureListener.notifyFailure(ex);
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
         } else {
             ErrorHandlerUtils.printError(ex);
             this.ex = ex;
-        }
-    }
-
-    //Temp methods until the full migration
-    public void notifySuccess(CarbonMessage carbonMessage) {
-        //if the future listener already exist, notify right away. if not store until listener registration.
-        if (connectorFutureListener != null) {
-            connectorFutureListener.notifySuccess(carbonMessage);
-        } else {
-            this.tempResMsg = carbonMessage;
-        }
-    }
-
-    //Temp methods until the full migration
-    public void notifyFailure(Exception ex, CarbonMessage carbonMessage) {
-        //if the future listener already exist, notify right away. if not store until listener registration.
-        if (connectorFutureListener != null) {
-            connectorFutureListener.notifyFailure(ex, carbonMessage);
-        } else {
-            ErrorHandlerUtils.printError(ex);
-            this.tempErrorMsg = carbonMessage;
-            this.exTemp = ex;
         }
     }
 

@@ -27,10 +27,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.net.http.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Native function to add given header to carbon message.
@@ -54,9 +52,7 @@ public class Send extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-        context.getConnectorFuture().notifySuccess(httpCarbonMessage);
+        context.getConnectorFuture().notifyReply(requestStruct);
         return VOID_RETURN;
     }
 }

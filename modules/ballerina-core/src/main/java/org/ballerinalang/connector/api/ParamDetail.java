@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.model.types.BType;
 
 /**
- * This is the object of local variable info with limited attributes.
+ * This is the object which holds resource parameter details.
  *
  * @since 0.94
  */
@@ -34,10 +33,20 @@ public class ParamDetail {
         this.varName = variableName;
     }
 
+    /**
+     * This method will return parameter name.
+     *
+     * @return varName parameter name.
+     */
     public String getVarName() {
         return varName;
     }
 
+    /**
+     * This method will return parameter type.
+     *
+     * @return varType parameter type.
+     */
     public BType getVarType() {
         return varType;
     }

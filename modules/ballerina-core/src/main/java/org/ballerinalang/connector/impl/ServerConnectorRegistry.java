@@ -110,10 +110,8 @@ public class ServerConnectorRegistry {
             BResource resource = buildResource(resourceInfo);
             service.addResource(resource.getName(), resource);
         }
-        //todo
         return service;
     }
-
 
     private BResource buildResource(ResourceInfo resourceInfo) {
         BResource resource = new BResource(resourceInfo.getName(), resourceInfo);
@@ -125,7 +123,6 @@ public class ServerConnectorRegistry {
                 resource.addAnnotation(annotation.getKey(), annotation);
             }
         }
-
         return resource;
     }
 
@@ -137,7 +134,6 @@ public class ServerConnectorRegistry {
             AnnAttrValue annotationValue = getAttributeValue(attributeValue);
             annotation.addAnnotationValue(keyValuePair.getAttributeName(), annotationValue);
         }
-
         return annotation;
     }
 
@@ -176,7 +172,6 @@ public class ServerConnectorRegistry {
                 annotationValue.setAnnotationValueArray(annotationValues);
                 break;
             default:
-
         }
         return annotationValue;
     }

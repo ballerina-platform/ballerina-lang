@@ -19,9 +19,7 @@ package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.runtime.ServerConnectorMessageHandler;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
 /**
