@@ -9,12 +9,33 @@ export function withReRenderSupport(View, pluginID) {
          */
         constructor(props, context) {
             super(props, context);
+            this.onPluginReRender = this.onPluginReRender.bind(this);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        componentDidMount() {
             const { on } = this.context.command;
-            on(COMMANDS.RE_RENDER_PLUGIN, ({id}) => {
-                if (id === pluginID) {
-                    this.forceUpdate();
-                }
-            });
+            on(COMMANDS.RE_RENDER_PLUGIN, this.onPluginReRender);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        componentWillUnmount() {
+            const { off } = this.context.command;
+            off(COMMANDS.RE_RENDER_PLUGIN, this.onPluginReRender);
+        }
+
+        /**
+         * Invoked when a plugin wants to re-render
+         * @param {Object} command args
+         */
+        onPluginReRender({ id }) {
+            if (id === pluginID) {
+                this.forceUpdate();
+            }
         }
 
          /**

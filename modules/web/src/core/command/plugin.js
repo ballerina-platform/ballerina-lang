@@ -44,6 +44,7 @@ class CommandPlugin extends Plugin {
         this.commandChannel = new CommandChannel();
         this.commands = [];
         return {
+            off: this.unRegisterHandler.bind(this),
             on: this.registerHandler.bind(this),
             dispatch: this.dispatch.bind(this),
             getCommands: () => { return this.commands; },

@@ -163,10 +163,12 @@ class App extends React.Component {
                     defaultSize={this.state.showLeftPanel ? this.state.leftPanelSize : 0}
                     onDragFinished={(size) => {
                         this.setLeftPanelState(true, size);
-                        this.leftRightSplitPane.setState({
-                            resized: false,
-                            draggedSize: undefined,
-                        });
+                        if (!_.isNil(this.leftRightSplitPane)) {
+                            this.leftRightSplitPane.setState({
+                                resized: false,
+                                draggedSize: undefined,
+                            });
+                        }
                     }
                     }
                     pane2Style={
@@ -178,10 +180,12 @@ class App extends React.Component {
                         height={this.state.documentHeight - (headerHeight)}
                         onActiveViewChange={
                             (newView) => {
-                                this.leftRightSplitPane.setState({
-                                    resized: false,
-                                    draggedSize: undefined,
-                                });
+                                if (!_.isNil(this.leftRightSplitPane)) {
+                                    this.leftRightSplitPane.setState({
+                                        resized: false,
+                                        draggedSize: undefined,
+                                    });
+                                }
                                 this.setLeftPanelState(!_.isNil(newView));
                             }
                         }
@@ -197,10 +201,12 @@ class App extends React.Component {
                         maxSize={bottomPanelMaxSize}
                         defaultSize={this.state.showBottomPanel ? this.state.bottomPanelSize : 0}
                         onDragFinished={(size) => {
-                            this.topBottomSplitPane.setState({
-                                resized: false,
-                                draggedSize: undefined,
-                            });
+                            if (!_.isNil(this.topBottomSplitPane)) {
+                                this.topBottomSplitPane.setState({
+                                    resized: false,
+                                    draggedSize: undefined,
+                                });
+                            }
                             this.setBottomPanelState(true, size);
                         }
                         }
@@ -227,10 +233,12 @@ class App extends React.Component {
                             onActiveViewChange={
                                 (newView) => {
                                     this.setBottomPanelState(!_.isNil(newView));
-                                    this.topBottomSplitPane.setState({
-                                        resized: false,
-                                        draggedSize: undefined,
-                                    });
+                                    if (!_.isNil(this.topBottomSplitPane)) {
+                                        this.topBottomSplitPane.setState({
+                                            resized: false,
+                                            draggedSize: undefined,
+                                        });
+                                    }
                                 }
                             }
                         >

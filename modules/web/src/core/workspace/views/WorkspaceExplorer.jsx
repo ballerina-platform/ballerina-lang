@@ -57,7 +57,7 @@ class WorkspaceExplorer extends View {
         });
         return (
             <div className="workspace-explorer">
-                {_.isEmpty(trees) && 
+                {_.isEmpty(trees) &&
                     <div className="open-folder-btn-wrapper" onClick={this.onClickOpenProgramDir} > 
                         <span className="open-folder-button">
                             <i className="fw fw-folder-open"></i>Open Program Directory
