@@ -37,7 +37,7 @@ export default class Operator extends React.Component {
         });
 
         const onRemove = () => {
-
+            opStmt.getParent().getParent().removeChild(opStmt.getParent());
         };
 
         return (
