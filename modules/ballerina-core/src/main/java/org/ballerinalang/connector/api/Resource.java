@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.connector.api;
 
-import org.ballerinalang.util.codegen.LocalVariableInfo;
+import java.util.List;
 
 /**
  * {@code Resource} This API provides the functionality to access Resource level details in the
@@ -51,10 +51,10 @@ public interface Resource {
     Annotation getAnnotation(String pkgPath, String name);
 
     /**
-     * This method will return localVariable info array of the resource.
+     * This method will return signature parameter info array of the resource with limited attributes.
      *
-     * @return localVariable info array.
+     * @return list of ParamDetail objects.
      */
-    LocalVariableInfo[] getLocalVariables();
+    List<ParamDetail> getParamDetails();
 
 }

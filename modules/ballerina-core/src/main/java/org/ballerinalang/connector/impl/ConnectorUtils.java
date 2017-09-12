@@ -29,6 +29,8 @@ import org.ballerinalang.util.codegen.StructInfo;
 
 /**
  * Utilities related to connector processing.
+ *
+ * @since 0.94
  */
 public class ConnectorUtils {
 

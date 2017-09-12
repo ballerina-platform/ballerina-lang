@@ -18,11 +18,15 @@
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@code BResource} This is the implementation for the {@code Resource} API.
@@ -66,9 +70,13 @@ public class BResource extends AbstractServiceResource  implements Resource {
     }
 
     @Override
-    public LocalVariableInfo[] getLocalVariables() {
+    public List<ParamDetail> getParamDetails() {
         LocalVariableAttributeInfo attributeInfo = (LocalVariableAttributeInfo) resourceInfo.getAttributeInfo
                 (AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-        return attributeInfo.getLocalVariableInfoEntries();
+        List<ParamDetail> paramDetails = new ArrayList();
+        for (LocalVariableInfo variableInfo : attributeInfo.getLocalVariableInfoEntries()) {
+            paramDetails.add(new ParamDetail(variableInfo.getVariableType(), variableInfo.getVariableName()));
+        }
+        return paramDetails;
     }
 }
