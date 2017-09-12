@@ -21,11 +21,14 @@ package org.wso2.siddhi.sample;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
+/**
+ * Sample Siddhi application that groups the events by symbol and calculates aggregates such as the sum for price and
+ * sum of volume for the last 5 seconds time window.
+ */
 public class TimeWindowSample {
 
     public static void main(String[] args) throws InterruptedException {
