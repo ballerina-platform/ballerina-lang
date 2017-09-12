@@ -117,7 +117,7 @@ class BottomPanel extends React.Component {
                         )
                     }
                     renderTabContent={() =>
-                        <TabContent />
+                        <TabContent animated={false} />
                     }
                 >
                     {tabs}
