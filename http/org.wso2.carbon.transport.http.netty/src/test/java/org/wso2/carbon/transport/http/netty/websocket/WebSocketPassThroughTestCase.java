@@ -32,7 +32,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestClient;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.net.ProtocolException;
@@ -42,14 +42,14 @@ import javax.net.ssl.SSLException;
 /**
  * Test cases for WebSocket pass-through scenarios.
  */
-public class WebSocketPassthoughTestCase extends WebSocketTestCase {
+public class WebSocketPassThroughTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT);
 
-    private WebSocketClient webSocketClient = new WebSocketClient();
+    private WebSocketTestClient webSocketClient = new WebSocketTestClient();
     private ServerConnector serverConnector;
 
     @BeforeClass

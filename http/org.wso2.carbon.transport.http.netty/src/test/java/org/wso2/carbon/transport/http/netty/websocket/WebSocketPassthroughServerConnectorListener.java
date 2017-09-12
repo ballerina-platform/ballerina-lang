@@ -53,18 +53,16 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
-            WSSenderConfiguration configuration = new WSSenderConfiguration();
             String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
-            configuration.setRemoteAddress(remoteUrl);
+            WSSenderConfiguration configuration = new WSSenderConfiguration(remoteUrl);
             configuration.setTarget("myService");
-            configuration.setWebSocketMessage(initMessage);
             WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
 
             WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
             Session clientSession = clientConnector.connect(connectorListener);
             Session serverSession = initMessage.handshake();
-            sessionsMap.put(serverSession.getId(), clientSession);
+            WebSocketPassThroughTestSessionManager.getInstance().interRelateSessions(serverSession, clientSession);
         } catch (ProtocolException | ClientConnectorException e) {
             logger.error("Error occurred during connection: " + e.getMessage());
         }
@@ -74,7 +72,8 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
         try {
-            Session clientSession = sessionsMap.get(textMessage.getChannelSession().getId());
+            Session clientSession = WebSocketPassThroughTestSessionManager.getInstance().
+                    getClientSession(textMessage.getChannelSession());
             clientSession.getBasicRemote().sendText(textMessage.getText());
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());

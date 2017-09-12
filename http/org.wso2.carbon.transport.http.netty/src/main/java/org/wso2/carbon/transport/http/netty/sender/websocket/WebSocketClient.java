@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -67,10 +66,8 @@ public class WebSocketClient {
     private final String url;
     private final String subprotocols;
     private final String target;
-    private final boolean allowExtensions;
     private final int idleTimeout;
     private final Map<String, String> headers;
-    private final WebSocketSourceHandler sourceHandler;
     private final WebSocketConnectorListener connectorListener;
 
     /**
@@ -78,21 +75,16 @@ public class WebSocketClient {
      * @param url url of the remote endpoint.
      * @param target target for the inbound messages from the remote server.
      * @param subprotocols the negotiable sub-protocol if server is asking for it.
-     * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
-     * @param sourceHandler {@link WebSocketSourceHandler} for pass through purposes.
      * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String target, String subprotocols, boolean allowExtensions, int idleTimeout,
-                           Map<String, String> headers, WebSocketSourceHandler sourceHandler,
-                           WebSocketConnectorListener connectorListener) {
+    public WebSocketClient(String url, String target, String subprotocols, int idleTimeout,
+                           Map<String, String> headers, WebSocketConnectorListener connectorListener) {
         this.url = url;
         this.target = target;
         this.subprotocols = subprotocols;
-        this.allowExtensions = allowExtensions;
         this.idleTimeout = idleTimeout;
         this.headers = headers;
-        this.sourceHandler = sourceHandler;
         this.connectorListener = connectorListener;
     }
 
@@ -147,8 +139,8 @@ public class WebSocketClient {
         }
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                uri, WebSocketVersion.V13, subprotocols, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, connectorListener);
+                uri, WebSocketVersion.V13, subprotocols, true, httpHeaders);
+        handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
 
         try {
             Bootstrap b = new Bootstrap();

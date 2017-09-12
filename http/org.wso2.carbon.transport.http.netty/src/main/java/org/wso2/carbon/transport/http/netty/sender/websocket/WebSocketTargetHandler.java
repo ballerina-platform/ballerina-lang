@@ -53,7 +53,6 @@ import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSo
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -73,19 +72,15 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketClientHandshaker handshaker;
     private final boolean isSecure;
     private final String requestedUri;
-    private final WebSocketSourceHandler sourceHandler;
     private final WebSocketConnectorListener connectorListener;
     private final String target;
     private String actualSubProtocol = null;
     private WebSocketSessionImpl channelSession;
-    private WebSocketSessionImpl serverSession;
     private ChannelPromise handshakeFuture;
 
-    public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  boolean isSecure, String requestedUri, String target,
-                                  WebSocketConnectorListener webSocketConnectorListener) {
+    public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
+                                  String target, WebSocketConnectorListener webSocketConnectorListener) {
         this.handshaker = handshaker;
-        this.sourceHandler = sourceHandler;
         this.isSecure = isSecure;
         this.requestedUri = requestedUri;
         this.target = target;
@@ -101,10 +96,6 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         return channelSession;
     }
 
-    public Session getServerSession() {
-        return  serverSession;
-    }
-
     public void setActualSubProtocol(String actualSubProtocol) {
         this.actualSubProtocol = actualSubProtocol;
     }
@@ -118,10 +109,6 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         handshaker.handshake(ctx.channel());
         channelSession = WebSocketUtil.getSession(ctx, isSecure, requestedUri);
-        if (sourceHandler != null) {
-            serverSession = sourceHandler.getChannelSession();
-            sourceHandler.addClientSession(channelSession);
-        }
     }
 
     @Override
@@ -153,10 +140,6 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             channelSession = WebSocketUtil.getSession(ctx, isSecure, requestedUri);
-            if (sourceHandler != null) {
-                serverSession = sourceHandler.getChannelSession();
-                sourceHandler.addClientSession(channelSession);
-            }
             return;
         }
 
@@ -260,7 +243,6 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
         webSocketChannelContext.setTarget(target);
         webSocketChannelContext.setIsConnectionSecured(isSecure);
         webSocketChannelContext.setChannelSession(channelSession);
-        webSocketChannelContext.setServerSession(serverSession);
         webSocketChannelContext.setIsServerMessage(false);
 
         webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);

@@ -29,13 +29,23 @@ import java.util.Map;
  */
 public class WSSenderConfiguration {
 
+    private final String remoteAddress;
     private List<String> subProtocols;
-    private String remoteAddress = null;
     private String target = null;
-    private boolean allowExtensions = true;
-    private WebSocketMessage webSocketMessage = null;
     private int idleTimeoutInSeconds = 0;
     private final Map<String, String> headers = new HashMap<>();
+
+    public WSSenderConfiguration(String remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    public WSSenderConfiguration(String remoteAddress, String target, List<String> subProtocols,
+                                 int idleTimeoutInSeconds) {
+        this.remoteAddress = remoteAddress;
+        this.target = target;
+        this.subProtocols = subProtocols;
+        this.idleTimeoutInSeconds = idleTimeoutInSeconds;
+    }
 
     /**
      * Get sub protocols as a comma separated values string.
@@ -100,15 +110,6 @@ public class WSSenderConfiguration {
     }
 
     /**
-     * Set the remote address.
-     *
-     * @param remoteAddress remote address as a String.
-     */
-    public void setRemoteAddress(String remoteAddress) {
-        this.remoteAddress = remoteAddress;
-    }
-
-    /**
      * Get the target of the WebSocket incoming messages.
      *
      * @return the target of the WebSocket incoming messages.
@@ -124,41 +125,6 @@ public class WSSenderConfiguration {
      */
     public void setTarget(String target) {
         this.target = target;
-    }
-
-    /**
-     * Check whether the extensions are allowed or not.
-     *
-     * @return true if the extensions are allowed.
-     */
-    public boolean isAllowExtensions() {
-        return allowExtensions;
-    }
-
-    /**
-     * Set allow extensions.
-     * @param allowExtensions if the extensions are allowed.
-     */
-    public void setAllowExtensions(boolean allowExtensions) {
-        this.allowExtensions = allowExtensions;
-    }
-
-    /**
-     * Get the WebSocket message which is set.
-     *
-     * @return WebSocketMessage for a given configuration.
-     */
-    public WebSocketMessage getWebSocketMessage() {
-        return webSocketMessage;
-    }
-
-    /**
-     * Set WebSocket message.
-     *
-     * @param webSocketMessage WebSocket message which should be set.
-     */
-    public void setWebSocketMessage(WebSocketMessage webSocketMessage) {
-        this.webSocketMessage = webSocketMessage;
     }
 
     /**

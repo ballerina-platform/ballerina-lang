@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.websocket.Session;
 
@@ -38,8 +37,6 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     protected boolean isConnectionSecured;
     protected boolean isServerMessage;
     protected Session channelSession;
-    protected Session serverSession;
-    protected List<Session> clientSessionsList;
     protected Map<String, String> headers = new HashMap<>();
 
     public void setProperty(String key, Object value) {
@@ -108,41 +105,12 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     }
 
     public void setChannelSession(Session channelSession) {
-        if (isServerMessage) {
-            this.serverSession = channelSession;
-        }
         this.channelSession = channelSession;
     }
 
     @Override
     public Session getChannelSession() {
         return channelSession;
-    }
-
-
-    public void setServerSession(Session serverSession) {
-        this.serverSession = serverSession;
-    }
-
-    @Override
-    public Session getServerSession() {
-        if (isServerMessage) {
-            return channelSession;
-        }
-        return serverSession;
-    }
-
-
-    public void setClientSessionsList(List<Session> clientSessionsList) {
-        this.clientSessionsList = clientSessionsList;
-    }
-
-    @Override
-    public List<Session> getClientSessions() {
-        if (isServerMessage) {
-            return clientSessionsList;
-        }
-        return null;
     }
 
     @Override

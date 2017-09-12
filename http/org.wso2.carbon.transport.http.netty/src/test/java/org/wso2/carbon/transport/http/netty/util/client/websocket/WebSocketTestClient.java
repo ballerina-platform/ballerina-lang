@@ -57,9 +57,9 @@ import javax.net.ssl.SSLException;
 /**
  * WebSocket client class for test
  */
-public class WebSocketClient {
+public class WebSocketTestClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private String url = System.getProperty("url", String.format("ws://%s:%d/%s",
                                                   TestUtil.TEST_HOST, TestUtil.TEST_DEFAULT_INTERFACE_PORT, "test"));
@@ -71,25 +71,25 @@ public class WebSocketClient {
     private EventLoopGroup group;
     private boolean isHandshakeSuccessful = false;
 
-    public WebSocketClient() {
+    public WebSocketTestClient() {
         this.subProtocol = null;
     }
 
-    public WebSocketClient(String url) {
+    public WebSocketTestClient(String url) {
         this.subProtocol = null;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;
         }
     }
 
-    public WebSocketClient(String subProtocol, Map<String, String> customHeaders) {
+    public WebSocketTestClient(String subProtocol, Map<String, String> customHeaders) {
         this.subProtocol = subProtocol;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;
         }
     }
 
-    public WebSocketClient(String url, String subProtocol, Map<String, String> customHeaders) {
+    public WebSocketTestClient(String url, String subProtocol, Map<String, String> customHeaders) {
         this.subProtocol = subProtocol;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;

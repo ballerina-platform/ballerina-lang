@@ -50,7 +50,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
     private final int threadSleepTime = 100;
-    private WSSenderConfiguration configuration = new WSSenderConfiguration();
+    private WSSenderConfiguration configuration = new WSSenderConfiguration(url);
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT,
                                                                            "xml, json");
@@ -58,7 +58,6 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         remoteServer.run();
-        configuration.setRemoteAddress(url);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 

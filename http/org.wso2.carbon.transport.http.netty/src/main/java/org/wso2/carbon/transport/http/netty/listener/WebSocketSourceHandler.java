@@ -50,10 +50,7 @@ import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionI
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * This class handles all kinds of WebSocketFrames
@@ -67,7 +64,6 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
     private final WebSocketSessionImpl channelSession;
-    private final List<Session> clientSessionsList = new LinkedList<>();
     private final Map<String, String> headers;
     private final String interfaceId;
     private String subProtocol = null;
@@ -94,24 +90,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.interfaceId = interfaceId;
         this.target = httpRequest.uri();
         this.headers = headers;
-    }
-
-    /**
-     * Set the client session associated with the server session.
-     *
-     * @param clientSession {@link Session} of the client associated with this Server session.
-     */
-    public void addClientSession(Session clientSession) {
-        clientSessionsList.add(clientSession);
-    }
-
-    /**
-     * Retrieve client session associated with the this server session.
-     *
-     * @return the client session of the source handler.
-     */
-    public List<Session> getClientSessions() {
-        return clientSessionsList;
     }
 
     /**
@@ -244,7 +222,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         webSocketMessage.setIsConnectionSecured(isSecured);
         webSocketMessage.setIsServerMessage(true);
         webSocketMessage.setChannelSession(channelSession);
-        webSocketMessage.setClientSessionsList(clientSessionsList);
         webSocketMessage.setHeaders(headers);
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);

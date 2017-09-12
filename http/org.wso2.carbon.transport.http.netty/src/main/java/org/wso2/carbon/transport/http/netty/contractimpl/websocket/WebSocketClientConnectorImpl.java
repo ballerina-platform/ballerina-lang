@@ -20,11 +20,9 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
 
 import java.net.URISyntaxException;
@@ -40,8 +38,6 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     private final String remoteUrl;
     private final String subProtocols;
     private final String target;
-    private final WebSocketSourceHandler sourceHandler;
-    private final boolean allowExtensions;
     private final int idleTimeout;
     private final Map<String, String> customHeaders;
 
@@ -50,26 +46,15 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
         this.target = configuration.getTarget();
         this.subProtocols = configuration.getSubProtocolsAsCSV();
         this.customHeaders = configuration.getHeaders();
-        this.allowExtensions = configuration.isAllowExtensions();
         this.idleTimeout = configuration.getIdleTimeoutInMillis();
-
-        WebSocketMessageImpl webSocketMessage = (WebSocketMessageImpl) configuration.getWebSocketMessage();
-        if (webSocketMessage == null) {
-            this.sourceHandler = null;
-        } else {
-            this.sourceHandler =
-                    (WebSocketSourceHandler) webSocketMessage.getProperty(Constants.SRC_HANDLER);
-        }
-
     }
 
     @Override
     public Session connect(WebSocketConnectorListener connectorListener)
             throws ClientConnectorException {
 
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, allowExtensions,
-                                                              idleTimeout, customHeaders, sourceHandler,
-                                                              connectorListener);
+        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, idleTimeout,
+                                                              customHeaders, connectorListener);
         try {
             return webSocketClient.handshake();
         } catch (InterruptedException e) {

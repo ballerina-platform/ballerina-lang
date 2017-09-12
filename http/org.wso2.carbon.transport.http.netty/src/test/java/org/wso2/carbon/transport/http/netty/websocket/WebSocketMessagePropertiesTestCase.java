@@ -32,7 +32,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestClient;
 
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
@@ -70,7 +70,7 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
         customHeaders.put("check-sub-protocol", "true");
         customHeaders.put("message-type", "websocket");
         customHeaders.put("message-sender", "wso2");
-        WebSocketClient wsClient = new WebSocketClient(subProtocol, customHeaders);
+        WebSocketTestClient wsClient = new WebSocketTestClient(subProtocol, customHeaders);
         try {
             wsClient.handhshake();
         } catch (ProtocolException e) {
@@ -85,7 +85,7 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
         customHeaders.put("check-sub-protocol", "true");
         customHeaders.put("message-type", "websocket");
         customHeaders.put("message-sender", "wso2");
-        wsClient = new WebSocketClient(subProtocol, customHeaders);
+        wsClient = new WebSocketTestClient(subProtocol, customHeaders);
         try {
             wsClient.handhshake();
             Assert.assertTrue(false);

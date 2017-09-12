@@ -32,7 +32,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestClient;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
@@ -51,8 +51,8 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private WebSocketClient primaryClient = new WebSocketClient();
-    private WebSocketClient secondaryClient = new WebSocketClient();
+    private WebSocketTestClient primaryClient = new WebSocketTestClient();
+    private WebSocketTestClient secondaryClient = new WebSocketTestClient();
     private ServerConnector serverConnector;
 
     @BeforeClass
@@ -146,7 +146,7 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
         String url = System.getProperty("url", String.format("ws://%s:%d/%s",
                                                              TestUtil.TEST_HOST, TestUtil.TEST_ALTER_INTERFACE_PORT,
                                                              "test"));
-        primaryClient = new WebSocketClient(url);
+        primaryClient = new WebSocketTestClient(url);
         primaryClient.handhshake();
         Thread.sleep(5000);
         Assert.assertFalse(primaryClient.isOpen());
