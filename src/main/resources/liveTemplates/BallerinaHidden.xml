@@ -65,9 +65,9 @@
 
     <template description='Join Statement' id='ballerina_lang_join' name='ballerina_lang_join'
               toReformat='false' toShortenFQNames='true'
-              value='join ($CONDITION$) (message[] $VAR$) {&#10;    $END$&#10;}'>
+              value='join ($CONDITION$) ($ARGS$) {&#10;    $END$&#10;}'>
         <variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
@@ -77,9 +77,9 @@
 
     <template description='Timeout Statement' id='ballerina_lang_timeout' name='ballerina_lang_timeout'
               toReformat='false' toShortenFQNames='true'
-              value='timeout ($VALUE$) (message[] $VAR$) {&#10;    $END$&#10;}'>
+              value='timeout ($VALUE$) ($ARGS$) {&#10;    $END$&#10;}'>
         <variable name="VALUE" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
