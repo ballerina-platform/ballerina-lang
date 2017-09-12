@@ -34,7 +34,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -97,7 +97,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 carbonMessage.addMessageBody(byteBuff);
                 carbonMessage.setEndOfMsgAdded(true);
 
-                HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(carbonMessage);
+                HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(carbonMessage);
                 try {
                     request.respond(httpCarbonMessage);
                 } catch (ServerConnectorException e) {
@@ -145,13 +145,15 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                     }
 
-                    SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+                    String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
+                    SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
+                                                                                                       scheme);
 
                     HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                     HttpClientConnector clientConnector =
                             httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
 
-                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
+                    HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(newMsg);
                     HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
                     future.setHttpConnectorListener(new HttpConnectorListener() {
                         @Override
@@ -183,7 +185,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                                     carbonMessage.addMessageBody(byteBuff);
                                     carbonMessage.setEndOfMsgAdded(true);
 
-                                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
+                                    HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil
                                             .convertCarbonMessage(carbonMessage);
                                     try {
                                         httpRequest.respond(httpCarbonMessage);
