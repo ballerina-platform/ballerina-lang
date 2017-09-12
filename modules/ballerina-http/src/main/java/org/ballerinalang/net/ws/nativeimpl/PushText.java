@@ -14,13 +14,13 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,22 +28,22 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.websocket.Session;
 
 /**
- * Send text to the same client who sent the message to the given WebSocket Upgrade Path.
+ * Push text to the other end of the connection.
+ *
+ * @since 0.94
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "pushText",
-        args = {
-                @Argument(name = "text", type = TypeEnum.STRING)
-        },
+        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+                          structPackage = "ballerina.net.ws"),
+                @Argument(name = "text", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
@@ -57,19 +57,13 @@ public class PushText extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_PATH)) {
+                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
             throw new BallerinaException("This function is only working with WebSocket services");
         }
 
         try {
-            CarbonMessage carbonMessage = context.getCarbonMessage();
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);;
-            if (WebSocketServicesRegistry.getInstance().isClientService(context.getServiceInfo()) &&
-                    session == null) {
-                    throw new BallerinaException("pushing text from client service is not supported. " +
-                                    "This is only supported for WebSocket to WebSocket mediation");
-            }
-
+            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
             String text = getStringArgument(context, 0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {

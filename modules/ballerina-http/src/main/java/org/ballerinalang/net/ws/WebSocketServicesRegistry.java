@@ -39,7 +39,7 @@ public class WebSocketServicesRegistry {
     private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
     // Map<interface, Map<uri, service>>
-    private final Map<String, Map<String, HttpService>> serviceEndpoints = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, WebSocketService>> serviceEndpoints = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
     private final Map<String, ClientServiceInfo> clientServices = new ConcurrentHashMap<>();
 
@@ -55,11 +55,12 @@ public class WebSocketServicesRegistry {
      *
      * @param service service to register.
      */
-    public void registerServiceEndpoint(HttpService service) {
+    public void registerServiceEndpoint(WebSocketService service) {
         boolean isClientService = isWebSocketClientService(service);
         if (isClientService) {
             registerClientService(service);
         } else {
+
             String upgradePath = findFullWebSocketUpgradePath(service);
             // TODO: Add properties to propMap after adding config annotation to WebSocket.
             Set<ListenerConfiguration> listenerConfigurationSet =
@@ -68,7 +69,7 @@ public class WebSocketServicesRegistry {
             for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
                 String entryListenerInterface = listenerConfiguration.getHost() + ":" +
                         listenerConfiguration.getPort();
-                Map<String, HttpService> servicesOnInterface = serviceEndpoints
+                Map<String, WebSocketService> servicesOnInterface = serviceEndpoints
                         .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
                 servicesOnInterface.put(upgradePath, service);
                 HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
@@ -81,7 +82,7 @@ public class WebSocketServicesRegistry {
      *
      * @param clientService {@link HttpService} of the client service.
      */
-    public void registerClientService(HttpService clientService) {
+    public void registerClientService(WebSocketService clientService) {
         boolean isClientService = isWebSocketClientService(clientService);
         if (isClientService) {
 
@@ -118,7 +119,7 @@ public class WebSocketServicesRegistry {
      *
      * @param service service to unregister.
      */
-    public void unregisterService(HttpService service) {
+    public void unregisterService(WebSocketService service) {
         String upgradePath = findFullWebSocketUpgradePath(service);
         String listenerInterface = getListenerInterface(service);
         if (serviceEndpoints.containsKey(listenerInterface)) {
@@ -133,7 +134,7 @@ public class WebSocketServicesRegistry {
      * @param uri uri of the service.
      * @return the service which matches.
      */
-    public HttpService getServiceEndpoint(String listenerInterface, String uri) {
+    public WebSocketService getServiceEndpoint(String listenerInterface, String uri) {
         return serviceEndpoints.get(listenerInterface).get(uri);
     }
 
@@ -143,7 +144,7 @@ public class WebSocketServicesRegistry {
      * @param serviceName name of the service.
      * @return the service by service name if exists. Else return null.
      */
-    public HttpService getClientService(String serviceName) {
+    public WebSocketService getClientService(String serviceName) {
         if (clientServices.containsKey(serviceName)) {
             return clientServices.get(serviceName).getClientService();
         }
@@ -196,13 +197,14 @@ public class WebSocketServicesRegistry {
      * @param service {@link HttpService} which the full path should be found.
      * @return the full path of the WebSocket upgrade.
      */
-    private String findFullWebSocketUpgradePath(HttpService service) {
+    private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
+
+        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANN_NAME_CONFIG);
         String serviceName = service.getName();
         String basePath;
-        Annotation configAnnotationInfo = service.getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
-        if (configAnnotationInfo != null) {
-            AnnAttrValue annotationAttributeBasePathValue = configAnnotationInfo.getAnnAttrValue
+        if (configAnnotation != null) {
+            AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
                     (Constants.ANN_CONFIG_ATTR_BASE_PATH);
             if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null &&
                     !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
@@ -216,21 +218,7 @@ public class WebSocketServicesRegistry {
                                                  + serviceName);
         }
 
-        // Find WebSocket Upgrade Path.
-        String webSocketUpgradePath;
-        Annotation webSocketUpgradePathAnnotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
-        if (webSocketUpgradePathAnnotation != null &&
-                webSocketUpgradePathAnnotation.getAnnAttrValue(Constants.VALUE_ATTRIBUTE) != null) {
-            webSocketUpgradePath = webSocketUpgradePathAnnotation.
-                    getAnnAttrValue(Constants.VALUE_ATTRIBUTE).getStringValue();
-        } else {
-            webSocketUpgradePath = service.getName();
-        }
-
-        basePath = refactorUri(basePath);
-        webSocketUpgradePath = refactorUri(webSocketUpgradePath);
-        return refactorUri(basePath.concat(webSocketUpgradePath));
+        return refactorUri(basePath);
     }
 
     /**
@@ -239,9 +227,9 @@ public class WebSocketServicesRegistry {
      * @param service {@link HttpService} which should be identified.
      * @return true if the given service is a client service.
      */
-    private boolean isWebSocketClientService(HttpService service) {
+    private boolean isWebSocketClientService(WebSocketService service) {
         Annotation annotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
+                Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
         return !(annotation == null);
     }
 
@@ -251,7 +239,7 @@ public class WebSocketServicesRegistry {
      * @param service {@link HttpService} which the listener interface should be found.
      * @return the listener interface of the service.
      */
-    private String getListenerInterface(HttpService service) {
+    private String getListenerInterface(WebSocketService service) {
         // TODO : Handle correct interface addition to default interface.
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         return listenerInterface;
@@ -261,21 +249,21 @@ public class WebSocketServicesRegistry {
      * This class holds the necessary details of a WebSocket client service.
      */
     private static class ClientServiceInfo {
-        private HttpService clientService;
+        private WebSocketService clientService;
         private ServiceInfo parentService;
 
         private ClientServiceInfo() {
         }
 
-        private ClientServiceInfo(HttpService clientService) {
+        private ClientServiceInfo(WebSocketService clientService) {
             this.clientService = clientService;
         }
 
-        private HttpService getClientService() {
+        private WebSocketService getClientService() {
             return clientService;
         }
 
-        private void setClientService(HttpService clientService) {
+        private void setClientService(WebSocketService clientService) {
             this.clientService = clientService;
         }
 

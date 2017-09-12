@@ -19,7 +19,7 @@ package org.ballerinalang.net.http.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
@@ -49,9 +50,11 @@ import java.util.Locale;
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "httpVerb", type = TypeEnum.STRING),
                 @Argument(name = "path", type = TypeEnum.STRING),
-                @Argument(name = "m", type = TypeEnum.MESSAGE)
+                @Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+                        structPackage = "ballerina.net.http")
         },
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Response",
+                structPackage = "ballerina.net.http")},
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeEnum.STRING)
         })
@@ -63,10 +66,10 @@ import java.util.Locale;
         value = "HTTP verb value") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
         value = "Resource path ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "A message object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The response message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
+        value = "The request message") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "response",
+        value = "The response message") })
 @Component(
         name = "action.net.http.execute",
         immediate = true,
@@ -108,10 +111,9 @@ public class Execute extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String httpVerb = getStringArgument(context, 0);
         String path = getStringArgument(context, 1);
-        BMessage bMessage = (BMessage) getRefArgument(context, 1);
-
-        // Prepare the message
-        CarbonMessage cMsg = bMessage.value();
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
+        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
         prepareRequest(bConnector, path, cMsg);
 
         // If the verb is not specified, use the verb in incoming message

@@ -52,6 +52,10 @@
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-native</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
@@ -70,26 +74,26 @@
             </resource>
     	</resources>
         <plugins>
-            <!-- For ballerina natives processing/validation -->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>exec-maven-plugin</artifactId>-->
-                <!--<version>${mvn.exec.plugin.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>process-classes</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>java</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>-->
-                            <!--<arguments>-->
-                                <!--<argument>${generated.ballerina.source.directory}</argument>-->
-                            <!--</arguments>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>  -->
+             <!--For ballerina natives processing/validation-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${mvn.exec.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>
+                            <arguments>
+                                <argument>${generated.ballerina.source.directory}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
       
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -106,7 +110,7 @@
                         <srcDir>${ballerina.source.directory}</srcDir>
                         <targetDir>${generated.ballerina.source.directory}</targetDir>
                         <pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>
-                        <isSystemPkgRepository>${ballerina.system.package.repository}</isSystemPkgRepository>
+                        <isSystemPkgRepository>false</isSystemPkgRepository>
                     </options>
                 </configuration>
                 <executions>
@@ -206,11 +210,6 @@
                         <packageLineRate>50</packageLineRate>
                         <packageBranchRate>50</packageBranchRate>
                         <regexes>
-                            <regex>
-                                <pattern>org.ballerinalang.nativeimpl.lang.*</pattern>
-                                <branchRate>50</branchRate>
-                                <lineRate>50</lineRate>
-                            </regex>
                             <regex>
                                 <pattern>org.ballerinalang.nativeimpl.net.*</pattern>
                                 <branchRate>50</branchRate>

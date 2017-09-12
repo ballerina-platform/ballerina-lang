@@ -28,10 +28,11 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class HttpConnectionManager {
                 "conf" + File.separator + "transports" +
                         File.separator + "netty-transports.yml");
         trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
-        serverBootstrapConfiguration = HTTPMessageUtil
+        serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
@@ -112,7 +113,7 @@ public class HttpConnectionManager {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
-        serverBootstrapConfiguration = HTTPMessageUtil
+        serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
                 httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
@@ -158,9 +159,9 @@ public class HttpConnectionManager {
     }
 
     public HttpClientConnector getHTTPHttpClientConnector() {
-        Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
+        Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
-                HTTPMessageUtil.getSenderConfiguration(trpConfig);
+                HTTPConnectorUtil.getSenderConfiguration(trpConfig, "http");
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);
@@ -228,8 +229,8 @@ public class HttpConnectionManager {
         }
     }
 
-    public WebSocketClientConnector getWebSocketClientConnector(Map<String, Object> properties) {
-        return  httpConnectorFactory.createWsClientConnector(properties);
+    public WebSocketClientConnector getWebSocketClientConnector(WSSenderConfiguration configuration) {
+        return  httpConnectorFactory.createWsClientConnector(configuration);
     }
 
 }

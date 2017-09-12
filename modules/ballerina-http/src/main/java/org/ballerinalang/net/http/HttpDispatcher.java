@@ -20,9 +20,14 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.impl.ConnectorUtils;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -30,8 +35,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -104,7 +110,7 @@ public class HttpDispatcher {
 
     public static CarbonCallback getCallback(HTTPCarbonMessage httpCarbonMessage) {
         return (cMsg) -> {
-            HTTPCarbonMessage carbonMessage = HTTPMessageUtil.convertCarbonMessage(cMsg);
+            HTTPCarbonMessage carbonMessage = HTTPConnectorUtil.convertCarbonMessage(cMsg);
             try {
                 //TODO enable once new resource signature enabled
 //                Session session = context.getCurrentSession();
@@ -120,5 +126,29 @@ public class HttpDispatcher {
                 throw new BallerinaConnectorException("Error occurred during response", e);
             }
         };
+    }
+
+    public static BValue[] getSignatureParameters(Resource resource, HTTPCarbonMessage httpCarbonMessage) {
+
+        BStruct request = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
+        BStruct response = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
+        request.addNativeData(Constants.HTTP_CARBON_MESSAGE, httpCarbonMessage);
+
+        LocalVariableInfo[] paramArray = resource.getLocalVariables();
+        Map<String, String> resourceArgumentValues =
+                (Map<String, String>) httpCarbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
+
+        BValue[] bValues = new BValue[paramArray.length];
+        bValues[0] = request;
+        bValues[1] = response;
+        if (paramArray.length > 2) {
+            int i = 2;
+            for (LocalVariableInfo variable : paramArray) {
+                if (variable.getVariableType().getName().equals(Constants.TYPE_STRING)) {
+                    bValues[i++] = new BString(resourceArgumentValues.get(variable.getVariableName()));
+                }
+            }
+        }
+        return bValues;
     }
 }
