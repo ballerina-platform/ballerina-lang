@@ -35,14 +35,14 @@ public class WebSocketDispatcher {
     /**
      * This will find the best matching service for given web socket request.
      *
-     * @param message incoming carbon message.
      * @param webSocketMessage incoming message.
      * @return matching service.
      */
-    public static HttpService findService(CarbonMessage message, WebSocketMessage webSocketMessage) {
+    public static WebSocketService findService(WebSocketMessage webSocketMessage) {
         if (!webSocketMessage.isServerMessage()) {
             String clientServiceName = webSocketMessage.getTarget();
-            HttpService clientService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+            WebSocketService clientService =
+                    WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
             if (clientService == null) {
                 throw new BallerinaConnectorException("no client service found to handle the service request");
             }
@@ -53,7 +53,7 @@ public class WebSocketDispatcher {
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = WebSocketServicesRegistry.getInstance().refactorUri(serviceUri);
 
-            HttpService service =
+            WebSocketService service =
                     WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
 
             if (service == null) {
@@ -61,25 +61,19 @@ public class WebSocketDispatcher {
             }
             return service;
         } catch (Throwable throwable) {
-            ServerConnectorMessageHandler.handleError(message, null, throwable);
+            ServerConnectorMessageHandler.handleError("ws", throwable);
             throw new BallerinaConnectorException("no Service found to handle the service request");
         }
-
     }
 
     /**
      * This method will find the best matching resource for the given web socket request.
      *
      * @param service matching service.
-     * @param annotationName to be searched.
+     * @param resourceName to be searched.
      * @return matching resource.
      */
-    public static Resource getResource(HttpService service, String annotationName) {
-        for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.WEBSOCKET_PACKAGE_PATH, annotationName) != null) {
-                return resource;
-            }
-        }
-        return null;
+    public static Resource getResource(WebSocketService service, String resourceName) {
+        return service.getResourceByName(resourceName);
     }
 }

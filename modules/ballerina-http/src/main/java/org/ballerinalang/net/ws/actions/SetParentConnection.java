@@ -21,6 +21,7 @@ package org.ballerinalang.net.ws.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -28,55 +29,36 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 
-import java.io.IOException;
-import javax.websocket.Session;
-
 /**
- * Push Text to the server.
+ * Set a parent connection for the client connector.
+ *
+ * @since 0.94
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "pushText",
+        actionName = "setParentConnection",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "text", type = TypeEnum.STRING),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "callbackService", type = TypeEnum.STRING)
+                @Argument(name = "conn", type = TypeEnum.STRUCT),
         })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
-                                              value = "Push text to the server.") })
+                                              value = "Set parent connection") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
                                                                         value = "WebSocket Client Connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "text",
-                                                                        value = "text which should be sent") })
 @Component(
-        name = "action.net.ws.pushText",
+        name = "action.net.ws.setParentConnection",
         immediate = true,
         service = AbstractNativeAction.class)
-public class PushText extends AbstractWebSocketAction {
+public class SetParentConnection extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String text = getStringArgument(context, 0);
-        Session serverSession = getServerSession(context);
-        if (serverSession == null) {
-            throw new BallerinaException("Internal error occurred. Cannot find a connection");
-        }
-        Session clientSession = WebSocketConnectionManager.getInstance().
-                getClientSessionForConnector(bConnector, serverSession);
-        try {
-            clientSession.getBasicRemote().sendText(text);
-        } catch (IOException e) {
-            throw new BallerinaException("I/O exception occurred during sending the message");
-        }
+        BConnector bconnector = (BConnector) getRefArgument(context, 0);
+        BStruct parentConnection = (BStruct) getRefArgument(context, 1);
+        bconnector.setNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION, parentConnection);
         return null;
     }
 }

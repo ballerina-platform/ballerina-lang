@@ -20,6 +20,7 @@ package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -27,48 +28,44 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.websocket.Session;
 
 /**
- * Push text to the other end of the connection.
+ * Check whether the connection is secure connection or not.
  *
  * @since 0.94
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushText",
+        functionName = "isSecure",
         args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
-                          structPackage = "ballerina.net.ws"),
-                @Argument(name = "text", type = TypeEnum.STRING)},
+                          structPackage = "ballerina.net.ws")},
+        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
-                             "client who sent the message.") })
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushText extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "value", value = "Check whether the connection is secure " +
+                             "connection or not") })
+@BallerinaAnnotation(annotationName = "Return",
+                     attributes = {@Attribute(name = "boolean",
+                                              value = "true if the connection is secure connection")})
+public class IsSecure extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
         if (context.getServiceInfo() == null ||
                 !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
             throw new BallerinaException("This function is only working with WebSocket services");
         }
 
-        try {
-            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-            Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
-            String text = getStringArgument(context, 0);
-            session.getBasicRemote().sendText(text);
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
-        }
-        return VOID_RETURN;
+        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+        Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);
+        boolean isSecuredConnection = session.isSecure();
+        return getBValues(new BBoolean(isSecuredConnection));
     }
 }

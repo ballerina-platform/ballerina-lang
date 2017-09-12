@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.connector.api;
 
+import java.util.List;
+
 /**
  * {@code Resource} This API provides the functionality to access Resource level details in the
  * respective server connector.
@@ -47,5 +49,12 @@ public interface Resource {
      * @return matching annotation.
      */
     Annotation getAnnotation(String pkgPath, String name);
+
+    /**
+     * This method will return signature parameter info array of the resource with limited attributes.
+     *
+     * @return list of ParamDetail objects.
+     */
+    List<ParamDetail> getParamDetails();
 
 }

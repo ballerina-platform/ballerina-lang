@@ -21,6 +21,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.uri.DispatcherUtil;
@@ -34,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
 import java.io.PrintStream;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -62,6 +64,11 @@ public class HttpServerConnector implements BallerinaServerConnector {
         HTTPServicesRegistry.getInstance().registerService(httpService);
         Map<String, List<String>> serviceCorsMap = CorsRegistry.getInstance().getServiceCors(httpService);
         for (Resource resource : httpService.getResources()) {
+            try {
+                validateResourceSignature(resource);
+            } catch (InvalidParameterException e) {
+                throw new BallerinaConnectorException(e.getMessage());
+            }
             Annotation rConfigAnnotation = resource.getAnnotation(Constants.HTTP_PACKAGE_PATH,
                     Constants.ANN_NAME_RESOURCE_CONFIG);
             String subPathAnnotationVal;
@@ -186,5 +193,28 @@ public class HttpServerConnector implements BallerinaServerConnector {
             return Constants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    private void validateResourceSignature(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        boolean isRequestAvailable = false;
+        boolean isResponseAvailable = false;
+        for (ParamDetail parameter : paramDetails) {
+            if (parameter.getVarType().getPackagePath() != null
+                    && parameter.getVarType().getPackagePath().equals(Constants.PROTOCOL_PACKAGE_HTTP)) {
+                if (parameter.getVarType().getName().equals(Constants.REQUEST)) {
+                    isRequestAvailable = true;
+                } else if (parameter.getVarType().getName().equals(Constants.RESPONSE)) {
+                    isResponseAvailable = true;
+                }
+            } else {
+                if (!parameter.getVarType().getName().equals(Constants.TYPE_STRING)) {
+                    throw new InvalidParameterException("incompatible resource signature parameter types");
+                }
+            }
+        }
+        if (!isRequestAvailable || !isResponseAvailable) {
+            throw new InvalidParameterException("missing resource signature mandatory parameters");
+        }
     }
 }
