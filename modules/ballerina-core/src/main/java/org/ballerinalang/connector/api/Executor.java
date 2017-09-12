@@ -81,7 +81,7 @@ public class Executor {
 
     //Temp method until resource signatures are changed(with thread pooling)
     public static ConnectorFuture submit(Resource resource, CarbonMessage carbonMessage) {
-        ConnectorFuture connectorFuture = new BConnectorFuture();
+        BConnectorFuture connectorFuture = new BConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
                 execute(new BallerinaOldWorkerThread(resource, carbonMessage, connectorFuture));
         return connectorFuture;

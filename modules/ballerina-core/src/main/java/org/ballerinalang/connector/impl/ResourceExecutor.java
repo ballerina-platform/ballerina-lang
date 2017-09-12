@@ -67,7 +67,7 @@ public class ResourceExecutor {
         //TODO implement
     }
 
-    public static void execute(Resource resource, ConnectorFuture connectorFuture, CarbonMessage resourceMessage) {
+    public static void execute(Resource resource, BConnectorFuture connectorFuture, CarbonMessage resourceMessage) {
         // engage Service interceptors.
 //        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {
 //            org.ballerinalang.runtime.model.ServerConnector serverConnector =
@@ -112,7 +112,8 @@ public class ResourceExecutor {
         Context context = new Context(programFile);
         context.setServiceInfo(serviceInfo);
         context.setCarbonMessage(resourceMessage);
-        context.setBalCallback(new DefaultBalCallback(resourceCallback));
+//        context.setBalCallback(new DefaultBalCallback(resourceCallback));
+        context.setConnectorFuture(connectorFuture);
 
         Map<String, Object> properties = null;
         if (resourceMessage.getProperty(Constants.SRC_HANDLER) != null) {

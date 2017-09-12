@@ -21,6 +21,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code BConnectorFuture} This is the implementation for the {@code ConnectorFuture} API.
@@ -33,19 +35,32 @@ public class BConnectorFuture implements ConnectorFuture {
     private BValue response;
     private BallerinaConnectorException ex;
 
+    private CarbonMessage tempResMsg;
+    private CarbonMessage tempErrorMsg;
+    private Exception exTemp;
+
     @Override
     public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
         this.connectorFutureListener = futureListener;
-        if (response != null) {
-            connectorFutureListener.notifySuccess(response);
-        } else if (ex != null) {
-            connectorFutureListener.notifyFailure(ex);
+//        if (response != null) {
+//            connectorFutureListener.notifySuccess(response);
+//        } else if (ex != null) {
+//            connectorFutureListener.notifyFailure(ex);
+//        }
+//        response = null;
+//        ex = null;
+        //Temp logic until full migration
+        if (tempResMsg != null) {
+            connectorFutureListener.notifySuccess(tempResMsg);
+        } else if (exTemp != null) {
+            connectorFutureListener.notifyFailure(exTemp, tempErrorMsg);
         }
-        response = null;
-        ex = null;
+        tempResMsg = null;
+        tempErrorMsg = null;
+        exTemp = null;
     }
 
-    protected void notifySuccess(BValue response) {
+    public void notifySuccess(BValue response) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
             connectorFutureListener.notifySuccess(response);
@@ -54,12 +69,35 @@ public class BConnectorFuture implements ConnectorFuture {
         }
     }
 
-    protected void notifyFailure(BallerinaConnectorException ex) {
+    public void notifyFailure(BallerinaConnectorException ex) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
             connectorFutureListener.notifyFailure(ex);
         } else {
+            ErrorHandlerUtils.printError(ex);
             this.ex = ex;
+        }
+    }
+
+    //Temp methods until the full migration
+    public void notifySuccess(CarbonMessage carbonMessage) {
+        //if the future listener already exist, notify right away. if not store until listener registration.
+        if (connectorFutureListener != null) {
+            connectorFutureListener.notifySuccess(carbonMessage);
+        } else {
+            this.tempResMsg = carbonMessage;
+        }
+    }
+
+    //Temp methods until the full migration
+    public void notifyFailure(Exception ex, CarbonMessage carbonMessage) {
+        //if the future listener already exist, notify right away. if not store until listener registration.
+        if (connectorFutureListener != null) {
+            connectorFutureListener.notifyFailure(ex, carbonMessage);
+        } else {
+            ErrorHandlerUtils.printError(ex);
+            this.tempErrorMsg = carbonMessage;
+            this.exTemp = ex;
         }
     }
 

@@ -19,6 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.impl.BConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
@@ -45,7 +46,7 @@ public class Context {
     private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-    private ConnectorFuture connectorFuture;
+    private BConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
@@ -139,11 +140,11 @@ public class Context {
         this.balCallback = balCallback;
     }
 
-    public ConnectorFuture getConnectorFuture() {
+    public BConnectorFuture getConnectorFuture() {
         return connectorFuture;
     }
 
-    public void setConnectorFuture(ConnectorFuture connectorFuture) {
+    public void setConnectorFuture(BConnectorFuture connectorFuture) {
         this.connectorFuture = connectorFuture;
     }
 

@@ -25,6 +25,7 @@ import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.impl.BConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
@@ -2490,10 +2491,11 @@ public class BLangVM {
 //        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
 //        generateSessionAndCorsHeaders(message);
         context.setError(null);
-        if (context.getBalCallback() != null &&
-                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
-            context.getBalCallback().done(message.value());
-        }
+        context.getConnectorFuture().notifySuccess(message.value());
+//        if (context.getBalCallback() != null &&
+//                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
+//            context.getBalCallback().done(message.value());
+//        }
         ip = -1;
     }
 
@@ -3577,18 +3579,25 @@ public class BLangVM {
             if (carbonMessage == null) {
                 return;
             }
-            ConnectorFuture connectorFuture = context.getConnectorFuture();
+            BConnectorFuture connectorFuture = context.getConnectorFuture();
 
-            Object protocol = carbonMessage.getProperty("PROTOCOL");
-            Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
-                    .getServerConnectorErrorHandler((String) protocol);
             try {
-                optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
-                        new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
-                        context.getCarbonMessage(), context.getBalCallback());
+                connectorFuture.notifyFailure(new BallerinaException(BLangVMErrors
+                        .getPrintableStackTrace(context.getError())), carbonMessage);
             } catch (Exception e) {
-                logger.error("cannot handle error using the error handler for: " + protocol, e);
+                logger.error("cannot handle error using the error handler: " + e.getMessage(), e);
             }
+
+//            Object protocol = carbonMessage.getProperty("PROTOCOL");
+//            Optional<ServerConnectorErrorHandler> optionalErrorHandler = BallerinaConnectorManager.getInstance()
+//                    .getServerConnectorErrorHandler((String) protocol);
+//            try {
+//                optionalErrorHandler.orElseGet(DefaultServerConnectorErrorHandler::getInstance).handleError(
+//                        new BallerinaException(BLangVMErrors.getPrintableStackTrace(context.getError())),
+//                        context.getCarbonMessage(), context.getBalCallback());
+//            } catch (Exception e) {
+//                logger.error("cannot handle error using the error handler for: " + protocol, e);
+//            }
             return;
         }
 
