@@ -32,7 +32,7 @@ public class WSClientConnectorConfig {
     private final String remoteAddress;
     private List<String> subProtocols;
     private String target = null;
-    private int idleTimeoutInSeconds = 0;
+    private int idleTimeoutInSeconds = -1;
     private final Map<String, String> headers = new HashMap<>();
 
     public WSClientConnectorConfig(String remoteAddress) {
