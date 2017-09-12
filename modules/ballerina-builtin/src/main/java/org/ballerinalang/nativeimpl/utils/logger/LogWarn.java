@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.utils.logger",
         functionName = "warn",
-        args = {@Argument(name = "value", type = TypeEnum.ANY)},
+        args = {@Argument(name = "value", type = TypeKind.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

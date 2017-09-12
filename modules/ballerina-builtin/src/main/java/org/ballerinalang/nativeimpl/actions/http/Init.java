@@ -1,7 +1,7 @@
 package org.ballerinalang.nativeimpl.actions.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -24,10 +24,10 @@ import java.util.ServiceLoader;
         packageName = "ballerina.net.http",
         actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
         },
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING)
+                @Argument(name = "serviceUri", type = TypeKind.STRING)
         }
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

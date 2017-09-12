@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.natives.annotations;
 
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -45,7 +45,7 @@ public @interface BallerinaConstant {
      *
      * @return Ballerina Type Classname.
      */
-    TypeEnum type();
+    TypeKind type();
 
     /**
      * Constant value.

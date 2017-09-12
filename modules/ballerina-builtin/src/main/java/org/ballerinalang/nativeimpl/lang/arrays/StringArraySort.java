@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -41,8 +41,8 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.lang.arrays",
         functionName = "sort",
-        args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        args = {@Argument(name = "arr", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

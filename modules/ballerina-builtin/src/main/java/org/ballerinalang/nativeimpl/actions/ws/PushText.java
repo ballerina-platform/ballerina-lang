@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -43,12 +43,12 @@ import javax.websocket.Session;
         actionName = "pushText",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "text", type = TypeEnum.STRING),
+                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "text", type = TypeKind.STRING),
         },
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "callbackService", type = TypeEnum.STRING)
+                @Argument(name = "serviceUri", type = TypeKind.STRING),
+                @Argument(name = "callbackService", type = TypeKind.STRING)
         })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",

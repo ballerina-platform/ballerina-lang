@@ -23,7 +23,7 @@ import org.apache.axiom.om.OMContainer;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -50,10 +50,10 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
         functionName = "setStringWithNamespace",
-        args = {@Argument(name = "x", type = TypeEnum.XML),
-                @Argument(name = "xPath", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.STRING),
-                @Argument(name = "namespaces", type = TypeEnum.MAP)},
+        args = {@Argument(name = "x", type = TypeKind.XML),
+                @Argument(name = "xPath", type = TypeKind.STRING),
+                @Argument(name = "value", type = TypeKind.STRING),
+                @Argument(name = "namespaces", type = TypeKind.MAP)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

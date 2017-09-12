@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.jsons;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStringArray;
@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.jsons",
         functionName = "getKeys",
-        args = {@Argument(name = "j", type = TypeEnum.JSON)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        args = {@Argument(name = "j", type = TypeKind.JSON)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
 public class GetKeys extends AbstractNativeFunction {

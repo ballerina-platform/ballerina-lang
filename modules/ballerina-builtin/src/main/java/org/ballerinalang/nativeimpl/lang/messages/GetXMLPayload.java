@@ -17,7 +17,7 @@
 package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
@@ -37,8 +37,8 @@ import org.wso2.carbon.messaging.MessageDataSource;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getXmlPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

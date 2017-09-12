@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.utils;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -42,9 +42,9 @@ import java.security.NoSuchAlgorithmException;
 @BallerinaFunction(
         packageName = "ballerina.utils",
         functionName = "getHash",
-        args = { @Argument(name = "baseString", type = TypeEnum.STRING),
-                 @Argument(name = "algorithm", type = TypeEnum.STRING) },
-        returnType = { @ReturnType(type = TypeEnum.STRING) },
+        args = { @Argument(name = "baseString", type = TypeKind.STRING),
+                 @Argument(name = "algorithm", type = TypeKind.STRING) },
+        returnType = { @ReturnType(type = TypeKind.STRING) },
         isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a hash of a given string using the SHA-256 algorithm ") })

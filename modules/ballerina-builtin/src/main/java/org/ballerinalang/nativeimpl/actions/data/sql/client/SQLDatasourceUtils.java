@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -716,12 +716,12 @@ public class SQLDatasourceUtils {
      * This method will return equal ballerina data type for SQL type.
      *
      * @param sqlType SQL type in column
-     * @return TypeEnum that represent respective ballerina type.
+     * @return TypeKind that represent respective ballerina type.
      */
-    public static TypeEnum getColumnType(int sqlType) {
+    public static TypeKind getColumnType(int sqlType) {
         switch (sqlType) {
         case Types.ARRAY:
-            return TypeEnum.ARRAY;
+            return TypeKind.ARRAY;
         case Types.CHAR:
         case Types.VARCHAR:
         case Types.LONGVARCHAR:
@@ -730,23 +730,23 @@ public class SQLDatasourceUtils {
         case Types.LONGNVARCHAR:
         case Types.CLOB:
         case Types.NCLOB:
-            return TypeEnum.STRING;
+            return TypeKind.STRING;
         case Types.TINYINT:
         case Types.SMALLINT:
         case Types.INTEGER:
-            return TypeEnum.INT;
+            return TypeKind.INT;
         case Types.BIGINT:
-            return TypeEnum.INT;
+            return TypeKind.INT;
         case Types.REAL:
-            return TypeEnum.FLOAT;
+            return TypeKind.FLOAT;
         case Types.BIT:
         case Types.BOOLEAN:
-            return TypeEnum.BOOLEAN;
+            return TypeKind.BOOLEAN;
         case Types.NUMERIC:
         case Types.DECIMAL:
         case Types.FLOAT:
         case Types.DOUBLE:
-            return TypeEnum.FLOAT;
+            return TypeKind.FLOAT;
         case Types.DATE:
         case Types.TIME:
         case Types.TIMESTAMP:
@@ -756,9 +756,9 @@ public class SQLDatasourceUtils {
         case Types.BINARY:
         case Types.VARBINARY:
         case Types.LONGVARBINARY:
-            return TypeEnum.EMPTY;
+            return TypeKind.NONE;
         default:
-            return TypeEnum.EMPTY;
+            return TypeKind.NONE;
         }
     }
 

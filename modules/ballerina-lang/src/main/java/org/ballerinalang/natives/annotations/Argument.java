@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.natives.annotations;
 
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 
 /**
  * Represents an Argument of a Native Ballerina Function or Action.
@@ -26,10 +26,10 @@ public @interface Argument {
 
     String name();
 
-    TypeEnum type();
+    TypeKind type();
 
     // elementType specially used with Arrays to specify the type of arrays.
-    TypeEnum elementType() default TypeEnum.EMPTY;
+    TypeKind elementType() default TypeKind.NONE;
 
     //used with structs to specify the struct type name
     String structType() default "";

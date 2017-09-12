@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -40,9 +40,9 @@ import java.util.IllegalFormatException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setMaxInactiveInterval",
-        args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
+        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
                 structPackage = "ballerina.net.http"),
-                @Argument(name = "timeInterval", type = TypeEnum.INT)},
+                @Argument(name = "timeInterval", type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

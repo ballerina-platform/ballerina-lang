@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -37,9 +37,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.strings",
         functionName = "indexOf",
-        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
-                @Argument(name = "subString", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "subString", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

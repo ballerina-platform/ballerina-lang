@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
@@ -43,9 +43,9 @@ import java.util.Map;
         packageName = "ballerina.net.ftp",
         actionName = "write",
         connectorName = FileConstants.CONNECTOR_NAME,
-        args = { @Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "blob", type = TypeEnum.BLOB),
-                 @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
+        args = { @Argument(name = "ftpClientConnector", type = TypeKind.CONNECTOR),
+                 @Argument(name = "blob", type = TypeKind.BLOB),
+                 @Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files") })
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "This function writes a file using the given byte data") })

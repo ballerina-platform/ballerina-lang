@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -35,9 +35,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "setProperty",
-        args = {@Argument(name = "msg", type = TypeEnum.MESSAGE),
-                @Argument(name = "propertyName", type = TypeEnum.STRING),
-                @Argument(name = "propertyValue", type = TypeEnum.STRING)}, //TODO: property value could be of any type
+        args = {@Argument(name = "msg", type = TypeKind.MESSAGE),
+                @Argument(name = "propertyName", type = TypeKind.STRING),
+                @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.maps;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -39,8 +39,8 @@ import java.util.Set;
 @BallerinaFunction(
         packageName = "ballerina.lang.maps",
         functionName = "keys",
-        args = {@Argument(name = "m", type = TypeEnum.MAP)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        args = {@Argument(name = "m", type = TypeKind.MAP)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

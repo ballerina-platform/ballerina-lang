@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -37,9 +37,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.strings",
         functionName = "hasSuffix",
-        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
-                @Argument(name = "suffix", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "suffix", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

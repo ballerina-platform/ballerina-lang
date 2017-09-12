@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -33,7 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "sleep",
-        args = {@Argument(name = "t", type = TypeEnum.INT)},
+        args = {@Argument(name = "t", type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

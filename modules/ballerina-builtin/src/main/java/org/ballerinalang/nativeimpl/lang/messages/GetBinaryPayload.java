@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
@@ -41,8 +41,8 @@ import org.wso2.carbon.messaging.BinaryCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getBinaryPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.BLOB)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

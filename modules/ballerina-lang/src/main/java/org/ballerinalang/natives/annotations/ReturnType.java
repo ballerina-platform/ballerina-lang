@@ -18,13 +18,13 @@
 
 package org.ballerinalang.natives.annotations;
 
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 
 /**
  * Represents an return value of a Native Ballerina Function.
  */
 public @interface ReturnType {
-    TypeEnum type();
+    TypeKind type();
 
     //used with structs to specify the struct type name
     String structType() default "";
@@ -32,7 +32,7 @@ public @interface ReturnType {
     String structPackage() default "null";
 
     // elementType specially used with Arrays to specify the type of arrays.
-    TypeEnum elementType() default TypeEnum.EMPTY;
+    TypeKind elementType() default TypeKind.NONE;
 
     int arrayDimensions() default 1;
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
@@ -46,8 +46,8 @@ import java.net.URLDecoder;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getFormParams",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

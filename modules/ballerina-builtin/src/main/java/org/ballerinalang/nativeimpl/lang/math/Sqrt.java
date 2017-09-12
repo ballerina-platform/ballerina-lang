@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.math;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -34,8 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
         functionName = "sqrt",
-        args = {@Argument(name = "val", type = TypeEnum.FLOAT)},
-        returnType = {@ReturnType(type = TypeEnum.FLOAT)},
+        args = {@Argument(name = "val", type = TypeKind.FLOAT)},
+        returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
 public class Sqrt extends AbstractNativeFunction {

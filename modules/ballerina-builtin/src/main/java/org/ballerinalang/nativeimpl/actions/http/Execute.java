@@ -17,7 +17,7 @@
 package org.ballerinalang.nativeimpl.actions.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
@@ -45,14 +45,14 @@ import java.util.Locale;
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c",
-                        type = TypeEnum.CONNECTOR),
-                @Argument(name = "httpVerb", type = TypeEnum.STRING),
-                @Argument(name = "path", type = TypeEnum.STRING),
-                @Argument(name = "m", type = TypeEnum.MESSAGE)
+                        type = TypeKind.CONNECTOR),
+                @Argument(name = "httpVerb", type = TypeKind.STRING),
+                @Argument(name = "path", type = TypeKind.STRING),
+                @Argument(name = "m", type = TypeKind.MESSAGE)
         },
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.MESSAGE)},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING)
+                @Argument(name = "serviceUri", type = TypeKind.STRING)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Invokes an HTTP call with the specified HTTP verb.") })

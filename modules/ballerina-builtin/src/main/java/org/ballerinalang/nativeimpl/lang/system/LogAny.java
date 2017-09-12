@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -35,19 +35,19 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "log",
-        args = {@Argument(name = "logLevel", type = TypeEnum.INT),
-                @Argument(name = "value", type = TypeEnum.ANY)},
+        args = {@Argument(name = "logLevel", type = TypeKind.INT),
+                @Argument(name = "value", type = TypeKind.ANY)},
         isPublic = true,
         consts = {
-                @BallerinaConstant(identifier = "LOG_LEVEL_TRACE", type = TypeEnum.INT, value = "1",
+                @BallerinaConstant(identifier = "LOG_LEVEL_TRACE", type = TypeKind.INT, value = "1",
                         argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_DEBUG", type = TypeEnum.INT, value = "2",
+                @BallerinaConstant(identifier = "LOG_LEVEL_DEBUG", type = TypeKind.INT, value = "2",
                         argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_INFO", type = TypeEnum.INT, value = "3",
+                @BallerinaConstant(identifier = "LOG_LEVEL_INFO", type = TypeKind.INT, value = "3",
                         argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_WARN", type = TypeEnum.INT, value = "4",
+                @BallerinaConstant(identifier = "LOG_LEVEL_WARN", type = TypeKind.INT, value = "4",
                         argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_ERROR", type = TypeEnum.INT, value = "5",
+                @BallerinaConstant(identifier = "LOG_LEVEL_ERROR", type = TypeKind.INT, value = "5",
                         argumentRefs = {"logLevel"})
         }
 )

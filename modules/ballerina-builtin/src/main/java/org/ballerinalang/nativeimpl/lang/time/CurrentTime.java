@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
         functionName = "currentTime",
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Time",
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
                                   structPackage = "ballerina.lang.time")},
         isPublic = true
 )

@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.ws.connectionstore;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -36,7 +36,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         packageName = "ballerina.net.ws",
         functionName = "removeStoredConnection",
         args = {
-                @Argument(name = "connectionName", type = TypeEnum.STRING)
+                @Argument(name = "connectionName", type = TypeKind.STRING)
         },
         isPublic = true
 )

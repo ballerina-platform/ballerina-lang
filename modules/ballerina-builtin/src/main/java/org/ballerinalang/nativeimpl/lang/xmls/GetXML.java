@@ -33,7 +33,7 @@ import net.sf.saxon.value.EmptySequence;
 
 import org.apache.axiom.om.OMElement;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -52,9 +52,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
         functionName = "getXml",
-        args = {@Argument(name = "x", type = TypeEnum.XML),
-                @Argument(name = "xPath", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+        args = {@Argument(name = "x", type = TypeKind.XML),
+                @Argument(name = "xPath", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

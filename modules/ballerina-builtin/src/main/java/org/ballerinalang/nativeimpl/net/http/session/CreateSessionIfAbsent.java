@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -53,8 +53,8 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "createSessionIfAbsent",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Session",
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
                 structPackage = "ballerina.net.http")},
         isPublic = true
 )

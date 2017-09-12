@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -38,8 +38,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
         functionName = "setAttributes",
-        args = {@Argument(name = "x", type = TypeEnum.XML),
-                @Argument(name = "attributes", type = TypeEnum.MAP)},
+        args = {@Argument(name = "x", type = TypeKind.XML),
+                @Argument(name = "attributes", type = TypeKind.MAP)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

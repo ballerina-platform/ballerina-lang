@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -38,9 +38,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getProperty",
-        args = {@Argument(name = "msg", type = TypeEnum.MESSAGE),
-                @Argument(name = "propertyName", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)}, // TODO: Ballerina only supports string properties ATM
+        args = {@Argument(name = "msg", type = TypeKind.MESSAGE),
+                @Argument(name = "propertyName", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

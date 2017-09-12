@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.utils;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -39,7 +39,7 @@ import java.util.UUID;
 @BallerinaFunction(
         packageName = "ballerina.utils",
         functionName = "getRandomString",
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

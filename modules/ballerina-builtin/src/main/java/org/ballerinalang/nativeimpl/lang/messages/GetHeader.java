@@ -2,7 +2,7 @@ package org.ballerinalang.nativeimpl.lang.messages;
 
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -20,9 +20,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getHeader",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
-                @Argument(name = "headerName", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE),
+                @Argument(name = "headerName", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.files;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -39,9 +39,9 @@ import java.nio.file.Paths;
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
         functionName = "exists",
-        args = {@Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
+        args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.lang.files")},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -38,8 +38,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
         functionName = "parse",
-        args = {@Argument(name = "xmlStr", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+        args = {@Argument(name = "xmlStr", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

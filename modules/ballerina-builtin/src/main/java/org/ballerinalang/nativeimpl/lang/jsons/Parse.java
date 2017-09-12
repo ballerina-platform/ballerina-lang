@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.jsons;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.jsons",
         functionName = "parse",
-        args = {@Argument(name = "jsonStr", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.JSON)},
+        args = {@Argument(name = "jsonStr", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
 )
 public class Parse extends AbstractNativeFunction {

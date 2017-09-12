@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -35,16 +35,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
         functionName = "addDuration",
-        args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
+        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.lang.time"),
-                @Argument(name = "years", type = TypeEnum.INT),
-                @Argument(name = "months", type = TypeEnum.INT),
-                @Argument(name = "days", type = TypeEnum.INT),
-                @Argument(name = "hours", type = TypeEnum.INT),
-                @Argument(name = "minutes", type = TypeEnum.INT),
-                @Argument(name = "seconds", type = TypeEnum.INT),
-                @Argument(name = "milliseconds", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Time",
+                @Argument(name = "years", type = TypeKind.INT),
+                @Argument(name = "months", type = TypeKind.INT),
+                @Argument(name = "days", type = TypeKind.INT),
+                @Argument(name = "hours", type = TypeKind.INT),
+                @Argument(name = "minutes", type = TypeKind.INT),
+                @Argument(name = "seconds", type = TypeKind.INT),
+                @Argument(name = "milliseconds", type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
                                   structPackage = "ballerina.lang.time")},
         isPublic = true
 )

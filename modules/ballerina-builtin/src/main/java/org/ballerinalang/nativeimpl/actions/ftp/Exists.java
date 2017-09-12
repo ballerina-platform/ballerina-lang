@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -42,10 +42,10 @@ import java.util.Map;
         packageName = "ballerina.net.ftp",
         actionName = "exists",
         connectorName = FileConstants.CONNECTOR_NAME,
-        args = { @Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
+        args = { @Argument(name = "ftpClientConnector", type = TypeKind.CONNECTOR),
+                 @Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files") },
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Checks the existence of a file") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",

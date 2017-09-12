@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -35,9 +35,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.strings",
         functionName = "split",
-        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
-                @Argument(name = "regex", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        args = {@Argument(name = "mainString", type = TypeKind.STRING),
+                @Argument(name = "regex", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

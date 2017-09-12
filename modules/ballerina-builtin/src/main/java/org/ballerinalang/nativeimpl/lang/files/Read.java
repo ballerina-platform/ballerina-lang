@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.files;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
@@ -40,11 +40,11 @@ import java.util.Arrays;
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
         functionName = "read",
-        args = {@Argument(name = "is", type = TypeEnum.STRUCT, structType = "File",
+        args = {@Argument(name = "is", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.lang.files"),
-                @Argument(name = "number", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.BLOB),
-                      @ReturnType(type = TypeEnum.INT)},
+                @Argument(name = "number", type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.BLOB),
+                      @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

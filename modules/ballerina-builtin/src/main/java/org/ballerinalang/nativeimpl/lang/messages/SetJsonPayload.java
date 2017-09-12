@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
@@ -38,8 +38,8 @@ import org.wso2.carbon.messaging.MessageUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "setJsonPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
-                @Argument(name = "payload", type = TypeEnum.JSON)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE),
+                @Argument(name = "payload", type = TypeKind.JSON)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

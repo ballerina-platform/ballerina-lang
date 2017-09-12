@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -38,9 +38,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
         functionName = "selectDescendants",
-        args = {@Argument(name = "x", type = TypeEnum.XML),
-                @Argument(name = "qname", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+        args = {@Argument(name = "x", type = TypeKind.XML),
+                @Argument(name = "qname", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 public class SelectDescendants extends AbstractNativeFunction {

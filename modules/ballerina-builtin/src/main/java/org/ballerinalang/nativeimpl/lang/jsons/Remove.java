@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.jsons;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
@@ -34,8 +34,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.jsons",
         functionName = "remove",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "key", type = TypeEnum.STRING)},
+        args = {@Argument(name = "j", type = TypeKind.JSON),
+                @Argument(name = "key", type = TypeKind.STRING)},
         isPublic = true
 )
 public class Remove extends AbstractNativeFunction {
