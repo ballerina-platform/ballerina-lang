@@ -63,6 +63,16 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
                 public void notifyFailure(BallerinaConnectorException ex) {
                     throw new BallerinaException("Error: " + ex.getMessage());
                 }
+
+                @Override
+                public void notifySuccess(CarbonMessage carbonMessage) {
+
+                }
+
+                @Override
+                public void notifyFailure(Exception ex, CarbonMessage carbonMessage) {
+
+                }
             });
 
         } else {
@@ -193,56 +203,56 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     ////////////////////////////
 
 
-    @Override
-    public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        try {
-            Session session = webSocketInitMessage.handshake();
-            CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(webSocketInitMessage);
-            HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketInitMessage);
-            WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
-            Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-            submitResource(resource, carbonMessage);
-        } catch (ProtocolException e) {
-            throw new BallerinaConnectorException("Error occurred during WebSocket handshake", e);
-        }
-    }
-
-    @Override
-    public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketTextMessage(webSocketTextMessage);
-        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketTextMessage);
-        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
-        submitResource(resource, carbonMessage);
-    }
-
-    @Override
-    public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        throw new BallerinaConnectorException("Binary messages are not supported!");
-    }
-
-    @Override
-    public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        throw new BallerinaConnectorException("Pong messages are not supported!");
-    }
-
-    @Override
-    public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketCloseMessage(webSocketCloseMessage);
-        Session serverSession = webSocketCloseMessage.getChannelSession();
-        WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
-        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketCloseMessage);
-        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
-        submitResource(resource, carbonMessage);
-    }
-
-    @Override
-    public void onError(Throwable throwable) {
-        throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
-    }
-
-    private void submitResource(Resource resource, CarbonMessage carbonMessage) {
-        ConnectorFuture connectorFuture = Executor.submit(resource, carbonMessage);
-        ConnectorFutureListener futureListener = new WebSocketConnectorFutureListener();
-        connectorFuture.setConnectorFutureListener(futureListener);
-    }
+//    @Override
+//    public void onMessage(WebSocketInitMessage webSocketInitMessage) {
+//        try {
+//            Session session = webSocketInitMessage.handshake();
+//            CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketInitMessage(webSocketInitMessage);
+//            HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketInitMessage);
+//            WebSocketConnectionManager.getInstance().addServerSession(service, session, carbonMessage);
+//            Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
+//            submitResource(resource, carbonMessage);
+//        } catch (ProtocolException e) {
+//            throw new BallerinaConnectorException("Error occurred during WebSocket handshake", e);
+//        }
+//    }
+//
+//    @Override
+//    public void onMessage(WebSocketTextMessage webSocketTextMessage) {
+//        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketTextMessage(webSocketTextMessage);
+//        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketTextMessage);
+//        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
+//        submitResource(resource, carbonMessage);
+//    }
+//
+//    @Override
+//    public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
+//        throw new BallerinaConnectorException("Binary messages are not supported!");
+//    }
+//
+//    @Override
+//    public void onMessage(WebSocketControlMessage webSocketControlMessage) {
+//        throw new BallerinaConnectorException("Pong messages are not supported!");
+//    }
+//
+//    @Override
+//    public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
+//        CarbonMessage carbonMessage = HTTPMessageUtil.convertWebSocketCloseMessage(webSocketCloseMessage);
+//        Session serverSession = webSocketCloseMessage.getChannelSession();
+//        WebSocketConnectionManager.getInstance().removeSessionFromAll(serverSession);
+//        HttpService service = WebSocketDispatcher.findService(carbonMessage, webSocketCloseMessage);
+//        Resource resource = WebSocketDispatcher.getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
+//        submitResource(resource, carbonMessage);
+//    }
+//
+//    @Override
+//    public void onError(Throwable throwable) {
+//        throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
+//    }
+//
+//    private void submitResource(Resource resource, CarbonMessage carbonMessage) {
+//        ConnectorFuture connectorFuture = Executor.submit(resource, carbonMessage);
+//        ConnectorFutureListener futureListener = new WebSocketConnectorFutureListener();
+//        connectorFuture.setConnectorFutureListener(futureListener);
+//    }
 }

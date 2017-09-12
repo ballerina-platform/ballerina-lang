@@ -29,9 +29,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import static org.ballerinalang.net.http.session.Constants.COOKIE_HEADER;
-import static org.ballerinalang.net.http.session.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.net.http.session.Constants.SESSION_ID;
+import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
+import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
+import static org.ballerinalang.net.http.Constants.SESSION_ID;
 
 /**
  * HTTP session sub Methods Test Class.

@@ -36,10 +36,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        Executor.submit(HttpDispatcher.findResource(httpCarbonMessage), httpCarbonMessage,
-                HttpDispatcher.getCallback(httpCarbonMessage));
-        Resource resource = HttpDispatcher.findResource(httpCarbonMessage);
-        Executor.submit(resource, HttpDispatcher.getSignatureParameters(resource, httpCarbonMessage));
         ConnectorFuture future = Executor.submit(HttpDispatcher.findResource(httpCarbonMessage),
                 httpCarbonMessage);
         ConnectorFutureListener futureListener = new HttpConnectorFutureListener(HttpDispatcher

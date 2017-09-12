@@ -19,7 +19,7 @@
 package org.ballerinalang.service;
 
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.net.http.session.Constants;
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
