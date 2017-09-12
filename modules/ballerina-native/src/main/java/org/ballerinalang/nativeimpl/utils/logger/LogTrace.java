@@ -37,14 +37,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.utils.logger",
         functionName = "trace",
-        args = {@Argument(name = "value", type = TypeEnum.ANY)},
+        args = {@Argument(name = "msg", type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-                                                                              value = "Logs the specified value at " +
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "msg",
+                                                                              value = "Logs the specified message at " +
                                                                                       "trace level.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-                                                                        value = "The value to be logged.")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "msg",
+                                                                        value = "The message to be logged.")})
 public class LogTrace extends AbstractLogFunction {
 
     private static final BLogger logger = new BLogger(LogTrace.class.getCanonicalName());

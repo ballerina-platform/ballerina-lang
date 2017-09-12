@@ -58,7 +58,7 @@ public abstract class AbstractLogFunction extends AbstractNativeFunction {
         String fileName = lineNumberInfo.getFileName();
         int lineNumber = lineNumberInfo.getLineNumber();
 
-        BLogRecord logRecord = new BLogRecord(level, getRefArgument(ctx, 0).stringValue());
+        BLogRecord logRecord = new BLogRecord(level, getStringArgument(ctx, 0));
         logRecord.setPackageName(packageName);
         logRecord.setCallableUnitName(callableUnitName);
         logRecord.setFileName(fileName);
