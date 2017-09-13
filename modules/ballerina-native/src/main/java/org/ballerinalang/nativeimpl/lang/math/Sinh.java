@@ -27,21 +27,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.math:sqrt.
+ * Native function ballerina.lang.math:sinh.
  *
- * @since 0.90
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
-        functionName = "sqrt",
+        functionName = "sinh",
         args = {@Argument(name = "val", type = TypeEnum.FLOAT)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )
-public class Sqrt extends AbstractNativeFunction {
+public class Sinh extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         double value = getFloatArgument(ctx, 0);
-        return getBValues(new BFloat(Math.sqrt(value)));
+        return getBValues(new BFloat(Math.sinh(value)));
     }
 }

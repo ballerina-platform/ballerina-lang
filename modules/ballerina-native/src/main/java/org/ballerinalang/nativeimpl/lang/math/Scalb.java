@@ -27,21 +27,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.math:sqrt.
+ * Native function ballerina.lang.math:scalb.
  *
- * @since 0.90
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
-        functionName = "sqrt",
-        args = {@Argument(name = "val", type = TypeEnum.FLOAT)},
+        functionName = "scalb",
+        args = {@Argument(name = "a", type = TypeEnum.FLOAT),
+                @Argument(name = "scaleFactor", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )
-public class Sqrt extends AbstractNativeFunction {
+public class Scalb extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        double value = getFloatArgument(ctx, 0);
-        return getBValues(new BFloat(Math.sqrt(value)));
+        double a = getFloatArgument(ctx, 0);
+        long b = getIntArgument(ctx, 0);
+        int intVal = ((Long) b).intValue();
+        return getBValues(new BFloat(Math.scalb(a, intVal)));
     }
 }

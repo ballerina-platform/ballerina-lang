@@ -27,21 +27,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.math:sqrt.
+ * Native function ballerina.lang.math:nextAfter.
  *
- * @since 0.90
+ * @since 0.95
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
-        functionName = "sqrt",
-        args = {@Argument(name = "val", type = TypeEnum.FLOAT)},
+        functionName = "nextAfter",
+        args = {@Argument(name = "a", type = TypeEnum.FLOAT),
+                @Argument(name = "b", type = TypeEnum.FLOAT)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )
-public class Sqrt extends AbstractNativeFunction {
+public class NextAfter extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        double value = getFloatArgument(ctx, 0);
-        return getBValues(new BFloat(Math.sqrt(value)));
+        double a = getFloatArgument(ctx, 0);
+        double b = getFloatArgument(ctx, 1);
+        return getBValues(new BFloat(Math.nextAfter(a, b)));
     }
 }
