@@ -9,9 +9,6 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions(plugin) {
     return [
         {
-            id: COMMANDS.SHOW_WELCOME,
-        },
-        {
             id: COMMANDS.OPEN_REFRENCE,
             shortcut: {
                 default: 'f1',

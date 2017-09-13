@@ -15,21 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { COMMANDS } from './constants';
 
-export const COMMANDS = {
-    SHOW_WELCOME: 'help-welcome',
-};
-
-export const MENUS = {
-    WELCOME_PAGE_MENU: 'composer.menu.help.welcome',
-};
-
-export const LABELS = {
-    WELCOME: 'Welcome',
-};
-
-export const VIEWS = {
-    WELCOME_TAB_VIEW_ID: 'welcome-tab-view-id',
-};
-
-export const WELCOME_TAB_PLUGIN_ID = 'composer.plugin.welcometab';
+/**
+ * Provides command definitions of help plugin.
+ *
+ * @returns {Object[]} command definitions.
+ *
+ */
+export function getCommandDefinitions(plugin) {
+    return [
+        {
+            id: COMMANDS.SHOW_WELCOME,
+        },
+    ];
+}

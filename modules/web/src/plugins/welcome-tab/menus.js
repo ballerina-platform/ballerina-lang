@@ -16,20 +16,28 @@
  * under the License.
  */
 
-export const COMMANDS = {
-    SHOW_WELCOME: 'help-welcome',
-};
+import { MENU_DEF_TYPES } from 'core/menu/constants';
+import { MENUS as HELP_MENUS } from 'plugins/help/constants';
+import { MENUS, COMMANDS, LABELS } from './constants';
 
-export const MENUS = {
-    WELCOME_PAGE_MENU: 'composer.menu.help.welcome',
-};
-
-export const LABELS = {
-    WELCOME: 'Welcome',
-};
-
-export const VIEWS = {
-    WELCOME_TAB_VIEW_ID: 'welcome-tab-view-id',
-};
-
-export const WELCOME_TAB_PLUGIN_ID = 'composer.plugin.welcometab';
+/**
+ * Provides menu definitions of help plugin.
+ *
+ * @returns {Object[]} menu definitions.
+ *
+ */
+export function getMenuDefinitions(plugin) {
+    return [
+        {
+            id: MENUS.WELCOME_PAGE_MENU,
+            parent: HELP_MENUS.HELP_MENU,
+            label: LABELS.WELCOME,
+            isActive: (appContext) => {
+                return true;
+            },
+            order: 5,
+            command: COMMANDS.SHOW_WELCOME,
+            type: MENU_DEF_TYPES.ITEM,
+        },
+    ];
+}
