@@ -240,7 +240,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        this.pkgBuilder.endFunctionDef();
+        boolean isDeclaredWithType;
+        if (ctx.nameReference() != null) {
+            isDeclaredWithType = true;
+        } else {
+            isDeclaredWithType = false;
+        }
+        String typeVariable;
+        if (ctx.Identifier() != null) {
+            typeVariable = ctx.Identifier().getText();
+        } else {
+            typeVariable = null;
+        }
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), isDeclaredWithType, typeVariable);
     }
 
     @Override

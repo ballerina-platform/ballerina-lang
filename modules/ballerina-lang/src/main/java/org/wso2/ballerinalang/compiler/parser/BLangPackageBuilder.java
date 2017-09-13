@@ -340,7 +340,7 @@ public class BLangPackageBuilder {
         lambdaExpr.function = lambdaFunction;
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
-        endFunctionDef();
+        endFunctionDef(pos, false, null);
     }
 
     public void addVariableDefStatement(String identifier, boolean exprAvailable) {
@@ -567,8 +567,20 @@ public class BLangPackageBuilder {
         addExpressionNode(unaryExpressionNode);
     }
 
-    public void endFunctionDef() {
-        this.compUnit.addTopLevelNode((FunctionNode) this.invokableNodeStack.pop());
+    public void endFunctionDef(DiagnosticPos pos, boolean isDeclaredWithType, String typeVariable) {
+        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        function.pos = pos;
+        addUserDefineType(pos);
+        if (isDeclaredWithType) {
+            VariableNode var = TreeBuilder.createVariableNode();
+            var.setName(this.createIdentifier(typeVariable));
+            var.setTypeNode(this.typeNodeStack.pop());
+            function.isDeclaredWithType = true;
+            function.typeVar = (BLangVariable) var;
+        } else {
+            function.isDeclaredWithType = false;
+        }
+        this.compUnit.addTopLevelNode(function);
     }
 
     public void endCallableUnitBody() {

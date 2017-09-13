@@ -62,7 +62,7 @@ callableUnitBody
 
 functionDefinition
     :   NATIVE FUNCTION  callableUnitSignature SEMICOLON
-    |   FUNCTION callableUnitSignature callableUnitBody
+    |   FUNCTION (LT nameReference Identifier GT)? callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction

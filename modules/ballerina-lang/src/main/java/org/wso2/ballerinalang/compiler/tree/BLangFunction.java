@@ -19,11 +19,31 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.VariableNode;
 
 /**
  * @since 0.94
  */
 public class BLangFunction extends BLangInvokableNode implements FunctionNode {
+
+    public boolean isDeclaredWithType;
+    public BLangVariable typeVar;
+
+    public boolean isDeclaredWithType() {
+        return this.isDeclaredWithType;
+    }
+
+    public void setDeclaredWithType(boolean isDeclaredWithType) {
+        this.isDeclaredWithType = isDeclaredWithType;
+    }
+
+    public VariableNode getTypeVariable() {
+        return typeVar;
+    }
+
+    public void setTypeVariable(VariableNode var) {
+        this.typeVar = (BLangVariable) var;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
