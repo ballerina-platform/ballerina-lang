@@ -80,8 +80,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
-    public boolean checkForUniqueSymbol(DiagnosticPos pos, BSymbol symbol, Scope scope) {
-        if (lookupSymbol(scope, symbol.name, symbol.tag) != symTable.notFoundSymbol) {
+    public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
+        BSymbol foundSym = lookupSymbol(env, symbol.name, symbol.tag);
+        if (foundSym != symTable.notFoundSymbol && foundSym.owner == symbol.owner) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -90,8 +91,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol resolveExplicitCastOperator(DiagnosticPos pos,
-                                                BType sourceType,
-                                                BType targetType) {
+                                               BType sourceType,
+                                               BType targetType) {
         ScopeEntry entry = symTable.rootScope.lookup(Names.CAST_OP);
         List<BType> types = new ArrayList<>(2);
         types.add(sourceType);
@@ -135,6 +136,73 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symbol;
     }
 
+    public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
+        return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
+    }
+
+    public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
+        SymbolEnv prevEnv = this.env;
+        DiagnosticCode preDiagCode = this.diagCode;
+
+        this.env = env;
+        this.diagCode = diagCode;
+        typeNode.accept(this);
+        this.env = prevEnv;
+        this.diagCode = preDiagCode;
+
+        return resultType;
+    }
+
+    /**
+     * Return the symbol associated with the given name, starting
+     * This method first searches the symbol in the current scope
+     * and proceeds the enclosing scope, if it is not there in the
+     * current scope. This process continues until the symbol is
+     * found or the root scope is reached.
+     *
+     * @param env       current symbol environment
+     * @param name      symbol name
+     * @param expSymTag expected symbol type/tag
+     * @return resolved symbol
+     */
+    public BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
+        ScopeEntry entry = env.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if (entry.symbol.tag == expSymTag) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+
+        if (env.enclEnv != null) {
+            return lookupSymbol(env.enclEnv, name, expSymTag);
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
+
+    /**
+     * Return the symbol with the given name.
+     * This method only looks at the symbol defined in the given scope.
+     *
+     * @param scope     current scope
+     * @param name      symbol name
+     * @param expSymTag expected symbol type/tag
+     * @return resolved symbol
+     */
+    public BSymbol lookupMemberSymbol(Scope scope, Name name, int expSymTag) {
+        ScopeEntry entry = scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
@@ -158,9 +226,24 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {
-        throw new AssertionError();
+        // 1) lookup the imported package using the package alias,
+        //     if the package alias is empty then lookup the current package
+        // 2) lookup the typename in the package scope
+
+        // TODO Lookup the package scope. This code only looks at the global scope. Fix it.
+        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BSymbol symbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
+            resultType = symTable.errType;
+            return;
+        }
+
+        resultType = symbol.type;
     }
 
+
+    // private methods
 
     private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
         BSymbol foundSymbol = symTable.notFoundSymbol;
@@ -188,38 +271,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         return foundSymbol;
     }
 
-    BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
-        return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
-    }
-
-    BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
-        SymbolEnv prevEnv = this.env;
-        DiagnosticCode preDiagCode = this.diagCode;
-
-        this.env = env;
-        this.diagCode = diagCode;
-        typeNode.accept(this);
-        this.env = prevEnv;
-        this.diagCode = preDiagCode;
-
-        return resultType;
-    }
-
-    BSymbol lookupSymbol(Scope scope, Name name, int expSymbolTag) {
-        ScopeEntry entry = scope.lookup(name);
-        while (entry != NOT_FOUND_ENTRY) {
-            if (entry.symbol.tag == expSymbolTag) {
-                return entry.symbol;
-            }
-            entry = entry.next;
-        }
-
-        return symTable.notFoundSymbol;
-    }
-
     private void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind) {
         Name typeName = names.fromTypeKind(typeKind);
-        BSymbol typeSymbol = lookupSymbol(symTable.rootScope, typeName, SymTag.TYPE);
+        BSymbol typeSymbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(typeNode.pos, diagCode, typeName);
         }

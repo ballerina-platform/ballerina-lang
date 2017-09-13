@@ -438,6 +438,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitReferenceTypeName(BallerinaParser.ReferenceTypeNameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#userDefineTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#userDefineTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#valueTypeName}.
 	 * @param ctx the parse tree
 	 */

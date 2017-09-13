@@ -129,7 +129,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVarRef varRefExpr) {
         Name varName = names.fromIdNode(varRefExpr.variableName);
-        BSymbol symbol = symResolver.lookupSymbol(env.scope, varName, SymTag.VARIABLE);
+        BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
 
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());

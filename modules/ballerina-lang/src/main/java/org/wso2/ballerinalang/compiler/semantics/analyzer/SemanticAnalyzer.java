@@ -104,7 +104,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         BSymbol funcSymbol = funcNode.symbol;
-        SymbolEnv funcEnv = SymbolEnv.getFunctionEnv(funcNode, funcSymbol.scope, env);
+        SymbolEnv funcEnv = SymbolEnv.createTopLevelMemberEnv(funcNode, env, funcSymbol.scope);
 
         // Check for native functions
         analyzeStmt(funcNode.body, funcEnv);
@@ -126,7 +126,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Here we create a new symbol environment to catch self references by keep the current
             // variable symbol in the symbol environment
             // e.g. int a = x + a;
-            SymbolEnv varInitEnv = SymbolEnv.getVarInitEnv(varNode, varNode.symbol, env);
+            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
             typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
         }
         varNode.type = varNode.symbol.type;
@@ -136,7 +136,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Statements
 
     public void visit(BLangBlockStmt blockNode) {
-        SymbolEnv blockEnv = SymbolEnv.getBlockEnv(blockNode, env);
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.statements.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 

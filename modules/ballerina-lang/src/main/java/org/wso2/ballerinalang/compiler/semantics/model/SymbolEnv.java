@@ -75,15 +75,15 @@ public class SymbolEnv {
         return env;
     }
 
-    public static SymbolEnv getFunctionEnv(BLangInvokableNode node,
-                                           Scope scope,
-                                           SymbolEnv env) {
+    public static SymbolEnv createTopLevelMemberEnv(BLangNode node,
+                                                    SymbolEnv env,
+                                                    Scope scope) {
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
 
-    public static SymbolEnv getBlockEnv(BLangBlockStmt block, SymbolEnv env) {
+    public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = block.scope;
         if (scope == null) {
@@ -96,7 +96,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv getVarInitEnv(BLangVariable node, BVarSymbol enclVarSym, SymbolEnv env) {
+    public static SymbolEnv createVarInitEnv(BLangVariable node, SymbolEnv env, BVarSymbol enclVarSym) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         symbolEnv.enclVarSym = enclVarSym;

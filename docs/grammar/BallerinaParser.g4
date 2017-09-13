@@ -164,7 +164,11 @@ typeName
 
 referenceTypeName
     :   builtInReferenceTypeName
-    |   nameReference
+    |   userDefineTypeName
+    ;
+
+userDefineTypeName
+    :   nameReference
     ;
 
 valueTypeName
@@ -269,7 +273,7 @@ variableDefinitionStatement
     ;
 
 connectorVarDefStatement
-    : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
+    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -285,11 +289,11 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
     ;
 
 filterInitExpression
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 filterInitExpressionList

@@ -508,6 +508,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterValueTypeName(BallerinaParser.ValueTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
