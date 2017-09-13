@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
@@ -48,10 +46,6 @@ import javax.websocket.Session;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Get negotiated sub protocol") })
-@BallerinaAnnotation(annotationName = "Return",
-                     attributes = {@Attribute(name = "string", value = "negotiated sub protocol")})
 public class GetNegotiatedSubProtocol extends AbstractNativeFunction {
 
     @Override

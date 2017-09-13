@@ -43,14 +43,6 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Adds a transport header to the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
-        value = "The response message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
-        value = "The header name") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-        value = "The header value") })
 public class AddHeader extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(AddHeader.class);

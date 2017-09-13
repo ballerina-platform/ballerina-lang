@@ -25,8 +25,6 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 //import org.ballerinalang.net.http.session.Session;
@@ -45,12 +43,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the session last accessed time")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
-        value = "A session struct")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
-        value = "HTTPSession last accessed time") })
 public class GetLastAccessedTime extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

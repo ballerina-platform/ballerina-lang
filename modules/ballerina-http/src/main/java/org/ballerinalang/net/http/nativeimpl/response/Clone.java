@@ -44,12 +44,6 @@ import org.slf4j.LoggerFactory;
         returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Clones and creates a new instance of a message object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
-        value = "The response message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
-        value = "The new instance of the message object ") })
 public class Clone extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(AddHeader.class);

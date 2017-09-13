@@ -23,12 +23,9 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
 
 /**
@@ -44,16 +41,8 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfigura
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING),
-        })
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = {@Attribute(name = "value",
-                                              value = "Add custom header") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "WebSocket Client Connector") })
-@Component(
-        name = "action.net.ws.addCustomHeader",
-        immediate = true,
-        service = AbstractNativeAction.class)
+        }
+)
 public class AddCustomHeader extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {

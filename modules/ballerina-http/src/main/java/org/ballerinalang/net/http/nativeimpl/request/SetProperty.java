@@ -22,8 +22,6 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
 import org.slf4j.Logger;
@@ -43,14 +41,6 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "propertyValue", type = TypeEnum.STRING)}, //TODO: property value could be of any type
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets a message property") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-        value = "The current request message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
-        value = "The name of the property") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyValue",
-        value = "The value of the property") })
 public class SetProperty extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(SetProperty.class);

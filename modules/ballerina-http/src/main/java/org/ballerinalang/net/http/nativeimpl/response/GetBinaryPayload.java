@@ -43,12 +43,6 @@ import org.slf4j.LoggerFactory;
         returnType = {@ReturnType(type = TypeEnum.BLOB)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the message payload in blob format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
-        value = "The response message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "blob",
-        value = "The blob representation of the message payload") })
 public class GetBinaryPayload extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(

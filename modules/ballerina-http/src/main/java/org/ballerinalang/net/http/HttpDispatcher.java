@@ -18,15 +18,13 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.impl.ConnectorUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +85,7 @@ public class HttpDispatcher {
         }
 
         // Find the Service Dispatcher
-        HttpServerConnector serverConnector = (HttpServerConnector) Executor
+        HttpServerConnector serverConnector = (HttpServerConnector) ConnectorUtils
                 .getBallerinaServerConnector(Constants.PROTOCOL_PACKAGE_HTTP);
         if (serverConnector == null) {
             throw new BallerinaConnectorException("no service dispatcher available to handle protocol: " + protocol);

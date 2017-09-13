@@ -24,8 +24,6 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 //import org.ballerinalang.net.http.Constants;
@@ -51,11 +49,6 @@ import org.slf4j.LoggerFactory;
                 structPackage = "ballerina.net.http")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the session struct for valid id") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m", value = "A message Object")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "Session",
-        value = "HTTP session struct") })
 public class GetSession extends AbstractNativeFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(GetSession.class);

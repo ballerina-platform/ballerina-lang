@@ -23,8 +23,6 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.util.RequestResponseUtil;
 
@@ -39,12 +37,6 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
                 @Argument(name = "contentLength", type = TypeEnum.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets the Content-Length header on the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
-        value = "A response message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "contentLength",
-        value = "Length of the message") })
 public class SetContentLength extends AbstractNativeFunction {
 
     @Override

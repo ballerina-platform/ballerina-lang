@@ -20,7 +20,6 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.connector.impl.BConnectorFuture;
 import org.ballerinalang.connector.impl.BallerinaWorkerThread;
 import org.ballerinalang.connector.impl.ResourceExecutor;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
@@ -80,14 +79,5 @@ public class Executor {
         return connectorFuture;
     }
 
-    /**
-     * This method can be used to access the {@code BallerinaServerConnector} object which is at
-     * Ballerina level.
-     *
-     * @param protocolPkgPath   of the server connector.
-     * @return  ballerinaServerConnector object.
-     */
-    public static BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
-        return ServerConnectorRegistry.getInstance().getBallerinaServerConnector(protocolPkgPath);
-    }
+
 }

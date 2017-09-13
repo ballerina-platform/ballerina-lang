@@ -24,8 +24,6 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 //import org.ballerinalang.net.http.session.Session;
 //import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,13 +44,6 @@ import java.util.IllegalFormatException;
                 @Argument(name = "attributeValue", type = TypeEnum.ANY)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets session attributes to the message")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session", value = "A session struct")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeKey",
-        value = "HTTPSession attribute key")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeValue",
-        value = "HTTPSession attribute Value")})
 public class SetAttribute extends AbstractNativeFunction {
 
     @Override
