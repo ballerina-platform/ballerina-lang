@@ -1,3 +1,4 @@
+import PropTypes from 'PropTypes';
 import { COMMANDS } from './constants';
 
 /**
@@ -10,9 +11,16 @@ export function getCommandDefinitions() {
     return [
         {
             id: COMMANDS.OPEN_FILE,
+            argTypes: {
+                filePath: PropTypes.string.isRequired,
+                ext: PropTypes.string,
+            },
         },
         {
             id: COMMANDS.OPEN_FOLDER,
+            argTypes: {
+                folderPath: PropTypes.string.isRequired,
+            },
         },
         {
             id: COMMANDS.SHOW_FILE_OPEN_WIZARD,

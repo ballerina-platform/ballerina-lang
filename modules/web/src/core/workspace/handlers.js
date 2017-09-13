@@ -10,14 +10,14 @@ export function getHandlerDefinitions(workspaceManager) {
     return [
         {
             cmdID: COMMANDS.OPEN_FILE,
-            handler: (filePath) => {
-                // TODO
+            handler: ({ filePath, ext }) => {
+                workspaceManager.openFile(filePath, ext);
             },
         },
         {
             cmdID: COMMANDS.OPEN_FOLDER,
-            handler: (folderPath) => {
-                // TODO
+            handler: ({ folderPath }) => {
+                workspaceManager.openFolder(folderPath);
             },
         },
         {
