@@ -38,6 +38,11 @@ class WelcomeView extends React.Component {
         };
     }
 
+    /**
+     * Rending the view of the samples.
+     * @returns {ReactView} The samples view.
+     * @memberof WelcomeView
+     */
     renderSamples() {
         const pathSeperator = this._options.application.getPathSeperator();
         const ballerinaHome = _.get(this._options, 'balHome');
