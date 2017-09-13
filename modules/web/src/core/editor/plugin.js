@@ -149,7 +149,11 @@ class EditorPlugin extends Plugin {
      */
     onOpenCustomEditorTab(args) {
         const { id, title, icon, component, propsProvider, customTitleClass } = args;
-        this.openedEditors.push(new CustomEditor(id, title, icon, component, propsProvider, customTitleClass));
+        const editor = new CustomEditor(id, title, icon, component, propsProvider, customTitleClass);
+        this.openedEditors.push(editor);
+        if (_.isNil(this.activeEditorID)) {
+            this.setActiveEditor(editor);
+        }
         this.reRender();
     }
 
