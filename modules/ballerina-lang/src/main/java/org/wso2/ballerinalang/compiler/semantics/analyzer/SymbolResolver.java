@@ -168,7 +168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
-            if (entry.symbol.tag == expSymTag) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
                 return entry.symbol;
             }
             entry = entry.next;
