@@ -22,9 +22,7 @@ import { MENUS, COMMANDS, LABELS } from './constants';
 
 /**
  * Provides menu definitions of help plugin.
- *
  * @returns {Object[]} menu definitions.
- *
  */
 export function getMenuDefinitions(plugin) {
     return [

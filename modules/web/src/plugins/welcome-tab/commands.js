@@ -19,9 +19,7 @@ import { COMMANDS } from './constants';
 
 /**
  * Provides command definitions of help plugin.
- *
  * @returns {Object[]} command definitions.
- *
  */
 export function getCommandDefinitions(plugin) {
     return [

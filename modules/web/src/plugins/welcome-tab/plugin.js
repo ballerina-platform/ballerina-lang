@@ -39,15 +39,27 @@ class WelcomeTabPlugin extends Plugin {
         return WELCOME_TAB_PLUGIN_ID;
     }
 
+    /**
+     * Creates new tab.
+     * @memberof WelcomeTabPlugin
+     */
     createNewHandler() {
         console.log(this);
     }
 
+    /**
+     * Invokes file open dialog.
+     * @memberof WelcomeTabPlugin
+     */
     openFileHandler() {
         const { command } = this.appContext;
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FILE_OPEN_WIZARD, '');
     }
 
+    /**
+     * Invokes folder open dialog.
+     * @memberof WelcomeTabPlugin
+     */
     openDirectoryHandler() {
         const { command } = this.appContext;
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
