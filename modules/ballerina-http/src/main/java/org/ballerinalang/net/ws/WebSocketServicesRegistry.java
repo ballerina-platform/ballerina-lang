@@ -22,8 +22,6 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.util.codegen.ServiceInfo;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
@@ -80,7 +78,7 @@ public class WebSocketServicesRegistry {
     /**
      * Register a service as a client service.
      *
-     * @param clientService {@link HttpService} of the client service.
+     * @param clientService {@link WebSocketService} of the client service.
      */
     public void registerClientService(WebSocketService clientService) {
         boolean isClientService = isWebSocketClientService(clientService);
@@ -94,23 +92,6 @@ public class WebSocketServicesRegistry {
             }
         } else {
             throw new BallerinaConnectorException("Cannot register as a client service");
-        }
-    }
-
-
-    /**
-     * Set the parent service for a given client service.
-     *
-     * @param clientServiceName name of the client service.
-     * @param parentService parent service of the given client service.
-     */
-    public void setParentServiceToClientService(String clientServiceName, ServiceInfo parentService) {
-        if (clientServices.containsKey(clientServiceName)) {
-            clientServices.get(clientServiceName).setParentService(parentService);
-        } else {
-            ClientServiceInfo clientServiceInfo = new ClientServiceInfo();
-            clientServiceInfo.setParentService(parentService);
-            clientServices.put(clientServiceName, clientServiceInfo);
         }
     }
 
@@ -152,24 +133,6 @@ public class WebSocketServicesRegistry {
         return null;
     }
 
-    public ServiceInfo getParentServiceOfClientService(ServiceInfo service) {
-        String clientServiceName = service.getName();
-        if (clientServices.containsKey(clientServiceName)) {
-            return clientServices.get(clientServiceName).getParentService();
-        }
-
-        return null;
-    }
-    /**
-     * Check whether the given service name is a client service or not.
-     *
-     * @param service {@link HttpService} of the service.
-     * @return true if the service given by service name is a client service. Else return false.
-     */
-    public boolean isClientService(ServiceInfo service) {
-        return clientServices.containsKey(service.getName());
-    }
-
     /**
      * Refactor the given URI.
      *
@@ -194,13 +157,14 @@ public class WebSocketServicesRegistry {
     /**
      * Find the Full path for WebSocket upgrade.
      *
-     * @param service {@link HttpService} which the full path should be found.
+     * @param service {@link WebSocketService} which the full path should be found.
      * @return the full path of the WebSocket upgrade.
      */
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
 
-        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANN_NAME_CONFIG);
+        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME,
+                Constants.ANN_NAME_CONFIG);
         String serviceName = service.getName();
         String basePath;
         if (configAnnotation != null) {
@@ -224,7 +188,7 @@ public class WebSocketServicesRegistry {
     /**
      * Find out the given service is a WebSocket client service or not.
      *
-     * @param service {@link HttpService} which should be identified.
+     * @param service {@link WebSocketService} which should be identified.
      * @return true if the given service is a client service.
      */
     private boolean isWebSocketClientService(WebSocketService service) {
@@ -236,7 +200,7 @@ public class WebSocketServicesRegistry {
     /**
      * Find the listener interface of a given service.
      *
-     * @param service {@link HttpService} which the listener interface should be found.
+     * @param service {@link WebSocketService} which the listener interface should be found.
      * @return the listener interface of the service.
      */
     private String getListenerInterface(WebSocketService service) {
@@ -250,7 +214,7 @@ public class WebSocketServicesRegistry {
      */
     private static class ClientServiceInfo {
         private WebSocketService clientService;
-        private ServiceInfo parentService;
+        private WebSocketService parentService;
 
         private ClientServiceInfo() {
         }
@@ -267,11 +231,11 @@ public class WebSocketServicesRegistry {
             this.clientService = clientService;
         }
 
-        private void setParentService(ServiceInfo parentService) {
+        private void setParentService(WebSocketService parentService) {
             this.parentService = parentService;
         }
 
-        private ServiceInfo getParentService() {
+        private WebSocketService getParentService() {
             return parentService;
         }
 
