@@ -1,6 +1,8 @@
 export const COMMANDS = {
     OPEN_FILE: 'open-file',
     OPEN_FOLDER: 'open-folder',
+    SAVE_FILE: 'save-file',
+    SAVE_FILE_AS: 'save-as-file',
     SHOW_FILE_OPEN_WIZARD: 'show-file-open-wizard',
     SHOW_FOLDER_OPEN_WIZARD: 'show-folder-open-wizard',
 };
@@ -20,9 +22,13 @@ export const MENUS = {
     FILE_MENU: 'composer.menu.file',
     SHOW_FILE_OPEN_WIZARD: 'composer.menu.workspace.show-file-open-wizard',
     SHOW_FOLDER_OPEN_WIZARD: 'composer.menu.workspace.show-folder-open-wizard',
+    SAVE_FILE: 'composer.menu.workspace.save-file',
+    SAVE_FILE_AS: 'composer.menu.workspace.save-file-as',
 };
 
 export const LABELS = {
+    SAVE: 'Save',
+    SAVE_AS: 'Save As',
     FILE: 'File',
     SHOW_FILE_OPEN_WIZARD: 'Open File',
     SHOW_FOLDER_OPEN_WIZARD: 'Open Program Directory',

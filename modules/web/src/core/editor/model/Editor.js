@@ -40,6 +40,13 @@ class Editor extends EventChannel {
     }
 
     /**
+     * Returns isDirty
+     */
+    get isDirty() {
+        return this._file.isDirty;
+    }
+
+    /**
      * Returns editor definition
      */
     get definition() {

@@ -21,6 +21,16 @@ export function getHandlerDefinitions(workspaceManager) {
             },
         },
         {
+            cmdID: COMMANDS.SAVE_FILE,
+            handler: () => {
+            },
+        },
+        {
+            cmdID: COMMANDS.SAVE_FILE_AS,
+            handler: () => {
+            },
+        },
+        {
             cmdID: COMMANDS.SHOW_FILE_OPEN_WIZARD,
             handler: () => {
                 const { command: { dispatch } } = workspaceManager.appContext;

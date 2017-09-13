@@ -1,4 +1,4 @@
-import PropTypes from 'PropTypes';
+import PropTypes from 'prop-types';
 import { COMMANDS } from './constants';
 
 /**
@@ -20,6 +20,18 @@ export function getCommandDefinitions() {
             id: COMMANDS.OPEN_FOLDER,
             argTypes: {
                 folderPath: PropTypes.string.isRequired,
+            },
+        },
+        {
+            id: COMMANDS.SAVE_FILE,
+            shortcut: {
+                default: 'ctrl+s',
+            },
+        },
+        {
+            id: COMMANDS.SAVE_FILE_AS,
+            shortcut: {
+                default: 'ctrl+shift+s',
             },
         },
         {

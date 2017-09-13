@@ -164,7 +164,9 @@ class EditorPlugin extends Plugin {
     onOpenFileInEditor({ activateEditor, file, editorDefinition }) {
         const editor = new Editor(file, editorDefinition);
         this.openedEditors.push(editor);
-        if (activateEditor || _.isNil(this.activeEditorID)) {
+        if (activateEditor
+            || _.isNil(this.activeEditorID)
+            || this.activeEditorID === editor.id) {
             this.setActiveEditor(editor);
         }
         editor.on(EVENTS.UPDATE_TAB_TITLE, () => {

@@ -40,6 +40,36 @@ export function getMenuDefinitions(workspaceManager) {
             command: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
             icon: 'folder-open',
             type: MENU_DEF_TYPES.ITEM,
+            divider: {
+                after: true,
+            },
+        },
+        {
+            id: MENUS.SAVE_FILE,
+            parent: MENUS.FILE_MENU,
+            label: LABELS.SAVE,
+            isActive: () => {
+                const { editor } = workspaceManager.appContext;
+                const activeTab = editor.getActiveEditor();
+                return activeTab && activeTab.isDirty ? activeTab.isDirty : false;
+            },
+            command: COMMANDS.SAVE_FILE,
+            icon: 'folder-open',
+            type: MENU_DEF_TYPES.ITEM,
+        },
+        {
+            id: MENUS.SAVE_FILE_AS,
+            parent: MENUS.FILE_MENU,
+            label: LABELS.SAVE_AS,
+            isActive: () => {
+                return true;
+            },
+            command: COMMANDS.SAVE_FILE_AS,
+            icon: 'folder-open',
+            type: MENU_DEF_TYPES.ITEM,
+            divider: {
+                after: true,
+            },
         },
     ];
 }

@@ -21,9 +21,6 @@ export function getMenuDefinitions() {
             command: COMMANDS.SHOW_SETTINGS_DIALOG,
             icon: 'settings',
             type: MENU_DEF_TYPES.ITEM,
-            divider: {
-                before: true,
-            },
         },
     ];
 }
