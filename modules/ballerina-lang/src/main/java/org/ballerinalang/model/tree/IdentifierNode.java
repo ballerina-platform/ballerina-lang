@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree;
 /**
  * @since 0.94
  */
-public interface IdentifierNode {
+public interface IdentifierNode extends Node {
     
     String getValue();
     
