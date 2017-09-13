@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.PrintStream;
 import java.net.URI;
@@ -126,7 +127,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
         }
     }
 
-    public HttpService findService(CarbonMessage cMsg) {
+    public HttpService findService(HTTPCarbonMessage cMsg) {
 
         try {
             String interfaceId = getInterface(cMsg);
@@ -165,7 +166,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
 
-    protected String getInterface(CarbonMessage cMsg) {
+    protected String getInterface(HTTPCarbonMessage cMsg) {
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (log.isDebugEnabled()) {

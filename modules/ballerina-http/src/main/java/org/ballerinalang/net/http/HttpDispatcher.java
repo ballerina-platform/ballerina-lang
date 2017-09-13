@@ -53,7 +53,7 @@ public class HttpDispatcher {
         callback.done(cMsg);
     }
 
-    public static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
+    public static void handleError(HTTPCarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace

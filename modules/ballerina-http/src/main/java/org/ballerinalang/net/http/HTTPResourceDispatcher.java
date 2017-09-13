@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class HTTPResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
-    public static Resource findResource(HttpService service, CarbonMessage cMsg, CarbonCallback callback)
+    public static Resource findResource(HttpService service, HTTPCarbonMessage cMsg, CarbonCallback callback)
             throws BallerinaConnectorException {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -87,7 +88,7 @@ public class HTTPResourceDispatcher {
         return subPath;
     }
 
-    private static void handleOptionsRequest(CarbonMessage cMsg, Service service, CarbonCallback callback)
+    private static void handleOptionsRequest(HTTPCarbonMessage cMsg, Service service, CarbonCallback callback)
             throws URITemplateException {
         DefaultCarbonMessage response = new DefaultCarbonMessage();
         if (cMsg.getHeader(Constants.ALLOW) != null) {

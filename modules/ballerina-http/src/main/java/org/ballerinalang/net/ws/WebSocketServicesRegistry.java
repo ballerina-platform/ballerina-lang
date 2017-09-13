@@ -22,7 +22,6 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
@@ -80,7 +79,7 @@ public class WebSocketServicesRegistry {
     /**
      * Register a service as a client service.
      *
-     * @param clientService {@link HttpService} of the client service.
+     * @param clientService {@link WebSocketService} of the client service.
      */
     public void registerClientService(WebSocketService clientService) {
         boolean isClientService = isWebSocketClientService(clientService);
@@ -200,7 +199,8 @@ public class WebSocketServicesRegistry {
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
 
-        Annotation configAnnotation = service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANN_NAME_CONFIG);
+        Annotation configAnnotation = service
+                .getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANN_NAME_CONFIG);
         String serviceName = service.getName();
         String basePath;
         if (configAnnotation != null) {
