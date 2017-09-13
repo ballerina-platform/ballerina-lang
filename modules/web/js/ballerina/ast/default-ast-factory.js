@@ -263,6 +263,12 @@ DefaultASTFactory.createAggregatedAssignmentStatement = function (args) {
     return ASTFactory.createAssignmentStatement(args);
 };
 
+DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args={}) {
+    const assignmentStmt = ASTFactory.createAssignmentStatement();
+    assignmentStmt.setStatementFromString(`var __output1 = ${args.defaultExpression}`);
+    return assignmentStmt;
+}
+
 DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = function (args) {
     const assignmentStmt = ASTFactory.createAssignmentStatement();
     const opts = {
