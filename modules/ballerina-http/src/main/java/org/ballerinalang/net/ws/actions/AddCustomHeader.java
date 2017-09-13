@@ -26,7 +26,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
+import org.osgi.service.component.annotations.Component;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 
 /**
  * Add custom header to the client connector.
@@ -50,8 +52,8 @@ public class AddCustomHeader extends AbstractNativeAction {
         String key = getStringArgument(context, 0);
         String value = getStringArgument(context, 1);
 
-        WSSenderConfiguration senderConfiguration =
-                (WSSenderConfiguration) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        WSClientConnectorConfig senderConfiguration =
+                (WSClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         senderConfiguration.addHeader(key, value);
         return null;
     }

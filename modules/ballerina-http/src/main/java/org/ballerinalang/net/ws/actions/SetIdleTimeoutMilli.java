@@ -26,7 +26,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
+import org.osgi.service.component.annotations.Component;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 
 /**
  * Set the idle timeout for the client connector.
@@ -47,8 +48,8 @@ public class SetIdleTimeoutMilli extends AbstractNativeAction {
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         int idleTimeoutMillis = getIntArgument(context, 0);
-        WSSenderConfiguration senderConfiguration =
-                (WSSenderConfiguration) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        WSClientConnectorConfig senderConfiguration =
+                (WSClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         senderConfiguration.setIdleTimeoutInMillis(idleTimeoutMillis);
         return null;
     }
