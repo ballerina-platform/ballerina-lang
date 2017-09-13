@@ -15,7 +15,7 @@ class File extends EventChannel {
     constructor({ id, fullPath, path, name, packageName, extension, content, isPersisted, lastPersisted, isDirty }) {
         super();
         this._id = id || uuid();
-        this._fullPath = fullPath || 'temp/untitled';
+        this._fullPath = fullPath || this._id;
         this._path = path || 'temp';
         this._name = name || 'untitled';
         this._packageName = packageName || '.';

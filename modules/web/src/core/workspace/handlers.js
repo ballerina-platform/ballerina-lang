@@ -9,6 +9,12 @@ import { COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 export function getHandlerDefinitions(workspaceManager) {
     return [
         {
+            cmdID: COMMANDS.CREATE_NEW_FILE,
+            handler: () => {
+                workspaceManager.createNewFile();
+            },
+        },
+        {
             cmdID: COMMANDS.OPEN_FILE,
             handler: ({ filePath, ext }) => {
                 workspaceManager.openFile(filePath, ext);

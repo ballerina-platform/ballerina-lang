@@ -10,6 +10,12 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions() {
     return [
         {
+            id: COMMANDS.CREATE_NEW_FILE,
+            shortcut: {
+                default: 'ctrl+alt+n',
+            },
+        },
+        {
             id: COMMANDS.OPEN_FILE,
             argTypes: {
                 filePath: PropTypes.string.isRequired,

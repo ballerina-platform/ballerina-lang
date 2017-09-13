@@ -1,4 +1,5 @@
 export const COMMANDS = {
+    CREATE_NEW_FILE: 'create-new-file',
     OPEN_FILE: 'open-file',
     OPEN_FOLDER: 'open-folder',
     SAVE_FILE: 'save-file',
@@ -20,6 +21,7 @@ export const VIEWS = {
 
 export const MENUS = {
     FILE_MENU: 'composer.menu.file',
+    NEW_FILE: 'composer.menu.workspace.new-file',
     SHOW_FILE_OPEN_WIZARD: 'composer.menu.workspace.show-file-open-wizard',
     SHOW_FOLDER_OPEN_WIZARD: 'composer.menu.workspace.show-folder-open-wizard',
     SAVE_FILE: 'composer.menu.workspace.save-file',
@@ -27,6 +29,7 @@ export const MENUS = {
 };
 
 export const LABELS = {
+    NEW_FILE: 'New File',
     SAVE: 'Save',
     SAVE_AS: 'Save As',
     FILE: 'File',

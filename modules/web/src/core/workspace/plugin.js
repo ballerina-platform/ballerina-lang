@@ -99,6 +99,18 @@ class WorkspacePlugin extends Plugin {
     }
 
     /**
+     * Create a new file and opens it in a new tab
+     */
+    createNewFile() {
+        const newFile = new File({});
+        this.openedFiles.push(newFile);
+        const { pref: { history }, editor } = this.appContext;
+        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+        newFile.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
+        editor.open(newFile);
+    }
+
+    /**
      * Close an opened file
      *
      * @param {String} filePath Path of the file.

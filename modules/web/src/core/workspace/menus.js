@@ -20,6 +20,20 @@ export function getMenuDefinitions(workspaceManager) {
             type: MENU_DEF_TYPES.ROOT,
         },
         {
+            id: MENUS.NEW_FILE,
+            parent: MENUS.FILE_MENU,
+            label: LABELS.NEW_FILE,
+            isActive: () => {
+                return true;
+            },
+            command: COMMANDS.CREATE_NEW_FILE,
+            icon: 'add',
+            type: MENU_DEF_TYPES.ITEM,
+            divider: {
+                after: true,
+            },
+        },
+        {
             id: MENUS.SHOW_FILE_OPEN_WIZARD,
             parent: MENUS.FILE_MENU,
             label: LABELS.SHOW_FILE_OPEN_WIZARD,
@@ -54,7 +68,7 @@ export function getMenuDefinitions(workspaceManager) {
                 return activeTab && activeTab.isDirty ? activeTab.isDirty : false;
             },
             command: COMMANDS.SAVE_FILE,
-            icon: 'folder-open',
+            icon: 'save',
             type: MENU_DEF_TYPES.ITEM,
         },
         {
