@@ -148,8 +148,8 @@ class EditorPlugin extends Plugin {
      * @param {Object} command args
      */
     onOpenCustomEditorTab(args) {
-        const { id, title, icon, component, propsProvider } = args;
-        this.openedEditors.push(new CustomEditor(id, title, icon, component, propsProvider));
+        const { id, title, icon, component, propsProvider, customTitleClass } = args;
+        this.openedEditors.push(new CustomEditor(id, title, icon, component, propsProvider, customTitleClass));
         this.reRender();
     }
 

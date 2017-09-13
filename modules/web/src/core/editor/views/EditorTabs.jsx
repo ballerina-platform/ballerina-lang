@@ -90,7 +90,7 @@ class EditorTabs extends View {
             return (
                 <TabPane
                     tab={
-                        <div data-extra="tab-bar-title" className="tab-title-wrapper">
+                        <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
                             <i className={`fw fw-${icon} tab-icon`} />
                             {title}
                             <button

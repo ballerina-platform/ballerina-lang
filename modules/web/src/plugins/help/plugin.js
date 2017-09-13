@@ -97,6 +97,7 @@ class HelpPlugin extends Plugin {
                     // region specific options for editor-tabs views
                     regionOptions: {
                         tabTitle: LABELS.WELCOME,
+                        customTitleClass: 'welcome-page-tab-title',
                     },
                 },
             ],

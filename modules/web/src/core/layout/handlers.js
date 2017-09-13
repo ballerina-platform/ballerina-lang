@@ -20,7 +20,7 @@ export function getHandlerDefinitions(layoutManager) {
                 const view = _.find(layoutManager.views, ['id', id]);
                 if (!_.isNil(view)) {
                     const { region, component, propsProvider, pluginID,
-                            regionOptions: { tabTitle, tabIcon } } = view;
+                            regionOptions: { tabTitle, tabIcon, customTitleClass } } = view;
                             
                     switch (region) {
                         case REGIONS.EDITOR_TABS: {
@@ -29,6 +29,7 @@ export function getHandlerDefinitions(layoutManager) {
                                 id,
                                 title: tabTitle,
                                 icon: tabIcon,
+                                customTitleClass,
                                 component: withReRenderSupport(component, pluginID),
                                 propsProvider,
                             });
