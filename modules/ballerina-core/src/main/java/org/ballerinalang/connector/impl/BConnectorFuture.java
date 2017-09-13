@@ -34,6 +34,7 @@ public class BConnectorFuture implements ConnectorFuture {
 
     private BValue response;
     private BallerinaException ex;
+    private boolean success = false;
 
     @Override
     public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
@@ -42,9 +43,22 @@ public class BConnectorFuture implements ConnectorFuture {
             connectorFutureListener.notifyReply(response);
         } else if (ex != null) {
             connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
+            success = false; //double check this.
+        }
+        if (success) {
+            connectorFutureListener.notifySuccess();
         }
         response = null;
         ex = null;
+    }
+
+    public void notifySuccess() {
+        //if the future listener already exist, notify right away. if not store until listener registration.
+        if (connectorFutureListener != null) {
+            connectorFutureListener.notifySuccess();
+        } else {
+            this.success = true;
+        }
     }
 
     public void notifyReply(BValue response) {

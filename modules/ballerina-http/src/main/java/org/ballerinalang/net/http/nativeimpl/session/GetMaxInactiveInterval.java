@@ -62,7 +62,7 @@ public class GetMaxInactiveInterval extends AbstractNativeFunction {
 //                    return getBValues(new BInteger(session.getMaxInactiveInterval()));
 //                } else {
 //                    //no session available bcz of the time out
-//                    throw new IllegalStateException("Failed to get max inactive interval: No such session in progress");
+//                 throw new IllegalStateException("Failed to get max inactive interval: No such session in progress");
 //                }
 //            }
 //        } catch (IllegalStateException e) {

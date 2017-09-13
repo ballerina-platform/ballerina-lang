@@ -24,7 +24,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.impl.BConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
@@ -66,11 +65,7 @@ import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-//import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -110,15 +105,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
@@ -726,7 +718,7 @@ public class BLangVM {
                     sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
                 case InstructionCodes.REP:
-//                    handleReply(operands, sf);
+                    handleReply(operands, sf);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -2482,20 +2474,21 @@ public class BLangVM {
     }
 
     private void handleReply(int[] operands, StackFrame sf) {
-        int i;
-        i = operands[0];
-        BMessage message = null;
-        if (i >= 0) {
-            message = (BMessage) sf.refRegs[i];
-        }
+//        int i;
+//        i = operands[0];
+//        BMessage message = null;
+//        if (i >= 0) {
+//            message = (BMessage) sf.refRegs[i];
+//        }
 //        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
 //        generateSessionAndCorsHeaders(message);
-        context.setError(null);
+//        context.setError(null);
 //        context.getConnectorFuture().notifyReply(message.value());
 //        if (context.getBalCallback() != null &&
 //                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
 //            context.getBalCallback().done(message.value());
 //        }
+        context.getConnectorFuture().notifySuccess();
         ip = -1;
     }
 
@@ -3597,14 +3590,6 @@ public class BLangVM {
         ip = -1;
         logger.error("fatal error. incorrect error table entry.");
     }
-
-//    private void generateSessionAndCorsHeaders(BMessage message) {
-//        //check session cookie header
-//        Session session = context.getCurrentSession();
-//        if (session != null) {
-//            session.generateSessionHeader(message);
-//        }
-//    }
 
     private AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
         for (AttributeInfo attributeInfo : attrInfoPool.getAttributeInfoEntries()) {

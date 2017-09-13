@@ -18,7 +18,6 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.model.values.BValue;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code ConnectorFutureListener} API provides the functionality to listen to ballerina side events after
