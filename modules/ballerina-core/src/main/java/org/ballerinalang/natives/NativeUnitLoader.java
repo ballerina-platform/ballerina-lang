@@ -74,10 +74,11 @@ public class NativeUnitLoader {
         String key = NativeElementRepository.actionToKey(pkgName, connectorName, actionName);
         AbstractNativeAction result = (AbstractNativeAction) this.nativeUnitsCache.get(key);
         if (result == null) {
-            NativeFunctionDef functionDef = this.nativeElementRepo.lookupNativeAction(pkgName, connectorName, actionName);
-            if (functionDef != null) {
+            NativeFunctionDef actionDef = this.nativeElementRepo.lookupNativeAction(pkgName, 
+                    connectorName, actionName);
+            if (actionDef != null) {
                 try {
-                    result = (AbstractNativeAction) Class.forName(functionDef.getClassName()).newInstance();
+                    result = (AbstractNativeAction) Class.forName(actionDef.getClassName()).newInstance();
                     this.nativeUnitsCache.put(key, result);
                 } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                     throw new RuntimeException("Error in loading native action: " + e.getMessage(), e);
