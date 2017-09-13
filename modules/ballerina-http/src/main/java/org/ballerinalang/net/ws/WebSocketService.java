@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.ws;
 
+import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
@@ -33,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketService implements Service {
 
     private final Service service;
+    private final String[] negotiableSubProtocols;
+    private final int idleTimeoutInSeconds;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
 
     public WebSocketService(Service service) {
@@ -40,6 +43,11 @@ public class WebSocketService implements Service {
         for (Resource resource : service.getResources()) {
             resourceMap.put(resource.getName(), resource);
         }
+
+        Annotation configAnnotation =
+                service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+        negotiableSubProtocols = findNegotiableSubProtocols(configAnnotation);
+        idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotation);
     }
 
     @Override
@@ -61,6 +69,14 @@ public class WebSocketService implements Service {
         return resourceMap.get(resourceName);
     }
 
+    public String[] getNegotiableSubProtocols() {
+        return negotiableSubProtocols;
+    }
+
+    public int getIdleTimeoutInSeconds() {
+        return idleTimeoutInSeconds;
+    }
+
     public BStruct createConnectionStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
@@ -79,5 +95,33 @@ public class WebSocketService implements Service {
     public BStruct createCloseFrameStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
                                            Constants.STRUCT_WEBSOCKET_CLOSE_FRAME);
+    }
+
+    private String[] findNegotiableSubProtocols(Annotation configAnnotation) {
+        if (configAnnotation == null) {
+            return null;
+        }
+        AnnAttrValue annAttrsubProtocols = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_SUB_PROTOCOLS);
+        if (annAttrsubProtocols == null) {
+            return null;
+        }
+
+        AnnAttrValue[] subProtocolsInAnnotation = annAttrsubProtocols.getAnnAttrValueArray();
+        String[] negotiableSubProtocols = new String[subProtocolsInAnnotation.length];
+        for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
+            negotiableSubProtocols[i] = subProtocolsInAnnotation[i].getStringValue();
+        }
+        return negotiableSubProtocols;
+    }
+
+    private int findIdleTimeoutInSeconds(Annotation configAnnotation) {
+        if (configAnnotation == null) {
+            return 0;
+        }
+        AnnAttrValue annAttrIdleTimeout = configAnnotation.getAnnAttrValue(Constants.ANNOTATION_ATTR_IDLE_TIMEOUT);
+        if (annAttrIdleTimeout == null) {
+            return 0;
+        }
+        return new Long(annAttrIdleTimeout.getIntValue()).intValue();
     }
 }
