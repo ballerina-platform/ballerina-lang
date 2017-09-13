@@ -626,8 +626,8 @@ public class BLangPackageBuilder {
     public void endFunctionDef(DiagnosticPos pos, boolean isDeclaredWithType, String typeVariable) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
-        addUserDefineType();
         if (isDeclaredWithType) {
+            addUserDefineType();
             VariableNode var = TreeBuilder.createVariableNode();
             var.setName(this.createIdentifier(typeVariable));
             var.setTypeNode(this.typeNodeStack.pop());
