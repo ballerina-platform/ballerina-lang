@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.io.PrintStream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
@@ -42,6 +43,7 @@ public class BTester {
         options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, System.getProperty("user.dir"));
         options.put(COMPILER_PHASE, "typeCheck");
+        options.put(PRESERVE_WHITESPACE, "true");
 
         // How to set a custom diagnostic listener
         DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());
