@@ -44,6 +44,8 @@ In addition to this, there can be a query parameter added to the title. In this 
 
 ## Add a service
 
+To get started, add a service in the Ballerina Composer.
+
 1. To define a service in the Composer, drag the service from the tool palette to the canvas. You can then set the base path annotation using the `Annotations` button in the upper right corner of the service, and define any variables the service needs by clicking the `Variables` button in the upper left corner. 
 
     ![alt text](../images/AddService.gif)
