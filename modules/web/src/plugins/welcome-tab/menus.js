@@ -16,25 +16,26 @@
  * under the License.
  */
 
-import { COMMANDS } from './constants';
+import { MENU_DEF_TYPES } from 'core/menu/constants';
+import { MENUS as HELP_MENUS } from 'plugins/help/constants';
+import { MENUS, COMMANDS, LABELS } from './constants';
 
 /**
- * Provides command definitions of help plugin.
- * @returns {Object[]} command definitions.
+ * Provides menu definitions of help plugin.
+ * @returns {Object[]} menu definitions.
  */
-export function getCommandDefinitions(plugin) {
+export function getMenuDefinitions(plugin) {
     return [
         {
-            id: COMMANDS.OPEN_REFRENCE,
-            shortcut: {
-                default: 'f1',
+            id: MENUS.WELCOME_PAGE_MENU,
+            parent: HELP_MENUS.HELP_MENU,
+            label: LABELS.WELCOME,
+            isActive: (appContext) => {
+                return true;
             },
-        },
-        {
-            id: COMMANDS.REPORT_ISSUE,
-        },
-        {
-            id: COMMANDS.SHOW_ABOUT,
+            order: 5,
+            command: COMMANDS.SHOW_WELCOME,
+            type: MENU_DEF_TYPES.ITEM,
         },
     ];
 }

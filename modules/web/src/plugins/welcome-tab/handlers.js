@@ -16,9 +16,8 @@
  * under the License.
  */
 
-import { VIEWS as WELCOME_TAB_VIEWS } from 'plugins/welcome-tab/constants';
-import { COMMANDS, DIALOG } from './constants';
-import { COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { COMMANDS, VIEWS } from './constants';
 
 /**
  * Provides command handler definitions of debugger plugin.
@@ -29,23 +28,10 @@ import { COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
 export function getHandlerDefinitions(plugin) {
     return [
         {
-            cmdID: COMMANDS.OPEN_REFRENCE,
+            cmdID: COMMANDS.SHOW_WELCOME,
             handler: () => {
-                window.open(plugin.config.reference_url);
-            },
-        },
-        {
-            cmdID: COMMANDS.REPORT_ISSUE,
-            handler: () => {
-                window.open(plugin.config.issue_tracker_url);
-            },
-        },
-        {
-            cmdID: COMMANDS.SHOW_ABOUT,
-            handler: () => {
-                console.log(plugin);
-                const id = DIALOG.ABOUT;
-                plugin.appContext.command.dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                const { command } = plugin.appContext;
+                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, VIEWS.WELCOME_TAB_VIEW_ID);
             },
         },
     ];

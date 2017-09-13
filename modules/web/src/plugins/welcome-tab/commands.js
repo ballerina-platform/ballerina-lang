@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import { COMMANDS } from './constants';
 
 /**
@@ -25,16 +24,7 @@ import { COMMANDS } from './constants';
 export function getCommandDefinitions(plugin) {
     return [
         {
-            id: COMMANDS.OPEN_REFRENCE,
-            shortcut: {
-                default: 'f1',
-            },
-        },
-        {
-            id: COMMANDS.REPORT_ISSUE,
-        },
-        {
-            id: COMMANDS.SHOW_ABOUT,
+            id: COMMANDS.SHOW_WELCOME,
         },
     ];
 }

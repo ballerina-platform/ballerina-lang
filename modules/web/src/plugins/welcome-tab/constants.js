@@ -16,6 +16,14 @@
  * under the License.
  */
 
+export const COMMANDS = {
+    SHOW_WELCOME: 'help-welcome',
+};
+
+export const MENUS = {
+    WELCOME_PAGE_MENU: 'composer.menu.help.welcome',
+};
+
 export const LABELS = {
     WELCOME: 'Welcome',
 };

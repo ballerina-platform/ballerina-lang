@@ -21,6 +21,9 @@ import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS } from 'core/layout/constants';
 import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
 /** Plugin imports */
+import { getCommandDefinitions } from './commands';
+import { getHandlerDefinitions } from './handlers';
+import { getMenuDefinitions } from './menus';
 import WelcomeTab from './views/welcome-tab';
 import { LABELS, VIEWS as WELCOME_TAB_VIEWS, WELCOME_TAB_PLUGIN_ID } from './constants';
 
@@ -36,15 +39,27 @@ class WelcomeTabPlugin extends Plugin {
         return WELCOME_TAB_PLUGIN_ID;
     }
 
+    /**
+     * Creates new tab.
+     * @memberof WelcomeTabPlugin
+     */
     createNewHandler() {
         console.log(this);
     }
 
+    /**
+     * Invokes file open dialog.
+     * @memberof WelcomeTabPlugin
+     */
     openFileHandler() {
         const { command } = this.appContext;
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FILE_OPEN_WIZARD, '');
     }
 
+    /**
+     * Invokes folder open dialog.
+     * @memberof WelcomeTabPlugin
+     */
     openDirectoryHandler() {
         const { command } = this.appContext;
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
@@ -54,8 +69,11 @@ class WelcomeTabPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { VIEWS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
         return {
+            [COMMANDS]: getCommandDefinitions(this),
+            [HANDLERS]: getHandlerDefinitions(this),
+            [MENUS]: getMenuDefinitions(this),
             [VIEWS]: [
                 {
                     id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
