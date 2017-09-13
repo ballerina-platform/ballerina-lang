@@ -27,13 +27,13 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
 /**
- * {@code ConnectorUtils} Utilities related to connector processing.
+ * {@code StructHelper} Utilities related to connector processing.
  *
  * @since 0.94
  */
-public class ConnectorUtils {
+public class StructHelper {
 
-    public static BStruct createStruct(Resource resource, String packageName, String structName) {
+    protected static BStruct createAndGetStruct(Resource resource, String packageName, String structName) {
         ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
         ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
         PackageInfo packageInfo = serviceInfo.getPackageInfo();

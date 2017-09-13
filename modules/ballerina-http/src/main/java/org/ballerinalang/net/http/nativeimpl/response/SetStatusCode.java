@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -44,12 +42,6 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
                 @Argument(name = "statusCode", type = TypeEnum.INT)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets the HTTP StatusCode on the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
-        value = "A response message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "statusCode",
-        value = "HTTP status code") })
 public class SetStatusCode extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

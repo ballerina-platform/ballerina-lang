@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
@@ -51,14 +49,6 @@ import java.util.Map;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets a query parameter value for a given key") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "The message object ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
-        value = "The key of the query param to get from the message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The query parameter") })
 public class GetQueryParam extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(GetQueryParam.class);

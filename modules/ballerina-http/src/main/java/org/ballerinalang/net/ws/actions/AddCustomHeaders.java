@@ -25,9 +25,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
 import org.osgi.service.component.annotations.Component;
@@ -49,16 +47,8 @@ import java.util.Set;
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "headers", type = TypeEnum.MAP),
-        })
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = {@Attribute(name = "value",
-                                              value = "Add custom headers") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "WebSocket Client Connector") })
-@Component(
-        name = "action.net.ws.addCustomHeaders",
-        immediate = true,
-        service = AbstractNativeAction.class)
+        }
+)
 public class AddCustomHeaders extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {

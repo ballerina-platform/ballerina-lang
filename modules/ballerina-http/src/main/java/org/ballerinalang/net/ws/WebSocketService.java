@@ -20,9 +20,9 @@ package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.impl.ConnectorUtils;
 import org.ballerinalang.model.values.BStruct;
 
 import java.util.Map;

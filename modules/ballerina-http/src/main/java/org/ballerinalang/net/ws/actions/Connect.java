@@ -25,16 +25,13 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
@@ -54,16 +51,8 @@ import javax.websocket.Session;
         connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
-        })
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = {@Attribute(name = "value",
-                                              value = "Connect to the remote server") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "WebSocket Client Connector") })
-@Component(
-        name = "action.net.ws.connect",
-        immediate = true,
-        service = AbstractNativeAction.class)
+        }
+)
 public class Connect extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {

@@ -24,8 +24,6 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 //import org.ballerinalang.net.http.session.Session;
 //import org.ballerinalang.util.exceptions.BallerinaException;
@@ -42,10 +40,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 structPackage = "ballerina.net.http")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Invalidates the session") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
-        value = "A session struct")})
 public class Invalidate extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

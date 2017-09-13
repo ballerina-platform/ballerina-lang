@@ -27,8 +27,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
@@ -52,12 +50,6 @@ import java.net.URLDecoder;
         returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets formParam map from HTTP message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "map",
-        value = "The map of form params") })
 public class GetFormParams extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

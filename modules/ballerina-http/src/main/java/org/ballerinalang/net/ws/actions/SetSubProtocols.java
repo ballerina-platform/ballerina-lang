@@ -25,9 +25,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
 import org.osgi.service.component.annotations.Component;
@@ -45,16 +43,8 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnector
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "conn", type = TypeEnum.STRUCT),
-        })
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = {@Attribute(name = "value",
-                                              value = "Initialize the connection") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "WebSocket Client Connector") })
-@Component(
-        name = "action.net.ws.setSubProtocols",
-        immediate = true,
-        service = AbstractNativeAction.class)
+        }
+)
 public class SetSubProtocols extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
