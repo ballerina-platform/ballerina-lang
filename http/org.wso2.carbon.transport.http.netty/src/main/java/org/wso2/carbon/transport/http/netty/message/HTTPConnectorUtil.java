@@ -2,11 +2,9 @@ package org.wso2.carbon.transport.http.netty.message;
 
 import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -19,7 +17,6 @@ import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMess
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -29,38 +26,6 @@ import java.util.stream.Collectors;
  * Util class that provides common functionality.
  */
 public class HTTPConnectorUtil {
-
-    /**
-     * Convert {@link CarbonMessage} to a {@link HTTPCarbonMessage}.
-     *
-     * @param carbonMessage {@link CarbonMessage} which should be converted to a {@link HTTPCarbonMessage}.
-     * @return converted {@link HTTPCarbonMessage}.
-     */
-    public static HTTPCarbonMessage convertCarbonMessage(CarbonMessage carbonMessage) {
-        if (carbonMessage instanceof HTTPCarbonMessage) {
-            return (HTTPCarbonMessage) carbonMessage;
-        } else {
-            HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
-
-            List<Header> transportHeaders = carbonMessage.getHeaders().getClone();
-            httpCarbonMessage.setHeaders(transportHeaders);
-
-            Map<String, Object> propertiesMap = carbonMessage.getProperties();
-            propertiesMap.forEach((key, value) -> httpCarbonMessage.setProperty(key, value));
-
-            httpCarbonMessage.setWriter(carbonMessage.getWriter());
-            httpCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
-
-            Util.prepareBuiltMessageForTransfer(carbonMessage);
-            if (!carbonMessage.isEmpty()) {
-                carbonMessage.getFullMessageBody().forEach((buffer) -> httpCarbonMessage.addMessageBody(buffer));
-            }
-
-            httpCarbonMessage.setEndOfMsgAdded(carbonMessage.isEndOfMsgAdded());
-
-            return httpCarbonMessage;
-        }
-    }
 
     public static CarbonMessage convertWebSocketInitMessage(WebSocketInitMessage initMessage) {
         StatusCarbonMessage carbonMessage =
