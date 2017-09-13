@@ -192,25 +192,6 @@ public class BLangFileRestService {
         return response;
     }
 
-
-    public static String generateJSON(BLangCompilationUnit model) {
-        final CustomObjectMapper om =
-                new CustomObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        try {
-            String result = om.writeValueAsString(model);
-            return result;
-            
-        } catch (JsonGenerationException e) {
-        } catch (JsonMappingException e) {
-        } catch (IOException e) {
-        }
-
-        return null;
-
-    }
-
     /**
      * Validates a given ballerina input
      *
