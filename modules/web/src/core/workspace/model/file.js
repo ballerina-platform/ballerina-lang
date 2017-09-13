@@ -38,6 +38,7 @@ class File extends EventChannel {
      */
     set id(newID) {
         this._id = newID;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
 
@@ -53,6 +54,7 @@ class File extends EventChannel {
      */
     set fullPath(newPath) {
         this._fullPath = newPath;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
     /**
@@ -67,6 +69,7 @@ class File extends EventChannel {
      */
     set path(newPath) {
         this._path = newPath;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
     /**
@@ -81,6 +84,7 @@ class File extends EventChannel {
      */
     set name(name) {
         this._name = name;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
      /**
@@ -95,6 +99,7 @@ class File extends EventChannel {
      */
     set packageName(packageName) {
         this._packageName = packageName;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
     /**
@@ -131,6 +136,7 @@ class File extends EventChannel {
         if (!_.isEqual(oldContent, newContent)) {
             this.isDirty = true;
         }
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
     /**
@@ -145,6 +151,7 @@ class File extends EventChannel {
      */
     set isPersisted(isPersisted) {
         this._isPersisted = isPersisted;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
     /**
@@ -159,6 +166,7 @@ class File extends EventChannel {
      */
     set lastPersisted(lastPersisted) {
         this._lastPersisted = lastPersisted;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
     /**
@@ -174,6 +182,7 @@ class File extends EventChannel {
     set isDirty(isDirty) {
         this._isDirty = isDirty;
         this.trigger(EVENTS.DIRTY_STATE_CHANGE, isDirty);
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 
      /**
@@ -188,6 +197,7 @@ class File extends EventChannel {
      */
     set extension(ext) {
         this._ext = ext;
+        this.trigger(EVENTS.FILE_UPDATED);
     }
 }
 

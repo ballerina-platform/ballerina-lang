@@ -6,6 +6,7 @@ export const COMMANDS = {
 };
 
 export const EVENTS = {
+    FILE_UPDATED: 'file-updated',
     DIRTY_STATE_CHANGE: 'dirty-state-change',
     CONTENT_MODIFIED: 'content-modified',
 };

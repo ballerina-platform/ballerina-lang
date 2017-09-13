@@ -24,7 +24,7 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, EVENTS } from './constants';
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
@@ -50,6 +50,7 @@ class WorkspacePlugin extends Plugin {
         super(props);
         this.openedFolders = [];
         this.openedFiles = [];
+        this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
     }
 
     /**
@@ -57,6 +58,14 @@ class WorkspacePlugin extends Plugin {
      */
     getID() {
         return PLUGIN_ID;
+    }
+
+    /**
+     * On an opened file in workspace update
+     */
+    onWorkspaceFileUpdated() {
+        const { pref: { history } } = this.appContext;
+        history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
     }
 
     /**
@@ -76,6 +85,7 @@ class WorkspacePlugin extends Plugin {
                         this.openedFiles.push(file);
                         const { pref: { history }, editor } = this.appContext;
                         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+                        file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
                         editor.open(file);
                         resolve(file);
                     })
@@ -100,6 +110,7 @@ class WorkspacePlugin extends Plugin {
                 _.remove(this.openedFiles, file);
                 const { pref: { history } } = this.appContext;
                 history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+                file.off(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
             } else {
                 reject(`File ${file.fullPath} cannot be found in opened file set.`);
             }
@@ -168,6 +179,7 @@ class WorkspacePlugin extends Plugin {
     onAfterInitialRender() {
         const { editor } = this.appContext;
         this.openedFiles.forEach((file) => {
+            file.on(EVENTS.FILE_UPDATED, this.onWorkspaceFileUpdated);
             // no need to activate this editor
             // as this is loading from history.
             // Editor plugin will decide which editor
