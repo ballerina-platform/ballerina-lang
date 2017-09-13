@@ -80,6 +80,11 @@
                 <artifactId>connectors</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-lang</artifactId>
+                <version>0.92.1-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

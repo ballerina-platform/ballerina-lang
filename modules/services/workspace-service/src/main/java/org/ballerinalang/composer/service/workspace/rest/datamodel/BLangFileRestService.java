@@ -18,22 +18,28 @@
 
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -52,6 +58,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+
 /**
  * Basic classes which exposes ballerina language object model over REST service.
  */
@@ -67,8 +75,8 @@ public class BLangFileRestService {
         InputStream stream = null;
         try {
             stream = new FileInputStream(new File(location));
-            String response = parseJsonDataModel(stream, Paths.get(location));
-            return Response.ok(response, MediaType.APPLICATION_JSON).build();
+            //String response = parseJsonDataModel(stream, "temp.bal");
+            return Response.ok("", MediaType.APPLICATION_JSON).build();
         } finally {
             if (null != stream) {
                 IOUtils.closeQuietly(stream);
@@ -103,7 +111,13 @@ public class BLangFileRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenContent(BFile bFile) throws IOException {
         InputStream stream = new ByteArrayInputStream(bFile.getContent().getBytes(StandardCharsets.UTF_8));
-        String response = parseJsonDataModel(stream, deriveFilePath(bFile.getFileName(), bFile.getFilePath()));
+        String response = "";
+        if ("temp".equals(bFile.getFilePath()) && "untitled".equals(bFile.getFileName())) {
+            response = parseJsonDataModel(bFile.getContent(), bFile.getFileName());
+        } else {
+            response = parseJsonDataModel(stream, bFile.getFilePath(), bFile.getFileName());
+        }
+
         return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
     }
 
@@ -144,14 +158,38 @@ public class BLangFileRestService {
      * @return A string which contains a json model.
      * @throws IOException
      */
-    private static String parseJsonDataModel(InputStream stream, java.nio.file.Path filePath) throws IOException {
+    private static String parseJsonDataModel(InputStream stream, String filePath, String fileName) throws IOException {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, filePath);
 
-        BallerinaFile bFile = Utils.getBFile(stream, filePath);
-        JsonObject response = new JsonObject();
-        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
-        bFile.accept(jsonModelBuilder);
+        Compiler compiler = Compiler.getInstance(context);
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(fileName);
+        BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
+                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+        String response = generateJSON(compilationUnit);
+        return response;
+    }
 
-        return response.toString();
+
+    /**
+     * Parses an input stream into a json model. During this parsing we are compiling the code as well.
+     *
+     * @param content - String content.
+     * @return A string which contains a json model.
+     * @throws IOException
+     */
+    private static String parseJsonDataModel(String content, String fileName) throws IOException {
+        CompilerContext context = new CompilerContext();
+        context.put(PackageRepository.class, new InMemoryPackageRepository(content.getBytes(StandardCharsets.UTF_8)));
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        Compiler compiler = Compiler.getInstance(context);
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(fileName);
+
+        BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().findFirst().get();
+        String response = generateJSON(compilationUnit);
+        return response;
     }
 
     /**
