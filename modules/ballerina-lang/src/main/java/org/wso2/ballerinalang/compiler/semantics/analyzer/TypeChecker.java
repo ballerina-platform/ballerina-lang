@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -24,7 +25,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -36,6 +39,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -48,6 +58,8 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.XMLConstants;
+
 /**
  * @since 0.94
  */
@@ -58,6 +70,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private Names names;
     private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
     private DiagnosticLog dlog;
 
@@ -86,6 +99,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
@@ -201,6 +215,122 @@ public class TypeChecker extends BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangXMLQName bLangXMLQName) {
+        String prefix = bLangXMLQName.prefix.value;
+        resultTypes = Lists.of(checkType(bLangXMLQName, symTable.stringType, expTypes.get(0)));
+        // TODO: check isLHS
+        
+        if (env.node instanceof XMLAttributeNode && prefix.isEmpty()
+                && bLangXMLQName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            ((BLangXMLAttribute) env.node).isDefaultNs = true;
+            return;
+        }
+        
+        if (prefix.isEmpty()) {
+            return;
+        }
+        
+        if (env.node instanceof XMLAttributeNode && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            ((BLangXMLAttribute) env.node).isNamespaceDeclr = true;
+            return;
+        }
+        
+        if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
+            bLangXMLQName.type = symTable.errType;
+            return;
+        }
+
+        BSymbol xmlnsSymbol = symResolver.lookupSymbol(env, names.fromIdNode(bLangXMLQName.prefix), SymTag.XMLNS);
+        if (xmlnsSymbol == symTable.notFoundSymbol) {
+            dlog.error(bLangXMLQName.pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix);
+            bLangXMLQName.type = symTable.errType;
+            return;
+        }
+
+        bLangXMLQName.namespaceUri = ((BXMLNSSymbol) xmlnsSymbol).namespaceUri;
+    }
+
+    public void visit(BLangXMLAttribute bLangXMLAttribute) {
+        SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(bLangXMLAttribute, env);
+
+        // check attribute name
+        checkExpr((BLangExpression) bLangXMLAttribute.name, xmlAttributeEnv, Lists.of(symTable.stringType));
+
+        // check attribute value
+        checkExpr((BLangExpression) bLangXMLAttribute.value, xmlAttributeEnv, Lists.of(symTable.stringType));
+
+        if (bLangXMLAttribute.isNamespaceDeclr) {
+            BLangXMLQName attrQName = (BLangXMLQName) bLangXMLAttribute.name;
+
+            BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(names.fromIdNode(attrQName.localname),
+                    (BLangExpression) bLangXMLAttribute.value, env.scope.owner);
+            symbolEnter.defineSymbol(attrQName.pos, xmlnsSymbol, env);
+        } else if (bLangXMLAttribute.isDefaultNs) {
+            ((BLangXMLElementLiteral) env.node).defaultNamespaceUri = bLangXMLAttribute.value;
+        }
+    }
+
+    public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
+        SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
+
+        if (bLangXMLElementLiteral.isRoot) {
+            addNamespacesInScope(bLangXMLElementLiteral, xmlElementEnv);
+        }
+
+        bLangXMLElementLiteral.attributes.forEach(attribute -> {
+            checkExpr((BLangExpression) attribute, xmlElementEnv, Lists.of(symTable.noType));
+        });
+
+        // set the default namespace
+        if (bLangXMLElementLiteral.defaultNamespaceUri == null && bLangXMLElementLiteral.isRoot) {
+            BSymbol defaultNsSymbol =
+                    symResolver.lookupSymbol(env, names.fromString(XMLConstants.DEFAULT_NS_PREFIX), SymTag.XMLNS);
+            if (defaultNsSymbol != symTable.notFoundSymbol) {
+                bLangXMLElementLiteral.defaultNamespaceUri = ((BXMLNSSymbol) defaultNsSymbol).namespaceUri;
+            }
+        } else if (bLangXMLElementLiteral.defaultNamespaceUri == null && !bLangXMLElementLiteral.isRoot) {
+            bLangXMLElementLiteral.defaultNamespaceUri = ((BLangXMLElementLiteral) env.node).defaultNamespaceUri;
+        }
+
+        validateTags(bLangXMLElementLiteral, xmlElementEnv);
+
+        bLangXMLElementLiteral.children.forEach(child -> {
+            // TODO: expType type can be either XML or string
+            checkExpr((BLangExpression) child, xmlElementEnv, Lists.of(symTable.xmlType));
+        });
+
+        resultTypes = Lists.of(checkType(bLangXMLElementLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
+        bLangXMLTextLiteral.textFragments.forEach(expr -> {
+            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
+        });
+        resultTypes = Lists.of(checkType(bLangXMLTextLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
+        bLangXMLCommentLiteral.textFragments.forEach(expr -> {
+            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
+        });
+        resultTypes = Lists.of(checkType(bLangXMLCommentLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
+        checkExpr((BLangExpression) bLangXMLProcInsLiteral.target, env, Lists.of(symTable.stringType));
+        bLangXMLProcInsLiteral.dataFragments.forEach(expr -> {
+            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
+        });
+        resultTypes = Lists.of(checkType(bLangXMLProcInsLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
+        bLangXMLQuotedString.textFragments.forEach(expr -> {
+            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
+        });
+        resultTypes = Lists.of(checkType(bLangXMLQuotedString, symTable.stringType, expTypes.get(0)));
+    }
 
     // Private methods
 
@@ -266,5 +396,44 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultTypes.add(symTable.errType);
             }
         }
+    }
+
+    private void addNamespacesInScope(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv env) {
+        if (env == null) {
+            return;
+        }
+
+        env.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BXMLNSSymbol) {
+                BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
+                bLangXMLElementLiteral.namespaces.put(nsSymbol.name.value, nsSymbol.namespaceUri);
+            }
+        });
+        addNamespacesInScope(bLangXMLElementLiteral, env.enclEnv);
+    }
+
+    private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {
+        // check type for start and end tags
+        BLangExpression startTagName = (BLangExpression) bLangXMLElementLiteral.startTagName;
+        checkExpr(startTagName, xmlElementEnv, Lists.of(symTable.stringType));
+        BLangExpression endTagName = (BLangExpression) bLangXMLElementLiteral.endTagName;
+        if (endTagName != null) {
+            checkExpr(endTagName, xmlElementEnv, Lists.of(symTable.stringType));
+        }
+
+        if (endTagName == null) {
+            return;
+        }
+
+        if (startTagName instanceof BLangXMLQName && startTagName instanceof BLangXMLQName
+                && startTagName.equals(endTagName)) {
+            return;
+        }
+
+        if (!(startTagName instanceof BLangXMLQName) && !(startTagName instanceof BLangXMLQName)) {
+            return;
+        }
+
+        dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
     }
 }

@@ -17,20 +17,22 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
+
 /**
  * @since 0.94
  */
 public interface XMLQNameNode extends ExpressionNode {
     
-    String getLocalname();
+    IdentifierNode getLocalname();
 
-    void setLocalname(String localname);
+    void setLocalname(IdentifierNode localname);
 
-    String getNamespaceUri();
+    ExpressionNode getNamespaceUri();
 
-    void setNamespaceUri(String namespaceUri);
+    void setNamespaceUri(ExpressionNode namespaceUri);
 
-    String getPrefix();
+    IdentifierNode getPrefix();
 
-    void setPrefix(String prefix);
+    void setPrefix(IdentifierNode prefix);
 }

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
@@ -59,6 +60,12 @@ public class Symbols {
     public static BInvokableSymbol createResourceSymbol(Name name, BType type, BSymbol owner) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, name, type, owner);
         symbol.kind = SymbolKind.RESOURCE;
+        return symbol;
+    }
+
+    public static BXMLNSSymbol createXMLNSSymbol(Name prefix, BLangExpression namespaceUri, BSymbol owner) {
+        BXMLNSSymbol symbol = new BXMLNSSymbol(prefix, namespaceUri, owner);
+        symbol.kind = SymbolKind.XMLNS;
         return symbol;
     }
 

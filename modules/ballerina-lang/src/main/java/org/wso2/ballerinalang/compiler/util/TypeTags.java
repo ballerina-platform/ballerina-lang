@@ -43,6 +43,7 @@ public class TypeTags {
     public static final int NONE = NULL + 1;
     public static final int VOID = NONE + 1;
     public static final int ERROR = VOID + 1;
+    public static final int XMLNS = ERROR + 1;
 
     private TypeTags() {
     }

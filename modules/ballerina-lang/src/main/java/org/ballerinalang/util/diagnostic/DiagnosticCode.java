@@ -36,7 +36,10 @@ public enum DiagnosticCode {
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
-    UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt")
+    UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
+    
+    INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags")
     ;
 
     private String value;

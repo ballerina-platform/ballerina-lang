@@ -17,7 +17,10 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -40,9 +43,9 @@ public interface XMLElementLiteralNode extends XMLLiteralNode {
 
     void addChild(ExpressionNode content);
     
-    List<XMLAttributeNode> getNamespaces();
+    Map<String, BLangExpression> getNamespaces();
     
-    void addNamespace(XMLAttributeNode namespace);
+    void addNamespace(String prefix, BLangExpression namespaceUri);
     
     ExpressionNode getDefaultNamespaceUri();
     

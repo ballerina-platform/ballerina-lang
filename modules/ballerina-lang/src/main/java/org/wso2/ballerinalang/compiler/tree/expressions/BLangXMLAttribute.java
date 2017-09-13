@@ -31,6 +31,8 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
 
     public ExpressionNode name;
     public ExpressionNode value;
+    public boolean isNamespaceDeclr;
+    public boolean isDefaultNs;
 
     @Override
     public ExpressionNode getName() {
@@ -54,7 +56,7 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.XML_QNAME;
+        return NodeKind.XML_ATTRIBUTE;
     }
 
     @Override

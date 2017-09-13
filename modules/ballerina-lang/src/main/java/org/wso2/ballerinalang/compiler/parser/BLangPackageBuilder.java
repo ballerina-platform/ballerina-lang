@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -110,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1154,8 +1156,8 @@ public class BLangPackageBuilder {
 
     public void createXMLQName(DiagnosticPos pos, String localname, String prefix) {
         BLangXMLQName qname = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-        qname.localname = localname;
-        qname.prefix = prefix;
+        qname.localname = (BLangIdentifier) createIdentifier(localname);
+        qname.prefix = (BLangIdentifier) createIdentifier(prefix);
         qname.pos = pos;
         addExpressionNode(qname);
     }
@@ -1170,11 +1172,12 @@ public class BLangPackageBuilder {
         xmlAttributeNodeStack.push(xmlAttribute);
     }
 
-    public void startXMLElement(DiagnosticPos pos) {
+    public void startXMLElement(DiagnosticPos pos, boolean isRoot) {
         ExpressionNode tagName = exprNodeStack.pop();
         BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
         xmlElement.startTagName = tagName;
         xmlElement.pos = pos;
+        xmlElement.isRoot = isRoot;
         xmlAttributeNodeStack.forEach(attribute -> xmlElement.addAttribute(attribute));
         xmlAttributeNodeStack.clear();
         addExpressionNode(xmlElement);
@@ -1247,7 +1250,6 @@ public class BLangPackageBuilder {
         xmlProcInsLiteral.pos = pos;
         xmlProcInsLiteral.dataFragments = dataExprs;
         xmlProcInsLiteral.target = target;
-
         addExpressionNode(xmlProcInsLiteral);
     }
 
@@ -1292,5 +1294,22 @@ public class BLangPackageBuilder {
         } else {
             addLiteralValue(pos, TypeTags.STRING, strContent);
         }
+    }
+
+    public void addXMLNSDeclaration(DiagnosticPos pos, String namespaceUri, String prefix) {
+        BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
+        BLangIdentifier prefixIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        prefixIdentifer.pos = pos;
+        prefixIdentifer.value = prefix;
+        
+        addLiteralValue(pos, TypeTags.STRING, namespaceUri);
+        xmlns.namespaceURI = (BLangExpression) exprNodeStack.pop();
+        xmlns.prefix = prefixIdentifer;
+        xmlns.pos = pos;
+        
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = pos;
+        addStmtToCurrentBlock(xmlnsStmt);
     }
 }

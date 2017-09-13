@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -142,9 +144,19 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        throw new AssertionError();
+        // Create namespace symbol
+        BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(
+                names.fromIdNode(xmlnsNode.prefix), xmlnsNode.namespaceURI, env.scope.owner);
+        xmlnsNode.symbol = xmlnsSymbol;
+
+        // Add it to the enclosing scope
+        defineSymbol(xmlnsNode.pos, xmlnsSymbol);
     }
 
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        defineNode(xmlnsStmtNode.xmlnsDecl, env);
+    }
+    
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = Symbols.createStructSymbol(
                 names.fromIdNode(structNode.name), null, env.scope.owner);
@@ -345,6 +357,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         node.accept(this);
+        this.env = prevEnv;
+    }
+    
+    public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        symbol.scope = new Scope(symbol);
+        env.scope.define(symbol.name, symbol);
         this.env = prevEnv;
     }
 }

@@ -20,17 +20,21 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.94
  */
 public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
-    public BLangIdentifier namespaceURI;
+    public BLangExpression namespaceURI;
     public BLangIdentifier prefix;
-
+    public BXMLNSSymbol symbol;
+    
     @Override
-    public BLangIdentifier getNamespaceURI() {
+    public ExpressionNode getNamespaceURI() {
         return namespaceURI;
     }
 
@@ -45,8 +49,8 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     }
 
     @Override
-    public void setNamespaceURI(IdentifierNode namespaceURI) {
-        this.namespaceURI = (BLangIdentifier) namespaceURI;
+    public void setNamespaceURI(ExpressionNode namespaceURI) {
+        this.namespaceURI = (BLangExpression) namespaceURI;
     }
 
     @Override
@@ -57,5 +61,10 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.XMLNS;
+    }
+    
+    @Override
+    public String toString() {
+        return "BLangXMLNS: " + prefix + "[" +  namespaceURI + "]";
     }
 }

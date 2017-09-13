@@ -31,7 +31,7 @@ import java.util.List;
 public class BLangXMLCommentLiteral extends BLangExpression implements XMLCommentLiteralNode {
 
     public List<ExpressionNode> textFragments;
-    
+
     public BLangXMLCommentLiteral() {
         textFragments = new ArrayList<ExpressionNode>();
     }
