@@ -9,6 +9,7 @@ import View from './../../view/view';
 import { VIEWS } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
+import EditorTabTitle from './EditorTabTitle';
 
 /**
  * Editor Tabs
@@ -61,17 +62,7 @@ class EditorTabs extends View {
             return (
                 <TabPane
                     tab={
-                        <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
-                            <i className="fw fw-ballerina tab-icon" />
-                            {file.name}
-                            <button
-                                type="button"
-                                className="close close-tab pull-right"
-                                onClick={() => this.onTabClose(editor)}
-                            >
-                                ×
-                            </button>
-                        </div>
+                        <EditorTabTitle editor={editor} onTabClose={this.onTabClose} />
                     }
                     data-extra="tabpane"
                     key={file.fullPath}

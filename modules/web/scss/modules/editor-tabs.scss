@@ -43,6 +43,9 @@
             border-right: 1px solid #16191d;
             .tab-title-wrapper {
                 padding: 0 5px 0 5px;
+                .dirty-indicator {
+                    margin-left: 5px;
+                }
             }
             .tab-icon {
                 margin-right: 10px;
