@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.Whitespace;
+//import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -203,13 +203,13 @@ public class BLangFileRestService {
         JsonObject nodeJson = new JsonObject();
 
         JsonArray wsJson = new JsonArray();
-        Set<Whitespace> ws = node.getWS();
-        if (ws != null && !ws.isEmpty()) {
-            for (Whitespace whitespace : ws) {
-                wsJson.add(whitespace.getWs());
-            }
-            nodeJson.add("ws", wsJson);
-        }
+//        Set<Whitespace> ws = node.getWS();
+//        if (ws != null && !ws.isEmpty()) {
+//            for (Whitespace whitespace : ws) {
+//                wsJson.add(whitespace.getWs());
+//            }
+//            nodeJson.add("ws", wsJson);
+//        }
         Diagnostic.DiagnosticPosition position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
@@ -274,8 +274,8 @@ public class BLangFileRestService {
                 } else if (prop instanceof Boolean) {
                     nodeJson.addProperty(jsonName, (Boolean) prop);
                 } else if (prop instanceof NodeKind) {
-                    String KindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
-                    nodeJson.addProperty(jsonName, KindName);
+                    String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
+                    nodeJson.addProperty(jsonName, kindName);
                 } else if (prop instanceof TypeKind) {
                     nodeJson.addProperty(jsonName, prop.toString());
                 } else if (prop != null) {
