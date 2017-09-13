@@ -124,9 +124,6 @@ class WelcomeTab extends React.Component {
                             Open Directory
                         </button>
                         <ul className="nav nav-pills">
-                            {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
-                            {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
-                            {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
                             <li >
                                 <a href={this.props.userGuide} target="_blank" rel="noopener noreferrer">
                                     <i className="fw fw-document" /> Ballerina by Example </a></li>

@@ -16,41 +16,41 @@
  * under the License.
  */
  
- .http-client-action-wrapper .react-autosuggest__container {
-    padding-top: 2px;
-    float: left;
-    color: black;
-    position: relative;
-}
-
-.http-client-action-wrapper .react-autosuggest__input {
-    padding: 1px 10px;
-    border: 1px solid black;
-    height: 26px;
-    border-radius: 5px;
-}
-
-.http-client-action-wrapper .react-autosuggest__suggestions-container {
-    z-index: 10000;
-    overflow: visible;
-    background: #E2E2E5;
-    border-radius: 5px;
-    width: 187px;
-    position: absolute
+ .http-client-action-wrapper {
+     .react-autosuggest__container {
+        padding-top: 2px;
+        float: left;
+        color: black;
+        position: relative;
+    }
+    .react-autosuggest__input {
+        padding: 1px 10px;
+        border: 1px solid black;
+        height: 26px;
+        border-radius: 5px;
+    }
+    .react-autosuggest__suggestions-container {
+        z-index: 10000;
+        overflow: visible;
+        background: #E2E2E5;
+        border-radius: 5px;
+        width: 187px;
+        position: absolute
+    }
 }
 
 .http-client-request {
     float: left;
     padding-right: 20px;
     border-right: 1px solid #565656;
-}
 
-.http-client-request input[type=text]{
-    color: black;
-    height: 27px;
-    border-radius: 5px;
-    border: 1px solid black;
-    padding: 6px;
+    input[type=text]{
+        color: black;
+        height: 27px;
+        border-radius: 5px;
+        border: 1px solid black;
+        padding: 6px;
+    }
 }
 
 .http-client-path {
@@ -64,26 +64,20 @@
 
 .http-client-action-wrapper {
     padding-top: 5px;
-}
-
-.http-client-action-wrapper .btn {
-    margin-left: 10px;
-    border-radius: 5px;
-}
-
-.http-client-action-wrapper .btn-success {
-    width: 95px;
-}
-
-.http-client-action-wrapper .btn i {
-    margin-right: 7px;
+    .btn {
+        margin-left: 10px;
+        border-radius: 5px;
+    }
+    .btn-success {
+        width: 95px;
+    }
+    .btn i {
+        margin-right: 7px;
+    }
 }
 
 .http-client-content-type-wrapper {
     padding-top: 6px;
-}
-
-.http-client-wrapper {
 }
 
 .http-client-response {
@@ -98,28 +92,25 @@
 
 .http-client-headers-wrapper .fw {
     margin-left: 5px;
-}
-
-.http-client-headers-wrapper .fw:hover {
-    cursor: pointer;
-    opacity: 0.5;
-}
-.http-client-headers-wrapper .current-headers input[type=text] {
-    width: 340px;
+    .fw:hover {
+        cursor: pointer;
+        opacity: 0.5;
+    }
+    .current-headers input[type=text] {
+        width: 340px;
+    }
 }
 
 .http-client-response-content {
     padding-top: 10px;
-}
-
-.http-client-response-content .header-content {
-    white-space: pre-wrap;
-}
-
-.http-client-response-content .response-headers, .http-client-response-content .request-headers {
-    border: 1px solid #6b6b6b;
-    padding: 5px;
-    background: #565656;
+    .header-content {
+        white-space: pre-wrap;
+    }
+    .response-headers, .http-client-response-content .request-headers {
+        border: 1px solid #6b6b6b;
+        padding: 5px;
+        background: #565656;
+    }
 }
 
 .http-client-response-attributes {
