@@ -30,11 +30,21 @@ struct PongFrame {
     blob data;
 }
 
+@doc:Description {value:"Represent the details needed before the Handshake is done"}
+struct HandshakeConnection {
+    string connectionID;
+    boolean isSecure;
+    map<string> upgradeHeaders;
+}
+@doc:Description {value:"Cancel the handshake"}
+@doc:Param {value:"statusCode: Status code for closing the connection"}
+@doc:Param {value:"reason: Reason for closing the connection"}
+native function cancelHandshake(HandshakeConnection handshakeConn, int statusCode, string reason);
+
 @doc:Description {value:"Represent WebSocket connection in ballerina. This include all connection oriented operations"}
 struct Connection {
     map attributes;
 }
-
 @doc:Description {value:"Get the ID of the WebSocket connection"}
 @doc:Return {value:"string: ID of the connection"}
 native function getID(Connection conn) (string);
@@ -46,6 +56,9 @@ native function getNegotiatedSubProtocol(Connection conn) (string);
 @doc:Description {value:"Check whether the connection is secured or not"}
 @doc:Return {value:"boolean: true if the connection is secured"}
 native function isSecure(Connection conn) (boolean);
+
+@doc:Description {value:"Check whether the connection is still open or not."}
+native function isOpen(Connection conn) (boolean);
 
 @doc:Description {value:"Get a map of all the upgrade headers of the connection"}
 @doc:Return {value:"map<string>: Map of all the headers received in the connection upgrade"}
@@ -63,6 +76,11 @@ native function pushText(Connection conn, string text);
 @doc:Description {value:"Push binary data to the connection"}
 @doc:Param {value:"data: Binary data which should be sent"}
 native function pushBinary(Connection conn, blob data);
+
+@doc:Description {value:"Close the connection"}
+@doc:Param {value:"statusCode: Status code for closing the connection"}
+@doc:Param {value:"reason: Reason for closing the connection"}
+native function closeConnection(Connection conn, int statusCode, string reason);
 
 @doc:Description {value:"WebSocket client connector for connecting to WebSocket backend"}
 @doc:Param {value:"url: WebSocket url for the backend"}
