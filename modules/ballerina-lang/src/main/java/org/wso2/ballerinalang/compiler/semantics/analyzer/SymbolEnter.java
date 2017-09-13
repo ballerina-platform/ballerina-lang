@@ -295,14 +295,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
         structNodes.forEach(struct -> {
-            SymbolEnv structEnv = SymbolEnv.createTopLevelMemberEnv(struct, pkgEnv, struct.symbol.scope);
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, pkgEnv, struct.symbol.scope);
             struct.fields.forEach(field -> defineNode(field, structEnv));
         });
     }
 
     private void defineActions(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createTopLevelMemberEnv(connector, pkgEnv, connector.symbol.scope);
+            SymbolEnv conEnv = SymbolEnv.createPkgLevelSymbolEnv(connector, pkgEnv, connector.symbol.scope);
             connector.actions.forEach(action -> defineNode(action, conEnv));
         });
     }
@@ -314,7 +314,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol) {
-        SymbolEnv invokableEnv = SymbolEnv.createTopLevelMemberEnv(invokableNode, env, symbol.scope);
+        SymbolEnv invokableEnv = SymbolEnv.createPkgLevelSymbolEnv(invokableNode, env, symbol.scope);
         List<BVarSymbol> paramSymbols =
                 invokableNode.params
                         .stream()

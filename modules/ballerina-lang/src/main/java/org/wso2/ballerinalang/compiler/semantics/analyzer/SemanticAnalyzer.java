@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -104,11 +105,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         BSymbol funcSymbol = funcNode.symbol;
-        SymbolEnv funcEnv = SymbolEnv.createTopLevelMemberEnv(funcNode, env, funcSymbol.scope);
+        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
 
         // Check for native functions
         analyzeStmt(funcNode.body, funcEnv);
 
+    }
+
+    public void visit(BLangStruct structNode) {
     }
 
     public void visit(BLangVariable varNode) {

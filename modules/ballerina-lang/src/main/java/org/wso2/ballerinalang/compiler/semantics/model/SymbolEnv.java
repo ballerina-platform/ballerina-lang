@@ -75,11 +75,12 @@ public class SymbolEnv {
         return env;
     }
 
-    public static SymbolEnv createTopLevelMemberEnv(BLangNode node,
-                                                    SymbolEnv env,
+    public static SymbolEnv createPkgLevelSymbolEnv(BLangNode node,
+                                                    SymbolEnv pkgEnv,
                                                     Scope scope) {
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
-        env.copyTo(symbolEnv);
+        pkgEnv.copyTo(symbolEnv);
+        symbolEnv.enclPkg = (BLangPackage) pkgEnv.node;
         return symbolEnv;
     }
 

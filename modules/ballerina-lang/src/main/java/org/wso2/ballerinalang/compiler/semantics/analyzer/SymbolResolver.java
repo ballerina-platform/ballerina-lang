@@ -226,13 +226,21 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {
-        // 1) lookup the imported package using the package alias,
-        //     if the package alias is empty then lookup the current package
-        // 2) lookup the typename in the package scope
+        // 1) Resolve the package scope using the package alias.
+        //    If the package alias is not empty or null, then find the package scope,
+        //    if not use the current package scope.
+        // 2) lookup the typename in the package scope returned from step 1.
+        // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        // TODO Lookup the package scope. This code only looks at the global scope. Fix it.
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
-        BSymbol symbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
+
+        // 2) Lookup the current package scope.
+        BSymbol symbol = lookupMemberSymbol(env.enclPkg.symbol.scope, typeName, SymTag.TYPE);
+        if (symbol == symTable.notFoundSymbol) {
+            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
+        }
+
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
             resultType = symTable.errType;
