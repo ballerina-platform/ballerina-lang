@@ -27,38 +27,6 @@ import java.util.stream.Collectors;
  */
 public class HTTPConnectorUtil {
 
-//    /**
-//     * Convert {@link CarbonMessage} to a {@link HTTPCarbonMessage}.
-//     *
-//     * @param carbonMessage {@link CarbonMessage} which should be converted to a {@link HTTPCarbonMessage}.
-//     * @return converted {@link HTTPCarbonMessage}.
-//     */
-//    public static HTTPCarbonMessage convertCarbonMessage(CarbonMessage carbonMessage) {
-//        if (carbonMessage instanceof HTTPCarbonMessage) {
-//            return (HTTPCarbonMessage) carbonMessage;
-//        } else {
-//            HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
-//
-//            List<Header> transportHeaders = carbonMessage.getHeaders().getClone();
-//            httpCarbonMessage.setHeaders(transportHeaders);
-//
-//            Map<String, Object> propertiesMap = carbonMessage.getProperties();
-//            propertiesMap.forEach((key, value) -> httpCarbonMessage.setProperty(key, value));
-//
-////            httpCarbonMessage.setWriter(carbonMessage.getWriter());
-//            httpCarbonMessage.setFaultHandlerStack(carbonMessage.getFaultHandlerStack());
-//
-//            Util.prepareBuiltMessageForTransfer(carbonMessage);
-//            if (!carbonMessage.isEmpty()) {
-//                carbonMessage.getFullMessageBody().forEach((buffer) -> httpCarbonMessage.addMessageBody(buffer));
-//            }
-//
-//            httpCarbonMessage.setEndOfMsgAdded(carbonMessage.isEndOfMsgAdded());
-//
-//            return httpCarbonMessage;
-//        }
-//    }
-
     public static CarbonMessage convertWebSocketInitMessage(WebSocketInitMessage initMessage) {
         StatusCarbonMessage carbonMessage =
                 new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
