@@ -83,7 +83,7 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
-                <version>0.92.1-SNAPSHOT</version>
+                <version>${ballerina.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
