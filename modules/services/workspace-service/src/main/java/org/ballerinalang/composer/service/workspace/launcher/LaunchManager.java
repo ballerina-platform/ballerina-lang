@@ -156,16 +156,6 @@ public class LaunchManager {
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
                 }
 
-                // This is to handle try it tool.
-                if (startedServiceURL != null) {
-                    pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
-                            startedServiceURL);
-                } else if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)) {
-                    pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
-                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST,
-                                    this.getUpdatedPort(line)));
-                }
-
                 // This is to handle local service run use case.
                 if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)
                         && startedServiceURL == null) {
