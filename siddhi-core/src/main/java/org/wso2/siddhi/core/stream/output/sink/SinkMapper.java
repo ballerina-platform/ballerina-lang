@@ -43,6 +43,7 @@ public abstract class SinkMapper {
     private String type;
     private SinkListener sinkListener;
     private OptionHolder optionHolder;
+    //Key as specified in Sink Mapper's payload - @paylod(key="template"), Value is TemplateBuilder for given template
     private Map<String, TemplateBuilder> templateBuilderMap = null;
     private OutputGroupDeterminer groupDeterminer = null;
     private ThreadLocal<DynamicOptions> trpDynamicOptions = new ThreadLocal<>();
