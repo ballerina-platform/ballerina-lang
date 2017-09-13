@@ -26,6 +26,8 @@ public enum CompilerOptionName {
 
     SOURCE_ROOT("-sourceroot"),
 
+    PRESERVE_WHITESPACE("preserveWhitespace"),
+
     COMPILER_PHASE("compilerPhase");
 
     public final String name;

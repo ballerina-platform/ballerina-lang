@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/djkevincr/log_trace_works/ballerina_rewrite/ballerina/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -1067,8 +1067,8 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(CallableUnitBodyContext.class,0);
 		}
 		public TerminalNode LT() { return getToken(BallerinaParser.LT, 0); }
-		public NameReferenceContext nameReference() {
-			return getRuleContext(NameReferenceContext.class,0);
+		public TypeNameContext typeName() {
+			return getRuleContext(TypeNameContext.class,0);
 		}
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public TerminalNode GT() { return getToken(BallerinaParser.GT, 0); }
@@ -1118,7 +1118,7 @@ public class BallerinaParser extends Parser {
 					setState(385);
 					match(LT);
 					setState(386);
-					nameReference();
+					typeName(0);
 					setState(387);
 					match(Identifier);
 					setState(388);
@@ -10066,40 +10066,40 @@ public class BallerinaParser extends Parser {
 		"\2\2\u0179\u017a\7E\2\2\u017a\u017c\3\2\2\2\u017b\u015f\3\2\2\2\u017b"+
 		"\u016d\3\2\2\2\u017c\25\3\2\2\2\u017d\u017e\7\6\2\2\u017e\u017f\7\t\2"+
 		"\2\u017f\u0180\5\32\16\2\u0180\u0181\7@\2\2\u0181\u018e\3\2\2\2\u0182"+
-		"\u0188\7\t\2\2\u0183\u0184\7V\2\2\u0184\u0185\5\u00c8e\2\u0185\u0186\7"+
-		"d\2\2\u0186\u0187\7U\2\2\u0187\u0189\3\2\2\2\u0188\u0183\3\2\2\2\u0188"+
-		"\u0189\3\2\2\2\u0189\u018a\3\2\2\2\u018a\u018b\5\32\16\2\u018b\u018c\5"+
-		"\24\13\2\u018c\u018e\3\2\2\2\u018d\u017d\3\2\2\2\u018d\u0182\3\2\2\2\u018e"+
-		"\27\3\2\2\2\u018f\u0190\7\t\2\2\u0190\u0192\7F\2\2\u0191\u0193\5\u00ce"+
-		"h\2\u0192\u0191\3\2\2\2\u0192\u0193\3\2\2\2\u0193\u0194\3\2\2\2\u0194"+
-		"\u0196\7G\2\2\u0195\u0197\5\u00caf\2\u0196\u0195\3\2\2\2\u0196\u0197\3"+
-		"\2\2\2\u0197\u0198\3\2\2\2\u0198\u0199\5\24\13\2\u0199\31\3\2\2\2\u019a"+
-		"\u019b\7d\2\2\u019b\u019d\7F\2\2\u019c\u019e\5\u00ceh\2\u019d\u019c\3"+
-		"\2\2\2\u019d\u019e\3\2\2\2\u019e\u019f\3\2\2\2\u019f\u01a1\7G\2\2\u01a0"+
-		"\u01a2\5\u00caf\2\u01a1\u01a0\3\2\2\2\u01a1\u01a2\3\2\2\2\u01a2\33\3\2"+
-		"\2\2\u01a3\u01a4\7\n\2\2\u01a4\u01a9\7d\2\2\u01a5\u01a6\7V\2\2\u01a6\u01a7"+
-		"\5\u00d0i\2\u01a7\u01a8\7U\2\2\u01a8\u01aa\3\2\2\2\u01a9\u01a5\3\2\2\2"+
-		"\u01a9\u01aa\3\2\2\2\u01aa\u01ab\3\2\2\2\u01ab\u01ad\7F\2\2\u01ac\u01ae"+
-		"\5\u00ceh\2\u01ad\u01ac\3\2\2\2\u01ad\u01ae\3\2\2\2\u01ae\u01af\3\2\2"+
-		"\2\u01af\u01b0\7G\2\2\u01b0\u01b1\5\36\20\2\u01b1\35\3\2\2\2\u01b2\u01b6"+
-		"\7D\2\2\u01b3\u01b5\5d\63\2\u01b4\u01b3\3\2\2\2\u01b5\u01b8\3\2\2\2\u01b6"+
-		"\u01b4\3\2\2\2\u01b6\u01b7\3\2\2\2\u01b7\u01bc\3\2\2\2\u01b8\u01b6\3\2"+
-		"\2\2\u01b9\u01bb\5b\62\2\u01ba\u01b9\3\2\2\2\u01bb\u01be\3\2\2\2\u01bc"+
-		"\u01ba\3\2\2\2\u01bc\u01bd\3\2\2\2\u01bd\u01c2\3\2\2\2\u01be\u01bc\3\2"+
-		"\2\2\u01bf\u01c1\5 \21\2\u01c0\u01bf\3\2\2\2\u01c1\u01c4\3\2\2\2\u01c2"+
-		"\u01c0\3\2\2\2\u01c2\u01c3\3\2\2\2\u01c3\u01c5\3\2\2\2\u01c4\u01c2\3\2"+
-		"\2\2\u01c5\u01c6\7E\2\2\u01c6\37\3\2\2\2\u01c7\u01c9\5N(\2\u01c8\u01c7"+
-		"\3\2\2\2\u01c9\u01cc\3\2\2\2\u01ca\u01c8\3\2\2\2\u01ca\u01cb\3\2\2\2\u01cb"+
-		"\u01cd\3\2\2\2\u01cc\u01ca\3\2\2\2\u01cd\u01ce\7\6\2\2\u01ce\u01cf\7\13"+
-		"\2\2\u01cf\u01d0\5\32\16\2\u01d0\u01d1\7@\2\2\u01d1\u01dd\3\2\2\2\u01d2"+
-		"\u01d4\5N(\2\u01d3\u01d2\3\2\2\2\u01d4\u01d7\3\2\2\2\u01d5\u01d3\3\2\2"+
-		"\2\u01d5\u01d6\3\2\2\2\u01d6\u01d8\3\2\2\2\u01d7\u01d5\3\2\2\2\u01d8\u01d9"+
-		"\7\13\2\2\u01d9\u01da\5\32\16\2\u01da\u01db\5\24\13\2\u01db\u01dd\3\2"+
-		"\2\2\u01dc\u01ca\3\2\2\2\u01dc\u01d5\3\2\2\2\u01dd!\3\2\2\2\u01de\u01df"+
-		"\7\f\2\2\u01df\u01e0\7d\2\2\u01e0\u01e1\5$\23\2\u01e1#\3\2\2\2\u01e2\u01e6"+
-		"\7D\2\2\u01e3\u01e5\5\u00d2j\2\u01e4\u01e3\3\2\2\2\u01e5\u01e8\3\2\2\2"+
-		"\u01e6\u01e4\3\2\2\2\u01e6\u01e7\3\2\2\2\u01e7\u01e9\3\2\2\2\u01e8\u01e6"+
-		"\3\2\2\2\u01e9\u01ea\7E\2\2\u01ea%\3\2\2\2\u01eb\u01ec\7\r\2\2\u01ec\u01f6"+
+		"\u0188\7\t\2\2\u0183\u0184\7V\2\2\u0184\u0185\5> \2\u0185\u0186\7d\2\2"+
+		"\u0186\u0187\7U\2\2\u0187\u0189\3\2\2\2\u0188\u0183\3\2\2\2\u0188\u0189"+
+		"\3\2\2\2\u0189\u018a\3\2\2\2\u018a\u018b\5\32\16\2\u018b\u018c\5\24\13"+
+		"\2\u018c\u018e\3\2\2\2\u018d\u017d\3\2\2\2\u018d\u0182\3\2\2\2\u018e\27"+
+		"\3\2\2\2\u018f\u0190\7\t\2\2\u0190\u0192\7F\2\2\u0191\u0193\5\u00ceh\2"+
+		"\u0192\u0191\3\2\2\2\u0192\u0193\3\2\2\2\u0193\u0194\3\2\2\2\u0194\u0196"+
+		"\7G\2\2\u0195\u0197\5\u00caf\2\u0196\u0195\3\2\2\2\u0196\u0197\3\2\2\2"+
+		"\u0197\u0198\3\2\2\2\u0198\u0199\5\24\13\2\u0199\31\3\2\2\2\u019a\u019b"+
+		"\7d\2\2\u019b\u019d\7F\2\2\u019c\u019e\5\u00ceh\2\u019d\u019c\3\2\2\2"+
+		"\u019d\u019e\3\2\2\2\u019e\u019f\3\2\2\2\u019f\u01a1\7G\2\2\u01a0\u01a2"+
+		"\5\u00caf\2\u01a1\u01a0\3\2\2\2\u01a1\u01a2\3\2\2\2\u01a2\33\3\2\2\2\u01a3"+
+		"\u01a4\7\n\2\2\u01a4\u01a9\7d\2\2\u01a5\u01a6\7V\2\2\u01a6\u01a7\5\u00d0"+
+		"i\2\u01a7\u01a8\7U\2\2\u01a8\u01aa\3\2\2\2\u01a9\u01a5\3\2\2\2\u01a9\u01aa"+
+		"\3\2\2\2\u01aa\u01ab\3\2\2\2\u01ab\u01ad\7F\2\2\u01ac\u01ae\5\u00ceh\2"+
+		"\u01ad\u01ac\3\2\2\2\u01ad\u01ae\3\2\2\2\u01ae\u01af\3\2\2\2\u01af\u01b0"+
+		"\7G\2\2\u01b0\u01b1\5\36\20\2\u01b1\35\3\2\2\2\u01b2\u01b6\7D\2\2\u01b3"+
+		"\u01b5\5d\63\2\u01b4\u01b3\3\2\2\2\u01b5\u01b8\3\2\2\2\u01b6\u01b4\3\2"+
+		"\2\2\u01b6\u01b7\3\2\2\2\u01b7\u01bc\3\2\2\2\u01b8\u01b6\3\2\2\2\u01b9"+
+		"\u01bb\5b\62\2\u01ba\u01b9\3\2\2\2\u01bb\u01be\3\2\2\2\u01bc\u01ba\3\2"+
+		"\2\2\u01bc\u01bd\3\2\2\2\u01bd\u01c2\3\2\2\2\u01be\u01bc\3\2\2\2\u01bf"+
+		"\u01c1\5 \21\2\u01c0\u01bf\3\2\2\2\u01c1\u01c4\3\2\2\2\u01c2\u01c0\3\2"+
+		"\2\2\u01c2\u01c3\3\2\2\2\u01c3\u01c5\3\2\2\2\u01c4\u01c2\3\2\2\2\u01c5"+
+		"\u01c6\7E\2\2\u01c6\37\3\2\2\2\u01c7\u01c9\5N(\2\u01c8\u01c7\3\2\2\2\u01c9"+
+		"\u01cc\3\2\2\2\u01ca\u01c8\3\2\2\2\u01ca\u01cb\3\2\2\2\u01cb\u01cd\3\2"+
+		"\2\2\u01cc\u01ca\3\2\2\2\u01cd\u01ce\7\6\2\2\u01ce\u01cf\7\13\2\2\u01cf"+
+		"\u01d0\5\32\16\2\u01d0\u01d1\7@\2\2\u01d1\u01dd\3\2\2\2\u01d2\u01d4\5"+
+		"N(\2\u01d3\u01d2\3\2\2\2\u01d4\u01d7\3\2\2\2\u01d5\u01d3\3\2\2\2\u01d5"+
+		"\u01d6\3\2\2\2\u01d6\u01d8\3\2\2\2\u01d7\u01d5\3\2\2\2\u01d8\u01d9\7\13"+
+		"\2\2\u01d9\u01da\5\32\16\2\u01da\u01db\5\24\13\2\u01db\u01dd\3\2\2\2\u01dc"+
+		"\u01ca\3\2\2\2\u01dc\u01d5\3\2\2\2\u01dd!\3\2\2\2\u01de\u01df\7\f\2\2"+
+		"\u01df\u01e0\7d\2\2\u01e0\u01e1\5$\23\2\u01e1#\3\2\2\2\u01e2\u01e6\7D"+
+		"\2\2\u01e3\u01e5\5\u00d2j\2\u01e4\u01e3\3\2\2\2\u01e5\u01e8\3\2\2\2\u01e6"+
+		"\u01e4\3\2\2\2\u01e6\u01e7\3\2\2\2\u01e7\u01e9\3\2\2\2\u01e8\u01e6\3\2"+
+		"\2\2\u01e9\u01ea\7E\2\2\u01ea%\3\2\2\2\u01eb\u01ec\7\r\2\2\u01ec\u01f6"+
 		"\7d\2\2\u01ed\u01ee\7$\2\2\u01ee\u01f3\5.\30\2\u01ef\u01f0\7C\2\2\u01f0"+
 		"\u01f2\5.\30\2\u01f1\u01ef\3\2\2\2\u01f2\u01f5\3\2\2\2\u01f3\u01f1\3\2"+
 		"\2\2\u01f3\u01f4\3\2\2\2\u01f4\u01f7\3\2\2\2\u01f5\u01f3\3\2\2\2\u01f6"+
