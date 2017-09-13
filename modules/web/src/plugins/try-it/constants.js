@@ -16,6 +16,8 @@
  * under the License.
  */
 
-export const PLUGIN_ID = 'composer.plugin.lang.ballerina';
+export const VIEWS = {
+    TRY_IT_VIEW_ID: 'try-it-view-id',
+};
 
-export const EDITOR_ID = 'composer.editor.ballerina';
+export const TRY_IT_PLUGIN_ID = 'composer.tryit.ballerina';

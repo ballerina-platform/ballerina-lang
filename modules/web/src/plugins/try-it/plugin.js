@@ -18,39 +18,42 @@
 
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
-import Editor from './editor/Editor';
-import { PLUGIN_ID, EDITOR_ID } from './constants';
-import { CLASSES } from './../../../js/ballerina/views/constants';
+import { REGIONS } from 'core/layout/constants';
+/** Plugin imports */
+import TryIt from './views/try-it-container';
+import { VIEWS as TRY_IT_VIEW, TRY_IT_PLUGIN_ID } from './constants';
 
 /**
  * Plugin for Ballerina Lang
  */
-class BallerinaPlugin extends Plugin {
+class TryItPlugin extends Plugin {
 
     /**
      * @inheritdoc
      */
     getID() {
-        return PLUGIN_ID;
+        return TRY_IT_PLUGIN_ID;
     }
 
     /**
      * @inheritdoc
      */
     getContributions() {
-        const { EDITORS } = CONTRIBUTIONS;
+        const { VIEWS } = CONTRIBUTIONS;
         return {
-            [EDITORS]: [
+            [VIEWS]: [
                 {
-                    id: EDITOR_ID,
-                    extension: 'bal',
-                    component: Editor,
-                    customPropsProvider: () => {
+                    id: TRY_IT_VIEW.TRY_IT_VIEW_ID,
+                    component: TryIt,
+                    propsProvider: () => {
                         return {
-
                         };
                     },
-                    tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
+                    region: REGIONS.BOTTOM_PANEL,
+                    regionOptions: {
+                        panelTitle: 'Try It',
+                    },
+                    displayOnLoad: true,
                 },
             ],
         };
@@ -58,4 +61,4 @@ class BallerinaPlugin extends Plugin {
 
 }
 
-export default BallerinaPlugin;
+export default TryItPlugin;

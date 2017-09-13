@@ -18,17 +18,20 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ExamplePreview from './service-preview';
+import { getPathSeperator } from 'api-client/api-client';
+import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import SamplesPreview from './samples-preview';
 
 /**
- * React component for welcome page.
+ * React component for welcome tab.
  *
- * @class WelcomeView
+ * @class WelcomeTab
  * @extends {React.Component}
  */
-class WelcomeView extends React.Component {
+class WelcomeTab extends React.Component {
     /**
-     * Creates an instance of WelcomeView.
+     * Creates an instance of WelcomeTab.
      * @memberof WelcomeView
      */
     constructor() {
@@ -38,14 +41,9 @@ class WelcomeView extends React.Component {
         };
     }
 
-    /**
-     * Rending the view of the samples.
-     * @returns {ReactView} The samples view.
-     * @memberof WelcomeView
-     */
     renderSamples() {
-        const pathSeperator = this._options.application.getPathSeperator();
-        const ballerinaHome = _.get(this._options, 'balHome');
+        const pathSeperator = getPathSeperator();
+        const ballerinaHome = this.props.balHome;
         let sampleConfigs = [];
         sampleConfigs = this.props.samples.map(sample => ({
             sampleName: sample.name,
@@ -53,22 +51,28 @@ class WelcomeView extends React.Component {
             clickEventCallback: () => {
                 // convert paths to platform specific paths
                 const sampleFile = sample.path.split('/').join(pathSeperator);
-                const sampleFolder = (sample.folder) ? sample.folder.split('/').join(pathSeperator) : '';
+                const sampleFolder = sample.folder ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
-                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+                        filePath: ballerinaHome + sampleFile,
+                        ext: 'bal',
+                    });
                 } else {
-                    commandManager.dispatch('open-folder', ballerinaHome + sampleFolder);
-                    if (!workspaceExplorer.isActive()) {
-                        commandManager.dispatch('toggle-file-explorer');
-                    }
-                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
+                        folderPath: ballerinaHome + sampleFolder,
+                    });
+                    this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, WORKSPACE_VIEWS.EXPLORER);
+                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+                        filePath: ballerinaHome + sampleFile,
+                        ext: 'bal',
+                    });
                 }
             },
             image: sample.image,
         }));
 
         return (
-            <ExamplePreview sampleConfigs={sampleConfigs} />
+            <SamplesPreview sampleConfigs={sampleConfigs} />
         );
     }
 
@@ -76,7 +80,7 @@ class WelcomeView extends React.Component {
      * Renders view for welcome view.
      *
      * @returns {ReactElement} The view.
-     * @memberof WelcomeView
+     * @memberof WelcomeTab
      */
     render() {
         const samplesView = this.renderSamples();
@@ -100,7 +104,7 @@ class WelcomeView extends React.Component {
 
                         <button
                             id="btn-welcome-new"
-                            className="btn btn-primary" 
+                            className="btn btn-primary"
                             onClick={this.props.createNew}
                         >
                             Create New
@@ -124,7 +128,7 @@ class WelcomeView extends React.Component {
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
                             <li >
-                                <a href={this.props.referenceUrl} target="_blank" rel="noopener noreferrer">
+                                <a href={this.props.userGuide} target="_blank" rel="noopener noreferrer">
                                     <i className="fw fw-document" /> Ballerina by Example </a></li>
                         </ul>
                     </div>
@@ -147,17 +151,20 @@ class WelcomeView extends React.Component {
     }
 }
 
-WelcomeView.propTypes = {
+WelcomeTab.propTypes = {
     createNew: PropTypes.func.isRequired,
     openFile: PropTypes.func.isRequired,
     openDirectory: PropTypes.func.isRequired,
-    referenceUrl: PropTypes.string.isRequired,
+    userGuide: PropTypes.string.isRequired,
     samples: PropTypes.arrayOf(PropTypes.shape({
-        clickEventCallback: PropTypes.func.isRequired,
-        sampleName: PropTypes.string.isRequired,
-        isFile: PropTypes.bool.isRequired,
+        name: PropTypes.string.isRequired,
+        isFile: PropTypes.bool,
+        folder: PropTypes.string,
+        path: PropTypes.string.isRequired,
         image: PropTypes.string.isRequired,
     })).isRequired,
+    balHome: PropTypes.string.isRequired,
+    commandManager: PropTypes.objectOf(Object).isRequired,
 };
 
-export default WelcomeView;
+export default WelcomeTab;

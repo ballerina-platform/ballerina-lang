@@ -19,10 +19,12 @@ package org.ballerinalang.composer.service.workspace.rest;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.composer.service.workspace.Constants;
+import org.ballerinalang.composer.service.workspace.PluginConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.Request;
 
+import java.io.File;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -163,14 +165,12 @@ public class ConfigServiceImpl {
         JsonObject config = new JsonObject();
         config.add("services", services);
     
-        String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
-        if (balHome == null) {
-            balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
-        }
-        
-        if (null != balHome) {
-            config.addProperty("balHome", balHome);
-        }
+        config.addProperty("pathSeparator", File.separator);
+    
+        // Configurations for plugins.
+        JsonObject pluginConfigs = new JsonObject();
+        config.add(PluginConstants.PLUGIN_CONFIGS, pluginConfigs);
+        this.setWelcomeTabPluginConfigs(pluginConfigs);
 
         if (getStartupFile() != null) {
             config.addProperty("startupFile", getStartupFile());
@@ -255,5 +255,24 @@ public class ConfigServiceImpl {
         String hostHeader = request.getHeader("Host");
         String[] split = hostHeader.split(":");
         return split[0];
+    }
+    
+    /**
+     * Setting configs related to welcome tab plugin.
+     * @param pluginConfigs The config for all plugins..
+     */
+    public void setWelcomeTabPluginConfigs(JsonObject pluginConfigs) {
+        JsonObject welcomeTabPluginConfig = new JsonObject();
+        
+        String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
+        if (balHome == null) {
+            balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
+        }
+    
+        if (null != balHome) {
+            welcomeTabPluginConfig.addProperty("balHome", balHome);
+        }
+    
+        pluginConfigs.add(PluginConstants.WELCOME_TAB_PLUGIN_ID, welcomeTabPluginConfig);
     }
 }

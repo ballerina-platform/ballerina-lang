@@ -29,7 +29,7 @@ import 'brace/mode/xml';
 import 'brace/mode/html';
 import 'brace/theme/monokai';
 
-import './scss/http-client.scss';
+import './http-client.scss';
 
 /**
  * Http try-it client component

@@ -16,6 +16,12 @@
  * under the License.
  */
 
-export const PLUGIN_ID = 'composer.plugin.lang.ballerina';
+export const LABELS = {
+    WELCOME: 'Welcome',
+};
 
-export const EDITOR_ID = 'composer.editor.ballerina';
+export const VIEWS = {
+    WELCOME_TAB_VIEW_ID: 'welcome-tab-view-id',
+};
+
+export const WELCOME_TAB_PLUGIN_ID = 'composer.plugin.welcometab';
