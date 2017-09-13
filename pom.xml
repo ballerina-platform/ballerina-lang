@@ -22,14 +22,14 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.92.1-SNAPSHOT</version>
+        <version>0.93.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.92.1-SNAPSHOT</version>
+    <version>0.93.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <url>http://ballerinalang.org</url>
@@ -76,11 +76,6 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -209,7 +204,8 @@
     </build>
 
     <properties>
-        <ballerina.version>0.92.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.93.1-SNAPSHOT</ballerina.version>
+        <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <commons-net.version>3.6</commons-net.version>
         <cobertura.version>2.7</cobertura.version>
@@ -226,7 +222,6 @@
 
     <modules>
         <module>modules/ballerina-lang</module>
-        <module>modules/ballerina-codegen</module>
         <module>modules/ballerina-builtin</module>
         <module>modules/launcher</module>
         <module>modules/ballerina-samples</module>

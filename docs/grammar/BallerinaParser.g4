@@ -49,7 +49,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorVarDefStatement* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,8 +57,10 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE statement* workerDeclaration* RIGHT_BRACE
+    : LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
+    | LEFT_BRACE connectorVarDefStatement* workerDeclaration+ RIGHT_BRACE
     ;
+
 
 functionDefinition
     :   NATIVE FUNCTION  callableUnitSignature SEMICOLON
@@ -78,7 +80,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :   LEFT_BRACE variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorVarDefStatement* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -145,7 +147,7 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE statement* workerDeclaration*RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
     ;
 
 workerDefinition
@@ -162,7 +164,11 @@ typeName
 
 referenceTypeName
     :   builtInReferenceTypeName
-    |   nameReference
+    |   userDefineTypeName
+    ;
+
+userDefineTypeName
+    :   nameReference
     ;
 
 valueTypeName
@@ -263,7 +269,11 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN  expression)? SEMICOLON
+    ;
+
+connectorVarDefStatement
+    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -279,11 +289,11 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
     ;
 
 filterInitExpression
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 filterInitExpressionList
@@ -291,7 +301,8 @@ filterInitExpressionList
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (connectorInitExpression | expression) SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    |   variableReferenceList ASSIGN connectorInitExpression SEMICOLON
     ;
 
 variableReferenceList
@@ -486,6 +497,7 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName GT expression                                           # typeConversionExpression
+    |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
@@ -605,10 +617,6 @@ stringTemplateLiteral
     ;
 
 stringTemplateContent
-    :   (StringTemplateExpressionStart expression ExpressionEnd)+ stringTemplateText?
-    |   stringTemplateText
-    ;
-
-stringTemplateText
-    :   StringTemplateText
+    :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
+    |   StringTemplateText
     ;

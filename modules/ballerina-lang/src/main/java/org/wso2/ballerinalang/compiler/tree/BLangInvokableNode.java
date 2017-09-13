@@ -22,11 +22,13 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangBlockStmt body;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<WorkerNode> workers;
 
     public BSymbol symbol;
 
@@ -50,6 +53,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flags = new HashSet<>();
+        this.workers = new ArrayList<>();
     }
 
     @Override
@@ -113,9 +117,25 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
+    public void addWorker(WorkerNode worker) {
+        this.workers.add(worker);
+    }
+
+    @Override
+    public List<? extends WorkerNode> getWorkers() {
+        return workers;
+    }
+
+    @Override
+    public void setWorkerNodes(List<WorkerNode> workerNodesList) {
+        this.workers = workerNodesList;
+    }
+
+    @Override
     public String toString() {
         return this.flags + " " + this.getName() + " (" + this.params +
-                ") (" + this.retParams + ") " + this.body;
+                ") (" + this.retParams + ") Body: {" + this.body + "}"
+                + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
 
 }

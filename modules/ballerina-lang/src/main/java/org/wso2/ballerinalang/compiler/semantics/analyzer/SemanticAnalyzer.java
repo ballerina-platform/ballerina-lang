@@ -27,13 +27,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
 
@@ -84,7 +88,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         // First visit all the imported packages
 
-        SymbolEnv pkgEnv = SymbolEnv.getPkgEnv(pkgNode,
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
                 pkgNode.symbol.scope, symTable.rootPkgNode);
 
         // Then visit each top-level element sorted using the compilation unit
@@ -101,11 +105,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         BSymbol funcSymbol = funcNode.symbol;
-        SymbolEnv funcEnv = SymbolEnv.getFunctionEnv(funcNode, funcSymbol.scope, env);
+        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
 
         // Check for native functions
         analyzeStmt(funcNode.body, funcEnv);
 
+    }
+
+    public void visit(BLangStruct structNode) {
     }
 
     public void visit(BLangVariable varNode) {
@@ -123,8 +130,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Here we create a new symbol environment to catch self references by keep the current
             // variable symbol in the symbol environment
             // e.g. int a = x + a;
-            SymbolEnv varInitEnv = SymbolEnv.getVarInitEnv(varNode, varNode.symbol, env);
-            typeChecker.checkExpr(varNode.expr, varInitEnv, varNode.symbol.type);
+            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
+            typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
         }
         varNode.type = varNode.symbol.type;
     }
@@ -133,12 +140,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Statements
 
     public void visit(BLangBlockStmt blockNode) {
-        SymbolEnv blockEnv = SymbolEnv.getBlockEnv(blockNode, env);
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.statements.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 
     public void visit(BLangVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
+    }
+
+    public void visit(BLangIf ifNode) {
+        typeChecker.checkExpr(ifNode.expr, env, Lists.of(symTable.booleanType));
+        analyzeStmt(ifNode.body, env);
+
+        if (ifNode.elseStmt != null) {
+            analyzeStmt(ifNode.elseStmt, env);
+        }
+    }
+
+    public void visit(BLangWhile whileNode) {
+        typeChecker.checkExpr(whileNode.expr, env, Lists.of(symTable.booleanType));
+        analyzeStmt(whileNode.body, env);
     }
 
 

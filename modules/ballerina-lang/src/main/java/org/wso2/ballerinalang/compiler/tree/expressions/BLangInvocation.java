@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -33,15 +35,22 @@ import java.util.List;
  *
  * @since 0.94
  */
-public class BLangInvocation extends BLangVariableReference implements InvocationNode {
+public class BLangInvocation extends BLangVariableReference implements InvocationNode, MultiReturnExpr {
 
-    public IdentifierNode packIdentifier, functionName;
-    public List<ExpressionNode> argsExpressions = new ArrayList<>();
-    public VariableReferenceNode variableReferenceNode;
+    public BLangIdentifier pkgAlias;
+    public BLangIdentifier functionName;
+    public List<BLangExpression> argsExprs = new ArrayList<>();
+    public BLangVariableReference variableReferenceNode;
+    public List<BType> types = new ArrayList<>(0);
+
+
+    public boolean isMultiReturnExpr() {
+        return true;
+    }
 
     @Override
     public IdentifierNode getPackageIdentifier() {
-        return packIdentifier;
+        return pkgAlias;
     }
 
     @Override
@@ -51,7 +60,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
 
     @Override
     public List<? extends ExpressionNode> getArgumentExpressions() {
-        return argsExpressions;
+        return argsExprs;
     }
 
     @Override
@@ -70,13 +79,13 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         if (variableReferenceNode != null) {
             // Action invocation or lambda invocation.
             br.append(String.valueOf(variableReferenceNode)).append(".");
-        } else if (packIdentifier != null && !packIdentifier.getValue().isEmpty()) {
-                br.append(String.valueOf(packIdentifier)).append(":");
+        } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
+                br.append(String.valueOf(pkgAlias)).append(":");
         }
         br.append(String.valueOf(functionName));
         br.append("(");
-        if (argsExpressions.size() > 0) {
-            String s = Arrays.toString(argsExpressions.toArray());
+        if (argsExprs.size() > 0) {
+            String s = Arrays.toString(argsExprs.toArray());
             br.append(s.substring(1, s.length() - 1));
         }
         br.append(")");
@@ -86,5 +95,15 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public List<BType> getTypes() {
+        return types;
+    }
+
+    @Override
+    public void setTypes(List<BType> types) {
+        this.types = types;
     }
 }

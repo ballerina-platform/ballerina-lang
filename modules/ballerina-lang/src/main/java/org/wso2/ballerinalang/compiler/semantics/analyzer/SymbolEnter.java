@@ -107,7 +107,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         // Create PackageSymbol.
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
-        SymbolEnv pkgEnv = createPkgEnv(pkgNode, pSymbol.scope);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
+                pSymbol.scope, symTable.rootPkgNode);
 
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
@@ -132,6 +133,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
 
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
         // TODO Define package level variables
     }
 
@@ -197,7 +199,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Add it to the enclosing scope
         // Find duplicates
         varNode.symbol = varSymbol;
-        if (symResolver.checkForUniqueSymbol(varNode.pos, varSymbol, enclScope)) {
+        if (symResolver.checkForUniqueSymbol(varNode.pos, env, varSymbol)) {
             enclScope.define(varSymbol.name, varSymbol);
         }
     }
@@ -215,19 +217,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pSymbol;
         pSymbol.scope = new Scope(pSymbol);
         return pSymbol;
-    }
-
-    private SymbolEnv createPkgEnv(BLangPackage node, Scope scope) {
-        SymbolEnv env = new SymbolEnv(node, scope);
-        env.enclPkg = rootPkgNode;
-        return env;
-    }
-
-    private SymbolEnv createTopLevelMemberEnv(BLangNode node, SymbolEnv pkgEnv, Scope memberScope) {
-        SymbolEnv structEnv = new SymbolEnv(node, memberScope);
-        structEnv.enclPkg = pkgEnv.enclPkg;
-        structEnv.enclEnv = pkgEnv;
-        return structEnv;
     }
 
     /**
@@ -292,6 +281,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.services.add((BLangService) node);
                 break;
             case VARIABLE:
+                pkgNode.globalVars.add((BLangVariable) node);
                 // TODO There are two kinds of package level variables, constant and regular variables.
                 break;
             case ANNOTATION:
@@ -305,14 +295,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
         structNodes.forEach(struct -> {
-            SymbolEnv structEnv = createTopLevelMemberEnv(struct, pkgEnv, struct.symbol.scope);
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, pkgEnv, struct.symbol.scope);
             struct.fields.forEach(field -> defineNode(field, structEnv));
         });
     }
 
     private void defineActions(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
-            SymbolEnv conEnv = createTopLevelMemberEnv(connector, pkgEnv, connector.symbol.scope);
+            SymbolEnv conEnv = SymbolEnv.createPkgLevelSymbolEnv(connector, pkgEnv, connector.symbol.scope);
             connector.actions.forEach(action -> defineNode(action, conEnv));
         });
     }
@@ -324,7 +314,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol) {
-        SymbolEnv invokableEnv = createTopLevelMemberEnv(invokableNode, env, symbol.scope);
+        SymbolEnv invokableEnv = SymbolEnv.createPkgLevelSymbolEnv(invokableNode, env, symbol.scope);
         List<BVarSymbol> paramSymbols =
                 invokableNode.params
                         .stream()
@@ -346,7 +336,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(pos, symbol, env.scope)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }

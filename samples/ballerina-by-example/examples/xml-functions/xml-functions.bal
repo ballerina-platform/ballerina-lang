@@ -54,6 +54,6 @@ function main (string[] args) {
     system:println(x);
 
     // Make a copy of an XML.
-    x = xmls:strip(bookComment);
+    x = xmls:copy(bookComment);
     system:println(x);
 }

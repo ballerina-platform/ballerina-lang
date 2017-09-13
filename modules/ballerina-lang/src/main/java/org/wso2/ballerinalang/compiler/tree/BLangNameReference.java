@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Temporary data structure for storing name-reference;
@@ -27,9 +28,11 @@ import org.ballerinalang.model.tree.IdentifierNode;
 public class BLangNameReference {
     public IdentifierNode pkgAlias;
     public IdentifierNode name;
+    public DiagnosticPos pos;
 
-    public BLangNameReference(IdentifierNode pkgAlias, IdentifierNode name) {
+    public BLangNameReference(IdentifierNode pkgAlias, IdentifierNode name, DiagnosticPos poc) {
         this.pkgAlias = pkgAlias;
         this.name = name;
+        this.pos = poc;
     }
 }

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.service;
 
-//import org.ballerinalang.core.EnvironmentInitializer;
-//import org.ballerinalang.model.BLangProgram;
 //import org.ballerinalang.runtime.ServerConnectorMessageHandler;
 //import org.ballerinalang.services.dispatchers.jms.Constants;
+//import org.ballerinalang.testutils.EnvironmentInitializer;
+//import org.ballerinalang.util.codegen.ProgramFile;
 //import org.ballerinalang.util.exceptions.BallerinaException;
 //import org.testng.Assert;
 //import org.testng.annotations.AfterClass;
@@ -34,11 +34,11 @@ package org.ballerinalang.service;
  * Testing the JMS Service Dispatcher.
  */
 public class JMSServiceTest {
-//    private BLangProgram bLangProgram;
+//    private ProgramFile programFile;
 //
 //    @BeforeClass
 //    public void setup() {
-//        bLangProgram = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
+//        programFile = EnvironmentInitializer.setupProgramFile("lang/service/serviceLevelVariable.bal");
 //    }
 //
 //    @Test(description = "Test for exceptions when a jms message does not have a service id")
@@ -73,6 +73,6 @@ public class JMSServiceTest {
 //
 //    @AfterClass
 //    public void tearDown() {
-//        EnvironmentInitializer.cleanup(bLangProgram);
+//        EnvironmentInitializer.cleanup(programFile);
 //    }
 }

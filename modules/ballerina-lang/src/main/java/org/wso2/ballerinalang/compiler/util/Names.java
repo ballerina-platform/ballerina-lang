@@ -29,8 +29,12 @@ public class Names {
             new CompilerContext.Key<>();
 
     public static final Name EMPTY = new Name("");
-    public static final Name INVALID = new Name("<>");
+    public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name CAST_OP = new Name("(<type>)");
+    public static final Name CONVERSION_OP = new Name("<<type>>");
+    public static final Name MSG = new Name("msg");
+    public static final Name ERROR = new Name("error");
 
     public CompilerContext context;
 

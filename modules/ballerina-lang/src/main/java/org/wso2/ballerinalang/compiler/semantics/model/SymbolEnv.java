@@ -67,23 +67,24 @@ public class SymbolEnv {
         target.enclEnv = this;
     }
 
-    public static SymbolEnv getPkgEnv(BLangPackage node,
-                                      Scope scope,
-                                      BLangPackage rootPkgNode) {
+    public static SymbolEnv createPkgEnv(BLangPackage node,
+                                         Scope scope,
+                                         BLangPackage rootPkgNode) {
         SymbolEnv env = new SymbolEnv(node, scope);
         env.enclPkg = rootPkgNode;
         return env;
     }
 
-    public static SymbolEnv getFunctionEnv(BLangInvokableNode node,
-                                           Scope scope,
-                                           SymbolEnv env) {
+    public static SymbolEnv createPkgLevelSymbolEnv(BLangNode node,
+                                                    SymbolEnv pkgEnv,
+                                                    Scope scope) {
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
-        env.copyTo(symbolEnv);
+        pkgEnv.copyTo(symbolEnv);
+        symbolEnv.enclPkg = (BLangPackage) pkgEnv.node;
         return symbolEnv;
     }
 
-    public static SymbolEnv getBlockEnv(BLangBlockStmt block, SymbolEnv env) {
+    public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = block.scope;
         if (scope == null) {
@@ -96,7 +97,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv getVarInitEnv(BLangVariable node, BVarSymbol enclVarSym, SymbolEnv env) {
+    public static SymbolEnv createVarInitEnv(BLangVariable node, SymbolEnv env, BVarSymbol enclVarSym) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         symbolEnv.enclVarSym = enclVarSym;

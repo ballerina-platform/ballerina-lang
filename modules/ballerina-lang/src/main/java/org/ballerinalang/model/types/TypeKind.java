@@ -48,6 +48,7 @@ public enum TypeKind {
      */
     BLOB("blob"),
 
+    TYPE("type"),
     DATATABLE("datatable"),
     JSON("json"),
     XML("xml"),
@@ -60,7 +61,8 @@ public enum TypeKind {
     ARRAY("[]"),
     VOID(""),
     NONE(""),
-    OTHER("other");
+    OTHER("other"),
+    MESSAGE("message");
 
     private String name;
 

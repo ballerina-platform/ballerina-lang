@@ -23,23 +23,26 @@ package org.wso2.ballerinalang.compiler.util;
 public class TypeTags {
 
     public static final int INT = 1;
-    public static final int FLOAT = 2;
-    public static final int STRING = 3;
-    public static final int BOOLEAN = 4;
-    public static final int BLOB = 5;
-    public static final int JSON = 6;
-    public static final int XML = 7;
-    public static final int DATATABLE = 8;
-    public static final int STRUCT = 9;
-    public static final int CONNECTOR = 10;
-    public static final int ENUM = 11;
-    public static final int ARRAY = 12;
-    public static final int PACKAGE = 13;
-    public static final int INVOKABLE = 14;
-    public static final int NULL = 15;
-    public static final int NONE = 16;
-    public static final int VOID = 17;
-    public static final int ERROR = 18;
+    public static final int FLOAT = INT + 1;
+    public static final int STRING = FLOAT + 1;
+    public static final int BOOLEAN = STRING + 1;
+    public static final int BLOB = BOOLEAN + 1;
+    public static final int TYPE = BLOB + 1;
+    public static final int JSON = TYPE + 1;
+    public static final int XML = JSON + 1;
+    public static final int DATATABLE = XML + 1;
+    public static final int MAP = DATATABLE + 1;
+    public static final int ANY = MAP + 1;
+    public static final int STRUCT = ANY + 1;
+    public static final int CONNECTOR = STRUCT + 1;
+    public static final int ENUM = CONNECTOR + 1;
+    public static final int ARRAY = ENUM + 1;
+    public static final int PACKAGE = ARRAY + 1;
+    public static final int INVOKABLE = PACKAGE + 1;
+    public static final int NULL = INVOKABLE + 1;
+    public static final int NONE = NULL + 1;
+    public static final int VOID = NONE + 1;
+    public static final int ERROR = VOID + 1;
 
     private TypeTags() {
     }

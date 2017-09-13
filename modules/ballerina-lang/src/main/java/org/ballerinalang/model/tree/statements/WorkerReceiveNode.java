@@ -17,9 +17,20 @@
 */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
+import java.util.List;
+
 /**
  * q,e <- w1
  * @since 0.94
  */
 public interface WorkerReceiveNode extends StatementNode {
+
+    List<? extends ExpressionNode> getExpressions();
+
+    IdentifierNode getWorkerName();
+
+    void setWorkerName(IdentifierNode identifierNode);
 }

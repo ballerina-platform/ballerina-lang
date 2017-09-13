@@ -1,11 +1,13 @@
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:BasePath {value:"/identifierLiteral"}
-service |sample service| {
+@http:configuration {basePath:"/identifierLiteral"}
+service<http> |sample service| {
 
-    @http:GET{}
-    @http:Path {value:"/resource"}
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/resource"
+    }
     resource |sample resource| (message m) {
         message response = {};
 

@@ -24,4 +24,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
  * @since 0.94
  */
 public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+
+    public boolean isMultiReturnExpr() {
+        return false;
+    }
 }

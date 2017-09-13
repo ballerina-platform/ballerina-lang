@@ -215,6 +215,133 @@ public class UriTemplateDispatcherTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with OPTIONS method")
+    public void testOPTIONSMethods() {
+        String path = "/options/hi";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "wso2"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request with GET method")
+    public void testOPTIONSWithGETMethods() {
+        String path = "/options/getme";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        String allowHeader = cMsg.getHeader(Constants.ALLOW);
+        Assert.assertEquals(allowHeader, "GET, HEAD, OPTIONS");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request with POST method")
+    public void testOPTIONSWithPOSTMethods() {
+        String path = "/options/post";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        String allowHeader = cMsg.getHeader(Constants.ALLOW);
+        Assert.assertEquals(allowHeader, "POST, OPTIONS");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request with PUT method")
+    public void testOPTIONSWithPUTMethods() {
+        String path = "/options/put";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        String allowHeader = response.getHeader(Constants.ALLOW);
+        Assert.assertEquals(allowHeader, "PUT, OPTIONS");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request multiple resources")
+    public void testOPTIONSWithMultiResources() {
+        String path = "/options/test";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        String allowHeader = response.getHeader(Constants.ALLOW);
+        Assert.assertEquals(allowHeader, "POST, UPDATE, GET, PUT, HEAD, OPTIONS");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request to Root")
+    public void testOPTIONSAtRootPath() {
+        String path = "/options";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        String allowHeader = response.getHeader(Constants.ALLOW);
+        Assert.assertEquals(allowHeader, "OPTIONS, POST, GET, UPDATE, PUT, HEAD");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request wrong Root")
+    public void testOPTIONSAtWrongRootPath() {
+        String path = "/optionss";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
+                , "Response code mismatch");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+                "no matching service found for path : /optionss");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request when no resources available")
+    public void testOPTIONSWhenNoResourcesAvailable() {
+        String path = "/noResource";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getMessageDataSource());
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        Assert.assertNull(response.getHeader(Constants.ALLOW));
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request with wildcard")
+    public void testOPTIONSWithWildCards() {
+        String path = "/options/un";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
+                , "Response code mismatch");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString(),
+                "no matching resource found for path : /options/un , method : OPTIONS");
+    }
+
     @AfterClass
     public void tearDown() {
 //        EnvironmentInitializer.cleanup(application);

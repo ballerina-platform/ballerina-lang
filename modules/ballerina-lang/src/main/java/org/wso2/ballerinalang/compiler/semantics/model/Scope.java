@@ -41,6 +41,11 @@ public class Scope implements org.ballerinalang.model.Scope {
         this.entries = new HashMap<>(DEFAULT_SIZE);
     }
 
+    private Scope(BSymbol owner, Map<Name, ScopeEntry> entries) {
+        this.owner = owner;
+        this.entries = entries;
+    }
+
     public void define(Name name, BSymbol symbol) {
         ScopeEntry current = entries.get(name);
         if (current == null) {
