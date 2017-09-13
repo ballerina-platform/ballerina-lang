@@ -34,6 +34,30 @@ const uuid = function () {
  */
 class Node extends EventChannel {
 
+    /**
+     *
+     * @param {NodeVisitor} visitor
+     */
+    accept(visitor) {
+        visitor.beginVisit(this);
+        // eslint-disable-next-line guard-for-in
+        for (const childName in this) {
+            if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
+                const child = this[childName];
+                if (child instanceof Node) {
+                    child.accept(visitor);
+                } else if (child instanceof Array) {
+                    for (let i = 0; i < child.length; i++) {
+                        const childItem = child[i];
+                        if (childItem instanceof Node) {
+                            childItem.accept(visitor);
+                        }
+                    }
+                }
+            }
+        }
+        visitor.endVisit(this);
+    }
 }
 
 export default Node;

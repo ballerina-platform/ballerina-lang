@@ -358,7 +358,12 @@ class BallerinaFileEditor extends React.Component {
                     parseFile(file)
                         .then((jsonTree) => {
                             let tree = TreeBuilder.build(jsonTree);
-                            console.log(tree);
+                            tree.accept({
+                                beginVisit: function (e) {
+                                    console.log(e);
+                                },
+                                endVisit: (e) => (null),
+                            });
                             debugger;
 
 
