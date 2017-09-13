@@ -21,54 +21,12 @@ package org.wso2.siddhi.core.util;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Utility class to convert Object to the desired type using {@link Attribute.Type}
  */
 public class AttributeConverter {
-    private Map<Attribute.Type, Function<String, Object>> functionMap = new HashMap<>();
 
-    public AttributeConverter() {
-        functionMap.put(Attribute.Type.BOOL, new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return Boolean.parseBoolean(s);
-            }
-        });
-        functionMap.put(Attribute.Type.DOUBLE, new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return Double.parseDouble(s);
-            }
-        });
-        functionMap.put(Attribute.Type.FLOAT, new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return Float.parseFloat(s);
-            }
-        });
-        functionMap.put(Attribute.Type.INT, new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return Integer.parseInt(s);
-            }
-        });
-        functionMap.put(Attribute.Type.LONG, new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return Long.parseLong(s);
-            }
-        });
-        functionMap.put(Attribute.Type.STRING, new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return s;
-            }
-        });
-    }
 
     /**
      * Convert the given object to the given type.
@@ -78,11 +36,22 @@ public class AttributeConverter {
      * @return the converted object
      */
     public Object getPropertyValue(String propertyValue, Attribute.Type attributeType) {
-        if (functionMap.containsKey(attributeType)) {
-            return functionMap.get(attributeType).apply(propertyValue);
-        } else {
-            throw new SiddhiAppRuntimeException("Attribute type: " + attributeType + " not supported by XML " +
-                    "mapping.");
+        switch (attributeType) {
+            case BOOL:
+                return Boolean.parseBoolean(propertyValue);
+            case DOUBLE:
+                return Double.parseDouble(propertyValue);
+            case FLOAT:
+                return Float.parseFloat(propertyValue);
+            case INT:
+                return Integer.parseInt(propertyValue);
+            case LONG:
+                return Long.parseLong(propertyValue);
+            case STRING:
+                return propertyValue;
+            default:
+                throw new SiddhiAppRuntimeException("Attribute type: " + attributeType + " not supported by XML " +
+                        "mapping.");
         }
     }
 
