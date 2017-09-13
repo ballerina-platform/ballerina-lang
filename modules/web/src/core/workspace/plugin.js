@@ -29,7 +29,8 @@ import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, EVENTS } 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
 import FolderOpenDialog from './dialogs/FolderOpenDialog';
-import { create, update, read, remove } from './fs-util';
+import FileSaveDialog from './dialogs/FileSaveDialog';
+import { read } from './fs-util';
 import File from './model/file';
 
 const skipEventSerialization = (key, value) => {
@@ -248,6 +249,15 @@ class WorkspacePlugin extends Plugin {
                 {
                     id: DIALOG_IDS.OPEN_FOLDER,
                     component: FolderOpenDialog,
+                    propsProvider: () => {
+                        return {
+                            workspaceManager: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.SAVE_FILE,
+                    component: FileSaveDialog,
                     propsProvider: () => {
                         return {
                             workspaceManager: this,

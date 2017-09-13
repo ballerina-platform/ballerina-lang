@@ -23,7 +23,8 @@ export function read(filePath) {
                 const { content } = response.data;
                 const pathArray = _.split(filePath, getPathSeperator());
                 const name = _.last(pathArray);
-                const path = _.join(_.take(pathArray, pathArray.length - 1), getPathSeperator());
+                const path = _.join(_.take(pathArray, pathArray.length - 1), getPathSeperator())
+                                    + getPathSeperator();
                 const fullPath = filePath;
                 resolve(new File({ content, name, fullPath, path, isPersisted: true, isDirty: false }));
             }).catch(error => reject(error));
@@ -34,13 +35,23 @@ export function read(filePath) {
 /**
  * Update the given file with new content.
  *
- * @param {String} filePath Path of the file
- * @param {String} filePath Path of the file
+ * @param {String} path Path of the folder
+ * @param {String} name Name of the file
+ * @param {String} content Content of the file
  *
  * @returns {Promise} Resolves file path or reject with error.
  */
-export function update(filePath, content) {
-    return new Promise();
+export function update(path, name, content) {
+    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/write`;
+    // FIXME: Refactor backend params
+    const data = `location=${btoa(path)}&configName=${btoa(name)}&config=${
+                            encodeURIComponent(content)}`;
+    return new Promise((resolve, reject) => {
+        axios.post(serviceEP, data, { headers: COMMON_HEADERS })
+            .then((response) => {
+                resolve(true);
+            }).catch(error => reject(error));
+    });
 }
 
 /**
