@@ -32,12 +32,42 @@ public class AttributeConverter {
     private Map<Attribute.Type, Function<String, Object>> functionMap = new HashMap<>();
 
     public AttributeConverter() {
-        functionMap.put(Attribute.Type.BOOL, Boolean::parseBoolean);
-        functionMap.put(Attribute.Type.DOUBLE, Double::parseDouble);
-        functionMap.put(Attribute.Type.FLOAT, Float::parseFloat);
-        functionMap.put(Attribute.Type.INT, Integer::parseInt);
-        functionMap.put(Attribute.Type.LONG, Long::parseLong);
-        functionMap.put(Attribute.Type.STRING, s -> s);
+        functionMap.put(Attribute.Type.BOOL, new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return Boolean.parseBoolean(s);
+            }
+        });
+        functionMap.put(Attribute.Type.DOUBLE, new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return Double.parseDouble(s);
+            }
+        });
+        functionMap.put(Attribute.Type.FLOAT, new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return Float.parseFloat(s);
+            }
+        });
+        functionMap.put(Attribute.Type.INT, new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return Integer.parseInt(s);
+            }
+        });
+        functionMap.put(Attribute.Type.LONG, new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return Long.parseLong(s);
+            }
+        });
+        functionMap.put(Attribute.Type.STRING, new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return s;
+            }
+        });
     }
 
     /**
