@@ -22,6 +22,8 @@ package org.wso2.carbon.transport.http.netty.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -32,7 +34,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMess
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
-import java.net.ProtocolException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,22 +54,29 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        try {
-            Session session = initMessage.handshake(null, true, 3000);
-            sessionList.forEach(
-                    currentSession -> {
-                        try {
-                            currentSession.getBasicRemote().
-                                    sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-                        } catch (IOException e) {
-                            log.error("IO exception when sending data : " + e.getMessage(), e);
+        HandshakeFuture future = initMessage.handshake(null, true, 3000);
+        future.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session session) {
+                sessionList.forEach(
+                        currentSession -> {
+                            try {
+                                currentSession.getBasicRemote().
+                                        sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
+                            } catch (IOException e) {
+                                log.error("IO exception when sending data : " + e.getMessage(), e);
+                            }
                         }
-                    }
-            );
-            sessionList.add(session);
-        } catch (ProtocolException e) {
-            handleError(e);
-        }
+                );
+                sessionList.add(session);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, "Error: " + t.getMessage());
+            }
+        });
     }
 
     @Override

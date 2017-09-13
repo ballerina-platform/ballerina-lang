@@ -28,8 +28,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.io.IOException;
-
 /**
  * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
@@ -39,11 +37,7 @@ public class HttpToWebSocketProtocolSwitchWebSocketListener implements WebSocket
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        try {
-            initMessage.handshake();
-        } catch (IOException e) {
-            handleError(e);
-        }
+        initMessage.handshake();
     }
 
     @Override
