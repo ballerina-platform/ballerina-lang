@@ -17,8 +17,8 @@
  */
 
 import { VIEWS as WELCOME_TAB_VIEWS } from 'plugins/welcome-tab/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { COMMANDS, DIALOG } from './constants';
-import { COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
 
 /**
  * Provides command handler definitions of debugger plugin.
@@ -50,7 +50,6 @@ export function getHandlerDefinitions(plugin) {
         {
             cmdID: COMMANDS.SHOW_ABOUT,
             handler: () => {
-                console.log(plugin);
                 const id = DIALOG.ABOUT;
                 plugin.appContext.command.dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
             },
