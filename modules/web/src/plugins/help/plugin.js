@@ -21,7 +21,7 @@ import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, DIALOG } from './constants';
-import AboutDialog from './dialogs/AboutDialog';
+import AboutDialog from './dialogs/about-dialog';
 
 /**
  * Help plugin.
