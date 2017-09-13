@@ -18,14 +18,12 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.connector.impl.BConnectorFuture;
-import org.ballerinalang.connector.impl.BallerinaOldWorkerThread;
 import org.ballerinalang.connector.impl.BallerinaWorkerThread;
 import org.ballerinalang.connector.impl.ResourceExecutor;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.util.Map;
 
 /**
  * {@code Executor} Is the entry point from server connector side to ballerina side.
@@ -60,33 +58,26 @@ public class Executor {
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture submit(Resource resource, BValue... values) {
-        ConnectorFuture connectorFuture = new BConnectorFuture();
-        ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaWorkerThread(resource, connectorFuture, values));
+        BConnectorFuture connectorFuture = new BConnectorFuture();
+//        ThreadPoolFactory.getInstance().getExecutor().
+//                execute(new BallerinaWorkerThread(resource, connectorFuture, values));
         return connectorFuture;
     }
 
     //Temp method until resource signatures are changed(no thread pool)
-    public static void execute(Resource resource, CarbonMessage carbonMessage,
-                                          CarbonCallback carbonCallback) {
-        ResourceExecutor.execute(resource, carbonMessage, carbonCallback);
+    public static BConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
+        BConnectorFuture connectorFuture = new BConnectorFuture();
+        ResourceExecutor.execute(resource, connectorFuture, properties, values);
+        return connectorFuture;
     }
 
     //Temp method until resource signatures are changed(with thread pooling)
-    public static void submit(Resource resource, CarbonMessage carbonMessage,
-                               CarbonCallback carbonCallback) {
+    public static ConnectorFuture submit(Resource resource, Map<String, Object> properties, BValue... values) {
+        BConnectorFuture connectorFuture = new BConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaOldWorkerThread(resource, carbonMessage, carbonCallback));
+                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, values));
+        return connectorFuture;
     }
 
-    /**
-     * This method can be used to access the {@code BallerinaServerConnector} object which is at
-     * Ballerina level.
-     *
-     * @param protocolPkgPath   of the server connector.
-     * @return  ballerinaServerConnector object.
-     */
-    public static BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
-        return ServerConnectorRegistry.getInstance().getBallerinaServerConnector(protocolPkgPath);
-    }
+
 }

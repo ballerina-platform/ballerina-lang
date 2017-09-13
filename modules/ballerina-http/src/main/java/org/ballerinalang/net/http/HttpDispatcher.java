@@ -18,10 +18,9 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.impl.ConnectorUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -86,7 +85,7 @@ public class HttpDispatcher {
         }
 
         // Find the Service Dispatcher
-        HttpServerConnector serverConnector = (HttpServerConnector) Executor
+        HttpServerConnector serverConnector = (HttpServerConnector) ConnectorUtils
                 .getBallerinaServerConnector(Constants.PROTOCOL_PACKAGE_HTTP);
         if (serverConnector == null) {
             throw new BallerinaConnectorException("no service dispatcher available to handle protocol: " + protocol);
@@ -112,6 +111,11 @@ public class HttpDispatcher {
         return (cMsg) -> {
             HTTPCarbonMessage carbonMessage = HTTPConnectorUtil.convertCarbonMessage(cMsg);
             try {
+                //TODO enable once new resource signature enabled
+//                Session session = context.getCurrentSession();
+//                if (session != null) {
+//                    session.generateSessionHeader(carbonMessage);
+//                }
                 //Process CORS if exists.
                 if (httpCarbonMessage.getHeader("Origin") != null) {
                     CorsHeaderGenerator.process(httpCarbonMessage, carbonMessage, true);
@@ -127,8 +131,8 @@ public class HttpDispatcher {
 
         BStruct request = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
-        request.addNativeData(Constants.REQUEST_MESSAGE, httpCarbonMessage);
-        response.addNativeData(Constants.RESPONSE_MESSAGE, new HTTPCarbonMessage());
+        request.addNativeData(Constants.TRANSPORT_MESSAGE, httpCarbonMessage);
+        response.addNativeData(Constants.TRANSPORT_MESSAGE, new HTTPCarbonMessage());
 
         List<ParamDetail> paramDetails = resource.getParamDetails();
         Map<String, String> resourceArgumentValues =

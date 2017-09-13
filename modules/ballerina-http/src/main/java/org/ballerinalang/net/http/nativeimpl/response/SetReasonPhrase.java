@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.Constants;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -41,12 +39,6 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
                 @Argument(name = "reasonPhrase", type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets a custom HTTP Reason phrase") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "res",
-        value = "A response message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "reasonPhrase",
-        value = "Reason phrase value") })
 public class SetReasonPhrase extends AbstractNativeFunction {
 
     @Override

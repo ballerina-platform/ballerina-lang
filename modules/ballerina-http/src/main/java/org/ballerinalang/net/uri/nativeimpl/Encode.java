@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -47,12 +45,6 @@ import java.net.URLEncoder;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Encodes the given URL") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "url",
-        value = "URL to be encoded") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The encoded url") })
 public class Encode extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Encode.class);

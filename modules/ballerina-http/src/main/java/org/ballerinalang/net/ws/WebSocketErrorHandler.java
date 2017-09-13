@@ -39,6 +39,7 @@ import javax.websocket.Session;
         name = "ws.server.connector.error.handler",
         immediate = true,
         service = ServerConnectorErrorHandler.class)
+//TODO need to remove
 public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketErrorHandler.class);

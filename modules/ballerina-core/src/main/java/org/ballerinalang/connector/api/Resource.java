@@ -51,7 +51,7 @@ public interface Resource {
     Annotation getAnnotation(String pkgPath, String name);
 
     /**
-     * This method will return signature parameter info array of the resource with limited attributes.
+     * This method will return parameter list of the resource.
      *
      * @return list of ParamDetail objects.
      */

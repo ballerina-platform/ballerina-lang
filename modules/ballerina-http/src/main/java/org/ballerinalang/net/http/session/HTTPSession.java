@@ -16,17 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.services.dispatchers.http;
+package org.ballerinalang.net.http.session;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.services.dispatchers.session.Session;
-import org.ballerinalang.services.dispatchers.session.SessionManager;
+import org.ballerinalang.net.http.Constants;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import static org.ballerinalang.services.dispatchers.http.Constants.PATH;
-import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COOKIE_HEADER;
-import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
  * HTTPSession represents a session.
@@ -137,8 +134,8 @@ public class HTTPSession implements Session, Serializable {
     public void generateSessionHeader(BMessage message) {
         //Add set Cookie only for the first response after the creation
         if (this.isNew()) {
-            message.value().setHeader(RESPONSE_COOKIE_HEADER, SESSION_ID + this.getId() + "; "
-                    + PATH + this.getPath() + ";");
+            message.value().setHeader(Constants.RESPONSE_COOKIE_HEADER, Constants.SESSION_ID + this.getId() + "; "
+                    + Constants.PATH + this.getPath() + ";");
         }
     }
 

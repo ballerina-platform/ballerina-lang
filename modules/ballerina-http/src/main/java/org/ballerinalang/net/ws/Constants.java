@@ -34,18 +34,22 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
 
     public static final String WEBSOCKET_PACKAGE_NAME = "ballerina.net.ws";
-
     public static final String PROTOCOL_WEBSOCKET = "ws";
+
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
+    public static final String ANNOTATION_CONFIGURATION = "configuration";
     public static final String ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE = "ClientService";
-    public static final String RESOURCE_NAME_ON_HANDSHAKE = "OnHandshake";
-    public static final String RESOURCE_NAME_ON_OPEN = "OnOpen";
-    public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
-    public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "OnBinaryMessage";
-    public static final String RESOURCE_NAME_ON_PING_MESSAGE = "OnPingMessage";
-    public static final String RESOURCE_NAME_ON_CLOSE = "OnClose";
-    public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "OnIdleTimeout";
-    public static final String RESOURCE_NAME_ON_ERROR = "OnError";
+    public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
+    public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeOutSeconds";
+
+    public static final String RESOURCE_NAME_ON_HANDSHAKE = "onHandshake";
+    public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
+    public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
+    public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
+    public static final String RESOURCE_NAME_ON_PING_MESSAGE = "onPingMessage";
+    public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
+    public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
+    public static final String RESOURCE_NAME_ON_ERROR = "onError";
     public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
     public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
 

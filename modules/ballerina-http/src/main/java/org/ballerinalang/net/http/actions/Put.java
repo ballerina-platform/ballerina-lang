@@ -22,15 +22,11 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -54,21 +50,8 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
                 structPackage = "ballerina.net.http")},
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeEnum.STRING)
-        })
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "The PUT action implementation of the HTTP Connector.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-        value = "A connector object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
-        value = "Resource path ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "req",
-        value = "The request message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "response",
-        value = "The response message") })
-@Component(
-        name = "action.net.http.put",
-        immediate = true,
-        service = AbstractNativeAction.class)
+        }
+)
 public class Put extends AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(Put.class);

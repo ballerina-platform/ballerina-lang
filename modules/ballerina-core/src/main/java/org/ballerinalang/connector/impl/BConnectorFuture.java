@@ -21,6 +21,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code BConnectorFuture} This is the implementation for the {@code ConnectorFuture} API.
@@ -31,34 +33,49 @@ public class BConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
 
     private BValue response;
-    private BallerinaConnectorException ex;
+    private BallerinaException ex;
+    private boolean success = false;
 
     @Override
     public void setConnectorFutureListener(ConnectorFutureListener futureListener) {
         this.connectorFutureListener = futureListener;
         if (response != null) {
-            connectorFutureListener.notifySuccess(response);
+            connectorFutureListener.notifyReply(response);
         } else if (ex != null) {
-            connectorFutureListener.notifyFailure(ex);
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
+            success = false; //double check this.
+        }
+        if (success) {
+            connectorFutureListener.notifySuccess();
         }
         response = null;
         ex = null;
     }
 
-    protected void notifySuccess(BValue response) {
+    public void notifySuccess() {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
-            connectorFutureListener.notifySuccess(response);
+            connectorFutureListener.notifySuccess();
+        } else {
+            this.success = true;
+        }
+    }
+
+    public void notifyReply(BValue response) {
+        //if the future listener already exist, notify right away. if not store until listener registration.
+        if (connectorFutureListener != null) {
+            connectorFutureListener.notifyReply(response);
         } else {
             this.response = response;
         }
     }
 
-    protected void notifyFailure(BallerinaConnectorException ex) {
+    public void notifyFailure(BallerinaException ex) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
-            connectorFutureListener.notifyFailure(ex);
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
         } else {
+            ErrorHandlerUtils.printError(ex);
             this.ex = ex;
         }
     }

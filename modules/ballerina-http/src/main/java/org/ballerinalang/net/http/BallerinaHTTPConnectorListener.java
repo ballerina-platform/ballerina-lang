@@ -17,12 +17,17 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -31,13 +36,21 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
 
-
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-        Executor.submit(HttpDispatcher.findResource(httpCarbonMessage), httpCarbonMessage,
-                HttpDispatcher.getCallback(httpCarbonMessage));
         Resource resource = HttpDispatcher.findResource(httpCarbonMessage);
-        Executor.submit(resource, HttpDispatcher.getSignatureParameters(resource, httpCarbonMessage));
+        //TODO below should be fixed properly
+        //basically need to find a way to pass information from server connector side to client connector side
+        Map<String, Object> properties = null;
+        if (httpCarbonMessage.getProperty(Constants.SRC_HANDLER) != null) {
+            Object srcHandler = httpCarbonMessage.getProperty(Constants.SRC_HANDLER);
+            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        }
+        ConnectorFuture future = Executor.submit(resource,
+                properties, HttpDispatcher.getSignatureParameters(resource, httpCarbonMessage));
+        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(HttpDispatcher
+                .getCallback(httpCarbonMessage), httpCarbonMessage);
+        future.setConnectorFutureListener(futureListener);
     }
 
     @Override

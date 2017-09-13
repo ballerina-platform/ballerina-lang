@@ -29,10 +29,16 @@ public interface ConnectorFutureListener {
 
     /**
      * Notify success event to the server connector implementation.
+     * this will get invoked once resource finished execution.
+     */
+    void notifySuccess();
+
+    /**
+     * Notify success event to the server connector implementation.
      *
      * @param response success response.
      */
-    void notifySuccess(BValue response);
+    void notifyReply(BValue response);
 
     /**
      * Notify failure event to the server connector implementation.
@@ -40,4 +46,5 @@ public interface ConnectorFutureListener {
      * @param ex failure cause.
      */
     void notifyFailure(BallerinaConnectorException ex);
+
 }

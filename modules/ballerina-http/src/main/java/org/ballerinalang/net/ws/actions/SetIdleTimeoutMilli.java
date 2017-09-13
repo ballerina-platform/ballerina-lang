@@ -23,13 +23,11 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfiguration;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 
 /**
  * Set the idle timeout for the client connector.
@@ -43,23 +41,15 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WSSenderConfigura
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "idleTimeoutMilli", type = TypeEnum.INT),
-        })
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = {@Attribute(name = "value",
-                                              value = "Set the idle timeout for the connection") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "WebSocket Client Connector") })
-@Component(
-        name = "action.net.ws.setIdleTimeoutMilli",
-        immediate = true,
-        service = AbstractNativeAction.class)
+        }
+)
 public class SetIdleTimeoutMilli extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         int idleTimeoutMillis = getIntArgument(context, 0);
-        WSSenderConfiguration senderConfiguration =
-                (WSSenderConfiguration) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        WSClientConnectorConfig senderConfiguration =
+                (WSClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         senderConfiguration.setIdleTimeoutInMillis(idleTimeoutMillis);
         return null;
     }

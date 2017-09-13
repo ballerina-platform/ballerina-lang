@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.services.dispatchers.session;
+package org.ballerinalang.net.http.session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

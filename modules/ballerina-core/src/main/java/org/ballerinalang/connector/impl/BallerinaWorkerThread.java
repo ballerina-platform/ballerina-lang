@@ -17,9 +17,10 @@
 */
 package org.ballerinalang.connector.impl;
 
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
+
+import java.util.Map;
 
 /**
  * Worker Thread which is responsible for request processing.
@@ -27,16 +28,19 @@ import org.ballerinalang.model.values.BValue;
 public class BallerinaWorkerThread implements Runnable {
 
     private Resource resource;
-    private ConnectorFuture connectorFuture;
-    private BValue[] values;
+    private BValue[] bValues;
+    private BConnectorFuture connectorFuture;
+    private Map<String, Object> properties;
 
-    public BallerinaWorkerThread(Resource resource, ConnectorFuture connectorFuture, BValue... values) {
+    public BallerinaWorkerThread(Resource resource, BConnectorFuture connectorFuture,
+                                 Map<String, Object> properties, BValue... bValues) {
         this.resource = resource;
         this.connectorFuture = connectorFuture;
-        this.values = values;
+        this.properties = properties;
+        this.bValues = bValues;
     }
 
     public void run() {
-       ResourceExecutor.execute(resource, connectorFuture, values);
+        ResourceExecutor.execute(resource, connectorFuture, properties, bValues);
     }
 }

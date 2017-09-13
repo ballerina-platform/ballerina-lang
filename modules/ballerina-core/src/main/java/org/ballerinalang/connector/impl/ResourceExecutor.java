@@ -26,11 +26,11 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
@@ -40,10 +40,7 @@ import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -63,13 +60,12 @@ public class ResourceExecutor {
      * @param bValues for parameters.
      */
     public static void execute(Resource resource, ConnectorFuture connectorFuture, BValue... bValues) {
-
-        //TODO implement
+        //TODO
     }
 
-    public static void execute(Resource resource, CarbonMessage resourceMessage,
-                                  CarbonCallback resourceCallback) {
-        // engage Service interceptors.
+    public static void execute(Resource resource, BConnectorFuture connectorFuture,
+                               Map<String, Object> properties, BValue... bValues) {
+// engage Service interceptors.
 //        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {
 //            org.ballerinalang.runtime.model.ServerConnector serverConnector =
 // BLangRuntimeRegistry.getInstance().getServerConnector(protocol);
@@ -112,15 +108,13 @@ public class ResourceExecutor {
 
         Context context = new Context(programFile);
         context.setServiceInfo(serviceInfo);
-        context.setCarbonMessage(resourceMessage);
-        context.setBalCallback(new DefaultBalCallback(resourceCallback));
+        context.setConnectorFuture(connectorFuture);
 
-        Map<String, Object> properties = null;
-        if (resourceMessage.getProperty(Constants.SRC_HANDLER) != null) {
-            Object srcHandler = resourceMessage.getProperty(Constants.SRC_HANDLER);
-            context.setProperty(Constants.SRC_HANDLER, srcHandler);
-            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        //TODO remove this with a proper way
+        if (properties != null) {
+            properties.forEach((k, v) -> context.setProperty(k, v));
         }
+
         ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
@@ -141,16 +135,13 @@ public class ResourceExecutor {
         int intParamCount = 0;
         int doubleParamCount = 0;
         int longParamCount = 0;
-        String[] paramNameArray = resourceInfo.getParamNames();
+        int refParamCount = 0;
         BType[] bTypes = resourceInfo.getParamTypes();
-        if (resourceMessage.getProperty(Constants.RESOURCE_ARGS) != null) {
-            Map<String, String> resourceArgumentValues =
-                    (Map<String, String>) resourceMessage.getProperty(Constants
-                            .RESOURCE_ARGS);
 
-            for (int i = 0; i < paramNameArray.length; i++) {
+        if (bValues != null) {
+            for (int i = 0; i < bValues.length; i++) {
                 BType btype = bTypes[i];
-                String value = resourceArgumentValues.get(paramNameArray[i]);
+                BValue value = bValues[i];
 
                 // Set default values
                 if (value == null || "".equals(value)) {
@@ -161,27 +152,29 @@ public class ResourceExecutor {
                 }
 
                 if (btype == BTypes.typeString) {
-                    stringLocalVars[stringParamCount++] = value;
+                    stringLocalVars[stringParamCount++] = value.stringValue();
                 } else if (btype == BTypes.typeBoolean) {
-                    if ("true".equalsIgnoreCase(value)) {
+                    if ("true".equalsIgnoreCase(value.stringValue())) {
                         intLocalVars[intParamCount++] = 1;
-                    } else if ("false".equalsIgnoreCase(value)) {
+                    } else if ("false".equalsIgnoreCase(value.stringValue())) {
                         intLocalVars[intParamCount++] = 0;
                     } else {
                         throw new BallerinaException("Unsupported parameter type for parameter " + value);
                     }
                 } else if (btype == BTypes.typeFloat) {
-                    doubleLocalVars[doubleParamCount++] = new Double(value);
+                    doubleLocalVars[doubleParamCount++] = new Double(((BFloat) value).floatValue());
                 } else if (btype == BTypes.typeInt) {
-                    longLocalVars[longParamCount++] = Long.parseLong(value);
+                    longLocalVars[longParamCount++] = ((BInteger) value).intValue();
+                } else if (value instanceof BStruct) {
+                    refLocalVars[refParamCount++] = (BRefType) value;
                 } else {
+                    //TODO Can't throw, need to handle with future
                     throw new BallerinaException("Unsupported parameter type for parameter " + value);
                 }
             }
         }
 
         // It is given that first parameter of the resource is carbon message.
-        refLocalVars[0] = new BMessage(resourceMessage);
         calleeSF.setLongLocalVars(longLocalVars);
         calleeSF.setDoubleLocalVars(doubleLocalVars);
         calleeSF.setStringLocalVars(stringLocalVars);

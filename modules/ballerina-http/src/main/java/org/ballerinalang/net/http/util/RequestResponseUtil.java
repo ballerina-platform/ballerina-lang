@@ -33,7 +33,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
+//import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -47,6 +47,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -345,8 +346,10 @@ public class RequestResponseUtil {
 
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-        StringDataSource stringDataSource = new StringDataSource(payload);
-        httpCarbonMessage.setMessageDataSource(stringDataSource);
+//        StringDataSource stringDataSource = new StringDataSource(payload);
+//        httpCarbonMessage.setMessageDataSource(stringDataSource);
+        httpCarbonMessage.addMessageBody(ByteBuffer.wrap(payload.getBytes()));
+        httpCarbonMessage.setEndOfMsgAdded(true);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);

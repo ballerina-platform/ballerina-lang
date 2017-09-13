@@ -24,8 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,11 +44,6 @@ import javax.websocket.Session;
                 @Argument(name = "text", type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
-                             "client who sent the message.") })
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
 public class PushText extends AbstractNativeFunction {
 
     @Override
