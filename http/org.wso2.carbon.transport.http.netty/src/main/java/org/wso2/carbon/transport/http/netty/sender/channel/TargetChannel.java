@@ -29,7 +29,6 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -142,10 +141,12 @@ public class TargetChannel {
 
     public void writeContent(HTTPCarbonMessage httpCarbonRequest) {
         try {
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                        executeAtTargetRequestReceiving(httpCarbonRequest);
-            }
+            // TODO: Revisit all of these after the refactor
+
+//            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                        executeAtTargetRequestReceiving(httpCarbonRequest);
+//            }
 
             Util.prepareBuiltMessageForTransfer(httpCarbonRequest);
             Util.setupTransferEncodingForRequest(httpCarbonRequest);
@@ -162,10 +163,10 @@ public class TargetChannel {
                 HttpContent httpContent = httpCarbonRequest.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     this.getChannel().writeAndFlush(httpContent);
-                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestSending(httpCarbonRequest);
-                    }
+//                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                executeAtTargetRequestSending(httpCarbonRequest);
+//                    }
                     break;
                 }
                 if (httpContent != null) {

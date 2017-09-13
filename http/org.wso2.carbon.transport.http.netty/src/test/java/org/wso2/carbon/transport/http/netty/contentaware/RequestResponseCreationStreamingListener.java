@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.contentaware;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -67,7 +66,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
             try {
                 InputStream inputStream = httpRequest.getInputStream();
 
-                CarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
+                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                 OutputStream outputStream = newMsg.getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
@@ -75,8 +74,6 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 newMsg.setEndOfMsgAdded(true);
                 newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                 newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
-
-                HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(newMsg);
 
                 Map<String, Object> transportProperties = new HashMap<>();
                 Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
@@ -93,14 +90,14 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
-                HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+                HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
                             InputStream inputStream = httpMessage.getInputStream();
 
-                            CarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
+                            HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                             OutputStream outputStream = newMsg.getOutputStream();
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputStream);
@@ -110,11 +107,8 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }
                             newMsg.setEndOfMsgAdded(true);
-
-                            HTTPCarbonMessage httpCarbonMessage1 = HTTPConnectorUtil.convertCarbonMessage(newMsg);
-
                             try {
-                                httpRequest.respond(httpCarbonMessage1);
+                                httpRequest.respond(newMsg);
                             } catch (ServerConnectorException e) {
                                 logger.error("Error occurred during message notification: " + e.getMessage());
                             }

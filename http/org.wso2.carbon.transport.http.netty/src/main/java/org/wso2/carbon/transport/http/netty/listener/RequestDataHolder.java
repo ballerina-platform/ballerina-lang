@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code RequestDataHolder} holds data fields of the request which might be useful later in the message flow.
@@ -34,7 +34,7 @@ public class RequestDataHolder {
     private String contentLengthHeader;
     private String httpMethod;
 
-    public RequestDataHolder(CarbonMessage requestMessage) {
+    public RequestDataHolder(HTTPCarbonMessage requestMessage) {
         acceptEncodingHeader = requestMessage.getHeader(Constants.ACCEPT_ENCODING);
         connectionHeader = requestMessage.getHeader(Constants.HTTP_CONNECTION);
         contentTypeHeader = requestMessage.getHeader(Constants.HTTP_CONTENT_TYPE);

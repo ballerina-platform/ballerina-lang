@@ -27,7 +27,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -56,7 +55,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HTTPCarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
-    private CarbonMessage incomingMsg;
+    private HTTPCarbonMessage incomingMsg;
 
     public TargetHandler() {
     }
@@ -77,10 +76,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (targetChannel.isRequestWritten()) {
             if (msg instanceof HttpResponse) {
                 cMsg = setUpCarbonMessage(ctx, msg);
-                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                            executeAtTargetResponseReceiving(cMsg);
-                }
+                // TODO: Revisit all of these after the refactor
+//                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                            executeAtTargetResponseReceiving(cMsg);
+//                }
                 if (this.httpResponseFuture != null) {
                     try {
                         httpResponseFuture.notifyHttpListener(cMsg);
@@ -96,10 +96,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         HttpContent httpContent = (LastHttpContent) msg;
                         cMsg.addHttpContent(httpContent);
                         cMsg.setEndOfMsgAdded(true);
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtTargetResponseSending(cMsg);
-                        }
+//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                    executeAtTargetResponseSending(cMsg);
+//                        }
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
                     } else {
@@ -137,7 +137,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
-    public void setIncomingMsg(CarbonMessage incomingMsg) {
+    public void setIncomingMsg(HTTPCarbonMessage incomingMsg) {
         this.incomingMsg = incomingMsg;
     }
 
@@ -161,9 +161,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
         cMsg = new HTTPCarbonMessage();
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
-        }
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
+//        }
 
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
