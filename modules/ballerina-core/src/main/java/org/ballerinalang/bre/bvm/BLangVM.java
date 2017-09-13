@@ -2488,6 +2488,7 @@ public class BLangVM {
 //                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
 //            context.getBalCallback().done(message.value());
 //        }
+        context.getConnectorFuture().notifySuccess();
         ip = -1;
     }
 
