@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -39,8 +39,8 @@ import static org.ballerinalang.nativeimpl.actions.http.Constants.HTTP_METHOD;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getMethod",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

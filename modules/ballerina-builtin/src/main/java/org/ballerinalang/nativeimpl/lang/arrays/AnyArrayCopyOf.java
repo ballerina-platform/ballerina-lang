@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
@@ -45,9 +45,9 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 @BallerinaFunction(
         packageName = "ballerina.lang.arrays",
         functionName = "copyOf",
-        args = {@Argument(name = "anyArrayFrom", type = TypeEnum.ARRAY, elementType = TypeEnum.ANY),
-                @Argument(name = "anyArrayTo", type = TypeEnum.ARRAY, elementType = TypeEnum.ANY)},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+        args = {@Argument(name = "anyArrayFrom", type = TypeKind.ARRAY, elementType = TypeKind.ANY),
+                @Argument(name = "anyArrayTo", type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

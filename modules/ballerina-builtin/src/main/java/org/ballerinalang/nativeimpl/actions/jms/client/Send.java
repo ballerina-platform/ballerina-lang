@@ -17,7 +17,7 @@
 package org.ballerinalang.nativeimpl.actions.jms.client;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BJSON;
@@ -56,13 +56,13 @@ import java.util.Map;
         packageName = "ballerina.net.jms",
         actionName = "send",
         connectorName = Constants.CONNECTOR_NAME,
-        args = { @Argument(name = "jmsClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "destinationName", type = TypeEnum.STRING),
-                 @Argument(name = "msgType", type = TypeEnum.STRING),
-                 @Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        args = { @Argument(name = "jmsClientConnector", type = TypeKind.CONNECTOR),
+                 @Argument(name = "destinationName", type = TypeKind.STRING),
+                 @Argument(name = "msgType", type = TypeKind.STRING),
+                 @Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         connectorArgs = {
-                @Argument(name = "properties", type = TypeEnum.MAP)
+                @Argument(name = "properties", type = TypeKind.MAP)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "SEND action implementation of the JMS Connector") })

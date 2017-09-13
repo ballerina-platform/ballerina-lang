@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -36,7 +36,7 @@ import org.wso2.carbon.messaging.Headers;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "convertToResponse",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

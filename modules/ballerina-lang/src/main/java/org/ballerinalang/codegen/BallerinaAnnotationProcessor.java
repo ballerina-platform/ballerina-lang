@@ -18,11 +18,14 @@
 package org.ballerinalang.codegen;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,23 +76,31 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         return true;
     }
     
-    private void populateNativeFunctions(RoundEnvironment roundEnv, List<NativeElementDef> nativeDefs) {
+    private void populateNativeFunctions(RoundEnvironment roundEnv, List<NativeElementCodeDef> nativeDefs) {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
         for (Element element : elements) {
             nativeDefs.add(this.functionToDef(element.getAnnotation(BallerinaFunction.class), element));
         }
     }
     
+    private void populateNativeActions(RoundEnvironment roundEnv, List<NativeElementCodeDef> nativeDefs) {
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(BallerinaAction.class);
+        for (Element element : elements) {
+            nativeDefs.add(this.actionToDef(element.getAnnotation(BallerinaAction.class), element));
+        }
+    }
+    
     private void processNativeEntities(RoundEnvironment roundEnv) {
-        List<NativeElementDef> nativeDefs = new ArrayList<>();
+        List<NativeElementCodeDef> nativeDefs = new ArrayList<>();
         this.populateNativeFunctions(roundEnv, nativeDefs);
+        this.populateNativeActions(roundEnv, nativeDefs);
         if (nativeDefs.isEmpty()) {
             return;
         }
         this.generateNativeEntityProviderSource(nativeDefs);
     }
     
-    private void generateNativeEntityProviderSource(List<NativeElementDef> nativeDefs) {
+    private void generateNativeEntityProviderSource(List<NativeElementCodeDef> nativeDefs) {
         Map<String, String> options = this.processingEnv.getOptions();
         String targetPackageName = options.get(NATIVE_ENTITY_PROVIDER_PACKAGE_NAME);
         String targetClassName = options.get(NATIVE_ENTITY_PROVIDER_CLASS_NAME);
@@ -110,11 +121,24 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
     }
     
-    private NativeElementDef functionToDef(BallerinaFunction func, Element element) {
-        NativeFunctionDef def = new NativeFunctionDef();
+    private NativeElementCodeDef functionToDef(BallerinaFunction func, Element element) {
+        NativeFunctionCodeDef def = new NativeFunctionCodeDef();
         def.pkg = func.packageName();
         def.name = func.functionName();
         def.className = this.extractClassName(element);
+        Arrays.stream(func.args()).forEach(e -> def.argTypes.add(e.type()));
+        Arrays.stream(func.returnType()).forEach(e -> def.retTypes.add(e.type()));
+        return def;
+    }
+    
+    private NativeElementCodeDef actionToDef(BallerinaAction action, Element element) {
+        NativeActionCodeDef def = new NativeActionCodeDef();
+        def.pkg = action.packageName();
+        def.connectorName = action.connectorName();
+        def.name = action.actionName();
+        def.className = this.extractClassName(element);
+        Arrays.stream(action.args()).forEach(e -> def.argTypes.add(e.type()));
+        Arrays.stream(action.returnType()).forEach(e -> def.retTypes.add(e.type()));
         return def;
     }
     
@@ -159,20 +183,21 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     }
     
     private void generateNativeElementProviderCode(Writer writer, String pkgName, String className, 
-            List<NativeElementDef> elements) {
+            List<NativeElementCodeDef> elements) {
         try {
             writer.write("package " + pkgName + ";\n\n");
             writer.write("import org.ballerinalang.annotation.JavaSPIService;\n");
-            writer.write("import org.ballerinalang.natives.NativeElementKey;\n");
+            writer.write("import org.ballerinalang.model.types.TypeKind;\n");
             writer.write("import org.ballerinalang.natives.NativeElementRepository;\n");
-            writer.write("import org.ballerinalang.natives.NativeElementType;\n");
+            writer.write("import org.ballerinalang.natives.NativeElementRepository.NativeActionDef;\n");
+            writer.write("import org.ballerinalang.natives.NativeElementRepository.NativeFunctionDef;\n");
             writer.write("import org.ballerinalang.spi.NativeElementProvider;\n\n");
             writer.write("@JavaSPIService (\"org.ballerinalang.spi.NativeElementProvider\")\n");
             writer.write("public class " + className + " implements NativeElementProvider {\n\n");
             writer.write("\t@Override\n");
             writer.write("\tpublic void populateNatives(NativeElementRepository repo) {\n");
-            for (NativeElementDef element : elements) {
-                writer.write("\t\trepo.addEntry(new NativeElementKey(" + element.code() + ");\n");
+            for (NativeElementCodeDef element : elements) {
+                writer.write("\t\trepo." + element.code() + ";\n");
             }
             writer.write("\t}\n\n");
             writer.write("}\n");
@@ -184,7 +209,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     /**
      * @since 0.94
      */
-    private interface NativeElementDef {
+    private interface NativeElementCodeDef {
         
         String code();
         
@@ -193,7 +218,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     /**
      * @since 0.94
      */
-    private class NativeFunctionDef implements NativeElementDef {
+    private class NativeFunctionCodeDef implements NativeElementCodeDef {
         
         public String pkg;
         
@@ -201,9 +226,37 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         
         public String className;
         
+        public List<TypeKind> argTypes = new ArrayList<>();
+        
+        public List<TypeKind> retTypes = new ArrayList<>();
+        
+        protected String typeArrayToCode(List<TypeKind> types) {
+            List<String> vals = new ArrayList<>();
+            for (TypeKind type : types) {
+                vals.add("TypeKind." + type.name());
+            }
+            return "new TypeKind[] { " + String.join(", ", vals) + " }";
+        }
+        
         public String code() {
-            return "NativeElementType.FUNCTION, \"" + this.pkg + 
-                    "\", \"" + this.name + "\"), \"" + this.className + "\"";
+            return "registerNativeFunction(new NativeFunctionDef(\"" + this.pkg + "\", \"" + this.name + "\", "
+                    + this.typeArrayToCode(this.argTypes) + ", " + this.typeArrayToCode(this.retTypes) + ", \""
+                    + this.className + "\"))";
+        }
+        
+    }
+    
+    /**
+     * @since 0.94
+     */
+    private class NativeActionCodeDef extends NativeFunctionCodeDef {
+        
+        public String connectorName;
+        
+        public String code() {
+            return "registerNativeAction(new NativeActionDef(\"" + this.pkg + "\", \"" + this.connectorName + "\", \""
+                    + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", "
+                    + this.typeArrayToCode(this.retTypes) + ", \"" + this.className + "\"))";
         }
         
     }

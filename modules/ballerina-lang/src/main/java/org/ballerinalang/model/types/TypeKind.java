@@ -61,7 +61,8 @@ public enum TypeKind {
     ARRAY("[]"),
     VOID(""),
     NONE(""),
-    OTHER("other");
+    OTHER("other"),
+    MESSAGE("message");
 
     private String name;
 

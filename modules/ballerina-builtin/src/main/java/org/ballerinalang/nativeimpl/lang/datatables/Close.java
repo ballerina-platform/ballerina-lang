@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.datatables;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
         functionName = "close",
-        args = {@Argument(name = "dt", type = TypeEnum.DATATABLE)},
+        args = {@Argument(name = "dt", type = TypeKind.DATATABLE)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.ws.connectionstore;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,7 +41,7 @@ import javax.websocket.Session;
         packageName = "ballerina.net.ws",
         functionName = "closeStoredConnection",
         args = {
-                @Argument(name = "connectionName", type = TypeEnum.STRING)
+                @Argument(name = "connectionName", type = TypeKind.STRING)
         },
         isPublic = true
 )

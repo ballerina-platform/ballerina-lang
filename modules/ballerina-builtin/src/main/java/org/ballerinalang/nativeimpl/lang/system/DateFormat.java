@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -39,8 +39,8 @@ import java.util.TimeZone;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "getDateFormat",
-        args = { @Argument(name = "format", type = TypeEnum.STRING) },
-        returnType = { @ReturnType(type = TypeEnum.STRING) },
+        args = { @Argument(name = "format", type = TypeKind.STRING) },
+        returnType = { @ReturnType(type = TypeKind.STRING) },
         isPublic = true)
 
 public class DateFormat extends AbstractNativeFunction {

@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.http.Constants;
@@ -38,8 +38,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setStatusCode",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
-                @Argument(name = "statusCode", type = TypeEnum.INT)},
+        args = {@Argument(name = "m", type = TypeKind.MESSAGE),
+                @Argument(name = "statusCode", type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

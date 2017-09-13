@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -40,8 +40,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.strings",
         functionName = "valueOf",
-        args = {@Argument(name = "value", type = TypeEnum.ANY)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

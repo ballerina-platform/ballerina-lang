@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.actions.jms.client;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
@@ -43,10 +43,10 @@ import java.util.ServiceLoader;
         packageName = "ballerina.net.jms",
         actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
         },
         connectorArgs = {
-                @Argument(name = "properties", type = TypeEnum.MAP)
+                @Argument(name = "properties", type = TypeKind.MAP)
         }
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

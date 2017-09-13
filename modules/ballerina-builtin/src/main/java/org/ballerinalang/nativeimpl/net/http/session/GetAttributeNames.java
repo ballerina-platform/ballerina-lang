@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -41,9 +41,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getAttributeNames",
-        args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
+        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
                 structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

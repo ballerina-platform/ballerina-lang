@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.maps;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -35,8 +35,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.maps",
         functionName = "remove",
-        args = {@Argument(name = "m", type = TypeEnum.MAP),
-                @Argument(name = "key", type = TypeEnum.STRING)},
+        args = {@Argument(name = "m", type = TypeKind.MAP),
+                @Argument(name = "key", type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

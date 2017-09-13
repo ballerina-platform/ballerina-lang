@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.lang.files;
 
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -44,8 +44,8 @@ import java.util.Locale;
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
         functionName = "open",
-        args = {@Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
-                structPackage = "ballerina.lang.files"), @Argument(name = "accessMode", type = TypeEnum.STRING)},
+        args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
+                structPackage = "ballerina.lang.files"), @Argument(name = "accessMode", type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

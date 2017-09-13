@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -42,9 +42,9 @@ import org.osgi.service.component.annotations.Component;
         packageName = "ballerina.data.sql",
         actionName = "close",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)},
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)},
         connectorArgs = {
-                @Argument(name = "options", type = TypeEnum.MAP)
+                @Argument(name = "options", type = TypeKind.MAP)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "The close action implementation for SQL connector.") })

@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -37,9 +37,9 @@ import java.io.UnsupportedEncodingException;
 @BallerinaFunction(
         packageName = "ballerina.lang.strings",
         functionName = "toBlob",
-        args = {@Argument(name = "string", type = TypeEnum.STRING),
-                @Argument(name = "encoding", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.BLOB)},
+        args = {@Argument(name = "string", type = TypeKind.STRING),
+                @Argument(name = "encoding", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

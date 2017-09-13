@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.errors;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -34,9 +34,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.errors",
         functionName = "getStackTrace",
-        args = {@Argument(name = "err", type = TypeEnum.STRUCT, structType = "Error",
+        args = {@Argument(name = "err", type = TypeKind.STRUCT, structType = "Error",
                 structPackage = "ballerina.lang.errors")},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "StackTrace",
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "StackTrace",
                 structPackage = "ballerina.lang.errors")},
         isPublic = true
 )

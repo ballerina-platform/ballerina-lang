@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -45,15 +45,15 @@ import org.osgi.service.component.annotations.Component;
         packageName = "ballerina.data.sql",
         actionName = "updateWithGeneratedKeys",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "query", type = TypeEnum.STRING),
-                @Argument(name = "parameters", type = TypeEnum.ARRAY, elementType = TypeEnum.STRUCT,
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "query", type = TypeKind.STRING),
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                           structType = "Parameter"),
-                @Argument(name = "keyColumns", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
-        returnType = { @ReturnType(type = TypeEnum.INT),
-                       @ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING) },
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        returnType = { @ReturnType(type = TypeKind.INT),
+                       @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING) },
         connectorArgs = {
-                @Argument(name = "options", type = TypeEnum.MAP)
+                @Argument(name = "options", type = TypeKind.MAP)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "The update with generated keys given columns action implementation for SQL connector.") })

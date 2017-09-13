@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.files;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -44,9 +44,9 @@ import java.io.OutputStream;
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
         functionName = "copy",
-        args = {@Argument(name = "source", type = TypeEnum.STRUCT, structType = "File",
+        args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.lang.files"),
-                @Argument(name = "destination", type = TypeEnum.STRUCT, structType = "File",
+                @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
                         structPackage = "ballerina.lang.files")},
         isPublic = true
 )

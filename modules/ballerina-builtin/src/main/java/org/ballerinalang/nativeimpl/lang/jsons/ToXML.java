@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.jsons;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
@@ -39,10 +39,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.jsons",
         functionName = "toXML",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "options", type = TypeEnum.STRUCT, structType = "Options",
+        args = {@Argument(name = "j", type = TypeKind.JSON),
+                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
                           structPackage = "ballerina.lang.jsons")},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 public class ToXML extends AbstractNativeFunction {

@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
@@ -268,7 +268,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnLabel(i);
             int colType = rsMetaData.getColumnType(i);
-            TypeEnum mappedType = SQLDatasourceUtils.getColumnType(colType);
+            TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
             columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType, colType));
         }
         return columnDefs;

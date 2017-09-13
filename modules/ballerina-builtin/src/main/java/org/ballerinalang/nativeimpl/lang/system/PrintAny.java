@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -36,7 +36,7 @@ import java.io.PrintStream;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "print",
-        args = {@Argument(name = "a", type = TypeEnum.ANY)},
+        args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

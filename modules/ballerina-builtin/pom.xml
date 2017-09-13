@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-lang</artifactId>
+            <artifactId>ballerina-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

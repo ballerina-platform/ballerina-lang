@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -38,8 +38,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
         functionName = "children",
-        args = {@Argument(name = "x", type = TypeEnum.XML)},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+        args = {@Argument(name = "x", type = TypeKind.XML)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

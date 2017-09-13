@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.math;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -36,9 +36,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
         functionName = "randomInRange",
-        args = {@Argument(name = "start", type = TypeEnum.INT),
-                @Argument(name = "end", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+        args = {@Argument(name = "start", type = TypeKind.INT),
+                @Argument(name = "end", type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 public class RandomInRange extends AbstractNativeFunction {
