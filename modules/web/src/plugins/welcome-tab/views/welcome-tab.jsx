@@ -18,17 +18,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ExamplePreview from './service-preview';
+import SamplesPreview from './samples-preview';
 
 /**
- * React component for welcome page.
+ * React component for welcome tab.
  *
- * @class WelcomeView
+ * @class WelcomeTab
  * @extends {React.Component}
  */
-class WelcomeView extends React.Component {
+class WelcomeTab extends React.Component {
     /**
-     * Creates an instance of WelcomeView.
+     * Creates an instance of WelcomeTab.
      * @memberof WelcomeView
      */
     constructor() {
@@ -63,7 +63,7 @@ class WelcomeView extends React.Component {
         }));
 
         return (
-            <ExamplePreview sampleConfigs={sampleConfigs} />
+            <SamplesPreview sampleConfigs={sampleConfigs} />
         );
     }
 
@@ -71,7 +71,7 @@ class WelcomeView extends React.Component {
      * Renders view for welcome view.
      *
      * @returns {ReactElement} The view.
-     * @memberof WelcomeView
+     * @memberof WelcomeTab
      */
     render() {
         const samplesView = this.renderSamples();
@@ -119,7 +119,7 @@ class WelcomeView extends React.Component {
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
                             <li >
-                                <a href={this.props.referenceUrl} target="_blank" rel="noopener noreferrer">
+                                <a href={this.props.userGuide} target="_blank" rel="noopener noreferrer">
                                     <i className="fw fw-document" /> Ballerina by Example </a></li>
                         </ul>
                     </div>
@@ -142,11 +142,11 @@ class WelcomeView extends React.Component {
     }
 }
 
-WelcomeView.propTypes = {
+WelcomeTab.propTypes = {
     createNew: PropTypes.func.isRequired,
     openFile: PropTypes.func.isRequired,
     openDirectory: PropTypes.func.isRequired,
-    referenceUrl: PropTypes.string.isRequired,
+    userGuide: PropTypes.string.isRequired,
     samples: PropTypes.arrayOf(PropTypes.shape({
         clickEventCallback: PropTypes.func.isRequired,
         sampleName: PropTypes.string.isRequired,
@@ -155,4 +155,4 @@ WelcomeView.propTypes = {
     })).isRequired,
 };
 
-export default WelcomeView;
+export default WelcomeTab;

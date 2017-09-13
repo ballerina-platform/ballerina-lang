@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import HttpClient from './http-client';
 
-import './scss/try-it-container.scss';
+import './try-it-container.scss';
 
 
 /**

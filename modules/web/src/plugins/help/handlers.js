@@ -1,5 +1,25 @@
-import { COMMANDS, DIALOG, VIEWS as HELP_VIEWS } from './constants';
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import { VIEWS as WELCOME_TAB_VIEWS } from 'plugins/welcome-tab/constants';
+import { COMMANDS, DIALOG } from './constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../../core/layout/constants';
+
 /**
  * Provides command handler definitions of debugger plugin.
  * @param {debugger} debugger plugin instance
@@ -12,7 +32,7 @@ export function getHandlerDefinitions(plugin) {
             cmdID: COMMANDS.SHOW_WELCOME,
             handler: () => {
                 const { command } = plugin.appContext;
-                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, HELP_VIEWS.WELCOME);
+                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID);
             },
         },
         {

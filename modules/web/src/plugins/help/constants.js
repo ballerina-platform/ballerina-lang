@@ -25,9 +25,4 @@ export const DIALOG = {
     ABOUT: 'composer.dialog.about',
 };
 
-export const VIEWS = {
-    WELCOME: 'welcome',
-};
-
-
 export const PLUGIN_ID = 'composer.plugin.help';

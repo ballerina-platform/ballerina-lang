@@ -17,6 +17,7 @@ import 'font-wso2-1.3.1-SNAPSHOT/css/font-wso2.min.css';
 fetchConfigs()
     .then((configs) => {
         // merge existing config and received configs
+        const x = defaultConfig;
         const newConfig = _.merge(defaultConfig, configs);
         try {
             const app = new Application(newConfig);
