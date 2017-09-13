@@ -19,6 +19,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getPathSeperator } from 'api-client/api-client';
+import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import SamplesPreview from './samples-preview';
 
 /**
@@ -49,15 +51,21 @@ class WelcomeTab extends React.Component {
             clickEventCallback: () => {
                 // convert paths to platform specific paths
                 const sampleFile = sample.path.split('/').join(pathSeperator);
-                const sampleFolder = (sample.folder) ? sample.folder.split('/').join(pathSeperator) : '';
+                const sampleFolder = sample.folder ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
-                    this.props.commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+                        filePath: ballerinaHome + sampleFile,
+                        ext: 'bal',
+                    });
                 } else {
-                    commandManager.dispatch('open-folder', ballerinaHome + sampleFolder);
-                    if (!workspaceExplorer.isActive()) {
-                        commandManager.dispatch('toggle-file-explorer');
-                    }
-                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
+                        folderPath: ballerinaHome + sampleFolder,
+                    });
+                    this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, WORKSPACE_VIEWS.EXPLORER);
+                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+                        filePath: ballerinaHome + sampleFile,
+                        ext: 'bal',
+                    });
                 }
             },
             image: sample.image,
@@ -96,7 +104,7 @@ class WelcomeTab extends React.Component {
 
                         <button
                             id="btn-welcome-new"
-                            className="btn btn-primary" 
+                            className="btn btn-primary"
                             onClick={this.props.createNew}
                         >
                             Create New
@@ -156,7 +164,7 @@ WelcomeTab.propTypes = {
         image: PropTypes.string.isRequired,
     })).isRequired,
     balHome: PropTypes.string.isRequired,
-    commandManager: PropTypes.Object.isRequired,
+    commandManager: PropTypes.objectOf(Object).isRequired,
 };
 
 export default WelcomeTab;

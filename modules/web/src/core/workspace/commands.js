@@ -1,4 +1,4 @@
-import PropTypes from 'PropTypes';
+import PropTypes from 'prop-types';
 import { COMMANDS } from './constants';
 
 /**

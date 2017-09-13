@@ -55,13 +55,13 @@ class WelcomeTabPlugin extends Plugin {
      */
     getContributions() {
         const { VIEWS } = CONTRIBUTIONS;
-        const { command } = this.appContext;
         return {
             [VIEWS]: [
                 {
                     id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
                     component: WelcomeTab,
                     propsProvider: () => {
+                        const { command } = this.appContext;
                         return {
                             createNew: this.createNewHandler.bind(this),
                             openFile: this.openFileHandler.bind(this),
