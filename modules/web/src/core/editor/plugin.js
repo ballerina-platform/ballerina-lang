@@ -107,7 +107,7 @@ class EditorPlugin extends Plugin {
      */
     setActiveEditor(editor) {
         this.activeEditor = editor;
-        this.activeEditorID = editor.id;
+        this.activeEditorID = editor ? editor.id : undefined;
         const { pref: { history } } = this.appContext;
         history.put(HISTORY.ACTIVE_EDITOR, this.activeEditorID);
         this.reRender();
