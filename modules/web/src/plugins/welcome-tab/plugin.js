@@ -18,7 +18,7 @@
 
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { REGIONS } from 'core/layout/constants';
 import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
 /** Plugin imports */
 import WelcomeTab from './views/welcome-tab';
@@ -55,6 +55,7 @@ class WelcomeTabPlugin extends Plugin {
      */
     getContributions() {
         const { VIEWS } = CONTRIBUTIONS;
+        const { command } = this.appContext;
         return {
             [VIEWS]: [
                 {
@@ -68,12 +69,14 @@ class WelcomeTabPlugin extends Plugin {
                             userGuide: this.config.userGuide,
                             balHome: this.config.balHome,
                             samples: this.config.samples,
+                            commandManager: command,
                         };
                     },
                     region: REGIONS.EDITOR_TABS,
                     // region specific options for editor-tabs views
                     regionOptions: {
                         tabTitle: LABELS.WELCOME,
+                        customTitleClass: 'welcome-page-tab-title',
                     },
                 },
             ],

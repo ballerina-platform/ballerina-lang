@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.Request;
 
+import java.io.File;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -164,6 +165,9 @@ public class ConfigServiceImpl {
         JsonObject config = new JsonObject();
         config.add("services", services);
     
+        config.addProperty("pathSeparator", File.separator);
+    
+        // Configurations for plugins.
         JsonObject pluginConfigs = new JsonObject();
         config.add(PluginConstants.PLUGIN_CONFIGS, pluginConfigs);
         this.setWelcomeTabPluginConfigs(pluginConfigs);

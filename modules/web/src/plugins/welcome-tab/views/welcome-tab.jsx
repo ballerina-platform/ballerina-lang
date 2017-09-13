@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { getPathSeperator } from 'api-client/api-client';
 import SamplesPreview from './samples-preview';
 
 /**
@@ -39,8 +40,8 @@ class WelcomeTab extends React.Component {
     }
 
     renderSamples() {
-        const pathSeperator = this._options.application.getPathSeperator();
-        const ballerinaHome = _.get(this._options, 'balHome');
+        const pathSeperator = getPathSeperator();
+        const ballerinaHome = this.props.balHome;
         let sampleConfigs = [];
         sampleConfigs = this.props.samples.map(sample => ({
             sampleName: sample.name,
@@ -50,7 +51,7 @@ class WelcomeTab extends React.Component {
                 const sampleFile = sample.path.split('/').join(pathSeperator);
                 const sampleFolder = (sample.folder) ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
-                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                    this.props.commandManager.dispatch('open-file', ballerinaHome + sampleFile);
                 } else {
                     commandManager.dispatch('open-folder', ballerinaHome + sampleFolder);
                     if (!workspaceExplorer.isActive()) {
@@ -148,11 +149,14 @@ WelcomeTab.propTypes = {
     openDirectory: PropTypes.func.isRequired,
     userGuide: PropTypes.string.isRequired,
     samples: PropTypes.arrayOf(PropTypes.shape({
-        clickEventCallback: PropTypes.func.isRequired,
-        sampleName: PropTypes.string.isRequired,
-        isFile: PropTypes.bool.isRequired,
+        name: PropTypes.string.isRequired,
+        isFile: PropTypes.bool,
+        folder: PropTypes.string,
+        path: PropTypes.string.isRequired,
         image: PropTypes.string.isRequired,
     })).isRequired,
+    balHome: PropTypes.string.isRequired,
+    commandManager: PropTypes.Object.isRequired,
 };
 
 export default WelcomeTab;
