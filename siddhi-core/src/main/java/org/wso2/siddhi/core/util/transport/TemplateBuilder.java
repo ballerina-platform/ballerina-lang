@@ -35,23 +35,25 @@ import java.util.regex.Pattern;
  * Template builder used by {@link org.wso2.siddhi.core.stream.output.sink.SinkMapper} to generate custom payload.
  */
 public class TemplateBuilder {
-    private static final Pattern DYNAMIC_PATTERN = Pattern.compile("(\\{\\{[^{}]*}})|[{}]");
+    private static final Pattern DYNAMIC_PATTERN = Pattern.compile("(\\{\\{[^{}]*\\}\\})|[{}]");
     private MessageFormat messageFormat;
+    private boolean isObjectMessage = false;
+    private int objectIndex = -1;
 
     public TemplateBuilder(StreamDefinition streamDefinition, String template) {
-        this.messageFormat = parse(streamDefinition, template);
+        parse(streamDefinition, template);
     }
 
-    public static Map<String, String> convert(Event event, Map<String, TemplateBuilder> converterMap) {
-        Map<String, String> mapped = new HashMap<String, String>();
+    public static Map<String, Object> convert(Event event, Map<String, TemplateBuilder> converterMap) {
+        Map<String, Object> mapped = new HashMap<>();
         for (Map.Entry<String, TemplateBuilder> entry : converterMap.entrySet()) {
             mapped.put(entry.getKey(), entry.getValue().build(event));
         }
         return mapped;
     }
 
-    public static String[] convert(Event event, TemplateBuilder[] templateBuilders) {
-        String[] mapped = new String[templateBuilders.length];
+    public static Object[] convert(Event event, TemplateBuilder[] templateBuilders) {
+        Object[] mapped = new String[templateBuilders.length];
         int i = 0;
         for (TemplateBuilder templateBuilder : templateBuilders) {
             mapped[i] = templateBuilder.build(event);
@@ -60,15 +62,39 @@ public class TemplateBuilder {
         return mapped;
     }
 
-    public String build(Event event) {
-        return messageFormat.format(event.getData());
+
+    public Object build(Event event) {
+        if (isObjectMessage) {
+            return event.getData()[objectIndex];
+        } else {
+            return messageFormat.format(event.getData());
+        }
+
     }
 
-    public String build(ComplexEvent complexEvent) {
-        return messageFormat.format(complexEvent.getOutputData());
+    public Object build(ComplexEvent complexEvent) {
+        if (isObjectMessage) {
+            return complexEvent.getOutputData()[objectIndex];
+        } else {
+            return messageFormat.format(complexEvent.getOutputData());
+        }
+
     }
 
-    private MessageFormat parse(StreamDefinition streamDefinition, String template) {
+    private void parse(StreamDefinition streamDefinition, String template) {
+
+        if (Arrays.asList(streamDefinition.getAttributeNameArray()).contains(template.trim())) {
+            this.objectIndex = streamDefinition.getAttributePosition(template.trim());
+            this.isObjectMessage = true;
+        } else {
+            if (template.matches("^`[^\\s]*`$")) {
+                template = template.replaceAll("^`|`$", "");
+            }
+            this.messageFormat = parseTextMessage(streamDefinition, template);
+        }
+    }
+
+    private MessageFormat parseTextMessage(StreamDefinition streamDefinition, String template) {
         // note: currently we do not support arbitrary data to be mapped with dynamic options
         List<String> attributes = Arrays.asList(streamDefinition.getAttributeNameArray());
         StringBuffer result = new StringBuffer();
@@ -80,7 +106,7 @@ public class TemplateBuilder {
                     m.appendReplacement(result, String.format("{%s}", attrIndex));
                 } else {
                     throw new NoSuchAttributeException(String.format("Attribute : %s does not exist in %s.",
-                                                                     m.group(1), streamDefinition));
+                            m.group(1), streamDefinition));
                 }
             } else {
                 m.appendReplacement(result, "'" + m.group() + "'");
@@ -88,5 +114,9 @@ public class TemplateBuilder {
         }
         m.appendTail(result);
         return new MessageFormat(result.toString());
+    }
+
+    public boolean isObjectMessage() {
+        return isObjectMessage;
     }
 }

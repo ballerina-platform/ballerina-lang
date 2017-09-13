@@ -27,8 +27,10 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,15 +56,15 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     public final void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                            ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
-                           OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
-                           SiddhiAppContext siddhiAppContext) {
+                           OptionHolder mapOptionHolder, List<Element> payloadElementList,
+                           ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.type = type;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.siddhiAppContext = siddhiAppContext;
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
-            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, this,
+            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payloadElementList, this,
                     mapperConfigReader, siddhiAppContext);
             this.mapper = sinkMapper;
         }
