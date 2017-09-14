@@ -20,7 +20,10 @@
             color: rgb(199, 199, 199);
         }
         &:hover {
-            background: rgb(35, 35, 35);  
+            background: #2E2E2E
+        }
+        &.active {
+            background: #232323;
         }
     }
     .file-tree {

@@ -40,7 +40,12 @@ class ExplorerItem extends React.Component {
             <div className="explorer-item">
                 <div
                     className="root unseletable-content"
-                    onClick={() => this.setState({ open: !this.state.open })}
+                    onClick={() => {
+                        this.setState({ open: !this.state.open });
+                        // un-select child nodes when clicked on root
+                        this.props.onSelect(undefined);
+                    }
+                    }
                 >
                     <i className={classnames('fw', 'fw-start', 'arrow', { open: this.state.open })} />
                     <i className="fw fw-folder icon" />
@@ -48,7 +53,11 @@ class ExplorerItem extends React.Component {
                 </div>
                 <Collapse in={this.state.open}>
                     <div className="file-tree">
-                        <FileTree root={this.props.folderPath} onOpen={this.onOpen} />
+                        <FileTree
+                            root={this.props.folderPath}
+                            onOpen={this.onOpen}
+                            onSelect={this.props.onSelect}
+                        />
                     </div>
                 </Collapse>
             </div>
@@ -57,8 +66,13 @@ class ExplorerItem extends React.Component {
 }
 
 ExplorerItem.propTypes = {
+    onSelect: PropTypes.func,
     folderPath: PropTypes.string.isRequired,
     workspaceManager: PropTypes.objectOf(Object).isRequired,
+};
+
+ExplorerItem.defaultProps = {
+    onSelect: () => {},
 };
 
 export default ExplorerItem;

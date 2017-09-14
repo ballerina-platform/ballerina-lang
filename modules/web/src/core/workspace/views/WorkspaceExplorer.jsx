@@ -22,7 +22,25 @@ class WorkspaceExplorer extends View {
      */
     constructor(props) {
         super(props);
+        this.onSelectNode = this.onSelectNode.bind(this);
         this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
+        this.state = {
+            selectedNode: undefined,
+        };
+    }
+
+    /**
+     * On any node in any tree is selected.
+     * Enforces a single selection across multiple trees.
+     *
+     */
+    onSelectNode(node) {
+        if (!_.isNil(this.state.selectedNode) && node !== this.state.selectedNode) {
+            this.state.selectedNode.active = false;
+        }
+        this.setState({
+            selectedNode: node,
+        });
     }
 
     /**
@@ -41,7 +59,12 @@ class WorkspaceExplorer extends View {
         const { openedFolders } = this.props.workspaceManager;
         openedFolders.forEach((folder) => {
             trees.push((
-                <ExplorerItem folderPath={folder} key={folder} workspaceManager={this.props.workspaceManager} />
+                <ExplorerItem
+                    folderPath={folder}
+                    key={folder}
+                    workspaceManager={this.props.workspaceManager}
+                    onSelect={this.onSelectNode}
+                />
             ));
         });
         return (
