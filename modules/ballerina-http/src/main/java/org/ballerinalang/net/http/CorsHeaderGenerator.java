@@ -23,7 +23,6 @@ import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Arrays;

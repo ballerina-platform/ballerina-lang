@@ -19,25 +19,28 @@
 package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -65,12 +68,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    protected void prepareRequest(BConnector connector, String path, CarbonMessage cMsg) {
+    protected void prepareRequest(BConnector connector, String path, HTTPCarbonMessage cMsg) {
 
         validateParams(connector);
 
         // Handle operations for empty content messages initiated from the Ballerina core itself
-        if (cMsg instanceof DefaultCarbonMessage && cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
+        if (cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
             cMsg.setEndOfMsgAdded(true);
         }
 
@@ -134,10 +137,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    protected BValue executeAction(Context context, CarbonMessage message) {
+    protected BValue executeAction(Context context, HTTPCarbonMessage message) {
 
         try {
-            BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
+            HTTPClientConnectorLister httpClientConnectorLister = new HTTPClientConnectorLister(context);
             Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
             if (sourceHandler == null) {
                 message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
@@ -145,15 +148,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             HttpClientConnector clientConnector =
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
-            HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(message);
-            HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
-            future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
+            HttpResponseFuture future = clientConnector.send(message);
+            future.setHttpConnectorListener(new HTTPClientConnectorLister(context));
 
             // Wait till Response comes
             long startTime = System.currentTimeMillis();
-            while (!balConnectorCallback.isResponseArrived()) {
+            while (!httpClientConnectorLister.isResponseArrived()) {
                 synchronized (context) {
-                    if (!balConnectorCallback.isResponseArrived()) {
+                    if (!httpClientConnectorLister.isResponseArrived()) {
                         logger.debug("Waiting for a response");
                         context.wait(SENDER_TIMEOUT);
                         if (System.currentTimeMillis() >= (startTime + SENDER_TIMEOUT)) {
@@ -163,8 +165,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     }
                 }
             }
-            handleTransportException(balConnectorCallback.getValueRef());
-            return balConnectorCallback.getValueRef();
+            handleTransportException(httpClientConnectorLister.getValueRef());
+            return httpClientConnectorLister.getValueRef();
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), context);
@@ -172,29 +174,25 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return null;
     }
 
-    void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
+    void executeNonBlockingAction(Context context, HTTPCarbonMessage httpRequestMsg)
             throws ClientConnectorException {
-        balConnectorCallback.setNonBlockingExecution(true);
+        HTTPClientConnectorLister httpClientConnectorLister = new HTTPClientConnectorLister(context);
+        httpClientConnectorLister.setNonBlockingExecution(true);
 
         try {
-            Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+            Object sourceHandler = httpRequestMsg.getProperty(Constants.SRC_HANDLER);
             if (sourceHandler == null) {
-                message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
+                httpRequestMsg.setProperty(Constants.SRC_HANDLER,
+                        context.getProperty(Constants.SRC_HANDLER));
             }
 
             HttpClientConnector clientConnector =
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
-            HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(message);
-            HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
-            future.setHttpConnectorListener(new HTTPClientConnectorLister(balConnectorCallback));
+            HttpResponseFuture future = clientConnector.send(httpRequestMsg);
+            future.setHttpConnectorListener(new HTTPClientConnectorLister(context));
         } catch (Exception e) {
-            throw new BallerinaException("Failed to send message to the backend", e, context);
+            throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
         }
-    }
-
-    @Override
-    public void validate(BalConnectorCallback callback) {
-        handleTransportException(callback.getValueRef());
     }
 
     @Override
@@ -221,20 +219,72 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static class HTTPClientConnectorLister implements HttpConnectorListener {
 
-        private final BalConnectorCallback balConnectorCallback;
+        private Context context;
+        private boolean responseArrived = false;
+        private BValue valueRef;
+        private boolean nonBlockingExecution;
+        // Reference for post validation.
 
-        private HTTPClientConnectorLister(BalConnectorCallback balConnectorCallback) {
-            this.balConnectorCallback = balConnectorCallback;
+        private HTTPClientConnectorLister(Context context) {
+            this.context = context;
         }
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            balConnectorCallback.done(httpCarbonMessage);
+            if (httpCarbonMessage.getMessagingException() == null) {
+                BStruct response = createResponseStruct(this.context);
+                response.addNativeData("transport_message", httpCarbonMessage);
+                valueRef = response;
+
+                context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
+                responseArrived = true;
+
+                // Release Thread.
+                if (nonBlockingExecution) {
+                    ThreadPoolFactory.getInstance().getExecutor()
+                            .execute(new ResponseWorkerThread(context));
+                } else {
+                    synchronized (context) {
+                        context.notifyAll();
+                    }
+                }
+            } else {
+                Exception exception = httpCarbonMessage.getMessagingException();
+                logger.error("non-blocking action invocation validation failed. ", exception);
+                BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
+                        exception.getMessage());
+                context.setError(err);
+            }
         }
 
         @Override
         public void onError(Throwable throwable) {
             throw new BallerinaException(throwable.getMessage());
+        }
+
+        private BStruct createResponseStruct(Context context) {
+            //gather package details from natives
+            PackageInfo sessionPackageInfo = context.getProgramFile()
+                    .getPackageInfo("ballerina.net.http.request");
+            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo("Request");
+
+            //create session struct
+            BStructType structType = sessionStructInfo.getType();
+            BStruct bStruct = new BStruct(structType);
+
+            return bStruct;
+        }
+
+        public boolean isResponseArrived() {
+            return responseArrived;
+        }
+
+        public void setNonBlockingExecution(boolean nonBlockingExecution) {
+            this.nonBlockingExecution = nonBlockingExecution;
+        }
+
+        public BValue getValueRef() {
+            return this.valueRef;
         }
     }
 

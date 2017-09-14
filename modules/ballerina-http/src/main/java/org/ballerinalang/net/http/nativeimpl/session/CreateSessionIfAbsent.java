@@ -21,20 +21,21 @@ package org.ballerinalang.net.http.nativeimpl.session;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
-//import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-//import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-//import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+//import org.ballerinalang.model.values.BMessage;
+//import org.ballerinalang.net.http.Constants;
+//import org.ballerinalang.util.exceptions.BallerinaException;
 //import org.wso2.carbon.messaging.CarbonMessage;
 
 //import java.util.Arrays;

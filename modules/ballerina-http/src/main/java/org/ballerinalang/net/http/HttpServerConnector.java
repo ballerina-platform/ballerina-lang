@@ -29,9 +29,6 @@ import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.URI;
