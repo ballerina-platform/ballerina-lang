@@ -17,6 +17,7 @@ package org.ballerinalang.composer.service.workspace.local;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.SystemUtils;
@@ -47,6 +48,9 @@ public class LocalFSWorkspace implements Workspace {
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FOLDER_TYPE = "folder";
     private static final String CONTENT = "content";
+    private static final String FILENAME = "filename";
+    private static final String FILEPATH = "filepath";
+    private static final String EXTENSION = "extension";
     private static final String BAL_EXT = ".bal";
 
     @Override
@@ -106,9 +110,12 @@ public class LocalFSWorkspace implements Workspace {
     @Override
     public JsonObject read(String path) throws IOException {
         byte[] fileContent = Files.readAllBytes(Paths.get(path));
-        JsonObject content = new JsonObject();
-        content.addProperty(CONTENT, new String(fileContent, Charset.defaultCharset()));
-        return content;
+        JsonObject fileObject = new JsonObject();
+        fileObject.addProperty(CONTENT, new String(fileContent, Charset.defaultCharset()));
+        fileObject.addProperty(FILENAME, FilenameUtils.getBaseName(path));
+        fileObject.addProperty(FILEPATH, FilenameUtils.getFullPath(path));
+        fileObject.addProperty(EXTENSION, FilenameUtils.getExtension(path));
+        return fileObject;
     }
 
     @Override
@@ -204,6 +211,9 @@ public class LocalFSWorkspace implements Workspace {
                     Path fileName = next.getFileName();
                     SuffixFileFilter fileFilter = new SuffixFileFilter(extensions, IOCase.INSENSITIVE);
                     if (null != fileName && fileFilter.accept(next.toFile())) {
+                        jsnObj.addProperty(FILENAME, FilenameUtils.getBaseName(next.toString()));
+                        jsnObj.addProperty(FILEPATH, FilenameUtils.getFullPath(next.toString()));
+                        jsnObj.addProperty(EXTENSION, FilenameUtils.getExtension(next.toString()));
                         dirs.add(jsnObj);
                     }
                 } else {
