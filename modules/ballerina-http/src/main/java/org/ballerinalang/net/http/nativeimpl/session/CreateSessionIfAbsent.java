@@ -40,10 +40,6 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-//import org.ballerinalang.model.values.BMessage;
-//import org.ballerinalang.net.http.Constants;
-//import org.ballerinalang.util.exceptions.BallerinaException;
-
 /**
  * Native function to create session if session id not exist, otherwise return existing session.
  *

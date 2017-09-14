@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-//import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -29,8 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
-//import org.ballerinalang.net.http.session.Session;
-//import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function invalidate session.

@@ -20,8 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-//import org.ballerinalang.model.values.BString;
-//import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -32,8 +30,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
-//import org.ballerinalang.net.http.session.Session;
-//import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function to get session id.
