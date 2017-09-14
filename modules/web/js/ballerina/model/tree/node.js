@@ -15,49 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
+import EventChannel from 'event_channel';
+
+const uuid = function () {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+};
 
 /**
  * Base of all tree nodes.
  *
  * @class Node
  */
-class Node {
-
-    /**
-     * Will convert any branch of json serialized ballerina AST tree to a node branch
-     * of client side model.
-     *
-     * @static
-     * @param {Object} json Serialized json of a ast tree or branch.
-     * @param {Node=} parent Parent node.
-     * @returns {Node}
-     * @memberof Node
-     */
-    static initFromJson(json, parent) {
-        let childName;
-        const node = new Node();
-        for (childName in json) {
-            // if child name is position || whitespace skip convection.
-            if (childName !== 'position' && childName !== 'ws') {
-                const child = json[childName];
-                if (_.isPlainObject(child)) {
-                    json[childName] = Node.initFromJson(child, node);
-                } else if (child instanceof Array) {
-                    for (let i = 0; i < child.length; i++) {
-                        const childItem = child[i];
-                        if (_.isPlainObject(childItem)) {
-                            child[i] = Node.initFromJson(childItem, node);
-                        }
-                    }
-                }
-            }
-        }
-        // TODO: Special case node creation with kind.
-        json.parent = parent;
-        return Object.assign(node, json);
-    }
-
+class Node extends EventChannel {
 
 }
 

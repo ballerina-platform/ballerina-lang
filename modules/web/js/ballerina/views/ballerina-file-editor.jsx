@@ -42,7 +42,7 @@ import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visi
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 import FindLineNumbersVisiter from './../visitors/find-line-numbers';
 import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
-import Node from './../model/tree/node';
+import TreeBuilder from './../model/tree-builder';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -357,7 +357,7 @@ class BallerinaFileEditor extends React.Component {
                     // if not, continue parsing the file & building AST
                     parseFile(file)
                         .then((jsonTree) => {
-                            let tree = Node.initFromJson(jsonTree);
+                            let tree = TreeBuilder.build(jsonTree);
                             console.log(tree);
                             debugger;
 
