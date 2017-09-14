@@ -33,11 +33,12 @@ const DefaultASTFactory = {};
  */
 DefaultASTFactory.createServiceDefinition = function (args) {
     const serviceDef = ASTFactory.createServiceDefinition(args);
-    serviceDef.setProtocolPkgName('http');
-    serviceDef.setProtocolPkgPath('ballerina.net.http');
+    serviceDef.setProtocolPkgName(args.protocolPkgName);
+    serviceDef.setProtocolPkgPath(args.protocolPkgPath);
     const resourceDef = DefaultASTFactory.createResourceDefinition(args);
     serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
     serviceDef.accept(new EnableDefaultWSVisitor());
+    serviceDef.getViewState().showPropertyForm = true;
     return serviceDef;
 };
 
@@ -82,8 +83,8 @@ DefaultASTFactory.createResourceDefinition = function (args) {
 
     // Creating GET http method annotation.
     const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
-        fullPackageName: 'ballerina.net.http',
-        packageName: 'http',
+        fullPackageName: args.protocolPkgPath,
+        packageName: args.protocolPkgName,
         name: 'resourceConfig',
     });
     const httpMethodAttribute = ASTFactory.createAnnotationAttribute({
@@ -102,12 +103,19 @@ DefaultASTFactory.createResourceDefinition = function (args) {
     resourceConfigAnnotation.addChild(httpMethodAttribute);
     resourceDef.addChild(resourceConfigAnnotation, 0);
 
-    const parameterDef = ASTFactory.createParameterDefinition(args);
-    parameterDef.setTypeName('message');
-    parameterDef.setName('m');
-
+    // Define the argument param definition holder
     const argumentParameterDefinitionHolder = ASTFactory.createArgumentParameterDefinitionHolder();
-    argumentParameterDefinitionHolder.addChild(parameterDef);
+
+    const requestParameterDef = ASTFactory.createParameterDefinition(args);
+    requestParameterDef.setTypeName(args.resourceParams.requestParamType);
+    requestParameterDef.setName(args.resourceParams.requestParamValue);
+
+    const responseParameterDef = ASTFactory.createParameterDefinition(args);
+    responseParameterDef.setTypeName(args.resourceParams.responseParamType);
+    responseParameterDef.setName(args.resourceParams.responseParamValue);
+
+    argumentParameterDefinitionHolder.addChild(requestParameterDef);
+    argumentParameterDefinitionHolder.addChild(responseParameterDef);
     resourceDef.addChild(argumentParameterDefinitionHolder);
 
     const replyStatement = DefaultASTFactory.createReplyStatement(args);
@@ -463,6 +471,7 @@ DefaultASTFactory.createConnectorDeclaration = function (args) {
     connectorDeclaration.setStatementFromString(declarationStatement);
     connectorDeclaration.setFullPackageName(args.fullPackageName);
     connectorDeclaration.accept(new EnableDefaultWSVisitor());
+    connectorDeclaration.getViewState().showPropertyForm = true;
     return connectorDeclaration;
 };
 

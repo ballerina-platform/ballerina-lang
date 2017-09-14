@@ -22,6 +22,86 @@ import DefaultASTFactory from '../ast/default-ast-factory';
 
 const ToolPalette = [];
 
+const createhttpServiceDefTool = {
+    id: 'service',
+    name: 'http',
+    meta: {
+        protocolPkgName: 'http',
+        protocolPkgPath: 'ballerina.net.http',
+        resourceParams: {
+            requestParamType: 'http:request',
+            requestParamValue: 'req',
+            responseParamType: 'http:response',
+            responseParamValue: 'resp',
+        },
+    },
+    cssClass: 'icon fw fw-http',
+    title: 'HTTP Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'Http container of resources, each of which defines the logic for handling one type of request',
+};
+
+const createwsServiceDefTool = {
+    id: 'service',
+    name: 'ws',
+    meta: {
+        protocolPkgName: 'ws',
+        protocolPkgPath: 'ballerina.net.ws',
+        resourceParams: {
+            requestParamType: 'ws:request',
+            requestParamValue: 'req',
+            responseParamType: 'ws:response',
+            responseParamValue: 'resp',
+        },
+    },
+    cssClass: 'icon fw fw-web-service',
+    title: 'WS Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'Web Socket container of resources, each of which defines the logic for handling one type of request',
+};
+
+const createjmsServiceDefTool = {
+    id: 'service',
+    name: 'jms',
+    meta: {
+        protocolPkgName: 'jms',
+        protocolPkgPath: 'ballerina.net.jms',
+        resourceParams: {
+            requestParamType: 'jms:request',
+            requestParamValue: 'req',
+            responseParamType: 'jms:response',
+            responseParamValue: 'resp',
+        },
+    },
+    cssClass: 'icon fw fw-jaxws',
+    title: 'JMS Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'JMS container of resources, each of which defines the logic for handling one type of request',
+};
+
+const createfileServiceDefTool = {
+    id: 'service',
+    name: 'file',
+    meta: {
+        protocolPkgName: 'file',
+        protocolPkgPath: 'ballerina.net.ftp',
+        resourceParams: {
+            requestParamType: 'file:request',
+            requestParamValue: 'req',
+            responseParamType: 'file:response',
+            responseParamValue: 'resp',
+        },
+
+    },
+    cssClass: 'icon fw fw-dgm-service',
+    title: 'File Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'File container of resources, each of which defines the logic for handling one type of request',
+};
+
+const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool,
+    createjmsServiceDefTool, createfileServiceDefTool];
+
 const createResourceDefTool = {
     id: 'resource',
     name: 'Resource',
@@ -112,7 +192,8 @@ const createAnnotationDefTool = {
     definition: 'Hold meta data related to the attached code',
 };
 
-const mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
+const mainToolDefArray = [/* createServiceDefTool, createResourceDefTool, */
+    createFunctionDefTool,
     createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
     createWorkerDecTool, createAnnotationDefTool];
 
@@ -325,7 +406,8 @@ const seperator = {
 };
 
 // creating a one gourp for constructs
-const constructsToolDefArray = _.union(mainToolDefArray, [seperator], statementToolDefArray);
+const constructsToolDefArray = _.union(serviceToolDefArray, [seperator], mainToolDefArray,
+    [seperator], statementToolDefArray);
 
 const constructs = new ToolGroup({
     toolGroupName: 'Constructs',

@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import PanelDecorator from './panel-decorator';
@@ -160,6 +161,7 @@ class ServiceDefinition extends React.Component {
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     rightComponents={rightComponents}
                     protocol={this.props.model.getProtocolPkgName()}
+                    showPropertyForm={this.props.model.getViewState().showPropertyForm}
                 >
                     { resources.length &&
                         <ServiceTransportLine bBox={this.props.model.getViewState().components.transportLine} />}

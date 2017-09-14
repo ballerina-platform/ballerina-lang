@@ -1679,6 +1679,12 @@ span.fw-stack.fw-lg {
     cursor: pointer;
 }
 
+.protocol-rect-clicked{
+    fill: #00184e;
+    fill-opacity: 0.5;
+    cursor: pointer;
+}
+
 .protocol-text{
     font-weight: 400;
     cursor: pointer;

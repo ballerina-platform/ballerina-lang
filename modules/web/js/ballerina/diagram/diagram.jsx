@@ -24,10 +24,14 @@ import DimensionVisitor from './dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
+import ServerConnectorPropertiesRenderingVisitor from '../visitors/server-connector-properties-rendering-visitor';
+import ConnectorPropertiesRenderingVisitor from '../visitors/connector-properties-rendering-visitor';
 import { getComponentForNodeArray, getDesigner } from './diagram-util';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
+import ServerConnectorPropertiesForm from './views/default/components/server-connector-properties-form';
+import ConnectorPropertiesForm from './views/default/components/connector-properties';
 
 /**
  * React component for diagram.
@@ -96,14 +100,14 @@ class Diagram extends React.Component {
         const otherNodes = [];
         this.props.model.children.forEach((child) => {
             switch (child.constructor.name) {
-            case 'ImportDeclaration':
-                break;
-            case 'ConstantDefinition':
-                break;
-            case 'GlobalVariableDefinition':
-                break;
-            default:
-                otherNodes.push(child);
+                case 'ImportDeclaration':
+                    break;
+                case 'ConstantDefinition':
+                    break;
+                case 'GlobalVariableDefinition':
+                    break;
+                default:
+                    otherNodes.push(child);
             }
         });
         others = getComponentForNodeArray(otherNodes, designer, this.props.mode);
@@ -115,7 +119,41 @@ class Diagram extends React.Component {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), designer, this.props.mode);
         }
 
-        // 4. Ok we are all set, now lets render the diagram with React. We will create
+        // 4.1 lets filter out the server connector property views so we can overlay html on top of svg.
+        const serverConnectorPropRender = new ServerConnectorPropertiesRenderingVisitor();
+        this.props.model.accept(serverConnectorPropRender);
+        const serverConnectorPropsViews = [];
+        if (serverConnectorPropRender.getServerConnectorProperties()) {
+            (serverConnectorPropRender.getServerConnectorProperties()).map((serviceDef) => {
+                serverConnectorPropsViews.push(<ServerConnectorPropertiesForm
+                    key={serviceDef.parentNode.getID()}
+                    model={serviceDef.parentNode}
+                    bBox={serviceDef.bBox}
+                    visibility={serviceDef.parentNode.getViewState().showPropertyForm}
+                    environment={this.context.environment}
+                    editor={this.context.editor}
+                />);
+            });
+        }
+
+        // 5.1 lets filter out the connector property views so we can overlay html on top of svg.
+        const connectorPropRender = new ConnectorPropertiesRenderingVisitor();
+        this.props.model.accept(connectorPropRender);
+        const connectorPropsViews = [];
+        if (connectorPropRender.getConnectorProperties()) {
+            (connectorPropRender.getConnectorProperties()).map((connectorDec) => {
+                connectorPropsViews.push(<ConnectorPropertiesForm
+                    key={connectorDec.parentNode.getID()}
+                    model={connectorDec.parentNode}
+                    bBox={connectorDec.bBox}
+                    visibility={connectorDec.parentNode.getViewState().showPropertyForm}
+                    environment={this.context.environment}
+                    editor={this.context.editor}
+                />);
+            });
+        }
+
+        // 6. Ok we are all set, now lets render the diagram with React. We will create
         //    a CsnvasDecorator and pass child components for that.
 
         return (<CanvasDecorator
@@ -123,6 +161,8 @@ class Diagram extends React.Component {
             title="StatementContainer"
             bBox={viewState.bBox}
             annotations={annotations}
+            serverConnectorPropsViews={serverConnectorPropsViews}
+            connectorPropsViews={connectorPropsViews}
         >
             {others}
         </CanvasDecorator>);
@@ -137,6 +177,7 @@ Diagram.propTypes = {
 Diagram.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.childContextTypes = {

@@ -115,6 +115,10 @@ class CanvasDecorator extends React.Component {
                     {/* This space is used to render html elements over svg*/ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
+                {(this.props.serverConnectorPropsViews && this.props.serverConnectorPropsViews.length > 0) ?
+                    this.props.serverConnectorPropsViews : null }
+                {(this.props.connectorPropsViews && this.props.connectorPropsViews.length > 0)
+                    ? this.props.connectorPropsViews : null }
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
                     <rect
                         x="0"
@@ -142,10 +146,14 @@ CanvasDecorator.propTypes = {
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
     annotations: PropTypes.arrayOf(PropTypes.element),
+    serverConnectorPropsViews: PropTypes.arrayOf(PropTypes.element),
+    connectorPropsViews: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {
     annotations: [],
+    serverConnectorPropsViews: [],
+    connectorPropsViews: [],
 };
 
 CanvasDecorator.contextTypes = {
