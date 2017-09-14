@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -41,13 +40,13 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    public static void handleError(HTTPCarbonMessage cMsg, Throwable throwable, ConnectorFutureListener futureListener) {
+    public static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace
         breLog.error("error: " + errorMsg, throwable);
         try {
-            futureListener.notifyFailure(new BallerinaConnectorException(errorMsg, throwable.getCause()));
+            HttpUtil.handleFailure(cMsg, new BallerinaConnectorException(errorMsg, throwable.getCause()));
         } catch (Exception e) {
             breLog.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
         }
@@ -59,7 +58,7 @@ public class HttpDispatcher {
      * @param httpCarbonMessage incoming message.
      * @return matching resource.
      */
-    public static Resource findResource(HTTPCarbonMessage httpCarbonMessage, ConnectorFutureListener futureListener) {
+    public static Resource findResource(HTTPCarbonMessage httpCarbonMessage) {
         Resource resource = null;
         String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol == null) {
@@ -84,7 +83,7 @@ public class HttpDispatcher {
             // Find the Resource
             resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage);
         } catch (Throwable throwable) {
-            handleError(httpCarbonMessage, throwable, futureListener);
+            handleError(httpCarbonMessage, throwable);
         }
         return resource;
     }
