@@ -24,7 +24,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Ballerina function to set a message property.
@@ -44,6 +44,6 @@ public class GetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getProperty(context, this, null);
+        return HttpUtil.getProperty(context, this);
     }
 }

@@ -25,7 +25,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.ballerinalang.net.http.HttpUtil;
 
 /**
  *  Get the payload of the Message as a JSON.
@@ -40,10 +40,8 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
 )
 public class GetJsonPayload extends AbstractNativeFunction {
 
-    private static final String OPERATION = "get json payload";
-
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getJsonPayload(context, this, null);
+        return HttpUtil.getJsonPayload(context, this);
     }
 }

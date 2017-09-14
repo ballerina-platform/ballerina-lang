@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.nativeimpl.request.AddHeader;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +44,8 @@ import org.slf4j.LoggerFactory;
 )
 public class Clone extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(AddHeader.class);
-
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.clone(context, this, log);
+        return HttpUtil.clone(context, this);
     }
 }
