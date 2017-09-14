@@ -57,6 +57,10 @@ class App extends React.Component {
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
             this.setBottomPanelState(!this.state.showBottomPanel);
         });
+        this.headerViews = this.getViewsForRegion(REGIONS.HEADER);
+        this.leftPanelViews = this.getViewsForRegion(REGIONS.LEFT_PANEL);
+        this.editorAreaViews = this.getViewsForRegion(REGIONS.EDITOR_AREA);
+        this.bottomPanelViews = this.getViewsForRegion(REGIONS.BOTTOM_PANEL);
     }
 
     /**
@@ -152,7 +156,7 @@ class App extends React.Component {
         return (
             <div className="">
                 <Header>
-                    {this.getViewsForRegion(REGIONS.HEADER)}
+                    {this.headerViews}
                 </Header>
                 <SplitPane
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
@@ -190,7 +194,7 @@ class App extends React.Component {
                             }
                         }
                     >
-                        {this.getViewsForRegion(REGIONS.LEFT_PANEL)}
+                        {this.leftPanelViews}
                     </LeftPanel>
                     <SplitPane
                         ref={(ref) => { this.topBottomSplitPane = ref; }}
@@ -215,7 +219,7 @@ class App extends React.Component {
                         }}
                     >
                         <EditorArea>
-                            {this.getViewsForRegion(REGIONS.EDITOR_AREA)}
+                            {this.editorAreaViews}
                         </EditorArea>
                         <BottomPanel
                             maximize={this.state.showBottomPanel && this.state.bottomPanelSize === bottomPanelMaxSize}
@@ -242,7 +246,7 @@ class App extends React.Component {
                                 }
                             }
                         >
-                            {this.getViewsForRegion(REGIONS.BOTTOM_PANEL)}
+                            {this.bottomPanelViews}
                         </BottomPanel>
                     </SplitPane>
                 </SplitPane>
