@@ -35,5 +35,28 @@
     <Match>
         <Class name="org.ballerinalang.net.ws.Constants"/>
     </Match>
-
+    <Match>
+        <Class name="org.ballerinalang.net.ws.WebSocketService"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.ws.WebSocketServicesRegistry"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.net.http.HttpServerConnector"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.net.http"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.net.http.nativeimpl.session"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.net.ws"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.net.http.session"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.net.http.util"/>
+    </Match>
 </FindBugsFilter>

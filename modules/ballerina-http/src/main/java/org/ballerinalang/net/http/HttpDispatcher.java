@@ -18,26 +18,19 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -48,27 +41,16 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
-        callback.done(cMsg);
-    }
-
-    public static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
+    public static void handleError(HTTPCarbonMessage cMsg, Throwable throwable, ConnectorFutureListener futureListener) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace
         breLog.error("error: " + errorMsg, throwable);
-        Object protocol = cMsg.getProperty("PROTOCOL");
-        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-
         try {
-            optionalErrorHandler
-                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaConnectorException(errorMsg, throwable.getCause()), cMsg, callback);
+            futureListener.notifyFailure(new BallerinaConnectorException(errorMsg, throwable.getCause()));
         } catch (Exception e) {
-            breLog.error("Cannot handle error using the error handler for: " + protocol, e);
+            breLog.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
         }
-
     }
 
     /**
@@ -77,7 +59,7 @@ public class HttpDispatcher {
      * @param httpCarbonMessage incoming message.
      * @return matching resource.
      */
-    public static Resource findResource(HTTPCarbonMessage httpCarbonMessage) {
+    public static Resource findResource(HTTPCarbonMessage httpCarbonMessage, ConnectorFutureListener futureListener) {
         Resource resource = null;
         String protocol = (String) httpCarbonMessage.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol == null) {
@@ -100,31 +82,11 @@ public class HttpDispatcher {
             }
 
             // Find the Resource
-            resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage, getCallback(httpCarbonMessage));
+            resource = HTTPResourceDispatcher.findResource(service, httpCarbonMessage);
         } catch (Throwable throwable) {
-            handleError(httpCarbonMessage, getCallback(httpCarbonMessage), throwable);
+            handleError(httpCarbonMessage, throwable, futureListener);
         }
         return resource;
-    }
-
-    public static CarbonCallback getCallback(HTTPCarbonMessage httpCarbonMessage) {
-        return (cMsg) -> {
-            HTTPCarbonMessage carbonMessage = HTTPConnectorUtil.convertCarbonMessage(cMsg);
-            try {
-                //TODO enable once new resource signature enabled
-//                Session session = context.getCurrentSession();
-//                if (session != null) {
-//                    session.generateSessionHeader(carbonMessage);
-//                }
-                //Process CORS if exists.
-                if (httpCarbonMessage.getHeader("Origin") != null) {
-                    CorsHeaderGenerator.process(httpCarbonMessage, carbonMessage, true);
-                }
-                httpCarbonMessage.respond(carbonMessage);
-            } catch (ServerConnectorException e) {
-                throw new BallerinaConnectorException("Error occurred during response", e);
-            }
-        };
     }
 
     public static BValue[] getSignatureParameters(Resource resource, HTTPCarbonMessage httpCarbonMessage) {
