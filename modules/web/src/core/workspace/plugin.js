@@ -51,7 +51,9 @@ class WorkspacePlugin extends Plugin {
         super(props);
         this.openedFolders = [];
         this.openedFiles = [];
+        this.selectedNodeInExplorer = undefined;
         this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
+        this.onNodeSelectedInExplorer = this.onNodeSelectedInExplorer.bind(this);
     }
 
     /**
@@ -67,6 +69,17 @@ class WorkspacePlugin extends Plugin {
     onWorkspaceFileUpdated() {
         const { pref: { history } } = this.appContext;
         history.put(HISTORY.OPENED_FILES, this.openedFiles, skipEventSerialization);
+    }
+
+    /**
+     * Upon tree node selection in explorer
+     */
+    onNodeSelectedInExplorer(node) {
+        if (!_.isNil(this.selectedNodeInExplorer) && node !== this.selectedNodeInExplorer) {
+            this.selectedNodeInExplorer.active = false;
+        }
+        this.selectedNodeInExplorer = node;
+        this.reRender();
     }
 
     /**
@@ -226,8 +239,29 @@ class WorkspacePlugin extends Plugin {
                         panelTitle: 'Explorer',
                         panelActions: [
                             {
-                                icon: '',
-                                state: () => {
+                                icon: 'add',
+                                isActive: () => {
+                                    return true;
+                                },
+                                handleAction: () => {
+
+                                },
+                            },
+                            {
+                                icon: 'delete',
+                                isActive: () => {
+                                    return true;
+                                },
+                                handleAction: () => {
+
+                                },
+                            },
+                            {
+                                icon: 'refresh',
+                                isActive: () => {
+                                    return true;
+                                },
+                                handleAction: () => {
 
                                 },
                             },

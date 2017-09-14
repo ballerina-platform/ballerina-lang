@@ -1,4 +1,6 @@
 import React from 'react';
+import classnames from 'classnames'
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
@@ -41,19 +43,44 @@ class LeftPanel extends React.Component {
                             regionOptions: {
                                 activityBarIcon,
                                 panelTitle,
+                                panelActions,
                             },
                         },
                     },
                   } = view;
+            const actions = [];
             tabs.push((
                 <NavItem key={id} eventKey={id}>
                     <i className={`fw fw-${activityBarIcon} fw-lg`} />
                 </NavItem>
             ));
+
+            if (!_.isNil(panelActions) && _.isArray(panelActions)) {
+                panelActions.forEach(({ icon, isActive, handleAction }, index) => {
+                    const isActionactive = _.isFunction(isActive) ? isActive() : true;
+                    actions.push((
+                        <i
+                            key={id + index}
+                            className={classnames('fw', `fw-${icon}`, { active: isActionactive })}
+                            onClick={() => {
+                                if (isActionactive && _.isFunction(handleAction)) {
+                                    handleAction();
+                                }
+                            }}
+                        />
+                    ));
+                });
+            }
+
             panes.push((
                 <Tab.Pane key={id} eventKey={id}>
                     <div>
-                        <div className="panel-title">{panelTitle}</div>
+                        <div>
+                            <div className="panel-title">
+                                {panelTitle}
+                            </div>
+                            <div className="panel-actions">{actions}</div>
+                        </div>
                         <Scrollbars
                             style={{
                                 width: this.props.width - activityBarWidth,

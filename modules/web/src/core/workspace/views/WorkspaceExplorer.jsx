@@ -24,9 +24,6 @@ class WorkspaceExplorer extends View {
         super(props);
         this.onSelectNode = this.onSelectNode.bind(this);
         this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
-        this.state = {
-            selectedNode: undefined,
-        };
     }
 
     /**
@@ -35,12 +32,7 @@ class WorkspaceExplorer extends View {
      *
      */
     onSelectNode(node) {
-        if (!_.isNil(this.state.selectedNode) && node !== this.state.selectedNode) {
-            this.state.selectedNode.active = false;
-        }
-        this.setState({
-            selectedNode: node,
-        });
+        this.props.workspaceManager.onNodeSelectedInExplorer(node);
     }
 
     /**
