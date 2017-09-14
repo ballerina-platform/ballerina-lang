@@ -112,7 +112,7 @@ public class Annotation implements SiddhiElement {
         boolean isFirst = true;
         StringBuilder definitionBuilder = new StringBuilder("@").append(name).append("( ");
         if (elements != null && elements.size() > 0) {
-          //  boolean isFirst = true;
+
             for (Element element : elements) {
                 if (!isFirst) {
                     definitionBuilder.append(", ");
@@ -123,7 +123,7 @@ public class Annotation implements SiddhiElement {
             }
         }
         if (annotations != null && annotations.size() > 0) {
-          //  boolean isFirst = true;
+         
             for (Annotation annotation : annotations) {
                 if (!isFirst) {
                     definitionBuilder.append(", ");
