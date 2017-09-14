@@ -36,7 +36,7 @@
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketClientTestCase"></class>
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketPassThroughTestCase"></class>
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchTestCase"></class>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.HttpToWSProtocolSwitchTestCase"></class>
         </classes>
     </test>
 </suite>

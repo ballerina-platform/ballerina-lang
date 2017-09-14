@@ -33,8 +33,8 @@ import java.util.concurrent.Executors;
 /**
  * HTTP connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
-public class HttpToWebSocketProtocolSwitchHttpListener implements HttpConnectorListener {
-    private static final Logger logger = LoggerFactory.getLogger(HttpToWebSocketProtocolSwitchHttpListener.class);
+public class HttpToWSProtocolSwitchHttpListener implements HttpConnectorListener {
+    private static final Logger logger = LoggerFactory.getLogger(HttpToWSProtocolSwitchHttpListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 

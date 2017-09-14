@@ -37,6 +37,7 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     protected boolean isConnectionSecured;
     protected boolean isServerMessage;
     protected Session channelSession;
+    protected String sessionlID;
     protected Map<String, String> headers = new HashMap<>();
 
     public void setProperty(String key, Object value) {
@@ -62,6 +63,10 @@ public class WebSocketMessageImpl implements WebSocketMessage {
 
     public void setSubProtocol(String subProtocol) {
         this.subProtocol = subProtocol;
+    }
+
+    public void setSessionlID(String sessionlID) {
+        this.sessionlID = sessionlID;
     }
 
     @Override
@@ -133,5 +138,10 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     @Override
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    @Override
+    public String getSessionID() {
+        return sessionlID;
     }
 }

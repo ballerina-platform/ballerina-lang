@@ -35,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.util.Map;
@@ -55,6 +56,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         this.httpRequest = httpRequest;
         this.webSocketSourceHandler = webSocketSourceHandler;
         this.headers = headers;
+        this.sessionlID = WebSocketUtil.getSessionID(ctx);
     }
 
     @Override
@@ -68,7 +70,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
     @Override
     public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions) {
         WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsStr(subProtocols),
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
                                                      allowExtensions);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
         return handleHandshake(handshaker, 0);
@@ -78,7 +80,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
     public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
-                                                     getSubProtocolsStr(subProtocols), allowExtensions);
+                                                     getSubProtocolsCSV(subProtocols), allowExtensions);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
         return handleHandshake(handshaker, idleTimeout);
     }
@@ -147,7 +149,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         return url;
     }
 
-    private String getSubProtocolsStr(String[] subProtocols) {
+    private String getSubProtocolsCSV(String[] subProtocols) {
         if (subProtocols == null || subProtocols.length == 0) {
             return null;
         }

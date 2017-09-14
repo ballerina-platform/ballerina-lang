@@ -101,4 +101,11 @@ public interface WebSocketMessage {
      * @return a map of all headers.
      */
     Map<String, String> getHeaders();
+
+    /**
+     * Retrieve the session ID.
+     *
+     * @return the session ID.
+     */
+    String getSessionID();
 }
