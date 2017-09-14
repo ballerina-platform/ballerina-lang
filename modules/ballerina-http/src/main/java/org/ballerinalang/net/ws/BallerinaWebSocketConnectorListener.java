@@ -180,8 +180,8 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
-        int idleTImeoutInSeconds = wsService.getIdleTimeoutInSeconds();
-        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTImeoutInSeconds * 1000);
+        int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
+        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {

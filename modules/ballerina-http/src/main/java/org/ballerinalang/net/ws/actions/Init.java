@@ -20,13 +20,10 @@ package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 /**
  * Initialize the WebSocket client connector.
@@ -45,16 +42,9 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnector
                 @Argument(name = "callbackService", type = TypeEnum.STRING)
         }
 )
-public class Init extends AbstractNativeAction {
+public class Init extends AbstractNativeWsAction {
     @Override
     public BValue execute(Context context) {
-        BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        String remoteUrl = bconnector.getStringField(0);
-        String clientServiceName = bconnector.getStringField(1);
-
-        WsClientConnectorConfig senderConfiguration = new WsClientConnectorConfig(remoteUrl);
-        senderConfiguration.setTarget(clientServiceName);
-        bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
         return null;
     }
 }

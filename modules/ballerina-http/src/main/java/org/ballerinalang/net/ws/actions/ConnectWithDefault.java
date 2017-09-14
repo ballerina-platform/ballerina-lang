@@ -21,9 +21,6 @@ package org.ballerinalang.net.ws.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -48,47 +44,28 @@ import javax.websocket.Session;
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "connect",
+        actionName = "connectWithDefault",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "clientConnectorConfig", type = TypeEnum.STRUCT, structType = "ClientConnectorConfig",
-                          structPackage = Constants.WEBSOCKET_PACKAGE_NAME)
+                @Argument(name = "c", type = TypeEnum.CONNECTOR)
         },
         returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")}
 )
-public class Connect extends AbstractNativeWsAction {
+public class ConnectWithDefault extends AbstractNativeWsAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        BStruct clientConfig = (BStruct) getRefArgument(context, 1);
-
-        BRefType bSubProtocolsBRefType = clientConfig.getRefField(0);
-        String wsParentConnectionID = clientConfig.getStringField(0);
-        BStruct wsParentConnection = WebSocketConnectionManager.getInstance().getConnection(wsParentConnectionID);
-        BRefType<BMap<BString, BString>> bCustomHeaders = clientConfig.getRefField(1);
-        int idleTimeoutInSeconds =  new Long(clientConfig.getIntField(0)).intValue();
-
         WsClientConnectorConfig clientConnectorConfig =
                 new WsClientConnectorConfig(getUrlFromConnector(bconnector));
         clientConnectorConfig.setTarget(getClientServiceFromConnector(bconnector));
-        if (bSubProtocolsBRefType != null) {
-            clientConnectorConfig.setSubProtocols(getSubProtocols(bSubProtocolsBRefType));
-        }
-        if (bCustomHeaders != null) {
-            clientConnectorConfig.addHeaders(getCustomHeaders(bCustomHeaders));
-        }
-        if (idleTimeoutInSeconds > 0) {
-            clientConnectorConfig.setIdleTimeoutInMillis(idleTimeoutInSeconds * 1000);
-        }
 
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         try {
             WebSocketClientConnector clientConnector =
                     connectorFactory.createWsClientConnector(clientConnectorConfig);
             Session session = clientConnector.connect(new BallerinaWebSocketConnectorListener());
-            BStruct wsConnection = createWSConnectionStruct(context, session, wsParentConnection);
+            BStruct wsConnection = createWSConnectionStruct(context, session, null);
             context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
             storeWsConnection(session.getId(), wsConnection);
             return wsConnection;
