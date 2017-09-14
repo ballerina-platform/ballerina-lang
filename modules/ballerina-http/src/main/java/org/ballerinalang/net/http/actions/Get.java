@@ -85,17 +85,4 @@ public class Get extends AbstractHTTPAction {
                     + ". " + t.getMessage(), context);
         }
     }
-
-    private HTTPCarbonMessage createCarbonMsg(Context context) {
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-        prepareRequest(bConnector, path, cMsg);
-        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
-
-        return cMsg;
-    }
 }

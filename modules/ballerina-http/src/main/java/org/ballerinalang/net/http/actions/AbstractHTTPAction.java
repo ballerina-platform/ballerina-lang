@@ -189,7 +189,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             HttpClientConnector clientConnector =
                     HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
-            future.setHttpConnectorListener(new HTTPClientConnectorLister(context));
+            future.setHttpConnectorListener(httpClientConnectorLister);
         } catch (Exception e) {
             throw new BallerinaException("Failed to send httpRequestMsg to the backend", e, context);
         }
@@ -263,12 +263,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         private BStruct createResponseStruct(Context context) {
-            //gather package details from natives
             PackageInfo sessionPackageInfo = context.getProgramFile()
-                    .getPackageInfo("ballerina.net.http.request");
-            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo("Request");
-
-            //create session struct
+                    .getPackageInfo(Constants.PROTOCOL_PACKAGE_HTTP);
+            StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(Constants.RESPONSE);
             BStructType structType = sessionStructInfo.getType();
             BStruct bStruct = new BStruct(structType);
 
@@ -286,6 +283,18 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         public BValue getValueRef() {
             return this.valueRef;
         }
+    }
+
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String path = getStringArgument(context, 0);
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        prepareRequest(bConnector, path, cMsg);
+        return cMsg;
     }
 
 }

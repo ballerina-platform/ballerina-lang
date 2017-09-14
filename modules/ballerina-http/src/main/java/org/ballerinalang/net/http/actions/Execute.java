@@ -86,12 +86,12 @@ public class Execute extends AbstractHTTPAction {
         }
     }
 
-    private HTTPCarbonMessage createCarbonMsg(Context context) {
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String httpVerb = getStringArgument(context, 0);
         String path = getStringArgument(context, 1);
-        BStruct requestStruct = ((BStruct) getRefArgument(context, 0));
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
                 .getNativeData(Constants.TRANSPORT_MESSAGE);
         prepareRequest(bConnector, path, cMsg);

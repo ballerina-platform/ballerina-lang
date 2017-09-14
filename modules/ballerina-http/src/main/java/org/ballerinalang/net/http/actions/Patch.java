@@ -84,14 +84,8 @@ public class Patch extends AbstractHTTPAction {
         }
     }
 
-    private HTTPCarbonMessage createCarbonMsg(Context context) {
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-        prepareRequest(bConnector, path, cMsg);
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
         cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_PATCH);
         return cMsg;
     }
