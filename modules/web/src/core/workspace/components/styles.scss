@@ -1,0 +1,14 @@
+.explorer-item {
+    .root {
+        cursor: pointer;
+        .arrow, .icon, .label {
+            margin-left: 5px;
+        }
+        .label {
+            padding-left: 0;
+        }
+    }
+    .file-tree {
+        margin-left: 10px;
+    }
+}

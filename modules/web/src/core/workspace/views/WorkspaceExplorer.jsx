@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import View from './../../view/view';
-import FileTree from './../../view/FileTree';
 import { VIEWS, COMMANDS } from './../constants';
+import ExplorerItem from './../components/ExplorerItem';
 
 /**
  * Woprkspace Explorer
@@ -22,18 +22,7 @@ class WorkspaceExplorer extends View {
      */
     constructor(props) {
         super(props);
-        this.onOpen = this.onOpen.bind(this);
         this.onClickOpenProgramDir = this.onClickOpenProgramDir.bind(this);
-    }
-
-    /**
-     * On double click on tree node
-     * @param {Object} node tree node
-     */
-    onOpen(node) {
-        if (node.type === 'file') {
-            this.props.workspaceManager.openFile(node.id);
-        }
     }
 
     /**
@@ -52,15 +41,15 @@ class WorkspaceExplorer extends View {
         const { openedFolders } = this.props.workspaceManager;
         openedFolders.forEach((folder) => {
             trees.push((
-                <FileTree root={folder} key={folder} onOpen={this.onOpen} />
+                <ExplorerItem folderPath={folder} key={folder} workspaceManager={this.props.workspaceManager} />
             ));
         });
         return (
             <div className="workspace-explorer">
                 {_.isEmpty(trees) &&
-                    <div className="open-folder-btn-wrapper" onClick={this.onClickOpenProgramDir} > 
+                    <div className="open-folder-btn-wrapper" onClick={this.onClickOpenProgramDir} >
                         <span className="open-folder-button">
-                            <i className="fw fw-folder-open"></i>Open Program Directory
+                            <i className="fw fw-folder-open" />Open Program Directory
                         </span>
                     </div>
                 }
