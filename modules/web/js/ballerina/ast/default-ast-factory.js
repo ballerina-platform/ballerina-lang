@@ -271,6 +271,12 @@ DefaultASTFactory.createAggregatedAssignmentStatement = function (args) {
     return ASTFactory.createAssignmentStatement(args);
 };
 
+DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args={}) {
+    const assignmentStmt = ASTFactory.createAssignmentStatement();
+    assignmentStmt.setStatementFromString(`var __output1 = ${args.defaultExpression}`);
+    return assignmentStmt;
+}
+
 DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = function (args) {
     const assignmentStmt = ASTFactory.createAssignmentStatement();
     const opts = {
@@ -381,7 +387,7 @@ DefaultASTFactory.createAggregatedFunctionInvocationStatement = function (args) 
     const funcInvocationExpression = ASTFactory.createFunctionInvocationExpression(opts);
     if (!_.isNil(args) && _.has(args, 'functionDef')) {
         let functionInvokeString = '';
-        if (!_.isNil(args.packageName)) {
+        if (!_.isNil(args.packageName) && (args.packageName !== 'Current Package')) {
             functionInvokeString += args.packageName + ':';
         }
         functionInvokeString += args.functionDef.getName() + '(';

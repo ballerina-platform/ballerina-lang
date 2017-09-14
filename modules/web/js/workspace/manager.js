@@ -418,7 +418,7 @@ class WorkspaceManager {
         const saveAsMenuItem = this.app.menuBar.getMenuItemByID('file.saveAs');
         if (activeTab instanceof FileTab) {
             const file = activeTab.getFile();
-            if (file.isDirty()) {
+            if (file.isDirty() || !file.isPersisted()) {
                 saveMenuItem.enable();
                 saveAsMenuItem.enable();
             } else {

@@ -25,7 +25,8 @@ export default class FunctionInv extends React.Component {
     render() {
         const {
             func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv, onEndpointRemove
+            parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter, isCollapsed,
+            foldedEndpoints, foldEndpoint,
         } = this.props;
 
         func.parameters.forEach((param, index) => {
@@ -64,35 +65,52 @@ export default class FunctionInv extends React.Component {
             }
         }
 
+        const functionBody = (
+            <div className='function-param-body'>
+                <div className='func-input'>
+                    <Tree
+                        type='param'
+                        makeConnectPoint={recordTargetElement}
+                        endpoints={func.parameters}
+                        viewId={viewId}
+                        onEndpointRemove={onEndpointRemove}
+                        onConnectPointMouseEnter={onConnectPointMouseEnter}
+                        foldedEndpoints={foldedEndpoints}
+                        foldEndpoint={foldEndpoint}
+                    />
+                </div>
+                <div className='func-output'>
+                    <Tree
+                        type='return'
+                        makeConnectPoint={recordSourceElement}
+                        endpoints={func.returnParams}
+                        viewId={viewId}
+                        onEndpointRemove={onEndpointRemove}
+                        onConnectPointMouseEnter={onConnectPointMouseEnter}
+                        foldedEndpoints={foldedEndpoints}
+                        foldEndpoint={foldEndpoint}
+                    />
+                </div>
+            </div>
+        );
+
+        const funcInvID = funcInv.getID();
+        const foldIndicator = isCollapsed ? 'fw-down' : 'fw-up';
         return (
-            <div className='transform-expanded-func func'>
-                <div className='function-header'>
+            <div className='transform-expanded-func'>
+                <div
+                    id={`${funcInvID}:${viewId}`}
+                    className='function-header'
+                    onClick={() => this.props.onHeaderClick(funcInvID)}
+                >
+                    <i className={`fw ${foldIndicator} fold-indicator`} />
                     <i className='fw fw-function fw-inverse' />
                     <span className='func-name'>{funcInv.getFunctionName()}</span>
                     <span onClick={onRemove} className='fw-stack fw-lg btn btn-remove-func'>
                         <i className='fw-delete fw-stack-1x fw-inverse' />
                     </span>
                 </div>
-                <div className='function-param-body'>
-                    <div className='func-input'>
-                        <Tree
-                            type='param'
-                            makeConnectPoint={recordTargetElement}
-                            endpoints={func.parameters}
-                            viewId={viewId}
-                            onEndpointRemove={onEndpointRemove}
-                        />
-                    </div>
-                    <div className='func-output'>
-                        <Tree
-                            type='return'
-                            makeConnectPoint={recordSourceElement}
-                            endpoints={func.returnParams}
-                            viewId={viewId}
-                            onEndpointRemove={onEndpointRemove}
-                        />
-                    </div>
-                </div>
+                { !isCollapsed && functionBody }
             </div>
         );
     }

@@ -62,6 +62,7 @@ class Diagram extends React.Component {
             astRoot: this.props.model,
             activeArbiter: new ActiveArbiter(),
             mode: this.props.mode,
+            designer: getDesigner([this.props.mode]),
         };
     }
 
@@ -110,13 +111,13 @@ class Diagram extends React.Component {
                     otherNodes.push(child);
             }
         });
-        others = getComponentForNodeArray(otherNodes, designer, this.props.mode);
+        others = getComponentForNodeArray(otherNodes, this.props.mode);
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
         this.props.model.accept(annotationRenderer);
         let annotations = [];
         if (annotationRenderer.getAnnotations()) {
-            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), designer, this.props.mode);
+            annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
         }
 
         // 4.1 lets filter out the server connector property views so we can overlay html on top of svg.
@@ -184,6 +185,7 @@ Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     mode: PropTypes.string,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    designer: PropTypes.instanceOf(Object),
 };
 
 Diagram.defaultProps = {

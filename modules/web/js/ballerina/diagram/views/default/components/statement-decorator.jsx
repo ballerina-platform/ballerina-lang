@@ -70,9 +70,6 @@ class StatementDecorator extends React.Component {
             active: 'hidden',
             statementBox: StatementDecorator.calculateStatementBox(props),
         };
-
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -237,11 +234,11 @@ class StatementDecorator extends React.Component {
         const { viewState, expression, isBreakpoint, isDebugHit } = this.props;
         const bBox = viewState.bBox;
         const innerZoneHeight = viewState.components['drop-zone'].h;
-        const designer = this.props.designer;
+        const designer = this.context.designer;
 
         // calculate the bBox for the statement
-        const textX = bBox.x + (this.props.mode === 'compact' ? designer.statement.padding.left : (bBox.w / 2));
-        const textClassName = this.props.mode === 'compact' ? 'statement-text-compact' : 'statement-text';
+        const textX = bBox.x + (this.context.mode === 'compact' ? designer.statement.padding.left : (bBox.w / 2));
+        const textClassName = this.context.mode === 'compact' ? 'statement-text-compact' : 'statement-text';
         const textY = this.state.statementBox.y + (designer.statement.height / 2);
         const dropZoneX = bBox.x + ((bBox.w - designer.lifeLine.width) / 2);
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
@@ -350,6 +347,7 @@ StatementDecorator.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     mode: PropTypes.string,
+    designer: PropTypes.instanceOf(Object),
 };
 
 

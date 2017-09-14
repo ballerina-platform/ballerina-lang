@@ -28,8 +28,6 @@ class ElseIfStatement extends React.Component {
         this.state = {
             showAddButton: false,
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.onAddElseIfClick = this.onAddElseIfClick.bind(this);
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseOut = this.onMouseOut.bind(this);
@@ -69,7 +67,7 @@ class ElseIfStatement extends React.Component {
             setterMethod: this.props.model.setConditionFromString,
         };
 
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
 
         const addElseIfBtn = (
             <g onClick={this.onAddElseIfClick}>
@@ -115,6 +113,10 @@ ElseIfStatement.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
+};
+
+ElseIfStatement.contextTypes = {
+    mode: PropTypes.string,
 };
 
 

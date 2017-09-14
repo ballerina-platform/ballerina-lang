@@ -17,12 +17,9 @@
  */
 import React from 'react';
 import './globals-expanded.css';
-import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
-import SuggestionsText from './suggestions-text';
+import ImageUtil from './image-util';
 import GlobalItem from './global-item';
-import EditableText from './editable-text';
-import BallerinaEnvironment from '../../../../env/environment';
 import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
 
@@ -108,8 +105,12 @@ export default class GlobalExpanded extends React.Component {
             };
 
             globalElements.push(<GlobalItem
-                key={globalDec.id} bBox={itemBBox}
-                globalDec={globalDec} getValue={this.props.getValue} onDeleteClick={this.props.onDeleteClick}
+                key={globalDec.id}
+                bBox={itemBBox}
+                globalDec={globalDec}
+                getValue={this.props.getValue}
+                onDeleteClick={this.props.onDeleteClick}
+                model={this.props.model}
             />);
             lastGlobalElementY += globalHeight;
         });

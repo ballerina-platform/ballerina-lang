@@ -1,8 +1,12 @@
 .transform-expanded-func {
     width: 300px;
-    position: relative;
+    height: auto;
     margin: 0 auto;
     margin-bottom: 20px;
+    font-size: 13px;
+    color: #fff;
+    background: #f6f6f6;;
+    position: absolute;
 }
 
 .transform-expanded-func .func-input {
@@ -28,6 +32,11 @@
 .transform-expanded-func .fw-function {
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.transform-expanded-func .fold-indicator {
+    padding-left: 10px;
+    cursor: pointer;
 }
 
 .transform-expanded-func .btn-remove-func {

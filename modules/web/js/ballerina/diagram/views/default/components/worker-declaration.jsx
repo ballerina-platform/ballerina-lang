@@ -18,6 +18,7 @@
 
 import React from 'react';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import StatementContainer from './statement-container';
@@ -38,8 +39,6 @@ class WorkerDeclaration extends React.Component {
             getterMethod: props.model.getWorkerDeclarationStatement,
             setterMethod: props.model.setWorkerDeclarationStatement,
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     onDelete() {
@@ -55,7 +54,7 @@ class WorkerDeclaration extends React.Component {
         statementContainerBBoxClone.w += connectorOffset;
         const workerScopeContainerBBox = this.props.model.viewState.components.workerScopeContainer;
         const workerBBox = {};
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         const nodeFactory = ASTFactory;
         workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
@@ -105,5 +104,9 @@ class WorkerDeclaration extends React.Component {
         );
     }
 }
+
+WorkerDeclaration.contextTypes = {
+    mode: PropTypes.string,
+};
 
 export default WorkerDeclaration;

@@ -47,8 +47,6 @@ class VariableDefinitionStatement extends React.Component {
         this.onDelete = this.onDelete.bind(this);
         this.onDeleteConnectorActionMouseOut = this.onDeleteConnectorActionMouseOut.bind(this);
         this.onDeleteConnectorActionMouseEnter = this.onDeleteConnectorActionMouseEnter.bind(this);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     onArrowStartPointMouseOut(e) {
@@ -133,7 +131,7 @@ class VariableDefinitionStatement extends React.Component {
 
         // calculate the bBox for the statement
         this.statementBox = {};
-        this.statementBox.h = this.designer.statement.height;
+        this.statementBox.h = this.context.designer.statement.height;
         this.statementBox.y = bBox.y + innerZoneHeight;
         this.statementBox.w = bBox.w;
         this.statementBox.x = bBox.x;
@@ -177,7 +175,7 @@ class VariableDefinitionStatement extends React.Component {
         }
 
         const lambdaFunc = model.getLambdaChildren().map(f =>
-            <FunctionDefinition designer={this.designer} model={f} key={f.getFunctionName()} />);
+            <FunctionDefinition model={f} key={f.getFunctionName()} />);
 
         return (
             <StatementDecorator
@@ -185,8 +183,6 @@ class VariableDefinitionStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
-                designer={this.props.designer}
-                mode={this.props.mode}
             >
                 {!_.isNil(actionInvocation) &&
                 <g>
@@ -220,22 +216,22 @@ class VariableDefinitionStatement extends React.Component {
                         >
                             <rect
                                 x={((arrowStart.x + arrowEnd.x) / 2) -
-                                this.designer.actionInvocationDelete.iconSize.padding}
-                                y={arrowStart.y + (this.designer.actionInvocationDelete.outerRect.height / 2)}
-                                width={(this.designer.actionInvocationDelete.outerRect.height / 2)}
-                                height={(this.designer.actionInvocationDelete.outerRect.height / 2)}
+                                this.context.designer.actionInvocationDelete.iconSize.padding}
+                                y={arrowStart.y + (this.context.designer.actionInvocationDelete.outerRect.height / 2)}
+                                width={(this.context.designer.actionInvocationDelete.outerRect.height / 2)}
+                                height={(this.context.designer.actionInvocationDelete.outerRect.height / 2)}
                                 rx="0"
                                 ry="0"
                                 className="property-pane-action-button-wrapper"
                             />
                             <image
-                                width={this.designer.actionInvocationDelete.iconSize.width}
-                                height={this.designer.actionInvocationDelete.iconSize.width}
+                                width={this.context.designer.actionInvocationDelete.iconSize.width}
+                                height={this.context.designer.actionInvocationDelete.iconSize.width}
                                 className="property-pane-action-button-delete"
                                 xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
                                 x={((arrowStart.x + arrowEnd.x) / 2) -
-                                this.designer.actionInvocationDelete.iconSize.padding}
-                                y={arrowStart.y + (this.designer.actionInvocationDelete.outerRect.height / 2)}
+                                this.context.designer.actionInvocationDelete.iconSize.padding}
+                                y={arrowStart.y + (this.context.designer.actionInvocationDelete.outerRect.height / 2)}
                                 onClick={this.onDelete}
                             >
                                 <title>Delete</title> </image>
@@ -243,10 +239,10 @@ class VariableDefinitionStatement extends React.Component {
                         }
                         <rect
                             x={((arrowStart.x + arrowEnd.x) / 2) -
-                            (this.designer.actionInvocationDelete.outerRect.width / 2)}
+                            (this.context.designer.actionInvocationDelete.outerRect.width / 2)}
                             y={arrowStart.y}
-                            width={this.designer.actionInvocationDelete.outerRect.width}
-                            height={this.designer.actionInvocationDelete.outerRect.height}
+                            width={this.context.designer.actionInvocationDelete.outerRect.width}
+                            height={this.context.designer.actionInvocationDelete.outerRect.height}
                             rx="0"
                             ry="0"
                             fillOpacity="0.0"
@@ -275,6 +271,7 @@ VariableDefinitionStatement.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    designer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default VariableDefinitionStatement;

@@ -47,8 +47,6 @@ class CatchStatement extends React.Component {
             getterMethod: props.model.getParameterDefString,
             setterMethod: props.model.setParameterDefString,
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.onAddFinallyClick = this.onAddFinallyClick.bind(this);
     }
 
@@ -62,6 +60,17 @@ class CatchStatement extends React.Component {
     }
 
     /**
+     * Check is this node is the only child of its kind.
+     * @return {boolean} true if only child, else false.
+     * */
+    isOnlyChild() {
+        const catchStatements = this.props.model.getParent().filterChildren((child) => {
+            return ASTFactory.isCatchStatement(child);
+        });
+        return (catchStatements.length === 1);
+    }
+
+    /**
      * Renders the view for a catch statement.
      *
      * @returns {ReactElement} The view.
@@ -71,7 +80,12 @@ class CatchStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
+        const disabledButtons = {
+            debug: false,
+            delete: this.isOnlyChild(),
+            jump: false,
+        };
         const addFinallyBtn = (
             <g onClick={this.onAddFinallyClick}>
                 <rect
@@ -112,6 +126,7 @@ class CatchStatement extends React.Component {
             expression={expression}
             editorOptions={this.editorOptions}
             utilities={addFinally ? addFinallyBtn : undefined}
+            disabledButtons={disabledButtons}
         >
             {children}
         </BlockStatementDecorator>);
@@ -122,5 +137,8 @@ CatchStatement.propTypes = {
     model: PropTypes.instanceOf(CatchStatementAST).isRequired,
 };
 
+CatchStatement.contextTypes = {
+    mode: PropTypes.string,
+};
 
 export default CatchStatement;

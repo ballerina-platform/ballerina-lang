@@ -149,11 +149,13 @@ public class LaunchManager {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 // improve "server connector started" log message to have the service URL in it.
+                // This is to handle the cloud use case.
                 if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)
                         && startedServiceURL != null) {
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
                 }
-                
+
+                // This is to handle try it tool.
                 if (startedServiceURL != null) {
                     pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
                             startedServiceURL);
@@ -163,7 +165,17 @@ public class LaunchManager {
                             String.format(LauncherConstants.LOCAL_TRY_IT_URL, localInetAddress.getHostName(),
                                     this.getPort(line)));
                 }
-                pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
+
+                // This is to handle local service run use case.
+                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG)
+                        && startedServiceURL == null) {
+                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " +
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST,
+                                    StringUtils.substringAfter(this.getPort(line), "-"));
+                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
+                } else {
+                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
+                }
             }
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);

@@ -27,14 +27,12 @@ class TransactionAbortedStatement extends React.Component {
 
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     render() {
         const { model } = this.props;
         const bBox = model.viewState.bBox;
-        const children = getComponentForNodeArray(model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(model.getChildren(), this.context.mode);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             {children}
         </CompoundStatementDecorator>);
@@ -49,6 +47,10 @@ TransactionAbortedStatement.propsTypes = {
         h: PropTypes.number.isRequired,
     }),
     model: PropTypes.instanceOf(TransactionAbortedStatementAST),
+};
+
+TransactionAbortedStatement.contextTypes = {
+    mode: PropTypes.string,
 };
 
 export default TransactionAbortedStatement;

@@ -136,7 +136,7 @@ class AssignmentStatement extends Statement {
                             state = false;
                             log.warn('Variable type and the default value type are not the same');
                             if (_.isFunction(callback)) {
-                                callback({isValid: false, response: parsedJson});
+                                callback({ isValid: false, response: parsedJson });
                             }
                         }
                     }

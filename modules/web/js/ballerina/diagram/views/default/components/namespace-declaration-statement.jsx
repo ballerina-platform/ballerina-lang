@@ -38,7 +38,6 @@ class NamespaceDeclarationStatement extends React.Component {
             getterMethod: this.props.model.getStatementString,
             setterMethod: this.props.model.setStatementFromString,
         };
-        this.designer = _.get(props, 'designer');
     }
 
     /**
@@ -54,7 +53,6 @@ class NamespaceDeclarationStatement extends React.Component {
                 model={model}
                 expression={expression}
                 editorOptions={this.editorOptions}
-                designer={this.props.designer}
             />);
     }
 }

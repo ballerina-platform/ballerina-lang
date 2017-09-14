@@ -30,8 +30,6 @@ class FunctionInvocationStatement extends React.Component {
             getterMethod: props.model.getStatementString,
             setterMethod: props.model.setStatementFromString,
         };
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     render() {
@@ -43,8 +41,6 @@ class FunctionInvocationStatement extends React.Component {
                 expression={expression}
                 editorOptions={this.editorOptions}
                 model={model}
-                designer={this.props.designer}
-                mode={this.props.mode}
             />);
     }
 }

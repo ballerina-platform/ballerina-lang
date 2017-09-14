@@ -27,8 +27,6 @@ class ReplyStatement extends React.Component {
 
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.editorOptions = {
             propertyType: 'text',
             key: 'Response Message',
@@ -47,8 +45,6 @@ class ReplyStatement extends React.Component {
                 viewState={model.viewState}
                 expression={expression}
                 editorOptions={this.editorOptions}
-                designer={this.props.designer}
-                mode={this.props.mode}
             />);
     }
 

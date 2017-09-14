@@ -25,8 +25,6 @@ import { getComponentForNodeArray } from './../../../diagram-util';
 class TransactionStatement extends React.Component {
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
         this.onAddAbortedCommittedClick = this.onAddAbortedCommittedClick.bind(this);
     }
 
@@ -88,7 +86,7 @@ class TransactionStatement extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
 
         // If utilities available add utilities to the block statement.
         if (utilities) {
@@ -124,6 +122,10 @@ TransactionStatement.propTypes = {
         getChildren: PropTypes.func,
         parent: PropTypes.shape(),
     }).isRequired,
+};
+
+TransactionStatement.contextTypes = {
+    mode: PropTypes.string,
 };
 
 export default TransactionStatement;

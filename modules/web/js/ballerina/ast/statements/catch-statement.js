@@ -34,7 +34,7 @@ class CatchStatement extends ConditionalStatement {
         super();
         this._parameter = _.get(args, 'parameter');
         this.type = 'CatchStatement';
-        this._parameterDefString = _.get(args, 'parameterDefString', 'exception e');
+        this._parameterDefString = _.get(args, 'parameterDefString', 'errors:Error err');
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',

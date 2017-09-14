@@ -38,8 +38,6 @@ class ConnectorAction extends React.Component {
 
     constructor(props) {
         super(props);
-        this.designer = _.get(props, 'designer');
-        this.mode = _.get(props, 'mode');
     }
 
     /**
@@ -80,7 +78,7 @@ class ConnectorAction extends React.Component {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
         };
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.props.designer, this.props.mode);
+        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
         const nodeFactory = ASTFactory;
         // Check for connector declaration children
         const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
@@ -135,6 +133,10 @@ class ConnectorAction extends React.Component {
 
 ConnectorAction.propTypes = {
     model: PropTypes.instanceOf(ConnectorActionAST).isRequired,
+};
+
+ConnectorAction.contextTypes = {
+    mode: PropTypes.string,
 };
 
 export default ConnectorAction;
