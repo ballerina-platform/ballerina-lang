@@ -282,7 +282,8 @@ class TransformRender {
  */
     reposition(viewId) {
         this.viewId = viewId;
-        const funcs = this.container.find('.middle-content  > .transform-expanded-func');
+        const funcs = this.container
+          .find('.middle-content > .transform-expanded-func, .middle-content > .operator-expanded-func');
         let yFunctionPointer = 20;
         const functionGap = 20;
         const svgLines = $('#' + this.placeHolderName + '-' + viewId + ' > svg');
