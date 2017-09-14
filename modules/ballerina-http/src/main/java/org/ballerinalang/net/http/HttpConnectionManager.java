@@ -28,8 +28,8 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
@@ -229,7 +229,7 @@ public class HttpConnectionManager {
         }
     }
 
-    public WebSocketClientConnector getWebSocketClientConnector(WSClientConnectorConfig configuration) {
+    public WebSocketClientConnector getWebSocketClientConnector(WsClientConnectorConfig configuration) {
         return  httpConnectorFactory.createWsClientConnector(configuration);
     }
 

@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public abstract class Node {
         return node;
     }
 
-    public Resource matchAll(String uriFragment, Map<String, String> variables, CarbonMessage carbonMessage,
+    public Resource matchAll(String uriFragment, Map<String, String> variables, HTTPCarbonMessage carbonMessage,
                                  int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
@@ -108,7 +108,7 @@ public abstract class Node {
         }
     }
 
-    public Resource getResource(CarbonMessage carbonMessage) {
+    public Resource getResource(HTTPCarbonMessage carbonMessage) {
         if (this.resource == null) {
             return null;
         }
@@ -121,7 +121,7 @@ public abstract class Node {
         return resource;
     }
 
-    private Resource validateHTTPMethod(List<Resource> resources, CarbonMessage carbonMessage) {
+    private Resource validateHTTPMethod(List<Resource> resources, HTTPCarbonMessage carbonMessage) {
         Resource resource = null;
         boolean isOptionsRequest = false;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
@@ -248,7 +248,7 @@ public abstract class Node {
         return null;
     }
 
-    private boolean setAllowHeadersIfOPTIONS(String httpMethod, CarbonMessage cMsg) {
+    private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
         if (httpMethod.equals(Constants.HTTP_METHOD_OPTIONS)) {
             cMsg.setHeader(Constants.ALLOW, getAllowHeaderValues(cMsg));
             return true;
@@ -256,7 +256,7 @@ public abstract class Node {
         return false;
     }
 
-    private String getAllowHeaderValues(CarbonMessage cMsg) {
+    private String getAllowHeaderValues(HTTPCarbonMessage cMsg) {
         List<String> methods = new ArrayList<>();
         List<Resource> resourceInfos = new ArrayList<>();
         for (Resource resourceInfo : this.resource) {
@@ -270,7 +270,7 @@ public abstract class Node {
         return DispatcherUtil.concatValues(methods, false);
     }
 
-    public Resource validateConsumes(Resource resource, CarbonMessage cMsg) {
+    public Resource validateConsumes(Resource resource, HTTPCarbonMessage cMsg) {
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
         String[] consumesList  = DispatcherUtil.getConsumerList(resource);
@@ -303,7 +303,7 @@ public abstract class Node {
         return header;
     }
 
-    public Resource validateProduces(Resource resource, CarbonMessage cMsg) {
+    public Resource validateProduces(Resource resource, HTTPCarbonMessage cMsg) {
         boolean isProduceMatched = false;
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
         String[] producesList = DispatcherUtil.getProducesList(resource);

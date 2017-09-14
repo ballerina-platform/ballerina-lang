@@ -62,6 +62,7 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
+    public static final String STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION = "HandshakeConnection";
     public static final String STRUCT_WEBSOCKET_CONNECTION = "Connection";
     public static final String STRUCT_WEBSOCKET_TEXT_FRAME = "TextFrame";
     public static final String STRUCT_WEBSOCKET_BINARY_FRAME = "BinaryFrame";

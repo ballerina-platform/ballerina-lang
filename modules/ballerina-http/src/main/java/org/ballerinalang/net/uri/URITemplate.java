@@ -21,7 +21,7 @@ package org.ballerinalang.net.uri;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class URITemplate {
         return null;
     }
 
-    public Resource matches(String uri, Map<String, String> variables, CarbonMessage carbonMessage) {
+    public Resource matches(String uri, Map<String, String> variables, HTTPCarbonMessage carbonMessage) {
         return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
     }
 
