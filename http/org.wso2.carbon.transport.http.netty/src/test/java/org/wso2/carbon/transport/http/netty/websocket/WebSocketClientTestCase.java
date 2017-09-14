@@ -27,9 +27,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
@@ -50,7 +50,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
     private final int threadSleepTime = 100;
-    private WSClientConnectorConfig configuration = new WSClientConnectorConfig(url);
+    private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT,
                                                                            "xml, json");

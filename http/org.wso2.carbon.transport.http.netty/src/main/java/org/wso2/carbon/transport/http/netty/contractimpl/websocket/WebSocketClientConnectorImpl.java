@@ -20,9 +20,9 @@
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
 
 import java.net.URISyntaxException;
@@ -41,12 +41,12 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
     private final int idleTimeout;
     private final Map<String, String> customHeaders;
 
-    public WebSocketClientConnectorImpl(WSClientConnectorConfig configuration) {
-        this.remoteUrl = configuration.getRemoteAddress();
-        this.target = configuration.getTarget();
-        this.subProtocols = configuration.getSubProtocolsAsCSV();
-        this.customHeaders = configuration.getHeaders();
-        this.idleTimeout = configuration.getIdleTimeoutInMillis();
+    public WebSocketClientConnectorImpl(WsClientConnectorConfig clientConnectorConfig) {
+        this.remoteUrl = clientConnectorConfig.getRemoteAddress();
+        this.target = clientConnectorConfig.getTarget();
+        this.subProtocols = clientConnectorConfig.getSubProtocolsAsCSV();
+        this.customHeaders = clientConnectorConfig.getHeaders();
+        this.idleTimeout = clientConnectorConfig.getIdleTimeoutInMillis();
     }
 
     @Override

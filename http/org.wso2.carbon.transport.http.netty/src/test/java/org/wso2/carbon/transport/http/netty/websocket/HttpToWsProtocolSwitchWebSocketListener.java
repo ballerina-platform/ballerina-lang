@@ -31,9 +31,9 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMess
 /**
  * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
-public class HttpToWSProtocolSwitchWebSocketListener implements WebSocketConnectorListener {
+public class HttpToWsProtocolSwitchWebSocketListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpToWSProtocolSwitchWebSocketListener.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpToWsProtocolSwitchWebSocketListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {

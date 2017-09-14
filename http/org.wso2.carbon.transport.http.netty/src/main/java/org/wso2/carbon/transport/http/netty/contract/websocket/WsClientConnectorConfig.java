@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Sender configuration for WebSocket client connector.
  */
-public class WSClientConnectorConfig {
+public class WsClientConnectorConfig {
 
     private final String remoteAddress;
     private List<String> subProtocols;
@@ -35,11 +35,11 @@ public class WSClientConnectorConfig {
     private int idleTimeoutInSeconds = -1;
     private final Map<String, String> headers = new HashMap<>();
 
-    public WSClientConnectorConfig(String remoteAddress) {
+    public WsClientConnectorConfig(String remoteAddress) {
         this.remoteAddress = remoteAddress;
     }
 
-    public WSClientConnectorConfig(String remoteAddress, String target, List<String> subProtocols,
+    public WsClientConnectorConfig(String remoteAddress, String target, List<String> subProtocols,
                                    int idleTimeoutInSeconds) {
         this.remoteAddress = remoteAddress;
         this.target = target;
