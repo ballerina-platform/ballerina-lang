@@ -22,11 +22,16 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 //import org.ballerinalang.model.values.BInteger;
 //import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.session.Session;
+import org.ballerinalang.util.exceptions.BallerinaException;
 //import org.ballerinalang.net.http.session.Session;
 //import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -46,28 +51,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetMaxInactiveInterval extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        //TODO enable and fix after resource signature change
-        return null;
-//        try {
-//            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-//            String sessionId = sessionStruct.getStringField(0);
-//            Session session = context.getCurrentSession();
-//
-//            //return value from cached session
-//            if (session != null && (sessionId.equals(session.getId()))) {
-//                return getBValues(new BInteger(session.getMaxInactiveInterval()));
-//            } else {
-//                session = context.getSessionManager().getHTTPSession(sessionId);
-//                if (session != null) {
-//                    return getBValues(new BInteger(session.getMaxInactiveInterval()));
-//                } else {
-//                    //no session available bcz of the time out
-//                 throw new IllegalStateException("Failed to get max inactive interval: No such session in progress");
-//                }
-//            }
-//        } catch (IllegalStateException e) {
-//            throw new BallerinaException(e.getMessage(), e);
-//        }
+        try {
+            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
+            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            if (session != null && session.isValid()) {
+                return getBValues(new BInteger(session.getMaxInactiveInterval()));
+            } else {
+                throw new IllegalStateException("Failed to get max inactive interval: No such session in progress");
+            }
+        } catch (IllegalStateException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
     }
 }
 

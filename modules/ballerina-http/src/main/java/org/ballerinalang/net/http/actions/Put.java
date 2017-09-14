@@ -91,7 +91,7 @@ public class Put extends AbstractHTTPAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
+        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
         HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
                 .getNativeData(Constants.TRANSPORT_MESSAGE);
         prepareRequest(bConnector, path, cMsg);
