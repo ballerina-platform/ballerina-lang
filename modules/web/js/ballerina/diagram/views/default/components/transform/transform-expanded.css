@@ -84,7 +84,7 @@
 .transform-dragging-connections {
     position: absolute;
     width: calc(100% - 244px);
-    height: calc(100% - 75px);;
+    height: calc(100% - 85px);;
     top: 85px;
     overflow: hidden;
 }
@@ -96,4 +96,14 @@
     border: 1px dashed #ccc;
     left: 340px;
     background: #fff;
+}
+
+.drop-not-valid {
+    cursor: not-allowed;
+}
+
+.drop-valid {
+    cursor: auto;
+    font-size: 12px;
+    color: #f17b31;
 }

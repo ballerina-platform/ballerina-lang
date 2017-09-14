@@ -88,6 +88,7 @@ class TransformExpanded extends React.Component {
         this.updateVariable = this.updateVariable.bind(this);
         this.onDragLeave = this.onDragLeave.bind(this);
         this.onDragEnter = this.onDragEnter.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
         this.onConnectionsScroll = this.onConnectionsScroll.bind(this);
         this.onConnectPointMouseEnter = this.onConnectPointMouseEnter.bind(this);
     }
@@ -484,12 +485,6 @@ class TransformExpanded extends React.Component {
             this.mapper.addSource(element, input, true);
         });
 
-        targetKeys.forEach((key) => {
-            const { element, output } = this.targetElements[key];
-            this.mapper.addTarget(element, output, true,
-                    this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
-        });
-
         this.markConnectedEndpoints();
 
         this.mapper.reposition(this.props.model.getID());
@@ -531,8 +526,35 @@ class TransformExpanded extends React.Component {
 
         this.mapper.reposition(this.props.model.getID());
 
-        this.mapper.onConnectionAborted(() => {
+        this.mapper.onConnectionAborted((con, ev) => {
+            const targetKeys = Object.keys(this.targetElements);
+            targetKeys.forEach((key) => {
+                const { element, output } = this.targetElements[key];
+                element.classList.remove('drop-not-valid');
+                element.classList.remove('drop-valid');
+            });
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+
             clearInterval(this.scrollTimer);
+
+            const {clientX:x, clientY:y} = ev;
+            const { element, output } = this.findTargetAt({x, y});
+
+            if (!output) {
+                // connection is not dropped on a target. No need of more processing
+                return;
+            }
+
+            const input = con.getParameters().input;
+            const isValid = this.transformNodeManager.isConnectionValid(input.type, output.type);
+
+            if (!isValid) {
+                return;
+            }
+
+            const connection = this.mapper.getConnectionObject(input, output);
+            this.transformNodeManager.createStatementEdge(connection);
         });
     }
 
@@ -545,7 +567,7 @@ class TransformExpanded extends React.Component {
             return;
         }
         const boundingRect = this.transformOverlayDraggingContentDiv.getBoundingClientRect();
-        const middle = (boundingRect.bottom - boundingRect.top) / 2;
+        const middle = boundingRect.top + ((boundingRect.bottom - boundingRect.top) / 2);
         let offset = -5;
         if (e.pageY > middle) {
             offset = 5;
@@ -562,14 +584,55 @@ class TransformExpanded extends React.Component {
         }
 
         clearInterval(this.scrollTimer);
-
-        const targetKeys = Object.keys(this.targetElements);
-        targetKeys.forEach((key) => {
-            const { element, output } = this.targetElements[key];
-            this.mapper.recalculateOffsets(element);
-        });
     }
 
+    onMouseMove(e) {
+        const {clientX:x, clientY:y} = e;
+        if (!this.mapper.isConnectionDragging()) {
+            return;
+        }
+
+        const { element, output } = this.findTargetAt({x, y});
+        if (!output) {
+            // has moved outside of target elements
+            if (this._hoveredTarget) {
+                this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+                this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+                this._hoveredTarget.classList.remove('drop-not-valid');
+                this._hoveredTarget.classList.remove('drop-valid');
+                this._hoveredTarget = null;
+            }
+            return;
+        }
+
+        if (this._hoveredTarget === element) {
+            // still inside the same element. no need to do anything
+            return;
+        }
+
+        if (this._hoveredTarget) {
+            this._hoveredTarget.classList.remove('drop-valid');
+            this._hoveredTarget.classList.add('drop-not-valid');
+        }
+
+        this._hoveredTarget = element;
+
+        const conn = this.mapper.getDraggingConnection();
+        const isValid = this.transformNodeManager.isConnectionValid(conn.getParameters().input.type, output.type);
+
+        if (!isValid) {
+            element.classList.remove('drop-valid');
+            element.classList.add('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+            this.transformOverlayDraggingContentDiv.classList.add('drop-not-valid');
+        } else {
+            element.classList.remove('drop-not-valid');
+            element.classList.add('drop-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.add('drop-valid');
+        }
+        console.log(isValid);
+    }
 
     onTransformDropZoneActivate(e) {
         const dragDropManager = this.context.dragDropManager;
@@ -839,6 +902,22 @@ class TransformExpanded extends React.Component {
         return true;
     }
 
+    findTargetAt({x, y}) {
+        const targetKeys = Object.keys(this.targetElements);
+        let foundOutput = {};
+        targetKeys.forEach((key) => {
+            const { element, output } = this.targetElements[key];
+            const connectPointRect = element.getBoundingClientRect();
+
+            const { left, right, top, bottom } = connectPointRect;
+            if(left < x && x < right && top < y && y < bottom){
+                foundOutput = { element, output };
+            }
+        });
+
+        return foundOutput;
+    }
+
     removeAssignmentStatements(id, type) {
         const statementsToRemove = [];
 
@@ -1019,6 +1098,7 @@ class TransformExpanded extends React.Component {
                     className='transform-dragging-connections'
                     onMouseLeave={this.onDragLeave}
                     onMouseEnter={this.onDragEnter}
+                    onMouseMove={this.onMouseMove}
                 >
                     <div className="middle-content-frame" />
                     <Scrollbars
