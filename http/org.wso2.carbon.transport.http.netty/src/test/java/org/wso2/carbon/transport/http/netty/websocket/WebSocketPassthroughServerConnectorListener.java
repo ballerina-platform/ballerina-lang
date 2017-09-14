@@ -21,8 +21,11 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
@@ -35,7 +38,6 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryI
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
-import java.net.ProtocolException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
@@ -61,9 +63,21 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
             WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
             Session clientSession = clientConnector.connect(connectorListener);
-            Session serverSession = initMessage.handshake();
-            WebSocketPassThroughTestSessionManager.getInstance().interRelateSessions(serverSession, clientSession);
-        } catch (ProtocolException | ClientConnectorException e) {
+            HandshakeFuture future = initMessage.handshake();
+            future.setHandshakeListener(new HandshakeListener() {
+                @Override
+                public void onSuccess(Session serverSession) {
+                    WebSocketPassThroughTestSessionManager.getInstance().
+                            interRelateSessions(serverSession, clientSession);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    logger.error(t.getMessage());
+                    Assert.assertTrue(false, "Error: " + t.getMessage());
+                }
+            });
+        } catch (ClientConnectorException e) {
             logger.error("Error occurred during connection: " + e.getMessage());
         }
 

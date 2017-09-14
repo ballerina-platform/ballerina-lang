@@ -223,6 +223,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         webSocketMessage.setIsServerMessage(true);
         webSocketMessage.setChannelSession(channelSession);
         webSocketMessage.setHeaders(headers);
+        webSocketMessage.setSessionlID(channelSession.getId());
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
         webSocketMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,

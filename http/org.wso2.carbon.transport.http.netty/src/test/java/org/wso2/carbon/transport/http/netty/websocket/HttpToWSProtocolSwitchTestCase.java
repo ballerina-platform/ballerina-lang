@@ -39,7 +39,7 @@ import java.net.URL;
 /**
  * Test cases to check the Protocol switch from HTTP to WebSocket.
  */
-public class HttpToWebSocketProtocolSwitchTestCase {
+public class HttpToWSProtocolSwitchTestCase {
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));
@@ -54,8 +54,8 @@ public class HttpToWebSocketProtocolSwitchTestCase {
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(new HttpToWebSocketProtocolSwitchWebSocketListener());
-        connectorFuture.setHttpConnectorListener(new HttpToWebSocketProtocolSwitchHttpListener());
+        connectorFuture.setWSConnectorListener(new HttpToWSProtocolSwitchWebSocketListener());
+        connectorFuture.setHttpConnectorListener(new HttpToWSProtocolSwitchHttpListener());
         connectorFuture.sync();
     }
 
