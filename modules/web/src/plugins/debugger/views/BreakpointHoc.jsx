@@ -18,18 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import DebugManager from './debug-manager';
-import BallerinaFileEditor from './../ballerina/views/ballerina-file-editor';
-import BallerinaASTRoot from './../ballerina/ast/ballerina-ast-root';
-import ASTNode from '../ballerina/ast/node';
+import DebugManager from '../DebugManager';
 
 /**
  * Higher order component to add add/remove breakpoint for diagram view nodes
  * @param {React.Component} WrappedComponent - React component to be wrapped
  * @returns {React.Component} - WrappedComponent with props addBreakpoints, showDebugHit
  */
-function breakpointHOC(WrappedComponent) {
-    const newComponent = class BreakpointHOC extends React.Component {
+function breakpointHoc(WrappedComponent) {
+    const newComponent = class BreakpointHoc extends React.Component {
         /**
          * Creates an instance of HOC.
          */
@@ -98,7 +95,7 @@ function breakpointHOC(WrappedComponent) {
          */
         debugHit(message) {
             const { editor } = this.context;
-            const fileName = editor.getFile().getName();
+            const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
             const lineNumber = this.props.model.getLineNumber();
             const position = message.location;
             const { astRoot } = this.context;
@@ -185,16 +182,16 @@ function breakpointHOC(WrappedComponent) {
     };
 
     newComponent.contextTypes = {
-        editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
-        astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+        editor: PropTypes.instanceOf(Object).isRequired,
+        astRoot: PropTypes.instanceOf(Object).isRequired,
     };
 
     newComponent.propTypes = {
-        model: PropTypes.instanceOf(ASTNode).isRequired,
+        model: PropTypes.instanceOf(Object).isRequired,
     };
 
     return newComponent;
 }
 
 
-export default breakpointHOC;
+export default breakpointHoc;

@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import DebugManager from './debug-manager';
+import DebugManager from '../DebugManager';
 
 /**
  * Higher order component to add add/remove breakpoint for diagram view nodes

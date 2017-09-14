@@ -32,7 +32,8 @@ import { CONTENT_MODIFIED } from './../../constants/events';
 import { FORMAT, GO_TO_POSITION } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import debuggerHOC from '../../debugger/debugger-hoc';
+import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
+
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range').Range;
@@ -334,4 +335,4 @@ SourceView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default debuggerHOC(SourceView);
+export default debuggerHoc(SourceView);

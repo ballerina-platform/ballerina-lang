@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import { blockStatement, statement, actionBox } from '../../../../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
 import ASTNode from '../../../../ast/node';
@@ -27,8 +28,6 @@ import ActionBox from './action-box';
 import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
-import breakpointHOC from './../../../../../debugger/breakpoint-hoc';
-
 
 const CLASS_MAP = {
     hidden: 'hide-action',
@@ -380,4 +379,4 @@ BlockStatementDecorator.contextTypes = {
     mode: PropTypes.string,
 };
 
-export default breakpointHOC(BlockStatementDecorator);
+export default breakpointHoc(BlockStatementDecorator);
