@@ -28,10 +28,10 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -86,9 +85,7 @@ public class PackageLoader {
 
     public BLangPackage loadEntryPackage(String sourcePkg) {
         // TODO Implement the support for loading a source package
-        BLangIdentifier version = new BLangIdentifier();
-        version.setValue("0.0.0");
-        PackageID pkgId = new PackageID(new ArrayList<>(), version);
+        PackageID pkgId = new PackageID(new Name(""), new Name("0.0.0"));
         PackageEntity pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         log("* Package Entity: " + pkgEntity);
 

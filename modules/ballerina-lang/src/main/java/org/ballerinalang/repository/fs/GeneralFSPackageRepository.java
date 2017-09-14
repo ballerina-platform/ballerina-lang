@@ -23,7 +23,6 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,7 +81,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
     }
 
     private Path generatePath(PackageID pkgID) {
-        return this.basePath.resolve(pkgID.getPackageName().getValue().replace('.', File.separatorChar));
+        Path result = this.basePath;
+        for (String comp : pkgID.name.value.split(PackageID.PACKAGE_COMP_SEPARATOR)) {
+            result = result.resolve(comp);
+        }
+        return result;
     }
 
     /**

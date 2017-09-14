@@ -28,7 +28,7 @@ import org.ballerinalang.model.elements.PackageID;
  */
 public abstract class HierarchicalPackageRepository implements PackageRepository {
 
-    private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina";
+    private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina.";
 
     private PackageRepository systemRepo;
     
@@ -72,7 +72,7 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
     }
     
     private boolean isSystemPackage(PackageID pkgID) {
-        return pkgID.getNameCompCount() > 0 && pkgID.getNameComponent(0).equals(BALLERINA_SYSTEM_PKG_PREFIX);
+        return pkgID.getPackageName().value.startsWith(BALLERINA_SYSTEM_PKG_PREFIX);
     }
     
 }

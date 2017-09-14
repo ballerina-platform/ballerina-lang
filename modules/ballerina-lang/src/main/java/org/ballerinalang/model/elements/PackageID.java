@@ -17,13 +17,8 @@
 */
 package org.ballerinalang.model.elements;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-
-import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
  * This represents a specific package and its version.
@@ -33,21 +28,12 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 public class PackageID {
 
     public static final PackageID EMPTY = new PackageID(Names.EMPTY, Names.EMPTY);
-
-    private List<IdentifierNode> nameComps;
-
-    private IdentifierNode versionNode;
+    
+    public static final String PACKAGE_COMP_SEPARATOR = ".";
 
     public Name name;
     
     public Name version;
-
-    public PackageID(List<IdentifierNode> nameComps, IdentifierNode version) {
-        this.nameComps = nameComps;
-        this.versionNode = version;
-        this.populateNameCompsAsString();
-        this.version = version != null ? new Name(version.getValue()) : DEFAULT_VERSION;
-    }
 
     public PackageID(Name name, Name version) {
         this.name = name;
@@ -61,43 +47,7 @@ public class PackageID {
     public Name getPackageVersion() {
         return version;
     }
-
-    public List<IdentifierNode> getNameComps() {
-        return nameComps;
-    }
-
-    private void populateNameCompsAsString() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < this.nameComps.size(); i++) {
-            if (i > 0) {
-                builder.append('.');
-            }
-            builder.append(this.nameComps.get(i).getValue());
-        }
-        this.name = new Name(builder.toString());
-    }
-
-    public IdentifierNode getVersion() {
-        return versionNode;
-    }
-
-    public void setNameComps(List<IdentifierNode> nameComps) {
-        this.nameComps = nameComps;
-        this.populateNameCompsAsString();
-    }
-
-    public void setVersion(IdentifierNode version) {
-        this.versionNode = version;
-    }
-
-    public int getNameCompCount() {
-        return this.nameComps.size();
-    }
-
-    public IdentifierNode getNameComponent(int index) {
-        return this.nameComps.get(index);
-    }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
