@@ -1,11 +1,26 @@
 .explorer-item {
     .root {
+        padding: 5px;
         cursor: pointer;
-        .arrow, .icon, .label {
+        line-height: 24px;
+        vertical-align: middle;
+        color: rgb(199, 199, 199);
+        font-family: "lucida grande", tahoma, verdana, arial, sans-serif;
+        font-size: 14px;
+        .arrow, .icon, .root-label {
             margin-left: 5px;
         }
-        .label {
+        .arrow {
+            &.open {
+                transform: rotate(90deg);
+            }
+        }
+        .root-label {
             padding-left: 0;
+            color: rgb(199, 199, 199);
+        }
+        &:hover {
+            background: rgb(35, 35, 35);  
         }
     }
     .file-tree {

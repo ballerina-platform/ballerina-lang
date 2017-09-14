@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import _ from 'lodash';
 import { Collapse } from 'react-bootstrap';
 import { getPathSeperator } from 'api-client/api-client';
@@ -41,9 +42,9 @@ class ExplorerItem extends React.Component {
                     className="root unseletable-content"
                     onClick={() => this.setState({ open: !this.state.open })}
                 >
-                    <i className="fw fw-right arrow" />
+                    <i className={classnames('fw', 'fw-start', 'arrow', { open: this.state.open })} />
                     <i className="fw fw-folder icon" />
-                    <span className="label">{label}</span>
+                    <span className="root-label">{label}</span>
                 </div>
                 <Collapse in={this.state.open}>
                     <div className="file-tree">
