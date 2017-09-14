@@ -232,7 +232,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        this.pkgBuilder.endFunctionDef(getWS(ctx));
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

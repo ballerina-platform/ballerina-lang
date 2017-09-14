@@ -28,21 +28,19 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
@@ -60,6 +58,7 @@ public class PackageLoader {
     private CompilerOptions options;
     private Parser parser;
     private SymbolEnter symbolEnter;
+    private Names names;
 
     private Map<PackageID, BPackageSymbol> packages;
     private PackageRepository packageRepo;
@@ -79,17 +78,32 @@ public class PackageLoader {
         this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.names = Names.getInstance(context);
 
         this.packages = new HashMap<>();
         loadPackageRepository(context);
     }
 
     public BLangPackage loadEntryPackage(String sourcePkg) {
+        if (sourcePkg == null || sourcePkg.isEmpty()) {
+            throw new IllegalArgumentException("source package/file cannot be null");
+        }
+
+        PackageEntity pkgEntity;
+        PackageID pkgId = PackageID.EMPTY;
+        if (sourcePkg.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
+            pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
+        } else {
+            String[] pkgParts = sourcePkg.split("\\.");
+            List<Name> pkgNameComps = Arrays.stream(pkgParts)
+                    .map(part -> names.fromString(part))
+                    .collect(Collectors.toList());
+
+            pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+            pkgEntity = this.packageRepo.loadPackage(pkgId);
+        }
+
         // TODO Implement the support for loading a source package
-        BLangIdentifier version = new BLangIdentifier();
-        version.setValue("0.0.0");
-        PackageID pkgId = new PackageID(new ArrayList<>(), version);
-        PackageEntity pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         log("* Package Entity: " + pkgEntity);
 
         BLangPackage pkgNode;
@@ -153,30 +167,5 @@ public class PackageLoader {
     private PackageRepository loadUserRepository() {
         this.loadExtensionRepository();
         return null;
-    }
-
-    public static Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
-        if (sourcePath == null) {
-            throw new IllegalArgumentException("source package/file cannot be null");
-        }
-
-        try {
-            Path realSourcePath = programDirPath.resolve(sourcePath).toRealPath();
-
-            if (Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
-                return realSourcePath;
-            }
-
-            if (!realSourcePath.toString().endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
-                throw new IllegalArgumentException("invalid file: " + sourcePath);
-            }
-
-            return realSourcePath;
-        } catch (NoSuchFileException x) {
-            throw new IllegalArgumentException("no such file or directory: " + sourcePath);
-        } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + sourcePath +
-                    " reason: " + e.getMessage(), e);
-        }
     }
 }

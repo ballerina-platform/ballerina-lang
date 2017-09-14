@@ -360,7 +360,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(null);
+        endFunctionDef(pos, null);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos, String identifier, boolean exprAvailable) {
@@ -630,8 +630,9 @@ public class BLangPackageBuilder {
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
-    public void endFunctionDef(Set<Whitespace> ws) {
-        FunctionNode function = (FunctionNode) this.invokableNodeStack.pop();
+    public void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        function.pos = pos;
         function.addWS(ws);
         this.compUnit.addTopLevelNode(function);
     }

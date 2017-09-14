@@ -103,7 +103,7 @@ public class Parser {
     }
 
     private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {
-        Name pkgName = sourceEntry.getPackageID().getPackageName();
+        Name pkgName = sourceEntry.getPackageID().getName();
         Name pkgVersion = sourceEntry.getPackageID().getPackageVersion();
         String entryName = sourceEntry.getEntryName();
         return new BDiagnosticSource(pkgName.getValue(), pkgVersion.getValue(), entryName);

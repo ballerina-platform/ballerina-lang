@@ -42,6 +42,7 @@ public class BTester {
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, System.getProperty("user.dir"));
+//        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
         options.put(COMPILER_PHASE, "typeCheck");
         options.put(PRESERVE_WHITESPACE, "true");
 
@@ -55,6 +56,7 @@ public class BTester {
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile("bar.bal");
+//        compiler.compile("a.b.c");
     }
 
 }
