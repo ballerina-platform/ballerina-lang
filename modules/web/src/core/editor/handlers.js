@@ -1,11 +1,23 @@
-import { COMMANDS, DIALOGS } from './constants';
-import { COMMANDS as WORKSPACE_COMMANDS } from './../workspace/constants';
+import { COMMANDS } from './constants';
 /**
  * Provides command handler definitions of editor plugin.
  * @param {Plugin} editor plugin
  * @returns {Object[]} command handler definitions.
  *
  */
-export function getHandlerDefinitions(plugin) {
-    return [];
+export function getHandlerDefinitions(editorPlugin) {
+    return [
+        {
+            cmdID: COMMANDS.OPEN_CUSTOM_EDITOR_TAB,
+            handler: (args) => {
+                editorPlugin.onOpenCustomEditorTab(args);
+            },
+        },
+        {
+            cmdID: COMMANDS.OPEN_FILE_IN_EDITOR,
+            handler: (args) => {
+                editorPlugin.onOpenFileInEditor(args);
+            },
+        },
+    ];
 }

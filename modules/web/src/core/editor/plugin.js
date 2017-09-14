@@ -118,10 +118,8 @@ class EditorPlugin extends Plugin {
      */
     activate(appContext) {
         super.activate(appContext);
-        const { command, pref: { history } } = this.appContext;
+        const { pref: { history } } = this.appContext;
         this.activeEditorID = history.get(HISTORY.ACTIVE_EDITOR);
-        command.on(COMMANDS.OPEN_FILE_IN_EDITOR, this.onOpenFileInEditor);
-        command.on(COMMANDS.OPEN_CUSTOM_EDITOR_TAB, this.onOpenCustomEditorTab);
     }
 
     /**
