@@ -51,9 +51,17 @@ class WorkspacePlugin extends Plugin {
         super(props);
         this.openedFolders = [];
         this.openedFiles = [];
-        this.selectedNodeInExplorer = undefined;
+        this._selectedNodeInExplorer = undefined;
         this.onWorkspaceFileUpdated = this.onWorkspaceFileUpdated.bind(this);
         this.onNodeSelectedInExplorer = this.onNodeSelectedInExplorer.bind(this);
+    }
+
+    get selectedNodeInExplorer() {
+        return this._selectedNodeInExplorer;
+    }
+
+    set selectedNodeInExplorer(newT) {
+        this._selectedNodeInExplorer = newT;
     }
 
     /**
@@ -75,7 +83,7 @@ class WorkspacePlugin extends Plugin {
      * Upon tree node selection in explorer
      */
     onNodeSelectedInExplorer(node) {
-        if (!_.isNil(this.selectedNodeInExplorer) && node !== this.selectedNodeInExplorer) {
+        if (!_.isNil(this.selectedNodeInExplorer) && (node.id !== this.selectedNodeInExplorer.id)) {
             this.selectedNodeInExplorer.active = false;
         }
         this.selectedNodeInExplorer = node;

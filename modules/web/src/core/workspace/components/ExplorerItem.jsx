@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import './styles.scss';
 
 import FileTree from './../../view/FileTree';
+import { withContextMenu } from './../../view/utils';
 
 const TREE_NODE_TYPE = 'root';
 

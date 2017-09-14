@@ -14,7 +14,15 @@ class Container extends React.Component {
      */
     render() {
         return (
-            <div className="file-tree-item" onDoubleClick={() => this.context.onOpen(this.props.node)} >
+            <div
+                className="file-tree-item"
+                onDoubleClick={() => {
+                    this.context.onToggle(this.props.node);
+                }}
+                onContextMenu={() => {
+                    this.context.onToggle(this.props.node, !this.props.node.toggled);
+                }}
+            >
                 <div className="whole-row" />
                 <Decorators.Container {...this.props} />
             </div>
@@ -28,6 +36,7 @@ Container.propTypes = {
 
 Container.contextTypes = {
     onOpen: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
 const decorators = {
@@ -144,8 +153,8 @@ class FileTree extends React.Component {
     /**
      * @inheritdoc
      */
-    constructor(props) {
-        super(props);
+    constructor(...args) {
+        super(...args);
         this.state = {
             data: [],
         };
@@ -158,6 +167,7 @@ class FileTree extends React.Component {
     getChildContext() {
         return {
             onOpen: this.props.onOpen,
+            onToggle: this.onToggle,
         };
     }
 
@@ -182,9 +192,6 @@ class FileTree extends React.Component {
      * @param {Boolean} toggled toggled state
      */
     onToggle(node, toggled) {
-        if (this.state.cursor) {
-            this.state.cursor.active = false;
-        }
         node.active = true;
         if (node.children) {
             node.toggled = toggled;
@@ -199,12 +206,14 @@ class FileTree extends React.Component {
                         } else {
                             node.children = data;
                         }
-                        this.forceUpdate();
+                        this.props.onSelect(node);
                     });
+            } else {
+                this.props.onSelect(node);
             }
+        } else {
+            this.props.onSelect(node);
         }
-        this.setState({ cursor: node });
-        this.props.onSelect(node);
     }
 
     /**
@@ -249,6 +258,7 @@ FileTree.defaultProps = {
 
 FileTree.childContextTypes = {
     onOpen: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
 export default FileTree;
