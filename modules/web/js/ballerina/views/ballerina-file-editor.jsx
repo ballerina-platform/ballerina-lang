@@ -78,7 +78,9 @@ class BallerinaFileEditor extends React.Component {
             if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // Change was done from design view
                 // do an immediate update to reflect tree changes
-                this.forceUpdate();
+                if (this.ballerinaFileEditorWrapper) {
+                    this.forceUpdate();
+                }
                 // since the source is changed, we need to sync
                 // current AST with new position info
                 this.skipLoadingOverlay = true;
@@ -90,7 +92,9 @@ class BallerinaFileEditor extends React.Component {
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
-                        this.setState(state);
+                        if (this.ballerinaFileEditorWrapper) {
+                            this.setState(state);
+                        }
                     })
                     .catch(error => log.error(error));
             } else {
@@ -148,8 +152,10 @@ class BallerinaFileEditor extends React.Component {
         // then init the env with parsed symbols
         this.validateAndParseFile()
             .then((state) => {
-                state.initialParsePending = false;
-                this.setState(state);
+                if (this.ballerinaFileEditorWrapper) {
+                    state.initialParsePending = false;
+                    this.setState(state);
+                }
             })
             .catch((error) => {
                 log.error(error);
@@ -305,8 +311,10 @@ class BallerinaFileEditor extends React.Component {
             this.validateAndParseFile()
                 .then((state) => {
                     this.skipLoadingOverlay = false;
-                    this.setState(state);
-                    this.forceUpdate();
+                    if (this.ballerinaFileEditorWrapper) {
+                        this.setState(state);
+                        this.forceUpdate();
+                    }
                 })
                 .catch(error => log.error(error));
         } else {
@@ -323,10 +331,12 @@ class BallerinaFileEditor extends React.Component {
      *
      */
     validateAndParseFile() {
-        this.setState({
-            validatePending: true,
-            parsePending: true,
-        });
+        if (this.ballerinaFileEditorWrapper) {
+            this.setState({
+                validatePending: true,
+                parsePending: true,
+            });
+        }
         const file = this.props.file;
         return new Promise((resolve, reject) => {
             // final state to be passed into resolve
@@ -349,7 +359,7 @@ class BallerinaFileEditor extends React.Component {
                         // Hence resolve now.
                         resolve(newState);
                         return;
-                    } else {
+                    } else if (this.ballerinaFileEditorWrapper) {
                         // we need to fire a update for this state as soon as we
                         // receive the validate response to prevent additional
                         // wait time to some user actions.
@@ -472,31 +482,35 @@ class BallerinaFileEditor extends React.Component {
         // if we are automatically switching to source view due to syntax errors in file,
         // popup error list in source view so that the user is aware of the cause
         const popupErrorListInSourceView = this.state.activeView === DESIGN_VIEW
-                    && (!_.isEmpty(this.state.syntaxErrors)
-                         || (this.state.parseFailed && !this.state.parsePending));
+            && (!_.isEmpty(this.state.syntaxErrors)
+                || (this.state.parseFailed && !this.state.parsePending));
 
         // If there are syntax errors, forward editor to source view & update state
         // to make that decision reflect in state. This is to prevent automatic
         // redirection to design view once the syntax errors are fixed in source view.
-        if (!this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
+        if (!this.props.disableSourceView && !this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
                 && this.state.activeView !== SOURCE_VIEW) {
             this.state.activeView = SOURCE_VIEW;
         }
 
         const showDesignView = this.state.initialParsePending
-                                    || (!this.state.parseFailed
+                                    || ((!this.state.parseFailed || this.props.disableSourceView)
                                             && _.isEmpty(this.state.syntaxErrors)
                                                 && this.state.activeView === DESIGN_VIEW);
-        const showSourceView = this.state.parseFailed
-                                    || !_.isEmpty(this.state.syntaxErrors)
-                                        || this.state.activeView === SOURCE_VIEW;
-        const showSwaggerView = !this.state.parseFailed
+        const showSourceView = !this.props.disableSourceView && (this.state.parseFailed
+            || !_.isEmpty(this.state.syntaxErrors)
+            || this.state.activeView === SOURCE_VIEW);
+        const showSwaggerView = !this.props.disableSourceView && (!this.state.parseFailed
                                     && !_.isNil(this.state.swaggerViewTargetService)
-                                        && this.state.activeView === SWAGGER_VIEW;
+                                        && this.state.activeView === SWAGGER_VIEW);
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         return (
-            <div id={`bal-file-editor-${this.props.file.id}`} className='bal-file-editor'>
+            <div
+                id={`bal-file-editor-${this.props.file.id}`}
+                className='bal-file-editor'
+                ref={(ref) => { this.ballerinaFileEditorWrapper = ref; }}
+            >
                 <CSSTransitionGroup
                     transitionName="loading-overlay"
                     transitionEnterTimeout={300}
@@ -545,6 +559,11 @@ BallerinaFileEditor.propTypes = {
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
     }).isRequired,
+    disableSourceView: PropTypes.bool,
+};
+
+BallerinaFileEditor.defaultProps = {
+    disableSourceView: false,
 };
 
 BallerinaFileEditor.childContextTypes = {

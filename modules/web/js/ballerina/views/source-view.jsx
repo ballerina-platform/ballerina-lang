@@ -61,9 +61,11 @@ class SourceView extends React.Component {
      * @param {array} lintErrors List of errors received by validations
      */
     onSourceEditorLintErrors(lintErrors) {
-        this.setState({
-            syntaxErrors: lintErrors,
-        });
+        if (this.errorListPopoverRef) {
+            this.setState({
+                syntaxErrors: lintErrors,
+            });
+        }
     }
 
     /**
@@ -84,6 +86,7 @@ class SourceView extends React.Component {
 
         const errorListPopover = (
             <Popover
+                ref={(ref) => { this.errorListPopoverRef = ref; }}
                 id="syntax-errors-list-popover"
                 title={
                     <div>

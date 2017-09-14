@@ -22,6 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
+import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from './../../../src/core/workspace/model/file';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
@@ -32,7 +33,6 @@ import { CONTENT_MODIFIED } from './../../constants/events';
 import { FORMAT, GO_TO_POSITION } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 
 
 const ace = global.ace;
@@ -77,7 +77,7 @@ class NotifyingUndoManager extends AceUndoManager {
     }
 }
 
-class SourceView extends React.Component {
+class SourceEditor extends React.Component {
 
     constructor(props) {
         super(props);
@@ -306,12 +306,12 @@ class SourceView extends React.Component {
         if (!debugHit && this.debugPointMarker) {
             this.editor.getSession().removeMarker(this.debugPointMarker);
         }
-
+        this.editor.getSession().setValue(nextProps.file.content);
         this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
 
-SourceView.propTypes = {
+SourceEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
@@ -326,13 +326,9 @@ SourceView.propTypes = {
     debugHit: PropTypes.number,
 };
 
-SourceView.defaultProps = {
+SourceEditor.defaultProps = {
     debugHit: null,
     onLintErrors: () => {},
 };
 
-SourceView.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
-};
-
-export default debuggerHoc(SourceView);
+export default debuggerHoc(SourceEditor);
