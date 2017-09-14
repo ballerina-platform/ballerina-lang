@@ -78,7 +78,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
         // Release Thread.
         if (nonBlockingExecution) {
-            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
+            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(context));
         } else {
             synchronized (context) {
                 context.notifyAll();

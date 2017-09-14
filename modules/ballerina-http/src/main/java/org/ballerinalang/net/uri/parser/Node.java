@@ -22,7 +22,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.ArrayList;

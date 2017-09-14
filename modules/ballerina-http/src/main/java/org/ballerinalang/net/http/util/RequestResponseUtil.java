@@ -33,7 +33,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-//import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -50,6 +49,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+//import org.ballerinalang.runtime.message.StringDataSource;
 
 /**
  * Provide util methods for http request/response

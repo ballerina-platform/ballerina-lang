@@ -38,7 +38,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.net.ProtocolException;
 import java.util.Map;
 import javax.websocket.Session;
 

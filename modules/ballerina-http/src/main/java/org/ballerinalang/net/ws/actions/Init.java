@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 /**
  * Initialize the WebSocket client connector.
@@ -52,7 +52,7 @@ public class Init extends AbstractNativeAction {
         String remoteUrl = bconnector.getStringField(0);
         String clientServiceName = bconnector.getStringField(1);
 
-        WSClientConnectorConfig senderConfiguration = new WSClientConnectorConfig(remoteUrl);
+        WsClientConnectorConfig senderConfiguration = new WsClientConnectorConfig(remoteUrl);
         senderConfiguration.setTarget(clientServiceName);
         bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
         return null;

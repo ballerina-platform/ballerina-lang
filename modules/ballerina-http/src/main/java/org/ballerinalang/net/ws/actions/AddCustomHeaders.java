@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.ws.Constants;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,8 +60,8 @@ public class AddCustomHeaders extends AbstractNativeAction {
                 bKey -> customheaders.put(bKey.stringValue(), bCustomHeaders.get(bKey).stringValue())
         );
 
-        WSClientConnectorConfig senderConfiguration =
-                (WSClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        WsClientConnectorConfig senderConfiguration =
+                (WsClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         senderConfiguration.addHeaders(customheaders);
         return null;
     }
