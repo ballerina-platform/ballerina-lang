@@ -37,7 +37,6 @@ public class PackageID {
     public Name name = Names.EMPTY;
     public Name version = Names.DEFAULT_VERSION;
 
-
     public PackageID(List<Name> nameComps, Name version) {
         this.nameComps = nameComps;
         this.name = new Name(
