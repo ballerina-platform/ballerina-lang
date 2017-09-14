@@ -175,8 +175,9 @@ public class LocalFSWorkspace implements Workspace {
 
     private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
         JsonObject rootObj = new JsonObject();
-        if (null != root.getFileName()) {
-            rootObj.addProperty(NODE_LABEL, root.getFileName().toString());
+        Path fileName = root.getFileName();
+        if (fileName != null) {
+            rootObj.addProperty(NODE_LABEL, fileName.toString());
         } else {
             rootObj.addProperty(NODE_LABEL, root.toString());
         }
