@@ -1,7 +1,5 @@
 package org.wso2.carbon.transport.http.netty.message;
 
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
