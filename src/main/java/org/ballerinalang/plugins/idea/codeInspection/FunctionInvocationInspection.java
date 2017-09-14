@@ -28,7 +28,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -49,9 +49,9 @@ public class FunctionInvocationInspection extends LocalInspectionTool {
                                          boolean isOnTheFly) {
         List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
         LocalQuickFix[] availableFixes = new LocalQuickFix[0];
-        Collection<FunctionInvocationStatementNode> functionInvocations = PsiTreeUtil.findChildrenOfType(file,
-                FunctionInvocationStatementNode.class);
-        for (FunctionInvocationStatementNode functionInvocation : functionInvocations) {
+        Collection<FunctionInvocationNode> functionInvocations = PsiTreeUtil.findChildrenOfType(file,
+                FunctionInvocationNode.class);
+        for (FunctionInvocationNode functionInvocation : functionInvocations) {
             ProgressManager.checkCanceled();
             // We first need to resolve the reference to the function definition.
             FunctionReferenceNode functionReferenceNode = PsiTreeUtil.getChildOfType(functionInvocation,

@@ -147,6 +147,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
                 .between(XML_LOCAL_NAME, GT).spaceIf(false)
                 .between(NAME_REFERENCE, LBRACE).spaceIf(true)
+                .afterInside(NAME_REFERENCE, CONNECTOR_VAR_DEF_STATEMENT).spaceIf(true)
                 .between(VARIABLE_REFERENCE, INDEX).spaceIf(false)
                 .between(VARIABLE_REFERENCE, FIELD).spaceIf(false)
                 .between(VARIABLE_REFERENCE, XML_ATTRIB).spaceIf(false)
@@ -173,7 +174,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .withinPairInside(IDENTIFIER, LPAREN, CONNECTOR_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LPAREN, ACTION_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LPAREN, TYPE_MAPPER_DEFINTION).spaceIf(true)
-                .withinPairInside(IDENTIFIER, LPAREN, ACTION_INVOCATION).spaceIf(false);
+                .before(INVOCATION).spaceIf(false)
+                .afterInside(IDENTIFIER, INVOCATION).spaceIf(false);
     }
 
     @Nullable

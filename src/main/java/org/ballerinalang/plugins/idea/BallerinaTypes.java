@@ -116,10 +116,13 @@ public class BallerinaTypes {
     public static final RuleIElementType SIMPLE_EXPRESSION = ruleIElementTypes.get(RULE_simpleExpression);
     public static final RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(RULE_returnParameters);
     public static final RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(RULE_valueTypeName);
-    public static final RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(RULE_actionInvocation);
+    //    public static final RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(RULE_actionInvocation);
     public static final RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(RULE_xmlNamespaceName);
     public static final RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(RULE_sourceNotation);
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);
+    public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
+    public static final RuleIElementType CONNECTOR_VAR_DEF_STATEMENT =
+            ruleIElementTypes.get(RULE_connectorVarDefStatement);
 
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
