@@ -47,7 +47,7 @@ const decorators = {
                 { node.active ? <div className="active-file-node" /> : '' }
                 <div style={style.title}>
                     <i className={`fw fw-${icon}`} style={{ marginRight: '5px', marginLeft }} />
-                    {node.text}
+                    {node.label}
                 </div>
             </div>
         );
@@ -170,7 +170,7 @@ class FileTree extends React.Component {
         // wrap custom roots with a single root node
         const wrapWithCustomRoot = (children) => {
             return [{
-                text: this.props.root,
+                label: this.props.root,
                 id: this.props.root,
                 type: 'folder',
                 children,

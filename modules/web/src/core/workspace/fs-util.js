@@ -29,19 +29,19 @@ const WORKSPACE_SERVICE = 'workspace';
 /**
  * Reads a file from file system.
  *
- * @param {String} filePath Path of the file
+ * @param {String} targetFilePath Complete path of the file
  * @returns {Promise} Resolves {File} or reject with error.
  */
-export function read(filePath) {
+export function read(targetFilePath) {
     const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/read`;
     return new Promise((resolve, reject) => {
-        axios.post(serviceEP, filePath, { headers: COMMON_HEADERS })
+        axios.post(serviceEP, targetFilePath, { headers: COMMON_HEADERS })
             .then((response) => {
-                const { content } = response.data;
-                const name = response.data.filename;
-                const path = response.data.filepath;
-                const extension = response.data.extension;
-                const fullPath = filePath;
+                const { fileContent, fileName, filePath, fileFullPath, extension } = response.data;
+                const name = fileName;
+                const path = filePath;
+                const fullPath = fileFullPath;
+                const content = fileContent;
                 resolve(new File({ content, name, fullPath, path, extension, isPersisted: true, isDirty: false }));
             }).catch(error => reject(error));
     });
