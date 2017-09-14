@@ -19,8 +19,6 @@ package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.BLangCompiler;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.impl.BResource;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
@@ -28,8 +26,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.codegen.ProgramFileWriter;
-import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
 import java.io.IOException;

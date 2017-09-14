@@ -25,7 +25,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Get Content-Length header from the Message.
@@ -42,6 +42,6 @@ public class GetContentLength extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getContentLenghth(context, this, null);
+        return HttpUtil.getContentLenghth(context, this);
     }
 }
