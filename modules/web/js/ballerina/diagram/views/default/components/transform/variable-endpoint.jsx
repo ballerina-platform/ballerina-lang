@@ -106,12 +106,12 @@ export default class VariableEndpoint extends React.Component {
                 <span
                     id={variable.id + '-button'}
                     className='btn connect-point'
-                    onMouseEnter={(e) => { onConnectPointMouseEnter(variable, e); }}
                 >
                     <i
                         id={id}
                         ref={icon => makeConnectPoint(icon, id, variable)}
                         className='variable-endpoint fw fw-circle-outline fw-stack-1x'
+                        onMouseEnter={(e) => { onConnectPointMouseEnter(variable, e); }}
                     />
                 </span>
             </div>

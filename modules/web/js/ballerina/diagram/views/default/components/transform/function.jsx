@@ -97,7 +97,7 @@ export default class FunctionInv extends React.Component {
         const funcInvID = funcInv.getID();
         const foldIndicator = isCollapsed ? 'fw-down' : 'fw-up';
         return (
-            <div className='transform-expanded-func func'>
+            <div className='transform-expanded-func'>
                 <div
                     id={`${funcInvID}:${viewId}`}
                     className='function-header'
