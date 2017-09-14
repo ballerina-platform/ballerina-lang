@@ -8,6 +8,8 @@ import './styles.scss';
 
 import FileTree from './../../view/FileTree';
 
+const TREE_NODE_TYPE = 'root';
+
 /**
  * Represents a root item workspace explorer
  */
@@ -17,7 +19,15 @@ class ExplorerItem extends React.Component {
      */
     constructor(...args) {
         super(...args);
-        this.state = { open: false };
+        this.state = {
+            open: false,
+            node: {
+                id: this.props.folderPath,
+                type: TREE_NODE_TYPE,
+                active: false,
+                label: _.last(this.props.folderPath.split(getPathSeperator())),
+            },
+        };
         this.onOpen = this.onOpen.bind(this);
     }
 
@@ -35,21 +45,21 @@ class ExplorerItem extends React.Component {
      * @inheritdoc
      */
     render() {
-        const label = _.last(this.props.folderPath.split(getPathSeperator()));
         return (
             <div className="explorer-item">
                 <div
-                    className="root unseletable-content"
+                    className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
                     onClick={() => {
+                        this.state.node.active = true;
                         this.setState({ open: !this.state.open });
                         // un-select child nodes when clicked on root
-                        this.props.onSelect(undefined);
+                        this.props.onSelect(this.state.node);
                     }
                     }
                 >
                     <i className={classnames('fw', 'fw-start', 'arrow', { open: this.state.open })} />
                     <i className="fw fw-folder icon" />
-                    <span className="root-label">{label}</span>
+                    <span className="root-label">{this.state.node.label}</span>
                 </div>
                 <Collapse in={this.state.open}>
                     <div className="file-tree">
