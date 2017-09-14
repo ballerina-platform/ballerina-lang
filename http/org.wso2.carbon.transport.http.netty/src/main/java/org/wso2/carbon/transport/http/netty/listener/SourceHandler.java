@@ -34,8 +34,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
@@ -88,14 +86,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpMessage) {
             FullHttpMessage fullHttpMessage = (FullHttpMessage) msg;
-            cMsg = (HTTPCarbonMessage) setupCarbonMessage(fullHttpMessage);
+            cMsg = setupCarbonMessage(fullHttpMessage);
             publishToMessageProcessor(cMsg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
             cMsg.setEndOfMsgAdded(true);
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
-            }
+//            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+//            }
 
         } else if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
@@ -109,10 +107,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
                         cMsg.setEndOfMsgAdded(true);
-                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                                    executeAtSourceRequestSending(cMsg);
-                        }
+//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                                    executeAtSourceRequestSending(cMsg);
+//                        }
                     }
                 }
             }
@@ -122,23 +120,24 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
     protected void publishToMessageProcessor(HTTPCarbonMessage httpRequestMsg) throws URISyntaxException {
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-                    executeAtSourceRequestReceiving(httpRequestMsg);
-        }
+        // TODO: Revisit when the refactor is complete
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
+//                    executeAtSourceRequestReceiving(httpRequestMsg);
+//        }
 
         boolean continueRequest = true;
 
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-
-            continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeRequestContinuationValidator(httpRequestMsg, carbonMessage -> {
-                        CarbonCallback responseCallback = (CarbonCallback) httpRequestMsg
-                                .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
-                        responseCallback.done(carbonMessage);
-                    });
-
-        }
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//
+//            continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+//                    .executeRequestContinuationValidator(httpRequestMsg, carbonMessage -> {
+//                        CarbonCallback responseCallback = (CarbonCallback) httpRequestMsg
+//                                .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
+//                        responseCallback.done(carbonMessage);
+//                    });
+//
+//        }
         if (continueRequest) {
             if (serverConnectorFuture != null) {
                 try {
@@ -189,12 +188,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         serverConnectorFuture.notifyErrorListener(cause);
     }
 
-    protected CarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
+    protected HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
         cMsg = new HTTPCarbonMessage();
         boolean isSecuredConnection = false;
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
-        }
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+//        }
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);

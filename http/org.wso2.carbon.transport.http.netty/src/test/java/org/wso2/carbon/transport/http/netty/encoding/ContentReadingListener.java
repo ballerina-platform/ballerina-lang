@@ -22,11 +22,9 @@ package org.wso2.carbon.transport.http.netty.encoding;
 import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,11 +50,11 @@ public class ContentReadingListener implements HttpConnectorListener {
                 String response = new String(ByteStreams.toByteArray(inputStream), Charset.defaultCharset());
                 String alteredContent = "Altered " + response + " content";
 
-                CarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
+                HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                 newMsg.addMessageBody(ByteBuffer.wrap(alteredContent.getBytes(Charset.defaultCharset())));
                 newMsg.setEndOfMsgAdded(true);
 
-                httpMessage.respond(HTTPConnectorUtil.convertCarbonMessage(newMsg));
+                httpMessage.respond(newMsg);
             } catch (IOException | ServerConnectorException e) {
                 logger.error("Error occurred during message processing ", e);
             }

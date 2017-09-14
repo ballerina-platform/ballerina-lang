@@ -23,12 +23,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
@@ -58,11 +57,9 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
-    // Variable to keep the status on whether the last content was added during the clone
-    private boolean isEndMarked = false;
     private int soTimeOut = 60;
     private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
-    private HttpConnectorListener listener;
+//    private HttpConnectorListener listener;
 
     public HTTPCarbonMessage() {
         BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
@@ -217,18 +214,15 @@ public class HTTPCarbonMessage extends CarbonMessage {
     public void setEndOfMsgAdded(boolean endOfMsgAdded) {
         super.setEndOfMsgAdded(endOfMsgAdded);
         if (isAlreadyRead()) {
-            outContentQueue.forEach(buffer -> {
-                httpContentQueue.add(buffer);
-            });
+            httpContentQueue.addAll(outContentQueue);
             outContentQueue.clear();
         }
 
     }
 
-    @Override
     public void release() {
-        httpContentQueue.forEach(content -> content.release());
-        garbageCollected.forEach(content -> content.release());
+        httpContentQueue.forEach(ReferenceCounted::release);
+        garbageCollected.forEach(ReferenceCounted::release);
     }
 
     public ServerConnectorFuture getHTTPConnectorFuture() {
@@ -239,9 +233,9 @@ public class HTTPCarbonMessage extends CarbonMessage {
         serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
     }
 
-    public HttpConnectorListener getResponseListener() {
-        return this.listener;
-    }
+//    public HttpConnectorListener getResponseListener() {
+//        return this.listener;
+//    }
 
     /**
      * Copy Message properties and transport headers
@@ -258,7 +252,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(newCarbonMessage::setProperty);
 
-        newCarbonMessage.setWriter(this.getWriter());
+//        newCarbonMessage.setWriter(this.getWriter());
         newCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
         return newCarbonMessage;
     }
@@ -279,7 +273,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(httpCarbonMessage::setProperty);
 
-        httpCarbonMessage.setWriter(this.getWriter());
+//        httpCarbonMessage.setWriter(this.getWriter());
         httpCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
 
         this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
