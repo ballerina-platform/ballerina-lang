@@ -146,7 +146,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create import package symbol
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         importPkgNode.symbol = pkgSymbol;
-        this.env.scope.define(pkgSymbol.name, pkgSymbol);
+        this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {

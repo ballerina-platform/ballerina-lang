@@ -732,7 +732,9 @@ public class BLangPackageBuilder {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(e)));
         BLangIdentifier versionNode = (BLangIdentifier) this.createIdentifier(version);
-        BLangIdentifier aliasNode = (BLangIdentifier) this.createIdentifier(alias);
+        BLangIdentifier aliasNode = (alias != null && !alias.isEmpty()) ?
+                (BLangIdentifier) this.createIdentifier(alias) :
+                pkgNameComps.get(pkgNameComps.size() - 1);
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = pos;
