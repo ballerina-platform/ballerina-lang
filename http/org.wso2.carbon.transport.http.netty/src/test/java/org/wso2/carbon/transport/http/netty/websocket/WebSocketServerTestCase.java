@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,10 +31,12 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestClient;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import javax.net.ssl.SSLException;
@@ -48,16 +51,15 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private WebSocketClient primaryClient = new WebSocketClient();
-    private WebSocketClient secondaryClient = new WebSocketClient();
+    private WebSocketTestClient primaryClient = new WebSocketTestClient();
+    private WebSocketTestClient secondaryClient = new WebSocketTestClient();
     private ServerConnector serverConnector;
-    private WebSocketTestServerConnectorListener connectorListener;
 
     @BeforeClass
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(9009);
+        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                 listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
@@ -66,12 +68,12 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     }
 
     @Test
-    public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException {
+    public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException, ProtocolException {
         assertTrue(primaryClient.handhshake());
     }
 
     @Test
-    public void testText() throws URISyntaxException, InterruptedException, SSLException {
+    public void testText() throws URISyntaxException, InterruptedException, SSLException, ProtocolException {
         primaryClient.handhshake();
         String textSent = "test";
         primaryClient.sendText(textSent);
@@ -95,7 +97,7 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
      * client indicating the state of the secondary client.
      */
     @Test
-    public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException {
+    public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
         primaryClient.handhshake();
         secondaryClient.handhshake();
         assertWebSocketClientTextMessage(primaryClient, WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
@@ -109,7 +111,8 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
      * client indicating the state of the secondary client.
      */
     @Test
-    public void testClientCloseConnection() throws InterruptedException, URISyntaxException, SSLException {
+    public void testClientCloseConnection()
+            throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
         primaryClient.handhshake();
         secondaryClient.handhshake();
         secondaryClient.shutDown();
@@ -125,6 +128,30 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         primaryClient.sendPing(bufferSent);
         assertWebSocketClientBinaryMessage(primaryClient, bufferSent);
+        primaryClient.shutDown();
+    }
+
+    @Test
+    public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setHost("localhost");
+        listenerConfiguration.setPort(TestUtil.TEST_ALTER_INTERFACE_PORT);
+        ServerConnector alterServerConnector = httpConnectorFactory.createServerConnector(
+                ServerBootstrapConfiguration.getInstance(),
+                listenerConfiguration);
+        ServerConnectorFuture connectorFuture = alterServerConnector.start();
+        WebSocketTestServerConnectorListener listener = new WebSocketTestServerConnectorListener();
+        connectorFuture.setWSConnectorListener(listener);
+        connectorFuture.sync();
+        String url = System.getProperty("url", String.format("ws://%s:%d/%s",
+                                                             TestUtil.TEST_HOST, TestUtil.TEST_ALTER_INTERFACE_PORT,
+                                                             "test"));
+        primaryClient = new WebSocketTestClient(url);
+        primaryClient.handhshake();
+        Thread.sleep(5000);
+        Assert.assertFalse(primaryClient.isOpen());
+        Assert.assertFalse(listener.isIdleTimeout());
+        alterServerConnector.stop();
     }
 
     @AfterClass

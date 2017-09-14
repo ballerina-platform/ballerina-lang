@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -49,10 +50,7 @@ import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionI
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * This class handles all kinds of WebSocketFrames
@@ -65,15 +63,13 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
-    private final String subProtocol;
     private final WebSocketSessionImpl channelSession;
-    private final List<Session> clientSessionsList = new LinkedList<>();
     private final Map<String, String> headers;
     private final String interfaceId;
+    private String subProtocol = null;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
-     * @param subProtocol the sub-protocol which the client is registering.
      * @param isSecured indication of whether the connection is secured or not.
      * @param channelSession session relates to the channel.
      * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
@@ -82,13 +78,12 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param interfaceId given ID for the socket interface.
      * @throws Exception if any error occurred during construction of {@link WebSocketSourceHandler}.
      */
-    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, String subProtocol,  boolean isSecured,
+    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
                                   Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId)
             throws Exception {
         super(new HttpWsServerConnectorFuture(), interfaceId);
         this.connectorFuture = connectorFuture;
-        this.subProtocol = subProtocol;
         this.isSecured = isSecured;
         this.channelSession = channelSession;
         this.ctx = ctx;
@@ -98,30 +93,30 @@ public class WebSocketSourceHandler extends SourceHandler {
     }
 
     /**
-     * Set the client session associated with the server session.
-     *
-     * @param clientSession {@link Session} of the client associated with this Server session.
-     */
-    public void addClientSession(Session clientSession) {
-        clientSessionsList.add(clientSession);
-    }
-
-    /**
-     * Retrieve client session associated with the this server session.
-     *
-     * @return the client session of the source handler.
-     */
-    public List<Session> getClientSessions() {
-        return clientSessionsList;
-    }
-
-    /**
      * Retrieve server session of this source handler.
      *
      * @return the server session of this source handler.
      */
     public WebSocketSessionImpl getChannelSession() {
         return channelSession;
+    }
+
+    /**
+     * Set if there is any negotiated sub protocol.
+     * @param negotiatedSubProtocol negotiated sub protocol for a given connection.
+     */
+    public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
+        this.subProtocol = negotiatedSubProtocol;
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+            if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
+                notifyIdleTimeout();
+            }
+        }
     }
 
     @Override
@@ -148,8 +143,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         } else if (msg instanceof CloseWebSocketFrame) {
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
-            PingWebSocketFrame pingWebSocketFrame = (PingWebSocketFrame) msg;
-            ctx.channel().writeAndFlush(new PongWebSocketFrame(pingWebSocketFrame.content()));
+            notifyPingMessage((PingWebSocketFrame) msg);
         } else if (msg instanceof PongWebSocketFrame) {
             notifyPongMessage((PongWebSocketFrame) msg);
         }
@@ -194,6 +188,16 @@ public class WebSocketSourceHandler extends SourceHandler {
         connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
     }
 
+    private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws ServerConnectorException {
+        //Control message for WebSocket is Ping Message
+        ByteBuf byteBuf = pingWebSocketFrame.content();
+        ByteBuffer byteBuffer = byteBuf.nioBuffer();
+        WebSocketMessageImpl webSocketControlMessage =
+                new WebSocketControlMessageImpl(WebSocketControlSignal.PING, byteBuffer);
+        webSocketControlMessage = setupCommonProperties(webSocketControlMessage);
+        connectorFuture.notifyWSListener((WebSocketControlMessage) webSocketControlMessage);
+    }
+
     private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws ServerConnectorException {
         //Control message for WebSocket is Pong Message
         ByteBuf byteBuf = pongWebSocketFrame.content();
@@ -204,6 +208,13 @@ public class WebSocketSourceHandler extends SourceHandler {
         connectorFuture.notifyWSListener((WebSocketControlMessage) webSocketControlMessage);
     }
 
+    private void notifyIdleTimeout() throws ServerConnectorException {
+        WebSocketMessageImpl websocketControlMessage =
+                new WebSocketControlMessageImpl(WebSocketControlSignal.IDLE_TIMEOUT, null);
+        websocketControlMessage = setupCommonProperties(websocketControlMessage);
+        connectorFuture.notifyWSIdleTimeout((WebSocketControlMessage) websocketControlMessage);
+    }
+
     private WebSocketMessageImpl setupCommonProperties(WebSocketMessageImpl webSocketMessage) {
         webSocketMessage.setSubProtocol(subProtocol);
         webSocketMessage.setTarget(target);
@@ -211,8 +222,8 @@ public class WebSocketSourceHandler extends SourceHandler {
         webSocketMessage.setIsConnectionSecured(isSecured);
         webSocketMessage.setIsServerMessage(true);
         webSocketMessage.setChannelSession(channelSession);
-        webSocketMessage.setClientSessionsList(clientSessionsList);
         webSocketMessage.setHeaders(headers);
+        webSocketMessage.setSessionlID(channelSession.getId());
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
         webSocketMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,

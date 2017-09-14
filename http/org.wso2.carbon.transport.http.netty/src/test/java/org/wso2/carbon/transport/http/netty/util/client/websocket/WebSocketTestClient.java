@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -56,12 +57,12 @@ import javax.net.ssl.SSLException;
 /**
  * WebSocket client class for test
  */
-public class WebSocketClient {
+public class WebSocketTestClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
-    private final String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                                TestUtil.TEST_HOST, 9009, "test"));
+    private String url = System.getProperty("url", String.format("ws://%s:%d/%s",
+                                                  TestUtil.TEST_HOST, TestUtil.TEST_DEFAULT_INTERFACE_PORT, "test"));
     private final String subProtocol;
     private Map<String, String> customHeaders = new HashMap<>();
 
@@ -70,13 +71,25 @@ public class WebSocketClient {
     private EventLoopGroup group;
     private boolean isHandshakeSuccessful = false;
 
-
-
-    public WebSocketClient() {
+    public WebSocketTestClient() {
         this.subProtocol = null;
     }
 
-    public WebSocketClient(String subProtocol, Map<String, String> customHeaders) {
+    public WebSocketTestClient(String url) {
+        this.subProtocol = null;
+        if (customHeaders != null) {
+            this.customHeaders = customHeaders;
+        }
+    }
+
+    public WebSocketTestClient(String subProtocol, Map<String, String> customHeaders) {
+        this.subProtocol = subProtocol;
+        if (customHeaders != null) {
+            this.customHeaders = customHeaders;
+        }
+    }
+
+    public WebSocketTestClient(String url, String subProtocol, Map<String, String> customHeaders) {
         this.subProtocol = subProtocol;
         if (customHeaders != null) {
             this.customHeaders = customHeaders;
@@ -88,7 +101,7 @@ public class WebSocketClient {
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
-    public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException {
+    public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
         boolean isDone;
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
@@ -159,8 +172,8 @@ public class WebSocketClient {
             logger.debug("WebSocket Handshake successful : " + isDone);
             return isDone;
         } catch (Exception e) {
-            logger.error("Handshake unsuccessful : " + e.getMessage(), e);
-            return false;
+            logger.error("Handshake unsuccessful : " + e.getMessage());
+            throw new ProtocolException("Protocol exception: " + e.getMessage());
         }
     }
 
@@ -215,20 +228,20 @@ public class WebSocketClient {
     }
 
     /**
+     * Check whether the connection is still open or not.
+     *
+     * @return true if connection is still open.
+     */
+    public boolean isOpen() {
+       return handler.isOpen();
+    }
+
+    /**
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {
         handler.shutDown();
         group.shutdownGracefully();
-    }
-
-    /**
-     * Check whether the handshake is successful of not.
-     *
-     * @return true if the handshake is successful.
-     */
-    public boolean isHandshakeSuccessful() {
-        return isHandshakeSuccessful;
     }
 
 }

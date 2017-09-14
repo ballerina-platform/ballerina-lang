@@ -21,9 +21,11 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -31,11 +33,11 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnecto
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
-import java.net.ProtocolException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
@@ -53,18 +55,29 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         try {
-            Map<String, Object> senderProperties = new HashMap<>();
-            senderProperties.put(Constants.REMOTE_ADDRESS, "ws://localhost:8490/websocket");
-            senderProperties.put(Constants.TO, "myService");
-            senderProperties.put(Constants.WEBSOCKET_MESSAGE, initMessage);
-            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(senderProperties);
+            String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
+                                             TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
+            WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
+            configuration.setTarget("myService");
+            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
 
             WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
-            Map<String, String> customHeaders = new HashMap<>();
-            Session clientSession = clientConnector.connect(connectorListener, customHeaders);
-            Session serverSession = initMessage.handshake();
-            sessionsMap.put(serverSession.getId(), clientSession);
-        } catch (ProtocolException | ClientConnectorException e) {
+            Session clientSession = clientConnector.connect(connectorListener);
+            HandshakeFuture future = initMessage.handshake();
+            future.setHandshakeListener(new HandshakeListener() {
+                @Override
+                public void onSuccess(Session serverSession) {
+                    WebSocketPassThroughTestSessionManager.getInstance().
+                            interRelateSessions(serverSession, clientSession);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    logger.error(t.getMessage());
+                    Assert.assertTrue(false, "Error: " + t.getMessage());
+                }
+            });
+        } catch (ClientConnectorException e) {
             logger.error("Error occurred during connection: " + e.getMessage());
         }
 
@@ -73,7 +86,8 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
         try {
-            Session clientSession = sessionsMap.get(textMessage.getChannelSession().getId());
+            Session clientSession = WebSocketPassThroughTestSessionManager.getInstance().
+                    getClientSession(textMessage.getChannelSession());
             clientSession.getBasicRemote().sendText(textMessage.getText());
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());
@@ -108,5 +122,9 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onError(Throwable throwable) {
 
+    }
+
+    @Override
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
     }
 }

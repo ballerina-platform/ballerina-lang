@@ -140,6 +140,13 @@
                     <classpathDependencyExcludes>
                         <classpathDependencyExclude>org.ops4j.pax.logging</classpathDependencyExclude>
                     </classpathDependencyExcludes>
+
+                    <systemProperties>
+                        <property>
+                            <name>sun.net.http.allowRestrictedHeaders</name>
+                            <value>true</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>

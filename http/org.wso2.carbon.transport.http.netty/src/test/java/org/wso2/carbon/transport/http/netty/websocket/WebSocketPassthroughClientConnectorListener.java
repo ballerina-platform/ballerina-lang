@@ -46,7 +46,8 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
         try {
-            Session serverSession = textMessage.getServerSession();
+            Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
+                    getServerSession(textMessage.getChannelSession());
             serverSession.getBasicRemote().sendText(textMessage.getText());
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());
@@ -56,7 +57,8 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         try {
-            Session serverSession = binaryMessage.getServerSession();
+            Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
+                    getServerSession(binaryMessage.getChannelSession());
             serverSession.getBasicRemote().sendBinary(binaryMessage.getByteBuffer());
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());
@@ -75,5 +77,9 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
 
     @Override
     public void onError(Throwable throwable) {
+    }
+
+    @Override
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
     }
 }

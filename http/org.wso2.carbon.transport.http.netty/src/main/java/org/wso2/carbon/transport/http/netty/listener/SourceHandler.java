@@ -27,7 +27,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -39,15 +38,11 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -101,24 +96,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 //            }
 
         } else if (msg instanceof HttpRequest) {
-
-            // TODO: Change the default behavior to support WebSocket on demand.
-            /*
-            Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
-             */
             HttpRequest httpRequest = (HttpRequest) msg;
-            HttpHeaders headers = httpRequest.headers();
-            if (isConnectionUpgrade(headers) &&
-                    Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
-                log.debug("Upgrading the connection from Http to WebSocket for " +
-                                     "channel : " + ctx.channel());
-                handleWebSocketHandshake(httpRequest, ctx);
+            cMsg = (HTTPCarbonMessage) setupCarbonMessage(httpRequest);
+            publishToMessageProcessor(cMsg);
 
-            } else {
-                cMsg = setupCarbonMessage(httpRequest);
-                publishToMessageProcessor(cMsg);
-            }
-            //Publish message to CarbonMessageProcessor
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
@@ -134,64 +115,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
-    }
-
-    /**
-     * Some clients can send multiple parameters for "Connection" header. This checks whether the "Connection" header
-     * contains "Upgrade" value.
-     *
-     * @param headers {@link HttpHeaders} of the request.
-     * @return true if the "Connection" header contains value "Upgrade".
-     */
-    protected boolean isConnectionUpgrade(HttpHeaders headers) {
-        if (!headers.contains(Constants.CONNECTION)) {
-            return false;
-        }
-
-        String connectionHeaderValues = headers.get(Constants.CONNECTION);
-        for (String connectionValue: connectionHeaderValues.split(",")) {
-            if (Constants.UPGRADE.equalsIgnoreCase(connectionValue.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Handle the WebSocket handshake.
-     *
-     * @param httpRequest {@link HttpRequest} of the request.
-     */
-    private void handleWebSocketHandshake(HttpRequest httpRequest, ChannelHandlerContext ctx) throws Exception {
-        boolean isSecured = false;
-
-        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
-            isSecured = true;
-        }
-
-        String uri = httpRequest.uri();
-        String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
-        WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
-
-        Map<String, String> headers = new HashMap<>();
-        httpRequest.headers().forEach(
-                header -> headers.put(header.getKey(), header.getValue())
-        );
-        WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           headers, ctx, interfaceId);
-        WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
-                                                                            headers);
-
-        // Setting common properties for init message
-        initMessage.setSubProtocol(subProtocol);
-        initMessage.setChannelSession(channelSession);
-        initMessage.setIsServerMessage(true);
-        initMessage.setTarget(httpRequest.uri());
-        initMessage.setListenerInterface(interfaceId);
-        initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
-
-        serverConnectorFuture.notifyWSListener(initMessage);
     }
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
