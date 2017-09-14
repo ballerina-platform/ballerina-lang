@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
@@ -35,6 +34,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
@@ -53,11 +55,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     
     private DiagnosticListener diagListener;
+
+    private Names names;
     
     private int loopCount;
     
-    private PackageID pkgId;
-    
+    private Name pkgName;
+    private Name pkgVerion;
+
     private BLangCompilationUnit compUnitNode;
     
     private boolean statementReturns;
@@ -76,10 +81,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
+        this.names = Names.getInstance(context);    
     }
     
     private void resetPackage() {
-        this.pkgId = null;
+        this.pkgName = null;
+        this.pkgVerion = null;
         this.compUnitNode = null;
         this.deadCode = false;
     }
@@ -101,7 +108,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangPackage pkgNode) {
-        this.pkgId = pkgNode.pkgDecl.pkgId;
+        this.pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
         pkgNode.compUnits.forEach(e -> e.accept(this));
     }
     
@@ -219,7 +226,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private Diagnostic generateInvalidContinueDiagnostic(BLangContinue continueNode) {
         BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
+        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
         diag.kind = Kind.ERROR;
         diag.pos = continueNode.pos;
         diag.msg = "next cannot be used outside of a loop";
@@ -228,7 +235,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private Diagnostic generateUnreachableCodeDiagnostic(BLangStatement stmt) {
         BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
+        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
         diag.kind = Kind.ERROR;
         diag.pos = stmt.pos;
         diag.msg = "Unreachable code";
@@ -237,7 +244,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private Diagnostic generateDeadCodeDiagnostic(BLangStatement stmt) {
         BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
+        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
         diag.kind = Kind.WARNING;
         diag.pos = stmt.pos;
         diag.msg = "Dead code";
@@ -246,7 +253,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private Diagnostic generateFunctionMustReturn(BLangFunction funcNode) {
         BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgId.name.value, this.pkgId.version.value, this.compUnitNode.name);
+        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
         diag.kind = Kind.ERROR;
         diag.pos = funcNode.pos;
         diag.msg = "This function must return a result of type " + funcNode.getReturnParameters();

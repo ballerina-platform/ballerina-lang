@@ -22,7 +22,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -32,11 +31,9 @@ import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -64,7 +61,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -157,8 +156,6 @@ public class BLangPackageBuilder {
     private Stack<RecordTypeLiteralNode> recordTypeLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
-
-    private Stack<PackageID> pkgIdStack = new Stack<>();
 
     private Stack<StructNode> structStack = new Stack<>();
 
@@ -297,10 +294,10 @@ public class BLangPackageBuilder {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
     }
 
-    private IdentifierNode createIdentifier(String identifier) {
+    private IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
-        if (identifier != null) {
-            node.setValue(identifier);
+        if (value != null) {
+            node.setValue(value);
         }
         return node;
     }
@@ -713,37 +710,36 @@ public class BLangPackageBuilder {
         this.invokableNodeStack.peek().setBody(block);
     }
 
-    public void addPackageId(List<String> nameComps, String version) {
-        List<IdentifierNode> nameCompNodes = new ArrayList<>();
-        IdentifierNode versionNode;
-        if (version != null) {
-            versionNode = TreeBuilder.createIdentifierNode();
-            versionNode.setValue(version);
-        } else {
-            versionNode = null;
-        }
-        nameComps.forEach(e -> nameCompNodes.add(this.createIdentifier(e)));
-        this.pkgIdStack.add(new PackageID(nameCompNodes, versionNode));
+    public void setPackageDeclaration(DiagnosticPos pos, List<String> nameComps, String version) {
+        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+        nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(e)));
+        BLangIdentifier versionNode = (BLangIdentifier) this.createIdentifier(version);
+
+        BLangPackageDeclaration pkgDcl = (BLangPackageDeclaration) TreeBuilder.createPackageDeclarationNode();
+        pkgDcl.pos = pos;
+        pkgDcl.pkgNameComps = pkgNameComps;
+        pkgDcl.version = versionNode;
+        this.compUnit.addTopLevelNode(pkgDcl);
     }
 
-    public void populatePackageDeclaration() {
-        PackageDeclarationNode pkgDecl = TreeBuilder.createPackageDeclarationNode();
-        pkgDecl.setPackageID(this.pkgIdStack.pop());
-        this.compUnit.addTopLevelNode(pkgDecl);
-    }
+    public void addImportPackageDeclaration(DiagnosticPos pos,
+                                            Set<Whitespace> ws,
+                                            List<String> nameComps,
+                                            String version,
+                                            String alias) {
 
-    public void addImportPackageDeclaration(Set<Whitespace> ws, String alias) {
-        ImportPackageNode impDecl = TreeBuilder.createImportPackageNode();
-        IdentifierNode aliasNode;
-        if (alias != null) {
-            aliasNode = this.createIdentifier(alias);
-        } else {
-            aliasNode = null;
-        }
-        impDecl.setPackageID(this.pkgIdStack.pop());
-        impDecl.setAlias(aliasNode);
-        impDecl.addWS(ws);
-        this.compUnit.addTopLevelNode(impDecl);
+        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+        nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(e)));
+        BLangIdentifier versionNode = (BLangIdentifier) this.createIdentifier(version);
+        BLangIdentifier aliasNode = (BLangIdentifier) this.createIdentifier(alias);
+
+        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+        importDcl.pos = pos;
+        importDcl.addWS(ws);
+        importDcl.pkgNameComps = pkgNameComps;
+        importDcl.version = versionNode;
+        importDcl.alias = aliasNode;
+        this.compUnit.addTopLevelNode(importDcl);
     }
 
     private VariableNode generateBasicVarNode(DiagnosticPos pos,

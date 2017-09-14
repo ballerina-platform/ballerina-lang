@@ -33,7 +33,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -148,5 +153,30 @@ public class PackageLoader {
     private PackageRepository loadUserRepository() {
         this.loadExtensionRepository();
         return null;
+    }
+
+    public static Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
+        if (sourcePath == null) {
+            throw new IllegalArgumentException("source package/file cannot be null");
+        }
+
+        try {
+            Path realSourcePath = programDirPath.resolve(sourcePath).toRealPath();
+
+            if (Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
+                return realSourcePath;
+            }
+
+            if (!realSourcePath.toString().endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
+                throw new IllegalArgumentException("invalid file: " + sourcePath);
+            }
+
+            return realSourcePath;
+        } catch (NoSuchFileException x) {
+            throw new IllegalArgumentException("no such file or directory: " + sourcePath);
+        } catch (IOException e) {
+            throw new RuntimeException("error reading from file: " + sourcePath +
+                    " reason: " + e.getMessage(), e);
+        }
     }
 }

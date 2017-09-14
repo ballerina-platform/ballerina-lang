@@ -46,6 +46,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
 
+    private List<String> pkgNameComps;
+    private String pkgVersion;
+
     public BLangParserListener(CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(compUnit);
         this.diagnosticSrc = diagnosticSource;
@@ -86,26 +89,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
     public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-        this.pkgBuilder.populatePackageDeclaration();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void enterPackageName(BallerinaParser.PackageNameContext ctx) {
+        this.pkgBuilder.setPackageDeclaration(getCurrentPos(ctx), this.pkgNameComps, this.pkgVersion);
     }
 
     /**
@@ -115,24 +100,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
-        List<String> nameComps = new ArrayList<>();
-        ctx.Identifier().stream().forEach(e -> nameComps.add(e.getText()));
-        String version;
-        if (ctx.version() != null) {
-            version = ctx.version().Identifier().getText();
-        } else {
-            version = null;
-        }
-        this.pkgBuilder.addPackageId(nameComps, version);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
+        this.pkgNameComps = new ArrayList<>();
+        ctx.Identifier().forEach(e -> pkgNameComps.add(e.getText()));
+        this.pkgVersion = ctx.version() != null ? ctx.version().Identifier().getText() : null;
     }
 
     /**
@@ -142,13 +112,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
-        String alias;
-        if (ctx.Identifier() != null) {
-            alias = ctx.Identifier().getText();
-        } else {
-            alias = null;
-        }
-        this.pkgBuilder.addImportPackageDeclaration(getWS(ctx), alias);
+        String alias = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
+                this.pkgNameComps, this.pkgVersion, alias);
     }
 
     /**

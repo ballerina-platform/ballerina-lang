@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -49,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -210,9 +210,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
         BPackageSymbol pSymbol;
         if (pkgNode.pkgDecl == null) {
-            pSymbol = new BPackageSymbol(PackageID.EMPTY, symTable.rootPkgSymbol);
+            pSymbol = new BPackageSymbol(Names.EMPTY, Names.EMPTY, symTable.rootPkgSymbol);
         } else {
-            pSymbol = new BPackageSymbol(pkgNode.pkgDecl.pkgId, symTable.rootPkgSymbol);
+            Name pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
+            Name pkgVersion = names.fromIdNode(pkgNode.pkgDecl.version);
+            pSymbol = new BPackageSymbol(pkgName, pkgVersion, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
         pSymbol.scope = new Scope(pSymbol);
