@@ -29,7 +29,8 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
 public class BPackageSymbol extends BTypeSymbol {
 
     public Name version;
-    public Name name;
+
+    // TODO Introduce States to the Package Symbol.. DEFINED, TYPE_CHECKED, ANALYZED etc..
 
     public BPackageSymbol(Name pkgName, Name pkgVersion, BSymbol owner) {
         super(PACKAGE, pkgName, null, owner);

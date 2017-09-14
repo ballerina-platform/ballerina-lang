@@ -51,7 +51,9 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -72,6 +74,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangPackage rootPkgNode;
 
     private SymbolEnv env;
+    public Map<BPackageSymbol, SymbolEnv> packageEnvs = new HashMap<>();
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -109,10 +112,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
                 pSymbol.scope, symTable.rootPkgNode);
+        packageEnvs.put(pSymbol, pkgEnv);
 
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
-        // TODO Load each import package
+        pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
@@ -138,7 +142,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangImportPackage importPkgNode) {
-        throw new AssertionError();
+        BLangPackage pkgNode = pkgLoader.loadPackage(importPkgNode.pkgNameComps, importPkgNode.version);
+        // Create import package symbol
+        BPackageSymbol pkgSymbol = pkgNode.symbol;
+        importPkgNode.symbol = pkgSymbol;
+        this.env.scope.define(pkgSymbol.name, pkgSymbol);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {

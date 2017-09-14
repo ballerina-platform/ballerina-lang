@@ -28,6 +28,7 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -106,19 +107,31 @@ public class PackageLoader {
         // TODO Implement the support for loading a source package
         log("* Package Entity: " + pkgEntity);
 
+        return loadPackage(pkgId, pkgEntity);
+    }
+
+    public BLangPackage loadPackage(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
+        List<Name> nameComps = pkgNameComps.stream()
+                .map(identifier -> names.fromIdNode(identifier))
+                .collect(Collectors.toList());
+        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
+        return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
+    }
+
+    private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
         BLangPackage pkgNode;
+        BPackageSymbol pSymbol;
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
-
-            BPackageSymbol pSymbol = symbolEnter.definePackage(pkgNode);
+            pSymbol = symbolEnter.definePackage(pkgNode);
             pkgNode.symbol = pSymbol;
-            packages.put(pkgId, pSymbol);
         } else {
             // This is a compiled package.
             // TODO Throw an error. Entry package cannot be a compiled package
             throw new RuntimeException("TODO Entry package cannot be a compiled package");
         }
 
+        packages.put(pkgId, pSymbol);
         return pkgNode;
     }
 
