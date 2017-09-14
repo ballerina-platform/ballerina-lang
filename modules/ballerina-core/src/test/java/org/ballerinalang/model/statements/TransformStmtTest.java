@@ -18,6 +18,7 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -123,4 +124,46 @@ public class TransformStmtTest {
         Assert.assertEquals(returns[3].stringValue(), "30");
     }
 
+    @Test(description = "Test one to one transformation with temporary variables")
+    public void testTempVariablesInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "temporaryVariablesInTransform");
+
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Mr.John");
+
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "Mr.John");
+    }
+
+    @Test(description = "Test one to one transformation with constants")
+    public void testConstantsInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "constantsInTransform");
+
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Mrs.John");
+    }
+
+    @Test(description = "Test one to one transformation with binary expressions")
+    public void testBinaryExpressionsInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "binaryExpressionsInTransform");
+
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Ms.John");
+    }
+
+    @Test(description = "Test one to one transformation with unary expressions")
+    public void testUnaryExpressionsInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "unaryExpressionsInTransform");
+
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+    }
 }

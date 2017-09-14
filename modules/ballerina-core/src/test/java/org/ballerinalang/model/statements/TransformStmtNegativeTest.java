@@ -86,4 +86,27 @@ public class TransformStmtNegativeTest {
     public void testInvalidInputOutputWithVarDef () {
         BTestUtils.getProgramFile("lang/statements/transformStmt/transform-stmt-invalid-input-output-with-var-def.bal");
     }
+
+    @Test(description = "Test invalid input and output combinations with binary expressions",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output-with-binary-expressions.bal:20: " +
+                    "input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutputWithBinaryExpressions () {
+        BTestUtils.getProgramFile("lang/statements/transformStmt/" +
+                                  "transform-stmt-invalid-input-output-with-binary-expressions.bal");
+    }
+
+
+    @Test(description = "Test invalid input and output combinations with unary expressions",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "transform-stmt-invalid-input-output-with-unary-expressions.bal:6: " +
+                    "input and output variables cannot be interchanged " +
+                    "in transform statement")
+    public void testInvalidInputOutputWithUnaryExpressions () {
+        BTestUtils.getProgramFile("lang/statements/transformStmt/" +
+                                  "transform-stmt-invalid-input-output-with-unary-expressions.bal");
+    }
 }

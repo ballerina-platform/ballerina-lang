@@ -128,8 +128,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.function.Supplier;
 
@@ -2160,15 +2162,21 @@ public class BLangModelBuilder {
      */
     private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
                                                 Map<String, Expression> outputs) {
+        Set<String> temps = new HashSet<>();
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof VariableDefStmt) {
                 VariableDefStmt variableDefStmt = (VariableDefStmt) statement;
                 Expression varRefExpression = variableDefStmt.getLExpr();
                 String varName = ((SimpleVarRefExpr) varRefExpression).getVarName();
-                //variables defined in transform scope, cannot be used as output
+
+                if (!(variableDefStmt.getRExpr() instanceof BasicLiteral)) {
+                    // if the variable does not hold a constant value, it is a temporary variable and hence not an input
+                    temps.add(varName);
+                }
+
                 if (outputs.get(varName) != null) {
                     String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                                 SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                                         SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                     errorMsgs.add(errMsg);
                     continue;
                 }
@@ -2188,7 +2196,9 @@ public class BLangModelBuilder {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (Expression exp : varRefExpressions) {
                         String varName = ((SimpleVarRefExpr) exp).getVarName();
-                        if (!assignStmt.isDeclaredWithVar()) {
+                        if (assignStmt.isDeclaredWithVar()) {
+                            temps.add(varName);
+                        } else {
                             // if lhs is declared with var, they not considered as output variables since they are
                             // only available in transform statement scope
                             if (inputs.get(varName) != null) {
@@ -2225,6 +2235,7 @@ public class BLangModelBuilder {
                 }
             }
         }
+        temps.forEach(temp -> inputs.remove(temp));
     }
 
     private Expression[] getVariableReferencesFromExpression(Expression expression) {
@@ -2245,6 +2256,15 @@ public class BLangModelBuilder {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new Expression[expList.size()]);
+        } else if (expression instanceof BinaryExpression) {
+            List<Expression> expList = new ArrayList<>();
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BinaryExpression) expression).getLExpr())));
+            expList.addAll(Arrays.asList(
+                    getVariableReferencesFromExpression(((BinaryExpression) expression).getRExpr())));
+            return expList.toArray(new Expression[expList.size()]);
+        } else if (expression instanceof UnaryExpression) {
+            return getVariableReferencesFromExpression(((UnaryExpression) expression).getRExpr());
         } else if (expression instanceof TypeConversionExpr) {
             return getVariableReferencesFromExpression(((TypeConversionExpr) expression).getRExpr());
         } else if (expression instanceof TypeCastExpression) {

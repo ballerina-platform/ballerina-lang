@@ -72,6 +72,47 @@ function castAndConversionInTransform() (string, int, string, any){
     return e.name, e.age, e.address, ageAny;
 }
 
+function temporaryVariablesInTransform() (string, string) {
+    Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
+    Employee e = {};
+    string name;
+    transform {
+        var prefixName = getPrefixedName(p.firstName);
+        e.name = prefixName;
+        name = prefixName;
+    }
+    return e.name, name;
+}
+
+function constantsInTransform() (string) {
+    Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
+    Employee e = {};
+    transform {
+        string prefix = "Mrs.";
+        e.name = getNameWithPrefix(prefix, p.firstName);
+    }
+    return e.name;
+}
+
+function binaryExpressionsInTransform() (string) {
+    Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
+    Employee e = {};
+    transform {
+        string prefix = "Ms.";
+        e.name = prefix + p.firstName;
+    }
+    return e.name;
+}
+
+function unaryExpressionsInTransform() (boolean) {
+    boolean flag = false;
+    boolean newFlag;
+    transform {
+        newFlag = !flag;
+    }
+    return newFlag;
+}
+
 function getPrefixedName(string name)(string){
     return "Mr." + name;
 }
