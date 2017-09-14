@@ -19,10 +19,18 @@ package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.BLangCompiler;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.impl.BResource;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.codegen.ProgramFileWriter;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -80,5 +88,12 @@ public class BTestUtils {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    public static BStruct createAndGetStruct(ProgramFile programFile, String packageName, String structName) {
+        PackageInfo structPackageInfo = programFile.getPackageInfo(packageName);
+        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
     }
 }

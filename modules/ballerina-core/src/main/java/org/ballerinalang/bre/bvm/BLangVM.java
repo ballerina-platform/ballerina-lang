@@ -718,6 +718,7 @@ public class BLangVM {
                     sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
                 case InstructionCodes.REP:
+                    //TODO fix
                     handleReply(operands, sf);
                     break;
                 case InstructionCodes.IRET:
@@ -2474,6 +2475,8 @@ public class BLangVM {
     }
 
     private void handleReply(int[] operands, StackFrame sf) {
+        //TODO fix, this should just be a notification, just success notification would suffice.
+        // current impl inject reply statement at the end of the resource. That needs to be revisited as well.
 //        int i;
 //        i = operands[0];
 //        BMessage message = null;

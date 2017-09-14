@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -43,6 +44,23 @@ public class HttpUtil {
                     "server connector " + serverConnector));
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
+        }
+    }
+
+    public static void handleResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
+        try {
+            //TODO enable once new resource signature enabled
+//                Session session = context.getCurrentSession();
+//                if (session != null) {
+//                    session.generateSessionHeader(responseMsg);
+//                }
+            //Process CORS if exists.
+            if (requestMsg.getHeader("Origin") != null) {
+                CorsHeaderGenerator.process(requestMsg, responseMsg, true);
+            }
+            requestMsg.respond(responseMsg);
+        } catch (org.wso2.carbon.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred during response", e);
         }
     }
 }

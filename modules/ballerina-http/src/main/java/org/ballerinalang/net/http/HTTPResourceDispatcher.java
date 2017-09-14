@@ -26,9 +26,6 @@ import org.ballerinalang.net.uri.QueryParamProcessor;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
@@ -45,7 +42,7 @@ public class HTTPResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
-    public static Resource findResource(HttpService service, HTTPCarbonMessage cMsg, CarbonCallback callback)
+    public static Resource findResource(HttpService service, HTTPCarbonMessage cMsg)
             throws BallerinaConnectorException {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -65,7 +62,7 @@ public class HTTPResourceDispatcher {
                 return resource;
             } else {
                 if (method.equals(Constants.HTTP_METHOD_OPTIONS)) {
-                    handleOptionsRequest(cMsg, service, callback);
+                    handleOptionsRequest(cMsg, service);
                 } else {
                     cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
                     throw new BallerinaConnectorException("no matching resource found for path : "
@@ -88,9 +85,9 @@ public class HTTPResourceDispatcher {
         return subPath;
     }
 
-    private static void handleOptionsRequest(HTTPCarbonMessage cMsg, Service service, CarbonCallback callback)
+    private static void handleOptionsRequest(HTTPCarbonMessage cMsg, Service service)
             throws URITemplateException {
-        DefaultCarbonMessage response = new DefaultCarbonMessage();
+        HTTPCarbonMessage response = new HTTPCarbonMessage();
         if (cMsg.getHeader(Constants.ALLOW) != null) {
             response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
         } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {
@@ -106,7 +103,7 @@ public class HTTPResourceDispatcher {
         response.setProperty(Constants.HTTP_STATUS_CODE, 200);
         response.setAlreadyRead(true);
         response.setEndOfMsgAdded(true);
-        callback.done(response);
+        HttpUtil.handleResponse(cMsg, response);
         return;
     }
 
