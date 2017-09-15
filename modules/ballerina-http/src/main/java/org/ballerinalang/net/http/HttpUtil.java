@@ -329,11 +329,11 @@ public class HttpUtil {
 
     public static BValue[] setStringPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        String payload = abstractNativeFunction.getStringArgument(context, 0);
-
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-        StringDataSource stringDataSource = new StringDataSource(payload);
+
+        String payload = abstractNativeFunction.getStringArgument(context, 0);
+        StringDataSource stringDataSource = new StringDataSource(payload, httpCarbonMessage.getOutputStream());
         httpCarbonMessage.setMessageDataSource(stringDataSource);
         httpCarbonMessage.setAlreadyRead(true);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
