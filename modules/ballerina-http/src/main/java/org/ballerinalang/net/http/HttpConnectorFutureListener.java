@@ -4,6 +4,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -16,9 +17,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 public class HttpConnectorFutureListener implements ConnectorFutureListener {
     private static final Logger log = LoggerFactory.getLogger(HttpConnectorFutureListener.class);
     private HTTPCarbonMessage requestMessage;
+    private BValue request;
 
-    public HttpConnectorFutureListener(HTTPCarbonMessage requestMessage) {
+    public HttpConnectorFutureListener(HTTPCarbonMessage requestMessage, BValue request) {
         this.requestMessage = requestMessage;
+        this.request = request;
     }
 
     @Override
@@ -30,7 +33,14 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
     public void notifyReply(BValue response) {
         HTTPCarbonMessage responseMessage = (HTTPCarbonMessage) ((BStruct) response)
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-
+        Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
+        if (session != null) {
+            session.generateSessionHeader(responseMessage);
+        }
+        //Process CORS if exists.
+        if (requestMessage.getHeader("Origin") != null) {
+            CorsHeaderGenerator.process(requestMessage, responseMessage, true);
+        }
         HttpUtil.handleResponse(requestMessage, responseMessage);
     }
 

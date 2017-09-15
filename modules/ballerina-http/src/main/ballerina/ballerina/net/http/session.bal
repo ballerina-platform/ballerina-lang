@@ -3,18 +3,17 @@ package ballerina.net.http;
 import ballerina.doc;
 
 struct Session {
-    string id;
 }
 
 @doc:Description { value:"Gets the session struct for valid id, otherwise create new" }
-@doc:Param { value:"m: A message object" }
+@doc:Param { value:"req: The request message" }
 @doc:Return { value:"Session: HTTP session struct" }
-native function createSessionIfAbsent (message m) (Session);
+native function createSessionIfAbsent (Request req) (Session);
 
 @doc:Description { value:"Gets the session struct for valid id" }
-@doc:Param { value:"m: A message object" }
+@doc:Param { value:"req: The request message" }
 @doc:Return { value:"Session: HTTP session struct" }
-native function getSession (message m) (Session);
+native function getSession (Request req) (Session);
 
 @doc:Description { value:"Gets the session attribute" }
 @doc:Param { value:"session: A session struct" }
