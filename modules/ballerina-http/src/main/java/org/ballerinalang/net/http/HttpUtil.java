@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 //import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -64,11 +65,11 @@ public class HttpUtil {
 
     public static BValue[] addHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
         BStruct requestStruct  = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
-        String headerValue = abstractNativeFunction.getStringArgument(context, 1);
-        // Add new header.
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(Constants.TRANSPORT_MESSAGE);
+
+        String headerName = abstractNativeFunction.getStringArgument(context, 0);
+        String headerValue = abstractNativeFunction.getStringArgument(context, 1);
 
         List<Header> headerList = new ArrayList<>();
         headerList.add(new Header(headerName, headerValue));
@@ -198,7 +199,7 @@ public class HttpUtil {
         return abstractNativeFunction.getBValues(result);
     }
 
-    public static BValue[] getXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
+    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction) {
         BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
         CarbonMessage carbonMessage = msg.value();
         String mapKey = abstractNativeFunction.getStringArgument(context, 0);
@@ -212,7 +213,7 @@ public class HttpUtil {
         return abstractNativeFunction.getBValues(new BString(mapValue));
     }
 
-    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction) {
+    public static BValue[] getXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
         BXML result = null;
         try {
             // Accessing First Parameter Value.
@@ -267,11 +268,10 @@ public class HttpUtil {
 
     public static BValue[] removeAllHeaders(Context context, AbstractNativeFunction abstractNativeFunction) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
         httpCarbonMessage.getHeaders().clear();
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] removeHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -284,7 +284,7 @@ public class HttpUtil {
         if (log.isDebugEnabled()) {
             log.debug("Remove header:" + headerName);
         }
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -299,7 +299,7 @@ public class HttpUtil {
         if (log.isDebugEnabled()) {
             log.debug("Set " + headerName + " header with value: " + headerValue);
         }
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setJsonPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -309,8 +309,9 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
         httpCarbonMessage.setMessageDataSource(payload);
+        httpCarbonMessage.setAlreadyRead(true);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setProperty(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -323,7 +324,7 @@ public class HttpUtil {
                     .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
             httpCarbonMessage.setProperty(propertyName, propertyValue);
         }
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setStringPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -332,15 +333,14 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                 .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
-//        StringDataSource stringDataSource = new StringDataSource(payload);
-//        httpCarbonMessage.setMessageDataSource(stringDataSource);
-        httpCarbonMessage.addMessageBody(ByteBuffer.wrap(payload.getBytes()));
-        httpCarbonMessage.setEndOfMsgAdded(true);
+        StringDataSource stringDataSource = new StringDataSource(payload);
+        httpCarbonMessage.setMessageDataSource(stringDataSource);
+        httpCarbonMessage.setAlreadyRead(true);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload);
         }
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     public static BValue[] setXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -348,16 +348,18 @@ public class HttpUtil {
         BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
 
         HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+                .getNativeData(Constants.TRANSPORT_MESSAGE);
         httpCarbonMessage.setMessageDataSource(payload);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
-    public static BValue[] getContentLenghth(Context context, AbstractNativeFunction abstractNativeFunction) {
+    public static BValue[] getContentLength(Context context, AbstractNativeFunction abstractNativeFunction) {
         int contentLength = -1;
-        BMessage bMsg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
-        String lengthStr = (String) bMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
 
         try {
             contentLength = Integer.parseInt(lengthStr);
@@ -367,15 +369,17 @@ public class HttpUtil {
         return abstractNativeFunction.getBValues(new BInteger(contentLength));
     }
 
-    public static BValue[] getContentLength(Context context, AbstractNativeFunction abstractNativeFunction) {
+    public static BValue[] setContentLength(Context context, AbstractNativeFunction abstractNativeFunction) {
         try {
-            BMessage bMsg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
             long contentLength = abstractNativeFunction.getIntArgument(context, 0);
-            bMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Content-Length");
         }
-        return abstractNativeFunction.VOID_RETURN;
+        return AbstractNativeFunction.VOID_RETURN;
     }
 
     /**
