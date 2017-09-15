@@ -41,7 +41,7 @@ import javax.websocket.Session;
  */
 public abstract class AbstractNativeWsAction extends AbstractNativeAction {
 
-    public BStruct createWSConnectionStruct(Context context, Session session, BStruct wsParentConnection) {
+    public BStruct createWSConnectionStruct(Context context, Session session, String parentConnectionID) {
 
         //gather package details from natives
         PackageInfo wsConnectionPackageInfo = context.getProgramFile().getPackageInfo(Constants.WEBSOCKET_PACKAGE_NAME);
@@ -53,7 +53,7 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
         BStruct wsConnection = new BStruct(structType);
 
         wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-        wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION, wsParentConnection);
+        wsConnection.addNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID, parentConnectionID);
         return wsConnection;
     }
 

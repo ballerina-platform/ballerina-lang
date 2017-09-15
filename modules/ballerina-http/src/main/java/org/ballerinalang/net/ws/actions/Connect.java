@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.BallerinaWebSocketConnectorListener;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -66,7 +65,6 @@ public class Connect extends AbstractNativeWsAction {
 
         BRefType bSubProtocolsBRefType = clientConfig.getRefField(0);
         String wsParentConnectionID = clientConfig.getStringField(0);
-        BStruct wsParentConnection = WebSocketConnectionManager.getInstance().getConnection(wsParentConnectionID);
         BRefType<BMap<BString, BString>> bCustomHeaders = clientConfig.getRefField(1);
         int idleTimeoutInSeconds =  new Long(clientConfig.getIntField(0)).intValue();
 
@@ -88,7 +86,7 @@ public class Connect extends AbstractNativeWsAction {
             WebSocketClientConnector clientConnector =
                     connectorFactory.createWsClientConnector(clientConnectorConfig);
             Session session = clientConnector.connect(new BallerinaWebSocketConnectorListener());
-            BStruct wsConnection = createWSConnectionStruct(context, session, wsParentConnection);
+            BStruct wsConnection = createWSConnectionStruct(context, session, wsParentConnectionID);
             context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
             storeWsConnection(session.getId(), wsConnection);
             return wsConnection;
