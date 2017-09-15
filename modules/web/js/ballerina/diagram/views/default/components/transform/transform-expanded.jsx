@@ -1025,11 +1025,19 @@ class TransformExpanded extends React.Component {
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
                     const funcInvs = this.findFunctionInvocations(rightExpression);
-                    funcInvs.forEach((funcDetails) => {
-                        funcDetails.assignmentStmt = child;
+                    const exists = functions.find((func) => {
+                        return func.funcInv === funcInvs[0].funcInv;
                     });
-                    funcInvs.type = 'function';
-                    functions.push(...funcInvs);
+                    if (!exists) {
+                        // only add if the function invocation is not pre available.
+                        // this check is required for instances where the function invocations
+                        // are used via temporary variables
+                        funcInvs.type = 'function';
+                        funcInvs.forEach((funcDetails) => {
+                            funcDetails.assignmentStmt = child;
+                        });
+                        functions.push(...funcInvs);
+                    }
                 } else if (ASTFactory.isBinaryExpression(rightExpression)
                             || ASTFactory.isUnaryExpression(rightExpression)) {
                     const operatorInfo = {};
@@ -1051,6 +1059,7 @@ class TransformExpanded extends React.Component {
                  }
             });
         }
+
         return (
             <div
                 className='transformOverlay'
