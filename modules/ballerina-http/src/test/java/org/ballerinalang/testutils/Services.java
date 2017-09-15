@@ -19,8 +19,21 @@
 package org.ballerinalang.testutils;
 
 
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
+import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConnectorFutureListener;
+import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -35,6 +48,23 @@ public class Services {
         ServerConnectorMessageHandler.handleInbound(cMsg, callback);
 
         return callback.getResponse();  // This will only work for blocking behaviour
+    }
+
+    public static HTTPCarbonMessage invokeNew(HTTPCarbonMessage carbonMessage) {
+        Resource resource = HttpDispatcher.findResource(carbonMessage);
+        //TODO below should be fixed properly
+        //basically need to find a way to pass information from server connector side to client connector side
+        Map<String, Object> properties = null;
+        if (carbonMessage.getProperty(Constants.SRC_HANDLER) != null) {
+            Object srcHandler = carbonMessage.getProperty(Constants.SRC_HANDLER);
+            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        }
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, carbonMessage);
+        ConnectorFuture future = Executor.submit(resource, properties, signatureParams);
+        TestHttpFutureListener futureListener = new TestHttpFutureListener(carbonMessage, signatureParams[0]);
+        future.setConnectorFutureListener(futureListener);
+        futureListener.sync();
+        return futureListener.getResponseMsg();
     }
 
 }
