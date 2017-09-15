@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Treebeard, decorators as Decorators } from 'react-treebeard';
+import { Treebeard, decorators as Decorators } from './tree-view/index';
 import { getFSRoots, listFiles } from 'api-client/api-client';
 
 /**
@@ -17,10 +17,10 @@ class Container extends React.Component {
             <div
                 className="file-tree-item"
                 onDoubleClick={() => {
-                    this.context.onToggle(this.props.node);
+                    this.context.onOpen(this.props.originalNode);
                 }}
                 onContextMenu={() => {
-                    this.context.onToggle(this.props.node, !this.props.node.toggled);
+                    this.context.onToggle(this.props.originalNode,  this.props.originalNode.toggled);
                 }}
             >
                 <div className="whole-row" />
@@ -31,7 +31,7 @@ class Container extends React.Component {
 }
 
 Container.propTypes = {
-    node: PropTypes.objectOf(Object).isRequired,
+    originalNode: PropTypes.objectOf(Object).isRequired,
 };
 
 Container.contextTypes = {

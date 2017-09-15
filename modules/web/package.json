@@ -31,6 +31,7 @@
     "@kadira/storybook": "^2.21.0",
     "babel-cli": "^6.24.0",
     "babel-plugin-module-resolver": "^2.7.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-es2015": "^6.22.0",
     "chai": "^3.5.0",
     "chai-jest-snapshot": "^1.3.0",
@@ -91,6 +92,7 @@
     "mousetrap": "^1.6.0",
     "npm": "^4.2.0",
     "prop-types": "^15.5.8",
+    "radium": "^0.19.4",
     "raw-loader": "^0.5.1",
     "rc-menu": "^5.0.10",
     "rc-tabs": "^9.1.3",
@@ -107,11 +109,11 @@
     "react-json-view": "^1.12.0",
     "react-split-pane": "^0.1.66",
     "react-transition-group": "^1.1.2",
-    "react-treebeard": "^2.0.3",
     "select2": "^4.0.3",
     "swagger-editor-dist": "^3.1.7",
     "typeahead.js": "^0.11.1",
     "unused-files-webpack-plugin": "^3.0.1",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "velocity-react": "^1.3.3"
   }
 }
