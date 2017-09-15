@@ -77,7 +77,6 @@ public class RequestNativeFunctionTest {
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
 
-        cMsg.set
 
         request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
 
