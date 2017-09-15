@@ -31,7 +31,6 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.BTypes;
@@ -47,6 +46,7 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -57,6 +57,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -201,7 +202,7 @@ public class BLangFileRestService {
                 .collect(Collectors.toList());
         JsonObject nodeJson = new JsonObject();
 
-        JsonArray wsJson = new JsonArray();
+        //JsonArray wsJson = new JsonArray();
 //        Set<Whitespace> ws = node.getWS();
 //        if (ws != null && !ws.isEmpty()) {
 //            for (Whitespace whitespace : ws) {
@@ -254,12 +255,12 @@ public class BLangFileRestService {
                     }
                 } else if (prop instanceof PackageID) {
                     PackageID id = (PackageID) prop;
-                    nodeJson.addProperty("package", id.getPackageName().toString());
+                    nodeJson.addProperty("package", id.getName().toString());
                     nodeJson.addProperty("packageVersion", id.getPackageVersion().toString());
                     JsonArray comps = new JsonArray();
-                    List<IdentifierNode> nameComps = id.getNameComps();
+                    List<Name> nameComps = id.getNameComps();
                     for (int compI = 0; compI < nameComps.size(); compI++) {
-                        IdentifierNode i = nameComps.get(compI);
+                        Name i = nameComps.get(compI);
                         if (compI != 0) {
                             comps.add(".");
                         }
@@ -300,9 +301,13 @@ public class BLangFileRestService {
      */
     private static String parseJsonDataModel(String content, String fileName) throws IOException {
         CompilerContext context = new CompilerContext();
-        context.put(PackageRepository.class, new InMemoryPackageRepository(content.getBytes(StandardCharsets.UTF_8)));
 
-        CompilerOptions options = CompilerOptions.getInstance(context);
+        List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
+        names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+        context.put(PackageRepository.class, new InMemoryPackageRepository(
+                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
+                "temp", fileName + ".bal", content.getBytes(StandardCharsets.UTF_8)));
+
         Compiler compiler = Compiler.getInstance(context);
         org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(fileName);
 

@@ -2,11 +2,11 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageEntity;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,99 +14,88 @@ import java.util.stream.Stream;
 /**
  * InMemoryPackageRepository
  */
-public class InMemoryPackageRepository implements PackageRepository {
+public class InMemoryPackageRepository extends GeneralFSPackageRepository {
 
     private byte[] code;
+    private PackageID pkgID;
+    private String name;
 
-    public InMemoryPackageRepository(byte[] code) {
+    public InMemoryPackageRepository(PackageID pkgID, String basePath, String name, byte[] code) {
+        super(Paths.get(basePath));
+        this.name = name;
         this.code = code.clone();
+        this.pkgID = pkgID;
+
+    }
+
+    private PackageSource lookupPackageSource(PackageID pkgID, byte[] code) {
+        return new InMemoryPackageSource(pkgID, name, code);
+    }
+
+    @Override
+    public PackageEntity loadPackage(PackageID pkgID) {
+        PackageEntity result = null;
+        //TODO check compiled packages first
+        if (result == null) {
+            result = this.lookupPackageSource(pkgID, code);
+        }
+        return result;
+    }
+
+    @Override
+    public PackageEntity loadPackage(PackageID pkgID, String entryName) {
+        PackageEntity result = this.lookupPackageSource(pkgID, code);
+        return result;
     }
 
     /**
      * InMemoryPackageSource
      */
-    public static class InMemoryPackageSource implements PackageSource {
+    public class InMemoryPackageSource extends FSPackageSource {
 
         private byte[] code;
+        private String name;
 
-        public InMemoryPackageSource(byte[] code) {
-            this.code = code.clone();
-        }
-
-        @Override
-        public PackageID getPackageId() {
-            return new PackageID(new Name("."), new Name("0.0.0"));
-        }
-
-        @Override
-        public List<String> getEntryNames() {
-            return Stream.of("untitled")
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        public PackageSourceEntry getPackageSourceEntry(String s) {
-            return null;
+        public InMemoryPackageSource(PackageID pkgID, String name, byte[] code) {
+            super(pkgID, null);
+            this.code = code;
+            this.name = name;
         }
 
         @Override
         public List<PackageSourceEntry> getPackageSourceEntries() {
-            return Stream.of(new InMemoryPackageRepository.InMemoryPackageSource.InMemoryPackageSourceEntry(code))
+            return Stream.of(new InMemoryPackageRepository.InMemoryPackageSource.InMemorySourceEntry(name, code))
                     .collect(Collectors.toList());
-            //return this.getEntryNames().stream().map(e -> new InMemoryPackageRepository.InMemoryPackageSource.
-            // InMemoryPackageSourceEntry(code)).collect(Collectors.toList());
-        }
-
-        @Override
-        public Kind getKind() {
-            return Kind.SOURCE;
-        }
-
-        @Override
-        public String getName() {
-            return "untitled";
-        }
-
-        @Override
-        public PackageRepository getPackageRepository() {
-            return null;
         }
 
         /**
-         * InMemoryPackageSourceEntry
+         * InMemorySourceEntry
          */
-        public static class InMemoryPackageSourceEntry implements PackageSourceEntry {
+        public class InMemorySourceEntry implements PackageSourceEntry {
 
+            private String name;
             private byte[] code;
 
-            InMemoryPackageSourceEntry(byte[] code) {
+            public InMemorySourceEntry(String name, byte[] code) {
+                this.name = name;
                 this.code = code.clone();
             }
 
             @Override
             public PackageID getPackageID() {
-                return new PackageID(new Name("."), new Name("0.0.0"));
+                return pkgID;
             }
 
             @Override
             public String getEntryName() {
-                return null;
+                return name;
             }
 
             @Override
             public byte[] getCode() {
-                return code.clone();
+                return code;
             }
         }
     }
-
-    @Override
-    public PackageEntity loadPackage(PackageID packageID) {
-        return new InMemoryPackageSource(code);
-    }
-
-    @Override
-    public PackageEntity loadPackage(PackageID packageID, String s) {
-        return new InMemoryPackageSource(code);
-    }
 }
+
