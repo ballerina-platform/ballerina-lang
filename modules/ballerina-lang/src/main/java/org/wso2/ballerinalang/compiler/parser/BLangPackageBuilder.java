@@ -602,8 +602,8 @@ public class BLangPackageBuilder {
     public void createTypeConversionExpr(DiagnosticPos pos) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
-        typeConversionNode.expr = exprNodeStack.pop();
-        typeConversionNode.typeName = typeNodeStack.pop();
+        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
+        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
 

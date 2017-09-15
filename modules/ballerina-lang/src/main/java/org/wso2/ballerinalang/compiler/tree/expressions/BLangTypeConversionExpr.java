@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,8 @@ import java.util.List;
  */
 public class BLangTypeConversionExpr extends BLangExpression implements TypeConversionNode, MultiReturnExpr {
 
-    public ExpressionNode expr;
-    public TypeNode typeName;
+    public BLangExpression expr;
+    public BLangType typeNode;
     public List<BType> types = new ArrayList<>(0);
 
 
@@ -42,15 +43,15 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     }
 
     public void setExpression(ExpressionNode expr) {
-        this.expr = expr;
+        this.expr = (BLangExpression) expr;
     }
 
-    public TypeNode getTypeName() {
-        return typeName;
+    public BLangType getTypeNode() {
+        return typeNode;
     }
 
-    public void setTypeName(TypeNode typeName) {
-        this.typeName = typeName;
+    public void setTypeNode(TypeNode typeNode) {
+        this.typeNode = (BLangType) typeNode;
     }
 
     public boolean isMultiReturnExpr() {
@@ -69,7 +70,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     @Override
     public String toString() {
-        return "<" + String.valueOf(typeName) + "> " + String.valueOf(expr);
+        return "<" + String.valueOf(typeNode) + "> " + String.valueOf(expr);
     }
 
     @Override

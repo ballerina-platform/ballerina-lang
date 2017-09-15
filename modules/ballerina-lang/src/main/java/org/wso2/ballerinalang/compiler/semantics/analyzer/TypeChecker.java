@@ -21,6 +21,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -198,7 +199,27 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        throw new AssertionError();
+        BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
+        BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
+
+        // Lookup type conversion operator symbol
+        BSymbol symbol = symResolver.resolveConversionOperator(conversionExpr.pos, sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            conversionExpr.type = symTable.errType;
+            return;
+        }
+
+        BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+        // If this conversion is an unsafe conversion , then there MUST to be two l variables
+        // resulting two expected types
+        // If this is an safe conversion, then the error variable is optional
+        if (!conversionSym.safe && expTypes.size() < 2) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
+        } else if (conversionSym.safe && expTypes.size() < 2) {
+            expTypes.add(symTable.errStructType);
+        }
+
+        resultTypes = checkTypes(conversionExpr, conversionSym.type.getReturnTypes(), expTypes);
     }
 
 

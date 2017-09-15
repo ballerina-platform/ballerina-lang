@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -201,6 +202,7 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, -1);
 
         defineCastOperators();
+        defineConversionOperators();
     }
 
     private void defineCastOperators() {
@@ -233,6 +235,26 @@ public class SymbolTable {
         defineExplicitCastOperator(jsonType, floatType, false, -1);
         defineExplicitCastOperator(jsonType, stringType, false, -1);
         defineExplicitCastOperator(jsonType, booleanType, false, -1);
+    }
+
+    private void defineConversionOperators() {
+        // Define conversion operators
+        defineConversionOperator(intType, floatType, true, -1);
+        defineConversionOperator(intType, stringType, true, -1);
+        defineConversionOperator(intType, booleanType, true, -1);
+        defineConversionOperator(floatType, stringType, true, -1);
+        defineConversionOperator(floatType, booleanType, true, -1);
+        defineConversionOperator(floatType, intType, true, -1);
+        defineConversionOperator(stringType, floatType, false, -1);
+        defineConversionOperator(stringType, intType, false, -1);
+        defineConversionOperator(stringType, booleanType, false, -1);
+        defineConversionOperator(booleanType, stringType, true, -1);
+        defineConversionOperator(booleanType, intType, true, -1);
+        defineConversionOperator(booleanType, floatType, true, -1);
+        defineConversionOperator(jsonType, xmlType, false, -1);
+        defineConversionOperator(xmlType, jsonType, false, -1);
+        defineConversionOperator(datatableType, xmlType, false, -1);
+        defineConversionOperator(datatableType, jsonType, false, -1);
     }
 
     private void defineBinaryOperator(OperatorKind kind,
@@ -280,6 +302,17 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(opType, rootPkgSymbol,
                 implicit, explicit, safe, opcode);
+        rootScope.define(symbol.name, symbol);
+    }
+
+    private void defineConversionOperator(BType sourceType,
+                                          BType targetType,
+                                          boolean safe,
+                                          int opcode) {
+        List<BType> paramTypes = Lists.of(sourceType, targetType);
+        List<BType> retTypes = Lists.of(targetType, this.errStructType);
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(opType, rootPkgSymbol, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 
