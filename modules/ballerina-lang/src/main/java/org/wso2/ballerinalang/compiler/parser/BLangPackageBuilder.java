@@ -361,7 +361,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false);
+        endFunctionDef(pos, null, false, false, true);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos, String identifier, boolean exprAvailable) {
@@ -631,7 +631,11 @@ public class BLangPackageBuilder {
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
-    public void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc) {
+    public void endFunctionDef(DiagnosticPos pos,
+                               Set<Whitespace> ws,
+                               boolean publicFunc,
+                               boolean nativeFunc,
+                               boolean bodyExists) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -642,6 +646,10 @@ public class BLangPackageBuilder {
 
         if (nativeFunc) {
             function.flagSet.add(Flag.NATIVE);
+        }
+
+        if (!bodyExists) {
+            function.body = null;
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -880,11 +888,15 @@ public class BLangPackageBuilder {
         this.invokableNodeStack.push(actionNode);
     }
 
-    public void endActionDef(DiagnosticPos pos, int annotCount, boolean nativeAction) {
+    public void endActionDef(DiagnosticPos pos, int annotCount, boolean nativeAction, boolean bodyExists) {
         BLangAction actionNode = (BLangAction) this.invokableNodeStack.pop();
         actionNode.pos = pos;
         if (nativeAction) {
             actionNode.flagSet.add(Flag.NATIVE);
+        }
+
+        if (!bodyExists) {
+            actionNode.body = null;
         }
 
         attachAnnotations(actionNode, annotCount);

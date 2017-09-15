@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * @since 0.94
@@ -76,5 +77,13 @@ public class Symbols {
                                                          BType type,
                                                          BSymbol owner) {
         return new BInvokableSymbol(kind, flags, name, type, owner);
+    }
+
+    public static boolean isNative(BSymbol sym) {
+        return (sym.flags & Flags.NATIVE) == Flags.NATIVE;
+    }
+
+    public static boolean isPublic(BSymbol sym) {
+        return (sym.flags & Flags.PUBLIC) == Flags.PUBLIC;
     }
 }

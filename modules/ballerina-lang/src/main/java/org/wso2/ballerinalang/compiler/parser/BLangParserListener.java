@@ -248,7 +248,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             nativeKWTokenIndex = 1;
         }
         boolean nativeFunc = KEYWORD_NATIVE.equals(ctx.getChild(nativeKWTokenIndex).getText());
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc);
+        boolean bodyExists = ctx.callableUnitBody() != null;
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc, bodyExists);
     }
 
     @Override
@@ -358,8 +359,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean nativeAction = KEYWORD_NATIVE.equals(ctx.getChild(0).getText());;
-        this.pkgBuilder.endActionDef(getCurrentPos(ctx), ctx.annotationAttachment().size(), nativeAction);
+        boolean nativeAction = KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        boolean bodyExists = ctx.callableUnitBody() != null;
+        this.pkgBuilder.endActionDef(getCurrentPos(ctx), ctx.annotationAttachment().size(), nativeAction, bodyExists);
     }
 
     /**

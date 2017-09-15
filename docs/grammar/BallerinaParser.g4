@@ -63,7 +63,8 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION callableUnitSignature callableUnitBody
+    :   (PUBLIC)? NATIVE FUNCTION  callableUnitSignature SEMICOLON
+    |   (PUBLIC)? FUNCTION callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction
@@ -83,7 +84,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotationAttachment* (NATIVE)? ACTION callableUnitSignature callableUnitBody
+    :   annotationAttachment* NATIVE ACTION  callableUnitSignature SEMICOLON
+    |   annotationAttachment* ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
