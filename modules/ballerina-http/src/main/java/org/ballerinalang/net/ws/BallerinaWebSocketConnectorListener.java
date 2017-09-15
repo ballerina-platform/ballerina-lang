@@ -171,7 +171,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         if (onIdleTimeoutResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(controlMessage);
+        BStruct wsConnection = removeConnection(controlMessage);
         BValue[] bValues = {wsConnection};
         ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
@@ -209,6 +209,10 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
     private BStruct getWSConnection(WebSocketMessage webSocketMessage) {
         return WebSocketConnectionManager.getInstance().getConnection(webSocketMessage.getChannelSession().getId());
+    }
+
+    private BStruct removeConnection(WebSocketMessage webSocketMessage) {
+        return WebSocketConnectionManager.getInstance().removeConnection(webSocketMessage.getChannelSession().getId());
     }
 
 }
