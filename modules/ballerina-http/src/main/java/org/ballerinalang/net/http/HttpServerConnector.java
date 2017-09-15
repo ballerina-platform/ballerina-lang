@@ -29,7 +29,7 @@ import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.URI;
 import java.util.List;
@@ -110,7 +110,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
         HttpUtil.startPendingHttpConnectors();
     }
 
-    public HttpService findService(CarbonMessage cMsg) {
+    public HttpService findService(HTTPCarbonMessage cMsg) {
 
         try {
             String interfaceId = getInterface(cMsg);
@@ -149,7 +149,7 @@ public class HttpServerConnector implements BallerinaServerConnector {
     }
 
 
-    protected String getInterface(CarbonMessage cMsg) {
+    protected String getInterface(HTTPCarbonMessage cMsg) {
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (log.isDebugEnabled()) {

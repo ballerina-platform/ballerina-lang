@@ -34,8 +34,8 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WSClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
 import javax.websocket.Session;
@@ -57,8 +57,8 @@ public class Connect extends AbstractNativeAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        WSClientConnectorConfig senderConfiguration =
-                (WSClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
+        WsClientConnectorConfig senderConfiguration =
+                (WsClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         BStruct wsParentConnection = (BStruct) bconnector.getnativeData(Constants.NATIVE_DATA_PARENT_CONNECTION);
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
 

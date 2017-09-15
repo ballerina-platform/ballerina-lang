@@ -29,7 +29,6 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -78,7 +77,7 @@ public class Put extends AbstractHTTPAction {
         }
         try {
             // Execute the operation
-            executeNonBlockingAction(context, createCarbonMsg(context), callback);
+            executeNonBlockingAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
             // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'put' action in " + Constants.CONNECTOR_NAME
@@ -86,15 +85,8 @@ public class Put extends AbstractHTTPAction {
         }
     }
 
-    private CarbonMessage createCarbonMsg(Context context) {
-
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
-        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-        prepareRequest(bConnector, path, cMsg);
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
         cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_PUT);
         return cMsg;
     }

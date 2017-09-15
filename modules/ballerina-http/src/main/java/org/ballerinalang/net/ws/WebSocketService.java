@@ -77,6 +77,11 @@ public class WebSocketService implements Service {
         return idleTimeoutInSeconds;
     }
 
+    public BStruct createHandshakeConnectionStruct() {
+        return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
+                                           Constants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
+    }
+
     public BStruct createConnectionStruct() {
         return ConnectorUtils.createStruct(service.getResources()[0], Constants.WEBSOCKET_PACKAGE_NAME,
                                     Constants.STRUCT_WEBSOCKET_CONNECTION);
