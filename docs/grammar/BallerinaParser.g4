@@ -63,8 +63,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   NATIVE FUNCTION  callableUnitSignature SEMICOLON
-    |   FUNCTION callableUnitSignature callableUnitBody
+    :   (PUBLIC)? (NATIVE)? FUNCTION callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction
@@ -76,7 +75,7 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   (PUBLIC)? CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
@@ -84,12 +83,11 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotationAttachment* NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* ACTION callableUnitSignature callableUnitBody
+    :   annotationAttachment* (NATIVE)? ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
-    :   STRUCT Identifier structBody
+    :   (PUBLIC)? STRUCT Identifier structBody
     ;
 
 structBody
@@ -101,7 +99,7 @@ annotationDefinition
     ;
 
 enumDefinition
-    : ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
+    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
     ;
 
 enumFieldList
@@ -109,7 +107,7 @@ enumFieldList
     ;
 
 globalVariableDefinition
-    :   typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -143,7 +141,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
     ;
 
 workerDeclaration

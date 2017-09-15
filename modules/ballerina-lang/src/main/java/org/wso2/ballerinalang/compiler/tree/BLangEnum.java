@@ -19,12 +19,15 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -32,6 +35,8 @@ import java.util.List;
 public class BLangEnum extends BLangNode implements EnumNode {
 
     public BLangIdentifier name;
+    public Set<Flag> flags;
+    public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangIdentifier> enumFields;
 
     public BLangEnum() {
@@ -70,5 +75,25 @@ public class BLangEnum extends BLangNode implements EnumNode {
     @Override
     public String toString() {
         return "BLangEnum: " + this.name + " -> " + this.enumFields;
+    }
+
+    @Override
+    public Set<Flag> getFlags() {
+        return flags;
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
+    }
+
+    @Override
+    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
+        return annAttachments;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
     }
 }
