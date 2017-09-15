@@ -21,10 +21,12 @@ import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
  * a.b
+ *
  * @since 0.94
  */
 public interface FieldBasedAccessNode extends VariableReferenceNode {
-    ExpressionNode getExpression();
+
+    VariableReferenceNode getExpression();
 
     IdentifierNode getFieldName();
 }

@@ -44,7 +44,7 @@ public class BTester {
 //        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
         options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
         options.put(COMPILER_PHASE, "typeCheck");
-        options.put(PRESERVE_WHITESPACE, "true");
+        options.put(PRESERVE_WHITESPACE, "false");
 
         // How to set a custom diagnostic listener
         DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());

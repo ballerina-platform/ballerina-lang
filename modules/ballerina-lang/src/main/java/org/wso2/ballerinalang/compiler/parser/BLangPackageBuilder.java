@@ -549,7 +549,7 @@ public class BLangPackageBuilder {
         }
 
         BLangNameReference nameReference = nameReferenceStack.pop();
-        invocationNode.functionName = (BLangIdentifier) nameReference.name;
+        invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         addExpressionNode(invocationNode);
     }
@@ -562,8 +562,8 @@ public class BLangPackageBuilder {
             exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
         }
 
-        invocationNode.variableReferenceNode = (BLangVariableReference) exprNodeStack.pop();
-        invocationNode.functionName = (BLangIdentifier) createIdentifier(invocation);
+        invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();
+        invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
     }
@@ -571,16 +571,16 @@ public class BLangPackageBuilder {
     public void createFieldBasedAccessNode(DiagnosticPos pos, String fieldName) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
-        fieldBasedAccess.fieldName = createIdentifier(fieldName);
-        fieldBasedAccess.expressionNode = exprNodeStack.pop();
+        fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
+        fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(fieldBasedAccess);
     }
 
     public void createIndexBasedAccessNode(DiagnosticPos pos) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = pos;
-        indexBasedAccess.index = exprNodeStack.pop();
-        indexBasedAccess.expression = exprNodeStack.pop();
+        indexBasedAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
+        indexBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(indexBasedAccess);
     }
 
