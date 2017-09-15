@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -214,6 +215,10 @@ public abstract class BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangArrayLiteral arrayLiteral) {
         throw new AssertionError();
     }
 

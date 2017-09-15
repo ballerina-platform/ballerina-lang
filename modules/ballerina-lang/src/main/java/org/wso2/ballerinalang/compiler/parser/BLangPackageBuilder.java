@@ -126,6 +126,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * This class builds the package AST of a Ballerina source file.
@@ -486,7 +487,7 @@ public class BLangPackageBuilder {
             argExprList = new ArrayList<>(0);
         }
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
-        arrayLiteral.expressionNodes = argExprList;
+        arrayLiteral.exprs = argExprList.stream().map(expr -> (BLangExpression) expr).collect(Collectors.toList());
         arrayLiteral.pos = pos;
         addExpressionNode(arrayLiteral);
     }
