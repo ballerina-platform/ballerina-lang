@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.TestUtil;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -70,7 +71,7 @@ public class AbsentPatternTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallBack callBack = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
 
@@ -79,12 +80,10 @@ public class AbsentPatternTestCase {
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event not arrived", eventArrived);
+        callBack.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callBack.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callBack.getRemoveEventCount());
+        Assert.assertTrue("Event not arrived", callBack.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
