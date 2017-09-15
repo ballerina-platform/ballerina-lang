@@ -38,14 +38,16 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import javax.websocket.Session;
 
@@ -62,32 +64,28 @@ public class WebSocketClient {
     private boolean handshakeDone = false;
 
     private final String url;
-    private final String subprotocol;
+    private final String subProtocols;
     private final String target;
-    private final boolean allowExtensions;
+    private final int idleTimeout;
     private final Map<String, String> headers;
-    private final WebSocketSourceHandler sourceHandler;
     private final WebSocketConnectorListener connectorListener;
 
     /**
      *
      * @param url url of the remote endpoint.
      * @param target target for the inbound messages from the remote server.
-     * @param subprotocol the negotiable sub-protocol if server is asking for it.
-     * @param allowExtensions true is extensions are allowed.
+     * @param subProtocols the negotiable sub-protocol if server is asking for it.
+     * @param idleTimeout Idle timeout of the connection.
      * @param headers any specific headers which need to send to the server.
-     * @param sourceHandler {@link WebSocketSourceHandler} for pass through purposes.
      * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String target, String subprotocol, boolean allowExtensions,
-                           Map<String, String> headers, WebSocketSourceHandler sourceHandler,
-                           WebSocketConnectorListener connectorListener) {
+    public WebSocketClient(String url, String target, String subProtocols, int idleTimeout,
+                           Map<String, String> headers, WebSocketConnectorListener connectorListener) {
         this.url = url;
         this.target = target;
-        this.subprotocol = subprotocol;
-        this.allowExtensions = allowExtensions;
+        this.subProtocols = subProtocols;
+        this.idleTimeout = idleTimeout;
         this.headers = headers;
-        this.sourceHandler = sourceHandler;
         this.connectorListener = connectorListener;
     }
 
@@ -135,14 +133,15 @@ public class WebSocketClient {
 
         // Adding custom headers to the handshake request.
 
-        headers.entrySet().forEach(
-                entry -> httpHeaders.add(entry.getKey(), entry.getValue())
-        );
+        if (headers != null) {
+            headers.entrySet().forEach(
+                    entry -> httpHeaders.add(entry.getKey(), entry.getValue())
+            );
+        }
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, target, subprotocol,
-                                             connectorListener);
+                uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
+        handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
 
         try {
             Bootstrap b = new Bootstrap();
@@ -155,17 +154,25 @@ public class WebSocketClient {
                             if (sslCtx != null) {
                                 p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
                             }
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    handler);
+                            p.addLast(new HttpClientCodec());
+                            p.addLast(new HttpObjectAggregator(8192));
+                            p.addLast(WebSocketClientCompressionHandler.INSTANCE);
+                            if (idleTimeout > 0) {
+                                p.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
+                                                               idleTimeout, TimeUnit.MILLISECONDS));
+                            }
+                            p.addLast(handler);
                         }
                     });
 
             channel = b.connect(uri.getHost(), port).sync().channel();
             handler.handshakeFuture().sync();
-            return handler.getChannelSession();
+            WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
+            String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+            handler.setActualSubProtocol(actualSubProtocol);
+            session.setNegotiatedSubProtocol(actualSubProtocol);
+            session.setIsOpen(true);
+            return session;
         } catch (Throwable t) {
             throw new InterruptedException("Couldn't connect to the remote server.");
         }

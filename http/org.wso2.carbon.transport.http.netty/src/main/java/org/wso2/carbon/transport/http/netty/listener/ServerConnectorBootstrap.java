@@ -171,8 +171,8 @@ public class ServerConnectorBootstrap {
         public ServerConnectorFuture start() {
             channelFuture = bindInterface(this);
             serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
-            channelFuture.addListener(future1 -> {
-                if (future1.isSuccess()) {
+            channelFuture.addListener(channelFuture -> {
+                if (channelFuture.isSuccess()) {
                     log.info("HTTP(S) Interface starting on host " + this.getHost()
                             + " and port " + this.getPort());
                 } else {

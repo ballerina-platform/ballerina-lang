@@ -23,11 +23,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -56,11 +57,9 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
-    // Variable to keep the status on whether the last content was added during the clone
-    private boolean isEndMarked = false;
     private int soTimeOut = 60;
     private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
-    private HttpConnectorListener listener;
+//    private HttpConnectorListener listener;
 
     public HTTPCarbonMessage() {
         BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
@@ -215,18 +214,15 @@ public class HTTPCarbonMessage extends CarbonMessage {
     public void setEndOfMsgAdded(boolean endOfMsgAdded) {
         super.setEndOfMsgAdded(endOfMsgAdded);
         if (isAlreadyRead()) {
-            outContentQueue.forEach(buffer -> {
-                httpContentQueue.add(buffer);
-            });
+            httpContentQueue.addAll(outContentQueue);
             outContentQueue.clear();
         }
 
     }
 
-    @Override
     public void release() {
-        httpContentQueue.forEach(content -> content.release());
-        garbageCollected.forEach(content -> content.release());
+        httpContentQueue.forEach(ReferenceCounted::release);
+        garbageCollected.forEach(ReferenceCounted::release);
     }
 
     public ServerConnectorFuture getHTTPConnectorFuture() {
@@ -237,7 +233,51 @@ public class HTTPCarbonMessage extends CarbonMessage {
         serverConnectorFuture.notifyHttpListener(httpCarbonMessage);
     }
 
-    public HttpConnectorListener getResponseListener() {
-        return this.listener;
+//    public HttpConnectorListener getResponseListener() {
+//        return this.listener;
+//    }
+
+    /**
+     * Copy Message properties and transport headers
+     *
+     * @return CarbonMessage
+     */
+    public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
+        HTTPCarbonMessage newCarbonMessage = new HTTPCarbonMessage();
+        newCarbonMessage.setBufferContent(this.isBufferContent());
+
+        List<Header> transportHeaders = this.getHeaders().getClone();
+        newCarbonMessage.setHeaders(transportHeaders);
+
+        Map<String, Object> propertiesMap = this.getProperties();
+        propertiesMap.forEach(newCarbonMessage::setProperty);
+
+//        newCarbonMessage.setWriter(this.getWriter());
+        newCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
+        return newCarbonMessage;
+    }
+
+    /**
+     * Copy the Full carbon message with data
+     *
+     * @return carbonMessage
+     */
+    public HTTPCarbonMessage cloneCarbonMessageWithData() {
+
+        HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage();
+        httpCarbonMessage.setBufferContent(this.isBufferContent());
+
+        List<Header> transportHeaders = this.getHeaders().getClone();
+        httpCarbonMessage.setHeaders(transportHeaders);
+
+        Map<String, Object> propertiesMap = this.getProperties();
+        propertiesMap.forEach(httpCarbonMessage::setProperty);
+
+//        httpCarbonMessage.setWriter(this.getWriter());
+        httpCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
+
+        this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
+        httpCarbonMessage.setEndOfMsgAdded(true);
+        return httpCarbonMessage;
     }
 }

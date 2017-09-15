@@ -27,15 +27,19 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.carbon.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
-import java.net.ProtocolException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.websocket.Session;
 
 /**
  * Implementation of {@link WebSocketInitMessage}.
@@ -52,65 +56,33 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         this.httpRequest = httpRequest;
         this.webSocketSourceHandler = webSocketSourceHandler;
         this.headers = headers;
+        this.sessionlID = WebSocketUtil.getSessionID(ctx);
     }
 
     @Override
-    public Session handshake() throws ProtocolException {
-
+    public HandshakeFuture handshake() {
         WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), null, true);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        try {
-            handshaker.handshake(ctx.channel(), httpRequest);
-
-            //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-            ChannelPipeline pipeline = ctx.pipeline();
-            pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
-
-            pipeline.remove(Constants.IDLE_STATE_HANDLER);
-            pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
-
-            return webSocketSourceHandler.getChannelSession();
-        } catch (Exception e) {
-            /*
-            Code 1002 : indicates that an endpoint is terminating the connection
-            due to a protocol error.
-             */
-            handshaker.close(ctx.channel(),
-                             new CloseWebSocketFrame(1002,
-                                                     "Terminating the connection due to a protocol error."));
-            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
-        }
+        return handleHandshake(handshaker, 0);
     }
 
     @Override
-    public Session handshake(int idleTimeout) throws ProtocolException {
+    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions) {
         WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
+                                                     allowExtensions);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        try {
-            handshaker.handshake(ctx.channel(), httpRequest);
+        return handleHandshake(handshaker, 0);
+    }
 
-            //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-            ChannelPipeline pipeline = ctx.pipeline();
-            pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                             new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout, TimeUnit.MILLISECONDS));
-            pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
-
-            pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
-
-            setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
-            return webSocketSourceHandler.getChannelSession();
-        } catch (Exception e) {
-            /*
-            Code 1002 : indicates that an endpoint is terminating the connection
-            due to a protocol error.
-             */
-            handshaker.close(ctx.channel(),
-                             new CloseWebSocketFrame(1002,
-                                                     "Terminating the connection due to a protocol error."));
-            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
-        }
+    @Override
+    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout) {
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
+                                                     getSubProtocolsCSV(subProtocols), allowExtensions);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
+        return handleHandshake(handshaker, idleTimeout);
     }
 
     @Override
@@ -123,6 +95,50 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         channelFuture.channel().close();
     }
 
+    private HandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout) {
+        HandshakeFuture handshakeFuture = new HandshakeFutureImpl();
+        try {
+            ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest);
+            future.addListener(new GenericFutureListener<Future<? super Void>>() {
+                @Override
+                public void operationComplete(Future<? super Void> future) throws Exception {
+                    String selectedSubProtocol = handshaker.selectedSubprotocol();
+                    webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
+                    setSubProtocol(selectedSubProtocol);
+                    WebSocketSessionImpl session = (WebSocketSessionImpl) getChannelSession();
+                    session.setIsOpen(true);
+                    session.setNegotiatedSubProtocol(selectedSubProtocol);
+
+                    //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+                    ChannelPipeline pipeline = ctx.pipeline();
+
+                    if (idleTimeout > 0) {
+                        pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                                         new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
+                                                              TimeUnit.MILLISECONDS));
+                    } else {
+                        pipeline.remove(Constants.IDLE_STATE_HANDLER);
+                    }
+                    pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
+                    pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
+                    setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
+                    handshakeFuture.notifySuccess(webSocketSourceHandler.getChannelSession());
+                }
+            });
+            return handshakeFuture;
+        } catch (Exception e) {
+            /*
+            Code 1002 : indicates that an endpoint is terminating the connection
+            due to a protocol error.
+             */
+            handshaker.close(ctx.channel(),
+                             new CloseWebSocketFrame(1002,
+                                                     "Terminating the connection due to a protocol error."));
+            handshakeFuture.notifyError(e);
+            return handshakeFuture;
+        }
+    }
+
     /* Get the URL of the given connection */
     private String getWebSocketURL(HttpRequest req) {
         String protocol = Constants.WEBSOCKET_PROTOCOL;
@@ -131,5 +147,18 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         }
         String url =   protocol + "://" + req.headers().get("Host") + req.getUri();
         return url;
+    }
+
+    private String getSubProtocolsCSV(String[] subProtocols) {
+        if (subProtocols == null || subProtocols.length == 0) {
+            return null;
+        }
+
+        String subProtocolsStr = "";
+        for (String subProtocol : subProtocols) {
+            subProtocolsStr = subProtocolsStr.concat(subProtocol + ",");
+        }
+        subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() - 1);
+        return subProtocolsStr;
     }
 }

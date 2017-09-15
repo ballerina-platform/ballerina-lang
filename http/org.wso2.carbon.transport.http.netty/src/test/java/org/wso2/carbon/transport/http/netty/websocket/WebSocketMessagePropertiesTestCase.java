@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -28,11 +29,12 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestClient;
 
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,15 +48,13 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketMessagePropertiesTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-
     private ServerConnector serverConnector;
-    private WebSocketConnectorListener connectorListener;
 
     @BeforeClass
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
-        listenerConfiguration.setPort(9009);
+        listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);
         serverConnector = httpConnectorFactory.createServerConnector(ServerBootstrapConfiguration.getInstance(),
                                                                   listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
@@ -64,14 +64,34 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
 
     @Test
     public void testProperties() throws InterruptedException, SSLException, URISyntaxException {
-        String subProtocol = "xml";
+        // Testing normal scenarios.
+        String subProtocol = "xml, json, xmlx";
         Map<String, String> customHeaders = new HashMap<>();
         customHeaders.put("check-sub-protocol", "true");
         customHeaders.put("message-type", "websocket");
         customHeaders.put("message-sender", "wso2");
-        WebSocketClient wsClient = new WebSocketClient(subProtocol, customHeaders);
-        wsClient.handhshake();
+        WebSocketTestClient wsClient = new WebSocketTestClient(subProtocol, customHeaders);
+        try {
+            wsClient.handhshake();
+        } catch (ProtocolException e) {
+            Assert.assertTrue(false);
+        }
         wsClient.sendText("Hi backend");
+        wsClient.shutDown();
+
+
+        // Testing invalid subprotocol
+        subProtocol = "xmlx, json";
+        customHeaders.put("check-sub-protocol", "true");
+        customHeaders.put("message-type", "websocket");
+        customHeaders.put("message-sender", "wso2");
+        wsClient = new WebSocketTestClient(subProtocol, customHeaders);
+        try {
+            wsClient.handhshake();
+            Assert.assertTrue(false);
+        } catch (ProtocolException e) {
+            Assert.assertTrue(true);
+        }
         wsClient.shutDown();
     }
 

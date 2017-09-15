@@ -122,7 +122,7 @@ senderConfigurations:
  -
   id: "https-sender"
   scheme: "https"
-  trustStoreFile: "simple-test-config/client-truststore.jks"
+  trustStoreFile: "src/test/resources/simple-test-config/wso2carbon.jks"
   trustStorePass: "wso2carbon"
   socketIdleTimeout: 120000
   parameters:

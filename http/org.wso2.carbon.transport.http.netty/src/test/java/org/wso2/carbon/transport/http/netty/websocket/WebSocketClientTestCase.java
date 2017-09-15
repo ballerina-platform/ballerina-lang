@@ -27,16 +27,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 
@@ -48,22 +47,21 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private final String url = "ws://localhost:8490/websocket";
+    private final String url = String.format("ws://%s:%d/%s", "localhost",
+                                             TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
     private final int threadSleepTime = 100;
+    private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(8490);
+    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT,
+                                                                           "xml, json");
 
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         remoteServer.run();
-        Map<String, Object> senderProperties = new HashMap<>();
-
-        senderProperties.put(Constants.REMOTE_ADDRESS, url);
-        senderProperties.put(Constants.WEBSOCKET_SUBPROTOCOLS, null);
-        clientConnector = httpConnectorFactory.createWsClientConnector(senderProperties);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
-    @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
+    @Test(priority = 1, description = "Test the WebSocket handshake and sending and receiving text messages.")
     public void testTextReceived() throws ClientConnectorException, InterruptedException, IOException {
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         Session session = handshake(connectorListener);
@@ -73,7 +71,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
         shutDownClient(session);
     }
 
-    @Test(description = "Test binary message sending and receiving.")
+    @Test(priority = 2, description = "Test binary message sending and receiving.")
     public void testBinaryReceived() throws ClientConnectorException, InterruptedException, IOException {
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         Session session = handshake(connectorListener);
@@ -84,7 +82,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
         shutDownClient(session);
     }
 
-    @Test(description = "Test ping pong messaging.")
+    @Test(priority = 3, description = "Test ping pong messaging.")
     public void testPingPong() throws ClientConnectorException, InterruptedException, IOException {
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         Session session = handshake(connectorListener);
@@ -96,7 +94,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
         shutDownClient(session);
     }
 
-    @Test(description = "Test multiple clients handling, sending and receiving text messages for them.")
+    @Test(priority = 4, description = "Test multiple clients handling, sending and receiving text messages for them.")
     public void testMultipleClients() throws ClientConnectorException, InterruptedException, IOException {
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         Session session1 = handshake(connectorListener);
@@ -117,14 +115,54 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
         shutDownClient(session2);
     }
 
+    @Test(priority = 5, description = "Test the idle timeout for WebSocket")
+    public void testIdleTimeout() throws ClientConnectorException, InterruptedException, IOException {
+        configuration.setIdleTimeoutInMillis(3000);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        Session session = handshake(connectorListener);
+        Thread.sleep(5000);
+        Assert.assertTrue(connectorListener.isIdleTimeout());
+        session.close();
+    }
+
+    @Test(priority = 6, description = "Test the sub protocol negotiation with the remote server")
+    public void testSubProtocolNegotiation()  {
+
+        // Try with a matching sub protocol.
+        try {
+            String[] subProtocols = {"xmlx", "json"};
+            configuration.setSubProtocols(subProtocols);
+            clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+            WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+            Session session;
+            session = handshake(connectorListener);
+            Assert.assertEquals(session.getNegotiatedSubprotocol(), "json");
+        } catch (ClientConnectorException e) {
+            Assert.assertTrue(false, "Handshake failed: " + e.getMessage());
+        }
+
+        // Try with unmatching sub protocol
+        try {
+            String[] subProtocols = {"xmlx", "jsonx"};
+            configuration.setSubProtocols(subProtocols);
+            clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+            WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+            Session session = handshake(connectorListener);
+            Assert.assertFalse(true, "Should not negotiate");
+        } catch (ClientConnectorException e) {
+            Assert.assertTrue(true, "Handshake failed: " + e.getMessage());
+        }
+
+    }
+
     @AfterClass
     public void cleanUp() throws ServerConnectorException, InterruptedException {
         remoteServer.stop();
     }
 
     private Session handshake(WebSocketConnectorListener connectorListener) throws ClientConnectorException {
-        Map<String, String> customHeaders = new HashMap<>();
-        return clientConnector.connect(connectorListener, customHeaders);
+        return clientConnector.connect(connectorListener);
     }
 
     private void shutDownClient(Session session) throws ClientConnectorException, IOException {

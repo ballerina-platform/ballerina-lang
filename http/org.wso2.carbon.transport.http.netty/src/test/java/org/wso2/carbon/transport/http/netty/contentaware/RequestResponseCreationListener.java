@@ -21,8 +21,6 @@ package org.wso2.carbon.transport.http.netty.contentaware;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -34,7 +32,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -90,14 +88,14 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                 byteBuff.put(array);
                 byteBuff.flip();
-                CarbonMessage carbonMessage = MessageUtil.cloneCarbonMessageWithOutData(httpResponse);
-                if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                    carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                HTTPCarbonMessage httpCarbonMessage = httpResponse.cloneCarbonMessageWithOutData();
+                if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                    httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
                 }
-                carbonMessage.addMessageBody(byteBuff);
-                carbonMessage.setEndOfMsgAdded(true);
+                httpCarbonMessage.addMessageBody(byteBuff);
+                httpCarbonMessage.setEndOfMsgAdded(true);
 
-                HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(carbonMessage);
+//                HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(carbonMessage);
                 try {
                     request.respond(httpCarbonMessage);
                 } catch (ServerConnectorException e) {
@@ -125,7 +123,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                     String requestValue = new String(byteBuffer.array());
                     byte[] arry = responseValue.getBytes("UTF-8");
 
-                    CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(httpRequest);
+                    HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                     if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
                         newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
                     }
@@ -145,14 +143,16 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                     }
 
-                    SenderConfiguration senderConfiguration = HTTPMessageUtil.getSenderConfiguration(configuration);
+                    String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
+                    SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
+                                                                                                       scheme);
 
                     HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                     HttpClientConnector clientConnector =
                             httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
 
-                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil.convertCarbonMessage(newMsg);
-                    HttpResponseFuture future = clientConnector.send(httpCarbonMessage);
+//                    HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil.convertCarbonMessage(newMsg);
+                    HttpResponseFuture future = clientConnector.send(newMsg);
                     future.setHttpConnectorListener(new HttpConnectorListener() {
                         @Override
                         public void onMessage(HTTPCarbonMessage httpResponse) {
@@ -174,17 +174,17 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                                     ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                                     byteBuff.put(array);
                                     byteBuff.flip();
-                                    CarbonMessage carbonMessage = MessageUtil
-                                            .cloneCarbonMessageWithOutData(httpResponse);
-                                    if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                                        carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                                    HTTPCarbonMessage httpCarbonMessage = httpResponse
+                                            .cloneCarbonMessageWithOutData();
+                                    if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                                        httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
                                                 String.valueOf(array.length));
                                     }
-                                    carbonMessage.addMessageBody(byteBuff);
-                                    carbonMessage.setEndOfMsgAdded(true);
+                                    httpCarbonMessage.addMessageBody(byteBuff);
+                                    httpCarbonMessage.setEndOfMsgAdded(true);
 
-                                    HTTPCarbonMessage httpCarbonMessage = HTTPMessageUtil
-                                            .convertCarbonMessage(carbonMessage);
+//                                    HTTPCarbonMessage httpCarbonMessage = HTTPConnectorUtil
+//                                            .convertCarbonMessage(carbonMessage);
                                     try {
                                         httpRequest.respond(httpCarbonMessage);
                                     } catch (ServerConnectorException e) {
