@@ -19,7 +19,9 @@
 package org.ballerinalang.logging.util;
 
 /**
- * Created by pubudu on 9/7/17.
+ * Constants used by the logging module
+ *
+ * @since 0.94
  */
 public class Constants {
 
@@ -61,17 +63,13 @@ public class Constants {
     /* FORMATTERS */
     public static final String BALLERINA_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BallerinaLogFormatter";
     public static final String BALLERINA_LOG_FORMATTER_FORMAT = BALLERINA_LOG_FORMATTER + ".format";
-    public static final String BALLERINA_LOG_FORMAT = "%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL  %2$-5s [%3$s:%4$s] " +
-            "[%5$s:%6$s] [%7$s] - \"%8$s\" %n";
-
-//    public static final String DEFAULT_LOG_FORMATTER = "org.ballerinalang.logging.formatters.DefaultLogFormatter";
-//    public static final String DEFAULT_LOG_FORMATTER_FORMAT = DEFAULT_LOG_FORMATTER + ".format";
-//    public static final String DEFAULT_LOG_FORMAT = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$-5s {%3$s} - %4$s %5$s %n";
+//    public static final String BALLERINA_LOG_FORMAT = "%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL  %2$-5s [%3$s:%4$s] " +
+//            "[%5$s:%6$s] [%7$s] - \"%8$s\" %n";
 
     public static final String BRE_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BRELogFormatter";
     public static final String BRE_LOG_FORMATTER_FORMAT = BRE_LOG_FORMATTER + ".format";
 
     public static final String HTTP_TRACELOG_FORMATTER = "org.ballerinalang.logging.formatters.HTTPTraceLogFormatter";
     public static final String HTTP_TRACELOG_FORMATTER_FORMAT = HTTP_TRACELOG_FORMATTER + ".format";
-    public static final String HTTP_TRACELOG_FORMAT = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$-5s {%3$s} - %4$s %5$s %n";
+//    public static final String HTTP_TRACELOG_FORMAT = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$-5s {%3$s} - %4$s %5$s %n";
 }

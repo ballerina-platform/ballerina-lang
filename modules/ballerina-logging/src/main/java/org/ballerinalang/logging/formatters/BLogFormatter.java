@@ -33,7 +33,8 @@ import java.util.regex.Pattern;
  */
 public abstract class BLogFormatter {
 
-    private static final String logFormatRegex = "%\\w+(\\{[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']+\\})?";
+    private static final String logFormatRegex =
+            "\\{\\{\\w+\\}\\}(\\[[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']+\\])?";
     private static final Pattern logPattern = Pattern.compile(logFormatRegex);
 
     protected SimpleDateFormat dateFormat;
@@ -51,15 +52,15 @@ public abstract class BLogFormatter {
         StringBuilder formatBuilder = new StringBuilder();
 
         for (int i = 0, j = 0; i < tokens.length; i++) {
-            if (tokens[i].startsWith("%timestamp")) {
+            if (tokens[i].startsWith("{{timestamp}}")) {
                 dateFormat =
-                        new SimpleDateFormat(tokens[i].substring("%timestamp".length() + 1, tokens[i].length() - 1));
+                        new SimpleDateFormat(tokens[i].substring("{{timestamp}}".length() + 3, tokens[i].length() - 1));
                 formatBuilder.append("%" + (j + 1) + "$s");
                 j++;
-            } else if (tokens[i].startsWith("%level")) {
+            } else if (tokens[i].startsWith("{{level}}")) {
                 formatBuilder.append("%" + (j + 1) + "$-5s");
                 j++;
-            } else if (tokens[i].startsWith("%")) {
+            } else if (tokens[i].startsWith("{{")) {
                 formatBuilder.append("%" + (j + 1) + "$s");
                 j++;
             } else {
@@ -71,7 +72,7 @@ public abstract class BLogFormatter {
         return formatBuilder.toString();
     }
 
-    private static String[] parseFormatString(String formatString) {
+    private String[] parseFormatString(String formatString) {
         List<String> tokens = new ArrayList<>();
         Matcher matcher = logPattern.matcher(formatString);
 

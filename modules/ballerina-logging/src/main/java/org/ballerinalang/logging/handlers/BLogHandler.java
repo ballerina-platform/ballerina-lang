@@ -34,6 +34,11 @@ public abstract class BLogHandler {
         this.level = BLogLevel.ALL; // By default, allow any log record to be logged
     }
 
+    /**
+     * Writes the log message to a specific destination (i.e: console)
+     *
+     * @param logRecord BLogRecord instance containing all the necessary data for the log message
+     */
     public abstract void publish(BLogRecord logRecord);
 
     protected boolean isLoggable(BLogLevel level) {
