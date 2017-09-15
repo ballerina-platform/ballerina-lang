@@ -33,6 +33,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.repository.PackageRepository;
@@ -276,11 +277,13 @@ public class BLangFileRestService {
                 } else if (prop instanceof NodeKind) {
                     String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
                     nodeJson.addProperty(jsonName, kindName);
-                } else if (prop instanceof TypeKind) {
+                } else if (prop instanceof OperatorKind || prop instanceof TypeKind) {
                     nodeJson.addProperty(jsonName, prop.toString());
                 } else if (prop != null) {
-                    throw new AssertionError("Node " + node.getClass().getSimpleName() +
-                            " contains unknown type prop: " + jsonName + " of type " + prop.getClass());
+                    nodeJson.addProperty(jsonName, prop.toString());
+                    String message = "Node " + node.getClass().getSimpleName() +
+                            " contains unknown type prop: " + jsonName + " of type " + prop.getClass();
+                    logger.error(message);
                 }
             }
         }
