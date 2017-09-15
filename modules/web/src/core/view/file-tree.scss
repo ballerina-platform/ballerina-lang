@@ -1,0 +1,36 @@
+.file-tree {
+    .node {
+        -moz-transition: all 0.5s;
+        -o-transition: all 0.5s;
+        -ms-transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+        transition: all 0.5s;
+        border-radius: 3px;
+    }
+      
+    .node:hover {
+        background-color: rgb(220, 245, 243);
+        cursor: pointer;
+    }
+    
+    .info, .node {
+        padding: 2px 10px 2px 5px;
+        font: 14px Helvetica, Arial, sans-serif;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    .tree-view_arrow {
+        -moz-transition: all 0.1s;
+        -o-transition: all 0.1s;
+        -ms-transition: all 0.1s;
+        -webkit-transition: all 0.1s;
+        transition: all 0.1s;
+    }
+    
+    .tree-view_arrow-empty {
+        color: yellow;
+    }
+}
