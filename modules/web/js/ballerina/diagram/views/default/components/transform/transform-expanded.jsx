@@ -975,7 +975,7 @@ class TransformExpanded extends React.Component {
                 this.findFunctionInvocations(child, functions, functionInvocationExpression);
             }
         });
-        functions.push({ func, parentFunc, funcInv: functionInvocationExpression });
+        functions.push({ type: 'function', func, parentFunc, funcInv: functionInvocationExpression });
         return functions;
     }
 
@@ -996,7 +996,6 @@ class TransformExpanded extends React.Component {
         const inputs = [];
         const outputs = [];
         const functions = [];
-        const operators = [];
 
         if (this.state.vertices.length > 0) {
             inputNodes.forEach((inputNode) => {
@@ -1035,6 +1034,7 @@ class TransformExpanded extends React.Component {
                     funcInvs.forEach((funcDetails) => {
                         funcDetails.assignmentStmt = child;
                     });
+                    funcInvs.type = 'function';
                     functions.push(...funcInvs);
                 } else if (ASTFactory.isBinaryExpression(rightExpression)
                             || ASTFactory.isUnaryExpression(rightExpression)) {
@@ -1053,7 +1053,7 @@ class TransformExpanded extends React.Component {
                     operatorInfo.returnParams.push({ name: rightExpression.getID() + ':return:0',
                         displayName: '',
                         type: 'var' });
-                    operators.push({ operator: operatorInfo, opStmt: rightExpression });
+                    functions.push({ type: 'operator', operator: operatorInfo, opStmt: rightExpression });
                  }
             });
         }
@@ -1128,38 +1128,36 @@ class TransformExpanded extends React.Component {
                             </div>
                             <div className="middle-content">
                                 {
-                                    functions.map(({ func, assignmentStmt, parentFunc, funcInv }) => (
-                                        <FunctionInv
-                                            key={funcInv.getID()}
-                                            func={func}
-                                            enclosingAssignmentStatement={assignmentStmt}
-                                            parentFunc={parentFunc}
-                                            funcInv={funcInv}
+                                    functions.map((func) => {
+                                        if (func.type === 'function') {
+                                            return (<FunctionInv
+                                                key={func.funcInv.getID()}
+                                                func={func.func}
+                                                enclosingAssignmentStatement={func.assignmentStmt}
+                                                parentFunc={func.parentFunc}
+                                                funcInv={func.funcInv}
+                                                recordSourceElement={this.recordSourceElement}
+                                                recordTargetElement={this.recordTargetElement}
+                                                viewId={this.props.model.getID()}
+                                                onEndpointRemove={this.removeEndpoint}
+                                                onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                foldEndpoint={this.foldEndpoint}
+                                                foldedEndpoints={this.state.foldedEndpoints}
+                                                isCollapsed={this.state.foldedFunctions[func.funcInv.getID()]}
+                                                onHeaderClick={this.foldFunction}
+                                            />);
+                                        }
+                                        return (<Operator
+                                            key={func.opStmt.getID()}
+                                            operator={func.operator}
+                                            opStmt={func.opStmt}
                                             recordSourceElement={this.recordSourceElement}
                                             recordTargetElement={this.recordTargetElement}
                                             viewId={this.props.model.getID()}
                                             onEndpointRemove={this.removeEndpoint}
                                             onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                            foldEndpoint={this.foldEndpoint}
-                                            foldedEndpoints={this.state.foldedEndpoints}
-                                            isCollapsed={this.state.foldedFunctions[funcInv.getID()]}
-                                            onHeaderClick={this.foldFunction}
-                                        />
-                                    ))
-                                }
-                                {
-                                    operators.map(({ operator, opStmt }) => (
-                                        <Operator
-                                            key={opStmt.getID()}
-                                            operator={operator}
-                                            opStmt={opStmt}
-                                            recordSourceElement={this.recordSourceElement}
-                                            recordTargetElement={this.recordTargetElement}
-                                            viewId={this.props.model.getID()}
-                                            onEndpointRemove={this.removeEndpoint}
-                                            onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                        />
-                                    ))
+                                        />);
+                                    })
                                 }
                             </div>
                             <div className='right-content'>
