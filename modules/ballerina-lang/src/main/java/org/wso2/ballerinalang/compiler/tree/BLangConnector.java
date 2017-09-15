@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
@@ -45,6 +46,8 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangVariable filteredParam;
+    public BLangFunction initFunction;
+    public BLangAction initAction;
 
     public BSymbol symbol;
 
@@ -94,6 +97,26 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     @Override
     public void addAction(ActionNode action) {
         this.getActions().add((BLangAction) action);
+    }
+
+    @Override
+    public void setInitFunction(FunctionNode function) {
+        this.initFunction = (BLangFunction) function;
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
+    }
+
+    @Override
+    public void setInitAction(ActionNode action) {
+        this.initAction = (BLangAction) action;
+    }
+
+    @Override
+    public ActionNode getInitAction() {
+        return initAction;
     }
 
     @Override

@@ -84,6 +84,14 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createSubLevelSymbolEnv(BLangNode node,
+                                                    SymbolEnv pkgEnv,
+                                                    Scope scope) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        pkgEnv.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
     public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = block.scope;
