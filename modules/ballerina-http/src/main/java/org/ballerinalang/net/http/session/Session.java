@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.session;
 
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code Session} represents the session interface.
@@ -119,7 +119,7 @@ public interface Session {
      *
      * @param message which send to client
      */
-    void generateSessionHeader(BMessage message);
+    void generateSessionHeader(HTTPCarbonMessage message);
 
     /**
      * Update session stage whether new or already used.
