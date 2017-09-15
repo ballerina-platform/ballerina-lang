@@ -30,6 +30,7 @@ import java.util.stream.Stream;
  * @since 0.94
  */
 public class ConfigMapper {
+
     private static Map<String, String> configMap;
 
     static {
@@ -43,7 +44,9 @@ public class ConfigMapper {
 
     private static void buildConfigMap() {
         configMap = Collections.unmodifiableMap(Stream.of(
-                new SimpleEntry<>("ballerina.runtime.level", Constants.BRELOG_FILE_HANDLER_LEVEL)
+                new SimpleEntry<>("ballerina.runtime.level", Constants.BRE_LOG_FILE_HANDLER_LEVEL),
+                new SimpleEntry<>("ballerina.runtime.format", Constants.BRE_LOG_FORMATTER_FORMAT),
+                new SimpleEntry<>("tracelog.http.format", Constants.HTTP_TRACELOG_FORMATTER_FORMAT)
         ).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
     }
 }

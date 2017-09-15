@@ -31,12 +31,12 @@ public class Constants {
     public static final String JUL_CONSOLE_HANDLER_LEVEL = JUL_CONSOLE_HANDLER + ".level";
     public static final String JUL_CONSOLE_HANDLER_FORMATTER = JUL_CONSOLE_HANDLER + ".formatter";
 
-    public static final String BRELOG_FILE_HANDLER = "org.ballerinalang.logging.handlers.DefaultLogFileHandler";
-    public static final String BRELOG_FILE_HANDLER_LEVEL = BRELOG_FILE_HANDLER + ".level";
-    public static final String BRELOG_FILE_HANDLER_PATTERN = BRELOG_FILE_HANDLER + ".pattern";
-    public static final String BRELOG_FILE_HANDLER_LIMIT = BRELOG_FILE_HANDLER + ".limit";
-    public static final String BRELOG_FILE_HANDLER_APPEND = BRELOG_FILE_HANDLER + ".append";
-    public static final String BRELOG_FILE_HANDLER_FORMATTER = BRELOG_FILE_HANDLER + ".formatter";
+    public static final String BRE_LOG_FILE_HANDLER = "org.ballerinalang.logging.handlers.BRELogFileHandler";
+    public static final String BRE_LOG_FILE_HANDLER_LEVEL = BRE_LOG_FILE_HANDLER + ".level";
+    public static final String BRE_LOG_FILE_HANDLER_PATTERN = BRE_LOG_FILE_HANDLER + ".pattern";
+    public static final String BRE_LOG_FILE_HANDLER_LIMIT = BRE_LOG_FILE_HANDLER + ".limit";
+    public static final String BRE_LOG_FILE_HANDLER_APPEND = BRE_LOG_FILE_HANDLER + ".append";
+    public static final String BRE_LOG_FILE_HANDLER_FORMATTER = BRE_LOG_FILE_HANDLER + ".formatter";
 
     /* LOGGERS */
     // Root logger
@@ -64,9 +64,12 @@ public class Constants {
     public static final String BALLERINA_LOG_FORMAT = "%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL  %2$-5s [%3$s:%4$s] " +
             "[%5$s:%6$s] [%7$s] - \"%8$s\" %n";
 
-    public static final String DEFAULT_LOG_FORMATTER = "org.ballerinalang.logging.formatters.DefaultLogFormatter";
-    public static final String DEFAULT_LOG_FORMATTER_FORMAT = DEFAULT_LOG_FORMATTER + ".format";
-    public static final String DEFAULT_LOG_FORMAT = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$-5s {%3$s} - %4$s %5$s %n";
+//    public static final String DEFAULT_LOG_FORMATTER = "org.ballerinalang.logging.formatters.DefaultLogFormatter";
+//    public static final String DEFAULT_LOG_FORMATTER_FORMAT = DEFAULT_LOG_FORMATTER + ".format";
+//    public static final String DEFAULT_LOG_FORMAT = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$-5s {%3$s} - %4$s %5$s %n";
+
+    public static final String BRE_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BRELogFormatter";
+    public static final String BRE_LOG_FORMATTER_FORMAT = BRE_LOG_FORMATTER + ".format";
 
     public static final String HTTP_TRACELOG_FORMATTER = "org.ballerinalang.logging.formatters.HTTPTraceLogFormatter";
     public static final String HTTP_TRACELOG_FORMATTER_FORMAT = HTTP_TRACELOG_FORMATTER + ".format";

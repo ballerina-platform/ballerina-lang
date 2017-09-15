@@ -16,24 +16,17 @@
  * under the License.
  */
 
-package org.ballerinalang.logging.util;
+package org.ballerinalang.logging.handlers;
+
+import java.io.IOException;
+import java.util.logging.FileHandler;
 
 /**
- * This class defines constants for log levels
+ * A file handler for handling the BRE log
  *
  * @since 0.94
  */
-public enum BLogLevel {
-
-    OFF(Integer.MAX_VALUE), ERROR(1000), WARN(900), INFO(800), DEBUG(700), TRACE(600), ALL(Integer.MIN_VALUE);
-
-    private int levelValue;
-
-    BLogLevel(int levelValue) {
-        this.levelValue = levelValue;
-    }
-
-    public int value() {
-        return levelValue;
+public class BRELogFileHandler extends FileHandler {
+    public BRELogFileHandler() throws IOException, SecurityException {
     }
 }
