@@ -125,7 +125,7 @@ Now that you have added a service, you need a connector to connect to the extern
 
 ## Extract content from the JSON
 
-1. Use the search, or navigate to a function called getJsonPayload, which is in the ballerina.lang.messages library. This library contains functions that enable you to modify and use messages in various ways.
+1. Use the search, or navigate to a function called `getJsonPayload`, which is in the `ballerina.lang.messages` library. This library contains functions that enable you to modify and use messages in various ways.
 1. Drag and drop this onto the main program in the canvas. This automatically applies this function on message m since that is the default message.
     ![alt text](../images/getJSONPayload2.gif)
 1. Rename the JSON as `j`.
