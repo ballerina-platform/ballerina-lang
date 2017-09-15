@@ -54,13 +54,31 @@
     color: #666769;
 }
 
-.variable-edit-text {
+.variable-edit-type {
     text-anchor: middle;
     dominant-baseline: central;
-    width: 180px;
+    width: 65px;
     max-width: 250px;
 }
 
+.variable-edit-name {
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 70px;
+    max-width: 250px;
+}
+
+.variable-edit-val {
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 70px;
+    max-width: 250px;
+}
+.transform-edit-panel {
+    width: 300px;
+    position: absolute;
+    z-index: 40;
+}
 .select-source {
     float: left;
     left: 20px;
