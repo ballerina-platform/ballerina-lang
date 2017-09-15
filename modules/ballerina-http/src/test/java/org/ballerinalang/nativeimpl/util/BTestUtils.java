@@ -86,8 +86,8 @@ public class BTestUtils {
         }
     }
 
-    public static BStruct createAndGetStruct(ProgramFile programFile, String packageName, String structName) {
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packageName);
+    public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
+        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
         StructInfo structInfo = structPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
