@@ -17,6 +17,7 @@ package org.ballerinalang.composer.service.workspace.local;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.SystemUtils;
@@ -46,7 +47,18 @@ public class LocalFSWorkspace implements Workspace {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FOLDER_TYPE = "folder";
-    private static final String CONTENT = "content";
+    private static final String ROOT_TYPE = "root";
+    private static final String FILE_TYPE = "file";
+    private static final String NODE_ID = "id";
+    private static final String NODE_TYPE = "type";
+    private static final String NODE_LABEL = "label";
+    private static final String NODE_CHILDREN = "children";
+    private static final String NODE_ERROR = "error";
+    private static final String FILE_CONTENT = "fileContent";
+    private static final String FILE_NAME = "fileName";
+    private static final String FILE_PATH = "filePath";
+    private static final String FILE_FULL_PATH = "fileFullPath";
+    private static final String EXTENSION = "extension";
     private static final String BAL_EXT = ".bal";
 
     @Override
@@ -64,11 +76,11 @@ public class LocalFSWorkspace implements Workspace {
             try {
                 if (Files.isDirectory(root) && Files.list(root).count() > 0) {
                     JsonArray children = listFilesInPath(root.toFile().getAbsolutePath(), Arrays.asList(BAL_EXT));
-                    rootObj.add("children", children);
+                    rootObj.add(NODE_CHILDREN, children);
                 }
             } catch (IOException e) {
                 logger.debug("Error while traversing children of " + e.toString(), e);
-                rootObj.addProperty("error", e.toString());
+                rootObj.addProperty(NODE_ERROR, e.toString());
             }
             if (Files.isDirectory(root)) {
                 rootArray.add(rootObj);
@@ -106,9 +118,13 @@ public class LocalFSWorkspace implements Workspace {
     @Override
     public JsonObject read(String path) throws IOException {
         byte[] fileContent = Files.readAllBytes(Paths.get(path));
-        JsonObject content = new JsonObject();
-        content.addProperty(CONTENT, new String(fileContent, Charset.defaultCharset()));
-        return content;
+        JsonObject fileObject = new JsonObject();
+        fileObject.addProperty(FILE_FULL_PATH, path);
+        fileObject.addProperty(FILE_NAME, FilenameUtils.getBaseName(path));
+        fileObject.addProperty(FILE_PATH, FilenameUtils.getFullPath(path));
+        fileObject.addProperty(EXTENSION, FilenameUtils.getExtension(path));
+        fileObject.addProperty(FILE_CONTENT, new String(fileContent, Charset.defaultCharset()));
+        return fileObject;
     }
 
     @Override
@@ -159,30 +175,28 @@ public class LocalFSWorkspace implements Workspace {
 
     private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
         JsonObject rootObj = new JsonObject();
-        if (null != root.getFileName()) {
-            Path fileName = root.getFileName();
-            if (null != fileName) {
-                rootObj.addProperty("text", fileName.toString());
-            }
+        Path fileName = root.getFileName();
+        if (fileName != null) {
+            rootObj.addProperty(NODE_LABEL, fileName.toString());
         } else {
-            rootObj.addProperty("text", root.toString());
+            rootObj.addProperty(NODE_LABEL, root.toString());
         }
-        rootObj.addProperty("id", root.toAbsolutePath().toString());
+        rootObj.addProperty(NODE_ID, root.toAbsolutePath().toString());
         if (Files.isDirectory(root) && checkChildren) {
-            rootObj.addProperty("type", "folder");
+            rootObj.addProperty(NODE_TYPE, FOLDER_TYPE);
             try {
                 if (Files.list(root).count() > 0) {
-                    rootObj.addProperty("children", Boolean.TRUE);
+                    rootObj.addProperty(NODE_CHILDREN, Boolean.TRUE);
                 } else {
-                    rootObj.addProperty("children", Boolean.FALSE);
+                    rootObj.addProperty(NODE_CHILDREN, Boolean.FALSE);
                 }
             } catch (IOException e) {
                 logger.debug("Error while fetching children of " + root.toString(), e);
-                rootObj.addProperty("error", e.toString());
+                rootObj.addProperty(NODE_ERROR, e.toString());
             }
         } else if (Files.isRegularFile(root) && checkChildren) {
-            rootObj.addProperty("type", "file");
-            rootObj.addProperty("children", Boolean.FALSE);
+            rootObj.addProperty(NODE_TYPE, FILE_TYPE);
+            rootObj.addProperty(NODE_CHILDREN, Boolean.FALSE);
         }
         return rootObj;
     }
@@ -204,6 +218,10 @@ public class LocalFSWorkspace implements Workspace {
                     Path fileName = next.getFileName();
                     SuffixFileFilter fileFilter = new SuffixFileFilter(extensions, IOCase.INSENSITIVE);
                     if (null != fileName && fileFilter.accept(next.toFile())) {
+                        jsnObj.addProperty(FILE_FULL_PATH, next.toString());
+                        jsnObj.addProperty(FILE_NAME, FilenameUtils.getBaseName(next.toString()));
+                        jsnObj.addProperty(FILE_PATH, FilenameUtils.getFullPath(next.toString()));
+                        jsnObj.addProperty(EXTENSION, FilenameUtils.getExtension(next.toString()));
                         dirs.add(jsnObj);
                     }
                 } else {

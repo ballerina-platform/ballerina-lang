@@ -22,8 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
-import commandManager from 'command';
-import File from './../../workspace/file';
+import File from './../../../src/core/workspace/model/file';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
@@ -98,7 +97,7 @@ class SourceView extends React.Component {
             const editor = ace.edit(this.container);
             editor.getSession().setMode(ballerinaMode);
             editor.getSession().setUndoManager(new NotifyingUndoManager(this));
-            editor.getSession().setValue(this.props.file.getContent());
+            editor.getSession().setValue(this.props.file.content);
             editor.setShowPrintMargin(false);
             // Avoiding ace warning
             editor.$blockScrolling = Infinity;
@@ -123,13 +122,13 @@ class SourceView extends React.Component {
             editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
-            this.props.commandManager.getCommands().forEach((command) => {
+            this.props.commandProxy.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
             // register handler for source format command
-            this.props.commandManager.registerHandler(FORMAT, this.format, this);
+            this.props.commandProxy.on(FORMAT, this.format, this);
              // register handler for go to position command
-            this.props.commandManager.registerHandler(GO_TO_POSITION, this.handleGoToPosition, this);
+            this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition, this);
             // listen to changes done to file content
             // by other means (eg: design-view changes or redo/undo actions)
             // and update ace content accordingly
@@ -286,9 +285,9 @@ class SourceView extends React.Component {
                 .then((langserverClient) => {
                     // Set source view completer
                     const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    const fileData = { fileName: nextProps.file.getName(),
-                        filePath: nextProps.file.getPath(),
-                        packageName: nextProps.file.getPackageName() };
+                    const fileData = { fileName: nextProps.file.name,
+                        filePath: nextProps.file.path,
+                        packageName: nextProps.file.packageName };
                     const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
                     langTools.setCompleters(completer);
                 })
@@ -313,7 +312,11 @@ class SourceView extends React.Component {
 
 SourceView.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
     parseFailed: PropTypes.bool.isRequired,
     onLintErrors: PropTypes.func,
     sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,

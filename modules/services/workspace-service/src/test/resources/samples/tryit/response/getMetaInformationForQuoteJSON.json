@@ -1,0 +1,16 @@
+{
+  "responseCode": "200",
+  "responseBody": "",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Content-Length": "0"
+  },
+  "returnedRequestHeaders": {
+    "Content-Type": "application/json",
+    "Host": "localhost:9595",
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Accept-Encoding": "gzip,deflate"
+  },
+  "requestUrl": "http://localhost:9595/stockquote/IBM"
+}

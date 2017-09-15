@@ -16,7 +16,6 @@
  * under the License.
  */
 import React from 'react';
-import CommandManager from 'command';
 import Collapsible from 'react-collapsible';
 import PropTypes from 'prop-types';
 import ToolView from './tool-view';

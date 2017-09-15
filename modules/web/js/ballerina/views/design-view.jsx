@@ -24,10 +24,9 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
-        this.dragDropManager = new DragDropManager();
+        this.dragDropManager = new DragDropManager();  
         this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
-
-        this.props.commandManager.registerHandler('diagram-mode-change', (mode) => {
+        this.props.commandProxy.on('diagram-mode-change', (mode) => {
             this.setMode(mode);
         });
     }
@@ -177,6 +176,11 @@ class DesignView extends React.Component {
 
 DesignView.propTypes = {
     model: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 DesignView.contextTypes = {

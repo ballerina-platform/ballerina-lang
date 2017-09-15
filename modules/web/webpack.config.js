@@ -9,7 +9,7 @@ const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
 let exportConfig = {};
 const config = [{
     entry: {
-        bundle: './index.js',
+        bundle: './src/index.js',
         'worker-ballerina': './js/ballerina/utils/ace-worker.js',
     },
     output: {
@@ -25,6 +25,7 @@ const config = [{
                     loader: 'babel-loader',
                     query: {
                         presets: ['es2015', 'react'],
+                        plugins: ['transform-object-rest-spread'],
                     },
                 },
             ],
@@ -34,6 +35,11 @@ const config = [{
             use: [{
                 loader: 'html-loader',
             }],
+        },
+        {
+            test: /\.scss$/,
+            exclude: /node_modules/,
+            loader: 'style-loader!css-loader!sass-loader',
         },
         {
             test: /\.css$/,
@@ -78,15 +84,10 @@ const config = [{
             $: 'jquery',
             jQuery: 'jquery',
         }),
-        /*
-        new CircularDependencyPlugin({
-            exclude: /a\.css|node_modules/,
-            failOnError: true,
-        }),
-        */
     ],
     devServer: {
         publicPath: '/dist/',
+        contentBase: './public',
     },
     externals: {
         'jsdom': 'window',
@@ -99,7 +100,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
+        modules: ['src', 'lib', 'js', 'node_modules', path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //
