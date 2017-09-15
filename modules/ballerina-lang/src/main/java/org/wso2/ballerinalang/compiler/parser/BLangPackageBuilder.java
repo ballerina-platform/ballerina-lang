@@ -43,8 +43,6 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeVal
 import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -79,7 +77,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -155,7 +154,7 @@ public class BLangPackageBuilder {
 
     private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
 
-    private Stack<RecordTypeLiteralNode> recordTypeLiteralNodes = new Stack<>();
+    private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
@@ -493,27 +492,21 @@ public class BLangPackageBuilder {
     }
 
     public void addKeyValueRecord() {
-        ExpressionNode valueExpr = exprNodeStack.pop();
-        ExpressionNode keyExpr = exprNodeStack.pop();
-        IdentifierNode identifierNode = null;
-        if (keyExpr instanceof BLangLiteral) {
-            identifierNode = createIdentifier(((BLangLiteral) keyExpr).getValue().toString());
-            identifierNode.setLiteral(true);
-        } else if (keyExpr instanceof SimpleVariableReferenceNode) {
-            identifierNode = ((SimpleVariableReferenceNode) keyExpr).getVariableName();
-        }
-        recordTypeLiteralNodes.peek().getKeyValuePairs().put(identifierNode, valueExpr);
+        BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+        keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
+        keyValue.keyExpr = (BLangExpression) exprNodeStack.pop();
+        recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 
     public void addMapStructLiteral(DiagnosticPos pos) {
-        BLangRecordTypeLiteral recordTypeLiteralNode = (BLangRecordTypeLiteral) recordTypeLiteralNodes.pop();
+        BLangRecordLiteral recordTypeLiteralNode = recordLiteralNodes.pop();
         recordTypeLiteralNode.pos = pos;
         addExpressionNode(recordTypeLiteralNode);
     }
 
     public void startMapStructLiteral() {
-        BLangRecordTypeLiteral literalNode = (BLangRecordTypeLiteral) TreeBuilder.createRecordTypeLiteralNode();
-        recordTypeLiteralNodes.push(literalNode);
+        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        recordLiteralNodes.push(literalNode);
     }
 
     public void startExprNodeList() {

@@ -44,7 +44,7 @@ import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.model.tree.expressions.RecordTypeLiteralNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
@@ -107,7 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordTypeLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -211,8 +211,12 @@ public class TreeBuilder {
         return new BLangArrayLiteral();
     }
 
-    public static RecordTypeLiteralNode createRecordTypeLiteralNode() {
-        return new BLangRecordTypeLiteral();
+    public static RecordLiteralNode createRecordLiteralNode() {
+        return new BLangRecordLiteral();
+    }
+
+    public static RecordLiteralNode.RecordKeyValueNode createRecordKeyValue() {
+        return new BLangRecordLiteral.BLangRecordKeyValue();
     }
 
     public static VariableDefinitionNode createVariableDefinitionNode() {

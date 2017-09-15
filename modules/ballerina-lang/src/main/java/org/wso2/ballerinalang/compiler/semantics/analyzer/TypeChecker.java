@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -117,6 +118,7 @@ public class TypeChecker extends BLangNodeVisitor {
         DiagnosticCode preDiagCode = this.diagCode;
 
         // TODO Check the possibility of using a try/finally here
+        // Set the default type of expressions
         this.resultTypes = Lists.of(symTable.errType);
         this.env = env;
         this.expTypes = expTypes;
@@ -158,6 +160,10 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = Lists.of(expArrayType);
     }
 
+    public void visit(BLangRecordLiteral recordLiteral) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangSimpleVarRef varRefExpr) {
         Name varName = names.fromIdNode(varRefExpr.variableName);
         BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
@@ -183,7 +189,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation invocationExpr) {
-        throw new AssertionError();
+
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
