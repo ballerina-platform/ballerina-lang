@@ -21,10 +21,13 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -35,12 +38,15 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     public ExpressionNode endTagName;
     public List<XMLAttributeNode> attributes;
     public List<ExpressionNode> children;
-    public List<XMLAttributeNode> namespaces;
+    public Map<String, BLangExpression> namespaces;
     public ExpressionNode defaultNamespaceUri;
+    public boolean isRoot;
+    public Scope scope;
     
     public BLangXMLElementLiteral() {
         attributes = new ArrayList<XMLAttributeNode>();
         children = new ArrayList<ExpressionNode>();
+        namespaces = new HashMap<String, BLangExpression>();
     }
 
     @Override
@@ -84,13 +90,13 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     }
 
     @Override
-    public List<XMLAttributeNode> getNamespaces() {
+    public Map<String, BLangExpression> getNamespaces() {
         return namespaces;
     }
 
     @Override
-    public void addNamespace(XMLAttributeNode namespace) {
-        this.namespaces.add(namespace);
+    public void addNamespace(String prefix, BLangExpression namespaceUri) {
+        this.namespaces.put(prefix, namespaceUri);
     }
 
     @Override

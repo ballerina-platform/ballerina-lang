@@ -17,8 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -28,38 +31,38 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
 
-    public String localname;
-    public String namespaceUri;
-    public String prefix;
+    public BLangIdentifier localname;
+    public BLangExpression namespaceUri;
+    public BLangIdentifier prefix;
 
     @Override
-    public String getLocalname() {
+    public BLangIdentifier getLocalname() {
         return localname;
     }
 
     @Override
-    public void setLocalname(String localname) {
-        this.localname = localname;
+    public void setLocalname(IdentifierNode localname) {
+        this.localname = (BLangIdentifier) localname;
     }
 
     @Override
-    public String getNamespaceUri() {
+    public BLangExpression getNamespaceUri() {
         return namespaceUri;
     }
 
     @Override
-    public void setNamespaceUri(String namespaceUri) {
-        this.namespaceUri = namespaceUri;
+    public void setNamespaceUri(ExpressionNode namespaceUri) {
+        this.namespaceUri = (BLangExpression) namespaceUri;
     }
 
     @Override
-    public String getPrefix() {
+    public BLangIdentifier getPrefix() {
         return prefix;
     }
 
     @Override
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setPrefix(IdentifierNode prefix) {
+        this.prefix = (BLangIdentifier) prefix;
     }
 
     @Override
@@ -76,5 +79,19 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || !(other instanceof BLangXMLQName)) {
+            return false;
+        }
+
+        BLangXMLQName otherQname = (BLangXMLQName) other;
+        return localname.equals(otherQname.localname) && prefix.equals(otherQname.prefix);
     }
 }

@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
@@ -101,7 +102,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        throw new AssertionError();
+        symbolEnter.defineNode(xmlnsNode, env);
+    }
+
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        analyzeNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
     public void visit(BLangFunction funcNode) {

@@ -17,14 +17,16 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
 /**
  * @since 0.94
  */
 public interface XMLNSDeclarationNode extends TopLevelNode {
 
-    IdentifierNode getNamespaceURI();
+    ExpressionNode getNamespaceURI();
 
-    void setNamespaceURI(IdentifierNode namespaceURI);
+    void setNamespaceURI(ExpressionNode namespaceURI);
 
     IdentifierNode getPrefix();
 

@@ -38,5 +38,6 @@ public enum SymbolKind {
     SERVICE_VARIABLE,
     CONNECTOR_VARIABLE,
 
+    XMLNS,
     OTHER
 }
