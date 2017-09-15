@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ public class BLangEnum extends BLangNode implements EnumNode {
 
     public BLangEnum() {
         this.enumFields = new ArrayList<>();
+        this.flags = EnumSet.noneOf(Flag.class);
     }
 
     @Override

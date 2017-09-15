@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,14 +41,14 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public BLangType typeNode;
     public BLangIdentifier name;
     public BLangExpression expr;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
 
     public BVarSymbol symbol;
 
     public BLangVariable() {
         this.annAttachments = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
 
     @Override
     public Set<Flag> getFlags() {
-        return flags;
+        return flagSet;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
 
     @Override
     public void addFlag(Flag flag) {
-        this.flags.add(flag);
+        this.flagSet.add(flag);
     }
 
     @Override

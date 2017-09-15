@@ -637,11 +637,11 @@ public class BLangPackageBuilder {
         function.addWS(ws);
 
         if (publicFunc) {
-            function.flags.add(Flag.PUBLIC);
+            function.flagSet.add(Flag.PUBLIC);
         }
 
         if (nativeFunc) {
-            function.flags.add(Flag.PUBLIC);
+            function.flagSet.add(Flag.NATIVE);
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -778,7 +778,7 @@ public class BLangPackageBuilder {
                                   boolean publicVar) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         if (publicVar) {
-            var.flags.add(Flag.PUBLIC);
+            var.flagSet.add(Flag.PUBLIC);
         }
 
         this.compUnit.addTopLevelNode(var);
@@ -786,9 +786,9 @@ public class BLangPackageBuilder {
 
     public void addConstVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicVar) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, true);
-        var.flags.add(Flag.CONST);
+        var.flagSet.add(Flag.CONST);
         if (publicVar) {
-            var.flags.add(Flag.PUBLIC);
+            var.flagSet.add(Flag.PUBLIC);
         }
 
         this.compUnit.addTopLevelNode(var);
@@ -805,7 +805,7 @@ public class BLangPackageBuilder {
         structNode.pos = pos;
         structNode.setName(this.createIdentifier(identifier));
         if (publicStruct) {
-            structNode.flags.add(Flag.PUBLIC);
+            structNode.flagSet.add(Flag.PUBLIC);
         }
 
         this.varListStack.pop().forEach(structNode::addField);
@@ -862,7 +862,7 @@ public class BLangPackageBuilder {
         connectorNode.pos = pos;
         connectorNode.setName(this.createIdentifier(identifier));
         if (publicCon) {
-            connectorNode.flags.add(Flag.PUBLIC);
+            connectorNode.flagSet.add(Flag.PUBLIC);
         }
 
         this.compUnit.addTopLevelNode(connectorNode);
@@ -884,7 +884,7 @@ public class BLangPackageBuilder {
         BLangAction actionNode = (BLangAction) this.invokableNodeStack.pop();
         actionNode.pos = pos;
         if (nativeAction) {
-            actionNode.flags.add(Flag.NATIVE);
+            actionNode.flagSet.add(Flag.NATIVE);
         }
 
         attachAnnotations(actionNode, annotCount);

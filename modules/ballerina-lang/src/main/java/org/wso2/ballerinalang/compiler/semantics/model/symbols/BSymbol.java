@@ -34,6 +34,7 @@ import java.util.Set;
 public class BSymbol implements Symbol {
 
     public int tag;
+    public int flags;
     public Name name;
     public SymbolKind kind;
     public BType type;
@@ -44,8 +45,9 @@ public class BSymbol implements Symbol {
      */
     public Scope scope;
 
-    public BSymbol(int tag, Name name, BType type, BSymbol owner) {
+    public BSymbol(int tag, int flags, Name name, BType type, BSymbol owner) {
         this.tag = tag;
+        this.flags = flags;
         this.name = name;
         this.type = type;
         this.owner = owner;

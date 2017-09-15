@@ -28,7 +28,7 @@ public class BOperatorSymbol extends BInvokableSymbol {
     public int opcode;
 
     public BOperatorSymbol(Name name, BType type, BSymbol owner, int opcode) {
-        super(SymTag.INVOKABLE, name, type, owner);
+        super(SymTag.INVOKABLE, 0, name, type, owner);
         this.opcode = opcode;
     }
 }

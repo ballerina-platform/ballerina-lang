@@ -33,7 +33,7 @@ public class BPackageSymbol extends BTypeSymbol {
     // TODO Introduce States to the Package Symbol.. DEFINED, TYPE_CHECKED, ANALYZED etc..
 
     public BPackageSymbol(Name pkgName, Name pkgVersion, BSymbol owner) {
-        super(PACKAGE, pkgName, null, owner);
+        super(PACKAGE, 0, pkgName, null, owner);
         this.version = pkgVersion;
         this.type = new BPackageType(this);
         this.kind = SymbolKind.PACKAGE;

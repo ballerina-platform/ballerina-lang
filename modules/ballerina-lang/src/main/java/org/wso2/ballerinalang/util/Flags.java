@@ -15,18 +15,35 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.wso2.ballerinalang.util;
 
-import org.ballerinalang.model.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.ballerinalang.model.elements.Flag;
+
+import java.util.Set;
 
 /**
  * @since 0.94
  */
-public class BTypeSymbol extends BSymbol implements TypeSymbol {
+public class Flags {
+    public static final int PUBLIC = 1;
+    public static final int NATIVE = 2;
+    public static final int CONST = 3;
 
-    public BTypeSymbol(int kind, int flags, Name name, BType type, BSymbol owner) {
-        super(kind, flags, name, type, owner);
+    public static int asMask(Set<Flag> flagSet) {
+        int mask = 0;
+        for (Flag flag : flagSet) {
+            switch (flag) {
+                case PUBLIC:
+                    mask |= PUBLIC;
+                    break;
+                case NATIVE:
+                    mask |= NATIVE;
+                    break;
+                case CONST:
+                    mask |= CONST;
+                    break;
+            }
+        }
+        return mask;
     }
 }
