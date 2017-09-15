@@ -51,7 +51,7 @@ public class ContentAwareMessageProcessorTestCase {
     private TransportsConfiguration configuration;
 
     private HttpServer httpServer;
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));
 
     @BeforeClass
     public void setUp() {

@@ -103,6 +103,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                       new HTTPTraceLoggingHandler("tracelog.http.downstream", LogLevel.DEBUG));
         }
 
+        pipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
+                         new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
+
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                              new SourceHandler(this.serverConnectorFuture, this.interfaceId));

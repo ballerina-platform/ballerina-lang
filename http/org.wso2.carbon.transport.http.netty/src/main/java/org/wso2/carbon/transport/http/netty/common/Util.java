@@ -24,13 +24,13 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.listener.RequestDataHolder;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -66,7 +66,7 @@ public class Util {
         }
     }
 
-    public static String getStringValue(CarbonMessage msg, String key, String defaultValue) {
+    public static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -75,7 +75,7 @@ public class Util {
         return value;
     }
 
-    public static int getIntValue(CarbonMessage msg, String key, int defaultValue) {
+    public static int getIntValue(HTTPCarbonMessage msg, String key, int defaultValue) {
         Integer value = (Integer) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -84,12 +84,12 @@ public class Util {
         return value;
     }
 
-    public static HttpResponse createHttpResponse(CarbonMessage msg) {
+    public static HttpResponse createHttpResponse(HTTPCarbonMessage msg) {
         return createHttpResponse(msg, false);
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpResponse createHttpResponse(CarbonMessage msg, boolean connectionCloseAfterResponse) {
+    public static HttpResponse createHttpResponse(HTTPCarbonMessage msg, boolean connectionCloseAfterResponse) {
         HttpVersion httpVersion = new HttpVersion(Util.getStringValue(msg, Constants.HTTP_VERSION, HTTP_1_1.text()),
                 true);
 
@@ -113,7 +113,7 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpRequest createHttpRequest(CarbonMessage msg) {
+    public static HttpRequest createHttpRequest(HTTPCarbonMessage msg) {
         HttpMethod httpMethod;
         if (null != msg.getProperty(Constants.HTTP_METHOD)) {
             httpMethod = new HttpMethod((String) msg.getProperty(Constants.HTTP_METHOD));
@@ -141,7 +141,7 @@ public class Util {
      *
      * @param cMsg CarbonMessage
      */
-    public static void setupTransferEncodingForRequest(CarbonMessage cMsg) {
+    public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg) {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
         } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
@@ -158,7 +158,7 @@ public class Util {
      * @param cMsg Carbon message.
      * @param requestDataHolder Requested data holder.
      */
-    public static void setupTransferEncodingForResponse(CarbonMessage cMsg, RequestDataHolder requestDataHolder) {
+    public static void setupTransferEncodingForResponse(HTTPCarbonMessage cMsg, RequestDataHolder requestDataHolder) {
 
         // 1. Remove Transfer-Encoding and Content-Length as per rfc7230#section-3.3.1
         int statusCode = Util.getIntValue(cMsg, Constants.HTTP_STATUS_CODE, 200);
@@ -214,7 +214,7 @@ public class Util {
      *
      * @param cMsg Carbon Message
      */
-    public static void prepareBuiltMessageForTransfer(CarbonMessage cMsg) {
+    public static void prepareBuiltMessageForTransfer(HTTPCarbonMessage cMsg) {
         if (cMsg.isAlreadyRead()) {
             MessageDataSource messageDataSource = cMsg.getMessageDataSource();
             if (messageDataSource != null) {

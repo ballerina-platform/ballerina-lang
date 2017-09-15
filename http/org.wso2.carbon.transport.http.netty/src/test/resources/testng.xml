@@ -34,8 +34,9 @@
             <class name="org.wso2.carbon.transport.http.netty.encoding.ContentEncodingTestCase"></class>
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketServerTestCase"></class>
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketClientTestCase"></class>
-            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketPassthoughTestCase"></class>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketPassThroughTestCase"></class>
             <class name="org.wso2.carbon.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"></class>
+            <class name="org.wso2.carbon.transport.http.netty.websocket.HttpToWsProtocolSwitchTestCase"></class>
         </classes>
     </test>
 </suite>

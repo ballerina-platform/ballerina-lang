@@ -25,49 +25,35 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMe
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.nio.ByteBuffer;
-
 /**
- * WebSocket test class for WebSocket Connector Listener.
+ * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
-public class WebSocketTestClientConnectorListener implements WebSocketConnectorListener {
+public class HttpToWsProtocolSwitchWebSocketListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
-
-    private String receivedTextToClient;
-    private ByteBuffer receivedByteBufferToClient;
-    private boolean isPongReceived = false;
-    private boolean isIdleTimeout = false;
+    private static final Logger log = LoggerFactory.getLogger(HttpToWsProtocolSwitchWebSocketListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        // Not applicable
+        initMessage.handshake();
     }
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        receivedTextToClient = textMessage.getText();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        receivedByteBufferToClient = binaryMessage.getByteBuffer();
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
-        if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            isPongReceived = true;
-        }
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-
     }
 
     @Override
@@ -77,51 +63,6 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        isIdleTimeout = true;
-    }
-
-    /**
-     * Retrieve the latest text received to client.
-     *
-     * @return the latest text received to the client.
-     */
-    public String getReceivedTextToClient() {
-        String tmp = receivedTextToClient;
-        receivedTextToClient = null;
-        return tmp;
-    }
-
-    /**
-     * Retrieve the latest {@link ByteBuffer} received to client.
-     *
-     * @return the latest {@link ByteBuffer} received to client.
-     */
-    public ByteBuffer getReceivedByteBufferToClient() {
-        ByteBuffer tmp = receivedByteBufferToClient;
-        receivedByteBufferToClient = null;
-        return tmp;
-    }
-
-    /**
-     * Retrieve whether a pong is received client.
-     *
-     * @return true if a pong is received to client.
-     */
-    public boolean isPongReceived() {
-        boolean tmp = isPongReceived;
-        isPongReceived = false;
-        return tmp;
-    }
-
-    /**
-     * Check whether any idle timeout triggered or not.
-     *
-     * @return true if idle timeout is triggered.
-     */
-    public boolean isIdleTimeout() {
-        boolean temp = isIdleTimeout;
-        isIdleTimeout = false;
-        return temp;
     }
 
     private void handleError(Throwable throwable) {

@@ -19,9 +19,6 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
-import java.net.ProtocolException;
-import javax.websocket.Session;
-
 /**
  * This Message is used to handle WebSocket handshake.
  */
@@ -32,19 +29,29 @@ public interface WebSocketInitMessage extends WebSocketMessage {
      * method is used.
      *
      * @return the Server session for the newly created WebSocket connection.
-     * @throws ProtocolException if error occurred while proceeding with the handshake.
      */
-    Session handshake() throws ProtocolException;
+    HandshakeFuture handshake();
+
+    /**
+     * Complete the handshake of a given request. There will not be a idle timeout for the connection if this
+     * method is used.
+     *
+     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param allowExtensions whether the extensions are allowed or not.
+     * @return the Server session for the newly created WebSocket connection.
+     */
+    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for
      * given time period.
      *
+     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param allowExtensions whether the extensions are allowed or not.
      * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
-     * @return the Server session for the newly created WebSocket connection.
-     * @throws ProtocolException if error occurred while proceeding with the handshake.
+     * @return the handshake future.
      */
-    Session handshake(int idleTimeout) throws ProtocolException;
+    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout);
 
     /**
      * Cancel the handshake.

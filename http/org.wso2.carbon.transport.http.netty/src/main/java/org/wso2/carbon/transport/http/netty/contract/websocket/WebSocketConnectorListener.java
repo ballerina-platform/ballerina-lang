@@ -67,4 +67,11 @@ public interface WebSocketConnectorListener {
      */
     void onError(Throwable throwable);
 
+    /**
+     * This is triggered in a IdleTimeout for WebSocket.
+     *
+     * @param controlMessage message which indicates idle timeout.
+     */
+    void onIdleTimeout(WebSocketControlMessage controlMessage);
+
 }

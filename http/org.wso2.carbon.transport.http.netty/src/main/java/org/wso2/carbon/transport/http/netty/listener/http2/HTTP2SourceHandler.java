@@ -38,7 +38,6 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -54,6 +53,8 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 /**
  * Class {@code HTTP2SourceHandler} will read the Http2 binary frames sent from client through the channel
  * and build carbon messages and sent to message processor.
+ *
+ * WE HAVE TO REVISIT THE ENTIRE IMPLEMENTATION INCLUDING THE COMMENTED CODE
  */
 public final class HTTP2SourceHandler extends Http2ConnectionHandler implements Http2FrameListener {
 
@@ -110,9 +111,9 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
             cMsg.addHttpContent(new DefaultLastHttpContent(data.retain()));
             if (endOfStream) {
                 cMsg.setEndOfMsgAdded(true);
-                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
-                }
+//                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+//                }
             }
         }
         return data.readableBytes() + padding;
@@ -125,9 +126,9 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
         HTTPCarbonMessage cMsg = publishToMessageProcessor(streamId, headers);
         if (endOfStream) {
             cMsg.setEndOfMsgAdded(true);
-            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
-            }
+//            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+//            }
         }
     }
 
@@ -166,28 +167,28 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
      */
     private HTTPCarbonMessage publishToMessageProcessor(int streamId, Http2Headers headers) {
         HTTPCarbonMessage cMsg = setupCarbonMessage(streamId, headers);
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
-        }
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+//        }
 
         boolean continueRequest = true;
 
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-
-            continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
-                        CarbonCallback responseCallback = (CarbonCallback) cMsg
-                                .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
-                        responseCallback.done(carbonMessage);
-                    });
-
-        }
+//        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+//
+//            continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+//                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
+//                        CarbonCallback responseCallback = (CarbonCallback) cMsg
+//                                .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
+//                        responseCallback.done(carbonMessage);
+//                    });
+//
+//        }
         if (continueRequest) {
             CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
                     .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
             if (carbonMessageProcessor != null) {
                 try {
-                    carbonMessageProcessor.receive(cMsg, new HTTP2ResponseCallback(ctx, streamId));
+//                    carbonMessageProcessor.receive(cMsg, new HTTP2ResponseCallback(ctx, streamId));
                 } catch (Exception e) {
                     log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
                 }
