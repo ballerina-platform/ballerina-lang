@@ -25,13 +25,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -98,6 +102,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkExpr(expr, env, expTypes, DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
+    public List<BType> checkExprs(List<BLangExpression> exprs, SymbolEnv env, List<BType> expTypes) {
+        List<BType> resTypes = new ArrayList<>(exprs.size());
+        for (BLangExpression expr : exprs) {
+            resTypes.add(checkExpr(expr, env, expTypes).get(0));
+        }
+        return resTypes;
+    }
+
     public List<BType> checkExpr(BLangExpression expr, SymbolEnv env, List<BType> expTypes, DiagnosticCode diagCode) {
         checkAssignmentMismatch(expr, expTypes);
 
@@ -106,6 +118,8 @@ public class TypeChecker extends BLangNodeVisitor {
         DiagnosticCode preDiagCode = this.diagCode;
 
         // TODO Check the possibility of using a try/finally here
+        // Set the default type of expressions
+        this.resultTypes = Lists.of(symTable.errType);
         this.env = env;
         this.expTypes = expTypes;
         this.diagCode = diagCode;
@@ -127,13 +141,35 @@ public class TypeChecker extends BLangNodeVisitor {
                 expTypes.get(0), diagCode));
     }
 
+    public void visit(BLangArrayLiteral arrayLiteral) {
+        // Check whether the expected type is an array type
+        // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
+        BArrayType expArrayType;
+        if (expTypes.get(0).tag == TypeTags.NONE) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
+            return;
+        } else if (expTypes.get(0).tag != TypeTags.ARRAY) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
+            return;
+        } else {
+            expArrayType = (BArrayType) expTypes.get(0);
+        }
+
+        BType expElemType = expArrayType.eType;
+        checkExprs(arrayLiteral.exprs, this.env, Lists.of(expElemType));
+        resultTypes = Lists.of(expArrayType);
+    }
+
+    public void visit(BLangRecordLiteral recordLiteral) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangSimpleVarRef varRefExpr) {
         Name varName = names.fromIdNode(varRefExpr.variableName);
         BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
 
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
-            varRefExpr.type = symTable.errType;
             return;
         }
 
@@ -152,6 +188,10 @@ public class TypeChecker extends BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangInvocation invocationExpr) {
+
+    }
+
     public void visit(BLangBinaryExpr binaryExpr) {
         BType lhsType = checkExpr(binaryExpr.lhsExpr, env).get(0);
         BType rhsType = checkExpr(binaryExpr.rhsExpr, env).get(0);
@@ -160,7 +200,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.resolveBinaryOperator(binaryExpr.pos,
                 binaryExpr.opKind, lhsType, rhsType);
         if (symbol == symTable.notFoundSymbol) {
-            binaryExpr.type = symTable.errType;
+            dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
+                    binaryExpr.opKind, lhsType, rhsType);
             return;
         }
 
@@ -180,7 +221,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // Lookup type explicit cast operator symbol
         BSymbol symbol = symResolver.resolveExplicitCastOperator(castExpr.pos, sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
-            castExpr.type = symTable.errType;
             return;
         }
 
@@ -190,7 +230,9 @@ public class TypeChecker extends BLangNodeVisitor {
         // If this is an safe cast, then the error variable is optional
         if (!castSym.safe && expTypes.size() < 2) {
             dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CAST_ATTEMPT, sourceType, targetType);
+            return;
         } else if (castSym.safe && expTypes.size() < 2) {
+            // CastSym always contain two return parameters.
             expTypes.add(symTable.errStructType);
         }
 
@@ -208,18 +250,17 @@ public class TypeChecker extends BLangNodeVisitor {
         checkAssignmentMismatch(node, expTypes);
         if (types.size() != expTypes.size()) {
             dlog.error(node.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expTypes.size(), types.size());
+            // Fill the result type with the error type
+            resultTypes = new ArrayList<>(expTypes.size());
+            for (int i = 0; i < expTypes.size(); i++) {
+                resultTypes.add(symTable.errType);
+            }
         }
 
         List<BType> resTypes = new ArrayList<>();
         for (int i = 0; i < types.size(); i++) {
             resTypes.add(checkType(node, types.get(i), expTypes.get(i)));
         }
-
-        if (node.isMultiReturnExpr()) {
-            MultiReturnExpr multiReturnExpr = (MultiReturnExpr) node;
-            multiReturnExpr.setTypes(resTypes);
-        }
-
         return resTypes;
     }
 
@@ -251,9 +292,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void assignExprType(BLangExpression expr) {
-        if (!expr.isMultiReturnExpr()) {
+        if (expr.isMultiReturnExpr()) {
+            MultiReturnExpr multiReturnExpr = (MultiReturnExpr) expr;
+            multiReturnExpr.setTypes(resultTypes);
+        } else {
             expr.type = resultTypes.get(0);
-        }  // TODO support multi return exprs
+        }
     }
 
     private void checkAssignmentMismatch(BLangExpression expr, List<BType> expTypes) {

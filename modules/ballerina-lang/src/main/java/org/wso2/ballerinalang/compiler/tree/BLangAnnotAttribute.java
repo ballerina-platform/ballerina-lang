@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +48,7 @@ public class BLangAnnotAttribute extends BLangNode implements AnnotationAttribut
 
     public BLangAnnotAttribute() {
         this.annAttachments = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flags = EnumSet.noneOf(Flag.class);
     }
 
     @Override

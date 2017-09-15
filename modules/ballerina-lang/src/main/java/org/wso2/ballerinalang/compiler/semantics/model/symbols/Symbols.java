@@ -20,59 +20,70 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * @since 0.94
  */
 public class Symbols {
 
-    public static BTypeSymbol createStructSymbol(Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.STRUCT, name, type, owner);
+    public static BTypeSymbol createStructSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.STRUCT, flags, name, type, owner);
         typeSymbol.kind = SymbolKind.STRUCT;
         return typeSymbol;
     }
 
-    public static BTypeSymbol createConnectorSymbol(Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.CONNECTOR, name, type, owner);
+    public static BTypeSymbol createConnectorSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.CONNECTOR, flags, name, type, owner);
         typeSymbol.kind = SymbolKind.CONNECTOR;
         return typeSymbol;
     }
 
-    public static BTypeSymbol createServiceSymbol(Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SERVICE, name, type, owner);
+    public static BTypeSymbol createServiceSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SERVICE, flags, name, type, owner);
         typeSymbol.kind = SymbolKind.SERVICE;
         return typeSymbol;
     }
 
-    public static BInvokableSymbol createFunctionSymbol(Name name, BType type, BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, name, type, owner);
+    public static BInvokableSymbol createFunctionSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, type, owner);
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
     }
 
-    public static BInvokableSymbol createActionSymbol(Name name, BType type, BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.ACTION, name, type, owner);
+    public static BInvokableSymbol createActionSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.ACTION, flags, name, type, owner);
         symbol.kind = SymbolKind.ACTION;
         return symbol;
     }
 
-    public static BInvokableSymbol createResourceSymbol(Name name, BType type, BSymbol owner) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, name, type, owner);
+    public static BInvokableSymbol createResourceSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.RESOURCE, flags, name, type, owner);
         symbol.kind = SymbolKind.RESOURCE;
         return symbol;
     }
 
     public static BTypeSymbol createTypeSymbol(int symTag,
+                                               int flags,
                                                Name name,
                                                BType type,
                                                BSymbol owner) {
-        return new BTypeSymbol(symTag, name, type, owner);
+        return new BTypeSymbol(symTag, flags, name, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,
+                                                         int flags,
                                                          Name name,
                                                          BType type,
                                                          BSymbol owner) {
-        return new BInvokableSymbol(kind, name, type, owner);
+        return new BInvokableSymbol(kind, flags, name, type, owner);
+    }
+
+    public static boolean isNative(BSymbol sym) {
+        return (sym.flags & Flags.NATIVE) == Flags.NATIVE;
+    }
+
+    public static boolean isPublic(BSymbol sym) {
+        return (sym.flags & Flags.PUBLIC) == Flags.PUBLIC;
     }
 }

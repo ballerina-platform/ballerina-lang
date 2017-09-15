@@ -113,13 +113,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BType> types = new ArrayList<>(2);
         types.add(lhsType);
         types.add(rhsType);
-
-        BSymbol symbol = resolveOperator(entry, types);
-        if (symbol == symTable.notFoundSymbol) {
-            // operator '+' not defined for 'int' and 'xml'
-            dlog.error(pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES, opKind, lhsType, rhsType);
-        }
-        return symbol;
+        return resolveOperator(entry, types);
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,

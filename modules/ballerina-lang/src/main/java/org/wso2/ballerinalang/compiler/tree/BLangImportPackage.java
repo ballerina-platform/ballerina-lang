@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public List<BLangIdentifier> pkgNameComps;
     public BLangIdentifier version;
     public BLangIdentifier alias;
+    public BPackageSymbol symbol;
 
     @Override
     public List<BLangIdentifier> getPackageName() {

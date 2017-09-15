@@ -42,4 +42,9 @@ public class BArrayType extends BType implements ArrayType {
     public TypeKind getKind() {
         return TypeKind.ARRAY;
     }
+
+    @Override
+    public String toString() {
+        return eType.toString() + "[]";
+    }
 }

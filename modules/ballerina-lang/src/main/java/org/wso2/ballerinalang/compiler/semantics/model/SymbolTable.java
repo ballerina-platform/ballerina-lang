@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
@@ -102,7 +103,7 @@ public class SymbolTable {
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
-        this.notFoundSymbol = new BSymbol(SymTag.NIL, Names.INVALID, noType, rootPkgSymbol);
+        this.notFoundSymbol = new BSymbol(SymTag.NIL, 0, Names.INVALID, noType, rootPkgSymbol);
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
@@ -119,13 +120,14 @@ public class SymbolTable {
 
         // Initialize error type;
         this.errType = new BErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.ERROR, Names.INVALID, errType, rootPkgSymbol);
+        this.errSymbol = new BTypeSymbol(SymTag.ERROR, 0, Names.INVALID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
 
         // Initialize builtin error struct type
         BStructType.BStructField msgField = new BStructType.BStructField(Names.MSG, stringType);
         this.errStructType = new BStructType(null, Lists.of(msgField));
-        this.errStructSymbol = Symbols.createStructSymbol(Names.ERROR, this.errStructType, rootPkgSymbol);
+        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR,
+                this.errStructType, rootPkgSymbol);
         defineType(errStructType, errStructSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
@@ -162,7 +164,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, name, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, 0, name, type, rootPkgSymbol));
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {

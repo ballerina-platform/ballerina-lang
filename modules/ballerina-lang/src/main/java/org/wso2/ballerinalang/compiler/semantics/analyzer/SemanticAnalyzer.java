@@ -19,8 +19,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -40,8 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
-
-import java.util.List;
 
 /**
  * @since 0.94
@@ -88,17 +88,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
-        // First visit all the imported packages
+        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
 
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
-                pkgNode.symbol.scope, symTable.rootPkgNode);
+        // Visit all the imported packages
+        pkgNode.imports.forEach(importNode -> analyzeDef(importNode, pkgEnv));
 
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
-        throw new AssertionError();
+        BPackageSymbol pkgSymbol = importPkgNode.symbol;
+        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        analyzeDef(pkgEnv.node, pkgEnv);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -106,12 +108,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        BSymbol funcSymbol = funcNode.symbol;
-        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
-
         // Check for native functions
-        analyzeStmt(funcNode.body, funcEnv);
+        BSymbol funcSymbol = funcNode.symbol;
+        if (Symbols.isNative(funcSymbol)) {
+            return;
+        }
 
+        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
+        analyzeStmt(funcNode.body, funcEnv);
     }
 
     public void visit(BLangStruct structNode) {
@@ -177,10 +181,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     BType analyzeStmt(BLangStatement stmtNode, SymbolEnv env) {
         return analyzeNode(stmtNode, env);
-    }
-
-    void visitStmtNodes(List<BLangStatement> stmtNodes) {
-//        stmtNodes.forEach(this::analyzeStmtNode);
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env) {

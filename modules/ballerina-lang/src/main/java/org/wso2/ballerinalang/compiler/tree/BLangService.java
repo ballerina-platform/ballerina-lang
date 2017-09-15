@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangIdentifier protocolPkgIdentifier;
     public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangFunction initFunction;
 
@@ -51,7 +51,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangService() {
         this.vars = new ArrayList<>();
         this.resources = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
     }
 
@@ -137,7 +137,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flags + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
                 + vars + " " + resources;
     }
 }

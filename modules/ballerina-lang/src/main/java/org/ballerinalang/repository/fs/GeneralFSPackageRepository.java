@@ -22,10 +22,14 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,20 +76,39 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     @Override
     public PackageEntity loadPackage(PackageID pkgID, String entryName) {
-        PackageEntity result = null;
-        //TODO check compiled packages first
-        if (result == null) {
-            result = this.lookupPackageSource(pkgID, entryName);
-        }
+        PackageEntity result = this.lookupPackageSource(pkgID, entryName);
         return result;
     }
 
     private Path generatePath(PackageID pkgID) {
-        Path result = this.basePath;
-        for (String comp : pkgID.name.value.split(PackageID.PACKAGE_COMP_SEPARATOR)) {
-            result = result.resolve(comp);
+        String[] ss = pkgID.getNameComps().stream().map(Name::getValue).toArray(String[]::new);
+        Path pkgDirPath = Paths.get(ss[0], Arrays.copyOfRange(ss, 1, ss.length));
+        return validateAndResolveSourcePath(this.basePath, pkgDirPath);
+    }
+
+    private Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
+        if (sourcePath == null) {
+            throw new IllegalArgumentException("source package/file cannot be null");
         }
-        return result;
+
+        try {
+            Path realSourcePath = programDirPath.resolve(sourcePath).toRealPath();
+
+            if (Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
+                return realSourcePath;
+            }
+
+            if (!realSourcePath.toString().endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
+                throw new IllegalArgumentException("invalid file: " + sourcePath);
+            }
+
+            return realSourcePath;
+        } catch (NoSuchFileException x) {
+            throw new IllegalArgumentException("no such file or directory: " + sourcePath);
+        } catch (IOException e) {
+            throw new RuntimeException("error reading from file: " + sourcePath +
+                    " reason: " + e.getMessage(), e);
+        }
     }
 
     /**

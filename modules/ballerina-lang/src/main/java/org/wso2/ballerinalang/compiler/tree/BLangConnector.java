@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +43,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangVariable> params;
     public List<BLangVariableDef> varDefs;
     public List<BLangAction> actions;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangVariable filteredParam;
     public BLangFunction initFunction;
@@ -55,7 +55,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
         this.params = new ArrayList<>();
         this.varDefs = new ArrayList<>();
         this.actions = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
     }
 
@@ -121,7 +121,7 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
 
     @Override
     public Set<Flag> getFlags() {
-        return flags;
+        return flagSet;
     }
     
     @Override

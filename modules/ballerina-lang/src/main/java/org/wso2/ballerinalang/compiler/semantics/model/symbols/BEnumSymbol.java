@@ -29,7 +29,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ENU
  */
 public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
 
-    public BEnumSymbol(Name name, BType type, BSymbol owner) {
-        super(ENUM, name, type, owner);
+    public BEnumSymbol(int flags, Name name, BType type, BSymbol owner) {
+        super(ENUM, flags, name, type, owner);
     }
 }

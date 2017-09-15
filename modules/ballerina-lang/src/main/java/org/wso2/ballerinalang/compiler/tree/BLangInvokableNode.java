@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangVariable> params;
     public List<BLangVariable> retParams;
     public BLangBlockStmt body;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<WorkerNode> workers;
 
@@ -52,7 +52,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
     }
 
@@ -98,7 +98,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public Set<Flag> getFlags() {
-        return flags;
+        return flagSet;
     }
 
     @Override
@@ -133,7 +133,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public String toString() {
-        return this.flags + " " + this.getName() + " (" + this.params +
+        return this.flagSet + " " + this.getName() + " (" + this.params +
                 ") (" + this.retParams + ") Body: {" + this.body + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }

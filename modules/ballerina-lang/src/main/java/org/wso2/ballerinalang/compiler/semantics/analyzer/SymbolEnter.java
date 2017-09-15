@@ -59,8 +59,11 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -81,6 +84,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangPackage rootPkgNode;
 
     private SymbolEnv env;
+    public Map<BPackageSymbol, SymbolEnv> packageEnvs = new HashMap<>();
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
 
     public static SymbolEnter getInstance(CompilerContext context) {
@@ -119,10 +123,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
                 pSymbol.scope, symTable.rootPkgNode);
+        packageEnvs.put(pSymbol, pkgEnv);
 
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
-        // TODO Load each import package
+        pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
@@ -149,7 +154,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangImportPackage importPkgNode) {
-        throw new AssertionError();
+        BLangPackage pkgNode = pkgLoader.loadPackage(importPkgNode.pkgNameComps, importPkgNode.version);
+        // Create import package symbol
+        BPackageSymbol pkgSymbol = pkgNode.symbol;
+        importPkgNode.symbol = pkgSymbol;
+        this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -157,14 +166,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-        BSymbol structSymbol = Symbols.createStructSymbol(
+        BSymbol structSymbol = Symbols.createStructSymbol(Flags.asMask(structNode.flagSet),
                 names.fromIdNode(structNode.name), null, env.scope.owner);
         structNode.symbol = structSymbol;
         defineSymbol(structNode.pos, structSymbol);
     }
 
     public void visit(BLangConnector connectorNode) {
-        BSymbol conSymbol = Symbols.createConnectorSymbol(
+        BSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
                 names.fromIdNode(connectorNode.name), null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineConnectorInitFunction(connectorNode);
@@ -172,7 +181,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        BSymbol serviceSymbol = Symbols.createServiceSymbol(
+        BSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), null, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
         defineServiceInitFunction(serviceNode);
@@ -180,17 +189,17 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        defineInvokableSymbol(funcNode, Symbols.createFunctionSymbol(
+        defineInvokableSymbol(funcNode, Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 names.fromIdNode(funcNode.name), null, env.scope.owner));
     }
 
     public void visit(BLangAction actionNode) {
-        defineInvokableSymbol(actionNode, Symbols.createActionSymbol(
+        defineInvokableSymbol(actionNode, Symbols.createActionSymbol(Flags.asMask(actionNode.flagSet),
                 names.fromIdNode(actionNode.name), null, env.scope.owner));
     }
 
     public void visit(BLangResource resourceNode) {
-        defineInvokableSymbol(resourceNode, Symbols.createResourceSymbol(
+        defineInvokableSymbol(resourceNode, Symbols.createResourceSymbol(Flags.asMask(resourceNode.flagSet),
                 names.fromIdNode(resourceNode.name), null, env.scope.owner));
     }
 
@@ -207,7 +216,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol = new BVarSymbol(varName, varType, enclScope.owner);
+        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(varNode.flagSet),
+                varName, varType, enclScope.owner);
 
         // Add it to the enclosing scope
         // Find duplicates

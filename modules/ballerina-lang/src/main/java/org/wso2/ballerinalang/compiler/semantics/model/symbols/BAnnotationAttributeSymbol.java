@@ -29,6 +29,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
 public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAttributeSymbol {
 
     public BAnnotationAttributeSymbol(Name name, BType type, BSymbol owner) {
-        super(ANNOTATION_ATTRIBUTE, name, type, owner);
+        super(ANNOTATION_ATTRIBUTE, 0, name, type, owner);
     }
 }

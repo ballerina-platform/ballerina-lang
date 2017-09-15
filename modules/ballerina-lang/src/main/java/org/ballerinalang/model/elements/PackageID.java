@@ -19,6 +19,10 @@ package org.ballerinalang.model.elements;
 
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Lists;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This represents a specific package and its version.
@@ -27,27 +31,37 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class PackageID {
 
-    public static final PackageID EMPTY = new PackageID(Names.EMPTY, Names.EMPTY);
-    
-    public static final String PACKAGE_COMP_SEPARATOR = ".";
+    public static final PackageID EMPTY = new PackageID(Lists.of(Names.EMPTY), Names.EMPTY);
 
-    public Name name;
-    
-    public Name version;
+    public List<Name> nameComps = Lists.of(Names.EMPTY);
+    public Name name = Names.EMPTY;
+    public Name version = Names.DEFAULT_VERSION;
 
-    public PackageID(Name name, Name version) {
-        this.name = name;
+    public PackageID(List<Name> nameComps, Name version) {
+        this.nameComps = nameComps;
+        this.name = new Name(
+                nameComps.stream()
+                        .map(Name::getValue)
+                        .collect(Collectors.joining(".")));
         this.version = version;
     }
 
-    public Name getPackageName() {
+    public Name getName() {
         return name;
+    }
+
+    public Name getNameComp(int index) {
+        return nameComps.get(index);
+    }
+
+    public List<Name> getNameComps() {
+        return nameComps;
     }
 
     public Name getPackageVersion() {
         return version;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -59,12 +73,12 @@ public class PackageID {
         }
 
         PackageID packageID = (PackageID) o;
-        return name.equals(packageID.name) && version.equals(packageID.version);
+        return nameComps.equals(packageID.nameComps) && version.equals(packageID.version);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
+        int result = nameComps.hashCode();
         result = 31 * result + version.hashCode();
         return result;
     }
@@ -73,5 +87,4 @@ public class PackageID {
     public String toString() {
         return this.name + "[" + this.version + "]";
     }
-    
 }
