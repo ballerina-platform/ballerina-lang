@@ -40,10 +40,20 @@ const VarPrefix = {
  */
 class TransformNodeMapper {
 
+    /**
+     * Creates an instance of TransformNodeMapper.
+     * @param {any} args arguments
+     * @memberof TransformNodeMapper
+     */
     constructor(args) {
         this._transformStmt = _.get(args, 'transformStmt');
     }
 
+    /**
+     * Set transform statement
+     * @param {any} transformStmt transform statement
+     * @memberof TransformNodeMapper
+     */
     setTransformStmt(transformStmt) {
         this._transformStmt = transformStmt;
     }
@@ -183,6 +193,26 @@ class TransformNodeMapper {
         });
     }
 
+    createFunctionToFunctionMapping(source, target) {
+        // Connection source and target are not structs
+        // Source and target are function nodes.
+
+        // target reference might be function invocation expression or assignment statement
+        // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
+        // will be different from removing a param from a function and then drawing the connection
+        // to the parent function invocation.
+        const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
+        // remove the source assignment statement since it is now included in the target assignment statement.
+        this._transformStmt.removeChild(assignmentStmtSource, true);
+
+        const currentChild = target.funcInv.getChildren()[target.index];
+        if (currentChild) {
+            target.funcInv.removeChild(currentChild, true);
+        }
+
+        target.funcInv.addChild(source.funcInv, target.index);
+    }
+
     // **** REMOVE MAPPING FUNCTIONS **** //
 
 
@@ -198,6 +228,20 @@ class TransformNodeMapper {
             return (this.getMappableExpression(stmt.getRightExpression()).getExpressionString().trim()
                         === expression.getExpressionString().trim());
         });
+    }
+
+    /**
+    * Gets the enclosing assignment statement.
+    * @param {ASTNode} expression
+    * @returns {AssignmentStatement} enclosing assignment statement
+    * @memberof TransformStatementDecorator
+    */
+    getParentAssignmentStmt(node) {
+        if (ASTFactory.isAssignmentStatement(node)) {
+            return node;
+        } else {
+            return this.getParentAssignmentStmt(node.getParent());
+        }
     }
 
     /**

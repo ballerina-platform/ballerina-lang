@@ -158,8 +158,7 @@ class TransformExpanded extends React.Component {
         // There can be multiple left expressions.
         // E.g. : e.name, e.username = p.first_name;
         const leftExpression = statement.getLeftExpression();
-        const rightExpression = this.transformNodeManager.getResolvedExpression(statement.getRightExpression(), statement);
-
+        const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(statement.getRightExpression(), statement);
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
@@ -303,7 +302,8 @@ class TransformExpanded extends React.Component {
             } else {
                 let target;
                 let source;
-                expression = this.transformNodeManager.getResolvedExpression(expression, statement);
+                const { exp, isTemp} = this.transformNodeManager.getResolvedExpression(expression, statement);
+                expression = exp;
                 if (ASTFactory.isKeyValueExpression(expression.children[0])) {
                 // if parameter is a key value expression, iterate each expression and draw connections
                     _.forEach(expression.children, (propParam) => {
@@ -316,7 +316,7 @@ class TransformExpanded extends React.Component {
                         this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                     });
                 } else {
-                    expression = this.transformNodeManager.getResolvedExpression(expression);
+                    // expression = this.transformNodeManager.getResolvedExpression(expression);
                     let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                     let folded = false;
                     if (!this.sourceElements[sourceId]) {
@@ -1020,15 +1020,11 @@ class TransformExpanded extends React.Component {
                 if (!ASTFactory.isAssignmentStatement(child)) {
                     return;
                 }
-                let rightExpression = child.getRightExpression();
-                rightExpression = this.transformNodeManager.getResolvedExpression(rightExpression, child);
+                const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(child.getRightExpression(), child);
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
                     const funcInvs = this.findFunctionInvocations(rightExpression);
-                    const exists = functions.find((func) => {
-                        return func.funcInv === funcInvs[0].funcInv;
-                    });
-                    if (!exists) {
+                    if (!isTemp) {
                         // only add if the function invocation is not pre available.
                         // this check is required for instances where the function invocations
                         // are used via temporary variables

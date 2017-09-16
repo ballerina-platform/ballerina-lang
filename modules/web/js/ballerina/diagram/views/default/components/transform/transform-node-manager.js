@@ -153,24 +153,7 @@ class TransformNodeManager {
             return;
         }
 
-        // Connection source and target are not structs
-        // Source and target are function nodes.
-
-        // target reference might be function invocation expression or assignment statement
-        // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
-        // will be different from removing a param from a function and then drawing the connection
-        // to the parent function invocation.
-        const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
-
-        // remove the source assignment statement since it is now included in the target assignment statement.
-        this._transformStmt.removeChild(assignmentStmtSource, true);
-
-        const currentChild = target.funcInv.getChildren()[target.index];
-        if (currentChild) {
-            target.funcInv.removeChild(currentChild, true);
-        }
-
-        target.funcInv.addChild(source.funcInv, target.index);
+        this._mapper.createFunctionToFunctionMapping(source, target);
     }
 
     /**
@@ -271,22 +254,6 @@ class TransformNodeManager {
         return _.find(this._transformStmt.getChildren(), (child) => {
             return child.getID() === id;
         });
-    }
-
-    /**
-    *
-    * Gets the enclosing assignment statement.
-    *
-    * @param {any} expression
-    * @returns {AssignmentStatement} enclosing assignment statement
-    * @memberof TransformStatementDecorator
-    */
-    getParentAssignmentStmt(node) {
-        if (BallerinaASTFactory.isAssignmentStatement(node)) {
-            return node;
-        } else {
-            return this.getParentAssignmentStmt(node.getParent());
-        }
     }
 
     /**
@@ -420,9 +387,12 @@ class TransformNodeManager {
         const mapExp = this._mapper.getMappableExpression(expression);
         if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)
             && this._mapper.isTempVariable(mapExp, statement)) {
-            return this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp));
+            return {
+                exp: this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp)),
+                isTemp: true,
+            };
         }
-        return mapExp;
+        return { exp: mapExp, isTemp: false };
     }
 
     findTempVarUsages(tempVarName) {
