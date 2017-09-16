@@ -27,9 +27,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -194,6 +197,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         // assign the type to var type node
         BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
+        varNode.type = varType;
 
         Name varName = names.fromIdNode(varNode.name);
         if (varName == Names.EMPTY) {
@@ -309,7 +313,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
         structNodes.forEach(struct -> {
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, pkgEnv, struct.symbol.scope);
-            struct.fields.forEach(field -> defineNode(field, structEnv));
+            List<BStructField> fieldList = struct.fields.stream()
+                    .peek(field -> defineNode(field, structEnv))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
+                    .collect(Collectors.toList());
+            struct.symbol.type = new BStructType((BTypeSymbol) struct.symbol, fieldList);
         });
     }
 

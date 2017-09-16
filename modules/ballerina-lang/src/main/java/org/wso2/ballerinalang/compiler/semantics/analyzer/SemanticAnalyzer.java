@@ -123,6 +123,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
+        BSymbol structSymbol = structNode.symbol;
+        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, env, structSymbol.scope);
+        structNode.fields.forEach(field -> analyzeDef(field, structEnv));
     }
 
     public void visit(BLangVariable varNode) {
