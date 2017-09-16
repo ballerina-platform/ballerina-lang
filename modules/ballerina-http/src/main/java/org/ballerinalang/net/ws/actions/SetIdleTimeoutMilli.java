@@ -18,10 +18,12 @@
 
 package org.ballerinalang.net.ws.actions;
 
+
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -44,12 +46,14 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnector
 )
 public class SetIdleTimeoutMilli extends AbstractNativeAction {
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         int idleTimeoutMillis = getIntArgument(context, 0);
         WsClientConnectorConfig senderConfiguration =
                 (WsClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         senderConfiguration.setIdleTimeoutInMillis(idleTimeoutMillis);
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 }

@@ -22,26 +22,30 @@ import org.ballerinalang.model.values.BValue;
 /**
  * {@code ConnectorFutureListener} API provides the functionality to listen to ballerina side events after
  * server connector invokes the resource in ballerina side.
+ * This also used for Ballerina to be notified about client response in the case of client connectors.
  *
  * @since 0.94
  */
 public interface ConnectorFutureListener {
 
     /**
-     * Notify success event to the server connector implementation.
-     * this will get invoked once resource finished execution.
+     * Notify success event to the server connector implementation or notify Ballerina about success events in
+     * client connector side.
+     * this will get invoked once resource finished execution or client receives a response.
      */
     void notifySuccess();
 
     /**
-     * Notify success event to the server connector implementation.
+     * Notify success event to the server connector implementation or notify response about Ballerina from
+     * client connector.
      *
      * @param response success response.
      */
     void notifyReply(BValue response);
 
     /**
-     * Notify failure event to the server connector implementation.
+     * Notify failure event to the server connector implementation or notify Ballerina about failure events in
+     * client connector.
      *
      * @param ex failure cause.
      */

@@ -18,10 +18,12 @@
 
 package org.ballerinalang.net.ws.actions;
 
+
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -47,7 +49,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnector
 )
 public class Init extends AbstractNativeAction {
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         String remoteUrl = bconnector.getStringField(0);
         String clientServiceName = bconnector.getStringField(1);
@@ -55,6 +57,8 @@ public class Init extends AbstractNativeAction {
         WsClientConnectorConfig senderConfiguration = new WsClientConnectorConfig(remoteUrl);
         senderConfiguration.setTarget(clientServiceName);
         bconnector.setNativeData(Constants.NATIVE_DATA_SENDER_CONFIG, senderConfiguration);
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 }

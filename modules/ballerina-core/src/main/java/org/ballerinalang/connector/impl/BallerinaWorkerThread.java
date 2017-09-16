@@ -29,10 +29,10 @@ public class BallerinaWorkerThread implements Runnable {
 
     private Resource resource;
     private BValue[] bValues;
-    private BConnectorFuture connectorFuture;
+    private BServerConnectorFuture connectorFuture;
     private Map<String, Object> properties;
 
-    public BallerinaWorkerThread(Resource resource, BConnectorFuture connectorFuture,
+    public BallerinaWorkerThread(Resource resource, BServerConnectorFuture connectorFuture,
                                  Map<String, Object> properties, BValue... bValues) {
         this.resource = resource;
         this.connectorFuture = connectorFuture;

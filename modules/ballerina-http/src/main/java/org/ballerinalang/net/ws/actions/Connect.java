@@ -19,11 +19,12 @@
 package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -55,7 +56,7 @@ import javax.websocket.Session;
 )
 public class Connect extends AbstractNativeAction {
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         WsClientConnectorConfig senderConfiguration =
                 (WsClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
@@ -66,7 +67,11 @@ public class Connect extends AbstractNativeAction {
             WebSocketClientConnector clientConnector =
                     connectorFactory.createWsClientConnector(senderConfiguration);
             Session session = clientConnector.connect(new BallerinaWebSocketConnectorListener());
-            return createWSConnectionStruct(context, session, wsParentConnection);
+
+            ClientConnectorFuture future = new ClientConnectorFuture();
+            BStruct response = createWSConnectionStruct(context, session, wsParentConnection);
+            future.notifyReply(response);
+            return future;
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Cannot connect to remote server: " + e.getMessage());
         }

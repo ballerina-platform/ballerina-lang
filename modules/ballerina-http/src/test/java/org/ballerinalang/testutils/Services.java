@@ -20,13 +20,10 @@ package org.ballerinalang.testutils;
 
 
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.Constants;
-import org.ballerinalang.net.http.HttpConnectorFutureListener;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;

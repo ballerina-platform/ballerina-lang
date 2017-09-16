@@ -18,7 +18,7 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
-import org.ballerinalang.connector.impl.BConnectorFuture;
+import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
@@ -44,7 +44,7 @@ public class Context {
     //TODO remove below after jms and ftp full migration.
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-    private BConnectorFuture connectorFuture;
+    private BServerConnectorFuture connectorFuture;
     protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
@@ -137,11 +137,11 @@ public class Context {
         this.balCallback = balCallback;
     }
 
-    public BConnectorFuture getConnectorFuture() {
+    public BServerConnectorFuture getConnectorFuture() {
         return connectorFuture;
     }
 
-    public void setConnectorFuture(BConnectorFuture connectorFuture) {
+    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
         this.connectorFuture = connectorFuture;
     }
 

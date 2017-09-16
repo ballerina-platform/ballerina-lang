@@ -6,7 +6,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.CorsHeaderGenerator;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 

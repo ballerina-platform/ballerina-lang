@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -61,7 +60,7 @@ public class RequestNativeFunctionTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage modified = (HTTPCarbonMessage)((BStruct) returnVals[0])
+        HTTPCarbonMessage modified = (HTTPCarbonMessage) ((BStruct) returnVals[0])
                 .getNativeData(Constants.TRANSPORT_MESSAGE);
         Assert.assertEquals(modified.getHeader(headerName), headerValue);
     }
@@ -90,7 +89,7 @@ public class RequestNativeFunctionTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage modified = (HTTPCarbonMessage)((BStruct) returnVals[0])
+        HTTPCarbonMessage modified = (HTTPCarbonMessage) ((BStruct) returnVals[0])
                 .getNativeData(Constants.TRANSPORT_MESSAGE);
         Assert.assertEquals(modified.getHeader(headerName), headerValue);
     }

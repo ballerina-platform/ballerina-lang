@@ -63,7 +63,7 @@ public class ResourceExecutor {
         //TODO
     }
 
-    public static void execute(Resource resource, BConnectorFuture connectorFuture,
+    public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
                                Map<String, Object> properties, BValue... bValues) {
 // engage Service interceptors.
 //        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {

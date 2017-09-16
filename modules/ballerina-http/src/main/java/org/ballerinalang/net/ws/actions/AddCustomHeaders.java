@@ -18,12 +18,14 @@
 
 package org.ballerinalang.net.ws.actions;
 
+
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -50,7 +52,7 @@ import java.util.Set;
 )
 public class AddCustomHeaders extends AbstractNativeAction {
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         BMap<BString, BString> bCustomHeaders = (BMap<BString, BString>) getRefArgument(context, 1);
         Map<String, String> customheaders = new HashMap<>();
@@ -63,6 +65,8 @@ public class AddCustomHeaders extends AbstractNativeAction {
         WsClientConnectorConfig senderConfiguration =
                 (WsClientConnectorConfig) bconnector.getnativeData(Constants.NATIVE_DATA_SENDER_CONFIG);
         senderConfiguration.addHeaders(customheaders);
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 }

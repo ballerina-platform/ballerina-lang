@@ -17,14 +17,13 @@
 package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -41,8 +40,7 @@ import java.util.Locale;
         actionName = "execute",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c",
-                        type = TypeEnum.CONNECTOR),
+                @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "httpVerb", type = TypeEnum.STRING),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
@@ -59,28 +57,15 @@ public class Execute extends AbstractHTTPAction {
     private static final Logger logger = LoggerFactory.getLogger(Execute.class);
 
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
 
-        logger.debug("Executing Native Action : Execute");
-        try {
-            // Execute the operation
-            return executeAction(context, createCarbonMsg(context));
-        } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
-                    + ". " + t.getMessage(), context);
-        }
-    }
-
-    @Override
-    public void execute(Context context, BalConnectorCallback connectorCallback) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action (non-blocking): {}", this.getName());
+            logger.debug("Executing Native Action : {}", this.getName());
         }
         try {
             // Execute the operation
-            executeNonBlockingAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
-            // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }

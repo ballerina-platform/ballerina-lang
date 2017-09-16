@@ -18,11 +18,13 @@
 
 package org.ballerinalang.net.ws.actions;
 
+
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -44,10 +46,12 @@ import org.ballerinalang.net.ws.Constants;
 )
 public class SetParentConnection extends AbstractNativeAction {
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         BStruct parentConnection = (BStruct) getRefArgument(context, 1);
         bconnector.setNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION, parentConnection);
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 }
