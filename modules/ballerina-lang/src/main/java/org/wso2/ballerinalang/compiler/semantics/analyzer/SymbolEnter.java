@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,12 +313,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
         structNodes.forEach(struct -> {
+            // Create struct type
+            BStructType structType = new BStructType((BTypeSymbol) struct.symbol, new ArrayList<>());
+            struct.symbol.type = structType;
+
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, pkgEnv, struct.symbol.scope);
-            List<BStructField> fieldList = struct.fields.stream()
+            structType.fields = struct.fields.stream()
                     .peek(field -> defineNode(field, structEnv))
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
                     .collect(Collectors.toList());
-            struct.symbol.type = new BStructType((BTypeSymbol) struct.symbol, fieldList);
         });
     }
 

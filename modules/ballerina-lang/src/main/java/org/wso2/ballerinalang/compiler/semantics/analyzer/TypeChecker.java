@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -167,7 +169,28 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        throw new AssertionError();
+        BType actualType = symTable.errType;
+        int expTypeTag = expTypes.get(0).tag;
+        if (expTypeTag == TypeTags.NONE) {
+            // var a = {}
+            // Change the expected type to map
+            expTypes = Lists.of(symTable.mapType);
+        }
+
+//        if (expTypeTag == TypeTags.MAP ||
+//                expTypeTag == TypeTags.JSON) {
+//            recordLiteral.keyValuePairs.forEach(keyValuePair ->
+//                    checkStructLiteralKeyValuePair(keyValuePair, expTypes.get(0)));
+//            actualType = expTypes.get(0);
+//        }
+
+        if (expTypeTag == TypeTags.STRUCT) {
+            recordLiteral.keyValuePairs.forEach(keyValuePair ->
+                    checkStructLiteralKeyValuePair(keyValuePair, (BStructType) expTypes.get(0)));
+            actualType = expTypes.get(0);
+        }
+
+        resultTypes = checkTypes(recordLiteral, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -412,5 +435,38 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultTypes = checkTypes(iExpr, actualTypes, expTypes);
+    }
+
+    private void checkStructLiteralKeyValuePair(BLangRecordKeyValue keyValuePair, BStructType structType) {
+        BLangExpression keyExpr = keyValuePair.keyExpr;
+        Name fieldName;
+        if (keyExpr.getKind() != NodeKind.LITERAL &&
+                keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_STRUCT_LITERAL);
+            return;
+
+        } else if (keyExpr.getKind() == NodeKind.LITERAL) {
+            BType keyExprType = checkExpr(keyExpr, this.env, Lists.of(symTable.stringType)).get(0);
+            if (keyExprType == symTable.errType) {
+                return;
+            }
+
+            Object literalValue = ((BLangLiteral) keyExpr).value;
+            fieldName = names.fromString((String) literalValue);
+
+        } else {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
+            fieldName = names.fromIdNode(varRef.variableName);
+        }
+
+        // Check weather the struct field exists
+        BSymbol symbol = symResolver.resolveStructField(keyExpr.pos, fieldName, structType.tsymbol);
+        if (symbol == symTable.notFoundSymbol) {
+            return;
+        }
+
+        BVarSymbol fieldSymbol = (BVarSymbol) symbol;
+        BLangExpression valueExpr = keyValuePair.valueExpr;
+        checkExpr(valueExpr, this.env, Lists.of(fieldSymbol.type));
     }
 }

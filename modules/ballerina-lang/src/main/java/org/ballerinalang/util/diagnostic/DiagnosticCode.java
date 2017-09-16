@@ -32,6 +32,7 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_ACTION("undefined.action"),
+    UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
@@ -46,6 +47,7 @@ public enum DiagnosticCode {
 
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
+    INVALID_FIELD_NAME_STRUCT_LITERAL("invalid.field.name.struct.lit"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),

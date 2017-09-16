@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -150,6 +151,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(pos, code, invokableName);
         }
+        return symbol;
+    }
+
+    public BSymbol resolveStructField(DiagnosticPos pos, Name fieldName, BTypeSymbol structSymbol) {
+        BSymbol symbol = lookupMemberSymbol(structSymbol.scope, fieldName, SymTag.VARIABLE);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structSymbol);
+        }
+
         return symbol;
     }
 

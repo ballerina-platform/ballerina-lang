@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -48,5 +49,10 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.INDEX_BASED_ACCESS_EXPR;
     }
 }
