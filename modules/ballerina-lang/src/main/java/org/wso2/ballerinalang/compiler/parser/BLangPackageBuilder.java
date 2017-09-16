@@ -545,7 +545,7 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
-            exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
+            exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
         }
 
         BLangNameReference nameReference = nameReferenceStack.pop();
@@ -559,7 +559,7 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
-            exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
+            exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
         }
 
         invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();

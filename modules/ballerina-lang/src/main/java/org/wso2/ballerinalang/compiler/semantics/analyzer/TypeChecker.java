@@ -203,7 +203,6 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexAccessExpr.indexExpr, this.env, Lists.of(symTable.intType));
     }
 
-
     public void visit(BLangInvocation iExpr) {
         // Variable ref expression null means this is the leaf node of the variable ref expression tree
         // e.g. foo();, foo(), foo().k;
@@ -364,35 +363,34 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualTypes;
     }
 
-    private boolean checkFunctionInvocationExpr(BLangInvocation iExpr) {
+    private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         Name funcName = names.fromIdNode(iExpr.name);
         BSymbol funcSymbol = symResolver.resolveInvokable(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION,
                 this.env, names.fromIdNode(iExpr.pkgAlias), funcName);
         if (funcSymbol == symTable.errSymbol) {
             resultTypes = actualTypes;
-            return true;
+            return;
         }
 
-        List<BType> funcParamTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
-        if (iExpr.argsExprs.size() == 1 && iExpr.argsExprs.get(0).getKind() == NodeKind.INVOCATION) {
-            checkExpr(iExpr.argsExprs.get(0), this.env, funcParamTypes);
+        List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
+        if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
+            checkExpr(iExpr.argExprs.get(0), this.env, paramTypes);
 
-        } else if (funcParamTypes.size() > iExpr.argsExprs.size()) {
+        } else if (paramTypes.size() > iExpr.argExprs.size()) {
             dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, funcName);
 
-        } else if (funcParamTypes.size() < iExpr.argsExprs.size()) {
+        } else if (paramTypes.size() < iExpr.argExprs.size()) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, funcName);
 
         } else {
-            for (int i = 0; i < iExpr.argsExprs.size(); i++) {
-                checkExpr(iExpr.argsExprs.get(i), this.env, Lists.of(funcParamTypes.get(i)));
+            for (int i = 0; i < iExpr.argExprs.size(); i++) {
+                checkExpr(iExpr.argExprs.get(i), this.env, Lists.of(paramTypes.get(i)));
             }
             actualTypes = funcSymbol.type.getReturnTypes();
         }
 
         checkInvocationReturnTypes(iExpr, actualTypes, funcName);
-        return false;
     }
 
     private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes, Name funcName) {
