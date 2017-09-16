@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -27,11 +28,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -123,9 +126,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcSymbol)) {
             return;
         }
-
         SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
         analyzeStmt(funcNode.body, funcEnv);
+        // Process workers
+        funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
     }
 
     public void visit(BLangStruct structNode) {
@@ -212,6 +216,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeNode(bLangCatch.param, catchBlockEnv);
         this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
+    }
+    
+    @Override
+    public void visit(BLangWorker workerNode) {
+        SymbolEnv workerEnv;
+        if (env.node.getKind() == NodeKind.FUNCTION) {
+            workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, (BLangInvokableNode) env.node);
+        } else if (env.node.getKind() == NodeKind.FORKJOIN) {
+            //TODO
+            workerEnv = null;
+        } else {
+            throw new IllegalStateException("invalid enclosing node type for worker: " + env.node.getKind());
+        }
+        this.analyzeNode(workerNode.body, workerEnv);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {

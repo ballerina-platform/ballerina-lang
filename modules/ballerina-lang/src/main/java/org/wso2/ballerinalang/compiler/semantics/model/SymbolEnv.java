@@ -19,11 +19,13 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 /**
@@ -103,4 +105,12 @@ public class SymbolEnv {
         symbolEnv.enclVarSym = enclVarSym;
         return symbolEnv;
     }
+    
+    public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env, BLangInvokableNode enclInv) {
+        SymbolEnv symbolEnv = new SymbolEnv(worker, env.scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.enclInvokable = enclInv;
+        return symbolEnv;
+    }
+    
 }

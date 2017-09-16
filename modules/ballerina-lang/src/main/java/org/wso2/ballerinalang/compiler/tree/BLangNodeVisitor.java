@@ -91,6 +91,10 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         throw new AssertionError();
     }
+    
+    public void visit(BLangWorker workerNode) {
+        throw new AssertionError();
+    }
 
     public void visit(BLangService serviceNode) {
         throw new AssertionError();
