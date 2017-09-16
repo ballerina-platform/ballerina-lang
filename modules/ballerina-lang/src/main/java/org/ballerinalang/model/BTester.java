@@ -56,7 +56,7 @@ public class BTester {
 
         Compiler compiler = Compiler.getInstance(context);
 //        compiler.compile("bar.bal");
-        compiler.compile("foo.bal");
+        compiler.compile("bazz.bal");
 //        compiler.compile("a.b.c");
     }
 

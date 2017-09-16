@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -42,6 +41,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,29 +90,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveExplicitCastOperator(DiagnosticPos pos,
-                                               BType sourceType,
+    public BSymbol resolveExplicitCastOperator(BType sourceType,
                                                BType targetType) {
         ScopeEntry entry = symTable.rootScope.lookup(Names.CAST_OP);
-        List<BType> types = new ArrayList<>(2);
-        types.add(sourceType);
-        types.add(targetType);
+        List<BType> types = Lists.of(sourceType, targetType);
 
-        BSymbol symbol = resolveOperator(entry, types);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
-        }
-        return symbol;
+        return resolveOperator(entry, types);
     }
 
-    public BSymbol resolveBinaryOperator(DiagnosticPos pos,
-                                         OperatorKind opKind,
+    public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
         ScopeEntry entry = symTable.rootScope.lookup(names.fromString(opKind.value()));
-        List<BType> types = new ArrayList<>(2);
-        types.add(lhsType);
-        types.add(rhsType);
+        List<BType> types = Lists.of(lhsType, rhsType);
         return resolveOperator(entry, types);
     }
 
@@ -126,6 +116,39 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol symbol = resolveOperator(entry, types);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES, opKind, type);
+        }
+        return symbol;
+    }
+
+    public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
+
+        if (pkgAlias == Names.EMPTY) {
+            // Return the current package symbol
+            return env.enclPkg.symbol;
+        }
+
+        // Lookup for an imported package
+        BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, SymTag.PACKAGE);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias.value);
+        }
+
+        return pkgSymbol;
+    }
+
+    public BSymbol resolveInvokable(DiagnosticPos pos,
+                                    DiagnosticCode code,
+                                    SymbolEnv env,
+                                    Name pkgAlias,
+                                    Name invokableName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+
+        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, invokableName, SymTag.INVOKABLE);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(pos, code, invokableName);
         }
         return symbol;
     }
@@ -144,6 +167,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.diagCode = preDiagCode;
 
+        typeNode.type = resultType;
         return resultType;
     }
 
@@ -250,8 +274,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
         BSymbol foundSymbol = symTable.notFoundSymbol;
         while (entry != NOT_FOUND_ENTRY) {
-            BOperatorSymbol opSymbol = (BOperatorSymbol) entry.symbol;
-            BInvokableType opType = (BInvokableType) opSymbol.type;
+            BInvokableType opType = (BInvokableType) entry.symbol.type;
             if (types.size() == opType.paramTypes.size()) {
                 boolean match = true;
                 for (int i = 0; i < types.size(); i++) {
@@ -261,11 +284,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 if (match) {
-                    foundSymbol = opSymbol;
+                    foundSymbol = entry.symbol;
                     break;
                 }
             }
-
 
             entry = entry.next;
         }

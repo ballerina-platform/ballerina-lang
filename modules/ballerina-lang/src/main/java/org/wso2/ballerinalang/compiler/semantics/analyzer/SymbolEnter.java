@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -328,15 +329,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol) {
         SymbolEnv invokableEnv = SymbolEnv.createPkgLevelSymbolEnv(invokableNode, env, symbol.scope);
         List<BVarSymbol> paramSymbols =
-                invokableNode.params
-                        .stream()
+                invokableNode.params.stream()
                         .peek(varNode -> defineNode(varNode, invokableEnv))
                         .map(varNode -> varNode.symbol)
                         .collect(Collectors.toList());
 
         List<BVarSymbol> retParamSymbols =
-                invokableNode.retParams
-                        .stream()
+                invokableNode.retParams.stream()
                         .peek(varNode -> defineNode(varNode, invokableEnv))
                         .filter(varNode -> varNode.symbol != null)
                         .map(varNode -> varNode.symbol)
@@ -344,6 +343,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         symbol.params = paramSymbols;
         symbol.retParams = retParamSymbols;
+
+        // Create function type
+        List<BType> paramTypes = paramSymbols.stream()
+                .map(paramSym -> paramSym.type)
+                .collect(Collectors.toList());
+        List<BType> retTypes = invokableNode.retParams.stream()
+                .map(varNode -> varNode.typeNode.type)
+                .collect(Collectors.toList());
+
+        symbol.type = new BInvokableType(paramTypes, retTypes, null);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {

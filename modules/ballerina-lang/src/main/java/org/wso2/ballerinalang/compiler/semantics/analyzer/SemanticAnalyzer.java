@@ -32,7 +32,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -40,6 +42,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -150,6 +156,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
+    }
+
+    public void visit(BLangAssignment assignNode) {
+        // TODO This is a temporary workaround
+        if (assignNode.declaredWithVar) {
+            List<BType> expTypes = assignNode.varRefs.stream()
+                    .map(varRef -> symTable.noType)
+                    .collect(Collectors.toList());
+
+            typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        }
+    }
+
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        // Creates a new environment here.
+        SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
+        this.env.copyTo(stmtEnv);
+        typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, new ArrayList<>());
     }
 
     public void visit(BLangIf ifNode) {

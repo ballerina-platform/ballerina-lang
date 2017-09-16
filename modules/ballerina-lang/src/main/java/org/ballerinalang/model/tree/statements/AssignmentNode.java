@@ -29,7 +29,7 @@ import java.util.List;
  * @since 0.94
  */
 public interface AssignmentNode extends StatementNode {
-    List<? extends VariableReferenceNode> getVariables();
+    List<? extends ExpressionNode> getVariables();
 
     ExpressionNode getExpression();
 

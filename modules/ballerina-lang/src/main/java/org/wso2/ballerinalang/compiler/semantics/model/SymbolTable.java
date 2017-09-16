@@ -243,7 +243,6 @@ public class SymbolTable {
                                       int opcode) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         List<BType> retTypes = Lists.of(retType);
-        retTypes.add(retType);
         defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
     }
 

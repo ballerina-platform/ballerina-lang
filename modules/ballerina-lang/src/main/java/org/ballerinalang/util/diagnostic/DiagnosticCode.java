@@ -24,14 +24,20 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    INCOMPATIBLE_TYPES("incompatible.types"),
-    UNKNOWN_TYPE("unknown.type"),
+    UNDEFINED_PACKAGE("undefined.package"),
+    UNUSED_IMPORT_PACKAGE("unused.import.package"),
+    REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
+    UNDEFINED_FUNCTION("undefined.function"),
+    UNDEFINED_CONNECTOR("undefined.connector"),
+    UNDEFINED_ACTION("undefined.action"),
+
+    INCOMPATIBLE_TYPES("incompatible.types"),
+    UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
     SELF_REFERENCE_VAR("self.reference.var"),
-    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -40,6 +46,12 @@ public enum DiagnosticCode {
 
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
+
+    NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
+    TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
+    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
+    MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
+    DOES_NOT_RETURN_VALUE("does.not.return.value"),
     ;
 
     private String value;
