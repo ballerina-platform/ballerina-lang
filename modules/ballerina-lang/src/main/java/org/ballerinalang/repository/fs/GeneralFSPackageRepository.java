@@ -27,9 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +48,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID) {
         Path path = this.generatePath(pkgID);
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
         return new FSPackageSource(pkgID, path);
@@ -58,7 +56,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
         Path path = this.generatePath(pkgID);
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
         return new FSPackageSource(pkgID, path, entryName);
@@ -81,34 +79,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
     }
 
     private Path generatePath(PackageID pkgID) {
-        String[] ss = pkgID.getNameComps().stream().map(Name::getValue).toArray(String[]::new);
-        Path pkgDirPath = Paths.get(ss[0], Arrays.copyOfRange(ss, 1, ss.length));
-        return validateAndResolveSourcePath(this.basePath, pkgDirPath);
-    }
-
-    private Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
-        if (sourcePath == null) {
-            throw new IllegalArgumentException("source package/file cannot be null");
+        Path pkgDirPath = this.basePath;
+        for (Name comp : pkgID.getNameComps()) {
+            pkgDirPath = pkgDirPath.resolve(comp.value);
         }
-
-        try {
-            Path realSourcePath = programDirPath.resolve(sourcePath).toRealPath();
-
-            if (Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
-                return realSourcePath;
-            }
-
-            if (!realSourcePath.toString().endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
-                throw new IllegalArgumentException("invalid file: " + sourcePath);
-            }
-
-            return realSourcePath;
-        } catch (NoSuchFileException x) {
-            throw new IllegalArgumentException("no such file or directory: " + sourcePath);
-        } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + sourcePath +
-                    " reason: " + e.getMessage(), e);
-        }
+        return pkgDirPath;
     }
 
     /**

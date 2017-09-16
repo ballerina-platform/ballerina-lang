@@ -47,6 +47,11 @@ public class BStructType extends BType implements StructType {
         return TypeKind.STRUCT;
     }
 
+    @Override
+    public String toString() {
+        return this.tsymbol.name.value;
+    }
+
     /**
      * @since 0.94
      */

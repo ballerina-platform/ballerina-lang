@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -34,13 +35,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -59,10 +63,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private Names names;
     private TypeChecker typeChecker;
+    private DiagnosticLog dlog;
 
     private SymbolEnv env;
     private BType expType;
-    private String errMsgKey;
+    private DiagnosticCode diagCode;
     private BType resType;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
@@ -81,6 +86,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
+        this.dlog = DiagnosticLog.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -193,6 +199,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(whileNode.body, env);
     }
 
+    public void visit(BLangTryCatchFinally tryCatchFinally) {
+        analyzeStmt(tryCatchFinally.tryBody, env);
+        tryCatchFinally.catchBlocks.forEach(c -> analyzeNode(c, env));
+        if (tryCatchFinally.finallyBody != null) {
+            analyzeStmt(tryCatchFinally.finallyBody, env);
+        }
+    }
+
+    public void visit(BLangCatch bLangCatch) {
+        SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
+        analyzeNode(bLangCatch.param, catchBlockEnv);
+        this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        analyzeStmt(bLangCatch.body, catchBlockEnv);
+    }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
         return analyzeNode(node, env);
@@ -203,22 +223,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env) {
-        return analyzeNode(node, env, symTable.noType, "");
+        return analyzeNode(node, env, symTable.noType, null);
     }
 
-    BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, String errMsgKey) {
+    BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
-        String preErrMsgKey = this.errMsgKey;
+        DiagnosticCode preDiagCode = this.diagCode;
 
         // TODO Check the possibility of using a try/finally here
         this.env = env;
         this.expType = expType;
-        this.errMsgKey = errMsgKey;
+        this.diagCode = diagCode;
         node.accept(this);
         this.env = prevEnv;
         this.expType = preExpType;
-        this.errMsgKey = preErrMsgKey;
+        this.diagCode = preDiagCode;
 
         return resType;
     }

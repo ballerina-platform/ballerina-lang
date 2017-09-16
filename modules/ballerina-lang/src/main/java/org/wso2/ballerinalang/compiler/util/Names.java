@@ -33,8 +33,15 @@ public class Names {
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
+    public static final Name STACK_FRAME = new Name("stackFrame");
+    public static final Name CALLER = new Name("caller");
+    public static final Name PACKAGE = new Name("package");
+    public static final Name FILE_NAME = new Name("fileName");
+    public static final Name LINE_NUMBER = new Name("lineNumber");
     public static final Name MSG = new Name("msg");
     public static final Name ERROR = new Name("error");
+    public static final Name CAUSE = new Name("cause");
+    public static final Name STACK_TRACE = new Name("stackTrace");
 
     public CompilerContext context;
 
