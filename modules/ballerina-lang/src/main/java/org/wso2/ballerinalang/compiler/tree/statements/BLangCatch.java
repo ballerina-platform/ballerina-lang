@@ -50,7 +50,7 @@ public class BLangCatch extends BLangNode implements CatchNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-//        visitor.visit(this);
+        visitor.visit(this);
     }
 
     @Override

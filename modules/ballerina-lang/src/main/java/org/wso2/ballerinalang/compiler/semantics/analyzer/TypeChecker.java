@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -137,6 +138,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultTypes;
     }
 
+    public void checkNodeType(BLangNode node, BType expType, DiagnosticCode diagCode) {
+        checkType(node.pos, node.type, expType, diagCode);
+    }
 
     // Expressions
 
@@ -282,7 +286,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkType(BLangExpression node, BType type, BType expType, DiagnosticCode diagCode) {
-        node.type = type;
+        return node.type = checkType(node.pos, type, expType, diagCode);
+    }
+
+    private BType checkType(DiagnosticPos pos, BType type, BType expType, DiagnosticCode diagCode) {
         if (expType.tag == TypeTags.ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
@@ -296,8 +303,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO Add more logic to check type compatibility assignability etc.
 
         // e.g. incompatible types: expected 'int', found 'string'
-        dlog.error(node.pos, diagCode, expType, type);
-        return node.type = symTable.errType;
+        dlog.error(pos, diagCode, expType, type);
+        return symTable.errType;
     }
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
