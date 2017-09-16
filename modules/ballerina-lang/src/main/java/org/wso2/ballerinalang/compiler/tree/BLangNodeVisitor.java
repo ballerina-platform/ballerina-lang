@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -209,6 +210,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangCatch catchNode) {
         throw new AssertionError();
     }
 
