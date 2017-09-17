@@ -43,7 +43,7 @@ public class BTester {
         options = CompilerOptions.getInstance(context);
 //        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
         options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
-        options.put(COMPILER_PHASE, "typeCheck");
+        options.put(COMPILER_PHASE, "codeAnalyze");
         options.put(PRESERVE_WHITESPACE, "false");
 
         // How to set a custom diagnostic listener

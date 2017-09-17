@@ -368,7 +368,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(invokableNode.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
-        invokableNode.workers.forEach(e -> this.defineNode(e, invokableEnv));
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,

@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
@@ -233,6 +232,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
+        this.symbolEnter.defineNode(workerNode, this.env);
         SymbolEnv workerEnv;
         if (env.node.getKind() == NodeKind.FUNCTION) {
             workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, (BLangInvokableNode) env.node);
@@ -248,36 +248,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean isInTopLevelWorkerEnv() {
         return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
     }
-
-    private boolean workerExists(String workerName) {
-        BSymbol symbol = this.symResolver.lookupSymbol(this.env, new Name(workerName), SymTag.WORKER);
-        return (symbol != this.symTable.notFoundSymbol);
-    }
-    
-    private void checkWorker(BLangNode workerActionNode, String workerName) {
-        if (!this.workerExists(workerName)) {
-            this.dlog.error(workerActionNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
-        }
-    }
     
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.env = this.env;
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
-        }
-        if (workerSendNode.isForkJoinSend) {
-            //TODO
-        } else {
-            this.checkWorker(workerSendNode, workerSendNode.workerIdentifier.getValue());
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        workerReceiveNode.env = this.env;
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
-        this.checkWorker(workerReceiveNode, workerReceiveNode.workerIdentifier.getValue());
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
