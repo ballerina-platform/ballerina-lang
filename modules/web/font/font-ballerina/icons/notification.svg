@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="notification" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M6.09762,0.85526C6.2112498,0.2652,6.5247002-0.02008,7.0361199,0.0011
+	c0.4706302,0.01949,0.7919998,0.34171,0.8380299,0.85452C8.0387201,0.89246,8.2097797,0.9247,8.3775597,0.96924
+	C10.0676994,1.418,11.0184698,2.55492,11.39783,4.2214203c0.1451502,0.63764,0.1734304,1.2860699,0.1765604,1.9368401
+	c0.00389,0.8088899,0.06005,1.6121302,0.2136002,2.4090004c0.2028303,1.0526295,0.7130203,1.9111404,1.5571699,2.5727196
+	c0.2028704,0.1589899,0.39744,0.3285704,0.6261501,0.5184498c-4.66854,0-9.29387,0-13.9426298,0
+	c0.03789-0.04105,0.06386-0.07617,0.09646-0.1033096c0.16337-0.1359701,0.32469-0.2748203,0.4936-0.4036398
+	c0.96296-0.7343998,1.4804199-1.7260103,1.62041-2.9081898C2.3296208,7.479311,2.3661208,6.707571,2.3956609,5.9381108
+	C2.4256201,5.15832,2.48191,4.3857999,2.73895,3.6426899C3.2816501,2.07374,4.3963199,1.1789799,6.0123701,0.88008
+	c0.02385-0.00441,0.0478802-0.00793,0.0715599-0.01312C6.0890899,0.86583,6.09308,0.8593,6.09762,0.85526z M6.9616299,13.9998903
+	c0.9600401,0.0106897,1.8674297-0.7330503,1.8977404-1.559c-1.2434998,0-2.4868498,0-3.7302899,0
+	C5.14011,13.2286396,6.0394001,13.9896097,6.9616299,13.9998903z"/>
+</svg>

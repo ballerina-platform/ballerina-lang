@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="forum" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M10.5843134,8.2754898l0.015686-1.3999996V0.7892155L0,0.7754903v7.4999995h1.6l-0.0196079,2.5294123L5,8.2754898
+	H10.5843134z M5.552022,10.2833328l4.1489887-0.0068312l3.0804234,2.9480076l0.0254898-2.9490194l1.1921568-0.015686
+	c0,0,0.0009193-3.984314,0.0009193-5.0843139c0-0.6999998,0-1.5749998,0-1.5749998L11.3999996,3.57549v0.8999996H13.09375
+	l0.0062494,4.890625c0,0-1,0.0093737-1.1999998,0.0093737c0,0.6000004,0,1.3000002,0,1.8999996l-2-1.8999987H6.4999995v-0.499999
+	H5.5324144C5.5324144,8.8754902,5.552022,10.2480392,5.552022,10.2833328z"/>
+</svg>
