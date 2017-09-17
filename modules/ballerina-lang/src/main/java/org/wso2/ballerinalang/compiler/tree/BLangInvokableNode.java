@@ -44,7 +44,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public List<WorkerNode> workers;
+    public List<BLangWorker> workers;
 
     public BSymbol symbol;
 
@@ -118,17 +118,12 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public void addWorker(WorkerNode worker) {
-        this.workers.add(worker);
+        this.workers.add((BLangWorker) worker);
     }
 
     @Override
     public List<? extends WorkerNode> getWorkers() {
         return workers;
-    }
-
-    @Override
-    public void setWorkerNodes(List<WorkerNode> workerNodesList) {
-        this.workers = workerNodesList;
     }
 
     @Override

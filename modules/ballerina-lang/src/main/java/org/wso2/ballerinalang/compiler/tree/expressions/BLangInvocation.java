@@ -38,7 +38,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
 
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
-    public List<BLangExpression> argsExprs = new ArrayList<>();
+    public List<BLangExpression> argExprs = new ArrayList<>();
     public BLangVariableReference expr;
     public List<BType> types = new ArrayList<>(0);
 
@@ -59,7 +59,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
 
     @Override
     public List<? extends ExpressionNode> getArgumentExpressions() {
-        return argsExprs;
+        return argExprs;
     }
 
     @Override
@@ -83,8 +83,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         }
         br.append(String.valueOf(name));
         br.append("(");
-        if (argsExprs.size() > 0) {
-            String s = Arrays.toString(argsExprs.toArray());
+        if (argExprs.size() > 0) {
+            String s = Arrays.toString(argExprs.toArray());
             br.append(s.substring(1, s.length() - 1));
         }
         br.append(")");

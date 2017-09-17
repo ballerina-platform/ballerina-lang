@@ -427,14 +427,10 @@ public class BLangPackageBuilder {
     }
 
     public void addCatchClause(DiagnosticPos poc, String paramName) {
-        BLangSimpleVarRef varRef =
-                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.variableName = (BLangIdentifier) createIdentifier(paramName);
-
         BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
         variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
         variableNode.name = (BLangIdentifier) createIdentifier(paramName);
-        variableNode.expr = varRef;
+        variableNode.pos = variableNode.typeNode.pos;
 
         BLangCatch catchNode = (BLangCatch) TreeBuilder.createCatchNode();
         catchNode.pos = poc;
@@ -545,7 +541,7 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
-            exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
+            exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
         }
 
         BLangNameReference nameReference = nameReferenceStack.pop();
@@ -559,7 +555,7 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
-            exprNodes.forEach(exprNode -> invocationNode.argsExprs.add((BLangExpression) exprNode));
+            exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
         }
 
         invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();
@@ -1146,6 +1142,7 @@ public class BLangPackageBuilder {
         workerSendNode.workerIdentifier = createIdentifier(workerName);
         workerSendNode.expressions = exprNodeListStack.pop();
         workerSendNode.isForkJoinSend = isForkJoinSend;
+        workerSendNode.pos = pos;
         addStmtToCurrentBlock(workerSendNode);
     }
 
@@ -1153,6 +1150,7 @@ public class BLangPackageBuilder {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.workerIdentifier = createIdentifier(workerName);
         workerReceiveNode.expressions = exprNodeListStack.pop();
+        workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);
     }
 

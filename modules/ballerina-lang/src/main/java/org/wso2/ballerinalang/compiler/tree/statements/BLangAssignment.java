@@ -32,22 +32,22 @@ import java.util.List;
  * @since 0.94
  */
 public class BLangAssignment extends BLangStatement implements AssignmentNode {
-    public List<BLangVariableReference> varRefs;
+    public List<BLangExpression> varRefs;
     public BLangExpression expr;
-    private boolean isDeclaredWithVar;
+    public boolean declaredWithVar;
 
     public BLangAssignment() {
         this.varRefs = new ArrayList<>();
     }
 
-    public BLangAssignment(List<BLangVariableReference> varRefs, BLangExpression expr, boolean isDeclaredWithVar) {
+    public BLangAssignment(List<BLangExpression> varRefs, BLangExpression expr, boolean declaredWithVar) {
         this.varRefs = varRefs;
         this.expr = expr;
-        this.isDeclaredWithVar = isDeclaredWithVar;
+        this.declaredWithVar = declaredWithVar;
     }
 
     @Override
-    public List<BLangVariableReference> getVariables() {
+    public List<BLangExpression> getVariables() {
         return varRefs;
     }
 
@@ -58,7 +58,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
 
     @Override
     public boolean isDeclaredWithVar() {
-        return isDeclaredWithVar;
+        return declaredWithVar;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
 
     @Override
     public void setDeclaredWithVar(boolean isDeclaredWithVar) {
-        this.isDeclaredWithVar = isDeclaredWithVar;
+        this.declaredWithVar = isDeclaredWithVar;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
 
     @Override
     public String toString() {
-        return "BLangAssignment: " + (this.isDeclaredWithVar ? "var " : "") +
+        return "BLangAssignment: " + (this.declaredWithVar ? "var " : "") +
                 (this.varRefs != null ? this.varRefs : "") +
                 (this.expr != null ? " = " + this.expr : "");
     }

@@ -82,4 +82,9 @@ public class BSymbol implements Symbol {
     public List<BSymbol> getEnclosedSymbols() {
         return new ArrayList<>(0);
     }
+
+    @Override
+    public String toString() {
+        return name.toString();
+    }
 }

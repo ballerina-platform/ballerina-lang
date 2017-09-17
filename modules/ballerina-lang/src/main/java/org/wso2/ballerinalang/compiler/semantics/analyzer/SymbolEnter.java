@@ -28,8 +28,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -61,6 +65,7 @@ import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -214,6 +219,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         // assign the type to var type node
         BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
+        varNode.type = varType;
 
         Name varName = names.fromIdNode(varNode.name);
         if (varName == Names.EMPTY) {
@@ -328,8 +334,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
         structNodes.forEach(struct -> {
+            // Create struct type
+            BStructType structType = new BStructType((BTypeSymbol) struct.symbol, new ArrayList<>());
+            struct.symbol.type = structType;
+
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, pkgEnv, struct.symbol.scope);
-            struct.fields.forEach(field -> defineNode(field, structEnv));
+            structType.fields = struct.fields.stream()
+                    .peek(field -> defineNode(field, structEnv))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
+                    .collect(Collectors.toList());
         });
     }
 
@@ -351,15 +364,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,
             SymbolEnv invokableEnv) {
         List<BVarSymbol> paramSymbols =
-                invokableNode.params
-                        .stream()
+                invokableNode.params.stream()
                         .peek(varNode -> defineNode(varNode, invokableEnv))
                         .map(varNode -> varNode.symbol)
                         .collect(Collectors.toList());
 
         List<BVarSymbol> retParamSymbols =
-                invokableNode.retParams
-                        .stream()
+                invokableNode.retParams.stream()
                         .peek(varNode -> defineNode(varNode, invokableEnv))
                         .filter(varNode -> varNode.symbol != null)
                         .map(varNode -> varNode.symbol)
@@ -367,6 +378,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         symbol.params = paramSymbols;
         symbol.retParams = retParamSymbols;
+
+        // Create function type
+        List<BType> paramTypes = paramSymbols.stream()
+                .map(paramSym -> paramSym.type)
+                .collect(Collectors.toList());
+        List<BType> retTypes = invokableNode.retParams.stream()
+                .map(varNode -> varNode.typeNode.type)
+                .collect(Collectors.toList());
+
+        symbol.type = new BInvokableType(paramTypes, retTypes, null);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {

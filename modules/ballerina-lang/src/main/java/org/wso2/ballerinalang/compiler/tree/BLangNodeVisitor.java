@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -55,6 +56,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -88,6 +91,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
+        throw new AssertionError();
+    }
+    
+    public void visit(BLangWorker workerNode) {
+        throw new AssertionError();
+    }
+    
+    public void visit(BLangWorkerSend workerSendNode) {
+        throw new AssertionError();
+    }
+    
+    public void visit(BLangWorkerReceive workerReceiveNode) {
         throw new AssertionError();
     }
 
@@ -209,6 +224,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangCatch catchNode) {
         throw new AssertionError();
     }
 

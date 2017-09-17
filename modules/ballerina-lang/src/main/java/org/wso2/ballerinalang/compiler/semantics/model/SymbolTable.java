@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -78,6 +79,8 @@ public class SymbolTable {
 
     public final BStructType errStructType;
     public final BTypeSymbol errStructSymbol;
+    public final BStructType stackFrameType;
+    public final BTypeSymbol stackFrameSymbol;
 
     private Names names;
 
@@ -123,11 +126,25 @@ public class SymbolTable {
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, 0, Names.INVALID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
 
-        // Initialize builtin error struct type
+        // Initialize builtin error struct type and stackFrame struct.
+        BStructType.BStructField callerField = new BStructType.BStructField(Names.CALLER, stringType);
+        BStructType.BStructField packageField = new BStructType.BStructField(Names.PACKAGE, stringType);
+        BStructType.BStructField fileNameField = new BStructType.BStructField(Names.FILE_NAME, stringType);
+        BStructType.BStructField lineNumberField = new BStructType.BStructField(Names.LINE_NUMBER, intType);
+        this.stackFrameType = new BStructType(null,
+                Lists.of(callerField, packageField, fileNameField, lineNumberField));
+        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME,
+                this.stackFrameType, rootPkgSymbol);
+        defineType(stackFrameType, stackFrameSymbol);
+
+
         BStructType.BStructField msgField = new BStructType.BStructField(Names.MSG, stringType);
         this.errStructType = new BStructType(null, Lists.of(msgField));
-        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR,
-                this.errStructType, rootPkgSymbol);
+        BStructType.BStructField causeField = new BStructType.BStructField(Names.CAUSE, this.errStructType);
+        BStructType.BStructField stackTraceField = new BStructType.BStructField(Names.STACK_TRACE,
+                new BArrayType(stackFrameType));
+        this.errStructType.fields = Lists.of(msgField, causeField, stackTraceField);
+        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.errStructType, rootPkgSymbol);
         defineType(errStructType, errStructSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
@@ -243,7 +260,6 @@ public class SymbolTable {
                                       int opcode) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         List<BType> retTypes = Lists.of(retType);
-        retTypes.add(retType);
         defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
     }
 
