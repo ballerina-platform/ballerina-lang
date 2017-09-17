@@ -33,10 +33,10 @@ public class Symbols {
         return typeSymbol;
     }
     
-    public static BTypeSymbol createWorkerSymbol(int flags, Name name, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.WORKER, flags, name, type, owner);
-        typeSymbol.kind = SymbolKind.WORKER;
-        return typeSymbol;
+    public static BInvokableSymbol createWorkerSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, type, owner);
+        symbol.kind = SymbolKind.WORKER;
+        return symbol;
     }
 
     public static BTypeSymbol createConnectorSymbol(int flags, Name name, BType type, BSymbol owner) {

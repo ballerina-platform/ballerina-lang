@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
@@ -69,6 +70,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
     private Names names;
+    private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private DiagnosticLog dlog;
 
@@ -92,6 +94,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
@@ -246,10 +249,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
     }
 
+    private boolean workerExists(String workerName) {
+        BSymbol symbol = this.symResolver.lookupSymbol(this.env, new Name(workerName), SymTag.WORKER);
+        return (symbol != this.symTable.notFoundSymbol);
+    }
+    
+    private void checkWorker(BLangNode workerActionNode, String workerName) {
+        if (!this.workerExists(workerName)) {
+            this.dlog.error(workerActionNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
+    }
+    
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+        }
+        if (workerSendNode.isForkJoinSend) {
+            //TODO
+        } else {
+            this.checkWorker(workerSendNode, workerSendNode.workerIdentifier.getValue());
         }
     }
 
@@ -258,6 +277,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
+        this.checkWorker(workerReceiveNode, workerReceiveNode.workerIdentifier.getValue());
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
