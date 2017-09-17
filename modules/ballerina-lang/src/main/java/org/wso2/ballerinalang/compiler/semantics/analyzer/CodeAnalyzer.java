@@ -18,10 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -43,10 +40,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.NodeUtils;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 
 /**
@@ -64,12 +57,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
     
-    private DiagnosticListener diagListener;
-    private Names names;
     private int loopCount;
-    private Name pkgName;
-    private Name pkgVerion;
-    private BLangCompilationUnit compUnitNode;
     private boolean statementReturns;
     private boolean deadCode;
     private boolean unreachableCodeCheckDone;
@@ -88,15 +76,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
     
     private void resetPackage() {
-        this.pkgName = null;
-        this.pkgVerion = null;
-        this.compUnitNode = null;
         this.deadCode = false;
     }
     
@@ -117,13 +101,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangPackage pkgNode) {
-        this.pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
         pkgNode.compUnits.forEach(e -> e.accept(this));
     }
     
     @Override
     public void visit(BLangCompilationUnit compUnitNode) {
-        this.compUnitNode = compUnitNode;
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
     }
     
@@ -134,7 +116,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.body.accept(this);
         /* the function returns, but none of the statements surely returns */
         if (functionReturns && !this.statementReturns) {
-            this.diagListener.received(this.generateFunctionMustReturn(funcNode));
+            this.dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN, 
+                    String.valueOf(funcNode.getReturnParameters()));
         }
         funcNode.workers.forEach(e -> e.accept(this));
     }
@@ -146,7 +129,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns && !this.unreachableCodeCheckDone) {
-            this.diagListener.received(this.generateUnreachableCodeDiagnostic(stmt));
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             /* to make sure we don't give the same error again to following statements */
             this.unreachableCodeCheckDone = true;
         }
@@ -154,7 +137,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private void checkDeadCode(BLangStatement stmt) {
         if (this.deadCode) {
-            this.diagListener.received(this.generateDeadCodeDiagnostic(stmt));
+            this.dlog.warning(stmt.pos, DiagnosticCode.DEAD_CODE);
         }
     }
     
@@ -235,7 +218,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangContinue continueNode) {
         if (this.loopCount == 0) {
-            this.diagListener.received(this.generateInvalidContinueDiagnostic(continueNode));
+            this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
         }
     }
     
@@ -260,40 +243,4 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
     
-    private Diagnostic generateInvalidContinueDiagnostic(BLangContinue continueNode) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
-        diag.pos = continueNode.pos;
-        diag.msg = "next cannot be used outside of a loop";
-        return diag;
-    }
-    
-    private Diagnostic generateUnreachableCodeDiagnostic(BLangStatement stmt) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
-        diag.pos = stmt.pos;
-        diag.msg = "Unreachable code";
-        return diag;
-    }
-    
-    private Diagnostic generateDeadCodeDiagnostic(BLangStatement stmt) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.WARNING;
-        diag.pos = stmt.pos;
-        diag.msg = "Dead code";
-        return diag;
-    }
-    
-    private Diagnostic generateFunctionMustReturn(BLangFunction funcNode) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
-        diag.pos = funcNode.pos;
-        diag.msg = "This function must return a result of type " + funcNode.getReturnParameters();
-        return diag;
-    }
-
 }
