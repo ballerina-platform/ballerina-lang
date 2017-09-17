@@ -27,20 +27,20 @@ import java.nio.ByteBuffer;
 /**
  * Timeout assertion executor for WebSocket test cases.
  */
-public class WebSocketTestCase {
+public class WeSocketTestCase {
 
-    private int threadSleepTime = 100;
-    private int messageDeliveryCountDown = 40;
+    private static int threadSleepTime = 100;
+    private static int messageDeliveryCountDown = 100;
 
-    protected void setThreadSleepTime(int threadSleepTime) {
-        this.threadSleepTime = threadSleepTime;
+    public static void setThreadSleepTime(int threadSleepTime) {
+        WeSocketTestCase.threadSleepTime = threadSleepTime;
     }
 
-    protected void setMessageDeliveryCountDown(int messageDeliveryCountDown) {
-        this.messageDeliveryCountDown = messageDeliveryCountDown;
+    public void setMessageDeliveryCountDown(int messageDeliveryCountDown) {
+        WeSocketTestCase.messageDeliveryCountDown = messageDeliveryCountDown;
     }
 
-    protected void assertWebSocketClientTextMessage(WebSocketTestClient client, String expected)
+    public void assertWebSocketClientTextMessage(WebSocketTestClient client, String expected)
             throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
@@ -52,7 +52,7 @@ public class WebSocketTestCase {
         Assert.assertTrue(false);
     }
 
-    protected void assertWebSocketClientTextMessage(WebSocketTestClientConnectorListener clientConnectorListener,
+    public void assertWebSocketClientTextMessage(WebSocketTestClientConnectorListener clientConnectorListener,
                                                     String expected) throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
@@ -64,7 +64,7 @@ public class WebSocketTestCase {
         Assert.assertTrue(false);
     }
 
-    protected void assertWebSocketClientBinaryMessage(WebSocketTestClient client, ByteBuffer bufferExpected)
+    public void assertWebSocketClientBinaryMessage(WebSocketTestClient client, ByteBuffer bufferExpected)
             throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
@@ -90,7 +90,7 @@ public class WebSocketTestCase {
         Assert.assertTrue(false);
     }
 
-    protected void assertWebSocketClientBinaryMessage(WebSocketTestClientConnectorListener clientConnectorListener,
+    public void assertWebSocketClientBinaryMessage(WebSocketTestClientConnectorListener clientConnectorListener,
                                                       ByteBuffer bufferExpected) throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
@@ -111,6 +111,18 @@ public class WebSocketTestCase {
                     Assert.assertTrue(false);
                     return;
                 }
+            }
+        }
+        Assert.assertTrue(false);
+    }
+
+    public void assertWebSocketClientPongMessage(WebSocketTestClientConnectorListener clientConnectorListener)
+            throws InterruptedException {
+        for (int j = 0; j < messageDeliveryCountDown; j++) {
+            Thread.sleep(threadSleepTime);
+            if (clientConnectorListener.isPongReceived()) {
+                Assert.assertTrue(true);
+                return;
             }
         }
         Assert.assertTrue(false);

@@ -46,7 +46,7 @@ import static org.testng.AssertJUnit.assertTrue;
 /**
  * Test class for WebSocket protocol.
  */
-public class WebSocketServerTestCase extends WebSocketTestCase {
+public class WebSocketServerTestCase extends WeSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerTestCase.class);
 
