@@ -62,6 +62,7 @@
                         <extensionRepository>siddhi-execution-sentiment</extensionRepository>
                         <extensionRepository>siddhi-execution-stats</extensionRepository>
                         <extensionRepository>siddhi-execution-geo</extensionRepository>
+                        <extensionRepository>siddhi-execution-kalmanfilter</extensionRepository>
                         <extensionRepository>siddhi-io-http</extensionRepository>
                         <extensionRepository>siddhi-io-kafka</extensionRepository>
                         <extensionRepository>siddhi-io-tcp</extensionRepository>
@@ -76,6 +77,7 @@
                         <extensionRepository>siddhi-map-binary</extensionRepository>
                         <extensionRepository>siddhi-map-text</extensionRepository>
                         <extensionRepository>siddhi-map-wso2event</extensionRepository>
+                        <extensionRepository>siddhi-map-keyvalue</extensionRepository>
                         <extensionRepository>siddhi-store-rdbms</extensionRepository>
                         <extensionRepository>siddhi-store-solr</extensionRepository>
                         <extensionRepository>siddhi-store-mongodb</extensionRepository>
