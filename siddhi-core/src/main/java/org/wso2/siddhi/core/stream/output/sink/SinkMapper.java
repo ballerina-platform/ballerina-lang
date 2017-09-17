@@ -20,14 +20,19 @@ package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract parent class to represent event mappers. Events mappers will receive {@link Event}s and can convert them
@@ -38,25 +43,33 @@ public abstract class SinkMapper {
     private String type;
     private SinkListener sinkListener;
     private OptionHolder optionHolder;
-    private TemplateBuilder payloadTemplateBuilder = null;
+    //Key as specified in Sink Mapper's payload - @paylod(key="template"), Value is TemplateBuilder for given template
+    private Map<String, TemplateBuilder> templateBuilderMap = null;
     private OutputGroupDeterminer groupDeterminer = null;
     private ThreadLocal<DynamicOptions> trpDynamicOptions = new ThreadLocal<>();
 
     public final void init(StreamDefinition streamDefinition,
                            String type,
                            OptionHolder mapOptionHolder,
-                           String unmappedPayload,
+                           List<Element> unmappedPayloadList,
                            Sink sink, ConfigReader mapperConfigReader,
                            SiddhiAppContext siddhiAppContext) {
         sink.setTrpDynamicOptions(trpDynamicOptions);
         this.sinkListener = sink;
         this.optionHolder = mapOptionHolder;
         this.type = type;
-        if (unmappedPayload != null && !unmappedPayload.isEmpty()) {
-            payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
+        if (unmappedPayloadList != null && !unmappedPayloadList.isEmpty()) {
+            templateBuilderMap = new HashMap<>();
+            for (Element e : unmappedPayloadList) {
+                TemplateBuilder templateBuilder = new TemplateBuilder(streamDefinition, e.getValue());
+                if (templateBuilderMap.containsKey(e.getKey())) {
+                    throw new SiddhiAppCreationException("Duplicate Keys, " + e.getKey() + ", in @payload() ");
+                }
+                templateBuilderMap.put(e.getKey(), templateBuilder);
+            }
         }
 
-        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader, siddhiAppContext);
+        init(streamDefinition, mapOptionHolder, templateBuilderMap, mapperConfigReader, siddhiAppContext);
     }
 
     /**
@@ -70,15 +83,15 @@ public abstract class SinkMapper {
     /**
      * Initialize the mapper and the mapping configurations.
      *
-     * @param streamDefinition       The stream definition
-     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder Un mapped payload for reference
-     * @param mapperConfigReader     System configuration reader for Sink-mapper.
-     * @param siddhiAppContext       Siddhi Application Context
+     * @param streamDefinition          The stream definition
+     * @param optionHolder              Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilderMap Un mapped payloads for reference
+     * @param mapperConfigReader        System configuration reader for Sink-mapper.
+     * @param siddhiAppContext          Siddhi Application Context
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder,
-                              TemplateBuilder payloadTemplateBuilder,
+                              Map<String, TemplateBuilder> payloadTemplateBuilderMap,
                               ConfigReader mapperConfigReader,
                               SiddhiAppContext siddhiAppContext);
 
@@ -106,13 +119,13 @@ public abstract class SinkMapper {
                 }
                 for (ArrayList<Event> eventList : eventMap.values()) {
                     trpDynamicOptions.set(new DynamicOptions(eventList.get(0)));
-                    mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder, payloadTemplateBuilder,
+                    mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder, templateBuilderMap,
                             sinkListener);
                     trpDynamicOptions.remove();
                 }
             } else {
                 trpDynamicOptions.set(new DynamicOptions(events[0]));
-                mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener);
+                mapAndSend(events, optionHolder, templateBuilderMap, sinkListener);
                 trpDynamicOptions.remove();
             }
         } finally {
@@ -128,7 +141,7 @@ public abstract class SinkMapper {
     final void mapAndSend(Event event) {
         try {
             trpDynamicOptions.set(new DynamicOptions(event));
-            mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener);
+            mapAndSend(event, optionHolder, templateBuilderMap, sinkListener);
         } finally {
             trpDynamicOptions.remove();
 
@@ -138,24 +151,24 @@ public abstract class SinkMapper {
     /**
      * Called to map the events and send them to {@link SinkListener} for publishing
      *
-     * @param events                 {@link Event}s that need to be mapped
-     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder To build the message payload based on the given template
-     * @param sinkListener           {@link SinkListener} that will be called with the mapped events
+     * @param events                    {@link Event}s that need to be mapped
+     * @param optionHolder              Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilderMap To build the message payloads based on the given templates
+     * @param sinkListener              {@link SinkListener} that will be called with the mapped events
      */
-    public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener);
+    public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, Map<String, TemplateBuilder>
+            payloadTemplateBuilderMap, SinkListener sinkListener);
 
     /**
      * Called to map the event and send it to {@link SinkListener} for publishing
      *
-     * @param event                  {@link Event} that need to be mapped
-     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder To build the message payload based on the given template
-     * @param sinkListener           {@link SinkListener} that will be called with the mapped event
+     * @param event                     {@link Event} that need to be mapped
+     * @param optionHolder              Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilderMap To build the message payloads based on the given templates
+     * @param sinkListener              {@link SinkListener} that will be called with the mapped event
      */
-    public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener);
+    public abstract void mapAndSend(Event event, OptionHolder optionHolder, Map<String,
+            TemplateBuilder> payloadTemplateBuilderMap, SinkListener sinkListener);
 
     public final String getType() {
         return this.type;

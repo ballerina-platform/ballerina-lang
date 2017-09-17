@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public abstract class DistributedTransport extends Sink {
      * @param sinkMapper               Hold the mapper that's used in this sink
      * @param mapType                  Type of the mapper
      * @param mapOptionHolder          Options of the mapper
-     * @param payloadTemplate          The template of the payload message
+     * @param payloadElementList       The template list of the payload messages
      * @param mapperConfigReader       This hold the {@link Sink} extensions configuration reader for the mapper
      * @param siddhiAppContext         The siddhi app context
      * @param destinationOptionHolders List of option holders containing the options mentioned in @destination
@@ -81,15 +82,14 @@ public abstract class DistributedTransport extends Sink {
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder, String payloadTemplate
-            ,
-                     ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext, List<OptionHolder>
-                             destinationOptionHolders, Annotation sinkAnnotation, DistributionStrategy strategy,
-                     String[] supportedDynamicOptions) {
+                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder,
+                     List<Element> payloadElementList, ConfigReader mapperConfigReader,
+                     SiddhiAppContext siddhiAppContext, List<OptionHolder> destinationOptionHolders,
+                     Annotation sinkAnnotation, DistributionStrategy strategy, String[] supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
         init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
-                payloadTemplate, mapperConfigReader, siddhiAppContext);
+                payloadElementList, mapperConfigReader, siddhiAppContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
                 siddhiAppContext);
     }

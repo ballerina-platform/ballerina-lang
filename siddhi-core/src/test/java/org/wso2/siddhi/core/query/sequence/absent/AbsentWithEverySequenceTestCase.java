@@ -20,17 +20,11 @@ package org.wso2.siddhi.core.query.sequence.absent;
 
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
+import org.wso2.siddhi.core.TestUtil;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test the patterns:
@@ -39,17 +33,6 @@ import java.util.List;
 public class AbsentWithEverySequenceTestCase {
 
     private static final Logger log = Logger.getLogger(AbsentWithEverySequenceTestCase.class);
-    private int inEventCount;
-    private int removeEventCount;
-    private boolean eventArrived;
-    private List<AssertionError> assertionErrors = new ArrayList<>();
-
-    @BeforeMethod
-    public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
-        eventArrived = false;
-    }
 
     @Test
     public void testQuery1() throws InterruptedException {
@@ -68,7 +51,7 @@ public class AbsentWithEverySequenceTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"GOOG"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"GOOG"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
 
@@ -79,12 +62,10 @@ public class AbsentWithEverySequenceTestCase {
         stream1.send(new Object[]{"GOOG", 55.6f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
-        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
-        AssertJUnit.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -106,7 +87,7 @@ public class AbsentWithEverySequenceTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -120,12 +101,10 @@ public class AbsentWithEverySequenceTestCase {
         stream2.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
-        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
-        AssertJUnit.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -150,7 +129,8 @@ public class AbsentWithEverySequenceTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"GOOG", "IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"GOOG",
+                "IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -164,43 +144,11 @@ public class AbsentWithEverySequenceTestCase {
         stream3.send(new Object[]{"IBM", 55.7f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
-        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
-        AssertJUnit.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
-    }
-
-
-    private void addCallback(SiddhiAppRuntime siddhiAppRuntime, String queryName, Object[]... expected) {
-        final int noOfExpectedEvents = expected.length;
-        siddhiAppRuntime.addCallback(queryName, new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if (inEvents != null) {
-                    eventArrived = true;
-
-                    for (Event event : inEvents) {
-                        inEventCount++;
-                        if (noOfExpectedEvents > 0 && inEventCount <= noOfExpectedEvents) {
-                            try {
-                                AssertJUnit.assertArrayEquals(expected[inEventCount - 1], event.getData());
-                            } catch (AssertionError e) {
-                                assertionErrors.add(e);
-                            }
-                        }
-                    }
-                }
-                if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
-                }
-                eventArrived = true;
-            }
-
-        });
     }
 }
