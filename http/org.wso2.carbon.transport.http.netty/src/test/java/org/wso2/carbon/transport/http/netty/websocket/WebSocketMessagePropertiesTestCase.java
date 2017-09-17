@@ -74,6 +74,7 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
         try {
             wsClient.handhshake();
         } catch (ProtocolException e) {
+            log.error(e.getMessage());
             Assert.assertTrue(false);
         }
         wsClient.sendText("Hi backend");
@@ -90,6 +91,7 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
             wsClient.handhshake();
             Assert.assertTrue(false);
         } catch (ProtocolException e) {
+            log.error(e.getMessage());
             Assert.assertTrue(true);
         }
         wsClient.shutDown();

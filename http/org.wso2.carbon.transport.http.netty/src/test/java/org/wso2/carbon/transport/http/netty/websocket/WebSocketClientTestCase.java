@@ -76,12 +76,14 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
                     assertWebSocketClientTextMessage(connectorListener, text);
                     shutDownClient(session);
                 } catch (IOException | InterruptedException e) {
+                    log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, t.getMessage());
             }
         });
@@ -101,12 +103,14 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
                     assertWebSocketClientBinaryMessage(connectorListener, buffer);
                     shutDownClient(session);
                 } catch (IOException | InterruptedException e) {
+                    log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, t.getMessage());
             }
         });
@@ -127,12 +131,14 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
                     assertWebSocketClientPongMessage(connectorListener);
                     shutDownClient(session);
                 } catch (IOException | InterruptedException e) {
+                    log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, t.getMessage());
             }
         });
@@ -152,12 +158,14 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
                     assertWebSocketClientTextMessage(connectorListener1, text1);
                     shutDownClient(session);
                 } catch (IOException | InterruptedException e) {
+                    log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, t.getMessage());
             }
         });
@@ -176,12 +184,14 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
                     shutDownClient(session);
                 } catch (IOException | InterruptedException e) {
+                    log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, t.getMessage());
             }
         });
@@ -201,12 +211,14 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
                     Assert.assertTrue(connectorListener.isIdleTimeout());
                     session.close();
                 } catch (InterruptedException | IOException e) {
+                    log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, t.getMessage());
             }
         });
@@ -229,6 +241,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(false, "Handshake failed: " + t.getMessage());
             }
         });
@@ -247,6 +260,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
             @Override
             public void onError(Throwable t) {
+                log.error(t.getMessage());
                 Assert.assertTrue(true, "Handshake failed: " + t.getMessage());
             }
         });

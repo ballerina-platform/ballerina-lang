@@ -44,24 +44,26 @@ public class WebSocketTestCase {
             throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
-            if (expected.equals(client.getTextReceived())) {
-                Assert.assertTrue(true);
+            String textReceived = client.getTextReceived();
+            if (textReceived != null) {
+                Assert.assertEquals(textReceived, expected);
                 return;
             }
         }
-        Assert.assertTrue(false);
+        Assert.assertEquals(client.getTextReceived(), expected);
     }
 
     protected void assertWebSocketClientTextMessage(WebSocketTestClientConnectorListener clientConnectorListener,
                                                     String expected) throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
-            if (expected.equals(clientConnectorListener.getReceivedTextToClient())) {
-                Assert.assertTrue(true);
+            String textReceived = clientConnectorListener.getReceivedTextToClient();
+            if (textReceived != null) {
+                Assert.assertEquals(textReceived, expected);
                 return;
             }
         }
-        Assert.assertTrue(false);
+        Assert.assertEquals(clientConnectorListener.getReceivedByteBufferToClient(), expected);
     }
 
     protected void assertWebSocketClientBinaryMessage(WebSocketTestClient client, ByteBuffer bufferExpected)
