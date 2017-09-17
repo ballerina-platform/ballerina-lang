@@ -247,7 +247,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangVariable var = new BLangVariable();
         var.setTypeNode(type);
         var.setName(name);
-        var.pos = name.pos;
+        var.pos = type.pos;
         BLangVariableDef varDefNode = new BLangVariableDef();
         varDefNode.var = var;
         varDefNode.pos = var.pos;
@@ -267,7 +267,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
         forkJoin.workers.forEach(e -> this.analyzeDef(e, folkJoinEnv));
         if (!this.isJoinResultType(forkJoin.joinResultsType)) {
-            this.dlog.error(forkJoin.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
+            this.dlog.error(forkJoin.joinResultsType.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
         }
         /* create code black and environment for join result section, i.e. (map results) */
         BLangBlockStmt joinResultsBlock = this.generateCodeBlock(
@@ -275,7 +275,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
         this.analyzeNode(joinResultsBlock, joinResultsEnv);
         /* create an environment for the join body, making the enclosing environment the earlier 
-         * join results environment */
+         * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
     }
