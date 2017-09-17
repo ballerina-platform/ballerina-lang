@@ -114,7 +114,7 @@ public class SymbolEnv {
     }
     
     public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env, BLangInvokableNode enclInv) {
-        SymbolEnv symbolEnv = new SymbolEnv(worker, env.scope);
+        SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
         env.copyTo(symbolEnv);
         symbolEnv.enclInvokable = enclInv;
         return symbolEnv;

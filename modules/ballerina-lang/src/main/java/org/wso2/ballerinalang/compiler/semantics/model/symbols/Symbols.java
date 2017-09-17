@@ -32,6 +32,12 @@ public class Symbols {
         typeSymbol.kind = SymbolKind.STRUCT;
         return typeSymbol;
     }
+    
+    public static BTypeSymbol createWorkerSymbol(int flags, Name name, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.WORKER, flags, name, type, owner);
+        typeSymbol.kind = SymbolKind.WORKER;
+        return typeSymbol;
+    }
 
     public static BTypeSymbol createConnectorSymbol(int flags, Name name, BType type, BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.CONNECTOR, flags, name, type, owner);

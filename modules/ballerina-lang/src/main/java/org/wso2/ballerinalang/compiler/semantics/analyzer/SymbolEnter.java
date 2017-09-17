@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -174,6 +175,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(structNode.name), null, env.scope.owner);
         structNode.symbol = structSymbol;
         defineSymbol(structNode.pos, structSymbol);
+    }
+    
+    @Override
+    public void visit(BLangWorker workerNode) {
+        BSymbol structSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
+                names.fromIdNode(workerNode.name), null, env.scope.owner);
+        workerNode.symbol = structSymbol;
+        defineSymbolWithCurrentEnvOwner(workerNode.pos, structSymbol);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -359,6 +368,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(invokableNode.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
+        invokableNode.workers.forEach(e -> this.defineNode(e, invokableEnv));
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,
@@ -392,6 +402,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+            env.scope.define(symbol.name, symbol);
+        }
+    }
+    
+    private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
+        symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
