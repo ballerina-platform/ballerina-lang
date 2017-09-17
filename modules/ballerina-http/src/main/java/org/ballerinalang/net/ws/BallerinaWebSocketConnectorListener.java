@@ -61,9 +61,9 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
             // Creating map
             Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
-            BMap<BString, BString> bUpgradeHeaders = new BMap<>();
+            BMap<String, BString> bUpgradeHeaders = new BMap<>();
             upgradeHeaders.entrySet().forEach(
-                    upgradeHeader -> bUpgradeHeaders.put(new BString(upgradeHeader.getKey()),
+                    upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(),
                                                          new BString(upgradeHeader.getValue()))
             );
             handshakeStruct.setRefField(0, bUpgradeHeaders);
@@ -125,7 +125,8 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
         }
         BStruct wsConnection = getWSConnection(webSocketBinaryMessage);
         BStruct wsBinaryFrame = wsService.createBinaryFrameStruct();
-        wsBinaryFrame.setBlobField(0, webSocketBinaryMessage.getByteArray());
+        byte[] data = webSocketBinaryMessage.getByteArray();
+        wsBinaryFrame.setBlobField(0, data);
         if (webSocketBinaryMessage.isFinalFragment()) {
             wsBinaryFrame.setBooleanField(0, 1);
         } else {
@@ -188,6 +189,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
                 BStruct wsConnection = wsService.createConnectionStruct();
                 wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
+                wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
 
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
 
