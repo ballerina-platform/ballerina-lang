@@ -1142,6 +1142,7 @@ public class BLangPackageBuilder {
         workerSendNode.workerIdentifier = createIdentifier(workerName);
         workerSendNode.expressions = exprNodeListStack.pop();
         workerSendNode.isForkJoinSend = isForkJoinSend;
+        workerSendNode.pos = pos;
         addStmtToCurrentBlock(workerSendNode);
     }
 
@@ -1149,6 +1150,7 @@ public class BLangPackageBuilder {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.workerIdentifier = createIdentifier(workerName);
         workerReceiveNode.expressions = exprNodeListStack.pop();
+        workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);
     }
 

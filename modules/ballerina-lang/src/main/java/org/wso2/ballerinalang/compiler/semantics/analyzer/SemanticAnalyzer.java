@@ -45,6 +45,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
@@ -230,6 +232,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             throw new IllegalStateException("invalid enclosing node type for worker: " + env.node.getKind());
         }
         this.analyzeNode(workerNode.body, workerEnv);
+    }
+    
+    private boolean isInTopLevelWorkerEnv() {
+        return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
+    }
+    
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+        if (!this.isInTopLevelWorkerEnv()) {
+            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+        }
+    }
+    
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (!this.isInTopLevelWorkerEnv()) {
+            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
+        }
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
