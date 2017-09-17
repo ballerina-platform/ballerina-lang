@@ -18,6 +18,10 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -28,8 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -50,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
@@ -231,28 +236,54 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
     
+    private boolean isJoinResultType(TypeNode type) {
+        if (type instanceof BuiltInReferenceTypeNode) {
+            return ((BuiltInReferenceTypeNode) type).getTypeKind() == TypeKind.MAP;
+        }
+        return false;
+    }
+    
+    private BLangVariableDef createVarDef(BLangType type, BLangIdentifier name) {
+        BLangVariable var = new BLangVariable();
+        var.setTypeNode(type);
+        var.setName(name);
+        var.pos = name.pos;
+        BLangVariableDef varDefNode = new BLangVariableDef();
+        varDefNode.var = var;
+        varDefNode.pos = var.pos;
+        return varDefNode;
+    }
+    
+    private BLangBlockStmt generateCodeBlock(StatementNode... statements) {
+        BLangBlockStmt block = new BLangBlockStmt();
+        for (StatementNode stmt : statements) {
+            block.addStatement(stmt);
+        }
+        return block;
+    }
+    
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv folkJoinEnv;
-        if (this.env.node.getKind() == NodeKind.FUNCTION) {
-            folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env, (BLangInvokableNode) this.env.node);
-        } else {
-            folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env, null);
-        }
+        SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
         forkJoin.workers.forEach(e -> this.analyzeDef(e, folkJoinEnv));
+        if (!this.isJoinResultType(forkJoin.joinResultsType)) {
+            this.dlog.error(forkJoin.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
+        }
+        /* create code black and environment for join result section, i.e. (map results) */
+        BLangBlockStmt joinResultsBlock = this.generateCodeBlock(
+                this.createVarDef(forkJoin.joinResultsType, forkJoin.joinResultsName));
+        SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
+        this.analyzeNode(joinResultsBlock, joinResultsEnv);
+        /* create an environment for the join body, making the enclosing environment the earlier 
+         * join results environment */
+        SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
+        this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
     }
 
     @Override
     public void visit(BLangWorker workerNode) {
         this.symbolEnter.defineNode(workerNode, this.env);
-        SymbolEnv workerEnv;
-        if (this.env.node.getKind() == NodeKind.FUNCTION) {
-            workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, (BLangInvokableNode) this.env.node);
-        } else if (this.env.node.getKind() == NodeKind.FORKJOIN) {
-            workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, null);
-        } else {
-            throw new IllegalStateException("invalid enclosing node type for worker: " + this.env.node.getKind());
-        }
+        SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
         this.analyzeNode(workerNode.body, workerEnv);
     }
 

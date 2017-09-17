@@ -681,9 +681,11 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addJoinCause() {
+    public void addJoinCause(String identifier) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
+        forkJoin.setJoinResultsName(this.createIdentifier(identifier));
+        forkJoin.setJoinResultsType(this.typeNodeStack.pop());
     }
 
     public void addJoinCondition(String joinType, List<String> workerNames, int joinCount) {
