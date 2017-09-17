@@ -98,7 +98,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent1"})
     public void testQueryAbsent2() throws InterruptedException {
         log.info("Test the query e1 -> not e2 and e3 with e1, e2 and e3");
 
@@ -139,7 +139,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent2"})
     public void testQueryAbsent3() throws InterruptedException {
         log.info("Test the query not e1 and e2 -> e3 with e2 and e3 within 1 sec");
 
@@ -177,7 +177,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent3"})
     public void testQueryAbsent4() throws InterruptedException {
         log.info("Test the query not e1 and e2 -> e3 with e1, e2 and e3");
 
@@ -218,7 +218,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent4"})
     public void testQueryAbsent5() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec and e3 with e1 and e3 after 1 sec");
 
@@ -256,7 +256,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent5"})
     public void testQueryAbsent5_1() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec and e3 with e1 and e3 after 1 sec");
 
@@ -294,7 +294,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent5_1"})
     public void testQueryAbsent5_2() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec and e3 with e1 and e3 after 1 sec");
 
@@ -333,7 +333,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent5_2"})
     public void testQueryAbsent6() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec and e3 with e1 and e3 within 1 sec");
 
@@ -371,7 +371,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent6"})
     public void testQueryAbsent7() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec and e3 with e1, e2 and e3");
 
@@ -410,9 +410,10 @@ public class LogicalAbsentPatternTestCase {
         AssertJUnit.assertFalse("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent7"})
     public void testQueryAbsent8() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec and e2 -> e3 with e2 and e3 after 1 sec");
 
@@ -451,7 +452,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent8"})
     public void testQueryAbsent8_1() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec and e2 -> e3 with e2 and e3 after 1 sec");
 
@@ -489,7 +490,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent8_1"})
     public void testQueryAbsent8_2() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec and e2 -> e3 with e1, e2 after 1 sec and e3");
 
@@ -531,7 +532,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent8_2"})
     public void testQueryAbsent9() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec and e2 -> e3 with e2 and e3 within 1 sec");
 
@@ -569,7 +570,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent9"})
     public void testQueryAbsent10() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec and e2 -> e3 with e1, e2 and e3");
 
@@ -610,7 +611,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent10"})
     public void testQueryAbsent11() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec or e3 with e1 and e3 within 1 sec");
 
@@ -648,7 +649,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent11"})
     public void testQueryAbsent12() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec or e3 with e1 and e3 with extra 1 sec to make sure no " +
                 "duplicates");
@@ -687,7 +688,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent12"})
     public void testQueryAbsent13() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec or e3 with e1 only with 1 sec waiting");
 
@@ -722,7 +723,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent13"})
     public void testQueryAbsent14() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec or e3 with e1 only with no waiting");
 
@@ -758,7 +759,7 @@ public class LogicalAbsentPatternTestCase {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent14"})
     public void testQueryAbsent15() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec or e3 with e1, e2 and e3");
 
@@ -797,10 +798,11 @@ public class LogicalAbsentPatternTestCase {
         AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
     }
 
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent15"})
     public void testQueryAbsent16() throws InterruptedException {
         log.info("Test the query e1 -> not e2 for 1 sec or e3 with e1 and e2");
 
@@ -838,7 +840,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent16"})
     public void testQueryAbsent17() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec or e2 -> e3 with e1 and e3 within 1 sec");
 
@@ -876,7 +878,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent17"})
     public void testQueryAbsent18() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec or e2 -> e3 with e3 after 1 sec");
 
@@ -912,7 +914,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent18"})
     public void testQueryAbsent19() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec or e2 -> e3 with e3 within 1 sec");
 
@@ -947,7 +949,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent19"})
     public void testQueryAbsent20() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 and e3) within 1 sec with e1 and e3 within 1 sec");
 
@@ -986,7 +988,7 @@ public class LogicalAbsentPatternTestCase {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent20"})
     public void testQueryAbsent21() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 and e3) within 1 sec with e1 and e3 after 1 sec");
 
@@ -1024,7 +1026,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent21"})
     public void testQueryAbsent22() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 and e3) within 1 sec with e1, e2 and e3 after 1 sec");
 
@@ -1065,7 +1067,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent22"})
     public void testQueryAbsent23() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec and e3) within 2 sec with e1 and e3 after 1 sec");
 
@@ -1104,7 +1106,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent23"})
     public void testQueryAbsent24() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec and e3) within 2 sec with e1 and e3 after 2 sec");
 
@@ -1143,7 +1145,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent24"})
     public void testQueryAbsent25() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec and not e3 for 1 sec) within 2 sec with e1 only");
 
@@ -1179,7 +1181,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent25"})
     public void testQueryAbsent26() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec and not e3 for 1 sec) within 2 sec with e1 and e2");
 
@@ -1218,7 +1220,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent26"})
     public void testQueryAbsent27() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec and not e3 for 1 sec) within 2 sec with e1 and e3");
 
@@ -1257,7 +1259,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent27"})
     public void testQueryAbsent28() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec and not e3 for 1 sec) within 2 sec with e1, e2 and e3");
 
@@ -1299,7 +1301,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent28"})
     public void testQueryAbsent29() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec or not e3 for 1 sec) within 2 sec with e1 only");
 
@@ -1335,7 +1337,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent29"})
     public void testQueryAbsent30() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec or not e3 for 1 sec) within 2 sec with e1 and e2");
 
@@ -1374,7 +1376,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent30"})
     public void testQueryAbsent31() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec or not e3 for 1 sec) within 2 sec with e1 and e3");
 
@@ -1413,7 +1415,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent31"})
     public void testQueryAbsent32() throws InterruptedException {
         log.info("Test the query e1 -> (not e2 for 1 sec or not e3 for 1 sec) within 2 sec with e1, e2 and e3");
 
@@ -1458,7 +1460,7 @@ public class LogicalAbsentPatternTestCase {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent32"})
     public void testQueryAbsent33() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec or not e2 for 1 sec) -> e3 with e3 only");
 
@@ -1497,7 +1499,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent33"})
     public void testQueryAbsent34() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec or not e2 for 1 sec) -> e3 with e1 and e3");
 
@@ -1537,7 +1539,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent34"})
     public void testQueryAbsent35() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec or not e2 for 1 sec) -> e3 with e2 and e3");
 
@@ -1577,7 +1579,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent35"})
     public void testQueryAbsent36() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec or not e2 for 1 sec) -> e3 with e1, e2 and e3");
 
@@ -1620,7 +1622,7 @@ public class LogicalAbsentPatternTestCase {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent36"})
     public void testQueryAbsent37() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec and not e2 for 1 sec) -> e3 with e3 only");
 
@@ -1657,7 +1659,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent37"})
     public void testQueryAbsent38() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec and not e2 for 1 sec) -> e3 with e1 and e3");
 
@@ -1697,7 +1699,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent38"})
     public void testQueryAbsent39() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec and not e2 for 1 sec) -> e3 with e2 and e3");
 
@@ -1737,7 +1739,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent39"})
     public void testQueryAbsent40() throws InterruptedException {
         log.info("Test the query (not e1 for 1 sec and not e2 for 1 sec) -> e3 with e1, e2 and e3");
 
@@ -1779,7 +1781,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent40"})
     public void testQueryAbsent41() throws InterruptedException {
         log.info("Test the query e1 -> e2 or not e3 for 1 sec with e1 and e3 within 1 sec");
 
@@ -1817,7 +1819,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent41"})
     public void testQueryAbsent42() throws InterruptedException {
         log.info("Test the query e1 -> e2 or not e3 for 1 sec with e1 only");
 
@@ -1853,7 +1855,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent42"})
     public void testQueryAbsent43() throws InterruptedException {
         log.info("Test the query e1 or not e2 for 1 sec -> e3 with e1 and e3 within 1 sec");
 
@@ -1891,7 +1893,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent43"})
     public void testQueryAbsent44() throws InterruptedException {
         log.info("Test the query e1 or not e2 for 1 sec -> e3 with e3 after 1 sec");
 
@@ -1927,7 +1929,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent44"})
     public void testQueryAbsent45() throws InterruptedException {
         log.info("Test the query e1 or not e2 for 1 sec -> e3 with e3 within 1 sec");
 
@@ -1963,7 +1965,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent45"})
     public void testQueryAbsent46() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec or not e2 for 1 sec) -> e3 with e1, e3 and e2, e3");
 
@@ -2009,7 +2011,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent46"})
     public void testQueryAbsent47() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec or not e2 for 1 sec) -> e3 with two e3s");
 
@@ -2050,7 +2052,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent47"})
     public void testQueryAbsent48() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec or not e2 for 1 sec) -> e3 with only e3 after 2 seconds");
 
@@ -2089,7 +2091,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent48"})
     public void testQueryAbsent49() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec and not e2 for 1 sec) -> e3 with two (<1 sec> e3)s");
 
@@ -2129,7 +2131,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent49"})
     public void testQueryAbsent50() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec and not e2 for 1 sec) -> e3 with an e3 after 2 sec");
 
@@ -2167,7 +2169,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent50"})
     public void testQueryAbsent51() throws InterruptedException {
         log.info("Test the query e1 and not e2 for 1 sec -> e3 with e2 and e3 after 1 sec");
 
@@ -2212,7 +2214,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent51"})
     public void testQueryAbsent52() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec or e2) -> e3 with e1, e3 and e2, e3");
 
@@ -2258,7 +2260,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent52"})
     public void testQueryAbsent53() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec or e2) -> e3 with e3, e3, e2, e3");
 
@@ -2304,7 +2306,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent53"})
     public void testQueryAbsent54() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec or e2) -> e3 with only e3 after 2 seconds");
 
@@ -2342,7 +2344,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent54"})
     public void testQueryAbsent55() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec and e2) -> e3 with e1, e3 and e2, e3");
 
@@ -2389,7 +2391,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent55"})
     public void testQueryAbsent56() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec and e2) -> e3 with e3, e3, e2, e3");
 
@@ -2434,7 +2436,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent56"})
     public void testQueryAbsent57() throws InterruptedException {
         log.info("Test the query every (not e1 for 1 sec and e2) -> e3 with only e3 after 2 seconds");
 
@@ -2472,7 +2474,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent57"})
     public void testQueryAbsent58() throws InterruptedException {
         log.info("Test the query every (e1 or not e2 for 1 sec) -> e3 with e1, e3 and e2, e3");
 
@@ -2518,7 +2520,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent58"})
     public void testQueryAbsent59() throws InterruptedException {
         log.info("Test the query every (e1 or not e2 for 1 sec) -> e3 with e3, e3, e2, e3");
 
@@ -2564,7 +2566,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent59"})
     public void testQueryAbsent60() throws InterruptedException {
         log.info("Test the query every (e1 or not e2 for 1 sec) -> e3 with only e3 after 2 seconds");
 
@@ -2602,7 +2604,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent60"})
     public void testQueryAbsent61() throws InterruptedException {
         log.info("Test the query every (e1 and not e2 for 1 sec) -> e3 with e1, e3 and e2, e3");
 
@@ -2649,7 +2651,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent61"})
     public void testQueryAbsent62() throws InterruptedException {
         log.info("Test the query every (e1 and not e2 for 1 sec) -> e3 with e3, e3, e2, e3");
 
@@ -2694,7 +2696,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent62"})
     public void testQueryAbsent63() throws InterruptedException {
         log.info("Test the query every (e1 and not e2 for 1 sec) -> e3 with only e3 after 2 seconds");
 
@@ -2732,7 +2734,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent63"})
     public void testQueryAbsent64() throws InterruptedException {
         log.info("Test the query not e1 for 1 sec -> not e2 and e3 -> e4 with e2 and e3");
 
@@ -2770,7 +2772,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent64"})
     public void testQueryAbsent65() throws InterruptedException {
         log.info("Test the query e1 and not e2 -> e3 with e1 and e3");
 
@@ -2808,7 +2810,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent65"})
     public void testQueryAbsent66() throws InterruptedException {
         log.info("Test the query not e1 and e2 with e2 only");
 
@@ -2842,7 +2844,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent66"})
     public void testQueryAbsent67() throws InterruptedException {
         log.info("Test the query not e1 and e2 with e1 only");
 
@@ -2877,7 +2879,7 @@ public class LogicalAbsentPatternTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testQueryAbsent67"})
     public void testQueryAbsent68() throws InterruptedException {
         log.info("Test the partitioned query e1 -> not e2 for 1 sec and not e3 for 1 sec");
 

@@ -102,9 +102,10 @@ public class SnapshotOutputRateLimitTestCase {
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertTrue("Number of output event value", 1 == count.get());
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery1"})
     public void testSnapshotOutputRateLimitQuery2() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test2");
 
@@ -155,10 +156,11 @@ public class SnapshotOutputRateLimitTestCase {
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertTrue("Number of output event value", 2 == count.get());
+        Thread.sleep(2000);
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery2"})
     public void testSnapshotOutputRateLimitQuery3() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test3");
 
@@ -214,10 +216,11 @@ public class SnapshotOutputRateLimitTestCase {
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertTrue("Number of output event value", 3 == count.get());
+        Thread.sleep(2000);
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery3"})
     public void testSnapshotOutputRateLimitQuery4() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test4");
 
@@ -274,10 +277,10 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events  ", 7, value);
 
         siddhiAppRuntime.shutdown();
-
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery4"})
     public void testSnapshotOutputRateLimitQuery5() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test5");
 
@@ -337,10 +340,10 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output event bundles", 3, count.get());
 
         siddhiAppRuntime.shutdown();
-
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery5"})
     public void testSnapshotOutputRateLimitQuery6() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test6");
 
@@ -397,7 +400,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery6"})
     public void testSnapshotOutputRateLimitQuery7() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test7");
 
@@ -454,7 +457,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery7"})
     public void testSnapshotOutputRateLimitQuery8() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test8");
 
@@ -510,7 +513,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery8"})
     public void testSnapshotOutputRateLimitQuery9() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test9");
 
@@ -568,7 +571,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery9"})
     public void testSnapshotOutputRateLimitQuery10() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test10");
 
@@ -620,10 +623,10 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output event value", 2, count.get());
 
         siddhiAppRuntime.shutdown();
-
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery10"})
     public void testSnapshotOutputRateLimitQuery11() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test11");
 
@@ -678,7 +681,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery11"})
     public void testSnapshotOutputRateLimitQuery12() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test12");
 
@@ -725,7 +728,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery12"})
     public void testSnapshotOutputRateLimitQuery13() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test13");
 
@@ -779,7 +782,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery13"})
     public void testSnapshotOutputRateLimitQuery14() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test14");
 
@@ -831,7 +834,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery14"})
     public void testSnapshotOutputRateLimitQuery15() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test15");
 
@@ -886,7 +889,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery15"})
     public void testSnapshotOutputRateLimitQuery16() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test16");
 
@@ -945,7 +948,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery16"})
     public void testSnapshotOutputRateLimitQuery17() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test17");
 
@@ -1000,7 +1003,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery17"})
     public void testSnapshotOutputRateLimitQuery18() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test18");
 
@@ -1057,7 +1060,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery18"})
     public void testSnapshotOutputRateLimitQuery19() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test19");
 
@@ -1121,7 +1124,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery19"})
     public void testSnapshotOutputRateLimitQuery20() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test20");
 
@@ -1188,7 +1191,7 @@ public class SnapshotOutputRateLimitTestCase {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery20"})
     public void testSnapshotOutputRateLimitQuery21() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test21");
 
@@ -1245,10 +1248,11 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 4, value);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery21"})
     public void testSnapshotOutputRateLimitQuery22() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test22");
 
@@ -1308,10 +1312,11 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery22"})
     public void testSnapshotOutputRateLimitQuery23() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test23");
 
@@ -1371,10 +1376,10 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
-
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery23"})
     public void testSnapshotOutputRateLimitQuery24() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test24");
 
@@ -1430,10 +1435,10 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 1, value);
 
         siddhiAppRuntime.shutdown();
-
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery24"})
     public void testSnapshotOutputRateLimitQuery25() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test25");
 
@@ -1494,10 +1499,11 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery25"})
     public void testSnapshotOutputRateLimitQuery26() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test26");
 
@@ -1558,9 +1564,10 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery26"})
     public void testSnapshotOutputRateLimitQuery27() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test27");
 
@@ -1621,10 +1628,11 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
+        Thread.sleep(2000);
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery27"})
     public void testSnapshotOutputRateLimitQuery28() throws InterruptedException {
         log.info("SnapshotOutputRateLimit test28");
 
