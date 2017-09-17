@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -120,6 +121,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     String.valueOf(funcNode.getReturnParameters()));
         }
         funcNode.workers.forEach(e -> e.accept(this));
+    }
+    
+    @Override
+    public void visit(BLangForkJoin forkJoin) {
+        forkJoin.workers.forEach(e -> e.accept(this));
     }
     
     @Override

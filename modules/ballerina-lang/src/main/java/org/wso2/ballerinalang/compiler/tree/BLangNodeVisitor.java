@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -95,6 +96,10 @@ public abstract class BLangNodeVisitor {
     }
     
     public void visit(BLangWorker workerNode) {
+        /* ignore */
+    }
+    
+    public void visit(BLangForkJoin forkJoin) {
         /* ignore */
     }
     

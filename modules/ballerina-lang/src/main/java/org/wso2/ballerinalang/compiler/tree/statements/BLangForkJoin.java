@@ -99,6 +99,7 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

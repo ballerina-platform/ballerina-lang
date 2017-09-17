@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 
 /**
  * @since 0.94
@@ -116,7 +117,19 @@ public class SymbolEnv {
     public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env, BLangInvokableNode enclInv) {
         SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
         env.copyTo(symbolEnv);
-        symbolEnv.enclInvokable = enclInv;
+        if (enclInv != null) {
+            symbolEnv.enclInvokable = enclInv;
+        }
+        return symbolEnv;
+    }
+    
+    public static SymbolEnv createFolkJoinEnv(BLangForkJoin forkJoin, SymbolEnv env, BLangInvokableNode enclInv) {
+        Scope scope = new Scope(env.scope.owner);
+        SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
+        env.copyTo(symbolEnv);
+        if (enclInv != null) {
+            env.enclInvokable = enclInv;
+        }
         return symbolEnv;
     }
     

@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -229,18 +230,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
+    
+    @Override
+    public void visit(BLangForkJoin forkJoin) {
+        SymbolEnv folkJoinEnv;
+        if (this.env.node.getKind() == NodeKind.FUNCTION) {
+            folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env, (BLangInvokableNode) this.env.node);
+        } else {
+            folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env, null);
+        }
+        forkJoin.workers.forEach(e -> this.analyzeDef(e, folkJoinEnv));
+    }
 
     @Override
     public void visit(BLangWorker workerNode) {
         this.symbolEnter.defineNode(workerNode, this.env);
         SymbolEnv workerEnv;
-        if (env.node.getKind() == NodeKind.FUNCTION) {
-            workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, (BLangInvokableNode) env.node);
-        } else if (env.node.getKind() == NodeKind.FORKJOIN) {
-            //TODO
-            workerEnv = null;
+        if (this.env.node.getKind() == NodeKind.FUNCTION) {
+            workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, (BLangInvokableNode) this.env.node);
+        } else if (this.env.node.getKind() == NodeKind.FORKJOIN) {
+            workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env, null);
         } else {
-            throw new IllegalStateException("invalid enclosing node type for worker: " + env.node.getKind());
+            throw new IllegalStateException("invalid enclosing node type for worker: " + this.env.node.getKind());
         }
         this.analyzeNode(workerNode.body, workerEnv);
     }
