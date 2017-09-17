@@ -26,12 +26,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -205,6 +207,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(whileNode.body, env);
     }
 
+    public void visit(BLangConnector connectorNode) {
+    }
+
+    public void visit(BLangService serviceNode) {
+    }
+
     public void visit(BLangTryCatchFinally tryCatchFinally) {
         analyzeStmt(tryCatchFinally.tryBody, env);
         tryCatchFinally.catchBlocks.forEach(c -> analyzeNode(c, env));
@@ -219,7 +227,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
-    
+
     @Override
     public void visit(BLangWorker workerNode) {
         SymbolEnv workerEnv;
@@ -233,18 +241,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         this.analyzeNode(workerNode.body, workerEnv);
     }
-    
+
     private boolean isInTopLevelWorkerEnv() {
         return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
     }
-    
+
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
     }
-    
+
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         if (!this.isInTopLevelWorkerEnv()) {

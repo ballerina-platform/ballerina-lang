@@ -27,4 +27,5 @@ import java.util.List;
  */
 public interface ReturnNode extends StatementNode {
     List<? extends ExpressionNode> getExpressions();
+    void addExpression(ExpressionNode expressionNode);
 }

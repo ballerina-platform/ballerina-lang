@@ -42,6 +42,8 @@ public class Names {
     public static final Name ERROR = new Name("error");
     public static final Name CAUSE = new Name("cause");
     public static final Name STACK_TRACE = new Name("stackTrace");
+    public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
+    public static final Name CONNECTOR = new Name("connector");
 
     public CompilerContext context;
 
