@@ -50,6 +50,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangAnnotation> annotations;
+    public BLangFunction initFunction;
 
     public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;
@@ -168,6 +169,16 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addAnnotation(AnnotationNode annotation) {
         this.annotations.add((BLangAnnotation) annotation);
         this.topLevelNodes.add(annotation);
+    }
+
+    @Override
+    public void setInitFunction(FunctionNode function) {
+        this.initFunction = (BLangFunction) function;
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
     }
 
     @Override

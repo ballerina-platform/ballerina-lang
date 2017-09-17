@@ -64,4 +64,8 @@ public interface PackageNode extends Node {
 
     void addAnnotation(AnnotationNode annotation);
 
+    void setInitFunction(FunctionNode function);
+
+    FunctionNode getInitFunction();
+
 }

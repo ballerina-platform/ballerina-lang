@@ -63,6 +63,7 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

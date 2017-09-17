@@ -39,6 +39,9 @@ public enum DiagnosticCode {
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
     SELF_REFERENCE_VAR("self.reference.var"),
+    INVALID_WORKER_SEND_POSITION("invalid.worker.send.position"),
+    INVALID_WORKER_RECEIVE_POSITION("invalid.worker.receive.position"),
+    UNDEFINED_WORKER("undefined.worker"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),

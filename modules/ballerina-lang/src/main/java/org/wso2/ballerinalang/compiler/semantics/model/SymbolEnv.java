@@ -85,6 +85,14 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createResourceActionSymbolEnv(BLangNode node,
+                                                    SymbolEnv pkgEnv,
+                                                    Scope scope) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        pkgEnv.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
     public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = block.scope;
@@ -106,7 +114,7 @@ public class SymbolEnv {
     }
     
     public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env, BLangInvokableNode enclInv) {
-        SymbolEnv symbolEnv = new SymbolEnv(worker, env.scope);
+        SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
         env.copyTo(symbolEnv);
         symbolEnv.enclInvokable = enclInv;
         return symbolEnv;
