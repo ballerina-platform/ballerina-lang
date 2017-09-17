@@ -85,7 +85,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SymbolEnv env;
     public Map<BPackageSymbol, SymbolEnv> packageEnvs = new HashMap<>();
-    public static final String INIT_FUNCTION_SUFFIX = ".<init>";
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -189,18 +188,27 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        defineInvokableSymbol(funcNode, Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                names.fromIdNode(funcNode.name), null, env.scope.owner));
+        BInvokableSymbol funcSymbol = Symbols
+                .createFunctionSymbol(Flags.asMask(funcNode.flagSet), names.fromIdNode(funcNode.name), null,
+                        env.scope.owner);
+        SymbolEnv invokableEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
+        defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
     }
 
     public void visit(BLangAction actionNode) {
-        defineInvokableSymbol(actionNode, Symbols.createActionSymbol(Flags.asMask(actionNode.flagSet),
-                names.fromIdNode(actionNode.name), null, env.scope.owner));
+        BInvokableSymbol actionSymbol = Symbols
+                .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name), null,
+                        env.scope.owner);
+        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, env, actionSymbol.scope);
+        defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
     }
 
     public void visit(BLangResource resourceNode) {
-        defineInvokableSymbol(resourceNode, Symbols.createResourceSymbol(Flags.asMask(resourceNode.flagSet),
-                names.fromIdNode(resourceNode.name), null, env.scope.owner));
+        BInvokableSymbol resourceSymbol = Symbols
+                .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name), null,
+                        env.scope.owner);
+        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, env, resourceSymbol.scope);
+        defineInvokableSymbol(resourceNode, resourceSymbol, null);
     }
 
     public void visit(BLangVariable varNode) {
@@ -327,24 +335,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineActions(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createSubLevelSymbolEnv(connector, pkgEnv, connector.symbol.scope);
+            SymbolEnv conEnv = SymbolEnv.createResourceActionSymbolEnv(connector, pkgEnv, connector.symbol.scope);
             connector.actions.forEach(action -> defineNode(action, conEnv));
         });
     }
 
-    private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol) {
+    private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
+            SymbolEnv invokableEnv) {
         invokableNode.symbol = funcSymbol;
         defineSymbol(invokableNode.pos, funcSymbol);
-        defineInvokableSymbolParams(invokableNode, funcSymbol);
+        invokableEnv.scope = funcSymbol.scope;
+        defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
     }
 
-    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol) {
-        SymbolEnv invokableEnv;
-        if (invokableNode instanceof BLangAction || invokableNode instanceof BLangResource) {
-            invokableEnv = SymbolEnv.createSubLevelSymbolEnv(invokableNode, env, symbol.scope);
-        } else {
-            invokableEnv = SymbolEnv.createPkgLevelSymbolEnv(invokableNode, env, symbol.scope);
-        }
+    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,
+            SymbolEnv invokableEnv) {
         List<BVarSymbol> paramSymbols =
                 invokableNode.params
                         .stream()
@@ -379,81 +384,63 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineConnectorInitFunction(BLangConnector connector) {
-        //Create init function
-        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(connector.getName().getValue() + INIT_FUNCTION_SUFFIX));
-        initFunction.pos = connector.pos;
-
+        BLangFunction initFunction = createInitFunction(connector.pos, connector.getName().getValue());
+        //Add connector as a parameter to the init function
         BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
         param.pos = connector.pos;
-        param.setName(this.createIdentifier("connector"));
+        param.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
         BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         connectorType.pos = connector.pos;
         connectorType.typeName = connector.name;
         param.setTypeNode(connectorType);
         initFunction.addParameter(param);
-        //Create init function body by adding connector level variable definitions
-        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        body.pos = connector.pos;
+        //Add connector level variables to the init function
         for (BLangVariableDef variableDef : connector.getVariableDefs()) {
             BLangAssignment assignmentNode = createAssignmentStatement(variableDef.pos,
                     variableDef.getVariable().getName().getValue(), variableDef.getVariable().getInitialExpression());
-            body.addStatement(assignmentNode);
+            initFunction.body.addStatement(assignmentNode);
         }
-        //Add return statement to the init function
-        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-        returnStmt.pos = connector.pos;
-        body.addStatement(returnStmt);
-        //Set the init function to the connector and define the symbols
-        initFunction.setBody(body);
         connector.initFunction = initFunction;
         defineNode(connector.initFunction, env);
     }
 
     private void defineServiceInitFunction(BLangService service) {
-        //Create init function
-        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(service.getName().getValue() + INIT_FUNCTION_SUFFIX));
-        initFunction.pos = service.pos;
-        //Create init function body by adding service level variable definitions
-        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        body.pos = service.pos;
+        BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue());
+        //Add service level variables to the init function
         for (BLangVariableDef variableDef : service.getVariables()) {
             BLangAssignment assignmentNode = createAssignmentStatement(variableDef.pos,
                     variableDef.getVariable().getName().getValue(), variableDef.getVariable().getInitialExpression());
-            body.addStatement(assignmentNode);
+            initFunction.body.addStatement(assignmentNode);
         }
-        //Add return statement to the init function
-        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-        returnStmt.pos = service.pos;
-        body.addStatement(returnStmt);
-        //Set the init function to the service and define the symbols
-        initFunction.setBody(body);
         service.initFunction = initFunction;
         defineNode(service.initFunction, env);
     }
 
     private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
-        //Create init function
-        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(pkgNode.symbol.getName() + INIT_FUNCTION_SUFFIX));
-        initFunction.pos = pkgNode.pos;
-        //Create init function body by adding package level variable definitions
-        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        body.pos = pkgNode.pos;
+        BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
+        //Add global variables to the init function
         for (BLangVariable variable : pkgNode.getGlobalVariables()) {
             BLangAssignment assignmentNode = createAssignmentStatement(variable.pos, variable.getName().getValue(),
                     variable.getInitialExpression());
-            body.addStatement(assignmentNode);
+            initFunction.body.addStatement(assignmentNode);
         }
-        //Add return statement to the init function
-        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-        returnStmt.pos = pkgNode.pos;
-        body.addStatement(returnStmt);
-        //Set the init function to the package and define the symbols
-        initFunction.setBody(body);
         pkgNode.initFunction = initFunction;
         defineNode(pkgNode.initFunction, env);
+    }
+
+    private BLangFunction createInitFunction(DiagnosticPos pos, String name) {
+        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        initFunction.setName(createIdentifier(name + Names.INIT_FUNCTION_SUFFIX.getValue()));
+        initFunction.pos = pos;
+        //Create body of the init function
+        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        body.pos = pos;
+        //Add return statement to the init function
+        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = pos;
+        body.addStatement(returnStmt);
+        initFunction.setBody(body);
+        return initFunction;
     }
 
     private BLangAssignment createAssignmentStatement(DiagnosticPos pos, String varName, BLangExpression rExpr) {

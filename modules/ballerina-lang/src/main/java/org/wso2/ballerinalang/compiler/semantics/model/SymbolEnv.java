@@ -84,7 +84,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createSubLevelSymbolEnv(BLangNode node,
+    public static SymbolEnv createResourceActionSymbolEnv(BLangNode node,
                                                     SymbolEnv pkgEnv,
                                                     Scope scope) {
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);

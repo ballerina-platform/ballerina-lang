@@ -35,6 +35,8 @@ public class Names {
     public static final Name CONVERSION_OP = new Name("<<type>>");
     public static final Name MSG = new Name("msg");
     public static final Name ERROR = new Name("error");
+    public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
+    public static final Name CONNECTOR = new Name("connector");
 
     public CompilerContext context;
 
