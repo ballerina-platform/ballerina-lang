@@ -94,6 +94,7 @@ public class WebSocketClient {
     /**
      * Handle the handshake with the server.
      *
+     * @param handshakeFuture Handshake future for the connecting client.
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      * @throws SSLException throws if SSL exception occurred during protocol negotiation.

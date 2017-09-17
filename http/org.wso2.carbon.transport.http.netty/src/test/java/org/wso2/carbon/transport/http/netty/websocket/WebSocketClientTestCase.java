@@ -44,7 +44,7 @@ import javax.websocket.Session;
 /**
  * Test cases for the WebSocket Client implementation.
  */
-public class WebSocketClientTestCase extends WeSocketTestCase {
+public class WebSocketClientTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 

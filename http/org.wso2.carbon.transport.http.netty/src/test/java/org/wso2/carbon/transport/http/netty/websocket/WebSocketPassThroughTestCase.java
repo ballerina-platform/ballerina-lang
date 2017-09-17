@@ -42,7 +42,7 @@ import javax.net.ssl.SSLException;
 /**
  * Test cases for WebSocket pass-through scenarios.
  */
-public class WebSocketPassThroughTestCase extends WeSocketTestCase {
+public class WebSocketPassThroughTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
