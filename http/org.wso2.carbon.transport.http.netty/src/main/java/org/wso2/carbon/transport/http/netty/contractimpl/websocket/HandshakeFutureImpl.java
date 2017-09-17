@@ -48,7 +48,7 @@ public class HandshakeFutureImpl implements HandshakeFuture {
     @Override
     public void notifySuccess(Session session) {
         this.session = session;
-        if (handshakeListener == null) {
+        if (handshakeListener == null || throwable != null) {
             return;
         }
         handshakeListener.onSuccess(session);

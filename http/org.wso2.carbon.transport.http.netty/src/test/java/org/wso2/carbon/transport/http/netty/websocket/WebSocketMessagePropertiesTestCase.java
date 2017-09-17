@@ -91,8 +91,7 @@ public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
             wsClient.handhshake();
             Assert.assertTrue(false);
         } catch (ProtocolException e) {
-            log.error(e.getMessage());
-            Assert.assertTrue(true);
+            Assert.assertTrue(true, e.getMessage());
         }
         wsClient.shutDown();
     }

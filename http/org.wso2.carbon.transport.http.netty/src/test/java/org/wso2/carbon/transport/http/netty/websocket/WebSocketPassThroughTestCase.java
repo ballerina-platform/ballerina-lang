@@ -44,7 +44,7 @@ import javax.net.ssl.SSLException;
  */
 public class WebSocketPassThroughTestCase extends WebSocketTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT);
@@ -55,7 +55,6 @@ public class WebSocketPassThroughTestCase extends WebSocketTestCase {
     @BeforeClass
     public void setup() throws InterruptedException, ClientConnectorException {
         remoteServer.run();
-
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(TestUtil.TEST_DEFAULT_INTERFACE_PORT);

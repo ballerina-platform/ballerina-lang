@@ -20,7 +20,8 @@
 package org.wso2.carbon.transport.http.netty.sender.websocket;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -39,8 +40,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
@@ -60,10 +59,8 @@ public class WebSocketClient {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private Channel channel;
     private WebSocketTargetHandler handler;
     private EventLoopGroup group;
-    private boolean handshakeDone = false;
 
     private final String url;
     private final String subProtocols;
@@ -170,9 +167,9 @@ public class WebSocketClient {
                     });
 
             b.connect(uri.getHost(), port).sync();
-            handler.handshakeFuture().sync().addListener(new GenericFutureListener<Future<? super Void>>() {
+            handler.handshakeFuture().addListener(new ChannelFutureListener() {
                 @Override
-                public void operationComplete(Future<? super Void> future) throws Exception {
+                public void operationComplete(ChannelFuture future) {
                     WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     handler.setActualSubProtocol(actualSubProtocol);
@@ -180,10 +177,10 @@ public class WebSocketClient {
                     session.setIsOpen(true);
                     handshakeFuture.notifySuccess(session);
                 }
-            });
+            }).sync();
         } catch (Throwable t) {
+            handshakeFuture.notifyError(t);
             connectorListener.onError(t);
         }
-
     }
 }
