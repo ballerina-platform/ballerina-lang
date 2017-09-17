@@ -179,10 +179,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangWorker workerNode) {
-        BSymbol structSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
+        BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
                 names.fromIdNode(workerNode.name), null, env.scope.owner);
-        workerNode.symbol = structSymbol;
-        defineSymbolWithCurrentEnvOwner(workerNode.pos, structSymbol);
+        workerNode.symbol = workerSymbol;
+        defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -222,7 +222,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name), null,
                         env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, env, resourceSymbol.scope);
-        defineInvokableSymbol(resourceNode, resourceSymbol, null);
+        defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
     public void visit(BLangVariable varNode) {
