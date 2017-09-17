@@ -27,6 +27,9 @@ import { PLUGIN_ID, VIEWS as VIEW_IDS } from './constants';
 
 import DebuggerPanel from './views/DebuggerPanel';
 import DebuggerConsole from './views/DebugConsole';
+
+import LaunchManager from './LaunchManager';
+import DebugManager from './DebugManager';
 /**
  * Debugger is responsible for debugging files.
  *
@@ -55,8 +58,13 @@ class DebuggerPlugin extends Plugin {
                     id: VIEW_IDS.DEBUGGER_PANEL,
                     component: DebuggerPanel,
                     propsProvider: () => {
+                        LaunchManager.init(this.appContext.services.launcher.endpoint);
+                        DebugManager.init(this.appContext.services.debugger.endpoint);
                         return {
                             debuggerPlugin: this,
+                            commandProxy: this.appContext.command,
+                            LaunchManager,
+                            DebugManager,
                         };
                     },
                     region: REGIONS.LEFT_PANEL,
@@ -79,8 +87,10 @@ class DebuggerPlugin extends Plugin {
                     id: VIEW_IDS.DEBUGGER_CONSOLE,
                     component: DebuggerConsole,
                     propsProvider: () => {
+                        LaunchManager.init(this.appContext.services.launcher.endpoint);
                         return {
                             debuggerPlugin: this,
+                            LaunchManager,
                         };
                     },
                     region: REGIONS.BOTTOM_PANEL,
@@ -96,7 +106,7 @@ class DebuggerPlugin extends Plugin {
         };
     }
 
-    
+
 }
 
 export default DebuggerPlugin;

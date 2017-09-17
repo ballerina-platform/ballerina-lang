@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import ASTNode from '../../../../ast/node';
 import ActionBox from './action-box';
 import DragDropManager from '../../../../tool-palette/drag-drop-manager';
@@ -27,7 +28,6 @@ import './statement-decorator.css';
 import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
-import breakpointHOC from './../../../../../debugger/breakpoint-hoc';
 import ASTFactory from '../../../../ast/ast-factory.js';
 
 /**
@@ -351,4 +351,4 @@ StatementDecorator.contextTypes = {
 };
 
 
-export default breakpointHOC(StatementDecorator);
+export default breakpointHoc(StatementDecorator);

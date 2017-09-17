@@ -55,6 +55,7 @@ class Application {
         this.appContext = {
             pluginContexts: {
             },
+            services: config.services,
         };
 
         // Initialize core plugins first
