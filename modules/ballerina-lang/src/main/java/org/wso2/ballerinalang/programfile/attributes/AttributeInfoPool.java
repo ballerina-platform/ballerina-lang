@@ -15,23 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+package org.wso2.ballerinalang.programfile.attributes;
 
 /**
- * @since 0.94
+ * {@code AttributeInfoPool} represents a {@code AttributeInfo} entry holder.
+ *
+ * @since 0.90
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public interface AttributeInfoPool {
 
-    /**
-     * This result of this expression is saved in this virtual register index. This field is used
-     * during the code generation phase of the compiler.
-     */
-    public int regIndex;
+    AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind);
 
-    public boolean isMultiReturnExpr() {
-        return false;
-    }
+    void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo);
+
+    AttributeInfo[] getAttributeInfoEntries();
 }

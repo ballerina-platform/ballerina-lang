@@ -15,30 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.wso2.ballerinalang.programfile;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
+import java.util.Objects;
 
 /**
- * @since 0.94
+ * {@code FunctionInfo} contains metadata of a Ballerina function entry in the program file.
+ *
+ * @since 0.87
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public class FunctionInfo extends CallableUnitInfo {
 
-    /**
-     * Represent the index of the variable in a memory block of the VM.
-     */
-    public int varIndex;
-
-    public BVarSymbol(int flags, Name name, BType type, BSymbol owner) {
-        super(VARIABLE, flags, name, type, owner);
+    public FunctionInfo(int pkgCPIndex, int funcNameCPIndex) {
+        this.pkgNameCPIndex = pkgCPIndex;
+        this.nameCPIndex = funcNameCPIndex;
     }
 
     @Override
-    public Object getConstValue() {
-        return null;
+    public int hashCode() {
+        return Objects.hash(pkgNameCPIndex, nameCPIndex);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof FunctionInfo && pkgNameCPIndex == (((FunctionInfo) obj).pkgNameCPIndex)
+                && nameCPIndex == (((FunctionInfo) obj).nameCPIndex);
     }
 }

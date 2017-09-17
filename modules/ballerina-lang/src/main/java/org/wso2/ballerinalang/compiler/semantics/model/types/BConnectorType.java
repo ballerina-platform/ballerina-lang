@@ -17,68 +17,32 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.StructType;
+import org.ballerinalang.model.types.ConnectorType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-
-import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BStructType extends BType implements StructType {
+public class BConnectorType extends BType implements ConnectorType {
 
-    public List<BStructField> fields;
-
-    public BStructType(BTypeSymbol tSymbol, List<BStructField> fields) {
-        super(TypeTags.STRUCT, tSymbol);
-        this.fields = fields;
+    public BConnectorType(BTypeSymbol tsymbol) {
+        super(TypeTags.CONNECTOR, tsymbol);
     }
 
     public String getDesc() {
-        return TypeDescriptor.SIG_STRUCT + getQualifiedTypeName() + ";";
-    }
-
-    @Override
-    public List<BStructField> getFields() {
-        return fields;
+        return TypeDescriptor.SIG_CONNECTOR + getQualifiedTypeName() + ";";
     }
 
     @Override
     public TypeKind getKind() {
-        return TypeKind.STRUCT;
+        return TypeKind.CONNECTOR;
     }
 
     @Override
     public String toString() {
         return this.tsymbol.name.value;
-    }
-
-    /**
-     * @since 0.94
-     */
-    public static class BStructField implements Field {
-
-        public Name name;
-
-        public BType type;
-
-        public BStructField(Name name, BType type) {
-            this.name = name;
-            this.type = type;
-        }
-
-        @Override
-        public Name getName() {
-            return name;
-        }
-
-        @Override
-        public BType getType() {
-            return type;
-        }
     }
 }

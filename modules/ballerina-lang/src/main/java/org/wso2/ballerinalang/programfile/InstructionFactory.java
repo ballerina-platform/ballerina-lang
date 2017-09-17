@@ -15,23 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+package org.wso2.ballerinalang.programfile;
 
 /**
- * @since 0.94
+ * This class creates specific instructions for the given opcode/bytecode.
+ *
+ * @since 0.87
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public class InstructionFactory {
 
-    /**
-     * This result of this expression is saved in this virtual register index. This field is used
-     * during the code generation phase of the compiler.
-     */
-    public int regIndex;
-
-    public boolean isMultiReturnExpr() {
-        return false;
+    public static Instruction get(int opcode, int... operands) {
+        // TODO Implement subtypes of certain instructions. etc for call, ret bytecodes
+        return new Instruction(opcode, operands);
     }
 }

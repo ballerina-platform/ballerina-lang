@@ -15,23 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
+package org.wso2.ballerinalang.programfile.cpentries;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 
 /**
- * @since 0.94
+ * {@code WorkerInfoPool} represents a table of worker data channels which workers use to pass data around.
+ *
+ * @since 0.90
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public interface WorkerInfoPool {
 
-    /**
-     * This result of this expression is saved in this virtual register index. This field is used
-     * during the code generation phase of the compiler.
-     */
-    public int regIndex;
+    void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo);
 
-    public boolean isMultiReturnExpr() {
-        return false;
-    }
+    WorkerDataChannelInfo getWorkerDataChannelInfo(String name);
+
+    WorkerDataChannelInfo[] getWorkerDataChannelInfo();
 }

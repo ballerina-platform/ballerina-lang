@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangWorker> workers;
 
-    public BSymbol symbol;
+    public BInvokableSymbol symbol;
 
     public BLangInvokableNode() {
         this.params = new ArrayList<>();

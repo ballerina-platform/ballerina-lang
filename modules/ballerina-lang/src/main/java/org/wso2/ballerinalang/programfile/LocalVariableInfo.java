@@ -15,23 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+package org.wso2.ballerinalang.programfile;
 
 /**
- * @since 0.94
+ * {@code LocalVariableAttributeInfo} contains common metadata of a given local variable.
+ *
+ * @since 0.88
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public class LocalVariableInfo {
 
-    /**
-     * This result of this expression is saved in this virtual register index. This field is used
-     * during the code generation phase of the compiler.
-     */
-    public int regIndex;
+    public int varNameCPIndex;
+    public int varTypeSigCPIndex;
+    public int varIndex;
 
-    public boolean isMultiReturnExpr() {
-        return false;
+    public int[] attachmentIndexes = new int[0];
+
+    public LocalVariableInfo(int varNameCPIndex, int varTypeSigCPIndex, int varIndex) {
+        this.varNameCPIndex = varNameCPIndex;
+        this.varTypeSigCPIndex = varTypeSigCPIndex;
+        this.varIndex = varIndex;
     }
 }

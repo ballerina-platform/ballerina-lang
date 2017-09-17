@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.EnumType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -36,6 +37,10 @@ public class BEnumType extends BType implements EnumType {
     public BEnumType(BTypeSymbol tSymbol, List<BEnumType.EnumField> fields) {
         super(TypeTags.ENUM, tSymbol);
         this.fields = fields;
+    }
+
+    public String getDesc() {
+        return TypeDescriptor.SIG_ENUM + getQualifiedTypeName() + ";";
     }
 
     @Override

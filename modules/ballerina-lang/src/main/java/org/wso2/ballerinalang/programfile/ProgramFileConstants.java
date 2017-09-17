@@ -15,23 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+package org.wso2.ballerinalang.programfile;
 
 /**
  * @since 0.94
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public class ProgramFileConstants {
 
-    /**
-     * This result of this expression is saved in this virtual register index. This field is used
-     * during the code generation phase of the compiler.
-     */
-    public int regIndex;
+    public static final int MAGIC_NUMBER = 0xBA1DA4CE;
+    public static final short VERSION_NUMBER = 14;
 
-    public boolean isMultiReturnExpr() {
-        return false;
-    }
+    // int, float, string, boolean, blob, reference type
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    public static final int INT_OFFSET = 0;
+    public static final int FLOAT_OFFSET = 1;
+    public static final int STRING_OFFSET = 2;
+    public static final int BOOL_OFFSET = 3;
+    public static final int BLOB_OFFSET = 4;
+    public static final int REF_OFFSET = 5;
 }

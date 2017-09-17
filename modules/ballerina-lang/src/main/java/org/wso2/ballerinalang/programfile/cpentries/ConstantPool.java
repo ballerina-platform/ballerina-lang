@@ -15,23 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+package org.wso2.ballerinalang.programfile.cpentries;
 
 /**
- * @since 0.94
+ * {@code ConstantPool} represents a table of symbolic information about constants, functions, actions, connectors,
+ * structs etc.
+ *
+ * @since 0.90
  */
-public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+public interface ConstantPool {
 
-    /**
-     * This result of this expression is saved in this virtual register index. This field is used
-     * during the code generation phase of the compiler.
-     */
-    public int regIndex;
+    int addCPEntry(ConstantPoolEntry cpEntry);
 
-    public boolean isMultiReturnExpr() {
-        return false;
-    }
+    ConstantPoolEntry getCPEntry(int index);
+
+    int getCPEntryIndex(ConstantPoolEntry cpEntry);
+
+    ConstantPoolEntry[] getConstPoolEntries();
 }

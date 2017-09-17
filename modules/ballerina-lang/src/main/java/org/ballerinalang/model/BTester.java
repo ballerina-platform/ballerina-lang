@@ -43,7 +43,7 @@ public class BTester {
         options = CompilerOptions.getInstance(context);
 //        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
         options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
-        options.put(COMPILER_PHASE, "typeCheck");
+        options.put(COMPILER_PHASE, "codeGen");
         options.put(PRESERVE_WHITESPACE, "false");
 
         // How to set a custom diagnostic listener
@@ -56,7 +56,7 @@ public class BTester {
 
         Compiler compiler = Compiler.getInstance(context);
 //        compiler.compile("bar.bal");
-        compiler.compile("bazz.bal");
+        compiler.compile("pkg.bal");
 //        compiler.compile("a.b.c");
     }
 

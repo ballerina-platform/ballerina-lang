@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class BSymbol implements Symbol {
     public int tag;
     public int flags;
     public Name name;
+    public Name pkgName = Names.EMPTY;
     public SymbolKind kind;
     public BType type;
     public BSymbol owner;
