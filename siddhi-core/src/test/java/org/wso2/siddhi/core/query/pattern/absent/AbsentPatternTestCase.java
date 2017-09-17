@@ -207,9 +207,9 @@ public class AbsentPatternTestCase {
         stream2.send(new Object[]{"IBM", 58.7f, 100});
         Thread.sleep(100);
 
-        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
-        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
-        AssertJUnit.assertTrue("Event not arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
