@@ -28,11 +28,11 @@ import java.util.List;
  */
 public interface InvocationNode extends VariableReferenceNode {
 
-    IdentifierNode getPackageIdentifier();
+    IdentifierNode getPackageAlias();
 
-    IdentifierNode getFunctionName();
+    IdentifierNode getName();
 
     List<? extends ExpressionNode> getArgumentExpressions();
 
-    VariableReferenceNode getVariableReferenceNode();
+    VariableReferenceNode getExpression();
 }

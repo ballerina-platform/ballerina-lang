@@ -23,13 +23,14 @@ import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 /**
  * @since 0.94
  */
 public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
-    public BLangExpression namespaceURI;
+    public BLangLiteral namespaceURI;
     public BLangIdentifier prefix;
     public BXMLNSSymbol symbol;
     
@@ -50,7 +51,7 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
     @Override
     public void setNamespaceURI(ExpressionNode namespaceURI) {
-        this.namespaceURI = (BLangExpression) namespaceURI;
+        this.namespaceURI = (BLangLiteral) namespaceURI;
     }
 
     @Override

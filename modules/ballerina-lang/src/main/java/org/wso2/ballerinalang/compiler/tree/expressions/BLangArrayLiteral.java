@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class BLangArrayLiteral extends BLangExpression implements ArrayLiteralNode {
 
-    public List<ExpressionNode> expressionNodes;
+    public List<BLangExpression> exprs;
 
     @Override
     public NodeKind getKind() {
@@ -41,16 +41,17 @@ public class BLangArrayLiteral extends BLangExpression implements ArrayLiteralNo
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
     public List<? extends ExpressionNode> getExpressions() {
-        return expressionNodes;
+        return exprs;
     }
 
     @Override
     public String toString() {
-        String s = Arrays.toString(expressionNodes.toArray());
+        String s = Arrays.toString(exprs.toArray());
         return "[" + s.substring(1, s.length() - 1) + ']';
     }
 }

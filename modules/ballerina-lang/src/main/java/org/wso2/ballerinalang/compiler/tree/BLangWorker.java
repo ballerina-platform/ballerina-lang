@@ -34,6 +34,7 @@ public class BLangWorker extends BLangInvokableNode implements WorkerNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

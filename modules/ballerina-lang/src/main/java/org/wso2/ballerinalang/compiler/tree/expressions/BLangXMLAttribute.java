@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNode {
 
     public ExpressionNode name;
-    public ExpressionNode value;
+    public BLangXMLQuotedString value;
     public boolean isNamespaceDeclr;
     public boolean isDefaultNs;
 
@@ -51,7 +51,7 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
 
     @Override
     public void setValue(ExpressionNode value) {
-        this.value = value;
+        this.value = (BLangXMLQuotedString) value;
     }
 
     @Override

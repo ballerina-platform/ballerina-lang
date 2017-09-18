@@ -28,19 +28,15 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
 
-    public BLangExpression namespaceUri;
-    
-    public BXMLNSSymbol(Name prefix, BLangExpression namespaceUri, BSymbol owner) {
-        super(SymTag.XMLNS, prefix, new BNoType(TypeTags.XMLNS), owner);
-        this.namespaceUri = namespaceUri;
-    }
+    public String namespaceURI;
 
+    public BXMLNSSymbol(Name prefix, String namespaceURI, BSymbol owner) {
+        super(SymTag.XMLNS, 0, prefix, new BNoType(TypeTags.XMLNS), owner);
+        this.namespaceURI = namespaceURI;
+    }
+    
     @Override
     public Object getConstValue() {
         return null;
-    }
-    
-    public BLangExpression getNamespaceUri() {
-        return namespaceUri;
     }
 }

@@ -17,11 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.ActionSymbolName;
-import org.ballerinalang.model.FunctionSymbolName;
-import org.ballerinalang.model.NativeScope;
-import org.ballerinalang.model.NativeUnit;
-import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -30,9 +25,8 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeSignature;
-import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -89,12 +83,7 @@ import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
  */
 public class ProgramFileReader {
 
-    private NativeScope nativeScope;
     private ProgramFile programFile;
-
-    public ProgramFileReader() {
-        this.nativeScope = NativeScope.getInstance();
-    }
 
     private List<ConstantPoolEntry> unresolvedCPEntries = new ArrayList<>();
 
@@ -474,18 +463,13 @@ public class ProgramFileReader {
                 readWorkerInfoEntries(dataInStream, packageInfo, actionInfo);
 
                 if (nativeAction) {
-                    ActionSymbolName nativeActionSymName =
-                            LangModelUtils.getNativeActionSymName(actionInfo.getName(),
-                                    actionInfo.getConnectorInfo().getName(),
-                                    actionInfo.getPkgPath(), actionInfo.getParamTypes());
-                    BLangSymbol actionSymbol = nativeScope.resolve(nativeActionSymName);
-                    if (actionSymbol == null) {
+                    AbstractNativeAction nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
+                            actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
+                    if (nativeActionObj == null) {
                         throw new BLangRuntimeException("native action not available " +
                                 actionInfo.getPkgPath() + ":" + actionName);
                     }
-
-                    NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
-                    actionInfo.setNativeAction((AbstractNativeAction) nativeUnit);
+                    actionInfo.setNativeAction(nativeActionObj);
                 }
 
                 // Read attributes of the struct info
@@ -504,6 +488,8 @@ public class ProgramFileReader {
                     BType bType = getBTypeFromDescriptor(typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
+            default:
+                break;
             }
         }
     }
@@ -660,18 +646,14 @@ public class ProgramFileReader {
         readWorkerInfoEntries(dataInStream, packageInfo, functionInfo);
 
         if (nativeFunc) {
-            FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(functionInfo.getName(),
-                    functionInfo.getPkgPath(), functionInfo.getParamTypes());
-            BLangSymbol functionSymbol = nativeScope.resolve(symbolName);
-            if (functionSymbol == null) {
+            AbstractNativeFunction nativeFunction = NativeUnitLoader.getInstance().loadNativeFunction(
+                    functionInfo.getPkgPath(), functionInfo.getName());
+            if (nativeFunction == null) {
                 throw new BLangRuntimeException("native function not available " +
                         functionInfo.getPkgPath() + ":" + funcNameUTF8Entry.getValue());
             }
-
-            NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
-            functionInfo.setNativeFunction((AbstractNativeFunction) nativeUnit);
+            functionInfo.setNativeFunction(nativeFunction);
         }
-
 
         // Read attributes
         readAttributeInfoEntries(dataInStream, packageInfo, functionInfo);
@@ -1522,6 +1504,8 @@ public class ProgramFileReader {
                     BType bType = getBTypeFromDescriptor(typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
+            default:
+                break;
             }
         }
     }

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -26,7 +27,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 
 /**
  * @since 0.94
@@ -86,6 +89,14 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createResourceActionSymbolEnv(BLangNode node,
+                                                    SymbolEnv pkgEnv,
+                                                    Scope scope) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        pkgEnv.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
     public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = block.scope;
@@ -105,7 +116,7 @@ public class SymbolEnv {
         symbolEnv.enclVarSym = enclVarSym;
         return symbolEnv;
     }
-    
+
     public static SymbolEnv getXMLElementEnv(BLangXMLElementLiteral node, SymbolEnv env) {
         Scope scope = node.scope;
         if (scope == null) {
@@ -116,10 +127,30 @@ public class SymbolEnv {
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
-    
+
     public static SymbolEnv getXMLAttributeEnv(BLangXMLAttribute node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
+
+    public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
+        env.copyTo(symbolEnv);
+        if (env.node.getKind() == NodeKind.FUNCTION) {
+            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
+        }
+        return symbolEnv;
+    }
+    
+    public static SymbolEnv createFolkJoinEnv(BLangForkJoin forkJoin, SymbolEnv env) {
+        Scope scope = new Scope(env.scope.owner);
+        SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
+        env.copyTo(symbolEnv);
+        if (env.node.getKind() == NodeKind.FUNCTION) {
+            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
+        }
+        return symbolEnv;
+    }
+    
 }

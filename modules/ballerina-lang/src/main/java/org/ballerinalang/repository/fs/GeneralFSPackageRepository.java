@@ -22,10 +22,11 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
+import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +48,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID) {
         Path path = this.generatePath(pkgID);
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
         return new FSPackageSource(pkgID, path);
@@ -55,7 +56,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
         Path path = this.generatePath(pkgID);
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
         return new FSPackageSource(pkgID, path, entryName);
@@ -73,16 +74,16 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     @Override
     public PackageEntity loadPackage(PackageID pkgID, String entryName) {
-        PackageEntity result = null;
-        //TODO check compiled packages first
-        if (result == null) {
-            result = this.lookupPackageSource(pkgID, entryName);
-        }
+        PackageEntity result = this.lookupPackageSource(pkgID, entryName);
         return result;
     }
 
     private Path generatePath(PackageID pkgID) {
-        return this.basePath.resolve(pkgID.getPackageName().getValue().replace('.', File.separatorChar));
+        Path pkgDirPath = this.basePath;
+        for (Name comp : pkgID.getNameComps()) {
+            pkgDirPath = pkgDirPath.resolve(comp.value);
+        }
+        return pkgDirPath;
     }
 
     /**

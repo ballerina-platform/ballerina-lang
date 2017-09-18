@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,14 +37,14 @@ public class BLangStruct extends BLangNode implements StructNode {
 
     public BLangIdentifier name;
     public List<BLangVariable> fields;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
 
     public BSymbol symbol;
 
     public BLangStruct() {
         this.fields = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
     }
 
@@ -65,7 +65,7 @@ public class BLangStruct extends BLangNode implements StructNode {
 
     @Override
     public Set<Flag> getFlags() {
-        return flags;
+        return flagSet;
     }
 
     @Override

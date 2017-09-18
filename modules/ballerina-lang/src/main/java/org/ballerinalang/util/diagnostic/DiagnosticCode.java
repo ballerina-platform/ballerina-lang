@@ -24,20 +24,46 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    INCOMPATIBLE_TYPES("incompatible.types"),
-    UNKNOWN_TYPE("unknown.type"),
+    UNDEFINED_PACKAGE("undefined.package"),
+    UNUSED_IMPORT_PACKAGE("unused.import.package"),
+    REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
+    UNDEFINED_FUNCTION("undefined.function"),
+    UNDEFINED_CONNECTOR("undefined.connector"),
+    UNDEFINED_ACTION("undefined.action"),
+    UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+
+    INCOMPATIBLE_TYPES("incompatible.types"),
+    UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
     SELF_REFERENCE_VAR("self.reference.var"),
-    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
+    INVALID_WORKER_SEND_POSITION("invalid.worker.send.position"),
+    INVALID_WORKER_RECEIVE_POSITION("invalid.worker.receive.position"),
+    UNDEFINED_WORKER("undefined.worker"),
+    INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
+    
+    FUNCTION_MUST_RETURN("function.must.return"),
+    UNREACHABLE_CODE("unreachable.code"),
+    DEAD_CODE("dead.code"),
+    NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
-    
+
+    INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
+    ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
+    INVALID_FIELD_NAME_STRUCT_LITERAL("invalid.field.name.struct.lit"),
+
+    NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
+    TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
+    ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
+    MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
+    DOES_NOT_RETURN_VALUE("does.not.return.value"),
+
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags")
     ;

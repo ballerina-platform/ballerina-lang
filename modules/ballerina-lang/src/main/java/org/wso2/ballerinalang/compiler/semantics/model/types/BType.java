@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,23 @@ public class BType implements ValueType {
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
         this.tsymbol = tsymbol;
+    }
+
+    public String getDesc() {
+        switch (tag) {
+            case INT:
+                return TypeDescriptor.SIG_INT;
+            case FLOAT:
+                return TypeDescriptor.SIG_FLOAT;
+            case STRING:
+                return TypeDescriptor.SIG_STRING;
+            case BOOLEAN:
+                return TypeDescriptor.SIG_BOOLEAN;
+            case BLOB:
+                return TypeDescriptor.SIG_BLOB;
+            default:
+                return null;
+        }
     }
 
     public List<BType> getReturnTypes() {
@@ -68,5 +87,15 @@ public class BType implements ValueType {
     @Override
     public String toString() {
         return getKind().typeName();
+    }
+
+    protected String getQualifiedTypeName() {
+        String typeName;
+        if (tsymbol.pkgName == Names.EMPTY) {
+            typeName = tsymbol.name.getValue();
+        } else {
+            typeName = tsymbol.pkgName + ":" + tsymbol.name;
+        }
+        return typeName;
     }
 }

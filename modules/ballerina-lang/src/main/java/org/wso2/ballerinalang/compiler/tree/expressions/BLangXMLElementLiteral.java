@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     public List<XMLAttributeNode> attributes;
     public List<ExpressionNode> children;
     public Map<String, BLangExpression> namespaces;
-    public ExpressionNode defaultNamespaceUri;
+    public BSymbol defaultNsSymbol;
     public boolean isRoot;
     public Scope scope;
     

@@ -29,6 +29,7 @@ public enum SymbolKind {
     SERVICE,
     RESOURCE,
     FUNCTION,
+    WORKER,
     ANNOTATION,
     CONSTANT,
     PACKAGE_VARIABLE,

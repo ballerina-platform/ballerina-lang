@@ -17,13 +17,12 @@
 */
 package org.ballerinalang.model.elements;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+import java.util.stream.Collectors;
 
 /**
  * This represents a specific package and its version.
@@ -32,70 +31,35 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  */
 public class PackageID {
 
-    public static final PackageID EMPTY = new PackageID(Names.EMPTY, Names.EMPTY);
+    public static final PackageID EMPTY = new PackageID(Lists.of(Names.EMPTY), Names.EMPTY);
 
-    private List<IdentifierNode> nameComps;
+    public List<Name> nameComps = Lists.of(Names.EMPTY);
+    public Name name = Names.EMPTY;
+    public Name version = Names.DEFAULT_VERSION;
 
-    private IdentifierNode versionNode;
-
-    public Name name;
-    
-    public Name version;
-
-    public PackageID(List<IdentifierNode> nameComps, IdentifierNode version) {
+    public PackageID(List<Name> nameComps, Name version) {
         this.nameComps = nameComps;
-        this.versionNode = version;
-        this.populateNameCompsAsString();
-        this.version = version != null ? new Name(version.getValue()) : DEFAULT_VERSION;
-    }
-
-    public PackageID(Name name, Name version) {
-        this.name = name;
+        this.name = new Name(
+                nameComps.stream()
+                        .map(Name::getValue)
+                        .collect(Collectors.joining(".")));
         this.version = version;
     }
 
-    public Name getPackageName() {
+    public Name getName() {
         return name;
+    }
+
+    public Name getNameComp(int index) {
+        return nameComps.get(index);
+    }
+
+    public List<Name> getNameComps() {
+        return nameComps;
     }
 
     public Name getPackageVersion() {
         return version;
-    }
-
-    public List<IdentifierNode> getNameComps() {
-        return nameComps;
-    }
-
-    private void populateNameCompsAsString() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < this.nameComps.size(); i++) {
-            if (i > 0) {
-                builder.append('.');
-            }
-            builder.append(this.nameComps.get(i).getValue());
-        }
-        this.name = new Name(builder.toString());
-    }
-
-    public IdentifierNode getVersion() {
-        return versionNode;
-    }
-
-    public void setNameComps(List<IdentifierNode> nameComps) {
-        this.nameComps = nameComps;
-        this.populateNameCompsAsString();
-    }
-
-    public void setVersion(IdentifierNode version) {
-        this.versionNode = version;
-    }
-
-    public int getNameCompCount() {
-        return this.nameComps.size();
-    }
-
-    public IdentifierNode getNameComponent(int index) {
-        return this.nameComps.get(index);
     }
 
     @Override
@@ -109,12 +73,12 @@ public class PackageID {
         }
 
         PackageID packageID = (PackageID) o;
-        return name.equals(packageID.name) && version.equals(packageID.version);
+        return nameComps.equals(packageID.nameComps) && version.equals(packageID.version);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
+        int result = nameComps.hashCode();
         result = 31 * result + version.hashCode();
         return result;
     }
@@ -123,5 +87,4 @@ public class PackageID {
     public String toString() {
         return this.name + "[" + this.version + "]";
     }
-    
 }

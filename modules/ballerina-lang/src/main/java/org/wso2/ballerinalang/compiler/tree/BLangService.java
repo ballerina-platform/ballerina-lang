@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -28,7 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,18 +42,19 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangIdentifier protocolPkgIdentifier;
     public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public BLangFunction initFunction;
 
     public BSymbol symbol;
 
     public BLangService() {
         this.vars = new ArrayList<>();
         this.resources = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
     }
-    
+
     @Override
     public BLangIdentifier getName() {
         return name;
@@ -94,6 +96,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
+    public void setInitFunction(FunctionNode function) {
+        this.initFunction = (BLangFunction) function;
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
+    }
+
+    @Override
     public Set<Flag> getFlags() {
         return null;
     }
@@ -125,7 +137,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flags + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
                 + vars + " " + resources;
     }
 }

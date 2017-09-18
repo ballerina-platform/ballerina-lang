@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -29,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -41,6 +41,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
@@ -78,6 +80,8 @@ public class SymbolTable {
 
     public final BStructType errStructType;
     public final BTypeSymbol errStructSymbol;
+    public final BStructType stackFrameType;
+    public final BTypeSymbol stackFrameSymbol;
 
     private Names names;
 
@@ -99,11 +103,11 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(PackageID.EMPTY, null);
+        this.rootPkgSymbol = new BPackageSymbol(Names.EMPTY, Names.EMPTY, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
-        this.notFoundSymbol = new BSymbol(SymTag.NIL, Names.INVALID, noType, rootPkgSymbol);
+        this.notFoundSymbol = new BSymbol(SymTag.NIL, 0, Names.INVALID, noType, rootPkgSymbol);
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
@@ -120,13 +124,28 @@ public class SymbolTable {
 
         // Initialize error type;
         this.errType = new BErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.ERROR, Names.INVALID, errType, rootPkgSymbol);
+        this.errSymbol = new BTypeSymbol(SymTag.ERROR, 0, Names.INVALID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
 
-        // Initialize builtin error struct type
+        // Initialize builtin error struct type and stackFrame struct.
+        BStructType.BStructField callerField = new BStructType.BStructField(Names.CALLER, stringType);
+        BStructType.BStructField packageField = new BStructType.BStructField(Names.PACKAGE, stringType);
+        BStructType.BStructField fileNameField = new BStructType.BStructField(Names.FILE_NAME, stringType);
+        BStructType.BStructField lineNumberField = new BStructType.BStructField(Names.LINE_NUMBER, intType);
+        this.stackFrameType = new BStructType(null,
+                Lists.of(callerField, packageField, fileNameField, lineNumberField));
+        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME,
+                this.stackFrameType, rootPkgSymbol);
+        defineType(stackFrameType, stackFrameSymbol);
+
+
         BStructType.BStructField msgField = new BStructType.BStructField(Names.MSG, stringType);
         this.errStructType = new BStructType(null, Lists.of(msgField));
-        this.errStructSymbol = Symbols.createStructSymbol(Names.ERROR, this.errStructType, rootPkgSymbol);
+        BStructType.BStructField causeField = new BStructType.BStructField(Names.CAUSE, this.errStructType);
+        BStructType.BStructField stackTraceField = new BStructType.BStructField(Names.STACK_TRACE,
+                new BArrayType(stackFrameType));
+        this.errStructType.fields = Lists.of(msgField, causeField, stackTraceField);
+        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.errStructType, rootPkgSymbol);
         defineType(errStructType, errStructSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
@@ -163,7 +182,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, name, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, 0, name, type, rootPkgSymbol));
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
@@ -173,14 +192,14 @@ public class SymbolTable {
 
     private void defineOperators() {
         // Binary operator symbols
-        defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, -1);
-        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, -1);
-        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, -1);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
+        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
+        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
 
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);
@@ -242,7 +261,6 @@ public class SymbolTable {
                                       int opcode) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         List<BType> retTypes = Lists.of(retType);
-        retTypes.add(retType);
         defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
     }
 

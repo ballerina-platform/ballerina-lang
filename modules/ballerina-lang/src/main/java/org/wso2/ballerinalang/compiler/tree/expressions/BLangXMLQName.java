@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -32,8 +33,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
 
     public BLangIdentifier localname;
-    public BLangExpression namespaceUri;
     public BLangIdentifier prefix;
+    public String namespaceURI;
+    public BSymbol nsSymbol;
 
     @Override
     public BLangIdentifier getLocalname() {
@@ -47,12 +49,12 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
 
     @Override
     public BLangExpression getNamespaceUri() {
-        return namespaceUri;
+        return null;
     }
 
     @Override
     public void setNamespaceUri(ExpressionNode namespaceUri) {
-        this.namespaceUri = (BLangExpression) namespaceUri;
+//        this.namespaceUri = (BLangExpression) namespaceUri;
     }
 
     @Override
@@ -67,8 +69,7 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
 
     @Override
     public String toString() {
-        return "BLangXMLQName: " + (namespaceUri == null ? "" : "(" + namespaceUri + ") ") +
-                (prefix == null ? "" : "(" + prefix + ") ") + localname;
+        return "BLangXMLQName: " + (prefix == null ? "" : "(" + prefix + ") ") + localname;
     }
 
     @Override

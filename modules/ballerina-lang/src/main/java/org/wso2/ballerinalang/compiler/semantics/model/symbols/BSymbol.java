@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,9 @@ import java.util.Set;
 public class BSymbol implements Symbol {
 
     public int tag;
+    public int flags;
     public Name name;
+    public Name pkgName = Names.EMPTY;
     public SymbolKind kind;
     public BType type;
     public BSymbol owner;
@@ -44,8 +47,9 @@ public class BSymbol implements Symbol {
      */
     public Scope scope;
 
-    public BSymbol(int tag, Name name, BType type, BSymbol owner) {
+    public BSymbol(int tag, int flags, Name name, BType type, BSymbol owner) {
         this.tag = tag;
+        this.flags = flags;
         this.name = name;
         this.type = type;
         this.owner = owner;
@@ -79,5 +83,10 @@ public class BSymbol implements Symbol {
     @Override
     public List<BSymbol> getEnclosedSymbols() {
         return new ArrayList<>(0);
+    }
+
+    @Override
+    public String toString() {
+        return name.toString();
     }
 }

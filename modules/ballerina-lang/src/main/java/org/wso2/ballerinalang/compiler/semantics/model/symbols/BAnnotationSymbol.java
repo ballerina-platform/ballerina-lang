@@ -34,7 +34,7 @@ public class BAnnotationSymbol extends BSymbol implements AnnotationSymbol {
     public List<BAnnotationAttributeSymbol> attributes;
 
     public BAnnotationSymbol(Name name, BType type, BSymbol owner) {
-        super(ANNOTATION, name, type, owner);
+        super(ANNOTATION, 0, name, type, owner);
         attributes = new ArrayList<>();
     }
 
