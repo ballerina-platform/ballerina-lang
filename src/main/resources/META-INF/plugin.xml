@@ -177,6 +177,8 @@
                              dynamic="true"/>
         <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaCodeInsightSettings"/>
+        <projectStructureDetector implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
+
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaFoldingBuilder"/>
 

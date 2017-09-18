@@ -41,15 +41,26 @@ public class BallerinaTypes {
     public static final TokenIElementType IDENTIFIER = tokenIElementTypes.get(BallerinaLexer.Identifier);
     public static final TokenIElementType COMMENT_STATEMENT = tokenIElementTypes.get(BallerinaLexer.LINE_COMMENT);
     public static final TokenIElementType QUOTED_STRING = tokenIElementTypes.get(BallerinaLexer.QuotedStringLiteral);
-    public static final TokenIElementType BACKTICKED_STRING =
-            tokenIElementTypes.get(BallerinaLexer.BacktickStringLiteral);
     public static final TokenIElementType FLOATING_POINT = tokenIElementTypes.get(BallerinaLexer.FloatingPointLiteral);
     public static final TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
     public static final TokenIElementType ERRCHAR = tokenIElementTypes.get(BallerinaLexer.ERRCHAR);
     public static final TokenIElementType DOUBLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.DOUBLEQUOTE);
     public static final TokenIElementType BACK_TICK = tokenIElementTypes.get(BallerinaLexer.BACKTICK);
+
     public static final TokenIElementType STRING_TEMPLATE_LITERAL_START =
             tokenIElementTypes.get(BallerinaLexer.StringTemplateLiteralStart);
+    public static final TokenIElementType STRING_TEMPLATE_EXPRESSION_START =
+            tokenIElementTypes.get(BallerinaLexer.StringTemplateExpressionStart);
+    public static final TokenIElementType STRING_TEMPLATE_TEXT =
+            tokenIElementTypes.get(BallerinaLexer.StringTemplateText);
+
+    public static final TokenIElementType XML_START = tokenIElementTypes.get(BallerinaLexer.XMLStart);
+    public static final TokenIElementType XML_EXPRESSION_START =
+            tokenIElementTypes.get(BallerinaLexer.XMLExpressionStart);
+    public static final TokenIElementType XML_TEXT = tokenIElementTypes.get(BallerinaLexer.XMLText);
+
+    public static final TokenIElementType EXPRESSION_END =
+            tokenIElementTypes.get(BallerinaLexer.ExpressionEnd);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
 

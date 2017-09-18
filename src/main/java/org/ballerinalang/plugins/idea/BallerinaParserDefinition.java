@@ -92,6 +92,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
+import org.ballerinalang.plugins.idea.psi.StringTemplateContentNode;
 import org.ballerinalang.plugins.idea.psi.StringTemplateLiteralNode;
 import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
@@ -120,6 +121,7 @@ import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
+import org.ballerinalang.plugins.idea.psi.XmlContentNode;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
@@ -317,8 +319,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new MapStructKeyValueNode(node);
             case BallerinaParser.RULE_forkJoinStatement:
                 return new ForkJoinStatementNode(node);
-            case BallerinaParser.RULE_workerInteractionStatement:
-                return new WorkerInterationStatementNode(node);
             case BallerinaParser.RULE_returnStatement:
                 return new ReturnStatementNode(node);
             case BallerinaParser.RULE_throwStatement:
@@ -379,10 +379,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new SourceNotationNode(node);
             case BallerinaParser.RULE_stringTemplateLiteral:
                 return new StringTemplateLiteralNode(node);
+            case BallerinaParser.RULE_stringTemplateContent:
+                return new StringTemplateContentNode(node);
             case BallerinaParser.RULE_typeCast:
                 return new TypeCastNode(node);
             case BallerinaParser.RULE_typeConversion:
                 return new TypeConversionNode(node);
+            case BallerinaParser.RULE_xmlContent:
+                return new XmlContentNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

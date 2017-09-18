@@ -224,7 +224,7 @@ statement
     |   throwStatement
     |   returnStatement
     |   replyStatement
-    |   workerInteractionStatement
+    |   (triggerWorker | workerReply)
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
@@ -350,8 +350,8 @@ joinClause
     ;
 
 joinConditions
-    :   SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
-    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
+    :   SOME IntegerLiteral (workerReference (COMMA workerReference)*)?     # anyJoinCondition
+    |   ALL (workerReference (COMMA workerReference)*)?                     # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -389,20 +389,15 @@ replyStatement
     :   REPLY expression SEMICOLON
     ;
 
-workerInteractionStatement
-    :   triggerWorker
-    |   workerReply
-    ;
-
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
-    :   variableReference (COMMA variableReference)* RARROW Identifier SEMICOLON #invokeWorker
-    |   variableReference (COMMA variableReference)* RARROW FORK SEMICOLON     #invokeFork
+    :   expressionList RARROW workerReference SEMICOLON #invokeWorker
+    |   expressionList RARROW FORK SEMICOLON     #invokeFork
     ;
 
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
-    :   variableReference (COMMA variableReference)* LARROW Identifier SEMICOLON
+    :   expressionList LARROW workerReference SEMICOLON
     ;
 
 commentStatement
@@ -539,6 +534,10 @@ structReference
     :   (packageName COLON)? Identifier
     ;
 
+workerReference
+    :   Identifier
+    ;
+
 returnParameters
     : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
     ;
@@ -570,7 +569,16 @@ simpleLiteral
 // XML parsing
 
 xmlLiteral
-    :   TYPE_XML BacktickStringLiteral
+    :   XMLStart xmlContent? XMLEnd
+    ;
+
+xmlContent
+    :   (XMLExpressionStart expression ExpressionEnd)+ xmlText?
+    |   xmlText
+    ;
+
+xmlText
+    :   XMLText
     ;
 
 stringTemplateLiteral

@@ -26,7 +26,6 @@ import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
@@ -35,7 +34,6 @@ import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
@@ -61,27 +59,27 @@ public class PackageNameReference extends BallerinaElementReference implements P
         FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getParentOfType(identifier,
                 FullyQualifiedPackageNameNode.class);
 
-        List<LookupElement> results = new ArrayList<>();
-
-        if (fullyQualifiedPackageNameNode == null) {
-            PsiFile containingFile = identifier.getContainingFile();
-            PsiFile originalFile = containingFile.getOriginalFile();
-
-            // We don't need to add ':' at the end of the package name in SourceNotationNode.
-            InsertHandler<LookupElement> importedPackagesInsertHandler =
-                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-            InsertHandler<LookupElement> unImportedPackagesInsertHandler =
-                    AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-            SourceNotationNode sourceNotationNode = PsiTreeUtil.getParentOfType(identifier, SourceNotationNode.class);
-            if (sourceNotationNode != null) {
-                importedPackagesInsertHandler = null;
-                unImportedPackagesInsertHandler = AutoImportInsertHandler.INSTANCE;
-            }
-
-            List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
-                    importedPackagesInsertHandler, true, unImportedPackagesInsertHandler);
-            results.addAll(packages);
+        if (fullyQualifiedPackageNameNode != null) {
+            return new LookupElement[0];
         }
+        List<LookupElement> results = new ArrayList<>();
+        PsiFile containingFile = identifier.getContainingFile();
+        PsiFile originalFile = containingFile.getOriginalFile();
+
+        // We don't need to add ':' at the end of the package name in SourceNotationNode.
+        InsertHandler<LookupElement> importedPackagesInsertHandler =
+                PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+        InsertHandler<LookupElement> unImportedPackagesInsertHandler =
+                AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+        SourceNotationNode sourceNotationNode = PsiTreeUtil.getParentOfType(identifier, SourceNotationNode.class);
+        if (sourceNotationNode != null) {
+            importedPackagesInsertHandler = null;
+            unImportedPackagesInsertHandler = AutoImportInsertHandler.INSTANCE;
+        }
+
+        List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
+                importedPackagesInsertHandler, true, unImportedPackagesInsertHandler);
+        results.addAll(packages);
         return results.toArray(new LookupElement[results.size()]);
     }
 
@@ -89,107 +87,99 @@ public class PackageNameReference extends BallerinaElementReference implements P
     @Override
     public PsiElement resolve() {
         ResolveResult[] resolveResults = multiResolve(false);
-        if (resolveResults.length == 0) {
-            IdentifierPSINode identifier = getElement();
-            return BallerinaPsiImplUtil.getNamespaceDefinition(identifier);
-        } else {
+        if (resolveResults.length != 0) {
             return resolveResults.length == 1 ? resolveResults[0].getElement() : null;
         }
+
+        IdentifierPSINode identifier = getElement();
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                TopLevelDefinition.class, LowerLevelDefinition.class);
+        if (scope == null) {
+            return null;
+        }
+        int caretOffset = identifier.getStartOffset();
+        List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope, caretOffset);
+        for (PsiElement namespace : namespaces) {
+            if (namespace == null || namespace.getText().isEmpty()) {
+                continue;
+            }
+            if (namespace.getText().equals(identifier.getText())) {
+                return namespace;
+            }
+        }
+        return null;
     }
 
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        List<ResolveResult> results = new ArrayList<>();
         IdentifierPSINode identifier = getElement();
         if (identifier == null) {
             return new ResolveResult[0];
         }
-
         AliasNode aliasNode = PsiTreeUtil.getParentOfType(identifier, AliasNode.class);
+        if (aliasNode != null) {
+            return new ResolveResult[0];
+        }
 
-        if (aliasNode == null) {
-
-            ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
-                    ImportDeclarationNode.class);
-            if (importDeclarationNode != null) {
-                List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(identifier);
-                for (PsiDirectory directory : directories) {
-                    results.add(new PsiElementResolveResult(directory));
-                }
-                // Return the results.
-                return results.toArray(new ResolveResult[results.size()]);
+        List<ResolveResult> results = new ArrayList<>();
+        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
+                ImportDeclarationNode.class);
+        if (importDeclarationNode != null) {
+            List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(identifier);
+            for (PsiDirectory directory : directories) {
+                results.add(new PsiElementResolveResult(directory));
             }
+            // Return the results.
+            return results.toArray(new ResolveResult[results.size()]);
+        }
 
-            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
-                    PackageDeclarationNode.class);
-            if (packageDeclarationNode != null) {
-                // If this is a package declaration, resolve the directory.
-                List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(identifier);
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
+                PackageDeclarationNode.class);
+        if (packageDeclarationNode != null) {
+            // If this is a package declaration, resolve the directory.
+            List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(identifier);
 
-                for (PsiDirectory directory : directories) {
-                    results.add(new PsiElementResolveResult(directory));
-                }
-                // Return the results.
-                return results.toArray(new ResolveResult[results.size()]);
+            for (PsiDirectory directory : directories) {
+                results.add(new PsiElementResolveResult(directory));
             }
+            // Return the results.
+            return results.toArray(new ResolveResult[results.size()]);
+        }
 
-            PsiFile containingFile = identifier.getContainingFile();
-            if (containingFile == null) {
-                return new ResolveResult[0];
+        PsiFile containingFile = identifier.getContainingFile();
+        if (containingFile == null) {
+            return new ResolveResult[0];
+        }
+
+        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackagesInCurrentFile(containingFile);
+        for (PsiElement importedPackage : importedPackages) {
+            String packageName = importedPackage.getText();
+            if (packageName == null || packageName.isEmpty()) {
+                continue;
             }
-
-            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackagesInCurrentFile(containingFile);
-            for (PsiElement importedPackage : importedPackages) {
-                String packageName = importedPackage.getText();
-                if (packageName == null || packageName.isEmpty()) {
-                    continue;
-                }
-                if (packageName.equals(identifier.getText())) {
-                    PsiReference reference = importedPackage.findReferenceAt(0);
-                    if (reference != null) {
-                        PsiElement resolvedElement = reference.resolve();
-                        if (resolvedElement != null) {
-                            results.add(new PsiElementResolveResult(resolvedElement));
-                        }
+            if (packageName.equals(identifier.getText())) {
+                PsiReference reference = importedPackage.findReferenceAt(0);
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null) {
+                        results.add(new PsiElementResolveResult(resolvedElement));
                     }
                 }
             }
+        }
 
-            importedPackages = BallerinaPsiImplUtil.getPackagesImportedAsAliasInCurrentFile(containingFile);
-            for (PsiElement importedPackage : importedPackages) {
-                String packageName = importedPackage.getText();
-                if (packageName == null || packageName.isEmpty()) {
-                    continue;
+        importedPackages = BallerinaPsiImplUtil.getPackagesImportedAsAliasInCurrentFile(containingFile);
+        for (PsiElement importedPackage : importedPackages) {
+            String packageName = importedPackage.getText();
+            if (packageName == null || packageName.isEmpty()) {
+                continue;
+            }
+            if (packageName.equals(identifier.getText())) {
+                IdentifierPSINode nameNode = PsiTreeUtil.findChildOfType(importedPackage, IdentifierPSINode.class);
+                if (nameNode != null) {
+                    results.add(new PsiElementResolveResult(nameNode));
                 }
-                if (packageName.equals(identifier.getText())) {
-                    results.add(new PsiElementResolveResult(importedPackage));
-                }
-            }
-        } else {
-            ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(identifier,
-                    ImportDeclarationNode.class);
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
-                    PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode.class);
-            if (fullyQualifiedPackageNameNode == null) {
-                return new ResolveResult[0];
-            }
-            PackageNameNode[] packageNameNodes =
-                    PsiTreeUtil.getChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class);
-            if (packageNameNodes == null) {
-                return new ResolveResult[0];
-            }
-            PackageNameNode lastElement = ArrayUtil.getLastElement(packageNameNodes);
-            if (lastElement == null) {
-                return new ResolveResult[0];
-            }
-            PsiElement packageName = lastElement.getNameIdentifier();
-            if (!(packageName instanceof IdentifierPSINode)) {
-                return new ResolveResult[0];
-            }
-            List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(((IdentifierPSINode) packageName));
-            for (PsiDirectory directory : directories) {
-                results.add(new PsiElementResolveResult(directory));
             }
         }
         return results.toArray(new ResolveResult[results.size()]);
