@@ -39,7 +39,7 @@ import java.net.URL;
 /**
  * Test cases to check the Protocol switch from HTTP to WebSocket.
  */
-public class HttpToWsProtocolSwitchTestCase {
+public class HttpToWsProtocolSwitchTestCase extends WebSocketTestCase {
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.TEST_DEFAULT_INTERFACE_PORT));

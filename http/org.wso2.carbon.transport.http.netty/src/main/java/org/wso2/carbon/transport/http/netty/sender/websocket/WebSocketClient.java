@@ -20,7 +20,8 @@
 package org.wso2.carbon.transport.http.netty.sender.websocket;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -41,6 +42,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 
@@ -49,7 +51,6 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
-import javax.websocket.Session;
 
 /**
  * WebSocket client for sending and receiving messages in WebSocket as a client.
@@ -58,10 +59,8 @@ public class WebSocketClient {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private Channel channel;
     private WebSocketTargetHandler handler;
     private EventLoopGroup group;
-    private boolean handshakeDone = false;
 
     private final String url;
     private final String subProtocols;
@@ -92,12 +91,13 @@ public class WebSocketClient {
     /**
      * Handle the handshake with the server.
      *
-     * @return Session {@link Session} which is created for the channel.
+     * @param handshakeFuture Handshake future for the connecting client.
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      * @throws SSLException throws if SSL exception occurred during protocol negotiation.
      */
-    public Session handshake() throws InterruptedException, URISyntaxException, SSLException {
+    public void handshake(HandshakeFuture handshakeFuture)
+            throws InterruptedException, URISyntaxException, SSLException {
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
@@ -143,6 +143,7 @@ public class WebSocketClient {
                 uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
         handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
 
+
         try {
             Bootstrap b = new Bootstrap();
             b.group(group)
@@ -165,16 +166,20 @@ public class WebSocketClient {
                         }
                     });
 
-            channel = b.connect(uri.getHost(), port).sync().channel();
-            handler.handshakeFuture().sync();
-            WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
-            String actualSubProtocol = websocketHandshaker.actualSubprotocol();
-            handler.setActualSubProtocol(actualSubProtocol);
-            session.setNegotiatedSubProtocol(actualSubProtocol);
-            session.setIsOpen(true);
-            return session;
+            b.connect(uri.getHost(), port).sync();
+            handler.handshakeFuture().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) {
+                    WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
+                    String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+                    handler.setActualSubProtocol(actualSubProtocol);
+                    session.setNegotiatedSubProtocol(actualSubProtocol);
+                    session.setIsOpen(true);
+                    handshakeFuture.notifySuccess(session);
+                }
+            }).sync();
         } catch (Throwable t) {
-            throw new InterruptedException("Couldn't connect to the remote server.");
+            handshakeFuture.notifyError(t);
         }
     }
 }
