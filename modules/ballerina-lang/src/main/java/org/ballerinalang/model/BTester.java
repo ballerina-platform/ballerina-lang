@@ -38,11 +38,12 @@ public class BTester {
 
     public static void main(String[] args) throws Exception {
         // -sorceroot == current directory
+        System.setProperty("user.dir", "/home/djkevincr");
 
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
 //        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/test");
         options.put(COMPILER_PHASE, "typeCheck");
         options.put(PRESERVE_WHITESPACE, "true");
 

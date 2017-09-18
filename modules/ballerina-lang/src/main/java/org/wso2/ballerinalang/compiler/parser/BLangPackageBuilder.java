@@ -619,7 +619,7 @@ public class BLangPackageBuilder {
     public void createUnaryExpr(DiagnosticPos pos, String operator) {
         BLangUnaryExpr unaryExpressionNode = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         unaryExpressionNode.pos = pos;
-        unaryExpressionNode.expressionNode = exprNodeStack.pop();
+        unaryExpressionNode.expressionNode = (BLangExpression) exprNodeStack.pop();
         unaryExpressionNode.operator = OperatorKind.valueFrom(operator);
         addExpressionNode(unaryExpressionNode);
     }

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -200,6 +201,10 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.SUB, intType, intType, -1);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, -1);
+
+        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, -1);
+        defineUnaryOperator(OperatorKind.LENGTHOF, new BArrayType(noType), intType, -1);
+        defineUnaryOperator(OperatorKind.TYPEOF, noType, typeType, -1);
 
         defineCastOperators();
     }

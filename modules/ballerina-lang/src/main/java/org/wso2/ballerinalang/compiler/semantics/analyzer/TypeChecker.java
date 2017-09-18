@@ -205,7 +205,19 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        throw new AssertionError();
+        BType exprType = checkExpr(unaryExpr.expressionNode, env).get(0);
+
+        BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos,
+                unaryExpr.operator, exprType);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(unaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
+                    unaryExpr.operator, exprType);
+            return;
+        }
+
+        // type check return type with the exp type
+        BOperatorSymbol opSymbol = (BOperatorSymbol) symbol;
+        resultTypes = Lists.of(checkType(unaryExpr, opSymbol.type.getReturnTypes().get(0), expTypes.get(0)));
     }
 
     public void visit(BLangTypeCastExpr castExpr) {

@@ -30,11 +30,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNode {
 
-    public ExpressionNode expressionNode;
+    public BLangExpression expressionNode;
     public OperatorKind operator;
 
     @Override
-    public ExpressionNode getExpression() {
+    public BLangExpression getExpression() {
         return expressionNode;
     }
 
