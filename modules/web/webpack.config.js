@@ -82,7 +82,7 @@ const config = [{
         new WebfontPlugin({
             files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
             css: true,
-            cssTemplateFontPath: './fonts/',
+            cssTemplateFontPath: '../fonts/',
             fontName: 'font-ballerina',
             fontHeight: 1000,
             normalize: true,
