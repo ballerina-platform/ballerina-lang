@@ -37,7 +37,6 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     public List<ExpressionNode> expressions;
     public IdentifierNode workerIdentifier;
-    public SymbolEnv env;
 
     public BLangWorkerReceive() {
         this.expressions = new ArrayList<>();

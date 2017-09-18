@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
@@ -142,6 +143,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
         analyzeStmt(funcNode.body, funcEnv);
         // Process workers
+        funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
         funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
     }
 
@@ -266,6 +268,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
+        forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, folkJoinEnv));
         forkJoin.workers.forEach(e -> this.analyzeDef(e, folkJoinEnv));
         if (!this.isJoinResultType(forkJoin.joinResultsType)) {
             this.dlog.error(forkJoin.joinResultsType.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
@@ -283,7 +286,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        this.symbolEnter.defineNode(workerNode, this.env);
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
         this.analyzeNode(workerNode.body, workerEnv);
     }
@@ -292,22 +294,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
     }
     
+    private boolean workerExists(SymbolEnv env, String workerName) {
+        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
+        return (symbol != this.symTable.notFoundSymbol);
+    }
+    
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.env = this.env;
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+        }
+        String workerName = workerSendNode.workerIdentifier.getValue();
+        if (!this.workerExists(this.env, workerName)) {
+            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.env = this.env;
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
+        String workerName = workerReceiveNode.workerIdentifier.getValue();
+        if (!this.workerExists(this.env, workerName)) {
+            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
     }
-    
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
         return analyzeNode(node, env);

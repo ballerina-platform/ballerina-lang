@@ -38,7 +38,6 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public List<ExpressionNode> expressions;
     public IdentifierNode workerIdentifier;
     public boolean isForkJoinSend;
-    public SymbolEnv env;
 
     public BLangWorkerSend() {
         this.expressions = new ArrayList<>();
