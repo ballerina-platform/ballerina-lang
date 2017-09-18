@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.event.stream;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 
 import java.io.IOException;
@@ -211,17 +212,23 @@ public class StreamEvent implements ComplexEvent {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("StreamEvent{");
-        sb.append("timestamp=").append(timestamp);
-        sb.append(", beforeWindowData=").append(beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData)
-                .toString());
-        sb.append(", onAfterWindowData=").append(onAfterWindowData == null ? "null" : Arrays.asList
-                (onAfterWindowData).toString());
-        sb.append(", outputData=").append(outputData == null ? "null" : Arrays.asList(outputData).toString());
-        sb.append(", type=").append(type);
-        sb.append(", next=").append(next);
-        sb.append('}');
-        return sb.toString();
+       return toString(100);
+    }
+
+    public String toString(int maxNoOfEventsToPrint) {
+        if(maxNoOfEventsToPrint==0){
+            return "...";
+        }
+        maxNoOfEventsToPrint = --maxNoOfEventsToPrint;
+        return "StreamEvent{ timestamp=" + timestamp +
+                ", beforeWindowData=" + (beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData)
+                .toString()) +
+                ", onAfterWindowData=" + (onAfterWindowData == null ? "null" : Arrays.asList
+                (onAfterWindowData).toString()) +
+                ", outputData=" + (outputData == null ? "null" : Arrays.asList(outputData).toString()) +
+                ", type=" + type +
+                ", next=" + next.toString(maxNoOfEventsToPrint) +
+                '}';
     }
 
     private void writeObject(ObjectOutputStream stream)
