@@ -27,7 +27,7 @@ export default class Operator extends React.Component {
         let targetPoint02 = [];
 
         const {
-            key, operator, opStmt, recordSourceElement, recordTargetElement, viewId,
+            operator, opStmt, recordSourceElement, recordTargetElement, viewId,
             parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter
         } = this.props;
 

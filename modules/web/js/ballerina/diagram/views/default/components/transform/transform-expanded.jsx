@@ -145,11 +145,8 @@ class TransformExpanded extends React.Component {
     createConnection(statement) {
         const viewId = this.props.model.getID();
 
-        if (ASTFactory.isCommentStatement(statement)) {
-            return;
-        }
-
-        if (ASTFactory.isVariableDefinitionStatement(statement)) {
+        if (ASTFactory.isCommentStatement(statement)
+            || (ASTFactory.isVariableDefinitionStatement(statement))) {
             return;
         }
 
@@ -161,9 +158,7 @@ class TransformExpanded extends React.Component {
         // There can be multiple left expressions.
         // E.g. : e.name, e.username = p.first_name;
         const leftExpression = statement.getLeftExpression();
-        const rightExpression = this.transformNodeManager
-                                    .getMappingExpression(statement.getRightExpression());
-
+        const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(statement.getRightExpression(), statement);
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
@@ -189,18 +184,20 @@ class TransformExpanded extends React.Component {
         if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
-        if (ASTFactory.isBinaryExpression(rightExpression)
-                    || ASTFactory.isUnaryExpression(rightExpression)) {
+
+        if (ASTFactory.isBinaryExpression(rightExpression)) {
             const targetId = leftExpression.getExpressionString().trim() + ':' + viewId;
-            if (ASTFactory.isBinaryExpression(rightExpression)) {
-                const leftId = rightExpression.getLeftExpression().getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
-                const rightId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(rightId, rightExpression.getID() + ':1:' + viewId);
-            } else {
-                const leftId = rightExpression.children[0].getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
-            }
+            const leftId = rightExpression.getLeftExpression().getExpressionString().trim() + ':' + viewId;
+            this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
+            const rightId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
+            this.drawConnection(rightId, rightExpression.getID() + ':1:' + viewId);
+            this.drawConnection(rightExpression.getID() + ':return:0:' + viewId, targetId);
+        }
+
+        if (ASTFactory.isUnaryExpression(rightExpression)) {
+            const targetId = leftExpression.getExpressionString().trim() + ':' + viewId;
+            const leftId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
+            this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
             this.drawConnection(rightExpression.getID() + ':return:0:' + viewId, targetId);
         }
     }
@@ -307,7 +304,8 @@ class TransformExpanded extends React.Component {
             } else {
                 let target;
                 let source;
-                expression = this.transformNodeManager.getMappingExpression(expression);
+                const { exp, isTemp} = this.transformNodeManager.getResolvedExpression(expression, statement);
+                expression = exp;
                 if (ASTFactory.isKeyValueExpression(expression.children[0])) {
                 // if parameter is a key value expression, iterate each expression and draw connections
                     _.forEach(expression.children, (propParam) => {
@@ -320,7 +318,7 @@ class TransformExpanded extends React.Component {
                         this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                     });
                 } else {
-                    expression = this.transformNodeManager.getMappingExpression(expression);
+                    // expression = this.transformNodeManager.getResolvedExpression(expression);
                     let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                     let folded = false;
                     if (!this.sourceElements[sourceId]) {
@@ -631,13 +629,11 @@ class TransformExpanded extends React.Component {
             this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
             this.transformOverlayDraggingContentDiv.classList.add('drop-valid');
         }
-        console.log(isValid);
     }
 
     onTransformDropZoneActivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model;
-        const model = this.props.model;
 
         if (dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
@@ -1026,37 +1022,53 @@ class TransformExpanded extends React.Component {
                 if (!ASTFactory.isAssignmentStatement(child)) {
                     return;
                 }
-                let rightExpression = child.getRightExpression();
-                rightExpression = this.transformNodeManager.getMappingExpression(rightExpression);
+                const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(child.getRightExpression(), child);
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
                     const funcInvs = this.findFunctionInvocations(rightExpression);
-                    funcInvs.forEach((funcDetails) => {
-                        funcDetails.assignmentStmt = child;
-                    });
-                    funcInvs.type = 'function';
-                    functions.push(...funcInvs);
+                    if (!isTemp) {
+                        // only add if the function invocation is not pre available.
+                        // this check is required for instances where the function invocations
+                        // are used via temporary variables
+                        funcInvs.type = 'function';
+                        funcInvs.forEach((funcDetails) => {
+                            funcDetails.assignmentStmt = child;
+                        });
+                        functions.push(...funcInvs);
+                    }
                 } else if (ASTFactory.isBinaryExpression(rightExpression)
                             || ASTFactory.isUnaryExpression(rightExpression)) {
                     const operatorInfo = {};
                     operatorInfo.name = rightExpression.getOperator();
                     operatorInfo.parameters = [];
                     operatorInfo.returnParams = [];
-                    operatorInfo.parameters[0] = { name: rightExpression.getID() + ':0',
+                    operatorInfo.parameters[0] = {
+                        name: rightExpression.getID() + ':0',
                         displayName: '',
-                        type: 'var' };
+                        type: 'var',
+                        operator: rightExpression,
+                        index: 0,
+                    };
                     if (ASTFactory.isBinaryExpression(rightExpression)) {
-                        operatorInfo.parameters[1] = { name: rightExpression.getID() + ':1',
+                        operatorInfo.parameters[1] = {
+                            name: rightExpression.getID() + ':1',
                             displayName: '',
-                            type: 'var' };
+                            type: 'var',
+                            operator: rightExpression,
+                            index: 1,
+                        };
                     }
-                    operatorInfo.returnParams.push({ name: rightExpression.getID() + ':return:0',
+                    operatorInfo.returnParams.push({
+                        name: rightExpression.getID() + ':return:0',
                         displayName: '',
-                        type: 'var' });
+                        type: 'var',
+                        operator: rightExpression,
+                    });
                     functions.push({ type: 'operator', operator: operatorInfo, opStmt: rightExpression });
-                 }
+                }
             });
         }
+
         return (
             <div
                 className='transformOverlay'
