@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -1038,6 +1039,15 @@ public class BLangPackageBuilder {
         BLangBreak breakNode = (BLangBreak) TreeBuilder.createBreakNode();
         breakNode.pos = pos;
         addStmtToCurrentBlock(breakNode);
+    }
+    
+    public void addReturnStatement(DiagnosticPos pos) {
+        BLangReturn retStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        retStmt.pos = pos;
+        for (ExpressionNode expr : this.exprNodeListStack.pop()) {
+            retStmt.exprs.add((BLangExpression) expr);
+        }
+        addStmtToCurrentBlock(retStmt);
     }
 
     public void startTransactionStmt() {

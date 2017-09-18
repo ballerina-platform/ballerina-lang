@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -319,6 +320,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!this.workerExists(this.env, workerName)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
+    }
+    
+    @Override
+    public void visit(BLangReturn returnNode) {
+        /* ignore */
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {

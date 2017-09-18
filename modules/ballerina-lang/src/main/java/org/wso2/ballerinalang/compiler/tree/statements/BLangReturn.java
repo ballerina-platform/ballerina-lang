@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.statements.ReturnNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +33,7 @@ public class BLangReturn extends BLangStatement implements ReturnNode {
     public List<BLangExpression> exprs;
 
     public BLangReturn() {
+        this.exprs = new ArrayList<>();
     }
 
     public BLangReturn(List<BLangExpression> exprs) {
@@ -60,6 +62,6 @@ public class BLangReturn extends BLangStatement implements ReturnNode {
 
     @Override
     public String toString() {
-        return "Retrun: " +  (this.exprs != null ? this.exprs : "");
+        return "Return: " +  (this.exprs != null ? this.exprs : "");
     }
 }

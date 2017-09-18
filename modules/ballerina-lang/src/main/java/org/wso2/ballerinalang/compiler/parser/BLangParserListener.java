@@ -1349,6 +1349,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx) {
+        this.pkgBuilder.addReturnStatement(this.getCurrentPos(ctx));
     }
 
     /**
