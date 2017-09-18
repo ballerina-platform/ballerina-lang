@@ -90,7 +90,7 @@ const config = [{
             template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
             dest: {
                 fontsDir: path.resolve(__dirname, 'dist/font-ballerina/fonts'),
-                stylesDir: path.resolve(__dirname, 'dist/font-ballerina/'),
+                stylesDir: path.resolve(__dirname, 'dist/font-ballerina/css'),
                 outputFilename:'font-ballerina.css'
             }
         })
