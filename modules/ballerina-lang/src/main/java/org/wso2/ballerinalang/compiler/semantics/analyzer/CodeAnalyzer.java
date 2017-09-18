@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -109,6 +111,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCompilationUnit compUnitNode) {
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
     }
+    
+    public void visit(BLangPackageDeclaration pkgDclNode) { /* ignore */ }
+    
+    public void visit(BLangVariableDef varDefNode) { /* ignore */ }
     
     @Override
     public void visit(BLangFunction funcNode) {
