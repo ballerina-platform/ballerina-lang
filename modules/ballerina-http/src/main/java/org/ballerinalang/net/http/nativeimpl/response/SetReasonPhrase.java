@@ -26,6 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -44,8 +45,8 @@ public class SetReasonPhrase extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct responseStruct  = ((BStruct) getRefArgument(context, 0));
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        //TODO check below line
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(responseStruct, new HTTPCarbonMessage());
         String reasonPhrase = getStringArgument(context, 0);
         httpCarbonMessage.setProperty(Constants.HTTP_REASON_PHRASE, reasonPhrase);
         return VOID_RETURN;

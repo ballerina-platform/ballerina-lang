@@ -31,8 +31,7 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyReply(BValue response) {
-        HTTPCarbonMessage responseMessage = (HTTPCarbonMessage) ((BStruct) response)
-                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response, new HTTPCarbonMessage());
         Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
         if (session != null) {
             session.generateSessionHeader(responseMessage);

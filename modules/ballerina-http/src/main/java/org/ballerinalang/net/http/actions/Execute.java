@@ -25,6 +25,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +78,8 @@ public class Execute extends AbstractHTTPAction {
         String httpVerb = getStringArgument(context, 0);
         String path = getStringArgument(context, 1);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        //TODO check below line
+        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, null);
         prepareRequest(bConnector, path, cMsg);
 
         // If the verb is not specified, use the verb in incoming message

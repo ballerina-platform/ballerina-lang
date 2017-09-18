@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.http.session.SessionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -59,8 +60,8 @@ public class GetSession extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            //TODO check below line
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
             String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
             Session session = (Session) requestStruct.getNativeData(Constants.HTTP_SESSION);

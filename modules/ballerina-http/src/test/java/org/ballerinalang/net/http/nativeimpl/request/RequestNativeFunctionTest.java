@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -48,7 +49,7 @@ public class RequestNativeFunctionTest {
                 Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
 
-        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
+        HttpUtil.addCarbonMsg(request, cMsg);
 
         String headerName = "header1";
         String headerValue = "headerValue";
@@ -60,8 +61,7 @@ public class RequestNativeFunctionTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage modified = (HTTPCarbonMessage) ((BStruct) returnVals[0])
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        HTTPCarbonMessage modified = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertEquals(modified.getHeader(headerName), headerValue);
     }
 
@@ -77,7 +77,7 @@ public class RequestNativeFunctionTest {
         HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
 
 
-        request.addNativeData(Constants.TRANSPORT_MESSAGE, cMsg);
+        HttpUtil.addCarbonMsg(request, cMsg);
 
         String headerName = "header1";
         String headerValue = "headerValue";
@@ -89,8 +89,7 @@ public class RequestNativeFunctionTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage modified = (HTTPCarbonMessage) ((BStruct) returnVals[0])
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        HTTPCarbonMessage modified = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
         Assert.assertEquals(modified.getHeader(headerName), headerValue);
     }
 

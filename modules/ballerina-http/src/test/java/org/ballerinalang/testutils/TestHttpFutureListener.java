@@ -6,6 +6,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.CorsHeaderGenerator;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -35,8 +36,8 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
 
     @Override
     public void notifyReply(BValue response) {
-        HTTPCarbonMessage responseMessage = (HTTPCarbonMessage) ((BStruct) response)
-                .getNativeData(org.ballerinalang.net.http.Constants.TRANSPORT_MESSAGE);
+        //TODO check below line
+        HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response, null);
         Session session = (Session) ((BStruct) request).getNativeData(Constants.HTTP_SESSION);
         if (session != null) {
             session.generateSessionHeader(responseMessage);

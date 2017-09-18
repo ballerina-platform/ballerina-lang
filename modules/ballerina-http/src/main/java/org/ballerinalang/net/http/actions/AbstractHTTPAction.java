@@ -28,6 +28,7 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -211,8 +212,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
-        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        //TODO check below line
+        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, null);
         prepareRequest(bConnector, path, cMsg);
         return cMsg;
     }
