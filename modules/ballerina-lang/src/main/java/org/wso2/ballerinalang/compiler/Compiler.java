@@ -80,8 +80,7 @@ public class Compiler {
                 codeAnalyze(typeCheck(define(sourcePkg)));
                 break;
             case CODE_GEN:
-                // TODO Add code analyzer
-                gen(typeCheck(define(sourcePkg)));
+                gen(codeAnalyze(typeCheck(define(sourcePkg))));
                 break;
         }
     }
