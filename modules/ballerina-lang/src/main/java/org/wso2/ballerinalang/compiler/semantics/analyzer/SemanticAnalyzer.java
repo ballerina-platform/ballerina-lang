@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -277,6 +278,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
          * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
+        
+        if (forkJoin.timeoutExpression != null) {
+            /* create code black and environment for timeout section */
+            BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
+            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
+            this.typeChecker.checkExpr(forkJoin.timeoutExpression, 
+                    timeoutVarEnv, Arrays.asList(symTable.intType));
+            this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
+            /* create an environment for the timeout body, making the enclosing environment the earlier 
+             * timeout var's environment */
+            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
+            this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
+        }
     }
 
     @Override
