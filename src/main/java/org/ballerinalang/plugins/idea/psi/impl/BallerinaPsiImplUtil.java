@@ -1885,8 +1885,8 @@ public class BallerinaPsiImplUtil {
         ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(node, ParameterListNode.class);
         if (parameterListNode != null) {
             // Actual parameters are in ParameterNodes.
-            Collection<ParameterNode> parameterNodes =
-                    PsiTreeUtil.findChildrenOfType(parameterListNode, ParameterNode.class);
+            Collection<TypeNameNode> parameterNodes =
+                    PsiTreeUtil.findChildrenOfType(parameterListNode, TypeNameNode.class);
             // Add each ParameterNode to the result list.
             results.addAll(parameterNodes);
             // Return the results.
