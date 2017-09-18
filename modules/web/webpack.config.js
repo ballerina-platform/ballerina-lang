@@ -86,7 +86,7 @@ const config = [{
             fontName: 'font-ballerina',
             fontHeight: 1000,
             normalize: true,
-            cssTemplateClassName: 'fb',
+            cssTemplateClassName: 'fw', //TODO: map with proper class name
             template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
             dest: {
                 fontsDir: path.resolve(__dirname, 'dist/font-ballerina/fonts'),
