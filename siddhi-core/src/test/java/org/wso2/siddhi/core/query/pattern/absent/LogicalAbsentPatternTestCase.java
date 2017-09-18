@@ -20,18 +20,11 @@ package org.wso2.siddhi.core.query.pattern.absent;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
+import org.wso2.siddhi.core.TestUtil;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.EventPrinter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test the patterns:
@@ -47,18 +40,6 @@ import java.util.List;
 public class LogicalAbsentPatternTestCase {
 
     private static final Logger log = Logger.getLogger(LogicalAbsentPatternTestCase.class);
-    private int inEventCount;
-    private int removeEventCount;
-    private boolean eventArrived;
-    private List<AssertionError> assertionErrors = new ArrayList<>();
-
-    @Before
-    public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
-        eventArrived = false;
-        assertionErrors.clear();
-    }
 
     @Test
     public void testQueryAbsent1() throws InterruptedException {
@@ -77,7 +58,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -88,12 +70,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -115,7 +95,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -129,12 +109,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -156,7 +134,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM",
+                "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -167,12 +146,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -194,7 +171,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -208,12 +185,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -235,7 +210,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -246,12 +222,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -273,7 +247,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -284,12 +259,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(600);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -311,7 +284,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -323,12 +296,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -350,7 +321,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -361,12 +332,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -388,7 +357,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -402,12 +371,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -429,7 +396,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM",
+                "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -441,12 +409,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -468,7 +434,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM",
+                "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -479,12 +446,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -506,7 +471,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -521,12 +486,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -548,7 +511,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -559,12 +522,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -586,7 +547,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -600,12 +562,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -627,7 +587,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -638,12 +599,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -666,7 +625,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -677,12 +637,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -704,7 +662,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", null});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                null});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         siddhiAppRuntime.start();
@@ -712,12 +671,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -739,7 +696,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         siddhiAppRuntime.start();
@@ -747,12 +704,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -775,7 +730,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -789,12 +745,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -817,7 +771,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -828,12 +782,10 @@ public class LogicalAbsentPatternTestCase {
         stream2.send(new Object[]{"IBM", 25.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -855,7 +807,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -866,12 +819,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -893,7 +844,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{null, "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{null,
+                "GOOGLE"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -902,12 +854,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -929,7 +879,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -937,12 +887,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -964,7 +912,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -975,12 +924,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1003,7 +950,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1014,12 +961,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1041,7 +986,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1055,12 +1000,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1083,7 +1026,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1094,12 +1038,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1122,7 +1064,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1133,12 +1075,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1161,7 +1101,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         siddhiAppRuntime.start();
@@ -1169,12 +1109,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1197,7 +1135,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1208,12 +1146,10 @@ public class LogicalAbsentPatternTestCase {
         stream2.send(new Object[]{"IBM", 25.0f, 101});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1236,7 +1172,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1247,12 +1183,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"IBM", 35.0f, 102});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1275,7 +1209,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1289,12 +1223,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"ORACLE", 35.0f, 102});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1317,7 +1249,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         siddhiAppRuntime.start();
@@ -1325,12 +1257,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1353,7 +1283,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1364,12 +1294,10 @@ public class LogicalAbsentPatternTestCase {
         stream2.send(new Object[]{"IBM", 25.0f, 101});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1392,7 +1320,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1403,12 +1331,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"IBM", 35.0f, 102});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1433,7 +1359,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1447,12 +1373,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"ORACLE", 35.0f, 102});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1475,7 +1399,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -1487,12 +1411,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1514,7 +1436,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1527,12 +1449,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1554,7 +1474,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1567,12 +1487,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1594,7 +1512,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1609,12 +1527,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1637,7 +1553,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -1647,12 +1563,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1674,7 +1588,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1687,12 +1601,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1714,7 +1626,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1727,12 +1639,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1754,7 +1664,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1769,12 +1679,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1796,7 +1704,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1807,12 +1716,10 @@ public class LogicalAbsentPatternTestCase {
         stream2.send(new Object[]{"GOOGLE", 25.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1834,7 +1741,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", null});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                null});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1843,12 +1751,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"WSO2", 15.0f, 100});
         Thread.sleep(1100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1870,7 +1776,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -1881,12 +1788,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1908,7 +1813,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{null, "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{null,
+                "GOOGLE"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -1917,12 +1823,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1944,7 +1848,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -1953,12 +1857,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -1981,7 +1883,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"},
+                new Object[]{"IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -1999,12 +1902,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2027,8 +1928,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"WSO2"}, new Object[]{"IBM"}, new
-                Object[]{"IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"},
+                new Object[]{"WSO2"}, new Object[]{"IBM"}, new
+                        Object[]{"IBM"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2040,12 +1942,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 4, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 4, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2068,8 +1968,9 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"WSO2"}, new Object[]{"WSO2"}, new
-                Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"},
+                new Object[]{"WSO2"}, new Object[]{"WSO2"}, new
+                        Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2079,12 +1980,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 4, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 4, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2107,7 +2006,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"},
+                new Object[]{"IBM"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2119,12 +2019,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2147,7 +2045,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"}, new Object[]{"WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"WSO2"},
+                new Object[]{"WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2157,12 +2056,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2185,7 +2082,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"}, new Object[]{"ORACLE", "MICROSOFT"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM",
+                "GOOGLE"}, new Object[]{"ORACLE", "MICROSOFT"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -2202,12 +2100,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"MICROSOFT", 55.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2230,7 +2126,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new
+                Object[]{"MICROSOFT", "IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -2248,12 +2145,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2276,7 +2171,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "IBM"},
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{null,
+                        "WSO2"}, new Object[]{null, "IBM"},
                 new Object[]{"ORACLE", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -2294,12 +2190,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 3, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2322,7 +2216,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{null,
+                "WSO2"}, new Object[]{null, "WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2332,12 +2227,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2360,7 +2253,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "GOOGLE"}, new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new
+                Object[]{"MICROSOFT", "GOOGLE"}, new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -2379,12 +2273,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2407,7 +2299,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"ORACLE", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"ORACLE",
+                "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -2424,12 +2317,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2452,7 +2343,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2462,12 +2353,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2490,7 +2379,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new
+                Object[]{"MICROSOFT", "IBM"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -2508,12 +2398,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2536,7 +2424,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "IBM"},
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{null,
+                        "WSO2"}, new Object[]{null, "IBM"},
                 new Object[]{"ORACLE", "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -2554,12 +2443,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 3, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2582,7 +2469,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{null, "WSO2"}, new Object[]{null, "WSO2"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{null,
+                "WSO2"}, new Object[]{null, "WSO2"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2592,12 +2480,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2620,7 +2506,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"MICROSOFT", "GOOGLE"}, new Object[]{"WSO2", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new
+                Object[]{"MICROSOFT", "GOOGLE"}, new Object[]{"WSO2", "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
@@ -2639,12 +2526,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2667,7 +2552,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"ORACLE", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"ORACLE",
+                "GOOGLE"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -2684,12 +2570,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2712,7 +2596,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         siddhiAppRuntime.start();
@@ -2722,12 +2606,10 @@ public class LogicalAbsentPatternTestCase {
         Thread.sleep(100);
 
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2751,7 +2633,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"GOOGLE", "ORACLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"GOOGLE",
+                "ORACLE"});
 
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
         InputHandler stream4 = siddhiAppRuntime.getInputHandler("Stream4");
@@ -2763,9 +2646,9 @@ public class LogicalAbsentPatternTestCase {
         stream4.send(new Object[]{"ORACLE", 45.0f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2787,7 +2670,8 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM", "GOOGLE"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM",
+                "GOOGLE"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         InputHandler stream3 = siddhiAppRuntime.getInputHandler("Stream3");
@@ -2798,12 +2682,10 @@ public class LogicalAbsentPatternTestCase {
         stream3.send(new Object[]{"GOOGLE", 35.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2824,7 +2706,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1", new Object[]{"IBM"});
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1", new Object[]{"IBM"});
 
         InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
         siddhiAppRuntime.start();
@@ -2832,12 +2714,10 @@ public class LogicalAbsentPatternTestCase {
         stream2.send(new Object[]{"IBM", 25.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2857,7 +2737,7 @@ public class LogicalAbsentPatternTestCase {
                 "insert into OutputStream ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        addCallback(siddhiAppRuntime, "query1");
+        TestUtil.TestCallback callback = TestUtil.addQueryCallback(siddhiAppRuntime, "query1");
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         siddhiAppRuntime.start();
@@ -2867,12 +2747,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"IBM", 20.0f, 100});
         Thread.sleep(100);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertFalse("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
+        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        Assert.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -2896,22 +2774,8 @@ public class LogicalAbsentPatternTestCase {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                eventArrived = true;
-
-                for (Event event : events) {
-                    inEventCount++;
-                    try {
-                        Assert.assertArrayEquals(new Object[]{"WSO2"}, event.getData());
-                    } catch (AssertionError e) {
-                        assertionErrors.add(e);
-                    }
-                }
-            }
-        });
+        TestUtil.TestCallback callback = TestUtil.addStreamCallback(siddhiAppRuntime, "OutputStream",
+                new Object[]{"WSO2"});
 
         InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
         siddhiAppRuntime.start();
@@ -2922,42 +2786,10 @@ public class LogicalAbsentPatternTestCase {
         stream1.send(new Object[]{"IBM", 20.0f, 15});
         Thread.sleep(600);
 
-        for (AssertionError e : this.assertionErrors) {
-            throw e;
-        }
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        callback.throwAssertionErrors();
+        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
+        Assert.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
-    }
-
-    private void addCallback(SiddhiAppRuntime siddhiAppRuntime, String queryName, Object[]... expected) {
-        final int noOfExpectedEvents = expected.length;
-        siddhiAppRuntime.addCallback(queryName, new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if (inEvents != null) {
-                    eventArrived = true;
-
-                    for (Event event : inEvents) {
-                        inEventCount++;
-                        if (noOfExpectedEvents > 0 && inEventCount <= noOfExpectedEvents) {
-                            try {
-                                Assert.assertArrayEquals(expected[inEventCount - 1], event.getData());
-                            } catch (AssertionError e) {
-                                assertionErrors.add(e);
-                            }
-                        }
-                    }
-                }
-                if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
-                }
-                eventArrived = true;
-            }
-
-        });
     }
 }
