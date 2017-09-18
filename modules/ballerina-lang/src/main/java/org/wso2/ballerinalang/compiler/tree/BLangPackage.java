@@ -172,16 +172,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void setInitFunction(FunctionNode function) {
-        this.initFunction = (BLangFunction) function;
-    }
-
-    @Override
-    public FunctionNode getInitFunction() {
-        return initFunction;
-    }
-
-    @Override
     public void setPackageDeclaration(PackageDeclarationNode pkgDecl) {
         this.pkgDecl = (BLangPackageDeclaration) pkgDecl;
     }

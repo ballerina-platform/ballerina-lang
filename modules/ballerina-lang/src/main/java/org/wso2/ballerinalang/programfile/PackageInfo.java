@@ -38,7 +38,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public int nameCPIndex;
     public int versionCPIndex;
-    private FunctionInfo initFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
     private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
@@ -180,14 +179,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
             old = lineNumberInfo;
         }
         return null;
-    }
-
-    public FunctionInfo getInitFunctionInfo() {
-        return initFunctionInfo;
-    }
-
-    public void setInitFunctionInfo(FunctionInfo initFunctionInfo) {
-        this.initFunctionInfo = initFunctionInfo;
     }
 
     public void complete() {

@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -201,16 +202,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.functions.forEach(funcNode -> createFunctionInfoEntry(funcNode.symbol));
 
 //        // Create function info for the package function
-//        BallerinaFunction pkgInitFunction = bLangPackage.getInitFunction();
-//        createFunctionInfoEntries(new Function[]{pkgInitFunction});
+        BLangFunction pkgInitFunc = pkgNode.initFunction;
+        createFunctionInfoEntry(pkgInitFunc.symbol);
 //
         for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
             genNode((BLangNode) pkgLevelNode, this.env);
         }
 
         // Visit package init function
-//        pkgInitFunction.accept(this);
-//        currentPkgInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(pkgInitFunction.getName()));
+        genNode(pkgInitFunc, this.env);
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
@@ -291,6 +291,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         genNode(varDefNode.var, this.env);
+    }
+
+    public void visit(BLangReturn returnNode) {
+        emit(InstructionCodes.RET);
     }
 
 
@@ -541,17 +545,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void setMaxRegIndexes() {
-        maxRegIndexes.tInt = (maxRegIndexes.tInt < regIndexes.tInt) ?
+        maxRegIndexes.tInt = (maxRegIndexes.tInt > regIndexes.tInt) ?
                 maxRegIndexes.tInt : regIndexes.tInt;
-        maxRegIndexes.tFloat = (maxRegIndexes.tFloat < regIndexes.tFloat) ?
+        maxRegIndexes.tFloat = (maxRegIndexes.tFloat > regIndexes.tFloat) ?
                 maxRegIndexes.tFloat : regIndexes.tFloat;
-        maxRegIndexes.tString = (maxRegIndexes.tString < regIndexes.tString) ?
+        maxRegIndexes.tString = (maxRegIndexes.tString > regIndexes.tString) ?
                 maxRegIndexes.tString : regIndexes.tString;
-        maxRegIndexes.tBoolean = (maxRegIndexes.tBoolean < regIndexes.tBoolean) ?
+        maxRegIndexes.tBoolean = (maxRegIndexes.tBoolean > regIndexes.tBoolean) ?
                 maxRegIndexes.tBoolean : regIndexes.tBoolean;
-        maxRegIndexes.tBlob = (maxRegIndexes.tBlob < regIndexes.tBlob) ?
+        maxRegIndexes.tBlob = (maxRegIndexes.tBlob > regIndexes.tBlob) ?
                 maxRegIndexes.tBlob : regIndexes.tBlob;
-        maxRegIndexes.tRef = (maxRegIndexes.tRef < regIndexes.tRef) ?
+        maxRegIndexes.tRef = (maxRegIndexes.tRef > regIndexes.tRef) ?
                 maxRegIndexes.tRef : regIndexes.tRef;
     }
 

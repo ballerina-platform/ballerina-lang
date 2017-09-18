@@ -63,9 +63,4 @@ public interface PackageNode extends Node {
     List<? extends AnnotationNode> getAnnotations();
 
     void addAnnotation(AnnotationNode annotation);
-
-    void setInitFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
-
 }
