@@ -45,5 +45,13 @@ public interface ConnectorNode extends AnnotatableNode, TopLevelNode {
     List<? extends ActionNode> getActions();
     
     void addAction(ActionNode action);
+
+    void setInitFunction(FunctionNode function);
+
+    FunctionNode getInitFunction();
+
+    void setInitAction(ActionNode action);
+
+    ActionNode getInitAction();
     
 }

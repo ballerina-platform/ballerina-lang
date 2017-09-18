@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.StructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -37,6 +38,10 @@ public class BStructType extends BType implements StructType {
         this.fields = fields;
     }
 
+    public String getDesc() {
+        return TypeDescriptor.SIG_STRUCT + getQualifiedTypeName() + ";";
+    }
+
     @Override
     public List<BStructField> getFields() {
         return fields;
@@ -45,6 +50,11 @@ public class BStructType extends BType implements StructType {
     @Override
     public TypeKind getKind() {
         return TypeKind.STRUCT;
+    }
+
+    @Override
+    public String toString() {
+        return this.tsymbol.name.value;
     }
 
     /**

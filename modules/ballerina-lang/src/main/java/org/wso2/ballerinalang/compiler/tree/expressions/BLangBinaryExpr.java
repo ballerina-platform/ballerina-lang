@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -32,6 +33,7 @@ public class BLangBinaryExpr extends BLangExpression implements BinaryExpression
     public BLangExpression lhsExpr;
     public BLangExpression rhsExpr;
     public OperatorKind opKind;
+    public BOperatorSymbol opSymbol;
 
     @Override
     public BLangExpression getLeftExpression() {

@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -43,9 +44,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -54,6 +57,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -87,6 +92,22 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorker workerNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangForkJoin forkJoin) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorkerSend workerSendNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorkerReceive workerReceiveNode) {
         throw new AssertionError();
     }
 
@@ -126,7 +147,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttribute bLangAnnotationAttribute) {
+    public void visit(BLangAnnotAttribute annotationAttribute) {
         throw new AssertionError();
     }
 
@@ -134,11 +155,11 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttachmentAttributeValue bLangAnnotAttributeValue) {
+    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
         throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttachmentAttribute bLangAnnotAttachmentAttribute) {
+    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         throw new AssertionError();
     }
 
@@ -211,6 +232,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangCatch catchNode) {
+        throw new AssertionError();
+    }
+
 
     // Expressions
 
@@ -219,6 +244,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordLiteral recordLiteral) {
         throw new AssertionError();
     }
 
@@ -258,35 +287,35 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLQName bLangXMLQName) {
+    public void visit(BLangXMLQName xmlQName) {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLAttribute bLangXMLAttribute) {
+    public void visit(BLangXMLAttribute xmlAttribute) {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
         throw new AssertionError();
     }
 
-    public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
         throw new AssertionError();
     }
 
-    public void visit(BLangStringTemplateLiteral bLangStringTemplateLiteral) {
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         throw new AssertionError();
     }
 

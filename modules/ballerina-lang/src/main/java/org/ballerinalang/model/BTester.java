@@ -38,14 +38,13 @@ public class BTester {
 
     public static void main(String[] args) throws Exception {
         // -sorceroot == current directory
-        System.setProperty("user.dir", "/home/djkevincr");
 
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
 //        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/test");
-        options.put(COMPILER_PHASE, "typeCheck");
-        options.put(PRESERVE_WHITESPACE, "true");
+        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+        options.put(COMPILER_PHASE, "codeGen");
+        options.put(PRESERVE_WHITESPACE, "false");
 
         // How to set a custom diagnostic listener
         DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());
@@ -57,7 +56,7 @@ public class BTester {
 
         Compiler compiler = Compiler.getInstance(context);
 //        compiler.compile("bar.bal");
-        compiler.compile("foo.bal");
+        compiler.compile("pkg.bal");
 //        compiler.compile("a.b.c");
     }
 

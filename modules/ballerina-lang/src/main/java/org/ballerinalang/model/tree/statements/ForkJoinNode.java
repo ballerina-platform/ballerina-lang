@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 
 import java.util.List;
 
@@ -44,6 +45,14 @@ public interface ForkJoinNode extends StatementNode {
     VariableNode getTimeOutVariable();
 
     BlockNode getTimeoutBody();
+    
+    IdentifierNode getJoinResultsName();
+    
+    TypeNode getJoinResultsType();
+    
+    void setJoinResultsName(IdentifierNode joinResultsName);
+    
+    void setJoinResultsType(TypeNode type);
 
     /**
      * Join type.

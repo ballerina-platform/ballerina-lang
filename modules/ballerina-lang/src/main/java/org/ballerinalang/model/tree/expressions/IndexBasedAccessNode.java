@@ -23,7 +23,8 @@ package org.ballerinalang.model.tree.expressions;
  * @since 0.94
  */
 public interface IndexBasedAccessNode extends VariableReferenceNode {
-    ExpressionNode getExpression();
+
+    VariableReferenceNode getExpression();
 
     ExpressionNode getIndex();
 }

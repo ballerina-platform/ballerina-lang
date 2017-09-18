@@ -28,7 +28,7 @@ import org.ballerinalang.model.elements.PackageID;
  */
 public abstract class HierarchicalPackageRepository implements PackageRepository {
 
-    private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina.";
+    private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina";
 
     private PackageRepository systemRepo;
 

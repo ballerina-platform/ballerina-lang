@@ -18,9 +18,9 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,27 +30,32 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangFieldBasedAccess extends BLangVariableReference implements FieldBasedAccessNode {
 
-    public IdentifierNode fieldName;
+    public BLangIdentifier field;
 
-    public ExpressionNode expressionNode;
+    public BLangVariableReference expr;
 
     @Override
-    public ExpressionNode getExpression() {
-        return expressionNode;
+    public BLangVariableReference getExpression() {
+        return expr;
     }
 
     @Override
-    public IdentifierNode getFieldName() {
-        return fieldName;
+    public BLangIdentifier getFieldName() {
+        return field;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(expressionNode) + "." + String.valueOf(fieldName);
+        return String.valueOf(expr) + "." + String.valueOf(field);
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.FIELD_BASED_ACCESS_EXPR;
     }
 }

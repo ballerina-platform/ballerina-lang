@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -43,6 +44,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangResource> resources;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public BLangFunction initFunction;
 
     public BSymbol symbol;
 
@@ -52,7 +54,7 @@ public class BLangService extends BLangNode implements ServiceNode {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
     }
-    
+
     @Override
     public BLangIdentifier getName() {
         return name;
@@ -91,6 +93,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void addResource(ResourceNode resource) {
         this.resources.add((BLangResource) resource);
+    }
+
+    @Override
+    public void setInitFunction(FunctionNode function) {
+        this.initFunction = (BLangFunction) function;
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
     }
 
     @Override
