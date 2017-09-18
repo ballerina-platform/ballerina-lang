@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
-import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -32,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -240,18 +238,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
 
-    private boolean isJoinResultType(TypeNode type) {
+    private boolean isJoinResultType(BLangVariable var) {
+        BLangType type = var.typeNode;
         if (type instanceof BuiltInReferenceTypeNode) {
             return ((BuiltInReferenceTypeNode) type).getTypeKind() == TypeKind.MAP;
         }
         return false;
     }
 
-    private BLangVariableDef createVarDef(BLangType type, BLangIdentifier name) {
-        BLangVariable var = new BLangVariable();
-        var.setTypeNode(type);
-        var.setName(name);
-        var.pos = type.pos;
+    private BLangVariableDef createVarDef(BLangVariable var) {
         BLangVariableDef varDefNode = new BLangVariableDef();
         varDefNode.var = var;
         varDefNode.pos = var.pos;
@@ -271,12 +266,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
         forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, folkJoinEnv));
         forkJoin.workers.forEach(e -> this.analyzeDef(e, folkJoinEnv));
-        if (!this.isJoinResultType(forkJoin.joinResultsType)) {
-            this.dlog.error(forkJoin.joinResultsType.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
+        if (!this.isJoinResultType(forkJoin.joinResultVar)) {
+            this.dlog.error(forkJoin.joinResultVar.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
         }
         /* create code black and environment for join result section, i.e. (map results) */
-        BLangBlockStmt joinResultsBlock = this.generateCodeBlock(
-                this.createVarDef(forkJoin.joinResultsType, forkJoin.joinResultsName));
+        BLangBlockStmt joinResultsBlock = this.generateCodeBlock(this.createVarDef(forkJoin.joinResultVar));
         SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
         this.analyzeNode(joinResultsBlock, joinResultsEnv);
         /* create an environment for the join body, making the enclosing environment the earlier 

@@ -682,11 +682,12 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addJoinCause(String identifier) {
+    public void addJoinCause(String identifier, Set<Whitespace> ws) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.setJoinResultsName(this.createIdentifier(identifier));
-        forkJoin.setJoinResultsType(this.typeNodeStack.pop());
+        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
+        forkJoin.joinResultVar = resultVar;
     }
 
     public void addJoinCondition(String joinType, List<String> workerNames, int joinCount) {
@@ -712,7 +713,7 @@ public class BLangPackageBuilder {
 
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.timeoutExpression = this.exprNodeStack.pop();
+        forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
         forkJoin.timeoutVariable = variableNode;
     }
 

@@ -46,14 +46,10 @@ public interface ForkJoinNode extends StatementNode {
 
     BlockNode getTimeoutBody();
     
-    IdentifierNode getJoinResultsName();
+    VariableNode getJoinResultVar();
+        
+    void setJoinResultVar(VariableNode var);
     
-    TypeNode getJoinResultsType();
-    
-    void setJoinResultsName(IdentifierNode joinResultsName);
-    
-    void setJoinResultsType(TypeNode type);
-
     /**
      * Join type.
      */

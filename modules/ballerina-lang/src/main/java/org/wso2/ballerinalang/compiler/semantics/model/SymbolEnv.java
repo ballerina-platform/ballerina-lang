@@ -133,9 +133,6 @@ public class SymbolEnv {
     public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
         env.copyTo(symbolEnv);
-        if (env.node.getKind() == NodeKind.FUNCTION) {
-            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
-        }
         return symbolEnv;
     }
 
@@ -143,12 +140,8 @@ public class SymbolEnv {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
         env.copyTo(symbolEnv);
-        if (env.node.getKind() == NodeKind.FUNCTION) {
-            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
-        }
         return symbolEnv;
     }
-
 
     // Private functions
 
