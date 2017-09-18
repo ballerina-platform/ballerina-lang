@@ -1,35 +1,36 @@
 @font-face{
-    font-family: "{{ fontName }}" ;
-    src:local("{{ fontName }}"), {% if formats.indexOf('eot')>-1 -%} src: url("{{ fontPath }}{{ fontName }}.eot"); {%- endif %}
-    src:local("{{ fontName }}"),
-    {%- set eotIndex = formats.indexOf('eot') -%}
-    {%- set woff2Index = formats.indexOf('woff2') -%}
-    {%- set woffIndex = formats.indexOf('woff') -%}
-    {%- set ttfIndex = formats.indexOf('ttf') -%}
-    {%- set svgIndex = formats.indexOf('svg') %}
-    src: {% if eotIndex != -1 -%}
-    url("{{ fontPath }}{{ fontName }}.eot?#iefix") format("embedded-opentype")
-    {%- set nothing = formats.splice(eotIndex, 1) -%}
-    {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
-    {%- endif -%}
-    {%- if woff2Index != -1 -%}
-    url("{{ fontPath }}{{ fontName }}.woff2") format("woff2")
-    {%- set nothing = formats.splice(woff2Index, 1) -%}
-    {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
-    {%- endif -%}
-    {%- if woffIndex != -1 -%}
-    url("{{ fontPath }}{{ fontName }}.woff") format("woff")
-    {%- set nothing = formats.splice(woffIndex, 1) -%}
-    {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
-    {%- endif -%}
-    {%- if ttfIndex != -1 -%}
-    url("{{ fontPath }}{{ fontName }}.ttf") format("truetype")
-    {%- set nothing = formats.splice(ttfIndex, 1) -%}
-    {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
-    {%- endif -%}
-    {%- if svgIndex != -1 -%}
-    url("{{ fontPath }}{{ fontName }}.svg#{{ fontName }}") format("svg");
-    {%- endif %}
+     font-family: {{ fontName }};
+        {% if formats.indexOf('eot')>-1 -%}
+            src: url("{{ fontPath }}{{ fontName }}.eot");
+        {%- endif %}
+        {%- set eotIndex = formats.indexOf('eot') -%}
+        {%- set woff2Index = formats.indexOf('woff2') -%}
+        {%- set woffIndex = formats.indexOf('woff') -%}
+        {%- set ttfIndex = formats.indexOf('ttf') -%}
+        {%- set svgIndex = formats.indexOf('svg') %}
+        src: {% if eotIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.eot?#iefix") format("embedded-opentype")
+                {%- set nothing = formats.splice(eotIndex, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if woff2Index != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.woff2") format("woff2")
+                {%- set nothing = formats.splice(woff2Index, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if woffIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.woff") format("woff")
+                {%- set nothing = formats.splice(woffIndex, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if ttfIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.ttf") format("truetype")
+                {%- set nothing = formats.splice(ttfIndex, 1) -%}
+                {%- if formats.length != 0 -%}, {% else -%}; {% endif -%}
+            {%- endif -%}
+            {%- if svgIndex != -1 -%}
+                url("{{ fontPath }}{{ fontName }}.svg#{{ fontName }}") format("svg");
+            {%- endif %}
    	font-weight:normal;
    	font-style:normal;
 }
