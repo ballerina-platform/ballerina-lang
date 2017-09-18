@@ -149,7 +149,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                         if (firstChild instanceof PsiErrorElement) {
                             return PsiTreeUtil.findChildOfType(firstChild, IdentifierPSINode.class);
                         }
-                        return firstChild;
+                        return prevVisibleLeaf;
+                    } else if ("(".equals(prevVisibleLeaf.getText())) {
+                        return PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
                     } else {
                         return prevVisibleLeaf.getParent().getFirstChild();
                     }
