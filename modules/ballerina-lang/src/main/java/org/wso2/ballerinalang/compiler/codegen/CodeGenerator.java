@@ -286,7 +286,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, this.env, funcNode.symbol.scope);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
         currentCallableUnitInfo = currentPkgInfo.functionInfoMap.get(funcNode.symbol.name.value);
         visitInvokableNode(funcNode, currentCallableUnitInfo, funcEnv);
     }
@@ -961,5 +961,5 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangUserDefinedType userDefinedType) {
         /* ignore */
     }
-    
+
 }

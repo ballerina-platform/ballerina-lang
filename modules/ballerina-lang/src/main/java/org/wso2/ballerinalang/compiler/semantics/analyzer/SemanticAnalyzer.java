@@ -141,7 +141,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcSymbol)) {
             return;
         }
-        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         analyzeStmt(funcNode.body, funcEnv);
         // Process workers
         funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
@@ -150,7 +150,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
-        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, env, structSymbol.scope);
+        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, env);
         structNode.fields.forEach(field -> analyzeDef(field, structEnv));
     }
 
@@ -239,14 +239,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
-    
+
     private boolean isJoinResultType(TypeNode type) {
         if (type instanceof BuiltInReferenceTypeNode) {
             return ((BuiltInReferenceTypeNode) type).getTypeKind() == TypeKind.MAP;
         }
         return false;
     }
-    
+
     private BLangVariableDef createVarDef(BLangType type, BLangIdentifier name) {
         BLangVariable var = new BLangVariable();
         var.setTypeNode(type);
@@ -257,7 +257,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         varDefNode.pos = var.pos;
         return varDefNode;
     }
-    
+
     private BLangBlockStmt generateCodeBlock(StatementNode... statements) {
         BLangBlockStmt block = new BLangBlockStmt();
         for (StatementNode stmt : statements) {
@@ -265,7 +265,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         return block;
     }
-    
+
     @Override
     public void visit(BLangForkJoin forkJoin) {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
@@ -294,12 +294,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean isInTopLevelWorkerEnv() {
         return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
     }
-    
+
     private boolean workerExists(SymbolEnv env, String workerName) {
         BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
         return (symbol != this.symTable.notFoundSymbol);
     }
-    
+
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         if (!this.isInTopLevelWorkerEnv()) {
@@ -321,7 +321,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
     }
-    
+
     @Override
     public void visit(BLangReturn returnNode) {
         /* ignore */
@@ -338,7 +338,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     BType analyzeNode(BLangNode node, SymbolEnv env) {
         return analyzeNode(node, env, symTable.noType, null);
     }
-    
+
     public void visit(BLangContinue continueNode) {
         /* ignore */
     }
