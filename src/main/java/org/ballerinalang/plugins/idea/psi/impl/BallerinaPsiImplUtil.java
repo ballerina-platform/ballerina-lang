@@ -36,12 +36,14 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
@@ -1234,15 +1236,24 @@ public class BallerinaPsiImplUtil {
         if (withImportedPackages) {
             List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(file);
             for (PsiElement importedPackage : importedPackages) {
-                PsiReference reference = importedPackage.findReferenceAt(0);
-                if (reference == null) {
+                PsiDirectory resolvedPackage;
+                AliasNode aliasNode = PsiTreeUtil.getParentOfType(importedPackage, AliasNode.class);
+                if (aliasNode != null) {
+                    resolvedPackage = resolveAliasNode(aliasNode);
+                } else {
+                    PsiReference reference = importedPackage.findReferenceAt(0);
+                    if (reference == null) {
+                        continue;
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        continue;
+                    }
+                    resolvedPackage = (PsiDirectory) resolvedElement;
+                }
+                if (resolvedPackage == null) {
                     continue;
                 }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
-                }
-                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
                 LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
                         importedPackage.getText(), importedPackageIH);
                 results.add(lookupElement);
@@ -1903,5 +1914,67 @@ public class BallerinaPsiImplUtil {
             }
         }
         return -1;
+    }
+
+
+    /**
+     * Resolves the given package name node to the corresponding definition. packageNameNode can be either a
+     * PackageNameNode or an IdentifierPSINode.
+     *
+     * @param packageNameNode either a {@link PackageNameNode} or a {@link IdentifierPSINode} object which represents
+     *                        the package name
+     * @return {@link PsiDirectory} which is the definition.
+     */
+    @Nullable
+    public static PsiElement resolvePackage(@NotNull PsiElement packageNameNode) {
+        PsiReference reference = packageNameNode.findReferenceAt(0);
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+
+        AliasNode aliasNode = PsiTreeUtil.getParentOfType(resolvedElement, AliasNode.class);
+        if (aliasNode == null) {
+            return resolvedElement;
+        }
+        return resolveAliasNode(aliasNode);
+    }
+
+    /**
+     * Resolves the given alias node to the corresponding directory.
+     *
+     * @param aliasNode an alias node
+     * @return {@link PsiDirectory} which is the definition of the alias node.
+     */
+    @Nullable
+    public static PsiDirectory resolveAliasNode(@NotNull AliasNode aliasNode) {
+        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(aliasNode,
+                ImportDeclarationNode.class);
+        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode =
+                PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode.class);
+        if (fullyQualifiedPackageNameNode == null) {
+            return null;
+        }
+        PackageNameNode[] packageNameNodes =
+                PsiTreeUtil.getChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class);
+        if (packageNameNodes == null) {
+            return null;
+        }
+        PackageNameNode lastElement = ArrayUtil.getLastElement(packageNameNodes);
+        if (lastElement == null) {
+            return null;
+        }
+        PsiElement packageName = lastElement.getNameIdentifier();
+        if (!(packageName instanceof IdentifierPSINode)) {
+            return null;
+        }
+        List<PsiDirectory> directories = BallerinaPsiImplUtil.resolveDirectory(((IdentifierPSINode) packageName));
+        if (directories.isEmpty()) {
+            return null;
+        }
+        return directories.get(0);
     }
 }
