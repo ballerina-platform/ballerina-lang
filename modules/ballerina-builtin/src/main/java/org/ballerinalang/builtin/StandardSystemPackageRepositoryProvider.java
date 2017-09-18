@@ -34,7 +34,7 @@ public class StandardSystemPackageRepositoryProvider implements SystemPackageRep
 
     @Override
     public PackageRepository loadRepository() {
-        return new JARPackageRepository(JAR_SYSTEM_LIB_LOCATION);
+        return new JARPackageRepository(this.getClass().getClassLoader(), JAR_SYSTEM_LIB_LOCATION);
     }
 
 }
