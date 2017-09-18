@@ -209,7 +209,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.statements.forEach(e -> {
-            this.checkStatementExecutionValidity(blockNode);
             e.accept(this);
         });
     }
@@ -368,11 +367,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariableDef varDefNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(varDefNode);
     }
 
     public void visit(BLangAssignment assignNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(assignNode);
     }
 
     public void visit(BLangAbort abortNode) {
@@ -392,11 +391,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLanXMLNSStatement xmlnsStmtNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(xmlnsStmtNode);
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(exprStmtNode);
     }
 
     public void visit(BLangComment commentNode) {
@@ -404,11 +403,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransaction transactionNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(transactionNode);
     }
 
     public void visit(BlangTransform transformNode) {
-        /* ignore */
+        this.checkStatementExecutionValidity(transformNode);
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
