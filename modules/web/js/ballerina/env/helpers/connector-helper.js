@@ -47,7 +47,7 @@ class ConnectorHelper {
     static getConnectorParameters(environment, fullPackageName) {
         const connectorParameters = [];
         for (const packageDefintion of environment.getPackages()) {
-            if (_.includes(packageDefintion.getName(), fullPackageName)) {
+            if (packageDefintion.getName() === fullPackageName) {
                 for (const connector of packageDefintion.getConnectors()) {
                     // Get Connection Properties
                     connector.getParams().map((parameter) => {
@@ -73,7 +73,7 @@ class ConnectorHelper {
                             bType: parameter.type,
                             desc: parameter.name,
                             fields: structFields,
-                            defaultValue: this.getDefaultValuesAccordingToBType(parameter.type),
+                            value: this.getDefaultValuesAccordingToBType(parameter.type),
                         };
                         connectorParameters.push(keyValuePair);
                     });

@@ -18,11 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import ASTFactory from '../../../../ast/ast-factory';
 import AnnotationHelper from '../../../../env/helpers/annotation-helper';
 import './properties-form.css';
-import TagInput from './tag-input';
+import PropertiesWindow from './property-window';
 
 /**
  * React component for a service definition.
@@ -34,54 +33,11 @@ class ServerConnectorPropertiesForm extends React.Component {
 
     constructor(props) {
         super(props);
-        const data = {};
-        this.getSupportedKeys().map((addedAnnotation) => {
-            const key = addedAnnotation.identifier;
-            data[key] = addedAnnotation.value;
-        });
-
-        this.state = { data };
-        this.onChange = this.onChange.bind(this);
-        this.onTagsAdded = this.onTagsAdded.bind(this);
-        this.removeTagsAdded = this.removeTagsAdded.bind(this);
         this.getDataFromPropertyForm = this.getDataFromPropertyForm.bind(this);
         this.getSupportedKeys = this.getSupportedKeys.bind(this);
-        this.handleDismiss = this.handleDismiss.bind(this);
         this.getBTypeOfConfigurationAttribute = this.getBTypeOfConfigurationAttribute.bind(this);
         this.isArrayTypeConfigurationAttribute = this.isArrayTypeConfigurationAttribute.bind(this);
         this.getProtocolPkgPath = this.getProtocolPkgPath.bind(this);
-        this.handleOutsideClick = this.handleOutsideClick.bind(this);
-        this.renderNumericInputs = this.renderNumericInputs.bind(this);
-        this.renderTextInputs = this.renderTextInputs.bind(this);
-        this.renderBooleanInputs = this.renderBooleanInputs.bind(this);
-        this.renderTagInputs = this.renderTagInputs.bind(this);
-    }
-
-    componentDidMount() {
-        if (this.props.model.getViewState().showPropertyForm) {
-            document.addEventListener('mouseup', this.handleOutsideClick, false);
-        } else {
-            document.removeEventListener('mouseup', this.handleOutsideClick, false);
-        }
-    }
-
-    componentDidUpdate() {
-        if (this.props.model.getViewState().showPropertyForm) {
-            document.addEventListener('mouseup', this.handleOutsideClick, false);
-        } else {
-            document.removeEventListener('mouseup', this.handleOutsideClick, false);
-        }
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('mouseup', this.handleOutsideClick, false);
-    }
-
-    isArrayTypeConfigurationAttribute(value) {
-        const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
-            this.props.environment, value, this.getProtocolPkgPath(this.props.model.getProtocolPkgName()),
-            'configuration');
-        return annotationAttributeDef.isArrayType();
     }
 
     getProtocolPkgPath(protocolPkgName) {
@@ -262,34 +218,6 @@ class ServerConnectorPropertiesForm extends React.Component {
         });
         return supportedKeysArray;
     }
-
-    handleDismiss() {
-        this.getDataFromPropertyForm(this.state.data);
-        this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
-        this.props.editor.update();
-    }
-
-    onChange(event, index) {
-        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
-        this.setState({ data: _.extend(this.state.data, { [index]: value }) });
-    }
-
-    onTagsAdded(event, index) {
-        if (event.keyCode === 13) {
-            const { value } = event.target;
-            if (this.state.data[index] === undefined) {
-                this.setState({ data: _.extend(this.state.data,
-                    { [index]: [] }) });
-            }
-            const obj = { [index]: [...this.state.data[index], value] };
-            this.setState({ data: _.extend(this.state.data, obj) });
-        }
-
-        if ([this.state.data[index]].length && event.keyCode === 8) {
-            this.removeTagsAdded(index, this.state.data[index].length - 1);
-        }
-    }
-
     getBTypeOfConfigurationAttribute(value) {
         const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
             this.props.environment, value, this.getProtocolPkgPath(this.props.model.getProtocolPkgName()),
@@ -297,168 +225,45 @@ class ServerConnectorPropertiesForm extends React.Component {
         return annotationAttributeDef.getBType();
     }
 
-    removeTagsAdded(identifier, index) {
-        this.setState({ data: _.extend(this.state.data, { [identifier]:
-            this.state.data[identifier].filter((item, i) => i !== index),
-        }) });
-    }
-
-    handleOutsideClick(e) {
-        if (this.node) {
-            if (!this.node.contains(e.target)) {
-                this.handleDismiss();
-            }
-        }
-    }
-
-    renderTextInputs(key) {
-        return (
-            <div key={key.identifier} className="form-group">
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-3 property-dialog-label'
-                >
-                    {key.identifier}</label>
-                <div className='col-sm-8'>
-                    <input
-                        className='property-dialog-form-control'
-                        id={key.identifier}
-                        name={key.identifier}
-                        type='text'
-                        placeholder={key.desc}
-                        value={this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, key.identifier)}
-                    />
-                </div>
-            </div>);
-    }
-
-    renderNumericInputs(key) {
-        return (
-            <div key={key.identifier} className="form-group">
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-3 property-dialog-label'
-                >
-                    {key.identifier}</label>
-                <div className='col-sm-8'>
-                    <input
-                        className='property-dialog-form-control'
-                        id={key.identifier}
-                        name={key.identifier}
-                        type='number'
-                        placeholder={key.desc}
-                        value={this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, key.identifier)}
-                    />
-                </div>
-            </div>);
-    }
-
-    renderBooleanInputs(key, booleanValue) {
-        return (
-            <div key={key.identifier} className="form-group">
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-3 property-dialog-label'
-                >
-                    {key.identifier}</label>
-                <div className='col-sm-8 properties-checkbox'>
-                    <input
-                        className="toggle"
-                        type="checkbox"
-                        id={key.identifier}
-                        checked={booleanValue}
-                        onChange={event => this.onChange(event, key.identifier)}
-                    />
-                </div>
-            </div>);
-    }
-
-    renderTagInputs(key) {
-        return (<div key={key.identifier} className="form-group">
-            <label
-                className="col-sm-3 property-dialog-label"
-                htmlFor="tags"
-            >{key.identifier}</label>
-            <div className='col-sm-8 properties-tags'>
-                <TagInput
-                    id={key.identifier}
-                    taggedElements={this.state.data[key.identifier]}
-                    onTagsAdded={event =>
-                        this.onTagsAdded(event, key.identifier)}
-                    removeTagsAdded={this.removeTagsAdded}
-                    placeholder={key.desc}
-                    ref={(node) => { this.node = node; }}
-                />
-            </div>
-        </div>);
+    isArrayTypeConfigurationAttribute(value) {
+        const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
+            this.props.environment, value, this.getProtocolPkgPath(this.props.model.getProtocolPkgName()),
+            'configuration');
+        return annotationAttributeDef.isArrayType();
     }
     /**
-     * Renders the view for a service definition.
+     * Renders the view for a server connector properties window
      *
      * @returns {ReactElement} The view.
-     * @memberof ServiceDefinition
+     * @memberof server connector properties window
      */
     render() {
-        const supportedProps = this.getSupportedKeys();
         const positionX = (this.props.bBox.x) + 'px';
         const positionY = (this.props.bBox.y) + 'px';
-        let visibility = 'none';
-        if (this.props.visibility === true) {
-            visibility = 'block';
-        }
+        const formH = '@' + this.props.model.getProtocolPkgName() + ': configuration';
         const styles = {
-            display: visibility,
-            top: positionY,
-            left: positionX,
-            maxHeight: this.props.model.getViewState().components.body.h - 15,
-            overflowY: 'scroll',
-            overflowX: 'hidden',
+            popover: {
+                top: this.props.bBox.y + 10 + 'px',
+                left: positionX,
+                height: '320px',
+            },
+            arrowStyle: {
+                top: positionY,
+                left: this.props.bBox.x + 10 + 'px',
+            },
         };
-        return (
-            <div
-                id="servicedef-property-modal"
-                style={styles}
-                ref={(node) => { this.node = node; }}
-                key={`servicedefProp/${this.props.model.id}`}
-            >
-                <div className="form-header">
-                    <button
-                        type="button"
-                        className="close"
-                        aria-label="Close"
-                        onClick={this.handleDismiss}
-                    >
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 className="form-title file-dialog-title">
-                            Server Connector Properties</h4>
-                    <hr className="style1" />
-                </div>
-                <div className="form-body">
-                    <div className="container-fluid">
-                        <form className='form-horizontal propertyForm'>
 
-                            {supportedProps.map((key) => {
-                                if (key.bType === 'int') {
-                                    return this.renderNumericInputs(key);
-                                } else if (key.bType === 'string') {
-                                    return this.renderTextInputs(key);
-                                } else if (key.bType === 'boolean') {
-                                    let booleanValue = false;
-                                    if (this.state.data[key.identifier]) {
-                                        booleanValue = JSON.parse(this.state.data[key.identifier]);
-                                    }
-                                    return this.renderBooleanInputs(key, booleanValue);
-                                } else if (key.bType === 'array') {
-                                    return this.renderTagInputs(key);
-                                }
-                            })}
-                        </form>
-                    </div>
-                </div>
-            </div>);
+        return (
+            <PropertiesWindow
+                model={this.props.model}
+                formHeading={formH}
+                key={`servicedefProp/${this.props.model.id}`}
+                styles={styles}
+                supportedProps={this.getSupportedKeys()}
+                editor={this.props.editor}
+                addedValues={this.getDataFromPropertyForm}
+                visibility={this.props.visibility}
+            />);
     }
 }
 
