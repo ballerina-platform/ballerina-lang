@@ -221,6 +221,8 @@ public class SymbolTable {
 
         defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, -1);
         defineUnaryOperator(OperatorKind.LENGTHOF, new BArrayType(noType), intType, -1);
+
+        // TODO: improve resolve operator logic
         defineUnaryOperator(OperatorKind.TYPEOF, noType, typeType, -1);
 
         defineCastOperators();

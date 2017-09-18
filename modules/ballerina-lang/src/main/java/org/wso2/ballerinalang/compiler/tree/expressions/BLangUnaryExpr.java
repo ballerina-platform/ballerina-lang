@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -32,6 +33,7 @@ public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNo
 
     public BLangExpression expressionNode;
     public OperatorKind operator;
+    public BOperatorSymbol opSymbol;
 
     @Override
     public BLangExpression getExpression() {
