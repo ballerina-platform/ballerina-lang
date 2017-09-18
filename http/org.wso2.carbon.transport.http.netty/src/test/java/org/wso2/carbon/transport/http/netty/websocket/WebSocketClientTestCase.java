@@ -199,7 +199,7 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
 
     @Test(priority = 5, description = "Test the idle timeout for WebSocket")
     public void testIdleTimeout() throws ClientConnectorException, InterruptedException, IOException {
-        configuration.setIdleTimeoutInMillis(3000);
+        configuration.setIdleTimeoutInMillis(1000);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         HandshakeFuture handshakeFuture = handshake(connectorListener);

@@ -180,7 +180,6 @@ public class WebSocketClient {
             }).sync();
         } catch (Throwable t) {
             handshakeFuture.notifyError(t);
-            connectorListener.onError(t);
         }
     }
 }
