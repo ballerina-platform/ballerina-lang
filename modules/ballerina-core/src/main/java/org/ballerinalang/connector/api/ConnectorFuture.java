@@ -20,6 +20,7 @@ package org.ballerinalang.connector.api;
 /**
  * {@code ConnectorFuture} object will be returned to the server connector implementation, which can be used to
  * listen to future events in ballerina side.
+ * This will also be used in client connector side to notify Ballerina about client responses in asynchronous manner.
  *
  * @since 0.94
  */
@@ -28,6 +29,7 @@ public interface ConnectorFuture {
     /**
      * If server connector implementation is interested in future events from ballerina, it needs to set this
      * {@code ConnectorFutureListener} object.
+     * This will also be used in Ballerina side, if it is interested in client side events.
      *
      * @param futureListener to listen to future events.
      */

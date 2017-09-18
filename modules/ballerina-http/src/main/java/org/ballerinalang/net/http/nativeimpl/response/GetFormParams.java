@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -55,8 +56,8 @@ public class GetFormParams extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            //TODO check below line
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
             String contentType = httpCarbonMessage.getHeader(Constants.CONTENT_TYPE);
             if (contentType != null && contentType.contains(Constants.APPLICATION_FORM)) {
                 String payload;

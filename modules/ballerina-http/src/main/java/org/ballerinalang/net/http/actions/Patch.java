@@ -17,14 +17,11 @@
 package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -39,8 +36,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         actionName = "patch",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c",
-                        type = TypeEnum.CONNECTOR),
+                @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
@@ -56,42 +52,23 @@ public class Patch extends AbstractHTTPAction {
     private static final Logger logger = LoggerFactory.getLogger(Patch.class);
 
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
 
-        logger.debug("Executing Native Action : Patch");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing Native Action : {}", this.getName());
+        }
 
         try {
             // Execute the operation
-            return executeAction(context, createCarbonMsg(context));
+            return executeNonBlockingAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
 
-    @Override
-    public void execute(Context context, BalConnectorCallback callback) {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action (non-blocking): {}", this.getName());
-        }
-        try {
-            // Execute the operation
-            executeNonBlockingAction(context, createCarbonMsg(context));
-        } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
-                                         + ". " + t.getMessage(), context);
-        }
-    }
-
-    private HTTPCarbonMessage createCarbonMsg(Context context) {
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-        HTTPCarbonMessage cMsg = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
-        prepareRequest(bConnector, path, cMsg);
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
         cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_PATCH);
         return cMsg;
     }

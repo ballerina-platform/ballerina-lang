@@ -17,9 +17,10 @@
  */
 
 package org.ballerinalang.net.http.session;
-import org.ballerinalang.model.values.BMessage;
+
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.Constants;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -131,10 +132,10 @@ public class HTTPSession implements Session, Serializable {
     }
 
     @Override
-    public void generateSessionHeader(BMessage message) {
+    public void generateSessionHeader(HTTPCarbonMessage message) {
         //Add set Cookie only for the first response after the creation
         if (this.isNew()) {
-            message.value().setHeader(Constants.RESPONSE_COOKIE_HEADER, Constants.SESSION_ID + this.getId() + "; "
+            message.setHeader(Constants.RESPONSE_COOKIE_HEADER, Constants.SESSION_ID + this.getId() + "; "
                     + Constants.PATH + this.getPath() + ";");
         }
     }

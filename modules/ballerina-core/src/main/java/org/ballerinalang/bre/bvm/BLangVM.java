@@ -24,7 +24,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
-import org.ballerinalang.connector.impl.BConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
+import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
@@ -64,7 +66,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -3050,7 +3051,10 @@ public class BLangVM {
             controlStack.pushFrame(caleeSF);
 
             try {
-                if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+                boolean nonBlocking = !context.disableNonBlocking
+                        && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+                BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
+                if (nonBlocking) {
                     // Enable non-blocking.
                     context.setStartIP(ip);
                     // TODO : Temporary solution to make non-blocking working.
@@ -3060,14 +3064,29 @@ public class BLangVM {
                     context.programFile = programFile;
                     context.funcCallCPEntry = funcCallCPEntry;
                     context.actionInfo = actionInfo;
-                    BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
-                    connectorCallback.setNativeAction(nativeAction);
-                    nativeAction.execute(context, connectorCallback);
+
+                    ConnectorFuture future = nativeAction.execute(context);
+                    if (future == null) {
+                        throw new BallerinaException("Native action doesn't provide a future object to sync");
+                    }
+                    future.setConnectorFutureListener(listener);
+
                     ip = -1;
                     return;
-                    // release thread.
                 } else {
-                    nativeAction.execute(context);
+                    ConnectorFuture future = nativeAction.execute(context);
+                    if (future == null) {
+                        throw new BallerinaException("Native action doesn't provide a future object to sync");
+                    }
+                    future.setConnectorFutureListener(listener);
+                    //default nonBlocking timeout 5 mins
+                    long timeout = 300000;
+                    boolean res = listener.sync(timeout);
+                    if (!res) {
+                        //non blocking execution timed out.
+                        throw new BallerinaException("Action execution timed out, timeout period - " + timeout
+                        + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
+                    }
                     // Copy return values to the callers stack
                     controlStack.popFrame();
                     handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
@@ -3571,7 +3590,7 @@ public class BLangVM {
                 return;
             }
 
-            BConnectorFuture connectorFuture = context.getConnectorFuture();
+            BServerConnectorFuture connectorFuture = context.getConnectorFuture();
             try {
                 connectorFuture.notifyFailure(new BallerinaException(BLangVMErrors
                         .getPrintableStackTrace(context.getError())));

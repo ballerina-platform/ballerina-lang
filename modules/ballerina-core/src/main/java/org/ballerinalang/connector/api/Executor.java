@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.connector.api;
 
-import org.ballerinalang.connector.impl.BConnectorFuture;
+import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.connector.impl.BallerinaWorkerThread;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
@@ -43,7 +43,7 @@ public class Executor {
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture execute(Resource resource, BValue... values) {
-        ConnectorFuture connectorFuture = new BConnectorFuture();
+        ConnectorFuture connectorFuture = new BServerConnectorFuture();
         ResourceExecutor.execute(resource, connectorFuture, values);
         return connectorFuture;
     }
@@ -58,22 +58,22 @@ public class Executor {
      * @return future object to listen to events if any.
      */
     public static ConnectorFuture submit(Resource resource, BValue... values) {
-        BConnectorFuture connectorFuture = new BConnectorFuture();
+        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
 //        ThreadPoolFactory.getInstance().getExecutor().
 //                execute(new BallerinaWorkerThread(resource, connectorFuture, values));
         return connectorFuture;
     }
 
     //Temp method until resource signatures are changed(no thread pool)
-    public static BConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
-        BConnectorFuture connectorFuture = new BConnectorFuture();
+    public static BServerConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
+        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ResourceExecutor.execute(resource, connectorFuture, properties, values);
         return connectorFuture;
     }
 
     //Temp method until resource signatures are changed(with thread pooling)
     public static ConnectorFuture submit(Resource resource, Map<String, Object> properties, BValue... values) {
-        BConnectorFuture connectorFuture = new BConnectorFuture();
+        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
         ThreadPoolFactory.getInstance().getExecutor().
                 execute(new BallerinaWorkerThread(resource, connectorFuture, properties, values));
         return connectorFuture;

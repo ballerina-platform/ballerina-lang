@@ -29,7 +29,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @since 0.94
  */
-public class BConnectorFuture implements ConnectorFuture {
+public class BServerConnectorFuture implements ConnectorFuture {
     private ConnectorFutureListener connectorFutureListener;
 
     private BValue response;

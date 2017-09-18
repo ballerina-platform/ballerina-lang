@@ -25,7 +25,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
+import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * ballerina.model.messages:getStringValue
@@ -40,8 +40,9 @@ import org.ballerinalang.net.http.util.RequestResponseUtil;
         isPublic = true
 )
 public class GetStringValue extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getStringValue(context, this, null);
+        return HttpUtil.getStringValue(context, this);
     }
 }

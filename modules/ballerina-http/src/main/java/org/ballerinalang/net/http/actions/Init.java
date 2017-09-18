@@ -1,8 +1,9 @@
 package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -21,8 +22,7 @@ import java.util.ServiceLoader;
         packageName = "ballerina.net.http",
         actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
-        },
+        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)},
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeEnum.STRING)
         }
@@ -30,7 +30,7 @@ import java.util.ServiceLoader;
 public class Init extends AbstractHTTPAction {
 
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         if (BallerinaConnectorManager.getInstance().
                 getClientConnector(Constants.PROTOCOL_HTTP) == null) {
             CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
@@ -41,7 +41,9 @@ public class Init extends AbstractHTTPAction {
                 BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
             });
         }
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 
     @Override

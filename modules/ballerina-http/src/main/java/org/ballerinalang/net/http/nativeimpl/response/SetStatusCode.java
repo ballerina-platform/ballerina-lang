@@ -26,6 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -47,8 +48,8 @@ public class SetStatusCode extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         try {
             BStruct responseStruct  = ((BStruct) getRefArgument(context, 0));
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) responseStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            //TODO check below line
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(responseStruct, new HTTPCarbonMessage());
             long statusCode = getIntArgument(context, 0);
             if (statusCode != (int) statusCode) {
                 throw BLangExceptionHelper

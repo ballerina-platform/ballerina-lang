@@ -25,9 +25,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Native function to get payload as Blob..
@@ -43,10 +41,8 @@ import org.slf4j.LoggerFactory;
 )
 public class GetBinaryPayload extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(GetBinaryPayload.class);
-
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.getBinaryPayload(context, this, log);
+        return HttpUtil.getBinaryPayload(context, this);
     }
 }

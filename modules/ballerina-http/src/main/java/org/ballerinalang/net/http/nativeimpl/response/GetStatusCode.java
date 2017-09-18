@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -46,8 +47,8 @@ public class GetStatusCode extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         int statusCode = -1;
         BStruct responseStruct  = ((BStruct) getRefArgument(ctx, 0));
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) responseStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        //TODO check below line
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(responseStruct, null);
         String statusCodeStr = String.valueOf(httpCarbonMessage.getProperty(Constants.HTTP_STATUS_CODE));
 
         try {

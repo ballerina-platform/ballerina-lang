@@ -24,9 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.net.http.util.RequestResponseUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.net.http.HttpUtil;
 
 /**
  * Native function to set given header to carbon message.
@@ -44,10 +42,8 @@ import org.slf4j.LoggerFactory;
 )
 public class SetHeader extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(SetHeader.class);
-
     @Override
     public BValue[] execute(Context context) {
-        return RequestResponseUtil.setHeader(context, this, log);
+        return HttpUtil.setHeader(context, this);
     }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -45,8 +46,8 @@ public class GetRequestURL extends AbstractNativeFunction {
     String requestURL = "";
     public BValue[] execute(Context ctx) {
         BStruct requestStruct  = ((BStruct) getRefArgument(ctx, 0));
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                .getNativeData(Constants.TRANSPORT_MESSAGE);
+        //TODO check below line
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
         Object requestURLPropertyObject = httpCarbonMessage.getProperty(Constants.REQUEST_URL);
         if (requestURLPropertyObject != null) {
             requestURL = requestURLPropertyObject.toString();
