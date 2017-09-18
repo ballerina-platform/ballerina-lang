@@ -54,7 +54,7 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.XML_QNAME;
+        return NodeKind.XML_ATTRIBUTE;
     }
 
     @Override
