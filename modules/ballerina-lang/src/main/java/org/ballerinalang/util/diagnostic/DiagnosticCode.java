@@ -42,6 +42,12 @@ public enum DiagnosticCode {
     INVALID_WORKER_SEND_POSITION("invalid.worker.send.position"),
     INVALID_WORKER_RECEIVE_POSITION("invalid.worker.receive.position"),
     UNDEFINED_WORKER("undefined.worker"),
+    INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
+    
+    FUNCTION_MUST_RETURN("function.must.return"),
+    UNREACHABLE_CODE("unreachable.code"),
+    DEAD_CODE("dead.code"),
+    NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),

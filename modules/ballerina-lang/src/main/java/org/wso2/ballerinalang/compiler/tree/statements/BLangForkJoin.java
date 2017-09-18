@@ -17,14 +17,17 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +49,9 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     public ExpressionNode timeoutExpression;
     public VariableNode timeoutVariable;
     public BLangBlockStmt timeoutBody;
+    
+    public BLangIdentifier joinResultsName;
+    public BLangType joinResultsType;
 
     public BLangForkJoin() {
         this.workers = new ArrayList<>();
@@ -99,6 +105,7 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
@@ -106,8 +113,29 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
         return "BLangForkJoin: " + Arrays.toString(workers.toArray()) +
                 (joinedBody != null ? " Join: " + joinType + " " + joinedWorkerCount + " " +
                         (joinedWorkers.isEmpty() ? "" : Arrays.toString(joinedWorkers.toArray())) +
-                        " {" + joinedBody + "}" : "") +
+                        " (" + joinResultsType + " " + joinResultsName + ") {" + joinedBody + "}" : "") +
                 (timeoutBody != null ? " Timeout: (" + timeoutExpression + ") (" + timeoutVariable + ")"
                         + " {" + timeoutBody + "}" : "");
     }
+
+    @Override
+    public IdentifierNode getJoinResultsName() {
+        return joinResultsName;
+    }
+
+    @Override
+    public TypeNode getJoinResultsType() {
+        return joinResultsType;
+    }
+
+    @Override
+    public void setJoinResultsName(IdentifierNode joinResultsName) {
+        this.joinResultsName = (BLangIdentifier) joinResultsName;
+    }
+
+    @Override
+    public void setJoinResultsType(TypeNode joinResultsType) {
+        this.joinResultsType = (BLangType) joinResultsType;
+    }
+    
 }

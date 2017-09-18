@@ -21,7 +21,9 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,7 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     public List<ExpressionNode> expressions;
     public IdentifierNode workerIdentifier;
+    public SymbolEnv env;
 
     public BLangWorkerReceive() {
         this.expressions = new ArrayList<>();

@@ -18,27 +18,30 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.NodeUtils;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 
 /**
  * This represents the code analyzing pass of semantic analysis. 
@@ -48,28 +51,20 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
  * (*) Dead code detection.
+ * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
     
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
     
-    private DiagnosticListener diagListener;
-
-    private Names names;
-    
     private int loopCount;
-    
-    private Name pkgName;
-    private Name pkgVerion;
-
-    private BLangCompilationUnit compUnitNode;
-    
     private boolean statementReturns;
-    
     private boolean deadCode;
-    
     private boolean unreachableCodeCheckDone;
+    private DiagnosticLog dlog;
+    private SymbolResolver symResolver;
+    private SymbolTable symTable;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -81,13 +76,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
-        this.names = Names.getInstance(context);    
+        this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.dlog = DiagnosticLog.getInstance(context);
     }
     
     private void resetPackage() {
-        this.pkgName = null;
-        this.pkgVerion = null;
-        this.compUnitNode = null;
         this.deadCode = false;
     }
     
@@ -100,21 +94,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.statementReturns = false;
     }
     
-    public void analyze(BLangPackage pkgNode, DiagnosticListener diagListener) {
+    public BLangPackage analyze(BLangPackage pkgNode) {
         this.resetPackage();
-        this.diagListener = diagListener;
         pkgNode.accept(this);
+        return pkgNode;
     }
     
     @Override
     public void visit(BLangPackage pkgNode) {
-        this.pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
         pkgNode.compUnits.forEach(e -> e.accept(this));
     }
     
     @Override
     public void visit(BLangCompilationUnit compUnitNode) {
-        this.compUnitNode = compUnitNode;
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
     }
     
@@ -125,13 +117,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.body.accept(this);
         /* the function returns, but none of the statements surely returns */
         if (functionReturns && !this.statementReturns) {
-            this.diagListener.received(this.generateFunctionMustReturn(funcNode));
+            this.dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN, 
+                    String.valueOf(funcNode.getReturnParameters()));
         }
+        funcNode.workers.forEach(e -> e.accept(this));
+    }
+    
+    @Override
+    public void visit(BLangForkJoin forkJoin) {
+        forkJoin.workers.forEach(e -> e.accept(this));
+    }
+    
+    @Override
+    public void visit(BLangWorker worker) {
+        worker.body.accept(this);
     }
     
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns && !this.unreachableCodeCheckDone) {
-            this.diagListener.received(this.generateUnreachableCodeDiagnostic(stmt));
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             /* to make sure we don't give the same error again to following statements */
             this.unreachableCodeCheckDone = true;
         }
@@ -139,7 +143,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private void checkDeadCode(BLangStatement stmt) {
         if (this.deadCode) {
-            this.diagListener.received(this.generateDeadCodeDiagnostic(stmt));
+            this.dlog.warning(stmt.pos, DiagnosticCode.DEAD_CODE);
         }
     }
     
@@ -220,44 +224,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangContinue continueNode) {
         if (this.loopCount == 0) {
-            this.diagListener.received(this.generateInvalidContinueDiagnostic(continueNode));
+            this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
         }
     }
     
-    private Diagnostic generateInvalidContinueDiagnostic(BLangContinue continueNode) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
-        diag.pos = continueNode.pos;
-        diag.msg = "next cannot be used outside of a loop";
-        return diag;
+    private boolean workerExists(SymbolEnv env, String workerName) {
+        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
+        return (symbol != this.symTable.notFoundSymbol);
     }
     
-    private Diagnostic generateUnreachableCodeDiagnostic(BLangStatement stmt) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
-        diag.pos = stmt.pos;
-        diag.msg = "Unreachable code";
-        return diag;
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+        String workerName = workerSendNode.workerIdentifier.getValue();
+        if (!this.workerExists(workerSendNode.env, workerName)) {
+            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
     }
     
-    private Diagnostic generateDeadCodeDiagnostic(BLangStatement stmt) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.WARNING;
-        diag.pos = stmt.pos;
-        diag.msg = "Dead code";
-        return diag;
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        String workerName = workerReceiveNode.workerIdentifier.getValue();
+        if (!this.workerExists(workerReceiveNode.env, workerName)) {
+            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
     }
     
-    private Diagnostic generateFunctionMustReturn(BLangFunction funcNode) {
-        BDiagnostic diag = new BDiagnostic();
-        diag.source = new BDiagnosticSource(this.pkgName.value, this.pkgVerion.value, this.compUnitNode.name);
-        diag.kind = Kind.ERROR;
-        diag.pos = funcNode.pos;
-        diag.msg = "This function must return a result of type " + funcNode.getReturnParameters();
-        return diag;
-    }
-
 }

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 
 /**
  * @since 0.94
@@ -113,10 +115,22 @@ public class SymbolEnv {
         return symbolEnv;
     }
     
-    public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env, BLangInvokableNode enclInv) {
+    public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
         env.copyTo(symbolEnv);
-        symbolEnv.enclInvokable = enclInv;
+        if (env.node.getKind() == NodeKind.FUNCTION) {
+            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
+        }
+        return symbolEnv;
+    }
+    
+    public static SymbolEnv createFolkJoinEnv(BLangForkJoin forkJoin, SymbolEnv env) {
+        Scope scope = new Scope(env.scope.owner);
+        SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
+        env.copyTo(symbolEnv);
+        if (env.node.getKind() == NodeKind.FUNCTION) {
+            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
+        }
         return symbolEnv;
     }
     
