@@ -306,6 +306,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
     }
+    
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
         return analyzeNode(node, env);

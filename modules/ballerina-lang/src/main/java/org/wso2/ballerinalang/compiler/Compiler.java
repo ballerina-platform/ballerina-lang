@@ -80,7 +80,8 @@ public class Compiler {
                 codeAnalyze(typeCheck(define(sourcePkg)));
                 break;
             case CODE_GEN:
-                gen(codeAnalyze(typeCheck(define(sourcePkg))));
+                // TODO Add code analyzer
+                gen(typeCheck(define(sourcePkg)));
                 break;
         }
     }
@@ -92,7 +93,7 @@ public class Compiler {
     private BLangPackage typeCheck(BLangPackage pkgNode) {
         return semAnalyzer.analyze(pkgNode);
     }
-    
+
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
         return codeAnalyzer.analyze(pkgNode);
     }

@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -191,14 +192,14 @@ public class SymbolTable {
 
     private void defineOperators() {
         // Binary operator symbols
-        defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, -1);
-        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, -1);
-        defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, -1);
-        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, -1);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
+        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
+        defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
 
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);

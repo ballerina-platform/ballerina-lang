@@ -356,6 +356,14 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
+        genNode(binaryExpr.lhsExpr, this.env);
+        genNode(binaryExpr.rhsExpr, this.env);
+
+        int opcode = binaryExpr.opSymbol.opcode;
+        int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
+
+        binaryExpr.regIndex = exprIndex;
+        emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
     }
 
 

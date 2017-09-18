@@ -22,6 +22,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -144,6 +145,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkType(node.pos, node.type, expType, diagCode);
     }
 
+
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
@@ -259,6 +261,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         binaryExpr.opKind, lhsType, rhsType);
             } else {
+                binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                 actualType = opSymbol.type.getReturnTypes().get(0);
             }
         }
@@ -283,6 +286,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(castExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
         } else {
             BCastOperatorSymbol castSym = (BCastOperatorSymbol) symbol;
+            castExpr.castSymbol = castSym;
             actualTypes = getActualTypesOfCastExpr(castExpr, targetType, sourceType, castSym);
         }
 
