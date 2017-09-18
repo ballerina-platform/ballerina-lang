@@ -28,9 +28,16 @@ public interface Service {
     /**
      * This method returns the service name.
      *
-     * @return
+     * @return name of the service.
      */
     String getName();
+
+    /**
+     * This method returns the package of the service.
+     *
+     * @return package of the service.
+     */
+    String getPackage();
 
     /**
      * This method will return annotation for the given package path and annotation name.
