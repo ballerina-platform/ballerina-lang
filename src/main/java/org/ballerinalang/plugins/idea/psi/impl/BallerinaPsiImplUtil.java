@@ -45,9 +45,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -113,14 +111,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
-
-    private static final String ANNOTATION_DEFINITION = "//annotationDefinition/Identifier";
-    private static final String CONSTANT_DEFINITION = "//constantDefinition/Identifier";
-    private static final String GLOBAL_VARIABLE_DEFINITION = "//globalVariableDefinition/Identifier";
-    private static final String FUNCTION_DEFINITION = "//functionDefinition/Identifier";
-    private static final String CONNECTOR_DEFINITION = "//connectorDefinition/Identifier";
-    private static final String ACTION_DEFINITION = "//actionDefinition/Identifier";
-    private static final String STRUCT_DEFINITION = "//structDefinition/Identifier";
 
     private BallerinaPsiImplUtil() {
 
@@ -445,12 +435,12 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<PsiElement> getAllConnectorsFromPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, CONNECTOR_DEFINITION);
+        return getAllMatchingElementsFromPackage(packageElement, ConnectorDefinitionNode.class);
     }
 
     @NotNull
     public static List<PsiElement> getAllAnnotationsInPackage(PsiDirectory packageElement) {
-        return getAllMatchingElementsFromPackage(packageElement, ANNOTATION_DEFINITION);
+        return getAllMatchingElementsFromPackage(packageElement, AnnotationDefinitionNode.class);
     }
 
     @NotNull
@@ -467,22 +457,22 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<PsiElement> getAllStructsFromPackage(PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, STRUCT_DEFINITION);
+        return getAllMatchingElementsFromPackage(directory, StructDefinitionNode.class);
     }
 
     @NotNull
     public static List<PsiElement> getAllFunctionsFromPackage(@NotNull PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, FUNCTION_DEFINITION);
+        return getAllMatchingElementsFromPackage(directory, FunctionDefinitionNode.class);
     }
 
     @NotNull
     public static List<PsiElement> getAllConstantsFromPackage(PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, CONSTANT_DEFINITION);
+        return getAllMatchingElementsFromPackage(directory, ConstantDefinitionNode.class);
     }
 
     @NotNull
     public static List<PsiElement> getAllGlobalVariablesFromPackage(PsiDirectory directory) {
-        return getAllMatchingElementsFromPackage(directory, GLOBAL_VARIABLE_DEFINITION);
+        return getAllMatchingElementsFromPackage(directory, GlobalVariableDefinitionNode.class);
     }
 
     @NotNull
@@ -537,11 +527,12 @@ public class BallerinaPsiImplUtil {
      * Returns all the elements in the given directory(package) which matches the given xpath.
      *
      * @param directory which is used to get the functions
-     * @param xpath     xpath to the element
      * @return all functions in the given directory(package)
      */
     @NotNull
-    private static List<PsiElement> getAllMatchingElementsFromPackage(@NotNull PsiDirectory directory, String xpath) {
+    private static <T extends PsiElement> List<PsiElement> getAllMatchingElementsFromPackage(@NotNull PsiDirectory
+                                                                                                     directory,
+                                                                                             @NotNull Class<T> clazz) {
         Project project = directory.getProject();
         List<PsiElement> results = new ArrayList<>();
         VirtualFile virtualFile = directory.getVirtualFile();
@@ -554,9 +545,19 @@ public class BallerinaPsiImplUtil {
             if (!(psiFile instanceof BallerinaFile)) {
                 continue;
             }
-            Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
 
-            results.addAll(functions);
+            Collection<T> definitions = PsiTreeUtil.findChildrenOfType(psiFile, clazz);
+            for (T definition : definitions) {
+                PsiElement firstChild = definition.getFirstChild();
+                if (firstChild instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+                    if (elementType != BallerinaTypes.PUBLIC) {
+                        continue;
+                    }
+                }
+                IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(definition, IdentifierPSINode.class);
+                results.add(identifier);
+            }
         }
         return results;
     }
@@ -570,10 +571,13 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllActionsFromAConnector(@NotNull PsiElement connectorDefinitionNode) {
         List<PsiElement> results = new ArrayList<>();
-        // Todo - use PsiTreeUtil
-        Collection<? extends PsiElement> allActions = XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode,
-                ACTION_DEFINITION);
-        results.addAll(allActions);
+
+        Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(connectorDefinitionNode,
+                ActionDefinitionNode.class);
+        for (ActionDefinitionNode definitionNode : actionDefinitionNodes) {
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(definitionNode, IdentifierPSINode.class);
+            results.add(identifier);
+        }
         return results;
     }
 
@@ -1308,6 +1312,9 @@ public class BallerinaPsiImplUtil {
         if (matchFunctions) {
             List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(aPackage);
             for (PsiElement function : functions) {
+                if (function == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(function.getText())) {
                     return function;
                 }
@@ -1316,6 +1323,9 @@ public class BallerinaPsiImplUtil {
         if (matchConnectors) {
             List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(aPackage);
             for (PsiElement connector : connectors) {
+                if (connector == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(connector.getText())) {
                     return connector;
                 }
@@ -1324,6 +1334,9 @@ public class BallerinaPsiImplUtil {
         if (matchStructs) {
             List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(aPackage);
             for (PsiElement struct : structs) {
+                if (struct == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(struct.getText())) {
                     return struct;
                 }
@@ -1332,6 +1345,9 @@ public class BallerinaPsiImplUtil {
         if (matchGlobalVariables) {
             List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(aPackage);
             for (PsiElement variable : globalVariables) {
+                if (variable == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(variable.getText())) {
                     return variable;
                 }
@@ -1340,6 +1356,9 @@ public class BallerinaPsiImplUtil {
         if (matchConstants) {
             List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(aPackage);
             for (PsiElement constant : constants) {
+                if (constant == null) {
+                    continue;
+                }
                 if (identifier.getText().equals(constant.getText())) {
                     return constant;
                 }
@@ -1479,7 +1498,7 @@ public class BallerinaPsiImplUtil {
                                                                       @NotNull String type) {
         List<PsiElement> results = new ArrayList<>();
         List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
-                ANNOTATION_DEFINITION);
+                AnnotationDefinitionNode.class);
         if (annotationDefinitions.isEmpty()) {
             return results;
         }

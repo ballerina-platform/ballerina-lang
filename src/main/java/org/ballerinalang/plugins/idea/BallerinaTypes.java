@@ -164,6 +164,7 @@ public class BallerinaTypes {
     public static final TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.TYPE_MESSAGE);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
+    public static final TokenIElementType PUBLIC = tokenIElementTypes.get(BallerinaLexer.PUBLIC);
     public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
     public static final TokenIElementType RETRY = tokenIElementTypes.get(BallerinaLexer.RETRY);
     public static final TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);

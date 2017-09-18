@@ -74,8 +74,8 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   NATIVE FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   (PUBLIC)? NATIVE FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
+    |   (PUBLIC)? FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 lambdaFunction
@@ -83,7 +83,7 @@ lambdaFunction
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
+    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
     ;
 
 connectorBody
@@ -96,7 +96,7 @@ actionDefinition
     ;
 
 structDefinition
-    :   STRUCT Identifier LEFT_BRACE structBody RIGHT_BRACE
+    :   (PUBLIC)? STRUCT Identifier LEFT_BRACE structBody RIGHT_BRACE
     ;
 
 structBody
@@ -108,7 +108,7 @@ annotationDefinition
     ;
 
 enumDefinition
-    : ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
+    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumFieldList RIGHT_BRACE
     ;
 
 enumFieldList
@@ -116,7 +116,7 @@ enumFieldList
     ;
 
 globalVariableDefinition
-    :   typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -146,7 +146,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
     ;
 
 workerDeclaration
