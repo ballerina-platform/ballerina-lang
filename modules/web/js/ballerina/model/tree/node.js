@@ -15,17 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import EventChannel from 'event_channel';
 
-const uuid = function () {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
-};
+import EventChannel from 'event_channel';
+import SimpleBBox from '../view/simple-bounding-box';
 
 /**
  * Base of all tree nodes.
@@ -33,6 +25,30 @@ const uuid = function () {
  * @class Node
  */
 class Node extends EventChannel {
+
+    constructor() {
+        super();
+        // Set an id
+        this.id = uuid();
+
+        // Following will propergate tree modified event to the top.
+        this.on('tree-modified', function (event) {
+            if (!_.isNil(this.parent)) {
+                this.parent.trigger('tree-modified', event);
+            }
+        });
+
+        /**
+         * View State Object to keep track of the model's view properties
+         * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
+         */
+        this.viewState = {
+            bBox: new SimpleBBox(),
+            components: {},
+            dimensionsSynced: false,
+            hidden: false,
+        };
+    }
 
     /**
      *
@@ -137,5 +153,16 @@ class Node extends EventChannel {
         }
     }
 }
+
+
+const uuid = function () {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+};
 
 export default Node;
