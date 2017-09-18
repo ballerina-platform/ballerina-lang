@@ -132,11 +132,13 @@ class TransformNodeMapper {
     createInputToOperatorMapping(sourceExpression, target, compatibility) {
         if (ASTFactory.isBinaryExpression(target.operator)) {
             this.createInputToBinaryOperatorMapping(sourceExpression, target, compatibility);
+        } else if (ASTFactory.isUnaryExpression(target.operator)) {
+            this.createInputToUnaryOperatorMapping(sourceExpression, target, compatibility);
         }
     }
 
     /**
-     * Create direct input variable to a operator node mapping.
+     * Create direct input variable to a binary operator node mapping.
      * @param {Expression} sourceExpression source expression
      * @param {any} target target operator node definition
      * @param {any} compatibility compatibility of the mapping
@@ -151,6 +153,29 @@ class TransformNodeMapper {
                 operatorNode.setLeftExpression(sourceExpression);
                 return;
             }
+            operatorNode.setRightExpression(sourceExpression);
+            return;
+        }
+
+        const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
+        const argumentExpression = this.getTempVertexExpression(sourceExpression,
+            this._transformStmt.getIndexOfChild(assignmentStmt));
+
+        operatorNode.addChild(argumentExpression, index);
+    }
+
+    /**
+     * Create direct input variable to a unary operator node mapping.
+     * @param {Expression} sourceExpression source expression
+     * @param {any} target target operator node definition
+     * @param {any} compatibility compatibility of the mapping
+     * @memberof TransformNodeMapper
+     */
+    createInputToUnaryOperatorMapping(sourceExpression, target, compatibility) {
+        const operatorNode = target.operator;
+        const index = target.index;
+
+        if (compatibility.safe) {
             operatorNode.setRightExpression(sourceExpression);
             return;
         }
@@ -476,10 +501,7 @@ class TransformNodeMapper {
     */
     isErrorExpression(expression) {
         // TODO: enhance for user defined errors
-        if (expression.getExpressionString().trim() === '_') {
-            return true;
-        }
-        return false;
+        return (expression.getExpressionString().trim() === '_');
     }
 
     /**
@@ -557,7 +579,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getOutputStatement(expression) {
-        return this._transformStmt.getChildren().find((stmt) => {
+        return this._transformStmt.filterChildren(ASTFactory.isAssignmentStatement).find((stmt) => {
             return stmt.getLeftExpression().getChildren().find((exp) => {
                 return expression.getExpressionString().trim() === exp.getExpressionString().trim();
             });
@@ -686,6 +708,9 @@ class TransformNodeMapper {
             return true;
         }
         if (ASTFactory.isBinaryExpression(rightExp)) {
+            return true;
+        }
+        if (ASTFactory.isUnaryExpression(rightExp)) {
             return true;
         }
         return false;

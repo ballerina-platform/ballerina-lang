@@ -184,18 +184,20 @@ class TransformExpanded extends React.Component {
         if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
             this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
         }
-        if (ASTFactory.isBinaryExpression(rightExpression)
-                    || ASTFactory.isUnaryExpression(rightExpression)) {
+
+        if (ASTFactory.isBinaryExpression(rightExpression)) {
             const targetId = leftExpression.getExpressionString().trim() + ':' + viewId;
-            if (ASTFactory.isBinaryExpression(rightExpression)) {
-                const leftId = rightExpression.getLeftExpression().getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
-                const rightId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(rightId, rightExpression.getID() + ':1:' + viewId);
-            } else {
-                const leftId = rightExpression.children[0].getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
-            }
+            const leftId = rightExpression.getLeftExpression().getExpressionString().trim() + ':' + viewId;
+            this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
+            const rightId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
+            this.drawConnection(rightId, rightExpression.getID() + ':1:' + viewId);
+            this.drawConnection(rightExpression.getID() + ':return:0:' + viewId, targetId);
+        }
+
+        if (ASTFactory.isUnaryExpression(rightExpression)) {
+            const targetId = leftExpression.getExpressionString().trim() + ':' + viewId;
+            const leftId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
+            this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
             this.drawConnection(rightExpression.getID() + ':return:0:' + viewId, targetId);
         }
     }
