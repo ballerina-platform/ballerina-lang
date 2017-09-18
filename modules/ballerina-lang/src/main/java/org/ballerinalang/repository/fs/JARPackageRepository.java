@@ -34,13 +34,13 @@ import java.util.Map;
  */
 public class JARPackageRepository extends GeneralFSPackageRepository {
     
-    public JARPackageRepository(ClassLoader classLoader, String basePath) {
-        super(generatePath(classLoader, basePath));
+    public JARPackageRepository(Object obj, String basePath) {
+        super(generatePath(obj, basePath));
     }
     
-    private static Path generatePath(ClassLoader classLoader, String basePath) {
+    private static Path generatePath(Object obj, String basePath) {
         try {
-            URI uri = classLoader.getResource(basePath).toURI();
+            URI uri = obj.getClass().getResource(basePath).toURI();
             initFS(uri);
             Path result = Paths.get(uri);
             return result;
