@@ -100,6 +100,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Global Variable";
             case RULE_namespaceDeclaration:
                 return "Namespace";
+            case RULE_workerDeclaration:
+                return "Worker";
         }
         return "";
     }

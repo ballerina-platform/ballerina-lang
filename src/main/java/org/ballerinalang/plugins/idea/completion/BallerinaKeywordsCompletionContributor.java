@@ -49,6 +49,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
+import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
@@ -273,6 +274,13 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 }
 
                 addTypeNamesAsLookups(result);
+            }
+        }
+
+        if(element instanceof IdentifierPSINode){
+            PsiReference reference = element.findReferenceAt(element.getTextLength());
+            if(reference instanceof WorkerReference){
+                result.addAllElements(getWorkerInteractionKeywords());
             }
         }
     }

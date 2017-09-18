@@ -333,21 +333,6 @@ StringCharacter
     |   ('\\' .)
     ;
 
-BacktickStringLiteral
-    :   '`' ValidBackTickStringCharacters '`'
-    ;
- fragment
- ValidBackTickStringCharacters
-    :     ValidBackTickStringCharacter+
-    ;
- 
- fragment
- ValidBackTickStringCharacter
-    :   ~[`\\]
-    |   ('\\' '\\')+
-    |   ('\\' .)
-    ;
-
 // §3.10.6 Escape Sequences for Character and String Literals
 
 fragment
@@ -403,6 +388,10 @@ LetterOrDigit
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
 
+XMLStart
+    :   TYPE_XML WS* BACKTICK   { inTemplate = true; } -> pushMode(XML)
+    ;
+
 StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
@@ -446,6 +435,47 @@ fragment
 ExpressionStart
     :   '{{'
     ;
+
+mode XML;
+
+XMLEnd
+    :   '`' { inTemplate = false; }          -> popMode
+    ;
+
+XMLExpressionStart
+    :   XMLText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    ;
+
+// We cannot use "StringTemplateBracesSequence? (XMLChar XMLValidCharSequence?)*" because it
+// can match an empty string.
+XMLText
+    :   XMLValidCharSequence? (XMLChar XMLValidCharSequence?)+
+    |   XMLValidCharSequence (XMLChar XMLValidCharSequence?)*
+    ;
+
+fragment
+XMLChar
+    :   ~[`{\\]
+    |   '\\' [`{]
+    |   WS
+    |   XMLEscapedSequence
+    ;
+
+fragment
+XMLEscapedSequence
+    :   '\\\\'
+    |   '\\{{'
+    ;
+
+fragment
+XMLValidCharSequence
+    :   '{'
+    |   '\\' ~'\\'
+    ;
+
+XML_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
 
 mode STRING_TEMPLATE;
 
