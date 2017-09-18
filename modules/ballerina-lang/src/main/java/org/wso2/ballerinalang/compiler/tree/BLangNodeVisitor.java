@@ -72,272 +72,272 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 public abstract class BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangCompilationUnit compUnit) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangPackageDeclaration pkgDclNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangImportPackage importPkgNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangFunction funcNode) {
-        /* ignore */
+        throw new AssertionError();
     }
-    
+
     public void visit(BLangWorker workerNode) {
-        /* ignore */
+        throw new AssertionError();
     }
-    
+
     public void visit(BLangForkJoin forkJoin) {
-        /* ignore */
+        throw new AssertionError();
     }
-    
+
     public void visit(BLangWorkerSend workerSendNode) {
-        /* ignore */
+        throw new AssertionError();
     }
-    
+
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangService serviceNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangResource resourceNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangConnector connectorNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangAction actionNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangStruct structNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangEnum enumNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangVariable varNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangIdentifier identifierNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttribute bLangAnnotationAttribute) {
-        /* ignore */
+    public void visit(BLangAnnotAttribute annotationAttribute) {
+        throw new AssertionError();
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttachmentAttributeValue bLangAnnotAttributeValue) {
-        /* ignore */
+    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangAnnotAttachmentAttribute bLangAnnotAttachmentAttribute) {
-        /* ignore */
+    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
+        throw new AssertionError();
     }
 
     // Statements
     public void visit(BLangBlockStmt blockNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangVariableDef varDefNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangAssignment assignNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangAbort abortNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangContinue continueNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangReturn returnNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangReply replyNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangThrow throwNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLanXMLNSStatement xmlnsStmtNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangComment commentNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangIf ifNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangWhile whileNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangTransaction transactionNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BlangTransform transformNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangCatch catchNode) {
-        /* ignore */
+        throw new AssertionError();
     }
 
 
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangInvocation invocationExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        /* ignore */
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLQName bLangXMLQName) {
-        /* ignore */
+    public void visit(BLangXMLQName xmlQName) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLAttribute bLangXMLAttribute) {
-        /* ignore */
+    public void visit(BLangXMLAttribute xmlAttribute) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
-        /* ignore */
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
-        /* ignore */
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
-        /* ignore */
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
-        /* ignore */
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
-        /* ignore */
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+        throw new AssertionError();
     }
 
-    public void visit(BLangStringTemplateLiteral bLangStringTemplateLiteral) {
-        /* ignore */
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        throw new AssertionError();
     }
 
     // Type nodes
 
     public void visit(BLangValueType valueType) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangArrayType arrayType) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangConstrainedType constrainedType) {
-        /* ignore */
+        throw new AssertionError();
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        /* ignore */
+        throw new AssertionError();
     }
 }

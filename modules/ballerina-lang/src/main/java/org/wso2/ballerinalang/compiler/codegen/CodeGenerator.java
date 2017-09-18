@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -352,6 +353,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         literalExpr.regIndex = regIndex;
+    }
+
+    public void visit(BLangBinaryExpr binaryExpr) {
     }
 
 
