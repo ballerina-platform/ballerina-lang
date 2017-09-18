@@ -1783,12 +1783,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testJoinKeyword() {
-        doCheckResult("test.bal", "function test(){ join<caret> }", "function test(){ join () (message[] ) {\n    \n}" +
+        doCheckResult("test.bal", "function test(){ join<caret> }", "function test(){ join () () {\n    \n}" +
                 " }", null);
     }
 
     public void testTimeoutKeyword() {
-        doCheckResult("test.bal", "function test(){ timeout<caret> }", "function test(){ timeout () (message[] ) " +
+        doCheckResult("test.bal", "function test(){ timeout<caret> }", "function test(){ timeout () () " +
                 "{\n    \n} }", null);
     }
 
