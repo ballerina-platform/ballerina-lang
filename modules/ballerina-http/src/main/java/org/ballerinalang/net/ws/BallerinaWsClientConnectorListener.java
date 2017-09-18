@@ -19,26 +19,12 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
-
-import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -49,56 +35,13 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
 
     private final WebSocketService wsService;
 
-    public BallerinaWsClientConnectorListener(String clientServiceName) {
-        this.wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
-        if (wsService == null) {
-            throw new IllegalArgumentException("Cannot find a client service for name: " + clientServiceName);
-        }
+    public BallerinaWsClientConnectorListener(WebSocketService wsService) {
+        this.wsService = wsService;
     }
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(webSocketInitMessage);
-        Resource onHandshakeResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_HANDSHAKE);
-        if (onHandshakeResource != null) {
-            // TODO: Resource should be able to run without any parameter.
-            BStruct handshakeStruct = wsService.createHandshakeConnectionStruct();
-            handshakeStruct.addNativeData(Constants.WEBSOCKET_MESSAGE, webSocketInitMessage);
-            handshakeStruct.setStringField(0, webSocketInitMessage.getSessionID());
-            handshakeStruct.setBooleanField(0, webSocketInitMessage.isConnectionSecured() ? 1 : 0);
-
-            // Creating map
-            Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
-            BMap<String, BString> bUpgradeHeaders = new BMap<>();
-            upgradeHeaders.entrySet().forEach(
-                    upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(),
-                                                         new BString(upgradeHeader.getValue()))
-            );
-            handshakeStruct.setRefField(0, bUpgradeHeaders);
-
-            // TODO: Need to change Executor.execute to Executor.submit.
-            BValue[] bValues = {handshakeStruct};
-            ConnectorFuture future = Executor.execute(onHandshakeResource, null, bValues);
-            future.setConnectorFutureListener(new ConnectorFutureListener() {
-                @Override
-                public void notifySuccess() {
-                    //TODO need to find a way to execute this after resource invocation.
-                    handleHandshake(webSocketInitMessage, wsService);
-                }
-
-                @Override
-                public void notifyReply(BValue response) {
-                    //Nothing to do
-                }
-
-                @Override
-                public void notifyFailure(BallerinaConnectorException ex) {
-                }
-            });
-
-        } else {
-            handleHandshake(webSocketInitMessage, wsService);
-        }
+        throw new BallerinaConnectorException("onOpen resource is yet supported for client services");
     }
 
     @Override
@@ -129,37 +72,6 @@ public class BallerinaWsClientConnectorListener implements WebSocketConnectorLis
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
-    }
-
-
-    private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
-        String[] subProtocols = wsService.getNegotiableSubProtocols();
-        int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
-        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000);
-        future.setHandshakeListener(new HandshakeListener() {
-            @Override
-            public void onSuccess(Session session) {
-                BStruct wsConnection = wsService.createConnectionStruct();
-                wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
-                wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
-
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
-
-                Resource onOpenResource = wsService.getResourceByName(Constants.RESOURCE_NAME_ON_OPEN);
-                BValue[] bValues = {wsConnection};
-                if (onOpenResource == null) {
-                    return;
-                }
-                ConnectorFuture future = Executor.submit(onOpenResource, null, bValues);
-                future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                ErrorHandlerUtils.printError(throwable);
-            }
-        });
     }
 
 }

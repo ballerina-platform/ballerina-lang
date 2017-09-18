@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -58,9 +59,9 @@ public class GetUpgradeHeader extends AbstractNativeFunction {
         }
 
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        String key = getStringArgument(context, 0);
+        String key = getStringArgument(context, 0).toLowerCase(Locale.ENGLISH);
         Map<String, String> upgradeHeaders =
                 (Map<String, String>) wsConnection.getNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS);
-        return getBValues(new BString(upgradeHeaders.get(key.toLowerCase())));
+        return getBValues(new BString(upgradeHeaders.get(key)));
     }
 }

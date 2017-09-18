@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BStruct;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.websocket.Session;
 
 /**
  * This contains all the sessions which are received via a {@link org.wso2.carbon.messaging.CarbonMessage}.

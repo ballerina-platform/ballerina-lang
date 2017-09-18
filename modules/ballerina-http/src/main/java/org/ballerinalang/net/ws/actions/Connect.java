@@ -31,8 +31,10 @@ import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
+import org.ballerinalang.net.ws.BallerinaWsClientConnectorListener;
 import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketService;
+import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
@@ -65,15 +67,19 @@ public class Connect extends AbstractNativeWsAction {
     public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         BStruct clientConfig = (BStruct) getRefArgument(context, 1);
+        String remoteUrl = getUrlFromConnector(bconnector);
+        String clientServiceName = getClientServiceNameFromConnector(bconnector);
+        WebSocketService wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
+        if (wsService == null) {
+            throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
+        }
 
         BRefType bSubProtocolsBRefType = clientConfig.getRefField(0);
         String wsParentConnectionID = clientConfig.getStringField(0);
         BRefType<BMap<BString, BString>> bCustomHeaders = clientConfig.getRefField(1);
-        int idleTimeoutInSeconds =  new Long(clientConfig.getIntField(0)).intValue();
-
-        WsClientConnectorConfig clientConnectorConfig =
-                new WsClientConnectorConfig(getUrlFromConnector(bconnector));
-        clientConnectorConfig.setTarget(getClientServiceFromConnector(bconnector));
+        int idleTimeoutInSeconds =  (int) clientConfig.getIntField(0);
+        WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
+        clientConnectorConfig.setTarget(clientServiceName);
         if (bSubProtocolsBRefType != null) {
             clientConnectorConfig.setSubProtocols(getSubProtocols(bSubProtocolsBRefType));
         }
@@ -88,7 +94,7 @@ public class Connect extends AbstractNativeWsAction {
         HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
-        HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsServerConnectorListener());
+        HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsClientConnectorListener(wsService));
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {

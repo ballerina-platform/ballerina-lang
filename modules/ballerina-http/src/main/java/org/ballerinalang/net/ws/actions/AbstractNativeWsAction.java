@@ -76,7 +76,7 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
         return bConnector.getStringField(0);
     }
 
-    public String getClientServiceFromConnector(BConnector bConnector) {
+    public String getClientServiceNameFromConnector(BConnector bConnector) {
         return bConnector.getStringField(1);
     }
 
