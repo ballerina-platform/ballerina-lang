@@ -58,18 +58,27 @@ public class Constants {
     // HTTP trace logger
     public static final String HTTP_TRACELOG = "tracelog.http";
     public static final String HTTP_TRACELOG_LEVEL = HTTP_TRACELOG + ".level";
-    public static final String HTTP_TRACELOG_USE_PARENT_HANDLERS = HTTP_TRACELOG +".useParentHandlers";
+    public static final String HTTP_TRACELOG_USE_PARENT_HANDLERS = HTTP_TRACELOG + ".useParentHandlers";
 
     /* FORMATTERS */
     public static final String BALLERINA_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BallerinaLogFormatter";
     public static final String BALLERINA_LOG_FORMATTER_FORMAT = BALLERINA_LOG_FORMATTER + ".format";
-//    public static final String BALLERINA_LOG_FORMAT = "%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL  %2$-5s [%3$s:%4$s] " +
-//            "[%5$s:%6$s] [%7$s] - \"%8$s\" %n";
 
     public static final String BRE_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BRELogFormatter";
     public static final String BRE_LOG_FORMATTER_FORMAT = BRE_LOG_FORMATTER + ".format";
 
     public static final String HTTP_TRACELOG_FORMATTER = "org.ballerinalang.logging.formatters.HTTPTraceLogFormatter";
     public static final String HTTP_TRACELOG_FORMATTER_FORMAT = HTTP_TRACELOG_FORMATTER + ".format";
-//    public static final String HTTP_TRACELOG_FORMAT = "[%1$tY-%1$tm-%1$td %1$tk:%1$tM:%1$tS,%1$tL]  %2$-5s {%3$s} - %4$s %5$s %n";
+
+    /* FORMAT STRING PLACEHOLDERS */
+    public static final String FMT_TIMESTAMP = "{{timestamp}}";
+    public static final String FMT_LEVEL = "{{level}}";
+    public static final String FMT_LOGGER = "{{logger}}";
+    public static final String FMT_PACKAGE = "{{package}}";
+    public static final String FMT_UNIT = "{{unit}}";
+    public static final String FMT_FILE = "{{file}}";
+    public static final String FMT_LINE = "{{line}}";
+    public static final String FMT_WORKER = "{{worker}}";
+    public static final String FMT_MESSAGE = "{{msg}}";
+    public static final String FMT_ERROR = "{{err}}";
 }

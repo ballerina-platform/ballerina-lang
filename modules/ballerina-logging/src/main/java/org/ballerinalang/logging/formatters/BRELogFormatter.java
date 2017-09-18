@@ -20,9 +20,11 @@ package org.ballerinalang.logging.formatters;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevelMapper;
+import org.ballerinalang.logging.util.FormatStringMapper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -34,8 +36,17 @@ import java.util.logging.LogRecord;
  */
 public class BRELogFormatter extends Formatter {
 
-    private static final String format = BLogManager.getLogManager().getProperty(
-            BRELogFormatter.class.getCanonicalName() + ".format");
+    private final String format;
+    private final String jdkLogFormat;
+    private final FormatStringMapper parser = new FormatStringMapper();
+
+    private SimpleDateFormat dateFormat;
+
+    public BRELogFormatter() {
+        format = BLogManager.getLogManager().getProperty(BRELogFormatter.class.getCanonicalName() + ".format");
+        jdkLogFormat = parser.buildJDKLogFormat(format);
+        dateFormat = parser.getDateFormat();
+    }
 
     @Override
     public String format(LogRecord record) {
@@ -49,8 +60,8 @@ public class BRELogFormatter extends Formatter {
             ex = stringWriter.toString();
         }
 
-        return String.format(format,
-                             new Date(record.getMillis()),
+        return String.format(jdkLogFormat,
+                             dateFormat.format(new Date(record.getMillis())),
                              BLogLevelMapper.getBallerinaLogLevel(record.getLevel()),
                              source,
                              record.getMessage(),
