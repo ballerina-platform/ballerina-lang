@@ -129,6 +129,39 @@ class TransformNodeMapper {
         }
     }
 
+    createInputToOperatorMapping(sourceExpression, target, compatibility) {
+        if (ASTFactory.isBinaryExpression(target.operator)) {
+            this.createInputToBinaryOperatorMapping(sourceExpression, target, compatibility);
+        }
+    }
+
+    /**
+     * Create direct input variable to a operator node mapping.
+     * @param {Expression} sourceExpression source expression
+     * @param {any} target target operator node definition
+     * @param {any} compatibility compatibility of the mapping
+     * @memberof TransformNodeMapper
+     */
+    createInputToBinaryOperatorMapping(sourceExpression, target, compatibility) {
+        const operatorNode = target.operator;
+        const index = target.index;
+
+        if (compatibility.safe) {
+            if (index === 0) {
+                operatorNode.setLeftExpression(sourceExpression);
+                return;
+            }
+            operatorNode.setRightExpression(sourceExpression);
+            return;
+        }
+
+        const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
+        const argumentExpression = this.getTempVertexExpression(sourceExpression,
+            this._transformStmt.getIndexOfChild(assignmentStmt));
+
+        operatorNode.addChild(argumentExpression, index);
+    }
+
     /**
      * Create function node to direct output variable mapping.
      * @param {Expression} targetExpression target expression
@@ -188,6 +221,70 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'function-connection-created',
+            title: `Create mapping ${target.name}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Create operator node to direct output variable mapping.
+     * @param {Expression} targetExpression target expression
+     * @param {any} source source function node definition
+     * @param {any} target target variable definition
+     * @param {any} compatibility compatibility of the mapping
+     * @memberof TransformNodeMapper
+     */
+    createOperatorToOutputMapping(targetExpression, source, target, compatibility) {
+        this.validateTargetMappings(targetExpression);
+
+        const assignmentStmt = this.findEnclosingAssignmentStatement(source.operator);
+        if (!assignmentStmt) {
+            log.error('Cannot find assignment statement containing the operator '
+                        + source.operator.getOperator());
+            return;
+        }
+        const rightExpression = this.getCompatibleSourceExpression(
+            this.getMappableExpression(source.operator), compatibility.type, target.type);
+
+        const outputExpressions = this.getOutputExpressions(assignmentStmt);
+
+        if (outputExpressions[0].type === ExpressionType.TEMPVAR) {
+            const tempVarRefExpr = outputExpressions[source.index].expression;
+            const newAssignmentStmt = ASTFactory.createAssignmentStatement();
+            const varRefList = ASTFactory.createVariableReferenceList();
+            varRefList.addChild(targetExpression, true);
+            newAssignmentStmt.addChild(varRefList, 0, true);
+            newAssignmentStmt.addChild(tempVarRefExpr, 1, true);
+            this._transformStmt.addChild(newAssignmentStmt, true);
+        } else if (outputExpressions[0].type === ExpressionType.PLACEHOLDER) {
+            assignmentStmt.replaceChildByIndex(rightExpression, 1, true);
+
+            assignmentStmt.getLeftExpression().replaceChildByIndex(targetExpression, 0, true);
+            // TODO: conditionally remove var if all outputs are mapped
+            assignmentStmt.setIsDeclaredWithVar(false, true);
+
+            if (!compatibility.safe) {
+                // TODO: only add error reference if there is not one already
+                // TODO: also remove error variable if no longer required
+                const errorVarRef = DefaultASTFactory.createIgnoreErrorVariableReference();
+                assignmentStmt.getLeftExpression().addChild(errorVarRef, true);
+            }
+        } else if (outputExpressions[0].type === ExpressionType.DIRECT) {
+            const tempVarName = this.assignToTempVariable(assignmentStmt);
+            const tempVarRefExpr = ASTFactory.createSimpleVariableReferenceExpression({ variableName: tempVarName });
+            assignmentStmt.replaceChildByIndex(tempVarRefExpr, 1, true);
+
+            const newAssignmentStmt = ASTFactory.createAssignmentStatement();
+            const varRefList = ASTFactory.createVariableReferenceList();
+            varRefList.addChild(targetExpression, source.index, true);
+            newAssignmentStmt.addChild(varRefList, 0, true);
+            newAssignmentStmt.addChild(tempVarRefExpr, 1, true);
+            this._transformStmt.addChild(newAssignmentStmt, true);
+        }
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'operator-connection-created',
             title: `Create mapping ${target.name}`,
             data: {},
         });
@@ -423,7 +520,17 @@ class TransformNodeMapper {
                 return [...this.getVerticesFromExpression(exp)];
             }));
         }
-        log.error('unknown expression type to get vertices');
+        if (ASTFactory.isBinaryExpression(expression)) {
+            return [...this.getVerticesFromExpression(expression.getLeftExpression()),
+                ...this.getVerticesFromExpression(expression.getRightExpression())];
+        }
+        if (ASTFactory.isUnaryExpression(expression)) {
+            return this.getVerticesFromExpression(expression.getRightExpression());
+        }
+        if (ASTFactory.isBasicLiteralExpression(expression)) {
+            return [];
+        }
+        log.error('unknown expression type to get vertices ' + expression.getExpressionString());
         return [];
     }
 

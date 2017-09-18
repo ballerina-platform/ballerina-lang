@@ -1040,19 +1040,30 @@ class TransformExpanded extends React.Component {
                     operatorInfo.name = rightExpression.getOperator();
                     operatorInfo.parameters = [];
                     operatorInfo.returnParams = [];
-                    operatorInfo.parameters[0] = { name: rightExpression.getID() + ':0',
+                    operatorInfo.parameters[0] = {
+                        name: rightExpression.getID() + ':0',
                         displayName: '',
-                        type: 'var' };
+                        type: 'var',
+                        operator: rightExpression,
+                        index: 0,
+                    };
                     if (ASTFactory.isBinaryExpression(rightExpression)) {
-                        operatorInfo.parameters[1] = { name: rightExpression.getID() + ':1',
+                        operatorInfo.parameters[1] = {
+                            name: rightExpression.getID() + ':1',
                             displayName: '',
-                            type: 'var' };
+                            type: 'var',
+                            operator: rightExpression,
+                            index: 1,
+                        };
                     }
-                    operatorInfo.returnParams.push({ name: rightExpression.getID() + ':return:0',
+                    operatorInfo.returnParams.push({
+                        name: rightExpression.getID() + ':return:0',
                         displayName: '',
-                        type: 'var' });
+                        type: 'var',
+                        operator: rightExpression,
+                    });
                     functions.push({ type: 'operator', operator: operatorInfo, opStmt: rightExpression });
-                 }
+                }
             });
         }
 

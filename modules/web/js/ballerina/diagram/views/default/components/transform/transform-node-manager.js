@@ -142,6 +142,11 @@ class TransformNodeManager {
                 this._mapper.createInputToFunctionMapping(sourceExpression, target, compatibility);
                 return;
             }
+            if (target.operator) {
+                this._mapper.createInputToOperatorMapping(sourceExpression, target, compatibility);
+                return;
+            }
+            log.error('Unknown intermediate node');
         }
 
         if (target.endpointKind === 'output') {
@@ -149,8 +154,11 @@ class TransformNodeManager {
                 this._mapper.createFunctionToOutputMapping(targetExpression, source, target, compatibility);
                 return;
             }
-            log.error('Only function nodes are supported for complex mappings');
-            return;
+            if (source.operator) {
+                this._mapper.createOperatorToOutputMapping(targetExpression, source, target, compatibility);
+                return;
+            }
+            log.error('Unknown intermediate node');
         }
 
         this._mapper.createFunctionToFunctionMapping(source, target);
