@@ -29,15 +29,18 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.ws.BallerinaWebSocketConnectorListener;
+import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import javax.websocket.Session;
 
 /**
@@ -58,6 +61,7 @@ import javax.websocket.Session;
                                   structPackage = "ballerina.net.ws")}
 )
 public class Connect extends AbstractNativeWsAction {
+
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
@@ -81,17 +85,34 @@ public class Connect extends AbstractNativeWsAction {
             clientConnectorConfig.setIdleTimeoutInMillis(idleTimeoutInSeconds * 1000);
         }
 
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         try {
+            BlockingDeque<BStruct> structBlockingDeque = new LinkedBlockingDeque<>();
+            HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
             WebSocketClientConnector clientConnector =
                     connectorFactory.createWsClientConnector(clientConnectorConfig);
-            Session session = clientConnector.connect(new BallerinaWebSocketConnectorListener());
-            BStruct wsConnection = createWSConnectionStruct(context, session, wsParentConnectionID);
-            context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
-            storeWsConnection(session.getId(), wsConnection);
-            return wsConnection;
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Cannot connect to remote server: " + e.getMessage());
+            HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsServerConnectorListener());
+            handshakeFuture.setHandshakeListener(new HandshakeListener() {
+                @Override
+                public void onSuccess(Session session) {
+                    BStruct wsConnection = createWSConnectionStruct(context, session, wsParentConnectionID);
+                    context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
+                    storeWsConnection(session.getId(), wsConnection);
+                    try {
+                        structBlockingDeque.put(wsConnection);
+                    } catch (InterruptedException e) {
+                        throw new BallerinaException("Error while connecting to the server: " + e.getMessage());
+                    }
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    throw new BallerinaException("Error while connecting to the server: " + throwable.getMessage());
+                }
+            });
+            return structBlockingDeque.take();
+        } catch (InterruptedException e) {
+            // TODO: should return error instead of null.
+            throw new BallerinaException("Error while connecting to the server: " + e.getMessage());
         }
     }
 }
