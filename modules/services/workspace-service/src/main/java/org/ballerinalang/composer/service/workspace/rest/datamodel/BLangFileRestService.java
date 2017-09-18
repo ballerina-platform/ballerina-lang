@@ -56,6 +56,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,14 +125,7 @@ public class BLangFileRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenContent(BFile bFile) throws IOException {
-        InputStream stream = new ByteArrayInputStream(bFile.getContent().getBytes(StandardCharsets.UTF_8));
-        String response = "";
-        if ("temp".equals(bFile.getFilePath()) && "untitled".equals(bFile.getFileName())) {
-            response = parseJsonDataModel(bFile.getContent(), bFile.getFileName());
-        } else {
-            response = parseJsonDataModel(stream, bFile.getFilePath(), bFile.getFileName());
-        }
-
+        String response = parseJsonDataModel(bFile);
         return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
     }
 
@@ -166,16 +160,32 @@ public class BLangFileRestService {
     }
 
     /**
-     * Parses an input stream into a json model. During this parsing we are compiling the code as well.
+     * Parses a Ballerina content into a json model. We can provide either a String content or the path to the file.
+     * Data is encapsulated in a BFile object
      *
-     * @param stream - The input stream.
+     * @param bFile - Object which holds data about Ballerina content.
      * @return A string which contains a json model.
      * @throws IOException
      */
-    private static String parseJsonDataModel(InputStream stream, String filePath, String fileName) throws IOException {
+    private static String parseJsonDataModel(BFile bFile) throws IOException {
+
+        String filePath = bFile.getFilePath();
+        String fileName = bFile.getFileName();
+        String content = bFile.getContent();
+
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
+
+        // Sometimes we are getting Ballerina content without a file in the file-system.
+        if (!Files.exists(Paths.get(filePath, fileName))) {
+            List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
+            names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+            // Registering custom PackageRepository to provide ballerina content without a file in file-system
+            context.put(PackageRepository.class, new InMemoryPackageRepository(
+                    new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
+                    filePath, fileName, content.getBytes(StandardCharsets.UTF_8)));
+        }
 
         Compiler compiler = Compiler.getInstance(context);
         org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(fileName);
@@ -289,30 +299,6 @@ public class BLangFileRestService {
 
     private static String toJsonName(String name, int prefixLen) {
         return Character.toLowerCase(name.charAt(prefixLen)) + name.substring(prefixLen + 1);
-    }
-
-
-    /**
-     * Parses an input stream into a json model. During this parsing we are compiling the code as well.
-     *
-     * @param content - String content.
-     * @return A string which contains a json model.
-     * @throws IOException
-     */
-    private static String parseJsonDataModel(String content, String fileName) throws IOException {
-        CompilerContext context = new CompilerContext();
-
-        List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
-        names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
-        context.put(PackageRepository.class, new InMemoryPackageRepository(
-                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
-                "temp", fileName + ".bal", content.getBytes(StandardCharsets.UTF_8)));
-
-        Compiler compiler = Compiler.getInstance(context);
-        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(fileName);
-
-        BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().findFirst().get();
-        return generateJSONString(compilationUnit);
     }
 
     /**
