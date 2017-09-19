@@ -20,7 +20,6 @@ package org.wso2.carbon.transport.http.netty.message;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.BufferFactory;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
@@ -28,10 +27,6 @@ import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,37 +56,15 @@ public abstract class CarbonMessage {
      */
     protected MessagingException messagingException = null;
 
-    private ByteBufferInputStream byteBufferInputStream;
-    private ByteBufferOutputStream byteBufferOutputStream;
-
-    protected boolean bufferContent = true;
-
     protected AtomicBoolean alreadyRead = new AtomicBoolean(false);
+    protected AtomicBoolean endOfMsgAdded = new AtomicBoolean(false);
 
-    private AtomicBoolean endOfMsgAdded = new AtomicBoolean(false);
-
+    // TODO: Remove these as the next step
 //    private Writer writer;
-    private boolean isMessageBodyAdded;
+//    private boolean isMessageBodyAdded;
+//    private boolean bufferContent = true;
 
     public CarbonMessage() {
-    }
-
-    /**
-     * This enable you to avoid filling content in to internal buffer.
-     * Use this constructor when creating response message and need to write content and
-     *
-     * @param buffercontent enables direct writing to channel if true else buffer content in message queue
-     */
-    public CarbonMessage(Boolean buffercontent) {
-        this.bufferContent = buffercontent;
-    }
-
-    public void setBufferContent(boolean bufferContent) {
-        if (isMessageBodyAdded) {
-            throw new IllegalStateException(
-                    "CarbonMessage#setBufferContent cannot " + "be called after adding message body");
-        }
-        this.bufferContent = bufferContent;
     }
 
     public boolean isEndOfMsgAdded() {
@@ -133,10 +106,13 @@ public abstract class CarbonMessage {
     }
 
     public void addMessageBody(ByteBuffer msgBody) {
-        isMessageBodyAdded = true;
-        if (bufferContent) {
-            messageBody.add(msgBody);
-        }
+        messageBody.add(msgBody);
+        // TODO: Remove these as the next step
+//        isMessageBodyAdded = true;
+//        if (bufferContent) {
+//            messageBody.add(msgBody);
+//        }
+//        messageBody.add(msgBody);
 //        else {
 //            if (writer != null) {
 //                writer.write(msgBody);
@@ -198,12 +174,13 @@ public abstract class CarbonMessage {
         this.faultHandlerStack = faultHandlerStack;
     }
 
-    public int getFullMessageLength() {
-        List<ByteBuffer> fullMessageBody = getFullMessageBody();
-        int size = (int) fullMessageBody.stream().mapToInt(Buffer::limit).sum();
-        fullMessageBody.forEach(this::addMessageBody);
-        return size;
-    }
+    // TODO: Remove these as the next step
+//    public int getFullMessageLength() {
+//        List<ByteBuffer> fullMessageBody = getFullMessageBody();
+//        int size = (int) fullMessageBody.stream().mapToInt(Buffer::limit).sum();
+//        fullMessageBody.forEach(this::addMessageBody);
+//        return size;
+//    }
 
     public List<ByteBuffer> getCopyOfFullMessageBody() {
         List<ByteBuffer> fullMessageBody = getFullMessageBody();
@@ -220,33 +197,10 @@ public abstract class CarbonMessage {
     public void markMessageEnd() {
     }
 
-    public void setEndOfMsgAdded(boolean endOfMsgAdded) {
-        this.endOfMsgAdded.compareAndSet(false, endOfMsgAdded);
-        if (byteBufferOutputStream != null) {
-            try {
-                this.byteBufferOutputStream.flush();
-            } catch (IOException e) {
-                LOG.error("Exception occured while flushing the buffer", e);
-                byteBufferOutputStream.close();
-            }
-        }
-//        ;
-//        if (writer != null) {
-//            writer.writeLastContent(this);
-//        }
-    }
-
-//    public Writer getWriter() {
-//        return writer;
+    // TODO: Remove this as the next step of the refactor
+//    public boolean isBufferContent() {
+//        return bufferContent;
 //    }
-
-//    public void setWriter(Writer writer) {
-//        this.writer = writer;
-//    }
-//
-    public boolean isBufferContent() {
-        return bufferContent;
-    }
 
     public MessageDataSource getMessageDataSource() {
         return messageDataSource;
@@ -262,113 +216,6 @@ public abstract class CarbonMessage {
 
     public void setAlreadyRead(boolean alreadyRead) {
         this.alreadyRead.set(alreadyRead);
-    }
-
-    /**
-     * This is a blocking call and provides full message as inputStream
-     * removes original content from queue.
-     *
-     * @return InputStream Instance.
-     */
-    public InputStream getInputStream() {
-        if (byteBufferInputStream == null) {
-            byteBufferInputStream = new ByteBufferInputStream();
-        }
-        return byteBufferInputStream;
-    }
-
-    /**
-     * This provide access to write byte stream in to message content Queue as
-     * Stream
-     *
-     * @return OutputStream Instance.
-     */
-    public OutputStream getOutputStream() {
-        if (byteBufferOutputStream == null) {
-            byteBufferOutputStream = new ByteBufferOutputStream();
-        }
-        return byteBufferOutputStream;
-    }
-
-    /**
-     * A class which represents the InputStream of the ByteBuffers
-     * No need to worry about thread safety of this class this is called only once by
-     * for a message instance from one thread.
-     */
-    protected class ByteBufferInputStream extends InputStream {
-
-        private int count;
-        private boolean chunkFinished = true;
-        private int limit;
-        private ByteBuffer byteBuffer;
-
-        @Override
-        public int read() throws IOException {
-            setAlreadyRead(true); // TODO: No need to set this again and again
-            if (isEndOfMsgAdded() && isEmpty() && chunkFinished) {
-                return -1;
-            } else if (chunkFinished) {
-                byteBuffer = getMessageBody();
-                count = 0;
-                limit = byteBuffer.limit();
-                if (limit == 0) {
-                    return -1;
-                }
-                chunkFinished = false;
-            }
-            count++;
-            if (count == limit) {
-                chunkFinished = true;
-            }
-            return byteBuffer.get() & 0xff;
-        }
-    }
-
-    /**
-     * A class which write byteStream into ByteBuffers and add those
-     * ByteBuffers to Content Queue.
-     * No need to worry about thread safety of this class this is called only once by
-     * one thread at particular time.
-     */
-    protected class ByteBufferOutputStream extends OutputStream {
-
-        private ByteBuffer buffer;
-
-        @Override
-        public void write(int b) throws IOException {
-            if (buffer == null) {
-                buffer = BufferFactory.getInstance().getBuffer();
-            }
-            if (buffer.hasRemaining()) {
-                buffer.put((byte) b);
-            } else {
-                buffer.flip();
-                addMessageBody(buffer);
-                buffer = BufferFactory.getInstance().getBuffer();
-                buffer.put((byte) b);
-            }
-        }
-
-        @Override
-        public void flush() throws IOException {
-            if (buffer != null && buffer.position() > 0) {
-                buffer.flip();
-                addMessageBody(buffer);
-                buffer = BufferFactory.getInstance().getBuffer();
-            }
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (IOException e) {
-                LOG.error("Error while closing output stream but underlying resources are reset", e);
-            } finally {
-                byteBufferOutputStream = null;
-                buffer = null;
-            }
-        }
     }
 
     /**
