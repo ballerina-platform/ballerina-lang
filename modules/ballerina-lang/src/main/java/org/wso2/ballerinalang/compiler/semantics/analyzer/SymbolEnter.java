@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -70,6 +71,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -237,17 +239,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // Create variable symbol
-        Scope enclScope = env.scope;
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(varNode.flagSet),
-                varName, varType, enclScope.owner);
-
-        // Add it to the enclosing scope
-        // Find duplicates
-        varNode.symbol = varSymbol;
-        if (symResolver.checkForUniqueSymbol(varNode.pos, env, varSymbol)) {
-            enclScope.define(varSymbol.name, varSymbol);
-        }
+        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varType, varName, env);
     }
 
 
@@ -411,6 +403,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
+    }
+
+    public BVarSymbol defineVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
+                                      SymbolEnv env) {
+        // Create variable symbol
+        Scope enclScope = env.scope;
+        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName, varType, enclScope.owner);
+
+        // Add it to the enclosing scope
+        // Find duplicates
+        if (symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+            enclScope.define(varSymbol.name, varSymbol);
+        }
+        return varSymbol;
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {

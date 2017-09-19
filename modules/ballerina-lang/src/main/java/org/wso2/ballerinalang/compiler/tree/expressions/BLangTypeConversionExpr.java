@@ -35,6 +35,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public ExpressionNode expr;
     public TypeNode typeName;
     public List<BType> types = new ArrayList<>(0);
+    public int[] regIndexes;
 
 
     public ExpressionNode getExpression() {
@@ -80,5 +81,10 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     @Override
     public void setTypes(List<BType> types) {
         this.types = types;
+    }
+
+    @Override
+    public int[] getRegIndexes() {
+        return this.regIndexes;
     }
 }
