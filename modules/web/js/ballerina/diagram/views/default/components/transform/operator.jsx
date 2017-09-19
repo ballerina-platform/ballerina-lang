@@ -28,7 +28,7 @@ export default class Operator extends React.Component {
 
         const {
             operator, opExp, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, onEndpointRemove, onConnectPointMouseEnter
+            parentNode, statement, onEndpointRemove, onConnectPointMouseEnter, onOperatorRemove
         } = this.props;
 
         operator.parameters.forEach((param) => {
@@ -38,10 +38,6 @@ export default class Operator extends React.Component {
         operator.returnParams.forEach((returnsObj) => {
             returnsObj.endpointKind = 'return';
         });
-
-        const onRemove = () => {
-            opExp.getParent().getParent().removeChild(opExp.getParent());
-        };
 
         if (operator.parameters.length === 1) {
             targetPoint02 = operator.parameters.slice(0, 1);
@@ -78,7 +74,13 @@ export default class Operator extends React.Component {
                     </div>
                     <div className='operator-col'>
                         <div className='operator-cell'>
-                            <span onClick={onRemove} className='fw-stack fw-lg btn operator-remove'>
+                            <span
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOperatorRemove(opExp, parentNode, statement);
+                                }}
+                                className='fw-stack fw-lg btn operator-remove'
+                            >
                                 <i className='fw-delete fw-stack-1x' />
                             </span>
                         </div>

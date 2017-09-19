@@ -248,8 +248,19 @@ class TransformNodeManager {
         target.funcInv.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
 
         const newAssignmentStmt = DefaultBallerinaASTFactory
-            .createTransformAssignmentFunctionInvocationStatement({ funcInv: source.funcInv });
+            .createTransformAssignmentRightExpStatement({ rightExp: source.funcInv });
         this._transformStmt.addChild(newAssignmentStmt, newAssignIndex);
+    }
+
+    /**
+     * Remove intermediate node which is a function or an operator
+     * @param {any} expression expression
+     * @param {any} parentNode parent node expression
+     * @param {any} statement enclosing statement
+     * @memberof TransformNodeManager
+     */
+    removeIntermediateNode(expression, parentNode, statement) {
+        this._mapper.removeNode(expression, parentNode, statement);
     }
 
     /**

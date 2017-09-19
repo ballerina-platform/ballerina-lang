@@ -137,6 +137,13 @@ class TransformNodeMapper {
         });
     }
 
+    /**
+     * Create direct input to operator mapping
+     * @param {any} sourceExpression source expression
+     * @param {any} target target
+     * @param {any} compatibility compatibility
+     * @memberof TransformNodeMapper
+     */
     createInputToOperatorMapping(sourceExpression, target, compatibility) {
         if (ASTFactory.isBinaryExpression(target.operator)) {
             this.createInputToBinaryOperatorMapping(sourceExpression, target, compatibility);
@@ -454,6 +461,61 @@ class TransformNodeMapper {
 
     // **** REMOVE MAPPING FUNCTIONS **** //
 
+    /**
+     * Remove node which is a function or an operator. If there are nested nodes,
+     * they are moved to a new assignment statement.
+     * @param {any} nodeExpression node expression
+     * @param {any} parentNode parent node
+     * @param {any} statement enclosing statement
+     * @memberof TransformNodeMapper
+     */
+    removeNode(nodeExpression, parentNode, statement) {
+        const nestedNodes = [];
+        let nodeName;
+        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+            nodeName = nodeExpression.getFunctionName();
+            nodeExpression.getChildren().forEach((paramExp) => {
+                if (this.isComplexExpression(paramExp)) {
+                    nestedNodes.push(paramExp);
+                }
+            });
+        } else {
+            nodeName = nodeExpression.getOperator();
+            if (this.isComplexExpression(nodeExpression.getRightExpression())) {
+                nestedNodes.push(nodeExpression.getRightExpression());
+            }
+            if (ASTFactory.isUnaryExpression(nodeExpression)
+                        && this.isComplexExpression(nodeExpression.getLeftExpression())) {
+                nestedNodes.push(nodeExpression.getLeftExpression());
+            }
+        }
+
+        let statementIndex = this._transformStmt.getIndexOfChild(statement);
+        statementIndex = (statementIndex === 0) ? 0 : statementIndex - 1;
+        nestedNodes.forEach((node) => {
+            const assignmentStmt = DefaultASTFactory
+                    .createTransformAssignmentRightExpStatement({ rightExp: node });
+            this._transformStmt.addChild(assignmentStmt, statementIndex, true);
+        });
+
+        if (!parentNode) {
+            this._transformStmt.removeChild(statement, true);
+        } else if (ASTFactory.isFunctionInvocationExpression(parentNode)) {
+            parentNode.removeChild(nodeExpression, true);
+        } else if (ASTFactory.isUnaryExpression(parentNode)
+                    && (parentNode.getLeftExpression() === nodeExpression)) {
+            parentNode.setLeftExpression(ASTFactory.createNullLiteralExpression(), { doSilently: true });
+        } else {
+            parentNode.setRightExpression(ASTFactory.createNullLiteralExpression(), { doSilently: true });
+        }
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Remove mapping function ${nodeName}`,
+            data: {},
+        });
+    }
 
     // **** UTILITY FUNCTIONS ***** //
 
@@ -812,18 +874,27 @@ class TransformNodeMapper {
     * Is the assignment statement a complex one or not. A complex statement will have
     * function invocation or an operator as the right expression.
     * @param {AssignmentStatement} assignmentStmt the assignment statement
-    * @return {boolean} is direct or not
+    * @return {boolean} is complex or not
     * @memberof TransformNodeMapper
     */
     isComplexStatement(assignmentStmt) {
-        const rightExp = this.getMappableExpression(assignmentStmt.getRightExpression());
-        if (ASTFactory.isFunctionInvocationExpression(rightExp)) {
+        return (this.isComplexExpression(this.getMappableExpression(assignmentStmt.getRightExpression())));
+    }
+
+    /**
+     * An expression is complex if it is function invocation or an operator expression.
+     * @param {Expression} expression expression
+     * @returns {boolean} is complex or not
+     * @memberof TransformNodeMapper
+     */
+    isComplexExpression(expression) {
+        if (ASTFactory.isFunctionInvocationExpression(expression)) {
             return true;
         }
-        if (ASTFactory.isBinaryExpression(rightExp)) {
+        if (ASTFactory.isBinaryExpression(expression)) {
             return true;
         }
-        if (ASTFactory.isUnaryExpression(rightExp)) {
+        if (ASTFactory.isUnaryExpression(expression)) {
             return true;
         }
         return false;
