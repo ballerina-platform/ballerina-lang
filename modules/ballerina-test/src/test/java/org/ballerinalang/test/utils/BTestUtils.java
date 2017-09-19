@@ -36,7 +36,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
- * Utility methods for unit tests
+ * Utility methods for unit tests.
  * 
  * @since 0.94
  */

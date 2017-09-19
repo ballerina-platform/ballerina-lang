@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
+import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
@@ -121,6 +122,7 @@ import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
@@ -178,6 +180,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
     private boolean varAssignment = false;
+    
+    private Stack<Instruction> loopResetInstructionStack = new Stack<>();
+    private Stack<Instruction> loopExitInstructionStack = new Stack<>();
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -741,6 +746,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
+    
+    private int emit(Instruction instr) {
+        currentPkgInfo.instructionList.add(instr);
+        return currentPkgInfo.instructionList.size();
+    }
 
     private void addVarCountAttrInfo(ConstantPool constantPool,
                                      AttributeInfoPool attributeInfoPool,
@@ -973,11 +983,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangContinue continueNode) {
-        /* ignore */
+        this.emit(this.loopResetInstructionStack.peek());
     }
 
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        this.emit(this.loopExitInstructionStack.peek());
     }
 
     public void visit(BLangReply replyNode) {
@@ -997,11 +1007,35 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
-        /* ignore */
+        this.genNode(ifNode.expr, this.env);
+        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, -1);
+        this.emit(ifCondJumpInstr);
+        this.genNode(ifNode.body, this.env);
+        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(endJumpInstr);
+        ifCondJumpInstr.setOperand(1, this.nextIP());
+        if (ifNode.elseStmt != null) {
+            this.genNode(ifNode.elseStmt, this.env);
+        }
+        endJumpInstr.setOperand(0, this.nextIP());
     }
 
     public void visit(BLangWhile whileNode) {
-        /* ignore */
+        Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
+        this.genNode(whileNode.expr, this.env);
+        Instruction whileCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, 
+                whileNode.expr.regIndex, -1);
+        Instruction exitLoopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(whileCondJumpInstr);
+        this.loopResetInstructionStack.push(gotoTopJumpInstr);
+        this.loopExitInstructionStack.push(exitLoopJumpInstr);
+        this.genNode(whileNode.body, this.env);
+        this.loopResetInstructionStack.pop();
+        this.loopExitInstructionStack.pop();
+        this.emit(gotoTopJumpInstr);
+        int endIP = this.nextIP();
+        whileCondJumpInstr.setOperand(1, endIP);
+        exitLoopJumpInstr.setOperand(0, endIP);
     }
 
     public void visit(BLangTransaction transactionNode) {
