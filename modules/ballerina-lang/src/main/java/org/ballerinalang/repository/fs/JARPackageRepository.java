@@ -34,6 +34,8 @@ import java.util.Map;
  */
 public class JARPackageRepository extends GeneralFSPackageRepository {
     
+    private static final String JAR_URI_SCHEME = "jar";
+
     public JARPackageRepository(Object obj, String basePath) {
         super(generatePath(obj, basePath));
     }
@@ -50,11 +52,13 @@ public class JARPackageRepository extends GeneralFSPackageRepository {
     }
     
     private static void initFS(URI uri) throws IOException {
-        Map<String, String> env = new HashMap<>(); 
-        env.put("create", "true");
-        try {
-            FileSystems.newFileSystem(uri, env);
-        } catch (FileSystemAlreadyExistsException ignore) { }
+        if (JAR_URI_SCHEME.equals(uri.getScheme())) {
+            Map<String, String> env = new HashMap<>(); 
+            env.put("create", "true");
+            try {
+                FileSystems.newFileSystem(uri, env);
+            } catch (FileSystemAlreadyExistsException ignore) { }
+        }
     }
     
     @Override
