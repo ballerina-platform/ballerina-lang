@@ -47,6 +47,7 @@ class FileTree extends React.Component {
      */
     onToggle(node, collapsed) {
         node.active = true;
+        this.props.onSelect(node);
         if (node.children) {
             node.collapsed = collapsed;
             if (_.isEmpty(node.children)) {
@@ -60,13 +61,9 @@ class FileTree extends React.Component {
                         } else {
                             node.children = data;
                         }
-                        this.props.onSelect(node);
+                        this.forceUpdate();
                     });
-            } else {
-                this.props.onSelect(node);
             }
-        } else {
-            this.props.onSelect(node);
         }
         this.forceUpdate();
     }
@@ -81,6 +78,9 @@ class FileTree extends React.Component {
             }
             if (_.isNil(node.active)) {
                 node.active = false;
+            }
+            if (_.isNil(node.loading)) {
+                node.loading = false;
             }
             return (
                 <TreeNode

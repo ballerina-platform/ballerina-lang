@@ -26,7 +26,7 @@ class TreeNode extends React.Component {
         return (
             <div
                 className={classnames('tree-node', 'unseletable-content', {
-                    collapsed, empty: !node.children }
+                    collapsed: node.loading || collapsed, empty: !node.children }
                 )}
             >
                 <div
@@ -35,9 +35,8 @@ class TreeNode extends React.Component {
                     onDoubleClick={() => { onDoubleClick(node); }}
                 >
                     <div className="tree-node-highlight-row" />
-                    <div
-                        className="tree-node-arrow"
-                    />
+                    {!node.loading && <div className="tree-node-arrow" />}
+                    {node.loading && <i className="tree-node-loading fw fw-loader4 fw-spin" />}
                     <i
                         className={
                             classnames(
