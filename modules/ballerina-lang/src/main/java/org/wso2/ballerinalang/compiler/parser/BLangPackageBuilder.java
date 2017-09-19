@@ -362,7 +362,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, ws, null, false, false, true);
+        endFunctionDef(pos, null, false, false, true, false);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos, String identifier, boolean exprAvailable) {
@@ -622,28 +622,13 @@ public class BLangPackageBuilder {
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
-//    public void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws,
-//                               boolean isDeclaredWithType, String typeVariable) {
-//        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-//        function.addWS(ws);
-//        function.pos = pos;
-//        if (isDeclaredWithType) {
-//            VariableNode var = TreeBuilder.createVariableNode();
-//            var.setName(this.createIdentifier(typeVariable));
-//            var.setTypeNode(this.typeNodeStack.pop());
-//            function.isDeclaredWithType = true;
-//            function.typeVar = (BLangVariable) var;
-//        } else {
-//            function.isDeclaredWithType = false;
-//        }
-//        this.compUnit.addTopLevelNode(function);
-//    }
 
     public void endFunctionDef(DiagnosticPos pos,
                                Set<Whitespace> ws,
                                boolean publicFunc,
                                boolean nativeFunc,
-                               boolean bodyExists) {
+                               boolean bodyExists,
+                               boolean isReceiverAttached) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -658,6 +643,10 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        }
+
+        if (isReceiverAttached) {
+            function.receiver = (BLangVariable) this.varStack.pop();
         }
 
         this.compUnit.addTopLevelNode(function);

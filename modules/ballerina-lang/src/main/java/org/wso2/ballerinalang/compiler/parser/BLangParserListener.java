@@ -231,21 +231,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.startFunctionDef();
     }
 
-
-//    boolean isDeclaredWithType;
-//    if (ctx.typeName() != null) {
-//        isDeclaredWithType = true;
-//    } else {
-//        isDeclaredWithType = false;
-//    }
-//    String typeVariable;
-//    if (ctx.Identifier() != null) {
-//        typeVariable = ctx.Identifier().getText();
-//    } else {
-//        typeVariable = null;
-//    }
-//    this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), isDeclaredWithType, typeVariable);
-
     /**
      * {@inheritDoc}
      * <p>
@@ -257,6 +242,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean isReceiverAttached;
+        if (ctx.parameter() != null) {
+            isReceiverAttached = true;
+        } else {
+            isReceiverAttached = false;
+        }
+
         int nativeKWTokenIndex = 0;
         boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         if (publicFunc) {
@@ -264,7 +256,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         boolean nativeFunc = KEYWORD_NATIVE.equals(ctx.getChild(nativeKWTokenIndex).getText());
         boolean bodyExists = ctx.callableUnitBody() != null;
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc, bodyExists);
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
+                bodyExists, isReceiverAttached);
     }
 
     @Override

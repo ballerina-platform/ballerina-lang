@@ -26,23 +26,14 @@ import org.ballerinalang.model.tree.VariableNode;
  */
 public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
-    public boolean isDeclaredWithType;
-    public BLangVariable typeVar;
+    public BLangVariable receiver;
 
-    public boolean isDeclaredWithType() {
-        return this.isDeclaredWithType;
+    public VariableNode getReceiver() {
+        return receiver;
     }
 
-    public void setDeclaredWithType(boolean isDeclaredWithType) {
-        this.isDeclaredWithType = isDeclaredWithType;
-    }
-
-    public VariableNode getTypeVariable() {
-        return typeVar;
-    }
-
-    public void setTypeVariable(VariableNode var) {
-        this.typeVar = (BLangVariable) var;
+    public void setReceiver(VariableNode receiver) {
+        this.receiver = (BLangVariable) receiver;
     }
 
     @Override

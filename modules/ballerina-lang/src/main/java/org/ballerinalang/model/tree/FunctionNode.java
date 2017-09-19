@@ -22,12 +22,8 @@ package org.ballerinalang.model.tree;
  */
 public interface FunctionNode extends InvokableNode, AnnotatableNode, TopLevelNode {
 
-  boolean isDeclaredWithType();
+  VariableNode getReceiver();
 
-  void setDeclaredWithType(boolean isDeclaredWithType);
-
-  VariableNode getTypeVariable();
-
-  void setTypeVariable(VariableNode var);
+  void setReceiver(VariableNode receiver);
 
 }
