@@ -38,11 +38,6 @@ native function getQueryParams (http:Request req) (map);
 @doc:Return { value:"json: The JSON reresentation of the message payload" }
 native function getJsonPayload (http:Request req) (json);
 
-@doc:Description { value:"Gets the message payload in JSON format"}
-@doc:Param { value:"req: A request message" }
-@doc:Return { value:"json: The JSON reresentation of the message payload" }
-native function getJsonPayload (http:Request req) (json);
-
 @doc:Description { value:"Gets the message payload in XML format"}
 @doc:Param { value:"req: The request message" }
 @doc:Return { value:"xml: The XML representation of the message payload" }
