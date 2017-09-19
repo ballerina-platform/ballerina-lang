@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
@@ -179,6 +180,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
     private boolean varAssignment = false;
+    
+    private Stack<Instruction> loopResetInstructionStack = new Stack<>();
+    private Stack<Instruction> loopExitInstructionStack = new Stack<>();
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -979,11 +983,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangContinue continueNode) {
-        /* ignore */
+        this.emit(this.loopResetInstructionStack.peek());
     }
 
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        this.emit(this.loopExitInstructionStack.peek());
     }
 
     public void visit(BLangReply replyNode) {
@@ -1017,7 +1021,21 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangWhile whileNode) {
-        /* ignore */
+        Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
+        this.genNode(whileNode.expr, this.env);
+        Instruction whileCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, 
+                whileNode.expr.regIndex, -1);
+        Instruction exitLoopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(whileCondJumpInstr);
+        this.loopResetInstructionStack.push(gotoTopJumpInstr);
+        this.loopExitInstructionStack.push(exitLoopJumpInstr);
+        this.genNode(whileNode.body, this.env);
+        this.loopResetInstructionStack.pop();
+        this.loopExitInstructionStack.pop();
+        this.emit(gotoTopJumpInstr);
+        int endIP = this.nextIP();
+        whileCondJumpInstr.setOperand(1, endIP);
+        exitLoopJumpInstr.setOperand(0, endIP);
     }
 
     public void visit(BLangTransaction transactionNode) {
