@@ -190,7 +190,6 @@ public class ConnectionManager {
      * Connection pool management policies for  target channels.
      */
     public enum PoolManagementPolicy {
-        GLOBAL_ENDPOINT_CONNECTION_CACHING,
         LOCK_DEFAULT_POOLING,
     }
 

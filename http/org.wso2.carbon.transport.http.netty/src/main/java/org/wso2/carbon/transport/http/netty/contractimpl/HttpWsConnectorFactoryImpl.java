@@ -40,6 +40,16 @@ import java.util.Map;
  */
 public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
 
+    private int serverSocketThreads = Runtime.getRuntime().availableProcessors();
+    private int childSocketThreads = Runtime.getRuntime().availableProcessors() * 2;
+
+    public HttpWsConnectorFactoryImpl() {}
+
+    public HttpWsConnectorFactoryImpl(int serverSocketThreads, int childSocketThreads) {
+        this.serverSocketThreads = serverSocketThreads;
+        this.childSocketThreads = childSocketThreads;
+    }
+
     @Override
     public ServerConnector createServerConnector(ServerBootstrapConfiguration serverBootstrapConfiguration,
             ListenerConfiguration listenerConfig) {
@@ -48,8 +58,7 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addSecurity(listenerConfig.getSslConfig());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
-        serverConnectorBootstrap.addThreadPools(Runtime.getRuntime().availableProcessors(),
-                Runtime.getRuntime().availableProcessors() * 2);
+        serverConnectorBootstrap.addThreadPools(serverSocketThreads, childSocketThreads);
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }

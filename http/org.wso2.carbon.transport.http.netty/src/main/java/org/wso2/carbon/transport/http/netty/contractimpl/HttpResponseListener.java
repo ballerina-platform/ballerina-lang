@@ -36,11 +36,11 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class HttpResponseListener implements HttpConnectorListener {
 
-    private ChannelHandlerContext ctx;
+    private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
 
     public HttpResponseListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg) {
-        this.ctx = channelHandlerContext;
+        this.sourceContext = channelHandlerContext;
         requestDataHolder = new RequestDataHolder(requestMsg);
     }
 
@@ -57,62 +57,30 @@ public class HttpResponseListener implements HttpConnectorListener {
 //        }
         final HttpResponse response = Util.createHttpResponse(httpMessage, connectionCloseAfterResponse);
 
-        ctx.write(response);
+        sourceContext.write(response);
 
-        if (!httpMessage.isBufferContent()) {
-//            httpMessage.setWriter(new ResponseContentWriter(ctx));
-        } else {
-            while (true) {
-                if (httpMessage.isEndOfMsgAdded() && httpMessage.isEmpty()) {
-                    ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (connectionCloseAfterResponse) {
-                        future.addListener(ChannelFutureListener.CLOSE);
-                    }
-                    break;
+        while (true) {
+            if (httpMessage.isEndOfMsgAdded() && httpMessage.isEmpty()) {
+                ChannelFuture future = sourceContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                if (connectionCloseAfterResponse) {
+                    future.addListener(ChannelFutureListener.CLOSE);
                 }
-                HttpContent httpContent = httpMessage.getHttpContent();
-                if (httpContent instanceof LastHttpContent) {
-                    ChannelFuture future = ctx.writeAndFlush(httpContent);
-                    if (connectionCloseAfterResponse) {
-                        future.addListener(ChannelFutureListener.CLOSE);
-                    }
+                break;
+            }
+            HttpContent httpContent = httpMessage.getHttpContent();
+            if (httpContent instanceof LastHttpContent) {
+                ChannelFuture future = sourceContext.writeAndFlush(httpContent);
+                if (connectionCloseAfterResponse) {
+                    future.addListener(ChannelFutureListener.CLOSE);
+                }
+//      TODO: Revisit this once the refactor is completed
 //                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
 //                                executeAtSourceResponseSending(httpMessage);
 //                    }
-                    break;
-                }
-                ctx.write(httpContent);
+                break;
             }
-
-            // TODO: Remove this once the testing is completed.
-//            else if (httpMessage instanceof DefaultCarbonMessage) {
-//                DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) httpMessage;
-//                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-//                    ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//                    if (connectionCloseAfterResponse) {
-//                        future.addListener(ChannelFutureListener.CLOSE);
-//                    }
-//                    return;
-//                }
-//                while (true) {
-//                    ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-//                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-//                    DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-//                    ctx.write(httpContent);
-//                    if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-//                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-//                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                    executeAtSourceResponseSending(httpMessage);
-//                        }
-//                        if (connectionCloseAfterResponse) {
-//                            future.addListener(ChannelFutureListener.CLOSE);
-//                        }
-//                        break;
-//                    }
-//                }
-//            }
+            sourceContext.write(httpContent);
         }
     }
 
