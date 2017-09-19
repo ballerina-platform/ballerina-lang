@@ -147,8 +147,8 @@ public class AnnotationReference extends BallerinaElementReference {
             if (attachmentType == null) {
                 return results;
             }
-            annotations = BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(containingPackage,
-                    attachmentType);
+            annotations = BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(containingPackage, attachmentType,
+                    true);
         }
         results.addAll(BallerinaCompletionUtils.createAnnotationLookupElements(annotations));
         return results;
@@ -172,7 +172,8 @@ public class AnnotationReference extends BallerinaElementReference {
             if (attachmentType == null) {
                 return results;
             }
-            annotations = BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(resolvedPackage, attachmentType);
+            annotations = BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(resolvedPackage, attachmentType,
+                    false);
         }
         results.addAll(BallerinaCompletionUtils.createAnnotationLookupElements(annotations));
         return results;

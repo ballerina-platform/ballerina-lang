@@ -118,8 +118,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return null;
                     }
                     return new PackageNameReference(this);
-                //                case RULE_actionInvocation:
-                //                    return new ActionInvocationReference(this);
                 case RULE_nameReference:
                     // If we are currently resolving a var variable, we don't need to resolve it since it is the
                     // definition.

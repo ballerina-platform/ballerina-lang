@@ -362,8 +362,8 @@ public class BallerinaCompletionUtils {
     @NotNull
     public static List<LookupElement> getWorkerInteractionKeywords() {
         List<LookupElement> keywords = new LinkedList<>();
-        keywords.add(createLookupElement("fork",null));
-        keywords.add(createLookupElement("default",null));
+        keywords.add(createLookupElement("fork", null));
+        keywords.add(createLookupElement("default", null));
         return keywords;
     }
 
@@ -459,7 +459,7 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, ATTACH);
     }
 
-    static List<LookupElement> getFunctionSpecificKeywords() {
+    public static List<LookupElement> getFunctionSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(RETURN));
         return lookupElements;
@@ -471,9 +471,15 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    static List<LookupElement> createServiceSpecificKeywords() {
+    static List<LookupElement> getServiceSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(RESOURCE));
+        return lookupElements;
+    }
+
+    static List<LookupElement> getConnectorSpecificKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(ACTION));
         return lookupElements;
     }
 

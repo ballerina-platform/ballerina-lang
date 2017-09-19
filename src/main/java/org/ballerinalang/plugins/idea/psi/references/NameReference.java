@@ -159,7 +159,8 @@ public class NameReference extends BallerinaElementReference {
                     ServiceBodyNode.class, ResourceDefinitionNode.class, ConnectorBodyNode.class);
             TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(identifier, TypeNameNode.class);
             if ((definitionParent != null && !(definitionParent instanceof ResourceDefinitionNode)) ||
-                    (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) && typeNameNode == null) {
+                    prevVisibleLeaf != null && (!";".equals(prevVisibleLeaf.getText()) && typeNameNode == null ||
+                            prevVisibleLeaf.getText().matches("[{}]"))) {
 
                 List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, true);
                 results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));

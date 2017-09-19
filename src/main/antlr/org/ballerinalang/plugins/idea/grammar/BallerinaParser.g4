@@ -104,7 +104,7 @@ structBody
     ;
 
 annotationDefinition
-    : ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? LEFT_BRACE annotationBody RIGHT_BRACE
+    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? LEFT_BRACE annotationBody RIGHT_BRACE
     ;
 
 enumDefinition

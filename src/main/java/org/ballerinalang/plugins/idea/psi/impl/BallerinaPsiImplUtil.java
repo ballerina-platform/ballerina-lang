@@ -1472,11 +1472,11 @@ public class BallerinaPsiImplUtil {
 
     @NotNull
     public static List<PsiElement> getAllAnnotationAttachmentsForType(@NotNull PsiDirectory packageElement,
-                                                                      @NotNull String type) {
+                                                                      @NotNull String type, boolean includePrivate) {
         List<PsiElement> results = new ArrayList<>();
         // Todo - Do we need to add public to Annotations as well?
         List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
-                AnnotationDefinitionNode.class, true);
+                AnnotationDefinitionNode.class, includePrivate);
         if (annotationDefinitions.isEmpty()) {
             return results;
         }
