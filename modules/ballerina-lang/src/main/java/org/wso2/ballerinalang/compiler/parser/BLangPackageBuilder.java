@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -1316,20 +1315,15 @@ public class BLangPackageBuilder {
 
         if (endingText != null && !endingText.isEmpty()) {
             endingText = StringEscapeUtils.unescapeJava(endingText);
-            createXMLStringExpr(pos, targetStrExprKind, endingText);
+            addLiteralValue(pos, TypeTags.STRING, endingText);
             expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
         while (!precedingTextFragments.isEmpty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());
             String textFragment = precedingTextFragments.pop();
-
-            if (textFragment == null) {
-                textFragment = "";
-            } else {
-                textFragment = StringEscapeUtils.unescapeJava(textFragment);
-            }
-            createXMLStringExpr(pos, targetStrExprKind, textFragment);
+            textFragment = textFragment == null ? "" : StringEscapeUtils.unescapeJava(textFragment);
+            addLiteralValue(pos, TypeTags.STRING, textFragment);
             expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
@@ -1337,16 +1331,7 @@ public class BLangPackageBuilder {
         return expressions;
     }
 
-    private void createXMLStringExpr(DiagnosticPos pos, NodeKind targetExprKind, String strContent) {
-        // FIXME
-//        if (targetExprKind == NodeKind.XML_TEXT_LITERAL) {
-//            createXMLTextLiteral(pos, strContent);
-//        } else {
-            addLiteralValue(pos, TypeTags.STRING, strContent);
-//        }
-    }
-
-    public void addXMLNSDeclaration(DiagnosticPos pos, String namespaceUri, String prefix) {
+    public void addXMLNSDeclaration(DiagnosticPos pos, String namespaceUri, String prefix, boolean isTopLevel) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         prefixIdentifer.pos = pos;
@@ -1356,7 +1341,12 @@ public class BLangPackageBuilder {
         xmlns.namespaceURI = (BLangLiteral) exprNodeStack.pop();
         xmlns.prefix = prefixIdentifer;
         xmlns.pos = pos;
-        
+
+        if (isTopLevel) {
+            this.compUnit.addTopLevelNode(xmlns);
+            return;
+        }
+
         BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
         xmlnsStmt.xmlnsDecl = xmlns;
         xmlnsStmt.pos = pos;

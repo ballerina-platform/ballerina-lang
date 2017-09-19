@@ -44,7 +44,7 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     public BXMLNSSymbol defaultNsSymbol;
     public boolean isRoot;
     public Scope scope;
-    public List<BLangExpression> concatChildren;
+    public List<BLangExpression> modifiedChildren;
     
     public BLangXMLElementLiteral() {
         attributes = new ArrayList<XMLAttributeNode>();

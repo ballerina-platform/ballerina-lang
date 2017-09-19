@@ -1612,12 +1612,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) {
+        boolean isTopLevel = ctx.parent instanceof BallerinaParser.CompilationUnitContext;
         String namespaceUri = ctx.QuotedStringLiteral().getText();
         namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
         namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
         String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : "";
 
-        this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), namespaceUri, prefix);
+        this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), namespaceUri, prefix, isTopLevel);
     }
 
     @Override

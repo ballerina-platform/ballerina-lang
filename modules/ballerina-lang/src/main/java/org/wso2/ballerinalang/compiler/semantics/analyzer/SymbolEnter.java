@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -261,12 +260,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
-        if (!(bLangXMLAttribute.name instanceof BLangXMLQName)) {
+        if (!(bLangXMLAttribute.name.getKind() == NodeKind.XML_QNAME)) {
             return;
         }
-        
+
         BLangXMLQName qname = (BLangXMLQName) bLangXMLAttribute.name;
-        
+
         // If the attribute is not an in-line namespace declaration, check for duplicate attributes.
         // If no duplicates, then define this attribute symbol.
         if (!bLangXMLAttribute.isNamespaceDeclr) {
@@ -286,7 +285,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the namespace URI, only if it is statically defined. Then define the namespace symbol.
         // This namespace URI is later used by the attributes, when they lookup for duplicate attributes.
         // TODO: find a better way to get the statically defined URI.
-        if (exprs.size() == 1 && exprs.get(0) instanceof BLangLiteral) {
+        if (exprs.size() == 1 && exprs.get(0).getKind() == NodeKind.LITERAL) {
             nsURI = (String) ((BLangLiteral) exprs.get(0)).value;
         }
         BXMLNSSymbol xmlnsSymbol = new BXMLNSSymbol(names.fromIdNode(qname.localname), nsURI, env.scope.owner);
@@ -382,7 +381,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO
                 break;
             case XMLNS:
-                // TODO
+                pkgNode.xmlnsList.add((BLangXMLNS) node);
                 break;
         }
     }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.codegen;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -75,7 +76,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -1036,6 +1036,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         } else {
             // TODO Support global xmlns declr
+            throw new AssertionError();
         }
     }
 
@@ -1053,21 +1054,22 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         // Else, treat it as QName
-        
+
         int nsURIIndex = getNamespaceURIIndex(xmlQName.nsSymbol);
-        
+
         BLangLiteral localnameLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         localnameLiteral.value = xmlQName.localname.value;
         localnameLiteral.typeTag = TypeTags.STRING;
         genNode(localnameLiteral, env);
-        
+
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = xmlQName.prefix.value;
         prefixLiteral.typeTag = TypeTags.STRING;
         genNode(prefixLiteral, env);
 
         xmlQName.regIndex = ++regIndexes.tRef;
-        emit(InstructionCodes.NEWQNAME, localnameLiteral.regIndex, nsURIIndex, prefixLiteral.regIndex, xmlQName.regIndex);
+        emit(InstructionCodes.NEWQNAME, localnameLiteral.regIndex, nsURIIndex, prefixLiteral.regIndex,
+                xmlQName.regIndex);
     }
 
     public void visit(BLangXMLAttribute xmlAttribute) {
@@ -1076,7 +1078,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int attrQNameRegIndex = attrNameExpr.regIndex;
 
         // If the attribute name is a string representation of qname
-        if (!(attrNameExpr instanceof BLangXMLQName)) {
+        if (attrNameExpr.getKind() != NodeKind.XML_QNAME) {
             int localNameRegIndex = ++regIndexes.tString;
             int uriRegIndex = ++regIndexes.tString;
             emit(InstructionCodes.S2QNAME, attrQNameRegIndex, localNameRegIndex, uriRegIndex);
@@ -1102,7 +1104,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int startTagNameRegIndex = startTagName.regIndex;
 
         // If this is a string representation of element name, generate the namespace lookup instructions
-        if (!(startTagName instanceof BLangXMLQName)) {
+        if (startTagName.getKind() != NodeKind.XML_QNAME) {
             int localNameRegIndex = ++regIndexes.tString;
             int uriRegIndex = ++regIndexes.tString;
             emit(InstructionCodes.S2QNAME, startTagNameRegIndex, localNameRegIndex, uriRegIndex);
@@ -1129,7 +1131,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         // Add children
-        for (ExpressionNode child : xmlElementLiteral.concatChildren) {
+        for (ExpressionNode child : xmlElementLiteral.modifiedChildren) {
             BLangExpression childExpr = (BLangExpression) child;
             genNode(childExpr, this.env);
             emit(InstructionCodes.XMLSTORE, xmlElementLiteral.regIndex, childExpr.regIndex);
@@ -1166,7 +1168,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int getNamespaceURIIndex(BXMLNSSymbol defaultNsSymbol) {
-        // If the namespace is declared in-line within the XML, then URI index value in the registry.
+        // If the namespace is declared in-line within the XML, get the URI index in the registry.
         if (defaultNsSymbol != null && defaultNsSymbol.definedInline) {
             return defaultNsSymbol.nsURIIndex;
         }

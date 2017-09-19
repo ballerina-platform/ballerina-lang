@@ -20,8 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -329,24 +327,24 @@ public class TypeChecker extends BLangNodeVisitor {
         String prefix = bLangXMLQName.prefix.value;
         resultTypes = Lists.of(checkType(bLangXMLQName, symTable.stringType, expTypes.get(0)));
         // TODO: check isLHS
-        
-        if (env.node instanceof XMLAttributeNode && prefix.isEmpty()
+
+        if (env.node.getKind() == NodeKind.XML_ATTRIBUTE && prefix.isEmpty()
                 && bLangXMLQName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             BLangXMLAttribute attribute = (BLangXMLAttribute) env.node;
             attribute.isDefaultNs = true;
             attribute.isNamespaceDeclr = true;
             return;
         }
-        
+
         if (prefix.isEmpty()) {
             return;
         }
-        
-        if (env.node instanceof XMLAttributeNode && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+
+        if (env.node.getKind() == NodeKind.XML_ATTRIBUTE && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             ((BLangXMLAttribute) env.node).isNamespaceDeclr = true;
             return;
         }
-        
+
         if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
             bLangXMLQName.type = symTable.errType;
@@ -398,17 +396,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         validateTags(bLangXMLElementLiteral, xmlElementEnv);
-
-//        bLangXMLElementLiteral.children.forEach(child -> {
-//            // expType type can be either XML or string FIXME
-//            BType actualType = checkExpr((BLangExpression) child, xmlElementEnv).get(0);
-//            if (actualType != symTable.xmlType) {
-//                checkExpr((BLangExpression) child, xmlElementEnv, Lists.of(symTable.stringType));
-//            }
-//        });
-        
-        bLangXMLElementLiteral.concatChildren = getXMLConcatChildren(bLangXMLElementLiteral.children);
-
+        bLangXMLElementLiteral.modifiedChildren = concatSimilarKindXMLNodes(bLangXMLElementLiteral.children);
         resultTypes = Lists.of(checkType(bLangXMLElementLiteral, symTable.xmlType, expTypes.get(0)));
     }
 
@@ -650,12 +638,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (startTagName instanceof BLangXMLQName && startTagName instanceof BLangXMLQName
+        if (startTagName.getKind() == NodeKind.XML_QNAME && startTagName.getKind() == NodeKind.XML_QNAME
                 && startTagName.equals(endTagName)) {
             return;
         }
 
-        if (!(startTagName instanceof BLangXMLQName) && !(startTagName instanceof BLangXMLQName)) {
+        if (startTagName.getKind() != NodeKind.XML_QNAME && startTagName.getKind() != NodeKind.XML_QNAME) {
             return;
         }
 
@@ -681,6 +669,7 @@ public class TypeChecker extends BLangNodeVisitor {
             binaryExpressionNode.rhsExpr = expr;
             binaryExpressionNode.lhsExpr = concatExpr;
             binaryExpressionNode.opKind = OperatorKind.ADD;
+            
             checkExpr(binaryExpressionNode, env);
             concatExpr = binaryExpressionNode;
         }
@@ -694,7 +683,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @param exprs Child nodes
      * @return Reduced set of children
      */
-    private List<BLangExpression> getXMLConcatChildren(List<BLangExpression> exprs) {
+    private List<BLangExpression> concatSimilarKindXMLNodes(List<BLangExpression> exprs) {
         List<BLangExpression> newChildren = new ArrayList<BLangExpression>();
         BLangExpression strConcatExpr = null;
         
@@ -729,6 +718,7 @@ public class TypeChecker extends BLangNodeVisitor {
             binaryExpressionNode.rhsExpr = expr;
             binaryExpressionNode.lhsExpr = strConcatExpr;
             binaryExpressionNode.opKind = OperatorKind.ADD;
+            
             checkExpr(binaryExpressionNode, env);
             strConcatExpr = binaryExpressionNode;
         }
