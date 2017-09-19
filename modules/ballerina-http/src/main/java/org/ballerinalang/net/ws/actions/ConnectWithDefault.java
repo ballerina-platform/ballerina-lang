@@ -23,9 +23,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
@@ -51,22 +48,18 @@ import javax.websocket.Session;
  */
 @BallerinaAction(
         packageName = "ballerina.net.ws",
-        actionName = "connect",
+        actionName = "connectWithDefault",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "clientConnectorConfig", type = TypeEnum.STRUCT, structType = "ClientConnectorConfig",
-                          structPackage = Constants.WEBSOCKET_PACKAGE_NAME)
+                @Argument(name = "c", type = TypeEnum.CONNECTOR)
         },
         returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")}
 )
-public class Connect extends AbstractNativeWsAction {
-
+public class ConnectWithDefault extends AbstractNativeWsAction {
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        BStruct clientConfig = (BStruct) getRefArgument(context, 1);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         WebSocketService wsService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
@@ -74,31 +67,18 @@ public class Connect extends AbstractNativeWsAction {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
         }
 
-        BRefType bSubProtocolsBRefType = clientConfig.getRefField(0);
-        String wsParentConnectionID = clientConfig.getStringField(0);
-        BRefType<BMap<BString, BString>> bCustomHeaders = clientConfig.getRefField(1);
-        int idleTimeoutInSeconds =  (int) clientConfig.getIntField(0);
         WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
         clientConnectorConfig.setTarget(clientServiceName);
-        if (bSubProtocolsBRefType != null) {
-            clientConnectorConfig.setSubProtocols(getSubProtocols(bSubProtocolsBRefType));
-        }
-        if (bCustomHeaders != null) {
-            clientConnectorConfig.addHeaders(getCustomHeaders(bCustomHeaders));
-        }
-        if (idleTimeoutInSeconds > 0) {
-            clientConnectorConfig.setIdleTimeoutInMillis(idleTimeoutInSeconds * 1000);
-        }
+        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
 
         ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
         HandshakeFuture handshakeFuture = clientConnector.connect(new BallerinaWsClientConnectorListener(wsService));
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = createWSConnectionStruct(context, session, wsParentConnectionID);
+                BStruct wsConnection = createWSConnectionStruct(context, session, null);
                 context.getControlStackNew().currentFrame.returnValues[0] = wsConnection;
                 storeWsConnection(session.getId(), wsConnection);
                 connectorFuture.notifyReply(wsConnection);

@@ -5,6 +5,7 @@ annotation configuration attach service {
     string[] subProtocols;
     string host;
     int port;
+    int wssPort;
     int idleTimeOutSeconds;
     string keyStoreFile;
     string keyStorePass;

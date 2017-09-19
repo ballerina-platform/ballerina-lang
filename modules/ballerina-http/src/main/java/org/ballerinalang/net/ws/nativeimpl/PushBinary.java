@@ -49,12 +49,6 @@ public class PushBinary extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
-        if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
-            throw new BallerinaException("This function is only working with WebSocket services");
-        }
-
         try {
             BStruct wsConnection = (BStruct) getRefArgument(context, 0);
             Session session = (Session) wsConnection.getNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION);

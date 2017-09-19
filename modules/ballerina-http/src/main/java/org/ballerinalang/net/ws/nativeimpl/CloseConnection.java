@@ -26,6 +26,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.ws.Constants;
+import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -51,12 +52,6 @@ public class CloseConnection extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
-        if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
-            throw new BallerinaException("This function is only working with WebSocket services");
-        }
-
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);
@@ -65,6 +60,8 @@ public class CloseConnection extends AbstractNativeFunction {
             session.close(new CloseReason(() -> statusCode, reason));
         } catch (IOException e) {
             throw new BallerinaException("Could not close the connection: " + e.getMessage());
+        } finally {
+            WebSocketConnectionManager.getInstance().removeConnection(session.getId());
         }
         return VOID_RETURN;
     }

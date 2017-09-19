@@ -41,6 +41,7 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE = "ClientService";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeOutSeconds";
+    public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
 
     public static final String RESOURCE_NAME_ON_HANDSHAKE = "onHandshake";
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
@@ -72,5 +73,5 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
     public static final String NATIVE_DATA_SENDER_CONFIG = "NATIVE_DATA_SENDER_CONFIG";
-    public static final String NATIVE_DATA_PARENT_CONNECTION = "NATIVE_DATA_PARENT_CONNECTION";
+    public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
 }

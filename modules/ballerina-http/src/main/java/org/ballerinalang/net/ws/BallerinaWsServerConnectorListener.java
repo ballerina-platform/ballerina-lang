@@ -35,7 +35,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMes
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.Map;
@@ -46,7 +45,7 @@ import javax.websocket.Session;
  *
  * @since 0.93
  */
-public class BallerinaWebSocketConnectorListener implements WebSocketConnectorListener {
+public class BallerinaWsServerConnectorListener implements WebSocketConnectorListener {
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
@@ -61,9 +60,9 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
 
             // Creating map
             Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
-            BMap<BString, BString> bUpgradeHeaders = new BMap<>();
+            BMap<String, BString> bUpgradeHeaders = new BMap<>();
             upgradeHeaders.entrySet().forEach(
-                    upgradeHeader -> bUpgradeHeaders.put(new BString(upgradeHeader.getKey()),
+                    upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(),
                                                          new BString(upgradeHeader.getValue()))
             );
             handshakeStruct.setRefField(0, bUpgradeHeaders);
@@ -96,44 +95,13 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketTextMessage);
-        Resource onTextMessageResource =
-                WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_TEXT_MESSAGE);
-        if (onTextMessageResource == null) {
-            return;
-        }
-        BStruct wsConnection = getWSConnection(webSocketTextMessage);
-
-        BStruct wsTextFrame = wsService.createTextFrameStruct();
-        wsTextFrame.setStringField(0, webSocketTextMessage.getText());
-        if (webSocketTextMessage.isFinalFragment()) {
-            wsTextFrame.setBooleanField(0, 1);
-        } else {
-            wsTextFrame.setBooleanField(0, 0);
-        }
-        BValue[] bValues = {wsConnection, wsTextFrame};
-        ConnectorFuture future = Executor.submit(onTextMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketBinaryMessage);
-        Resource onBinaryMessageResource =
-                WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_BINARY_MESSAGE);
-        if (onBinaryMessageResource == null) {
-            return;
-        }
-        BStruct wsConnection = getWSConnection(webSocketBinaryMessage);
-        BStruct wsBinaryFrame = wsService.createBinaryFrameStruct();
-        wsBinaryFrame.setBlobField(0, webSocketBinaryMessage.getByteArray());
-        if (webSocketBinaryMessage.isFinalFragment()) {
-            wsBinaryFrame.setBooleanField(0, 1);
-        } else {
-            wsBinaryFrame.setBooleanField(0, 0);
-        }
-        BValue[] bValues = {wsConnection, wsBinaryFrame};
-        ConnectorFuture future = Executor.submit(onBinaryMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
@@ -144,18 +112,7 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketService wsService = WebSocketDispatcher.findService(webSocketCloseMessage);
-        Resource onCloseResource = WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_CLOSE);
-        if (onCloseResource == null) {
-            return;
-        }
-        BStruct wsConnection = getWSConnection(webSocketCloseMessage);
-        BStruct wsCloseFrame = wsService.createCloseFrameStruct();
-        wsCloseFrame.setIntField(0, webSocketCloseMessage.getCloseCode());
-        wsCloseFrame.setStringField(0, webSocketCloseMessage.getCloseReason());
-
-        BValue[] bValues = {wsConnection, wsCloseFrame};
-        ConnectorFuture future = Executor.submit(onCloseResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
     @Override
@@ -166,28 +123,21 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         WebSocketService wsService = WebSocketDispatcher.findService(controlMessage);
-        Resource onIdleTimeoutResource =
-                WebSocketDispatcher.getResource(wsService, Constants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
-        if (onIdleTimeoutResource == null) {
-            return;
-        }
-        BStruct wsConnection = getWSConnection(controlMessage);
-        BValue[] bValues = {wsConnection};
-        ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
     }
 
 
     private void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
-        int idleTImeoutInSeconds = wsService.getIdleTimeoutInSeconds();
-        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTImeoutInSeconds * 1000);
+        int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
+        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
                 BStruct wsConnection = wsService.createConnectionStruct();
                 wsConnection.addNativeData(Constants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 wsConnection.addNativeData(Constants.WEBSOCKET_MESSAGE, initMessage);
+                wsConnection.addNativeData(Constants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
 
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), wsConnection);
 
@@ -205,10 +155,6 @@ public class BallerinaWebSocketConnectorListener implements WebSocketConnectorLi
                 ErrorHandlerUtils.printError(throwable);
             }
         });
-    }
-
-    private BStruct getWSConnection(WebSocketMessage webSocketMessage) {
-        return WebSocketConnectionManager.getInstance().getConnection(webSocketMessage.getChannelSession().getId());
     }
 
 }

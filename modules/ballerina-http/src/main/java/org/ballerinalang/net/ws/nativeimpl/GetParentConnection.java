@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.net.ws.WebSocketConnectionManager;
 
 /**
  * Get parent connection is exists.
@@ -40,21 +40,17 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         functionName = "getParentConnection",
         args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
                           structPackage = "ballerina.net.ws")},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Connection",
+                                  structPackage = "ballerina.net.ws")},
         isPublic = true
 )
 public class GetParentConnection extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
-        if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
-            throw new BallerinaException("This function is only working with WebSocket services");
-        }
-
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        BStruct parentConnection = (BStruct) wsConnection.getNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION);
+        String parentConnectionID = (String) wsConnection.getNativeData(Constants.NATIVE_DATA_PARENT_CONNECTION_ID);
+        BStruct parentConnection = WebSocketConnectionManager.getInstance().getConnection(parentConnectionID);
         return getBValues(parentConnection);
     }
 }
