@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.testutils;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -8,9 +25,11 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test future implementation for service tests
@@ -22,16 +41,19 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
     private BValue request;
 
     private HTTPCarbonMessage responseMsg;
+    private int timeOut = 120;
 
-    public TestHttpFutureListener(HTTPCarbonMessage requestMessage, BValue request) {
+    public TestHttpFutureListener(HTTPCarbonMessage requestMessage) {
         executionWaitSem = new Semaphore(0);
         this.requestMessage = requestMessage;
-        this.request = request;
     }
 
     @Override
     public void notifySuccess() {
+    }
 
+    public void setRequestStruct(BValue request) {
+        this.request = request;
     }
 
     @Override
@@ -46,26 +68,30 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
         if (requestMessage.getHeader("Origin") != null) {
             CorsHeaderGenerator.process(requestMessage, responseMessage, true);
         }
-
-        //Process CORS if exists.
-        if (requestMessage.getHeader("Origin") != null) {
-            CorsHeaderGenerator.process(requestMessage, responseMessage, true);
-        }
         this.responseMsg = responseMessage;
         this.executionWaitSem.release();
     }
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
-
+        Object carbonStatusCode = requestMessage.getProperty(Constants.HTTP_STATUS_CODE);
+        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
+        String errorMsg = ex.getMessage();
+        ErrorHandlerUtils.printError(ex);
+        this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
+        this.executionWaitSem.release();
     }
 
     public void sync() {
         try {
-            executionWaitSem.acquire();
+            executionWaitSem.tryAcquire(timeOut, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             //ignore
         }
+    }
+
+    public void setResponseMsg(HTTPCarbonMessage httpCarbonMessage) {
+        this.responseMsg = httpCarbonMessage;
     }
 
     public HTTPCarbonMessage getResponseMsg() {

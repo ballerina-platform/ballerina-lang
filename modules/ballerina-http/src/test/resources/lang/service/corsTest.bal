@@ -1,5 +1,5 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina.net.http.response;
 
 @http:configuration {
     basePath:"/hello1",
@@ -18,22 +18,22 @@ service<http> echo1 {
          allowCredentials : true,
          allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
     }
-    resource info1 (message m) {
+    resource info1 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"resCors"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
          methods:["GET"],
          path : "/test2"
     }
-    resource info2 (message m) {
+    resource info2 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"serCors"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -42,11 +42,11 @@ service<http> echo1 {
         allowOrigins :["http://www.wso2.com", "http://facebook.com", "http://www.amazon.com"],
         allowCredentials : true
     }
-    resource info3 (message m) {
+    resource info3 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"moreOrigins"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
@@ -58,11 +58,11 @@ service<http> hello2 {
          allowOrigins :["http://www.hello.com"," http://www.facebook.com  "],
          exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
-    resource info1 (message m) {
+    resource info1 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"resOnlyCors"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -72,11 +72,11 @@ service<http> hello2 {
         allowOrigins :["http://www.bbc.com"," http://www.amazon.com  "],
         exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
-    resource info2 (message m) {
+    resource info2 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"optionsOnly"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
@@ -93,27 +93,26 @@ service<http> echo3 {
     @http:resourceConfig {
         methods:["POST", "PUT"]
     }
-    resource info1 (message m) {
+    resource info1 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"cors"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource info2 (message m) {
-        message result = {};
-        m -> sampleWorker;
-        result <- sampleWorker;
-        reply result;
+    resource info2 (http:Request req, http:Response res) {
+        //message result = {};
+        req -> sampleWorker;
+        res <- sampleWorker;
+        response:send(res);
         worker sampleWorker {
-            m <- default;
-            message msg = {};
+            req <- default;
             json responseJson = {"echo":"worker"};
-            messages:setJsonPayload( msg, responseJson);
-            msg -> default;
+            response:setJsonPayload(res, responseJson);
+            res -> default;
         }
     }
 }
@@ -122,20 +121,20 @@ service<http> echo4 {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource info1 (message m) {
+    resource info1 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"noCors"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["OPTIONS"]
     }
-    resource info2 (message m) {
+    resource info2 (http:Request req, http:Response res) {
         message response = {};
         json responseJson = {"echo":"noCorsOPTIONS"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }

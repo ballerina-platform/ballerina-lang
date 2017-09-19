@@ -21,17 +21,16 @@ package org.ballerinalang.service;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.testutils.EnvironmentInitializer;
+import org.ballerinalang.testutils.HTTPTestRequest;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.nio.ByteBuffer;
 
@@ -49,73 +48,42 @@ public class ServiceTest {
 
     @Test
     public void testServiceDispatching() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         // TODO: Improve with more assets
     }
 
-    @Test(description = "Test for protocol availability check", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".*protocol not defined.*")
-    public void testProtocolAvailabilityCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-        cMsg.removeProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
-        Services.invoke(cMsg);
-    }
-
-    @Test(description = "Test for service dispatcher availability check",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".*no service dispatcher available .*")
-    public void testServiceDispatcherAvailabilityCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, "FOO");   // setting incorrect protocol
-        Services.invoke(cMsg);
-    }
-
     @Test(description = "Test for service availability check")
     public void testServiceAvailabilityCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
-        CarbonMessage invoke = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
+        HTTPCarbonMessage invoke = Services.invokeNew(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
                 "no matching service found for path : /foo/message");
     }
 
-    @Test(description = "Test for resource dispatcher availability check")
-    public void testResourceDispatcherAvailabilityCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
-        DispatcherRegistry.getInstance().unregisterResourceDispatcher("http"); // Remove http resource dispatcher
-        try {
-            CarbonMessage invoke = Services.invoke(cMsg);
-            Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                    "no resource dispatcher available to handle protocol: http");
-
-        } finally {
-//            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher()); // Add back
-        }
-    }
-
     @Test(description = "Test for resource availability check")
     public void testResourceAvailabilityCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
-        CarbonMessage invoke = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
+        HTTPCarbonMessage invoke = Services.invokeNew(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
                 "no matching resource found for path : /echo/bar , method : GET");
     }
 
     @Test
     public void testSetString() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
         cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
         cMsg.setEndOfMsgAdded(true);
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);
     }
 
     @Test(dependsOnMethods = "testSetString")
     public void testGetString() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -125,8 +93,8 @@ public class ServiceTest {
 
     @Test(description = "Test accessing service level variable in resource")
     public void testGetServiceLevelString() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -136,8 +104,8 @@ public class ServiceTest {
 
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/constantPath", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -145,16 +113,16 @@ public class ServiceTest {
         Assert.assertEquals(stringDataSource.getValue(), "constant path test");
     }
 
-    @Test
+    @Test(description = "Test getString after setting string")
     public void testGetStringAfterSetString() {
-        CarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
+        HTTPCarbonMessage setStringCMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST");
         String stringPayload = "hello";
         setStringCMsg.addMessageBody(ByteBuffer.wrap(stringPayload.getBytes()));
         setStringCMsg.setEndOfMsgAdded(true);
-        Services.invoke(setStringCMsg);
+        Services.invokeNew(setStringCMsg);
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -164,11 +132,11 @@ public class ServiceTest {
 
     @Test(description = "Test remove headers native function")
     public void testRemoveHeadersNativeFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
         cMsg.setHeader("header1", "wso2");
         cMsg.setHeader("header2", "ballerina");
         cMsg.setHeader("header3", "hello");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         Assert.assertNull(response.getHeader("header1"));
@@ -179,9 +147,9 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams Native Function")
     public void testGetFormParamsNativeFunction() {
         String path = "/echo/getFormParams";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&team=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -194,9 +162,9 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams with undefined key")
     public void testGetFormParamsForUndefinedKey() {
         String path = "/echo/getFormParams";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -207,9 +175,9 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams empty payloads")
     public void testGetFormParamsEmptyPayload() {
         String path = "/echo/getFormParams";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -220,8 +188,8 @@ public class ServiceTest {
     @Test(description = "Test GetFormParams with unsupported media type")
     public void testGetFormParamsWithUnsupportedMediaType() {
         String path = "/echo/getFormParams";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();

@@ -1,5 +1,6 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 const string constPath = getConstPath();
 
@@ -14,78 +15,72 @@ service<http> echo {
         methods:["GET"],
         path:"/message"
     }
-    resource echo (message m) {
-        reply m;
+    resource echo (http:Request req, http:Response res) {
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/setString"
     }
-    resource setString (message m) {
-        serviceLevelStr = messages:getStringPayload(m);
-        http:convertToResponse(m);
-        reply m;
+    resource setString (http:Request req, http:Response res) {
+        serviceLevelStr = request:getStringPayload(req);
+        //response:setStringPayload(res, serviceLevelStr);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/getString"
     }
-    resource getString (message m) {
-        message response = {};
-        // TODO : Fix bellow line
-        // messages:setStringPayload(response, serviceLevelStr);
-        messages:setStringPayload(response, "hello");
-        reply response;
+    resource getString (http:Request req, http:Response res) {
+        response:setStringPayload(res, serviceLevelStr);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource removeHeaders (message m) {
-        messages:removeAllHeaders(m);
-        reply m;
+    resource removeHeaders (http:Request req, http:Response res) {
+        request:removeAllHeaders(req);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource getServiceLevelString (message m) {
-        message response = {};
-        messages:setStringPayload(response, serviceLevelStringVar);
-        reply response;
+    resource getServiceLevelString (http:Request req, http:Response res) {
+        response:setStringPayload(res, serviceLevelStringVar);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:constPath
     }
-    resource constValueAsAttributeValue (message m) {
-        message response = {};
-        messages:setStringPayload(response, "constant path test");
-        reply response;
+    resource constValueAsAttributeValue (http:Request req, http:Response res) {
+        response:setStringPayload(res, "constant path test");
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource testEmptyResourceBody (message m) {
+    resource testEmptyResourceBody (http:Request req, http:Response res) {
     }
 
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource getFormParams (message m) {
-        message response = {};
-        map params = http:getFormParams(m);
+    resource getFormParams (http:Request req, http:Response res) {
+        map params = request:getFormParams(req);
         var name,_ = (string)params.firstName;
         var team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 

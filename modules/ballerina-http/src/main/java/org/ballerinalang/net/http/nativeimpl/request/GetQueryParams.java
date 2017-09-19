@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -29,51 +28,38 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * Get the Form params from HTTP message and return a map.
+ * Get the Query params from HTTP message and return a map.
  *
- * @since 0.93
+ * @since 0.94
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http.request",
-        functionName = "getFormParams",
+        functionName = "getQueryParams",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
         isPublic = true
 )
-public class GetFormParams extends AbstractNativeFunction {
+public class GetQueryParams extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
             BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
-            //TODO check below line
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
-            String contentType = httpCarbonMessage.getHeader(Constants.CONTENT_TYPE);
-            if (contentType != null && contentType.contains(Constants.APPLICATION_FORM)) {
-                String payload;
-                if (httpCarbonMessage.isAlreadyRead()) {
-                    payload = httpCarbonMessage.getMessageDataSource().getMessageAsString();
-                } else {
-                    payload = MessageUtils.getStringFromInputStream(httpCarbonMessage.getInputStream());
-                    StringDataSource stringDataSource = new StringDataSource(payload);
-                    httpCarbonMessage.setMessageDataSource(stringDataSource);
-                    httpCarbonMessage.setAlreadyRead(true);
-                }
-                if (!payload.isEmpty()) {
-                    return getBValues(HttpUtil.getParamMap(payload));
-                } else {
-                    throw new BallerinaException("empty message payload");
-                }
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+
+            if (httpCarbonMessage.getProperty(Constants.QUERY_STR) != null) {
+                String queryString = (String) httpCarbonMessage.getProperty(Constants.QUERY_STR);
+                return getBValues(HttpUtil.getParamMap(queryString));
             } else {
-                throw new BallerinaException("unsupported media type");
+                throw new BallerinaException("query params unavailable");
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error while retrieving form param from message: " + e.getMessage());
+            throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
         }
     }
 }

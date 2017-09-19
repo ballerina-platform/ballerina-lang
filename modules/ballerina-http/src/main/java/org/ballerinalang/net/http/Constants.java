@@ -125,7 +125,7 @@ public class Constants {
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
-
+    public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String HTTP_SESSION = "http_session";
 
     /**
@@ -157,4 +157,5 @@ public class Constants {
      * HTTP content-type application/x-www-form-urlencoded.
      */
     public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
+
 }

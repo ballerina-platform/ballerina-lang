@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * identifier literals in service and resource names.
@@ -43,8 +43,8 @@ public class IdentifierLiteralServiceTest {
 
     @Test(description = "Test using identifier literals in service and resource names")
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"key":"keyVal", "value":"valueOfTheString"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());

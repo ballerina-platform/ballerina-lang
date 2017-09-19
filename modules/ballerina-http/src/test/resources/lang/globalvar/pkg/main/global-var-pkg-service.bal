@@ -1,8 +1,8 @@
 package lang.globalvar.pkg.main;
 
-import ballerina.lang.messages;
 import ballerina.net.http;
 import lang.globalvar.pkg.varpkg;
+import ballerina.net.http.response;
 
 
 
@@ -30,71 +30,65 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/defined"
     }
-    resource accessGlobalVarFromOtherPkg (message m) {
-        message response = {};
+    resource accessGlobalVarFromOtherPkg (http:Request req, http:Response res) {
         int pkgInt = varpkg:glbVarInt;
         string pkgString = varpkg:glbVarString;
         float pkgFloat = varpkg:glbVarFloat;
         json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/assign-from-other-pkg"
     }
-    resource assignGlobalVarFromOtherPkg (message m) {
-        message response = {};
+    resource assignGlobalVarFromOtherPkg (http:Request req, http:Response res) {
 
         json responseJson = {"glbVarFloat1":glbVarFloat1};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/func-inv-from-same-pkg"
     }
-    resource assignFuncInvocationToGlobalVarFromSamePkg (message m) {
-        message response = {};
+    resource assignFuncInvocationToGlobalVarFromSamePkg (http:Request req, http:Response res) {
         json responseJson = {"glbVarFunc":glbVarFunc};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/func-inv-from-diff-pkg"
     }
-    resource assignFuncInvocationToGlobalVarFromDiffPkg (message m) {
-        message response = {};
+    resource assignFuncInvocationToGlobalVarFromDiffPkg (http:Request req, http:Response res) {
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/assign-to-service-var-from-diff-pkg"
     }
-    resource assignGlobalVarToServiceVarFromDiffPkg (message m) {
-        message response = {};
+    resource assignGlobalVarToServiceVarFromDiffPkg (http:Request req, http:Response res) {
         json responseJson = {"serviceVarString":serviceVarString};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/change-global-var-diff-pkg"
     }
-    resource changeGlobalVarInDiffPkg (message m) {
-        message response = {};
+    resource changeGlobalVarInDiffPkg (http:Request req, http:Response res) {
 
         varpkg:glbVarFloatChange = 345432.454;
 
-        reply response;
+        response:send(res);
     }
 
 
@@ -109,12 +103,11 @@ service<http> GlobalVarSecond {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (message m) {
-        message response = {};
+    resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         float changeVarFloat = varpkg:glbVarFloatChange;
         json responseJson = {"changeVarFloat":changeVarFloat};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
 }

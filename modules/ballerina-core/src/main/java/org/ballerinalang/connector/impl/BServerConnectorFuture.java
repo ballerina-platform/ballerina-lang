@@ -42,7 +42,7 @@ public class BServerConnectorFuture implements ConnectorFuture {
         if (response != null) {
             connectorFutureListener.notifyReply(response);
         } else if (ex != null) {
-            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex.getMessage(), ex));
             success = false; //double check this.
         }
         if (success) {
@@ -73,7 +73,7 @@ public class BServerConnectorFuture implements ConnectorFuture {
     public void notifyFailure(BallerinaException ex) {
         //if the future listener already exist, notify right away. if not store until listener registration.
         if (connectorFutureListener != null) {
-            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex));
+            connectorFutureListener.notifyFailure(new BallerinaConnectorException(ex.getMessage(), ex));
         } else {
             ErrorHandlerUtils.printError(ex);
             this.ex = ex;

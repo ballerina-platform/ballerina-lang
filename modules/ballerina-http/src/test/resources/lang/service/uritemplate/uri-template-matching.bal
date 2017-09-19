@@ -1,5 +1,6 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/hello"}
 service<http> echo11 {
@@ -8,177 +9,167 @@ service<http> echo11 {
         methods:["GET"],
         path:"echo2"
     }
-    resource echo1 (message m) {
-        message response = {};
+    resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo5":"echo5"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}-{xyz}"
     }
-    resource echo2 (message m, @http:PathParam {value:"abc"} string abc, @http:PathParam {value:"xyz"} string xyz) {
-        message response = {};
+    resource echo2 (http:Request req, http:Response res, string abc, string xyz) {
         json responseJson = {"first":abc, "second":xyz};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}"
     }
-    resource echo3 (message m, @http:PathParam {value:"abc"} string abc, @http:PathParam {value:"xyz"} string xyz) {
-        message response = {};
+    resource echo3 (http:Request req, http:Response res, string abc, string xyz) {
         json responseJson = {"first":xyz, "second":abc};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}"
     }
-    resource echo4 (message m, @http:PathParam {value:"abc"} string abc) {
-        message response = {};
+    resource echo4 (http:Request req, http:Response res, string abc) {
         json responseJson = {"echo3":abc};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
-    resource echo5 (message m, @http:PathParam {value:"abc"} string abc, @http:PathParam {value:"xyz"} string xyz) {
-        message response = {};
-        json responseJson = {"first":abc, "second":xyz, "echo4": "echo4"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo5 (http:Request req, http:Response res, string abc, string xyz) {
+        json responseJson = {"first":abc, "second":xyz, "echo4":"echo4"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/{bar}"
     }
-    resource echo6 (message m, @http:PathParam {value:"abc"} string abc,
-                    @http:PathParam {value:"xyz"} string xyz, @http:PathParam {value:"bar"} string bar) {
-        message response = {};
-        json responseJson = {"first":abc, "second":xyz, "echo4": bar};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo6 (http:Request req, http:Response res, string abc, string xyz, string bar) {
+        json responseJson = {"first":abc, "second":xyz, "echo4":bar};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/*"
     }
-    resource echo7 (message m) {
-        message response = {};
+    resource echo7 (http:Request req, http:Response res) {
         json responseJson = {"echo5":"any"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
-    resource echo8 (message m, @http:PathParam {value:"abc"} string abc1, @http:PathParam {value:"xyz"} string xyz2) {
-        message response = {};
-        json responseJson = {"first":abc1, "second":xyz2, "echo8": "echo8"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo8 (http:Request req, http:Response res, string abc, string xyz) {
+        json responseJson = {"first":abc, "second":xyz, "echo8":"echo8"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo3/{abc}+{xyz}"
     }
-    resource echo9 (message m, string abc, string xyz, string foo) {
-        message response = {};
-        json responseJson = {"first":abc, "second":xyz, "third":foo, "echo9": "echo9"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo9 (http:Request req, http:Response res, string abc, string xyz) {
+        map params = request:getQueryParams(req);
+        var foo,_ = (string)params.foo;
+        json responseJson = {"first":abc, "second":xyz, "third":foo, "echo9":"echo9"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource echo10 (message m, string foo) {
-        message response = {};
-        json responseJson = {"third":foo, "echo10": "echo10"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo10 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var foo, _ = (string)params.foo;
+        json responseJson = {"third":foo, "echo10":"echo10"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
-    resource echo11 (message m, string foo) {
-        message response = {};
-        json responseJson = {"third":foo, "echo11": "echo11"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo11 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var foo, _ = (string)params.foo;
+        json responseJson = {"third":foo, "echo11":"echo11"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo12/{abc}/bar"
     }
-    resource echo12 (message m, @http:PathParam {value:"abc"} string abc1) {
-        message response = {};
-        json responseJson = {"echo12": abc1};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo12 (http:Request req, http:Response res, string abc) {
+        json responseJson = {"echo12":abc};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo13"
     }
-    resource echo13 (message m, int foo) {
-        message response = {};
-        string bar;
-        bar, _ = <string> foo;
-        json responseJson = {"echo13": bar};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo13 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var bar, _ = (string)params.foo;
+        json responseJson = {"echo13":bar};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo14"
     }
-    resource echo14 (message m, float foo) {
-        message response = {};
-        string bar;
-        bar, _ = <string> foo;
-        json responseJson = {"echo14": bar};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo14 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var bar, _ = (string)params.foo;
+        json responseJson = {"echo14":bar};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo15"
     }
-    resource echo15 (message m, boolean foo) {
-        message response = {};
-        string bar;
-        bar, _ = <string> foo;
-        json responseJson = {"echo15": bar};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo15 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var bar, _ = (string)params.foo;
+        json responseJson = {"echo15":bar};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/so2"
     }
-    resource echo (message m) {
-        http:convertToResponse(m);
-        reply m;
+    resource echo (http:Request req, http:Response res) {
+        //http:convertToResponse(req);
+        //reply m;
 
     }
 }
@@ -190,73 +181,72 @@ service<http> echo22 {
         methods:["GET"],
         path:"/echo2"
     }
-    resource echo1 (message m) {
-        message response = {};
+    resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo1":"echo1"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/*"
     }
-    resource echo2 (message m) {
-        message response = {};
+    resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"echo2":"echo2"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2/foo/bar"
     }
-    resource echo3 (message m) {
-        message response = {};
+    resource echo3 (http:Request req, http:Response res) {
         json responseJson = {"echo3":"echo3"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
 @http:configuration {basePath:"/"}
 service<http> echo33 {
-    resource echo1 (message m, string foo) {
-        message response = {};
-        json responseJson = {"third":foo, "echo33": "echo1"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo1 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var foo, _ = (string)params.foo;
+        json responseJson = {"third":foo, "echo33":"echo1"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
 service<http> echo44 {
-    resource echo1 (message m, string foo) {
-        message response = {};
-        json responseJson = {"first":foo, "echo44": "echo1"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
-    }
+
 
     @http:resourceConfig {
         path:"echo2"
     }
-    resource echo221 (message m) {
-        message response = {};
+    resource echo221 (http:Request req, http:Response res) {
         json responseJson = {"first":"zzz"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
+    }
+
+    resource echo1 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var foo, _ = (string)params.foo;
+        json responseJson = {"first":foo, "echo44":"echo1"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"echo2"
     }
-    resource echo222 (message m) {
-        message response = {};
+    resource echo222 (http:Request req, http:Response res) {
         json responseJson = {"first":"bar"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
@@ -265,20 +255,20 @@ service<http> echo55 {
     @http:resourceConfig {
         path:"/foo/bar"
     }
-    resource echo1 (message m, string foo) {
-        message response = {};
+    resource echo1 (http:Request req, http:Response res) {
+        map params = request:getQueryParams(req);
+        var foo, _ = (string)params.foo;
         json responseJson = {"echo55":"echo55"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         path:"/*"
     }
-    resource echo2 (message m, string foo) {
-        message response = {};
+    resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"echo55":"default"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }

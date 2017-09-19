@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
@@ -47,8 +47,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetId Function")
     public void testGetIdFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/id1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/id1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -61,8 +61,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for null session GetId Function")
     public void testNullSessionGetIdFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/id2", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/id2", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -73,8 +73,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for isNew Function")
     public void testIsNewFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -85,8 +85,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for isNew Function two attempts")
     public void testIsNewFunctiontwoAttempts() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -98,7 +98,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -108,8 +108,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetCreateTime Function")
     public void testGetCreateTimeFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -121,7 +121,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -132,8 +132,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetCreateTime Function error")
     public void testGetCreateTimeFunctionError() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new3", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new3", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -144,8 +144,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetLastAccessedTime Function")
     public void testGetLastAccessedTimeFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -158,7 +158,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -169,8 +169,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for GetLastAccessed Function error")
     public void testGetLastAccessedTimeFunctionError() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new5", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new5", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -181,8 +181,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for setMaxInactiveInterval and getMaxInactiveInterval Function")
     public void testSetMaxInactiveIntervalFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -195,7 +195,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -206,8 +206,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for SetMaxInactiveInterval Function error")
     public void testSetMaxInactiveIntervalFunctionError() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new7", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new7", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -218,8 +218,8 @@ public class HTTPSessionSubMethodsTest {
 
     @Test(description = "Test for negative timeout setMaxInactiveInterval")
     public void testSetMaxInactiveIntervalNegativeTimeoutFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -232,7 +232,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
