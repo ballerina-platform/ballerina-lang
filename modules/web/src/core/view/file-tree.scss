@@ -1,36 +1,44 @@
 .file-tree {
-    .node {
-        -moz-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        -ms-transition: all 0.5s;
-        -webkit-transition: all 0.5s;
-        transition: all 0.5s;
-        border-radius: 3px;
-    }
-      
-    .node:hover {
-        background-color: rgb(220, 245, 243);
+    .tree-node {
+        color: #c7c7c7;
         cursor: pointer;
-    }
-    
-    .info, .node {
-        padding: 2px 10px 2px 5px;
-        font: 14px Helvetica, Arial, sans-serif;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-    
-    .tree-view_arrow {
-        -moz-transition: all 0.1s;
-        -o-transition: all 0.1s;
-        -ms-transition: all 0.1s;
-        -webkit-transition: all 0.1s;
-        transition: all 0.1s;
-    }
-    
-    .tree-view_arrow-empty {
-        color: yellow;
+        overflow-y: hidden;
+        &.empty {
+            .tree-node-header {
+                margin-left: 14px;
+                .tree-node-arrow {
+                    display: none;
+                }
+            }
+        }
+        .tree-node-header {
+            line-height: 24px;
+            .tree-node-arrow {
+                margin-right: 6px;
+                display: inline-block;
+                &::after {
+                    content: '▾';
+                }
+            }
+            .tree-node-icon {
+                margin-right: 5px;
+            }
+            .tree-node-label {
+
+            }
+        }
+        .tree-node-children {
+            margin-left: 16px;
+        }
+        &.collapsed {
+            .tree-node-header {
+                .tree-node-arrow {
+                    transform: rotate(-90deg);
+                }
+            }
+            .tree-node-children {
+                height: 0px;
+            }
+        }
     }
 }

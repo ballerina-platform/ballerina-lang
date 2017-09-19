@@ -11,8 +11,13 @@
             margin-left: 5px;
         }
         .arrow {
-            &.open {
-                transform: rotate(90deg);
+            display: inline-block;
+            transition: all 0.1s;
+            &::after {
+                content: '\25BE',
+            }
+            &.collapsed {
+                transform: rotate(-90deg);
             }
         }
         .root-label {

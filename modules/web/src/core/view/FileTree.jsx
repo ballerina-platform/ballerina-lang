@@ -1,9 +1,9 @@
 import React from 'react';
+import classnames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { getFSRoots, listFiles } from 'api-client/api-client';
-import TreeView from 'react-treeview';
-import 'react-treeview/react-treeview.css';
+import TreeNode from './TreeNode';
 import './file-tree.scss';
 
 // A symbol to represent file system root
@@ -76,20 +76,13 @@ class FileTree extends React.Component {
      */
     render() {
         const renderNode = (node) => {
-            node.collapsed = _.isNil(node.collapsed) ? true : node.collapsed;
-            const label = (
-                <span
-                    className="node"
-                    onClick={() => this.onToggle(node, !node.collapsed)}
-                >
-                    {node.label}
-                </span>
-            );
+            if (_.isNil(node.collapsed)) {
+                node.collapsed = true;
+            }
             return (
-                <TreeView
-                    nodeLabel={label}
+                <TreeNode
+                    node={node}
                     key={node.id}
-                    collapsed={node.collapsed}
                     onClick={() => this.onToggle(node, !node.collapsed)}
                 >
                     {
@@ -97,7 +90,7 @@ class FileTree extends React.Component {
                             && _.isArray(node.children)
                             && node.children.map(renderNode)
                     }
-                </TreeView>
+                </TreeNode>
             );
         };
         return (

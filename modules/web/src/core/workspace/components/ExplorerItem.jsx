@@ -58,7 +58,7 @@ class ExplorerItem extends React.Component {
                     }
                     }
                 >
-                    <i className={classnames('fw', 'fw-start', 'arrow', { open: this.state.open })} />
+                    <div className={classnames('arrow', { collapsed: !this.state.open })} />
                     <i className="fw fw-folder icon" />
                     <span className="root-label">{this.state.node.label}</span>
                 </div>
