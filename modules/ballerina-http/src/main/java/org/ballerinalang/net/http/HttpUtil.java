@@ -27,6 +27,7 @@ import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -53,7 +54,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.ByteBuffer;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -187,14 +189,16 @@ public class HttpUtil {
     public static BValue[] getStringPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
         BString result;
         try {
-            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
-            if (msg.isAlreadyRead()) {
-                result = new BString(msg.getMessageDataSource().getMessageAsString());
+            BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            if (httpCarbonMessage.isAlreadyRead()) {
+                result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
             } else {
-                String payload = MessageUtils.getStringFromInputStream(msg.value().getInputStream());
+                String payload = MessageUtils.getStringFromInputStream(httpCarbonMessage.getInputStream());
                 result = new BString(payload);
-                msg.setMessageDataSource(payload);
-                msg.setAlreadyRead(true);
+                httpCarbonMessage.setMessageDataSource(new StringDataSource(payload));
+                httpCarbonMessage.setAlreadyRead(true);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -380,6 +384,20 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
+    public static BMap<String, BString> getParamMap(String payload) throws UnsupportedEncodingException {
+        BMap<String, BString> params = new BMap<>();
+        String[] entries = payload.split("&");
+        for (String entry : entries) {
+            int index = entry.indexOf('=');
+            if (index != -1) {
+                String name = entry.substring(0, index).trim();
+                String value = URLDecoder.decode(entry.substring(index + 1).trim(), "UTF-8");
+                params.put(name, new BString(value));
+            }
+        }
+        return params;
+    }
+
     /**
      * Helper method to start pending http server connectors.
      *
@@ -400,15 +418,6 @@ public class HttpUtil {
 
     public static void handleResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg) {
         try {
-            //TODO enable once new resource signature enabled
-//                Session session = context.getCurrentSession();
-//                if (session != null) {
-//                    session.generateSessionHeader(responseMsg);
-//                }
-            //Process CORS if exists.
-            if (requestMsg.getHeader("Origin") != null) {
-                CorsHeaderGenerator.process(requestMsg, responseMsg, true);
-            }
             requestMsg.respond(responseMsg);
         } catch (org.wso2.carbon.transport.http.netty.contract.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
@@ -429,12 +438,12 @@ public class HttpUtil {
         }
     }
 
-    private static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
+    public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
 
         HTTPCarbonMessage response = new HTTPCarbonMessage();
-
-        response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
-        response.setEndOfMsgAdded(true);
+        StringDataSource stringDataSource = new StringDataSource(payload, response.getOutputStream());
+        response.setMessageDataSource(stringDataSource);
+        response.setAlreadyRead(true);
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
 
         // TODO: Set following according to the request

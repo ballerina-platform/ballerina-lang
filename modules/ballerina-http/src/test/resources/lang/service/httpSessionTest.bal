@@ -1,250 +1,251 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
 import ballerina.lang.errors;
 import ballerina.lang.strings;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 struct Data {
-            string name;
-        }
+    string name;
+}
 
-@http:configuration{basePath:"/sample"}
+@http:configuration {basePath:"/sample"}
 service<http> sample {
     @http:resourceConfig {
         methods:["GET"],
         path:"/test1"
     }
-    resource echo (message m) {
+    resource echo (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:createSessionIfAbsent(m);
+        http:Session session = http:createSessionIfAbsent(req);
         if (session != null) {
             result = "session created";
         }
-        messages:setStringPayload(m, result);
-        reply m;
+        response:setStringPayload(res, result);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/test2"
     }
-    resource echo2 (message m) {
+    resource echo2 (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:getSession(m);
+        http:Session session = http:getSession(req);
         if (session != null) {
             result = "session is returned";
         } else {
             result = "no session id available";
         }
-        messages:setStringPayload(m, result);
-        reply m;
+        response:setStringPayload(res, result);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/test3"
     }
-    resource echo3 (message m) {
+    resource echo3 (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:getSession(m);
+        http:Session session = http:getSession(req);
         if (session != null) {
             result = "session created";
         } else {
             result = "session is not created";
         }
-        messages:setStringPayload(m, result);
-        reply m;
+        response:setStringPayload(res, result);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/test4"
     }
-    resource testGetAt (message m) {
+    resource testGetAt (http:Request req, http:Response res) {
 
         string result = "";
-        http:Session session = http:createSessionIfAbsent(m);
+        http:Session session = http:createSessionIfAbsent(req);
         any attribute = http:getAttribute(session, "name");
-        if(attribute != null) {
+        if (attribute != null) {
             result = "attribute available";
         } else {
-        result = "attribute not available";
+            result = "attribute not available";
         }
-        messages:setStringPayload(m, result);
-        reply m;
+        response:setStringPayload(res, result);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/test5"
     }
-    resource echo5 (message m) {
+    resource echo5 (http:Request req, http:Response res) {
 
         string result = "chamil";
-        http:Session session = http:getSession(m);
-        any attribute = http:getAttribute(session,"name");
-        messages:setStringPayload(m, result);
-        reply m;
+        http:Session session = http:getSession(req);
+        any attribute = http:getAttribute(session, "name");
+        response:setStringPayload(res, result);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/test6"
     }
-    resource echo6 (message m) {
+    resource echo6 (http:Request req, http:Response res) {
 
         string myName = "chamil";
         errors:TypeCastError err;
-        http:Session session1 = http:createSessionIfAbsent(m);
-        http:Session session2 = http:createSessionIfAbsent(m);
+        http:Session session1 = http:createSessionIfAbsent(req);
+        http:Session session2 = http:createSessionIfAbsent(req);
         http:setAttribute(session1, "name", "wso2");
         any attribute = http:getAttribute(session2, "name");
         if (attribute != null) {
             myName, err = (string)attribute;
         }
-        messages:setStringPayload(m, myName);
-        reply m;
+        response:setStringPayload(res, myName);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/hello"
     }
-    resource hello (message m) {
+    resource hello (http:Request req, http:Response res) {
 
         errors:TypeCastError err;
-        string result = messages:getStringPayload (m);
-        http:Session session = http:createSessionIfAbsent(m);
-        any attribute = http:getAttribute(session,"name");
-        if(attribute != null) {
-            result,err = (string) attribute;
+        string result = request:getStringPayload(req);
+        http:Session session = http:createSessionIfAbsent(req);
+        any attribute = http:getAttribute(session, "name");
+        if (attribute != null) {
+            result, err = (string)attribute;
 
         } else {
             http:setAttribute(session, "name", result);
         }
-        messages:setStringPayload(m, result);
-        reply m;
+        response:setStringPayload(res, result);
+        response:send(res);
     }
 }
 
-@http:configuration{basePath:"/counter"}
+@http:configuration {basePath:"/counter"}
 service<http> counter {
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo"
     }
-    resource echoCount (message m) {
+    resource echoCount (http:Request req, http:Response res) {
 
         int sessionCounter;
         errors:TypeCastError err;
-        http:Session ses = http:createSessionIfAbsent(m);
-        if(http:getAttribute(ses,"Counter") == null) {
+        http:Session ses = http:createSessionIfAbsent(req);
+        if (http:getAttribute(ses, "Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter, err = (int) http:getAttribute(ses,"Counter");
+            sessionCounter, err = (int)http:getAttribute(ses, "Counter");
         }
-        sessionCounter = sessionCounter+1;
+        sessionCounter = sessionCounter + 1;
         http:setAttribute(ses, "Counter", sessionCounter);
-        messages:setStringPayload(m, strings:valueOf(sessionCounter));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(sessionCounter));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/echo2"
     }
-    resource echoCount2 (message m) {
+    resource echoCount2 (http:Request req, http:Response res) {
 
         int sessionCounter;
         errors:TypeCastError err;
-        http:Session ses = http:getSession(m);
-        if(http:getAttribute(ses,"Counter") == null) {
+        http:Session ses = http:getSession(req);
+        if (http:getAttribute(ses, "Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter, err = (int) http:getAttribute(ses,"Counter");
+            sessionCounter, err = (int)http:getAttribute(ses, "Counter");
         }
-        sessionCounter = sessionCounter+1;
+        sessionCounter = sessionCounter + 1;
         http:setAttribute(ses, "Counter", sessionCounter);
-        messages:setStringPayload(m, strings:valueOf(sessionCounter));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(sessionCounter));
+        response:send(res);
     }
 }
 
-@http:configuration{basePath:"/sample2"}
+@http:configuration {basePath:"/sample2"}
 service<http> sample2 {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource echoName (message m) {
+    resource echoName (http:Request req, http:Response res) {
         string myName = "wso2";
         errors:TypeCastError err;
-        http:Session Session = http:createSessionIfAbsent(m);
-        any attribute = http:getAttribute(Session,"name");
-        if(attribute != null) {
-            myName, err = (string) attribute;
+        http:Session Session = http:createSessionIfAbsent(req);
+        any attribute = http:getAttribute(Session, "name");
+        if (attribute != null) {
+            myName, err = (string)attribute;
         }
         http:setAttribute(Session, "name", "chamil");
-        messages:setStringPayload(m, myName);
-        reply m;
+        response:setStringPayload(res, myName);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource myStruct (message m) {
+    resource myStruct (http:Request req, http:Response res) {
 
-        string result = messages:getStringPayload (m);
+        string result = request:getStringPayload(req);
         errors:TypeCastError err;
         Data d = {name:result};
-        http:Session Session = http:createSessionIfAbsent(m);
+        http:Session Session = http:createSessionIfAbsent(req);
         any attribute = http:getAttribute(Session, "nameStruct");
-        if(attribute != null) {
-            d, err = (Data) attribute;
+        if (attribute != null) {
+            d, err = (Data)attribute;
         } else {
             http:setAttribute(Session, "nameStruct", d);
         }
-        messages:setStringPayload(m, d.name);
-        reply m;
+        response:setStringPayload(res, d.name);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/names"
     }
-    resource keyNames (message m) {
+    resource keyNames (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:setAttribute(ses, "Counter", "1");
         http:setAttribute(ses, "Name", "chamil");
         string[] arr = http:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, "arraysize:" + arrsize);
-        reply m;
+        response:setStringPayload(res, "arraysize:" + arrsize);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/names2"
     }
-    resource keyNames2 (message m) {
+    resource keyNames2 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:setAttribute(ses, "Counter", "1");
         http:setAttribute(ses, "location", "colombo");
         string[] arr = http:getAttributeNames(ses);
-        messages:setStringPayload(m, arr[0]);
-        reply m;
+        response:setStringPayload(res, arr[0]);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/names3"
     }
-    resource keyNames3 (message m) {
+    resource keyNames3 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:setAttribute(ses, "location", "colombo");
         http:setAttribute(ses, "channel", "yue");
         http:setAttribute(ses, "month", "june");
@@ -252,177 +253,177 @@ service<http> sample2 {
         http:removeAttribute(ses, "Name");
         string[] arr = http:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, strings:valueOf(arrsize));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(arrsize));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/names4"
     }
-    resource keyNames4 (message m) {
+    resource keyNames4 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:setAttribute(ses, "Counter", "1");
         http:setAttribute(ses, "Name", "chamil");
         http:removeAttribute(ses, "Name");
         http:invalidate(ses);
         string[] arr = http:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, strings:valueOf(arrsize));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(arrsize));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/names5"
     }
-    resource keyNames5 (message m) {
+    resource keyNames5 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         string[] arr = http:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, strings:valueOf(arrsize));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(arrsize));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/names6"
     }
-    resource keyNames6 (message m) {
+    resource keyNames6 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:setAttribute(ses, "location", "colombo");
         http:removeAttribute(ses, "Name");
         string[] arr = http:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, strings:valueOf(arrsize));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(arrsize));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/id1"
     }
-    resource id1 (message m) {
+    resource id1 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         string id = http:getId(ses);
-        messages:setStringPayload(m, id);
-        reply m;
+        response:setStringPayload(res, id);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/id2"
     }
-    resource id2 (message m) {
+    resource id2 (http:Request req, http:Response res) {
 
-        http:Session ses = http:getSession(m);
+        http:Session ses = http:getSession(req);
         string id = http:getId(ses);
-        messages:setStringPayload(m, id);
-        reply m;
+        response:setStringPayload(res, id);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new1"
     }
-    resource new1 (message m) {
+    resource new1 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         boolean stat = http:isNew(ses);
-        messages:setStringPayload(m, strings:valueOf(stat));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(stat));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new2"
     }
-    resource new2 (message m) {
+    resource new2 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         int time = http:getCreationTime(ses);
-        messages:setStringPayload(m, strings:valueOf(time));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(time));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new3"
     }
-    resource new3 (message m) {
+    resource new3 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:invalidate(ses);
         int time = http:getCreationTime(ses);
-        messages:setStringPayload(m, strings:valueOf(time));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(time));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new4"
     }
-    resource new4 (message m) {
+    resource new4 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         int time = http:getLastAccessedTime(ses);
-        messages:setStringPayload(m, strings:valueOf(time));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(time));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new5"
     }
-    resource new5 (message m) {
+    resource new5 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:invalidate(ses);
         int time = http:getLastAccessedTime(ses);
-        messages:setStringPayload(m, strings:valueOf(time));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(time));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new6"
     }
-    resource new6 (message m) {
+    resource new6 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         int time = http:getMaxInactiveInterval(ses);
         http:setMaxInactiveInterval(ses, 60);
-        messages:setStringPayload(m, strings:valueOf(time));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(time));
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new7"
     }
-    resource new7 (message m) {
+    resource new7 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         http:invalidate(ses);
         http:setMaxInactiveInterval(ses, 89);
-        messages:setStringPayload(m, "done");
-        reply m;
+        response:setStringPayload(res, "done");
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/new8"
     }
-    resource new8 (message m) {
+    resource new8 (http:Request req, http:Response res) {
 
-        http:Session ses = http:createSessionIfAbsent(m);
+        http:Session ses = http:createSessionIfAbsent(req);
         int time = http:getMaxInactiveInterval(ses);
         http:setMaxInactiveInterval(ses, -1);
-        messages:setStringPayload(m, strings:valueOf(time));
-        reply m;
+        response:setStringPayload(res, strings:valueOf(time));
+        response:send(res);
     }
 }

@@ -17,9 +17,13 @@
  */
 package org.ballerinalang.connector.api;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.connector.impl.StructHelper;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 
 /**
  * {@code ConnectorUtil} Utilities related to connector processing.
@@ -38,6 +42,32 @@ public class ConnectorUtils extends StructHelper {
      */
     public static BStruct createStruct(Resource resource, String packageName, String structName) {
         return createAndGetStruct(resource, packageName, structName);
+    }
+
+    /**
+     * This method is used to create a struct given the context and required struct details.
+     *
+     * @param context to get program file.
+     * @param packagePath of the struct.
+     * @param structName of the struct.
+     * @return created struct.
+     * @throws BallerinaConnectorException
+     */
+    public static BStruct createAndGetStruct(Context context, String packagePath, String structName)
+            throws BallerinaConnectorException {
+        PackageInfo packageInfo = context.getProgramFile()
+                .getPackageInfo(packagePath);
+        if (packageInfo == null) {
+            throw new BallerinaConnectorException("package - " + packagePath + " does not exist");
+        }
+        StructInfo structInfo = packageInfo.getStructInfo(structName);
+        if (structInfo == null) {
+            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
+        }
+        BStructType structType = structInfo.getType();
+        BStruct bStruct = new BStruct(structType);
+
+        return bStruct;
     }
 
     /**

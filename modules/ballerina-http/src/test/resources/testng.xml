@@ -24,7 +24,7 @@ under the License.
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.net.http.nativeimpl.request"/>
+            <!--<package name="org.ballerinalang.net.http.nativeimpl.request"/>-->
         </packages>
     </test>
 
@@ -36,6 +36,7 @@ under the License.
     </test>
 
     <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
+    <!-- Native Function Related Test Cases. -->
     <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
         <!--<packages>-->
             <!--<package name="org.ballerinalang.nativeimpl.functions"/>-->
@@ -48,20 +49,20 @@ under the License.
         <!--</packages>-->
     <!--</test>-->
 
-    <!--&lt;!&ndash; Service Related Test Cases &ndash;&gt;-->
+    <!-- Service Related Test Cases -->
 
-    <!--<test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--&lt;!&ndash; TODO : Add other testcases. &ndash;&gt;-->
-            <!--<class name="org.ballerinalang.service.ServiceTest"/>-->
-            <!--<class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>-->
+    <test name="ballerina-service-unit-tests" preserve-order="false" parallel="false">
+        <classes>
+             <!--TODO : Add other testcases. -->
+            <class name="org.ballerinalang.service.ServiceTest"/>
+            <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
             <!--<class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>-->
             <!--<class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>-->
             <!--<class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>-->
             <!--<class name="org.ballerinalang.service.ProducesConsumesAnnotationTest"/>-->
             <!--<class name="org.ballerinalang.service.HTTPCorsTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+        </classes>
+    </test>
 
     <!--<test name="ballerina-global-var-test-suite">-->
         <!--<classes>-->

@@ -1,7 +1,8 @@
-import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
@@ -9,104 +10,101 @@ service<http> Ecommerce {
         methods:["GET"],
         path:"/products/{productId}/{regId}"
     }
-    resource productsInfo1 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
-        string orderId;
-        json responseJson;
-        message response = {};
-
-        orderId = messages:getHeader(m, "X-ORDER-ID");
+    resource productsInfo1 (http:Request req, http:Response res, string productId, string regId) {
+        string orderId = request:getHeader(req, "X-ORDER-ID");
         system:println("Order ID " + orderId);
-        system:println("Product ID " + prdID);
-        system:println("Reg ID " + rID);
-        responseJson = {"X-ORDER-ID":orderId, "ProductID":prdID, "RegID":rID};
+        system:println("Product ID " + productId);
+        system:println("Reg ID " + regId);
+        json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
         system:println(jsons:toString(responseJson));
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products2/{productId}/{regId}/item"
     }
-    resource productsInfo2 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
+    resource productsInfo2 (http:Request req, http:Response res, string productId, string regId) {
         json responseJson;
-        message response = {};
-        system:println("Product ID " + prdID);
-        system:println("Reg ID " + rID);
-        responseJson = {"Template":"T2", "ProductID":prdID, "RegID":rID};
+        system:println("Product ID " + productId);
+        system:println("Reg ID " + regId);
+        responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
         system:println(jsons:toString(responseJson));
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products3/{productId}/{regId}/*"
     }
-    resource productsInfo3 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
+    resource productsInfo3 (http:Request req, http:Response res, string productId, string regId) {
         json responseJson;
-        message response = {};
-        system:println("Product ID " + prdID);
-        system:println("Reg ID " + rID);
-        responseJson = {"Template":"T3", "ProductID":prdID, "RegID":rID};
+        system:println("Product ID " + productId);
+        system:println("Reg ID " + regId);
+        responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
         system:println(jsons:toString(responseJson));
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products/{productId}"
     }
-    resource productsInfo4 (message m, @http:PathParam {value:"productId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
+    resource productsInfo4 (http:Request req, http:Response res, string productId) {
         json responseJson;
-        message response = {};
-        system:println("Product ID " + prdID);
+        map params = request:getQueryParams(req);
+        var rID, _ = (string)params.regID;
+        system:println("Product ID " + productId);
         system:println("Reg ID " + rID);
-        responseJson = {"Template":"T4", "ProductID":prdID, "RegID":rID};
+        responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         system:println(jsons:toString(responseJson));
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products"
     }
-    resource productsInfo6 (message m, @http:QueryParam {value:"prodId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
+    resource productsInfo6 (http:Request req, http:Response res) {
         json responseJson;
-        message response = {};
+        map params = request:getQueryParams(req);
+        var prdID, _ = (string)params.prodId;
+        var rID, _ = (string)params.regID;
         system:println ("Product ID " + prdID);
         system:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         system:println (jsons:toString (responseJson));
-        messages:setJsonPayload (response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products5/{productId}/reg"
     }
-    resource productsInfo5 (message m, @http:PathParam {value:"productId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
+    resource productsInfo5 (http:Request req, http:Response res, string productId) {
         json responseJson;
-        message response = {};
-        system:println("Product ID " + prdID);
+        map params = request:getQueryParams(req);
+        var rID, _ = (string)params.regID;
+        system:println("Product ID " + productId);
         system:println("Reg ID " + rID);
-        responseJson = {"Template":"T5", "ProductID":prdID, "RegID":rID};
+        responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         system:println(jsons:toString(responseJson));
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         path:""
     }
-    resource echo1 (message m, string foo) {
-        message response = {};
+    resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"echo11":"echo11"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
@@ -119,29 +117,26 @@ service<http> echo111 {
         methods:["POST", "UPDATE"],
         path : "/test"
     }
-    resource productsInfo99 (message m) {
-        message response = {};
-        reply response;
+    resource productsInfo99 (http:Request req, http:Response res) {
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["OPTIONS"],
         path : "/hi"
     }
-    resource productsOptions (message m) {
-        message response = {};
+    resource productsOptions (http:Request req, http:Response res) {
         json responseJson = {"echo":"wso2"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET", "PUT"],
         path : "/test"
     }
-    resource productsInfo98 (message m) {
-        message response = {};
-        reply response;
+    resource productsInfo98 (http:Request req, http:Response res) {
+        response:send(res);
 
     }
 
@@ -149,33 +144,30 @@ service<http> echo111 {
         methods:["GET"],
         path : "/getme"
     }
-    resource productsGet (message m) {
-        message response = {};
+    resource productsGet (http:Request req, http:Response res) {
         json responseJson = {"echo":"get"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path : "/post"
     }
-    resource productsPOST (message m) {
-        message response = {};
+    resource productsPOST (http:Request req, http:Response res) {
         json responseJson = {"echo":"post"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["PUT"],
         path : "/put"
     }
-    resource productsPUT (message m) {
-        message response = {};
+    resource productsPUT (http:Request req, http:Response res) {
         json responseJson = {"echo":"put"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 

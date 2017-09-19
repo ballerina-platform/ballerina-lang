@@ -1,5 +1,5 @@
-import ballerina.lang.messages;
 import ballerina.net.http;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/identifierLiteral"}
 service<http> |sample service| {
@@ -8,12 +8,10 @@ service<http> |sample service| {
         methods:["GET"],
         path:"/resource"
     }
-    resource |sample resource| (message m) {
-        message response = {};
-
+    resource |sample resource| (http:Request req, http:Response res) {
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 

@@ -20,6 +20,7 @@ package org.ballerinalang.service;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.testutils.EnvironmentInitializer;
+import org.ballerinalang.testutils.HTTPTestRequest;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -28,7 +29,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Test class for Uri Template based resource dispatchers.
@@ -46,11 +47,11 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
             dataProvider = "validUrl")
     public void testValidUrlTemplateDispatching(String path) {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         final String xOrderIdHeadeName = "X-ORDER-ID";
         final String xOrderIdHeadeValue = "ORD12345";
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -65,11 +66,11 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test resource dispatchers with invalid URL. /products/{productId}/{regId}",
             dataProvider = "inValidUrl")
     public void testInValidUrlTemplateDispatching(String path) {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         final String xOrderIdHeadeName = "X-ORDER-ID";
         final String xOrderIdHeadeValue = "ORD12345";
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertEquals(
                 response.getProperty(Constants.HTTP_STATUS_CODE), 404, "Response code mismatch");
         Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
@@ -82,8 +83,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}",
             dataProvider = "validUrlWithQueryParam")
     public void testValidUrlTemplateWithQueryParamDispatching(String path) {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -97,9 +98,9 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test accessing the variables parsed with URL. /products2/{productId}/{regId}/item")
     public void testValidUrlTemplate2Dispatching() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(
                 "/ecommerceservice/products2/PID125/RID125/item", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T2","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -113,9 +114,9 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test accessing the variables parsed with URL. /products3/{productId}/{regId}/*")
     public void testValidUrlTemplate3Dispatching() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(
                 "/ecommerceservice/products3/PID125/RID125/xyz?para1=value1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T3","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -129,9 +130,9 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test accessing the variables parsed with URL. /products5/{productId}/reg")
     public void testValidUrlTemplate5Dispatching() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(
                 "/ecommerceservice/products5/PID125/reg?regID=RID125&para1=value1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T5","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -146,8 +147,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with URL. /products")
     public void testUrlTemplateWithMultipleQueryParamDispatching() {
         String path = "/ecommerceservice/products?prodId=PID123&regID=RID123";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -163,8 +164,8 @@ public class UriTemplateDispatcherTest {
             + "Ex: products?productId=PID%20123&regID=RID%201123")
     public void testUrlTemplateWithMultipleQueryParamWithURIEncodeCharacterDispatching() {
         String path = "/ecommerceservice/products?prodId=PID%20123&regID=RID%20123";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -205,8 +206,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test empty string resource path")
     public void testEmptyStringResourcepath() {
         String path = "/ecommerceservice";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -218,8 +219,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS method")
     public void testOPTIONSMethods() {
         String path = "/options/hi";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = ((BJSON) response.getMessageDataSource());
@@ -230,8 +231,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request with GET method")
     public void testOPTIONSWithGETMethods() {
         String path = "/options/getme";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getMessageDataSource());
@@ -245,8 +246,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request with POST method")
     public void testOPTIONSWithPOSTMethods() {
         String path = "/options/post";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getMessageDataSource());
@@ -260,8 +261,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request with PUT method")
     public void testOPTIONSWithPUTMethods() {
         String path = "/options/put";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getMessageDataSource());
@@ -275,8 +276,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request multiple resources")
     public void testOPTIONSWithMultiResources() {
         String path = "/options/test";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getMessageDataSource());
@@ -290,8 +291,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request to Root")
     public void testOPTIONSAtRootPath() {
         String path = "/options";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getMessageDataSource());
@@ -305,8 +306,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request wrong Root")
     public void testOPTIONSAtWrongRootPath() {
         String path = "/optionss";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
@@ -318,8 +319,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request when no resources available")
     public void testOPTIONSWhenNoResourcesAvailable() {
         String path = "/noResource";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertNull(response.getMessageDataSource());
@@ -332,8 +333,8 @@ public class UriTemplateDispatcherTest {
     @Test(description = "Test dispatching with OPTIONS request with wildcard")
     public void testOPTIONSWithWildCards() {
         String path = "/options/un";
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "hi");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(Constants.HTTP_STATUS_CODE), 404
@@ -344,6 +345,6 @@ public class UriTemplateDispatcherTest {
 
     @AfterClass
     public void tearDown() {
-//        EnvironmentInitializer.cleanup(application);
+        EnvironmentInitializer.cleanup(application);
     }
 }
