@@ -38,6 +38,7 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     public BLangType typeNode;
     public List<BType> types = new ArrayList<>(0);
     public BOperatorSymbol castSymbol;
+    public int[] regIndexes;
 
     public ExpressionNode getExpression() {
         return expr;

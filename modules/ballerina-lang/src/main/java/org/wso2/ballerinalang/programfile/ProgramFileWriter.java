@@ -124,8 +124,8 @@ public class ProgramFileWriter {
                     break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefEntry = (FunctionRefCPEntry) cpEntry;
-                    dataOutStream.writeInt(funcRefEntry.getPackageCPIndex());
-                    dataOutStream.writeInt(funcRefEntry.getNameCPIndex());
+                    dataOutStream.writeInt(funcRefEntry.packageCPIndex);
+                    dataOutStream.writeInt(funcRefEntry.nameCPIndex);
                     break;
                 case CP_ENTRY_ACTION_REF:
                     ActionRefCPEntry actionRefEntry = (ActionRefCPEntry) cpEntry;
@@ -153,7 +153,7 @@ public class ProgramFileWriter {
                     break;
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
-                    dataOutStream.writeInt(typeRefCPEntry.getTypeSigCPIndex());
+                    dataOutStream.writeInt(typeRefCPEntry.typeSigCPIndex);
                     break;
                 case CP_ENTRY_FORK_JOIN:
                     ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;

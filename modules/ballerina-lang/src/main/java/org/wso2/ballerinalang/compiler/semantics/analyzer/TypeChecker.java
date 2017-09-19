@@ -22,6 +22,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -360,6 +361,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(expr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
                 resultTypes = getListWithErrorTypes(expected);
             }
+        }
+
+        if (resultTypes.size() > 0) {
             expr.type = resultTypes.get(0);
         }
     }
@@ -406,6 +410,10 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = actualTypes;
             return;
         }
+
+        // Set the resolved function symbol in the invocation expression.
+        // This is used in the code generation phase.
+        iExpr.symbol = (BInvokableSymbol) funcSymbol;
 
         List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
         if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {

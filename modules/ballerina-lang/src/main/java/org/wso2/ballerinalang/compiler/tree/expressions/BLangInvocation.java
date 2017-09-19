@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -41,7 +42,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public List<BLangExpression> argExprs = new ArrayList<>();
     public BLangVariableReference expr;
     public List<BType> types = new ArrayList<>(0);
-
+    public int[] regIndexes;
+    public BInvokableSymbol symbol;
 
     public boolean isMultiReturnExpr() {
         return true;
@@ -79,7 +81,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             // Action invocation or lambda invocation.
             br.append(String.valueOf(expr)).append(".");
         } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-                br.append(String.valueOf(pkgAlias)).append(":");
+            br.append(String.valueOf(pkgAlias)).append(":");
         }
         br.append(String.valueOf(name));
         br.append("(");
