@@ -78,9 +78,7 @@ class BallerinaFileEditor extends React.Component {
             if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // Change was done from design view
                 // do an immediate update to reflect tree changes
-                if (this.ballerinaFileEditorWrapper) {
-                    this.forceUpdate();
-                }
+                this.forceUpdate();
                 // since the source is changed, we need to sync
                 // current AST with new position info
                 this.skipLoadingOverlay = true;
@@ -92,9 +90,7 @@ class BallerinaFileEditor extends React.Component {
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
-                        if (this.ballerinaFileEditorWrapper) {
-                            this.setState(state);
-                        }
+                        this.setState(state);
                     })
                     .catch(error => log.error(error));
             } else {
@@ -152,10 +148,8 @@ class BallerinaFileEditor extends React.Component {
         // then init the env with parsed symbols
         this.validateAndParseFile()
             .then((state) => {
-                if (this.ballerinaFileEditorWrapper) {
-                    state.initialParsePending = false;
-                    this.setState(state);
-                }
+                state.initialParsePending = false;
+                this.setState(state);
             })
             .catch((error) => {
                 log.error(error);
@@ -311,10 +305,8 @@ class BallerinaFileEditor extends React.Component {
             this.validateAndParseFile()
                 .then((state) => {
                     this.skipLoadingOverlay = false;
-                    if (this.ballerinaFileEditorWrapper) {
-                        this.setState(state);
-                        this.forceUpdate();
-                    }
+                    this.setState(state);
+                    this.forceUpdate();
                 })
                 .catch(error => log.error(error));
         } else {
@@ -331,12 +323,10 @@ class BallerinaFileEditor extends React.Component {
      *
      */
     validateAndParseFile() {
-        if (this.ballerinaFileEditorWrapper) {
-            this.setState({
-                validatePending: true,
-                parsePending: true,
-            });
-        }
+        this.setState({
+            validatePending: true,
+            parsePending: true,
+        });
         const file = this.props.file;
         return new Promise((resolve, reject) => {
             // final state to be passed into resolve
@@ -359,7 +349,7 @@ class BallerinaFileEditor extends React.Component {
                         // Hence resolve now.
                         resolve(newState);
                         return;
-                    } else if (this.ballerinaFileEditorWrapper) {
+                    } else {
                         // we need to fire a update for this state as soon as we
                         // receive the validate response to prevent additional
                         // wait time to some user actions.
@@ -509,7 +499,6 @@ class BallerinaFileEditor extends React.Component {
             <div
                 id={`bal-file-editor-${this.props.file.id}`}
                 className='bal-file-editor'
-                ref={(ref) => { this.ballerinaFileEditorWrapper = ref; }}
             >
                 <CSSTransitionGroup
                     transitionName="loading-overlay"

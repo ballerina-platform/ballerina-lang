@@ -53,6 +53,7 @@ class DesignView extends React.Component {
             this.setState({
                 splitViewEnabled: enabled,
             });
+            this.forceUpdate();
         });
     }
 
@@ -200,9 +201,6 @@ class DesignView extends React.Component {
                         <div
                             className="bottom-view-label"
                             onClick={() => {
-                                this.setState({
-                                    splitViewEnabled: true,
-                                });
                                 this.props.commandProxy.dispatch('show-split-view', true);
                             }}
                         >

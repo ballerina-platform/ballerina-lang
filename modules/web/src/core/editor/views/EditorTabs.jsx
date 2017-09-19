@@ -26,11 +26,13 @@ import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import TabBar from 'rc-tabs/lib/TabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
-import { VIEWS } from './../constants';
+import { VIEWS, HISTORY } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
 
+const DEFAULT_PREVIEW_VIEW_SIZE = 500;
+const MINIMUM_PREVIEW_VIEW_SIZE = 200;
 /**
  * Editor Tabs
  */
@@ -49,17 +51,43 @@ class EditorTabs extends View {
     constructor(props) {
         super(props);
         this.onTabClose = this.onTabClose.bind(this);
-        this.onSplitViewButtonClick = this.onSplitViewButtonClick.bind(this);
+        this.onPreviewViewTabClose = this.onPreviewViewTabClose.bind(this);
         this.editorArea = undefined;
+        this.previewSplitRef = undefined;
 
+        const { history } = props.editorPlugin.appContext.pref;
+        const previewViewEnabled = !_.isNil(history.get(HISTORY.ACTIVE_PREVIEW_VIEW));
+
+        let previewViewSize;
+        if (previewViewEnabled) {
+            if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
+                previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
+            } else {
+                previewViewSize = DEFAULT_PREVIEW_VIEW_SIZE;
+            }
+        } else {
+            previewViewSize = '100%';
+        }
+
+        // Setting view states.
         this.state = {
-            previewViewEnabled: false,
+            previewViewEnabled,
+            previewViewSize,
         };
 
-        this.props.editorPlugin.appContext.command.on('show-split-view', (enabled) => {
+        // Binding commands.
+        props.editorPlugin.appContext.command.on('show-split-view', (enabled) => {
+            if (enabled) {
+                history.put(HISTORY.ACTIVE_PREVIEW_VIEW, true);
+            } else {
+                history.put(HISTORY.ACTIVE_PREVIEW_VIEW, undefined);
+            }
+
             this.setState({
                 previewViewEnabled: enabled,
             });
+
+            this.props.editorPlugin.reRender();
         });
     }
 
@@ -79,10 +107,10 @@ class EditorTabs extends View {
      * On split view button/icon is clicked.
      * @memberof EditorTabs
      */
-    onSplitViewButtonClick() {
-        this.props.editorPlugin.appContext.command.dispatch('show-split-view', !this.state.previewViewEnabled);
+    onPreviewViewTabClose() {
+        this.props.editorPlugin.appContext.command.dispatch('show-split-view', false);
         this.setState({
-            previewViewEnabled: !this.state.previewViewEnabled,
+            previewViewEnabled: false,
         });
     }
 
@@ -92,6 +120,25 @@ class EditorTabs extends View {
      */
     onTabClose(targetEditor) {
         this.props.editorPlugin.onTabClose(targetEditor);
+    }
+
+    /**
+    * Update left panel state
+    * @param {boolean} showLeftPanel
+    * @param {number} leftPanelSize
+    */
+    setPreviewViewState(previewViewSize) {
+        const { history } = this.props.editorPlugin.appContext.pref;
+        if (_.isNil(previewViewSize)) {
+            const sizeFromHistory = history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE);
+            previewViewSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
+                ? sizeFromHistory : DEFAULT_PREVIEW_VIEW_SIZE;
+        }
+        history.put(HISTORY.PREVIEW_VIEW_ENABLED_SIZE, previewViewSize);
+        this.setState({
+            previewViewSize,
+        });
+        this.props.editorPlugin.reRender();
     }
 
     /**
@@ -145,9 +192,16 @@ class EditorTabs extends View {
                     />
                 </TabPane>
             );
+        } else {
+            return (null);
         }
     }
 
+    /**
+     * Creates the preview tab.
+     * @returns {ReactElement} The view.
+     * @memberof EditorTabs
+     */
     renderPreviewTab() {
         const editor = this.props.editorPlugin.appContext.editor.getActiveEditor();
         if (!_.isNil(editor)) {
@@ -156,10 +210,10 @@ class EditorTabs extends View {
             return (
                 <TabPane
                     tab={
-                        <EditorTabTitle editor={editor} onTabClose={this.onSplitViewButtonClick} />
+                        <EditorTabTitle editor={editor} onTabClose={this.onPreviewViewTabClose} />
                     }
                     data-extra="tabpane"
-                    key='source-view'
+                    key='preview-view'
                 >
                     <div className='ballerina-editor'>
                         <previewDefinition.component
@@ -185,83 +239,56 @@ class EditorTabs extends View {
             tabs.push(this.makeTabPane(editor));
         });
 
-        const activeEditor = this.props.editorPlugin.appContext.editor.getActiveEditor();
-        if (this.state.previewViewEnabled && !(activeEditor instanceof CustomEditor)) {
-            const previewTab = this.renderPreviewTab();
-            return (<div
-                className="editor-area"
-                ref={(ref) => {
-                    this.editorArea = ref;
+        const previewTab = this.renderPreviewTab();
+        return (<div
+            className="editor-area"
+            ref={(ref) => {
+                this.editorArea = ref;
+            }}
+        >
+            <SplitPane
+                ref={(ref) => { this.previewSplitRef = ref; }}
+                split="vertical"
+                minSize={this.state.previewViewEnabled ? MINIMUM_PREVIEW_VIEW_SIZE : '100%'}
+                maxSize={1500}
+                defaultSize={this.state.previewViewEnabled ? this.state.previewViewSize : '100%'}
+                onDragFinished={(previewViewSize) => {
+                    this.setPreviewViewState(previewViewSize);
                 }}
             >
-                <SplitPane
-                    split="vertical"
-                    minSize={150}
-                    defaultSize={this.editorArea.offsetWidth / 2}
-                    onDragFinished={() => { this.forceUpdate(); }}
-                >
-                    <Tabs
-                        onClick={this.onTabClick}
-                        activeKey={activeEditorID}
-                        onChange={(key) => {
-                            const editor = _.find(openedEditors, ['id', key]);
-                            this.setActiveEditor(editor);
-                        }}
-                        renderTabBar={() =>
-                            (
-                                <TabBar />
-                            )
-                        }
-                        renderTabContent={() =>
-                            <TabContent animated={false} />
-                        }
-                    >
-                        {tabs}
-                    </Tabs>
-                    <Tabs
-                        activeKey='source-view'
-                        renderTabContent={() =>
-                            <TabContent animated={false} />
-                        }
-                        renderTabBar={() =>
-                            (
-                                <ScrollableInkTabBar />
-                            )
-                        }
-                    >
-                        {previewTab}
-                    </Tabs>
-                </SplitPane>
-            </div>);
-        } else {
-            return (
-                <div
-                    className="editor-area"
-                    ref={(ref) => {
-                        this.editorArea = ref;
+                <Tabs
+                    onClick={this.onTabClick}
+                    activeKey={activeEditorID}
+                    onChange={(key) => {
+                        const editor = _.find(openedEditors, ['id', key]);
+                        this.setActiveEditor(editor);
                     }}
+                    renderTabBar={() =>
+                        (
+                            <TabBar />
+                        )
+                    }
+                    renderTabContent={() =>
+                        <TabContent animated={false} />
+                    }
                 >
-                    <Tabs
-                        onClick={this.onTabClick}
-                        activeKey={activeEditorID}
-                        onChange={(key) => {
-                            const editor = _.find(openedEditors, ['id', key]);
-                            this.setActiveEditor(editor);
-                        }}
-                        renderTabBar={() =>
-                            (
-                                <ScrollableInkTabBar />
-                            )
-                        }
-                        renderTabContent={() =>
-                            <TabContent animated={false} />
-                        }
-                    >
-                        {tabs}
-                    </Tabs>
-                </div>
-            );
-        }
+                    {tabs}
+                </Tabs>
+                <Tabs
+                    activeKey='preview-view'
+                    renderTabContent={() =>
+                        <TabContent animated={false} />
+                    }
+                    renderTabBar={() =>
+                        (
+                            <ScrollableInkTabBar />
+                        )
+                    }
+                >
+                    {previewTab}
+                </Tabs>
+            </SplitPane>
+        </div>);
     }
 }
 
