@@ -205,12 +205,23 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
+        if (varName == Names.IGNORE) {
+            if (varRefExpr.lhsVariable) {
+                varRefExpr.type = this.symTable.noType;
+            } else {
+                varRefExpr.type = this.symTable.errType;
+                dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_IN_RHS);
+            }
+            resultTypes = Lists.of(varRefExpr.type);
+            return;
+        }
         BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
         } else {
             BVarSymbol varSym = (BVarSymbol) symbol;
             checkSefReferences(varRefExpr.pos, env, varSym);
+            varRefExpr.symbol = varSym;
             actualType = varSym.type;
         }
 
@@ -406,7 +417,7 @@ public class TypeChecker extends BLangNodeVisitor {
         Name funcName = names.fromIdNode(iExpr.name);
         BSymbol funcSymbol = symResolver.resolveInvokable(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION,
                 this.env, names.fromIdNode(iExpr.pkgAlias), funcName);
-        if (funcSymbol == symTable.errSymbol) {
+        if (funcSymbol == symTable.errSymbol || funcSymbol == symTable.notFoundSymbol) {
             resultTypes = actualTypes;
             return;
         }
