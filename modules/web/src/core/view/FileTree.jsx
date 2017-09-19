@@ -43,12 +43,12 @@ class FileTree extends React.Component {
     /**
      * On Node Toggole
      * @param {Object} node node object
-     * @param {Boolean} toggled toggled state
+     * @param {Boolean} collapsed collapsed state
      */
-    onToggle(node, toggled) {
+    onToggle(node, collapsed) {
         node.active = true;
         if (node.children) {
-            node.toggled = toggled;
+            node.collapsed = collapsed;
             if (_.isEmpty(node.children)) {
                 node.loading = true;
                 listFiles(node.id, ['.bal'])
@@ -56,7 +56,7 @@ class FileTree extends React.Component {
                         node.loading = false;
                         if (_.isEmpty(data)) {
                             delete node.children;
-                            node.toggled = false;
+                            node.collapsed = false;
                         } else {
                             node.children = data;
                         }
@@ -68,6 +68,7 @@ class FileTree extends React.Component {
         } else {
             this.props.onSelect(node);
         }
+        this.forceUpdate();
     }
 
     /**
@@ -75,14 +76,21 @@ class FileTree extends React.Component {
      */
     render() {
         const renderNode = (node) => {
-            const label = <span className="node" onClick={() => this.onToggle(node, !node.toggled)}>{node.label}</span>;
+            node.collapsed = _.isNil(node.collapsed) ? true : node.collapsed;
+            const label = (
+                <span
+                    className="node"
+                    onClick={() => this.onToggle(node, !node.collapsed)}
+                >
+                    {node.label}
+                </span>
+            );
             return (
                 <TreeView
                     nodeLabel={label}
                     key={node.id}
-                    defaultCollapsed={false}
-                    collapsed={node.toggled}
-                    onClick={() => this.onToggle(node, !node.toggled)}
+                    collapsed={node.collapsed}
+                    onClick={() => this.onToggle(node, !node.collapsed)}
                 >
                     {
                         node.children
@@ -92,7 +100,6 @@ class FileTree extends React.Component {
                 </TreeView>
             );
         };
-
         return (
             <div className="file-tree">
                 {this.state.data.map(renderNode)}
