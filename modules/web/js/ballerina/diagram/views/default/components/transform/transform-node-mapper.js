@@ -82,6 +82,12 @@ class TransformNodeMapper {
             varRefList.addChild(errorVarRef);
         }
         this._transformStmt.addChild(assignmentStmt);
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping ${sourceExpression.getExpressionString()} to ${targetExpression.getExpressionString()}`,
+            data: {},
+        });
     }
 
     /**
@@ -115,18 +121,20 @@ class TransformNodeMapper {
             keyValEx.addChild(sourceExpression);
             refType.addChild(keyValEx);
             funcNode.addChild(refType, index);
+        } else if (compatibility.safe) {
+            funcNode.addChild(sourceExpression, index);
         } else {
-            if (compatibility.safe) {
-                funcNode.addChild(sourceExpression, index);
-                return;
-            }
-
             const assignmentStmt = this.findEnclosingAssignmentStatement(funcNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
-                this._transformStmt.getIndexOfChild(assignmentStmt));
-
+                                            this._transformStmt.getIndexOfChild(assignmentStmt));
             funcNode.addChild(argumentExpression, index);
         }
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping ${sourceExpression.getExpressionString()} to ${funcNode.getFunctionName()}`,
+            data: {},
+        });
     }
 
     createInputToOperatorMapping(sourceExpression, target, compatibility) {
@@ -150,18 +158,22 @@ class TransformNodeMapper {
 
         if (compatibility.safe) {
             if (index === 0) {
-                operatorNode.setLeftExpression(sourceExpression);
-                return;
+                operatorNode.setLeftExpression(sourceExpression, { doSilently: true });
+            } else {
+                operatorNode.setRightExpression(sourceExpression, { doSilently: true });
             }
-            operatorNode.setRightExpression(sourceExpression);
-            return;
+        } else {
+            const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
+            const argumentExpression = this.getTempVertexExpression(sourceExpression,
+                                            this._transformStmt.getIndexOfChild(assignmentStmt));
+            operatorNode.addChild(argumentExpression, index, true);
         }
-
-        const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
-        const argumentExpression = this.getTempVertexExpression(sourceExpression,
-            this._transformStmt.getIndexOfChild(assignmentStmt));
-
-        operatorNode.addChild(argumentExpression, index);
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping ${sourceExpression.getExpressionString()} to operator ${operatorNode.getOperator()}`,
+            data: {},
+        });
     }
 
     /**
@@ -185,6 +197,12 @@ class TransformNodeMapper {
             this._transformStmt.getIndexOfChild(assignmentStmt));
 
         operatorNode.addChild(argumentExpression, index);
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping ${sourceExpression.getExpressionString()} to operator ${operatorNode.getOperator()}`,
+            data: {},
+        });
     }
 
     /**
@@ -245,8 +263,8 @@ class TransformNodeMapper {
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
-            type: 'function-connection-created',
-            title: `Create mapping ${target.name}`,
+            type: 'transform-connection-created',
+            title: `Create mapping ${source.name} to ${target.name}`,
             data: {},
         });
     }
@@ -309,20 +327,37 @@ class TransformNodeMapper {
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
-            type: 'operator-connection-created',
-            title: `Create mapping ${target.name}`,
+            type: 'transform-connection-created',
+            title: `Create mapping operator ${source.operator.getOperator()} to ${target.name}`,
             data: {},
         });
     }
 
-    createFunctionToFunctionMapping(source, target) {
-        // Connection source and target are not structs
-        // Source and target are function nodes.
+    /**
+     * Create complex node to node mappings. Complex nodes are functions and operators.
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    createNodeToNodeMapping(source, target) {
+        if (source.funcInv && target.funcInv) {
+            this.createFunctionToFunctionMapping(source, target);
+        } else if (source.funcInv && target.operator) {
+            this.createFunctionToOperatorMapping(source, target);
+        } else if (source.operator && target.funcInv) {
+            this.createOperatorToFunctionMapping(source, target);
+        } else if (source.operator && target.operator) {
+            this.createOperatorToOperatorMapping(source, target);
+        }
+    }
 
-        // target reference might be function invocation expression or assignment statement
-        // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
-        // will be different from removing a param from a function and then drawing the connection
-        // to the parent function invocation.
+    /**
+     * Create function to function mapping
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    createFunctionToFunctionMapping(source, target) {
         const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.removeChild(assignmentStmtSource, true);
@@ -332,7 +367,89 @@ class TransformNodeMapper {
             target.funcInv.removeChild(currentChild, true);
         }
 
-        target.funcInv.addChild(source.funcInv, target.index);
+        target.funcInv.addChild(source.funcInv, target.index, true);
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping function ${source.funcInv.getFunctionName()} to operator ${target.funcInv.getFunctionName()}`,
+            data: {},
+        });
+    }
+
+    /**
+    * Create operator to operator mapping
+    * @param {any} source source
+    * @param {any} target target
+    * @memberof TransformNodeMapper
+    */
+    createOperatorToOperatorMapping(source, target) {
+        const assignmentStmtSource = this.getParentAssignmentStmt(source.operator);
+        // remove the source assignment statement since it is now included in the target assignment statement.
+        this._transformStmt.removeChild(assignmentStmtSource, true);
+
+        if (target.index === 0) {
+            target.operator.setLeftExpression(source.operator, { doSilently: true });
+        } else if (target.index === 1) {
+            target.operator.setRightExpression(source.operator, { doSilently: true });
+        }
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping operator ${source.operator.getOperator()} to operator ${target.operator.getOperator()}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Create operator to function mapping
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    createOperatorToFunctionMapping(source, target) {
+        const assignmentStmtSource = this.getParentAssignmentStmt(source.operator);
+        // remove the source assignment statement since it is now included in the target assignment statement.
+        this._transformStmt.removeChild(assignmentStmtSource, true);
+
+        const currentChild = target.funcInv.getChildren()[target.index];
+        if (currentChild) {
+            target.funcInv.removeChild(currentChild, true);
+        }
+
+        target.funcInv.addChild(source.operator, target.index, true);
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping operator ${source.operator.getOperator()} to function ${target.funcInv.getFunctionName()}`,
+            data: {},
+        });
+    }
+
+    /**
+    * Create function to operator mapping
+    * @param {any} source source
+    * @param {any} target target
+    * @memberof TransformNodeMapper
+    */
+    createFunctionToOperatorMapping(source, target) {
+        const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
+        // remove the source assignment statement since it is now included in the target assignment statement.
+        this._transformStmt.removeChild(assignmentStmtSource, true);
+
+        if (target.index === 0) {
+            target.operator.setLeftExpression(source.funcInv, { doSilently: true });
+        } else if (target.index === 1) {
+            target.operator.setRightExpression(source.funcInv, { doSilently: true });
+        }
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-created',
+            title: `Create mapping function ${source.funcInv.getFunctionName()} to operator ${target.operator.getOperator()}`,
+            data: {},
+        });
     }
 
     // **** REMOVE MAPPING FUNCTIONS **** //
@@ -549,10 +666,6 @@ class TransformNodeMapper {
         if (ASTFactory.isUnaryExpression(expression)) {
             return this.getVerticesFromExpression(expression.getRightExpression());
         }
-        if (ASTFactory.isBasicLiteralExpression(expression)) {
-            return [];
-        }
-        log.error('unknown expression type to get vertices ' + expression.getExpressionString());
         return [];
     }
 
