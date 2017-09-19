@@ -224,7 +224,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = serviceNode.symbol;
-        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, env, serviceSymbol.scope);
+        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
@@ -232,7 +232,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangResource resourceNode) {
         BSymbol resourceSymbol = resourceNode.symbol;
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, env, resourceSymbol.scope);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         resourceNode.annAttachments.forEach(a -> this.analyzeDef(a, resourceEnv));
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
         resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));

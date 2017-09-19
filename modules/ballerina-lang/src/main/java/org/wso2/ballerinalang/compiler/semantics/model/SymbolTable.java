@@ -172,8 +172,8 @@ public class SymbolTable {
                 return xmlType;
             case TypeTags.DATATABLE:
                 return datatableType;
-        case TypeTags.MESSAGE:
-            return messageType;
+            case TypeTags.MESSAGE:
+                return messageType;
             case TypeTags.NULL:
                 return nullType;
             default:
