@@ -352,7 +352,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangReturn returnNode) {
-        if (returnNode.exprs.size() == 1) {
+        if (returnNode.exprs.size() == 1 && returnNode.exprs.get(0).getKind() == NodeKind.INVOCATION) {
             /* a single return expression can be expanded to match a multi-value return */
             this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env, 
                     this.env.enclInvokable.getReturnParameters().stream()
