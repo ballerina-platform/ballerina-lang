@@ -80,7 +80,8 @@ public class FunctionReference extends BallerinaElementReference {
         if (psiDirectory == null) {
             return null;
         }
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false, false);
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false,
+                false, true);
     }
 
     @Nullable
@@ -91,7 +92,8 @@ public class FunctionReference extends BallerinaElementReference {
             return null;
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false, false);
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false,
+                false, false);
     }
 
     @NotNull
@@ -103,7 +105,7 @@ public class FunctionReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
 
         if (containingPackage != null) {
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, true);
             results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions,
                     ParenthesisInsertHandler.INSTANCE));
         }
@@ -123,7 +125,7 @@ public class FunctionReference extends BallerinaElementReference {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage);
+        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
         results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
         return results;
     }

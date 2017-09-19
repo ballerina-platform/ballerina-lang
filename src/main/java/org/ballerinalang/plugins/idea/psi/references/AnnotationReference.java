@@ -95,7 +95,7 @@ public class AnnotationReference extends BallerinaElementReference {
         if (currentPackage == null) {
             return null;
         }
-        return findMatchingAnnotationDefinition(currentPackage);
+        return findMatchingAnnotationDefinition(currentPackage, true);
     }
 
     @Nullable
@@ -105,13 +105,13 @@ public class AnnotationReference extends BallerinaElementReference {
             return null;
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        return findMatchingAnnotationDefinition(psiDirectory);
+        return findMatchingAnnotationDefinition(psiDirectory, false);
     }
 
     @Nullable
-    private PsiElement findMatchingAnnotationDefinition(@NotNull PsiDirectory currentPackage) {
+    private PsiElement findMatchingAnnotationDefinition(@NotNull PsiDirectory currentPackage, boolean includePrivate) {
         IdentifierPSINode identifier = getElement();
-        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage);
+        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage, includePrivate);
         for (PsiElement annotation : annotations) {
             String text = annotation.getText();
             if (text != null && text.equals(identifier.getText())) {
@@ -141,7 +141,7 @@ public class AnnotationReference extends BallerinaElementReference {
         }
         List<PsiElement> annotations;
         if (allAnnotations) {
-            annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(containingPackage);
+            annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(containingPackage, true);
         } else {
             String attachmentType = BallerinaPsiImplUtil.getAttachmentType(identifier);
             if (attachmentType == null) {
@@ -166,7 +166,7 @@ public class AnnotationReference extends BallerinaElementReference {
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
         List<PsiElement> annotations;
         if (allAnnotations) {
-            annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(resolvedPackage);
+            annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(resolvedPackage, false);
         } else {
             String attachmentType = BallerinaPsiImplUtil.getAttachmentType(identifier);
             if (attachmentType == null) {

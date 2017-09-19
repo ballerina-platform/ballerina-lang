@@ -61,7 +61,7 @@ public class StructValueReference extends BallerinaElementReference {
         }
         // First we try to resolve the reference to following definitions.
         PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true,
-                true, true, true);
+                true, true, true, true);
         if (element != null) {
             return element;
         }
@@ -104,14 +104,16 @@ public class StructValueReference extends BallerinaElementReference {
                     PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
                     if (mapStructKeyNode.getText().equals(resolvedPackage.getName())) {
 
-                        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage);
+                        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage,
+                                false);
                         results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
                         List<PsiElement> globalVariables =
-                                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage);
+                                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage, false);
                         results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-                        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage);
+                        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage,
+                                false);
                         results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
                     }
                 }
@@ -120,14 +122,14 @@ public class StructValueReference extends BallerinaElementReference {
 
         PsiDirectory currentPackage = originalFile.getParent();
         if (currentPackage != null) {
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage);
+            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage, true);
             results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
             List<PsiElement> globalVariables =
-                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage);
+                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true);
             results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage);
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage, true);
             results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
         }
 

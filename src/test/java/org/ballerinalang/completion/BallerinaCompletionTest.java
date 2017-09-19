@@ -38,7 +38,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
     private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
-    private static final String SAMPLE_UTIL_FUNCTIONS = "package org.test; function getA(){} function getB(){}";
+    private static final String SAMPLE_UTIL_FUNCTIONS = "package org.test; public function getA(){} public function " +
+            "getB(){}";
 
     @Override
     protected String getTestDataPath() {
@@ -383,12 +384,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testAnnotationFieldsFromDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach function { string key; string value;}");
+        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach function { string key; " +
+                "string value;}");
         doTest("import org.test; @test:TEST{<caret>} function A(){}", "key", "value");
     }
 
     public void testAnnotationFieldsAutoCompletionFromDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach function { string key; string value;}");
+        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach function { string key; string value;}");
         doCheckResult("main.bal", "import org.test; @test:TEST{k<caret>} function A(){}",
                 "import org.test; @test:TEST{key:<caret>} function A(){}", null);
     }
@@ -422,12 +424,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testGlobalVariablePackageValueDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        myFixture.addFileToProject("org/test/file.bal", "public function getValue()(string){return \"\";}");
         doTest("import org.test; string s = test:<caret> ", "getValue");
     }
 
     public void testGlobalVariablePackageValueCompletionDifferentPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        myFixture.addFileToProject("org/test/file.bal", "public function getValue()(string){return \"\";}");
         doCheckResult("test.bal", "import org.test; string s = test:g<caret> ",
                 "import org.test; string s = test:getValue() ", null);
     }
@@ -883,12 +885,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorInit() {
-        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        myFixture.addFileToProject("org/test/con.bal", "public connector TestConnector{}");
         doTest("import org.test; function A(){ test:<caret> }", "TestConnector");
     }
 
     public void testConnectorAutoCompletion() {
-        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
+        myFixture.addFileToProject("org/test/con.bal", "public connector TestConnector{}");
         doCheckResult("file.bal", "import org.test; function A(){ test:T<caret> }",
                 "import org.test; function A(){ test:TestConnector }", null);
     }
@@ -1014,7 +1016,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorInvocationInDifferentPackage() {
-        myFixture.addFileToProject("org/test/con.bal", "connector TestConnector(){ action get(){} action post(){}}");
+        myFixture.addFileToProject("org/test/con.bal", "public connector TestConnector(){ action get(){} action post" +
+                "(){}}");
         doTest("import org.test; function A(){ test:TestConnector.<caret> }", "get", "post");
     }
 
@@ -1147,12 +1150,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testPackageInvocationInParameter() {
-        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        myFixture.addFileToProject("org/test/file.bal", "public struct test {}");
         doTest("import org.test; function A(test:<caret>)", "test");
     }
 
     public void testPackageInvocationInParameterAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        myFixture.addFileToProject("org/test/file.bal", "public struct test {}");
         doCheckResult("test.bal", "import org.test; function A(test:t<caret>)",
                 "import org.test; function A(test:test )", null);
     }
@@ -1474,51 +1477,51 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorBodyVariableDeclarationPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; struct TEST {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public struct TEST {}");
         doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
                 "import org.test; connector C(){ test: }", null);
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doTest("import org.test; connector C(){ test:<caret> }", "TEST");
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocationAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:T<caret> }",
                 "import org.test; connector C(){ test:TEST }", null);
     }
 
     public void testConnectorBodyVariableDeclarationIdentifier() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doTest("import org.test; connector C(){ test:TEST <caret> }");
     }
 
     public void testConnectorBodyVariableInitialization() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test", "lengthof",
                 "typeof", "true", "false", "null");
     }
 
     public void testConnectorBodyVariableInitializationCreateKeyword() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doTest("import org.test; connector C(){ test:TEST t = create <caret> }", "C", "test");
     }
 
     public void testConnectorBodyVariableInitializationPackageInvocation() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create t<caret> }",
                 "import org.test; connector C(){ test:TEST t = create test: }", null);
     }
 
     public void testConnectorBodyVariableInitializationPackageAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doTest("import org.test; connector C(){ test:TEST t = create test:<caret> }", "TEST");
     }
 
     public void testConnectorBodyVariableInitializationPackageInvocationAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create test:T<caret> }",
                 "import org.test; connector C(){ test:TEST t = create test:TEST() }", null);
     }

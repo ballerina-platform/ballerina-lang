@@ -118,8 +118,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return null;
                     }
                     return new PackageNameReference(this);
-//                case RULE_actionInvocation:
-//                    return new ActionInvocationReference(this);
+                //                case RULE_actionInvocation:
+                //                    return new ActionInvocationReference(this);
                 case RULE_nameReference:
                     // If we are currently resolving a var variable, we don't need to resolve it since it is the
                     // definition.
@@ -198,6 +198,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return new PackageNameReference(this);
                     }
                     return new StatementReference(this);
+                case RULE_invocation:
+                    return suggestReferenceTypeForInvocation();
                 default:
                     return null;
             }
@@ -206,6 +208,27 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return suggestReferenceType(parent);
         }
         return null;
+    }
+
+    private PsiReference suggestReferenceTypeForInvocation() {
+        PsiElement parent = getParent();
+        PsiElement prevSibling = parent.getPrevSibling();
+        if (prevSibling == null) {
+            return null;
+        }
+        PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement definitionNode = resolvedElement.getParent();
+        if (!(definitionNode instanceof ConnectorVarDefStatementNode)) {
+            return null;
+        }
+        return new ActionInvocationReference(this);
     }
 
     private PsiReference checkAndSuggestReferenceAfterDot() {
