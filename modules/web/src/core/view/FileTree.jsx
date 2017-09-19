@@ -79,6 +79,9 @@ class FileTree extends React.Component {
             if (_.isNil(node.collapsed)) {
                 node.collapsed = true;
             }
+            if (_.isNil(node.active)) {
+                node.active = false;
+            }
             return (
                 <TreeNode
                     node={node}

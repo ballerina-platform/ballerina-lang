@@ -14,6 +14,7 @@ class TreeNode extends React.Component {
         const {
             node,
             node: {
+                active,
                 collapsed,
                 type,
                 label,
@@ -24,13 +25,16 @@ class TreeNode extends React.Component {
         } = this.props;
         return (
             <div
-                className={classnames('tree-node', 'unseletable-content', { collapsed, empty: !node.children })}
+                className={classnames('tree-node', 'unseletable-content', {
+                    collapsed, empty: !node.children }
+                )}
             >
                 <div
-                    className="tree-node-header"
+                    className={classnames('tree-node-header', { active })}
                     onClick={() => { onClick(node); }}
                     onDoubleClick={() => { onDoubleClick(node); }}
                 >
+                    <div className="tree-node-highlight-row" />
                     <div
                         className="tree-node-arrow"
                     />
