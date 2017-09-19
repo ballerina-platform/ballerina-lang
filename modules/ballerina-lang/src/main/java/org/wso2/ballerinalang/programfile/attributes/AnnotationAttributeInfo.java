@@ -33,7 +33,7 @@ public class AnnotationAttributeInfo implements AttributeInfo {
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
 
-    private List<AnnAttachmentInfo> attachmentList = new ArrayList<>();
+    public List<AnnAttachmentInfo> attachmentList = new ArrayList<>();
 
     public AnnotationAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;

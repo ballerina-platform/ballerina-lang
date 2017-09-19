@@ -40,7 +40,6 @@ public class TreeUtils {
         stringTypeKindMap.put("datatable", TypeKind.DATATABLE);
         stringTypeKindMap.put("any", TypeKind.ANY);
         stringTypeKindMap.put("map", TypeKind.MAP);
-        stringTypeKindMap.put("message", TypeKind.MESSAGE);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

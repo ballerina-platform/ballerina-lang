@@ -39,8 +39,7 @@ public class TypeTags {
     public static final int ARRAY = ENUM + 1;
     public static final int PACKAGE = ARRAY + 1;
     public static final int INVOKABLE = PACKAGE + 1;
-    public static final int MESSAGE = INVOKABLE + 1;
-    public static final int NULL = MESSAGE + 1;
+    public static final int NULL = INVOKABLE + 1;
     public static final int NONE = NULL + 1;
     public static final int VOID = NONE + 1;
     public static final int ERROR = VOID + 1;
