@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
+import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
@@ -741,6 +742,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
+    
+    private int emit(Instruction instr) {
+        currentPkgInfo.instructionList.add(instr);
+        return currentPkgInfo.instructionList.size();
+    }
 
     private void addVarCountAttrInfo(ConstantPool constantPool,
                                      AttributeInfoPool attributeInfoPool,
@@ -997,7 +1003,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
-        /* ignore */
+        this.genNode(ifNode.expr, this.env);
+        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ifNode.expr.regIndex, -1);
+        this.emit(ifCondJumpInstr);
+        this.genNode(ifNode.body, this.env);
+        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(endJumpInstr);
+        ifCondJumpInstr.setOperand(1, this.nextIP());
+        if (ifNode.elseStmt != null) {
+            this.genNode(ifNode.elseStmt, this.env);
+        }
+        endJumpInstr.setOperand(0, this.nextIP());
     }
 
     public void visit(BLangWhile whileNode) {
