@@ -34,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -64,14 +65,15 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
     public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                InputStream inputStream = httpRequest.getInputStream();
+                HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpRequest);
+                InputStream inputStream = streamer.getInputStream();
 
                 HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
-                OutputStream outputStream = newMsg.getOutputStream();
+                OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
                 outputStream.flush();
-                newMsg.setEndOfMsgAdded(true);
+                outputStream.close();
                 newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                 newMsg.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
@@ -84,8 +86,8 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 }
 
                 String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                   scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                        .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
@@ -95,10 +97,11 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                     @Override
                     public void onMessage(HTTPCarbonMessage httpMessage) {
                         executor.execute(() -> {
-                            InputStream inputStream = httpMessage.getInputStream();
+                            HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpMessage);
+                            InputStream inputStream = streamer.getInputStream();
 
                             HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
-                            OutputStream outputStream = newMsg.getOutputStream();
+                            OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputStream);
                                 outputStream.write(bytes);

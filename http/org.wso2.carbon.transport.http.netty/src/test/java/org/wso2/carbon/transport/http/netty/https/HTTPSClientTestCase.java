@@ -30,6 +30,7 @@ import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HttpsServer;
 
@@ -85,7 +86,8 @@ public class HTTPSClientTestCase {
 
             HTTPCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
-            String result = new BufferedReader(new InputStreamReader(response.getInputStream()))
+            String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
+                    .getInputStream()))
                     .lines().collect(Collectors.joining("\n"));
 
             assertEquals(testValue, result);
