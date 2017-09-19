@@ -21,4 +21,9 @@ package org.ballerinalang.model.tree;
  * @since 0.94
  */
 public interface FunctionNode extends InvokableNode, AnnotatableNode, TopLevelNode {
+
+  VariableNode getReceiver();
+
+  void setReceiver(VariableNode receiver);
+
 }
