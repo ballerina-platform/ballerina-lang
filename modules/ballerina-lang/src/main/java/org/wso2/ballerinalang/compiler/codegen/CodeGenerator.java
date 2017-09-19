@@ -336,9 +336,41 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangReturn returnNode) {
+        BLangExpression expr;
+        int i = 0;
+        while (i < returnNode.exprs.size()) {
+            expr = returnNode.exprs.get(i);
+            this.genNode(expr, this.env);
+            if (expr.isMultiReturnExpr()) {
+                BLangInvocation invExpr = (BLangInvocation) expr;
+                for (int j = 0; j < invExpr.regIndexes.length; j++) {
+                    emit(this.typeTagToInstr(invExpr.types.get(j).tag), i, invExpr.regIndexes[j]);
+                    i++;
+                }
+            } else {
+                emit(this.typeTagToInstr(expr.type.tag), i, expr.regIndex);
+                i++;
+            }
+        }
         emit(InstructionCodes.RET);
     }
-
+    
+    private int typeTagToInstr(int typeTag) {
+        switch (typeTag) {
+        case TypeTags.INT:
+            return InstructionCodes.IRET;
+        case TypeTags.FLOAT:
+            return InstructionCodes.FRET;
+        case TypeTags.STRING:
+            return InstructionCodes.SRET;
+        case TypeTags.BOOLEAN:
+            return InstructionCodes.BRET;
+        case TypeTags.BLOB:
+            return InstructionCodes.LRET;
+        default:
+            return InstructionCodes.RRET;
+        }
+    }
 
     // Expressions
 
@@ -618,6 +650,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // Clean up the var index data structures
             endWorkerInfoUnit(defaultWorker.codeAttributeInfo);
+            
+            if (invokableNode.retParams.isEmpty()) {
+                /* for functions that has no return values, we must provide a default
+                 * return statement to stop the execution and jump to the caller */
+                this.emit(InstructionCodes.RET);
+            }
         }
     }
 
