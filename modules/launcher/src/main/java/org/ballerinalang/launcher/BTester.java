@@ -37,8 +37,8 @@ public class BTester {
 
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-//        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+//        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
+        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
         options.put(COMPILER_PHASE, "codeGen");
         options.put(PRESERVE_WHITESPACE, "false");
 
