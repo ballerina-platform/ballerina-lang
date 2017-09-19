@@ -40,7 +40,7 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.statements.VariableDefStmt;
-import org.ballerinalang.util.parser.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;

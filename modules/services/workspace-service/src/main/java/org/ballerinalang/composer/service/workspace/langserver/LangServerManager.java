@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.common.Utils;
@@ -45,22 +46,28 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentP
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
-import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggester;
-import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggesterImpl;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,6 +78,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+
 /**
  * Language server Manager which manage langServer requests from the clients.
  */
@@ -79,6 +89,8 @@ public class LangServerManager {
     private static final Logger logger = LoggerFactory.getLogger(LangServerManager.class);
 
     private static LangServerManager langServerManagerInstance;
+
+    private static CompilerOptions options;
 
     private LangServer langserver;
 
@@ -95,9 +107,11 @@ public class LangServerManager {
     private WorkspaceSymbolProvider symbolProvider = new WorkspaceSymbolProvider();
 
     private Set<Map.Entry<String, ModelPackage>> packages;
+
     private Map<Path, Map<String, ModelPackage>> programPackagesMap;
+
     private Map<Path, BLangProgram> programMap;
-    
+
     /**
      * Caching the built in packages.
      */
@@ -511,42 +525,42 @@ public class LangServerManager {
      */
     private void getCompletionItems(Message message) {
         if (message instanceof RequestMessage) {
+            ArrayList<CompletionItem> completionItems;
+            ArrayList<SymbolInfo> symbols = new ArrayList<>();
+
             JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
-                    TextDocumentPositionParams.class);
-            String textContent = textDocumentPositionParams.getText();
-            Position position = textDocumentPositionParams.getPosition();
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+            TextDocumentPositionParams posParams = gson.fromJson(params.toString(), TextDocumentPositionParams.class);
 
-            BFile bFile = new BFile();
-            bFile.setContent(textContent);
-            bFile.setFilePath("/temp");
-            bFile.setFileName("temp.bal");
-            bFile.setPackageName(".");
+            Position position = posParams.getPosition();
+            String textContent = posParams.getText();
 
-            AutoCompleteSuggester autoCompleteSuggester = new AutoCompleteSuggesterImpl();
-            CapturePossibleTokenStrategy capturePossibleTokenStrategy = new CapturePossibleTokenStrategy(position);
-            try {
-                ArrayList symbols = new ArrayList<>();
-                CompletionItemAccumulator completionItemAccumulator = new CompletionItemAccumulator(symbols, position);
-                BallerinaFile ballerinaFile =
-                        autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
-                capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
-                ballerinaFile.accept(completionItemAccumulator);
+            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
+            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
 
-                SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
-                SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
-                dm.setClosestScope(completionItemAccumulator.getClosestScope());
-                // set all the packages associated with the runtime. "this.getPackages()" might return null as process
-                // of loading packages is running in a separate thread. See initBackgroundJobs() method.
-                dm.setPackages(this.getPackages());
+            CompilerContext compilerContext = new CompilerContext();
+            compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
-                completionItems = suggestionsFilter.getCompletionItems(dm, symbols);
-            } catch (IOException e) {
-                this.sendErrorResponse(LangServerConstants.INTERNAL_ERROR_LINE,
-                        LangServerConstants.INTERNAL_ERROR, message, null);
-            }
+            options = CompilerOptions.getInstance(compilerContext);
+            options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
+            options.put(COMPILER_PHASE, "typeCheck");
 
+            Compiler compiler = Compiler.getInstance(compilerContext);
+            // here we need to compile the whole package
+            BLangPackage bLangPackage = compiler.compile("test.bal");
+            String fileName = "test.bal";
+
+            this.parseContent(bLangPackage, fileName, textContent);
+
+            // Visit the package to resolve the symbols
+            TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
+            bLangPackage.accept(treeVisitor);
+
+            // Filter the suggestions
+            SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
+            filterDataModel.setPackages(this.getPackages());
+            completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
+
+            // Create the response message for client request
             ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setId(((RequestMessage) message).getId());
             responseMessage.setResult(completionItems.toArray(new CompletionItem[0]));
@@ -554,6 +568,43 @@ public class LangServerManager {
         } else {
             logger.warn("Invalid Message type found");
         }
+    }
+
+    /**
+     * Parse the file content and replace the compilation unit
+     * @param bLangPackage - BLangPackage consisting the content
+     * @param fileName - file name to be parsed
+     * @param content - file content
+     */
+    private void parseContent(BLangPackage bLangPackage, String fileName, String content) {
+        List<Name> names = new ArrayList<>();
+        byte[] code = content.getBytes(StandardCharsets.UTF_8);
+        names.add(new Name("."));
+        String tempFileName = "temp.bal";
+        PackageID tempPkgID = new PackageID(names, new Name("0.0.0"));
+
+        CompilerContext context = new CompilerContext();
+        InMemoryPackageRepository pkgRepo = new InMemoryPackageRepository(tempPkgID, "tempBPath", tempFileName, code);
+        context.put(PackageRepository.class, pkgRepo);
+        Compiler compiler = Compiler.getInstance(context);
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, "tempSourceRoot");
+
+        BLangPackage inMemoryPkg = compiler.getModel(tempFileName);
+        BLangCompilationUnit tempCompilationUnit = inMemoryPkg.getCompilationUnits().stream()
+                .filter(compUnit -> tempFileName.equals(compUnit.getName()))
+                .findFirst()
+                .get();
+
+        BLangCompilationUnit originalCompilationUnit = bLangPackage.getCompilationUnits().stream()
+                .filter(compUnit -> fileName.equals(compUnit.getName()))
+                .findFirst()
+                .get();
+
+        int originalIndex = bLangPackage.getCompilationUnits().indexOf(originalCompilationUnit);
+        tempCompilationUnit.setName(fileName);
+
+        bLangPackage.getCompilationUnits().set(originalIndex, tempCompilationUnit);
     }
 
     /**

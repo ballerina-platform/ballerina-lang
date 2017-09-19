@@ -19,6 +19,7 @@
 package org.ballerinalang.composer.service.workspace.langserver;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 /**
  * Represents the symbol information
@@ -26,10 +27,16 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 public class SymbolInfo {
     private String symbolName;
     private BLangSymbol symbol;
+    private Scope.ScopeEntry scopeEntry;
 
     public SymbolInfo(String symbolName, BLangSymbol symbol) {
         this.symbolName = symbolName;
         this.symbol = symbol;
+    }
+
+    public SymbolInfo(String symbolName, Scope.ScopeEntry scopeEntry) {
+        this.symbolName = symbolName;
+        this.scopeEntry = scopeEntry;
     }
 
     public String getSymbolName() {
@@ -46,5 +53,9 @@ public class SymbolInfo {
 
     public void setSymbol(BLangSymbol symbol) {
         this.symbol = symbol;
+    }
+
+    public Scope.ScopeEntry getScopeEntry() {
+        return scopeEntry;
     }
 }
