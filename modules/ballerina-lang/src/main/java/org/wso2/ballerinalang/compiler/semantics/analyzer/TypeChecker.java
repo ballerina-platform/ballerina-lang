@@ -210,7 +210,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.type = this.symTable.noType;
             } else {
                 varRefExpr.type = this.symTable.errType;
-                dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_IN_RHS);
+                dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
             }
             resultTypes = Lists.of(varRefExpr.type);
             return;

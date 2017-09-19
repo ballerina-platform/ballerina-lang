@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -199,61 +197,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
-        int ignoredCount = 0;
-        int createdSymbolCount = 0;
-
-        Map<Integer, BLangSimpleVarRef> newVariablesMap = new HashMap<>();
-
+        if (assignNode.isDeclaredWithVar()) {
+            handleAssignNodeWithVar(assignNode);
+            return;
+        }
         List<BType> expTypes = new ArrayList<>();
         // Check each LHS expression.
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
             BLangExpression varRef = assignNode.varRefs.get(i);
             // In assignment, lhs supports only simpleVarRef, indexBasedAccess, filedBasedAccess only.
-            // If the assignment is declared with "var", then lhs supports only simpleVarRef expressions only.
-            if (!(varRef instanceof VariableReferenceNode) || varRef instanceof InvocationNode ||
-                    (assignNode.isDeclaredWithVar() && !(varRef instanceof BLangSimpleVarRef))) {
+            if (varRef.getKind() == NodeKind.INVOCATION) {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
                 expTypes.add(symTable.errType);
                 continue;
             }
             ((BLangVariableReference) varRef).lhsVariable = true;
-            // Check variable symbol if exists.
-            if (assignNode.declaredWithVar) {
-                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-                Name varName = names.fromIdNode(simpleVarRef.variableName);
-                if (varName == Names.IGNORE) {
-                    ignoredCount++;
-                    simpleVarRef.type = this.symTable.noType;
-                    expTypes.add(symTable.noType);
-                    continue;
-                }
-                BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-                if (symbol == symTable.notFoundSymbol) {
-                    createdSymbolCount++;
-                    newVariablesMap.put(i, simpleVarRef);
-                    expTypes.add(symTable.noType);
-                } else {
-                    expTypes.add(symbol.type);
-                }
-            } else {
-                expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
-            }
+            expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
         }
-
-        if (assignNode.declaredWithVar && (ignoredCount == assignNode.varRefs.size() || createdSymbolCount == 0)) {
-            dlog.error(assignNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-        }
-        // Check RHS expressions with expected type list.
-        final List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
-
-        // define new variables
-        newVariablesMap.keySet().forEach(i -> {
-            BType actualType = rhsTypes.get(i);
-            BLangSimpleVarRef simpleVarRef = newVariablesMap.get(i);
-            Name varName = names.fromIdNode(simpleVarRef.variableName);
-            this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), actualType, varName, env);
-            typeChecker.checkExpr(simpleVarRef, env);
-        });
+        typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -462,5 +423,59 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.diagCode = preDiagCode;
 
         return resType;
+    }
+
+    // Private methods
+
+    private void handleAssignNodeWithVar(BLangAssignment assignNode) {
+        int ignoredCount = 0;
+        int createdSymbolCount = 0;
+
+        Map<Integer, BLangSimpleVarRef> newVariablesMap = new HashMap<>();
+
+        List<BType> expTypes = new ArrayList<>();
+        // Check each LHS expression.
+        for (int i = 0; i < assignNode.varRefs.size(); i++) {
+            BLangExpression varRef = assignNode.varRefs.get(i);
+            // If the assignment is declared with "var", then lhs supports only simpleVarRef expressions only.
+            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+                expTypes.add(symTable.errType);
+                continue;
+            }
+            ((BLangVariableReference) varRef).lhsVariable = true;
+            // Check variable symbol if exists.
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+            Name varName = names.fromIdNode(simpleVarRef.variableName);
+            if (varName == Names.IGNORE) {
+                ignoredCount++;
+                simpleVarRef.type = this.symTable.noType;
+                expTypes.add(symTable.noType);
+                continue;
+            }
+            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            if (symbol == symTable.notFoundSymbol) {
+                createdSymbolCount++;
+                newVariablesMap.put(i, simpleVarRef);
+                expTypes.add(symTable.noType);
+            } else {
+                expTypes.add(symbol.type);
+            }
+        }
+
+        if (ignoredCount == assignNode.varRefs.size() || createdSymbolCount == 0) {
+            dlog.error(assignNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+        }
+        // Check RHS expressions with expected type list.
+        final List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+
+        // define new variables
+        newVariablesMap.keySet().forEach(i -> {
+            BType actualType = rhsTypes.get(i);
+            BLangSimpleVarRef simpleVarRef = newVariablesMap.get(i);
+            Name varName = names.fromIdNode(simpleVarRef.variableName);
+            this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), actualType, varName, env);
+            typeChecker.checkExpr(simpleVarRef, env);
+        });
     }
 }

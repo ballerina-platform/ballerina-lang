@@ -71,8 +71,8 @@ public enum DiagnosticCode {
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
-    INVALID_VARIABLE_ASSIGNMENT("invalid.variables.assignment"),
-    UNDERSCORE_IN_RHS("underscore.in.rhs"),
+    INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
+    UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     ;
 
     private String value;
