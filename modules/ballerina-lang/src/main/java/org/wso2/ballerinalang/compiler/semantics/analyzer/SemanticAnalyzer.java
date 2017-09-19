@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -281,6 +282,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
          * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
+        
+        if (forkJoin.timeoutExpression != null) {
+            /* create code black and environment for timeout section */
+            BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
+            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
+            this.typeChecker.checkExpr(forkJoin.timeoutExpression, 
+                    timeoutVarEnv, Arrays.asList(symTable.intType));
+            this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
+            /* create an environment for the timeout body, making the enclosing environment the earlier 
+             * timeout var's environment */
+            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
+            this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
+        }
     }
 
     @Override
@@ -320,9 +334,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private boolean checkReturnValueCounts(BLangReturn returnNode) {
+        boolean success = false;
+        int expRetCount = this.env.enclInvokable.getReturnParameters().size();
+        int actualRetCount = returnNode.exprs.size();
+        if (expRetCount > 1 && actualRetCount <= 1) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.MULTI_VALUE_RETURN_EXPECTED);
+        } else if (expRetCount == 1 && actualRetCount > 1) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.SINGLE_VALUE_RETURN_EXPECTED);
+        } else if (expRetCount == 0 && actualRetCount >= 1) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.RETURN_VALUE_NOT_EXPECTED);
+        } else if (actualRetCount > 1 && expRetCount > actualRetCount) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.NOT_ENOUGH_RETURN_VALUES);
+        } else if (actualRetCount > 1 && expRetCount < actualRetCount) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.TOO_MANY_RETURN_VALUES);
+        } else {
+            success = true;
+        }
+        return success;
+    }
+    
     @Override
     public void visit(BLangReturn returnNode) {
-        /* ignore */
+        if (returnNode.exprs.size() == 1 && returnNode.exprs.get(0).getKind() == NodeKind.INVOCATION) {
+            /* a single return expression can be expanded to match a multi-value return */
+            this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env, 
+                    this.env.enclInvokable.getReturnParameters().stream()
+                    .map(e -> e.getTypeNode().type)
+                    .collect(Collectors.toList()));
+        } else {
+            if (this.checkReturnValueCounts(returnNode)) {
+                for (int i = 0; i < returnNode.exprs.size(); i++) {
+                    this.typeChecker.checkExpr(returnNode.exprs.get(i), this.env, 
+                            Arrays.asList(this.env.enclInvokable.getReturnParameters().get(i).getTypeNode().type));
+                }
+            }
+        }
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
