@@ -161,7 +161,7 @@ class TransformNodeManager {
             log.error('Unknown intermediate node');
         }
 
-        this._mapper.createFunctionToFunctionMapping(source, target);
+        this._mapper.createNodeToNodeMapping(source, target);
     }
 
     /**
@@ -324,6 +324,41 @@ class TransformNodeManager {
                 funcInv: functionInvocationExpression,
             };
             returnParams.push(paramObj);
+        });
+
+        return {
+            parameters,
+            returnParams,
+        };
+    }
+
+    getOperatorVertices(operatorExpression) {
+        const parameters = [];
+        const returnParams = [];
+
+        parameters[0] = {
+            name: operatorExpression.getID() + ':0',
+            displayName: '',
+            type: 'var',
+            operator: operatorExpression,
+            index: 0,
+        };
+
+        if (BallerinaASTFactory.isBinaryExpression(operatorExpression)) {
+            parameters[1] = {
+                name: operatorExpression.getID() + ':1',
+                displayName: '',
+                type: 'var',
+                operator: operatorExpression,
+                index: 1,
+            };
+        }
+
+        returnParams.push({
+            name: operatorExpression.getID() + ':0:return',
+            displayName: '',
+            type: 'var',
+            operator: operatorExpression,
         });
 
         return {

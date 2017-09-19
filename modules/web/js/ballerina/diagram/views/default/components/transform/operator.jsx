@@ -27,8 +27,8 @@ export default class Operator extends React.Component {
         let targetPoint02 = [];
 
         const {
-            operator, opStmt, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter
+            operator, opExp, recordSourceElement, recordTargetElement, viewId,
+            parentFunc, onEndpointRemove, onConnectPointMouseEnter
         } = this.props;
 
         operator.parameters.forEach((param) => {
@@ -40,7 +40,7 @@ export default class Operator extends React.Component {
         });
 
         const onRemove = () => {
-            opStmt.getParent().getParent().removeChild(opStmt.getParent());
+            opExp.getParent().getParent().removeChild(opExp.getParent());
         };
 
         if (operator.parameters.length === 1) {
@@ -64,7 +64,7 @@ export default class Operator extends React.Component {
                                 onConnectPointMouseEnter={onConnectPointMouseEnter}
                             />
                         </div>
-                        <div className='operator-cell'><span className='operator-name'>{operator.name}</span></div>
+                        <div className='operator-cell'><span className='operator-name'>{opExp.getOperator()}</span></div>
                         <div className='operator-cell'>
                             <Tree
                                 type='param'
