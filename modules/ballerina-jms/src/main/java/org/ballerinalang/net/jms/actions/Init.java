@@ -16,19 +16,19 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.jms.client;
+package org.ballerinalang.net.jms.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
-import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
@@ -44,10 +44,10 @@ import java.util.ServiceLoader;
         packageName = "ballerina.net.jms",
         actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
+        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
         },
         connectorArgs = {
-                @Argument(name = "properties", type = TypeKind.MAP)
+                @Argument(name = "properties", type = TypeEnum.MAP)
         }
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

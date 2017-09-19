@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.jms;
+package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
+import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -39,7 +39,7 @@ import javax.jms.Session;
  * To commit the jms transacted sessions.
  */
 @BallerinaFunction(packageName = "ballerina.net.jms", functionName = "commit", args = {
-        @Argument(name = "m", type = TypeKind.MESSAGE) }, isPublic = true)
+        @Argument(name = "m", type = TypeEnum.MESSAGE) }, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Session commit action implementation for jms connector when using jms session transaction mode") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
