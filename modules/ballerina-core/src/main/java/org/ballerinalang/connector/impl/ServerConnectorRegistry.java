@@ -47,12 +47,16 @@ public class ServerConnectorRegistry {
 
     private static ServerConnectorRegistry instance = new ServerConnectorRegistry();
     private Map<String, BallerinaServerConnector> serverConnectorMap = new HashMap<>();
+    private boolean initialized = false;
 
     public static ServerConnectorRegistry getInstance() {
         return instance;
     }
 
     public void initServerConnectors() {
+        if (initialized) {
+            return;
+        }
         ServiceLoader<BallerinaServerConnector> serverConnectorServiceLoader =
                 ServiceLoader.load(BallerinaServerConnector.class);
         serverConnectorServiceLoader.forEach(serverConnector -> {
@@ -63,6 +67,7 @@ public class ServerConnectorRegistry {
                         " given protocol package - " + serverConnector.getProtocolPackage());
             }
         });
+        initialized = true;
     }
 
     /**
