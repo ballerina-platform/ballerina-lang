@@ -100,6 +100,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-test</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core-feature</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
@@ -228,6 +233,7 @@
         <module>modules/ballerina-samples</module>
         <module>modules/ballerina-logging</module>
         <module>modules/packerina</module>
+        <module>modules/ballerina-test</module>
     </modules>
 
 </project>
