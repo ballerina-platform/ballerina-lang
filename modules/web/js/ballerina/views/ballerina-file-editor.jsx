@@ -22,15 +22,12 @@ import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import ASTVisitor from 'ballerina/visitors/ast-visitor';
 import DebugManager from './../../debugger/debug-manager';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
 import File from './../../workspace/file';
 import { validateFile, parseFile, getProgramPackages } from '../../api-client/api-client';
-import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import CompilationUnitNode from './../model/tree/compilation-unit';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
@@ -43,6 +40,7 @@ import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visi
 import FindLineNumbersVisiter from './../visitors/find-line-numbers';
 import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
 import TreeBuilder from './../model/tree-builder';
+import CompilationUnitNode from './../model/tree/compilation-unit';
 
 const sourceViewTabHeaderClass = 'inverse';
 

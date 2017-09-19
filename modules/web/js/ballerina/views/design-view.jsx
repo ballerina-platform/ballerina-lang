@@ -125,11 +125,11 @@ class DesignView extends React.Component {
                     }
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
-                    { /* <ToolPaletteView
+                    <ToolPaletteView
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
                         mode={this.state.mode}
-                    />*/}
+                    />
                 </div>
                 { /* TODOX REMOVE <div className="top-right-controls-container">
                     <div className={`top-right-controls-container-editor-pane
