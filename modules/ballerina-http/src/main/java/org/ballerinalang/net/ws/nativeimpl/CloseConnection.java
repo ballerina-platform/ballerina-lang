@@ -52,12 +52,6 @@ public class CloseConnection extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
-        if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
-            throw new BallerinaException("This function is only working with WebSocket services");
-        }
-
         BStruct wsConnection = (BStruct) getRefArgument(context, 0);
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);

@@ -28,6 +28,13 @@ under the License.
         </packages>
     </test>
 
+    <!-- WebSocket Test Cases -->
+    <test name="websocket-test-cases" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.websocket.NativeFunctionsTestCase"/>
+        </classes>
+    </test>
+
     <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
     <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
         <!--<packages>-->
@@ -62,16 +69,6 @@ under the License.
             <!--<class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>-->
         <!--</classes>-->
     <!--</test>-->
-
-    <!--&lt;!&ndash;TODO: Should activate these test cases when migrating Ballerina to new transport&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash; WebSocket Test Cases &ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;<test name="websocket-test-cases" parallel="false">&ndash;&gt;-->
-        <!--&lt;!&ndash;<classes>&ndash;&gt;-->
-            <!--&lt;!&ndash;<class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;</classes>&ndash;&gt;-->
-    <!--&lt;!&ndash;</test>&ndash;&gt;-->
 
     <!--<test name="ballerina-identifier-literal-test-suite">-->
         <!--<classes>-->

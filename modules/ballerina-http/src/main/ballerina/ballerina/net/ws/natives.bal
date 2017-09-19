@@ -62,7 +62,7 @@ native function isOpen(Connection conn) (boolean);
 
 @doc:Description {value:"Get a map of all the upgrade headers of the connection"}
 @doc:Return {value:"map<string>: Map of all the headers received in the connection upgrade"}
-native function getUpgradeHeaders(Connection conn) (map<string>);
+native function getUpgradeHeaders(Connection conn) (map);
 
 @doc:Description {value:"Get a value of a header"}
 @doc:Param {value:"key: Key of the header which the value should be retrieved"}

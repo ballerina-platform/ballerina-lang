@@ -40,7 +40,9 @@ public class MockWebSocketSession implements Session {
     private final String id;
     private final MockBasicRemoteEndpoint remoteEndpoint;
     private CloseReason closeReason;
-    private boolean isOpen = true;
+    private boolean isOpen = false;
+    private boolean isSecure = false;
+    private String subProtocol;
 
     public MockWebSocketSession(String id) {
         this.id = id;
@@ -54,6 +56,14 @@ public class MockWebSocketSession implements Session {
 
     public ByteBuffer getBufferReceived() {
         return remoteEndpoint.getBufferReceived();
+    }
+
+    public void setIsOpen(boolean isOpen) {
+        this.isOpen = isOpen;
+    }
+
+    public void setNegotiatedSubProtocol(String subProtocol) {
+        this.subProtocol = subProtocol;
     }
 
     @Override
@@ -93,7 +103,7 @@ public class MockWebSocketSession implements Session {
 
     @Override
     public String getNegotiatedSubprotocol() {
-        return null;
+        return this.subProtocol;
     }
 
     @Override
@@ -101,9 +111,13 @@ public class MockWebSocketSession implements Session {
         return null;
     }
 
+    public void setIsSecure(boolean isSecure) {
+        this.isSecure = isSecure;
+    }
+
     @Override
     public boolean isSecure() {
-        return false;
+        return this.isSecure;
     }
 
     @Override
@@ -159,6 +173,10 @@ public class MockWebSocketSession implements Session {
     @Override
     public void close() throws IOException {
         this.isOpen = false;
+    }
+
+    public CloseReason getCloseReason() {
+        return closeReason;
     }
 
     @Override

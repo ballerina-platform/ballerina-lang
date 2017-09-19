@@ -26,7 +26,6 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.ws.Constants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 /**
@@ -48,12 +47,6 @@ public class CancelHandshake extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
-        if (context.getServiceInfo() == null ||
-                !context.getServiceInfo().getProtocolPkgPath().equals(Constants.WEBSOCKET_PACKAGE_NAME)) {
-            throw new BallerinaException("This function is only working with WebSocket services");
-        }
-
         BStruct handshakeConnection = (BStruct) getRefArgument(context, 0);
         int statusCode = (int) getIntArgument(context, 0);
         String reason = getStringArgument(context, 0);
