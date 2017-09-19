@@ -292,6 +292,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangService serviceNode) {
+        BLangFunction initFunction = (BLangFunction) serviceNode.getInitFunction();
+        visit(initFunction);
+
+        currentServiceInfo = currentPkgInfo.getServiceInfo(serviceNode.getName().getValue());
+
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        serviceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        currentServiceInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.env);
+        serviceNode.resources.forEach(resource -> genNode(resource, serviceEnv));
+    }
+
+    public void visit(BLangResource resourceNode) {
+        ResourceInfo resourceInfo = currentServiceInfo.getResourceInfo(resourceNode.name.getValue());
+        currentCallableUnitInfo = resourceInfo;
+        SymbolEnv resourceEnv = SymbolEnv
+                .createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, this.env);
+        visitInvokableNode(resourceNode, currentCallableUnitInfo, resourceEnv);
+    }
+
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
         currentCallableUnitInfo = currentPkgInfo.functionInfoMap.get(funcNode.symbol.name.value);
@@ -864,30 +888,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangWorkerReceive workerReceiveNode) {
         /* ignore */
-    }
-
-    public void visit(BLangService serviceNode) {
-        BLangFunction initFunction = (BLangFunction) serviceNode.getInitFunction();
-        visit(initFunction);
-
-        currentServiceInfo = currentPkgInfo.getServiceInfo(serviceNode.getName().getValue());
-
-        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
-        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        serviceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
-        currentServiceInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
-
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.env);
-        serviceNode.resources.forEach(resource -> genNode(resource, serviceEnv));
-    }
-
-    public void visit(BLangResource resourceNode) {
-        ResourceInfo resourceInfo = currentServiceInfo.getResourceInfo(resourceNode.name.getValue());
-        currentCallableUnitInfo = resourceInfo;
-        SymbolEnv resourceEnv = SymbolEnv
-                .createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, this.env);
-        visitInvokableNode(resourceNode, currentCallableUnitInfo, resourceEnv);
     }
 
     public void visit(BLangConnector connectorNode) {
