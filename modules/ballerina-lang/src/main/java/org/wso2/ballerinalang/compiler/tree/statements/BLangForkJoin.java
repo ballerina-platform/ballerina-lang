@@ -24,7 +24,9 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,9 +45,11 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     public int joinedWorkerCount;
     public BLangBlockStmt joinedBody;
 
-    public ExpressionNode timeoutExpression;
-    public VariableNode timeoutVariable;
+    public BLangExpression timeoutExpression;
+    public BLangVariable timeoutVariable;
     public BLangBlockStmt timeoutBody;
+    
+    public BLangVariable joinResultVar;
 
     public BLangForkJoin() {
         this.workers = new ArrayList<>();
@@ -99,6 +103,7 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
@@ -106,8 +111,19 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
         return "BLangForkJoin: " + Arrays.toString(workers.toArray()) +
                 (joinedBody != null ? " Join: " + joinType + " " + joinedWorkerCount + " " +
                         (joinedWorkers.isEmpty() ? "" : Arrays.toString(joinedWorkers.toArray())) +
-                        " {" + joinedBody + "}" : "") +
+                        " (" + joinResultVar + ") {" + joinedBody + "}" : "") +
                 (timeoutBody != null ? " Timeout: (" + timeoutExpression + ") (" + timeoutVariable + ")"
                         + " {" + timeoutBody + "}" : "");
     }
+
+    @Override
+    public VariableNode getJoinResultVar() {
+        return (BLangVariable) joinResultVar;
+    }
+
+    @Override
+    public void setJoinResultVar(VariableNode var) {
+        this.joinResultVar = (BLangVariable) var;
+    }
+    
 }

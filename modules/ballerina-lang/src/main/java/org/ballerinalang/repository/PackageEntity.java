@@ -31,10 +31,14 @@ public interface PackageEntity {
         SOURCE(".bal"),
         COMPILED(".balo");
 
-        public final String extension;
+        private final String extension;
 
-        private Kind(String extension) {
+        Kind(String extension) {
             this.extension = extension;
+        }
+
+        public String getExtension() {
+            return extension;
         }
     }
 

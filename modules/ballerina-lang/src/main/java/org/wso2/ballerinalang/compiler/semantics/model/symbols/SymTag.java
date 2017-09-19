@@ -38,4 +38,6 @@ public class SymTag {
     public static final int ANNOTATION_ATTRIBUTE = 4096;
     public static final int ERROR = 8192;
     public static final int ENUM = 16384;
+    public static final int WORKER = 32768;
+    
 }

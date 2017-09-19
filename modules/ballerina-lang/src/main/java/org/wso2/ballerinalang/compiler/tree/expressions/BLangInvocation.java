@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -38,34 +38,35 @@ import java.util.List;
 public class BLangInvocation extends BLangVariableReference implements InvocationNode, MultiReturnExpr {
 
     public BLangIdentifier pkgAlias;
-    public BLangIdentifier functionName;
-    public List<BLangExpression> argsExprs = new ArrayList<>();
-    public BLangVariableReference variableReferenceNode;
+    public BLangIdentifier name;
+    public List<BLangExpression> argExprs = new ArrayList<>();
+    public BLangVariableReference expr;
     public List<BType> types = new ArrayList<>(0);
-
+    public int[] regIndexes;
+    public BInvokableSymbol symbol;
 
     public boolean isMultiReturnExpr() {
         return true;
     }
 
     @Override
-    public IdentifierNode getPackageIdentifier() {
+    public IdentifierNode getPackageAlias() {
         return pkgAlias;
     }
 
     @Override
-    public IdentifierNode getFunctionName() {
-        return functionName;
+    public IdentifierNode getName() {
+        return name;
     }
 
     @Override
     public List<? extends ExpressionNode> getArgumentExpressions() {
-        return argsExprs;
+        return argExprs;
     }
 
     @Override
-    public VariableReferenceNode getVariableReferenceNode() {
-        return variableReferenceNode;
+    public BLangVariableReference getExpression() {
+        return expr;
     }
 
     @Override
@@ -76,16 +77,16 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public String toString() {
         StringBuilder br = new StringBuilder();
-        if (variableReferenceNode != null) {
+        if (expr != null) {
             // Action invocation or lambda invocation.
-            br.append(String.valueOf(variableReferenceNode)).append(".");
+            br.append(String.valueOf(expr)).append(".");
         } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-                br.append(String.valueOf(pkgAlias)).append(":");
+            br.append(String.valueOf(pkgAlias)).append(":");
         }
-        br.append(String.valueOf(functionName));
+        br.append(String.valueOf(name));
         br.append("(");
-        if (argsExprs.size() > 0) {
-            String s = Arrays.toString(argsExprs.toArray());
+        if (argExprs.size() > 0) {
+            String s = Arrays.toString(argExprs.toArray());
             br.append(s.substring(1, s.length() - 1));
         }
         br.append(")");

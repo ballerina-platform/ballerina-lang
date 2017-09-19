@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -33,6 +34,10 @@ public class BArrayType extends BType implements ArrayType {
         this.eType = elementType;
     }
 
+    public String getDesc() {
+        return TypeDescriptor.SIG_ARRAY + eType.getDesc();
+    }
+
     @Override
     public BType getElementType() {
         return eType;
@@ -41,5 +46,10 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public TypeKind getKind() {
         return TypeKind.ARRAY;
+    }
+
+    @Override
+    public String toString() {
+        return eType.toString() + "[]";
     }
 }

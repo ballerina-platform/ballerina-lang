@@ -30,13 +30,13 @@ public enum Flag {
      */
     NATIVE,
     /**
-     * Indicates Flagged node is a Lambda.
-     */
-    LAMBDA,
-    /**
      * Indicates Flagged node is a constant node.
      */
     CONST,
+    /**
+     * Indicates Flagged node is a Lambda.
+     */
+    LAMBDA,
     /**
      * Indicates Flagged Node executes in parallel workers.
      */

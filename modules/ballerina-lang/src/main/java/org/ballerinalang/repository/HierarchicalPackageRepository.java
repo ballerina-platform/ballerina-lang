@@ -20,10 +20,10 @@ package org.ballerinalang.repository;
 import org.ballerinalang.model.elements.PackageID;
 
 /**
- * Hierarchical package repository class, which contains the most common 
+ * Hierarchical package repository class, which contains the most common
  * used features of a package repository as a hierarchical lookup structure,
  * starting initially from a system package repository.
- * 
+ *
  * @since 0.94
  */
 public abstract class HierarchicalPackageRepository implements PackageRepository {
@@ -31,18 +31,18 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
     private static final String BALLERINA_SYSTEM_PKG_PREFIX = "ballerina";
 
     private PackageRepository systemRepo;
-    
+
     private PackageRepository parentRepo;
-    
+
     public HierarchicalPackageRepository(PackageRepository systemRepo, PackageRepository parentRepo) {
         this.systemRepo = systemRepo;
         this.parentRepo = parentRepo;
     }
-    
+
     public abstract PackageEntity lookupPackage(PackageID pkgId);
-    
+
     public abstract PackageEntity lookupPackage(PackageID pkgId, String entryName);
-    
+
     @Override
     public PackageEntity loadPackage(PackageID pkgId) {
         PackageEntity result;
@@ -56,7 +56,7 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
         }
         return result;
     }
-    
+
     @Override
     public PackageEntity loadPackage(PackageID pkgID, String entryName) {
         PackageEntity result;
@@ -70,9 +70,9 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
         }
         return result;
     }
-    
+
     private boolean isSystemPackage(PackageID pkgID) {
-        return pkgID.getNameCompCount() > 0 && pkgID.getNameComponent(0).equals(BALLERINA_SYSTEM_PKG_PREFIX);
+        return pkgID.getNameComp(0).getValue().equals(BALLERINA_SYSTEM_PKG_PREFIX);
     }
-    
+
 }

@@ -25,6 +25,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
  */
 public abstract class BLangExpression extends BLangNode implements ExpressionNode {
 
+    /**
+     * This result of this expression is saved in this virtual register index. This field is used
+     * during the code generation phase of the compiler.
+     */
+    public int regIndex;
+
     public boolean isMultiReturnExpr() {
         return false;
     }
