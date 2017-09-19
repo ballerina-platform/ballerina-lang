@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import BallerinaDiagram from './../diagram/diagram';
+import BallerinaDiagram from './../diagram2/diagram';
 import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
-import BallerinaASTRoot from './../ast/ballerina-ast-root';
+import CompilationUnitNode from './../model/tree/compilation-unit';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
 
 class DesignView extends React.Component {
@@ -125,13 +125,13 @@ class DesignView extends React.Component {
                     }
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
-                    <ToolPaletteView
+                    { /* <ToolPaletteView
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
                         mode={this.state.mode}
-                    />
+                    />*/}
                 </div>
-                <div className="top-right-controls-container">
+                { /* TODOX REMOVE <div className="top-right-controls-container">
                     <div className={`top-right-controls-container-editor-pane
                             main-action-wrapper import-packages-pane`}
                     >
@@ -154,7 +154,7 @@ class DesignView extends React.Component {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <div className="bottom-right-controls-container">
                     <div className="view-source-btn btn-icon">
                         <div className="bottom-label-icon-wrapper">
@@ -176,7 +176,7 @@ class DesignView extends React.Component {
 }
 
 DesignView.propTypes = {
-    model: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
 };
 
 DesignView.contextTypes = {

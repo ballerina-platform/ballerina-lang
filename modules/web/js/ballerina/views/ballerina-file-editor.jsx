@@ -30,7 +30,7 @@ import SwaggerView from './swagger-view.jsx';
 import File from './../../workspace/file';
 import { validateFile, parseFile, getProgramPackages } from '../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import BallerinaASTRoot from './../ast/ballerina-ast-root';
+import CompilationUnitNode from './../model/tree/compilation-unit';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
@@ -61,8 +61,8 @@ class BallerinaFileEditor extends React.Component {
      */
     constructor(props) {
         super(props);
-        const astRoot = new BallerinaASTRoot();
-        astRoot.setFile(this.props.file);
+        const astRoot = new CompilationUnitNode();
+        // TODOX astRoot.setFile(this.props.file);
         this.state = {
             initialParsePending: true,
             isASTInvalid: false,
@@ -331,8 +331,8 @@ class BallerinaFileEditor extends React.Component {
                         newState.parseFailed = true;
                         newState.syntaxErrors = errors;
                         newState.validatePending = false;
-                        const astRoot = new BallerinaASTRoot();
-                        astRoot.setFile(this.props.file);
+                        const astRoot = new CompilationUnitNode();
+                        // TODOX astRoot.setFile(this.props.file);
                         newState.model = astRoot;
                         // Cannot proceed due to syntax errors.
                         // Hence resolve now.
@@ -357,16 +357,7 @@ class BallerinaFileEditor extends React.Component {
                     // if not, continue parsing the file & building AST
                     parseFile(file)
                         .then((jsonTree) => {
-                            let tree = TreeBuilder.build(jsonTree);
-                            tree.accept({
-                                beginVisit: function (e) {
-                                    console.log(e);
-                                },
-                                endVisit: (e) => (null),
-                            });
-                            debugger;
-
-
+                            /* TODOX
                             // something went wrong with the parser
                             if (_.isNil(jsonTree.root)) {
                                 log.error('Error while parsing the file: ' + file.getName()
@@ -376,17 +367,18 @@ class BallerinaFileEditor extends React.Component {
                                 newState.activeView = SOURCE_VIEW;
                                 newState.parseFailed = true;
                                 newState.isASTInvalid = true;
-                                const astRoot = new BallerinaASTRoot();
-                                astRoot.setFile(this.props.file);
+                                const astRoot = new CompilationUnitNode();
+                                // TODOX astRoot.setFile(this.props.file);
                                 newState.model = astRoot;
                                 resolve(newState);
                                 alerts.error('Seems to be there is a bug in back-end parser.'
                                         + 'Please report an issue attaching current source.');
                                 return;
                             }
+                            */
                             // get ast from json
-                            const ast = BallerinaASTDeserializer.getASTModel(jsonTree, this.props.file);
-                            this.markBreakpointsOnAST(ast);
+                            const ast = TreeBuilder.build(jsonTree /* , this.props.file*/);
+                            // TODOX this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
                                 this.onASTModified(evt);
@@ -396,9 +388,9 @@ class BallerinaFileEditor extends React.Component {
                             newState.isASTInvalid = false;
                             newState.model = ast;
 
-                            const pkgName = ast.getPackageDefinition().getPackageName();
+                            // TODOX const pkgName = ast.getPackageDefinition().getPackageName();
                             // update package name of the file
-                            file.setPackageName(pkgName || '.');
+                            // TODOX file.setPackageName(pkgName || '.');
                             // init bal env in background
                             BallerinaEnvironment.initialize()
                                 .then(() => {
@@ -552,7 +544,7 @@ BallerinaFileEditor.propTypes = {
 
 BallerinaFileEditor.childContextTypes = {
     isTabActive: PropTypes.bool.isRequired,
-    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };
