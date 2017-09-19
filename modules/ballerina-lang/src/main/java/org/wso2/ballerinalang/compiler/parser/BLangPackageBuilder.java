@@ -1037,11 +1037,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(breakNode);
     }
     
-    public void addReturnStatement(DiagnosticPos pos) {
+    public void addReturnStatement(DiagnosticPos pos, boolean exprAvailable) {
         BLangReturn retStmt = (BLangReturn) TreeBuilder.createReturnNode();
         retStmt.pos = pos;
-        for (ExpressionNode expr : this.exprNodeListStack.pop()) {
-            retStmt.exprs.add((BLangExpression) expr);
+        if (exprAvailable) {
+            for (ExpressionNode expr : this.exprNodeListStack.pop()) {
+                retStmt.exprs.add((BLangExpression) expr);
+            }
         }
         addStmtToCurrentBlock(retStmt);
     }

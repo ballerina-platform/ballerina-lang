@@ -330,9 +330,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private boolean checkReturnValueCounts(BLangReturn returnNode) {
+        boolean success = false;
+        int expRetCount = this.env.enclInvokable.getReturnParameters().size();
+        int actualRetCount = returnNode.exprs.size();
+        if (expRetCount > 1 && actualRetCount <= 1) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.MULTI_VALUE_RETURN_EXPECTED);
+        } else if (expRetCount == 1 && actualRetCount > 1) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.SINGLE_VALUE_RETURN_EXPECTED);
+        } else if (expRetCount == 0 && actualRetCount >= 1) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.RETURN_VALUE_NOT_EXPECTED);
+        } else if (actualRetCount > 1 && expRetCount > actualRetCount) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.NOT_ENOUGH_RETURN_VALUES);
+        } else if (actualRetCount > 1 && expRetCount < actualRetCount) {
+            this.dlog.error(returnNode.pos, DiagnosticCode.TOO_MANY_RETURN_VALUES);
+        } else {
+            success = true;
+        }
+        return success;
+    }
+    
     @Override
     public void visit(BLangReturn returnNode) {
-        /* ignore */
+        if (returnNode.exprs.size() == 1) {
+            /* a single return expression can be expanded to match a multi-value return */
+            this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env, 
+                    this.env.enclInvokable.getReturnParameters().stream()
+                    .map(e -> e.getTypeNode().type)
+                    .collect(Collectors.toList()));
+        } else {
+            if (this.checkReturnValueCounts(returnNode)) {
+                for (int i = 0; i < returnNode.exprs.size(); i++) {
+                    this.typeChecker.checkExpr(returnNode.exprs.get(i), this.env, 
+                            Arrays.asList(this.env.enclInvokable.getReturnParameters().get(i).getTypeNode().type));
+                }
+            }
+        }
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
