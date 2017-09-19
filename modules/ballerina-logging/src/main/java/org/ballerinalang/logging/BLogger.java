@@ -21,10 +21,7 @@ package org.ballerinalang.logging;
 import org.ballerinalang.logging.handlers.BConsoleLogHandler;
 import org.ballerinalang.logging.handlers.BLogHandler;
 import org.ballerinalang.logging.util.BLogLevel;
-import org.ballerinalang.logging.util.BLogLevelMapper;
 import org.ballerinalang.logging.util.Constants;
-
-import java.util.logging.LogManager;
 
 /**
  * Logger for the Ballerina log API
@@ -41,7 +38,7 @@ public class BLogger {
     public BLogger(String name) {
         this.name = name;
         this.logHandler = new BConsoleLogHandler();
-        this.logManager = (BLogManager)BLogManager.getLogManager();
+        this.logManager = (BLogManager) BLogManager.getLogManager();
     }
 
     public void log(BLogRecord logRecord) {
