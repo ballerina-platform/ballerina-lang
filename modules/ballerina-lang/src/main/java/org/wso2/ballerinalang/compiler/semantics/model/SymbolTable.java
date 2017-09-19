@@ -71,6 +71,7 @@ public class SymbolTable {
     public final BType datatableType = new BBuiltInRefType(TypeTags.DATATABLE, null);
     public final BType mapType = new BBuiltInRefType(TypeTags.MAP, null);
     public final BType anyType = new BBuiltInRefType(TypeTags.ANY, null);
+    public final BType messageType = new BBuiltInRefType(TypeTags.MESSAGE, null);
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nullType = new BNullType();
     public final BType voidType = new BNoType(TypeTags.VOID);
@@ -120,6 +121,7 @@ public class SymbolTable {
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(datatableType, TypeKind.DATATABLE.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
+        initializeType(messageType, TypeKind.MESSAGE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
 
         // Initialize error type;
@@ -170,6 +172,8 @@ public class SymbolTable {
                 return xmlType;
             case TypeTags.DATATABLE:
                 return datatableType;
+        case TypeTags.MESSAGE:
+            return messageType;
             case TypeTags.NULL:
                 return nullType;
             default:
