@@ -162,8 +162,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.body.accept(this);
         /* the function returns, but none of the statements surely returns */
         if (functionReturns && !this.statementReturns) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN, 
-                    String.valueOf(funcNode.getReturnParameters()));
+            this.dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN);
         }
         funcNode.workers.forEach(e -> e.accept(this));
     }

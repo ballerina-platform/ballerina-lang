@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -79,19 +80,33 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createPkgLevelSymbolEnv(BLangNode node,
-                                                    SymbolEnv pkgEnv,
-                                                    Scope scope) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
-        pkgEnv.copyTo(symbolEnv);
+                                                    Scope scope, SymbolEnv pkgEnv) {
+        SymbolEnv symbolEnv = duplicate(node, scope, pkgEnv);
         symbolEnv.enclPkg = (BLangPackage) pkgEnv.node;
         return symbolEnv;
     }
 
-    public static SymbolEnv createResourceActionSymbolEnv(BLangNode node,
-                                                    SymbolEnv pkgEnv,
-                                                    Scope scope) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
-        pkgEnv.copyTo(symbolEnv);
+    public static SymbolEnv createFunctionEnv(BLangFunction node, Scope scope, SymbolEnv env) {
+        SymbolEnv funcEnv = createPkgLevelSymbolEnv(node, scope, env);
+        funcEnv.enclInvokable = node;
+        return funcEnv;
+    }
+
+    public static SymbolEnv createConnectorEnv(BLangConnector node, Scope scope, SymbolEnv env) {
+        SymbolEnv connectorEnv = createPkgLevelSymbolEnv(node, scope, env);
+        connectorEnv.enclConnector = node;
+        return connectorEnv;
+    }
+
+    public static SymbolEnv createServiceEnv(BLangService node, Scope scope, SymbolEnv env) {
+        SymbolEnv serviceEnv = createPkgLevelSymbolEnv(node, scope, env);
+        serviceEnv.enclService = node;
+        return serviceEnv;
+    }
+
+    public static SymbolEnv createResourceActionSymbolEnv(BLangInvokableNode node, Scope scope, SymbolEnv env) {
+        SymbolEnv symbolEnv = duplicate(node, scope, env);
+        symbolEnv.enclInvokable = node;
         return symbolEnv;
     }
 
@@ -114,24 +129,26 @@ public class SymbolEnv {
         symbolEnv.enclVarSym = enclVarSym;
         return symbolEnv;
     }
-    
+
     public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
         env.copyTo(symbolEnv);
-        if (env.node.getKind() == NodeKind.FUNCTION) {
-            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
-        }
         return symbolEnv;
     }
-    
+
     public static SymbolEnv createFolkJoinEnv(BLangForkJoin forkJoin, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
         env.copyTo(symbolEnv);
-        if (env.node.getKind() == NodeKind.FUNCTION) {
-            symbolEnv.enclInvokable = (BLangInvokableNode) env.node;
-        }
         return symbolEnv;
     }
-    
+
+    // Private functions
+
+    private static SymbolEnv duplicate(BLangNode node, Scope scope, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
 }
