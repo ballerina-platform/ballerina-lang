@@ -1,7 +1,5 @@
-import ballerina.lang.messages;
 import ballerina.net.http;
-
-
+import ballerina.net.http.response;
 
 int glbVarInt = 800;
 string glbVarString = "value";
@@ -22,47 +20,41 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/defined"
     }
-    resource defineGlobalVar (message m) {
-        message response = {};
-
+    resource defineGlobalVar (http:Request req, http:Response res) {
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/access-service-level"
     }
-    resource accessGlobalVarAtServiceLevel (message m) {
-        message response = {};
-
+    resource accessGlobalVarAtServiceLevel (http:Request req, http:Response res) {
         json responseJson = {"serviceVarFloat":serviceVarFloat};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/change-resource-level"
     }
-    resource changeGlobalVarAtResourceLevel (message m) {
-        message response = {};
+    resource changeGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (message m) {
-        message response = {};
+    resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
 }
@@ -75,11 +67,10 @@ service<http> GlobalVarSecond {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (message m) {
-        message response = {};
+    resource getChangedGlobalVarAtResourceLevel (http:Request req, http:Response res) {
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
 }

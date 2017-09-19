@@ -28,6 +28,11 @@ native function setContentLength (http:Request req, int contentLength);
 @doc:Return { value:"map: The map of form params" }
 native function getFormParams (http:Request req) (map);
 
+@doc:Description { value:"Gets queryParam map from HTTP message"}
+@doc:Param { value:"req: The request message" }
+@doc:Return { value:"map: The map of query params" }
+native function getQueryParams (http:Request req) (map);
+
 @doc:Description { value:"Gets the message payload in JSON format"}
 @doc:Param { value:"req: A request message" }
 @doc:Return { value:"json: The JSON reresentation of the message payload" }

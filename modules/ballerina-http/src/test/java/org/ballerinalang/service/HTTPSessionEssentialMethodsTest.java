@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.Constants.RESPONSE_COOKIE_HEADER;
@@ -47,8 +47,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for getting a session at first time")
     public void testGetSessionWithoutSessionCookie() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -58,8 +58,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for getting a session without Id at first time")
     public void testGetSessionWithoutSessionIDCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -69,8 +69,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for not getting a session with at first time")
     public void testGetSessionMethod() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test3", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test3", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -80,8 +80,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for create two sessions ")
     public void testCreateTwoSessionsMethod() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test6", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test6", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -91,8 +91,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test getting a session with at first time")
     public void testGetSessionHappyPathMethod() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -104,7 +104,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -115,8 +115,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for Cookie Session Header availability check")
     public void testCookieSessionHeader() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -128,8 +128,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for Cookie Session path availability check")
     public void testCookiePath() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -141,8 +141,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for Get Attribute Function")
     public void testGetAttributeFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test4", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test4", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -153,8 +153,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for sample Session functionality")
     public void testCounterFunctionality() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -166,7 +166,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -176,8 +176,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for path limitation per service")
     public void testCheckPathValidityPerService() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -189,7 +189,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -199,8 +199,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for path limitation")
     public void testCheckPathValidity() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -212,7 +212,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -224,8 +224,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for path limitation with getSession")
     public void testCheckPathValiditygetSession() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -237,7 +237,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/counter/echo2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -249,8 +249,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for incorrect Cookie")
     public void testCounterFunctionalityIncorrectCookie() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -261,7 +261,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -271,8 +271,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for string attribute")
     public void testHelloFunctionalityForStringOutput() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -284,7 +284,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -294,8 +294,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for string attribute")
     public void testSessionForStructAttribute() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "wso2");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "wso2");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -307,7 +307,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", "chamil");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -317,8 +317,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for POST method string attribute")
     public void testPOSTForStringOutput() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "chamil");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "chamil");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -330,7 +330,7 @@ public class HTTPSessionEssentialMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", "wso2");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -340,8 +340,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for getAttributeNames function")
     public void testGetAttributeNamesFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -351,8 +351,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for array elements get from getAttributeNames function")
     public void testGetAttributeNamesFunctionArrayelements() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names2", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names2", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -362,8 +362,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for null attributes from getAttributeNames function")
     public void testNullGetAttributeNamesFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names5", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names5", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -373,8 +373,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for removeAttribute function")
     public void testRemoveAttributeFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -384,8 +384,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for removeAttribute function for unavailable attributes")
     public void testRemoveAttributeFunctionForUnavailableAttribute() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names6", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names6", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -395,8 +395,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for invalidate function")
     public void testInvalidateFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names4", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names4", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
@@ -407,8 +407,8 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for null session with getsession")
     public void testNullSessionWithGetSession() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test5", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test5", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();

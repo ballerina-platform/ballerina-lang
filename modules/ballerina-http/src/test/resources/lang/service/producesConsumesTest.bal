@@ -1,5 +1,5 @@
 import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/echo66"}
 service<http> echo66 {
@@ -8,11 +8,10 @@ service<http> echo66 {
         path:"/test1",
         consumes:["application/xml"]
     }
-    resource echo1 (message m) {
-    	message response = {};
+    resource echo1 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso2"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -20,11 +19,10 @@ service<http> echo66 {
         path:"/test2",
         produces:["text/xml","application/xml "]
     }
-    resource echo2 (message m) {
-        message response = {};
+    resource echo2 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso22"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 
     @http:resourceConfig {
@@ -33,20 +31,18 @@ service<http> echo66 {
         consumes:["application/xhtml+xml","text/plain","text/json"],
         produces:["text/css","application/json"]
     }
-    resource echo3 (message m) {
-        message response = {};
+    resource echo3 (http:Request req, http:Response res) {
         json responseJson = {"msg":"wso222"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }
 
 @http:configuration {basePath:"/echo67"}
 service<http> echo67 {
-    resource echo1 (message m, string foo) {
-        message response = {};
-        json responseJson = {"third":foo, "echo33": "echo1"};
-        messages:setJsonPayload(response, responseJson);
-        reply response;
+    resource echo1 (http:Request req, http:Response res) {
+        json responseJson = {"echo33": "echo1"};
+        response:setJsonPayload(res, responseJson);
+        response:send(res);
     }
 }

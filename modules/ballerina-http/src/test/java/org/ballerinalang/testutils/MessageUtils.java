@@ -44,22 +44,22 @@ public class MessageUtils {
         return new DefaultCarbonMessage();
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method) {
         return generateHTTPMessage(path, method, null, null);
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
         return generateHTTPMessage(path, method, null, payload);
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method, String payload) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, String payload) {
         return generateHTTPMessage(path, method, null, new StringDataSource(payload));
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method, List<Header> headers,
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
                                              BallerinaMessageDataSource payload) {
 
-        CarbonMessage carbonMessage = new DefaultCarbonMessage();
+        HTTPTestRequest carbonMessage = new HTTPTestRequest();
 
         // Set meta data
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
@@ -136,5 +136,4 @@ public class MessageUtils {
                                   new LinkedList<>());
         return carbonMessage;
     }
-
 }

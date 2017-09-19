@@ -58,7 +58,32 @@ public class Services {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, carbonMessage);
         ConnectorFuture future = Executor.submit(resource, properties, signatureParams);
-        TestHttpFutureListener futureListener = new TestHttpFutureListener(carbonMessage, signatureParams[0]);
+        TestHttpFutureListener futureListener = new TestHttpFutureListener(carbonMessage);
+        futureListener.setRequestStruct(signatureParams[0]);
+        future.setConnectorFutureListener(futureListener);
+        futureListener.sync();
+        return futureListener.getResponseMsg();
+    }
+
+    public static HTTPCarbonMessage invokeNew(HTTPTestRequest request) {
+        TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
+        request.setFutureListener(futureListener);
+        Resource resource = HttpDispatcher.findResource(request);
+        if (resource == null) {
+            return futureListener.getResponseMsg();
+        }
+        //TODO below should be fixed properly
+        //basically need to find a way to pass information from server connector side to client connector side
+        Map<String, Object> properties = null;
+        if (request.getProperty(Constants.SRC_HANDLER) != null) {
+            Object srcHandler = request.getProperty(Constants.SRC_HANDLER);
+            properties = Collections.singletonMap(Constants.SRC_HANDLER, srcHandler);
+        }
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
+        ConnectorFuture future = Executor.submit(resource, properties, signatureParams);
+
+        futureListener.setRequestStruct(signatureParams[0]);
+        request.setFutureListener(futureListener);
         future.setConnectorFutureListener(futureListener);
         futureListener.sync();
         return futureListener.getResponseMsg();
