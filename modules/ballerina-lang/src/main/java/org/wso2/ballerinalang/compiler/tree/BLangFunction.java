@@ -19,11 +19,22 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.VariableNode;
 
 /**
  * @since 0.94
  */
 public class BLangFunction extends BLangInvokableNode implements FunctionNode {
+
+    public BLangVariable receiver;
+
+    public VariableNode getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(VariableNode receiver) {
+        this.receiver = (BLangVariable) receiver;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

@@ -362,7 +362,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, true);
+        endFunctionDef(pos, null, false, false, true, false);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos, String identifier, boolean exprAvailable) {
@@ -622,11 +622,13 @@ public class BLangPackageBuilder {
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
+
     public void endFunctionDef(DiagnosticPos pos,
                                Set<Whitespace> ws,
                                boolean publicFunc,
                                boolean nativeFunc,
-                               boolean bodyExists) {
+                               boolean bodyExists,
+                               boolean isReceiverAttached) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -641,6 +643,10 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        }
+
+        if (isReceiverAttached) {
+            function.receiver = (BLangVariable) this.varStack.pop();
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -1036,7 +1042,7 @@ public class BLangPackageBuilder {
         breakNode.pos = pos;
         addStmtToCurrentBlock(breakNode);
     }
-    
+
     public void addReturnStatement(DiagnosticPos pos, boolean exprAvailable) {
         BLangReturn retStmt = (BLangReturn) TreeBuilder.createReturnNode();
         retStmt.pos = pos;

@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -175,6 +177,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
+    private boolean varAssignment = false;
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -936,7 +939,33 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
-        /* ignore */
+        if (assignNode.declaredWithVar) {
+            assignNode.varRefs.stream()
+                    .filter(v -> v.type.tag != TypeTags.NONE)
+                    .forEach(v -> {
+                        v.regIndex = getNextIndex(v.type.tag, lvIndexes);
+                        BLangVariableReference varRef = (BLangVariableReference) v;
+                        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varRef.symbol);
+                        localVarAttrInfo.localVars.add(localVarInfo);
+                    });
+        }
+        genNode(assignNode.expr, this.env);
+        int[] rhsExprRegIndexes;
+        if (assignNode.expr.isMultiReturnExpr()) {
+            rhsExprRegIndexes = ((MultiReturnExpr) assignNode.expr).getRegIndexes();
+        } else {
+            rhsExprRegIndexes = new int[]{assignNode.expr.regIndex};
+        }
+        for (int i = 0; i < assignNode.varRefs.size(); i++) {
+            BLangExpression lExpr = assignNode.varRefs.get(i);
+            if (lExpr.type.tag == TypeTags.NONE) {
+                continue;
+            }
+            rhsExprRegIndex = rhsExprRegIndexes[i];
+            varAssignment = true;
+            genNode(lExpr, this.env);
+            varAssignment = false;
+        }
     }
 
     public void visit(BLangAbort abortNode) {
