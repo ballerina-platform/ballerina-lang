@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -34,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -57,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -67,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -179,6 +177,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create namespace symbol
         BXMLNSSymbol xmlnsSymbol = new BXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix),
                 (String) xmlnsNode.namespaceURI.value, env.scope.owner);
+        xmlnsSymbol.definedInline = false;
         xmlnsNode.symbol = xmlnsSymbol;
 
         // Define it in the enclosing scope
@@ -275,25 +274,34 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         
         BLangXMLQName qname = (BLangXMLQName) bLangXMLAttribute.name;
+        
+        // If the attribute is not an in-line namespace declaration, check for duplicate attributes.
+        // If no duplicates, then define this attribute symbol.
         if (!bLangXMLAttribute.isNamespaceDeclr) {
             BXMLAttributeSymbol attrSymbol =
                     new BXMLAttributeSymbol(qname.localname.value, qname.namespaceURI, env.scope.owner);
             if (symResolver.checkForUniqueMemberSymbol(bLangXMLAttribute.pos, env, attrSymbol)) {
                 env.scope.define(attrSymbol.name, attrSymbol);
+                bLangXMLAttribute.symbol = attrSymbol;
             }
             return;
         }
 
-        List<ExpressionNode> exprs = bLangXMLAttribute.value.textFragments;
+        List<BLangExpression> exprs = bLangXMLAttribute.value.textFragments;
         String nsURI = null;
 
-        // If the namespaceURI is statically defined. FIXME
+        // We reach here if the attribute is an in-line namesapce declaration.
+        // Get the namespace URI, only if it is statically defined. Then define the namespace symbol.
+        // This namespace URI is later used by the attributes, when they lookup for duplicate attributes.
+        // TODO: find a better way to get the statically defined URI.
         if (exprs.size() == 1 && exprs.get(0) instanceof BLangLiteral) {
             nsURI = (String) ((BLangLiteral) exprs.get(0)).value;
         }
         BXMLNSSymbol xmlnsSymbol = new BXMLNSSymbol(names.fromIdNode(qname.localname), nsURI, env.scope.owner);
         if (symResolver.checkForUniqueSymbol(bLangXMLAttribute.pos, env, xmlnsSymbol)) {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
+            xmlnsSymbol.definedInline = true;
+            bLangXMLAttribute.symbol = xmlnsSymbol;
         }
     }
 

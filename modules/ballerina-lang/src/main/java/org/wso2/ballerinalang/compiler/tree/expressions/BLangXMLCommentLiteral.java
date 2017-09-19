@@ -30,20 +30,21 @@ import java.util.List;
  */
 public class BLangXMLCommentLiteral extends BLangExpression implements XMLCommentLiteralNode {
 
-    public List<ExpressionNode> textFragments;
+    public List<BLangExpression> textFragments;
+    public BLangExpression concatExpr;
 
     public BLangXMLCommentLiteral() {
-        textFragments = new ArrayList<ExpressionNode>();
+        textFragments = new ArrayList<BLangExpression>();
     }
 
     @Override
-    public List<ExpressionNode> getTextFragments() {
+    public List<BLangExpression> getTextFragments() {
         return textFragments;
     }
 
     @Override
     public void addTextFragment(ExpressionNode textFragment) {
-        this.textFragments.add(textFragment);
+        this.textFragments.add((BLangExpression) textFragment);
     }
 
     @Override

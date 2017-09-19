@@ -30,20 +30,20 @@ import java.util.List;
  */
 public class BLangStringTemplateLiteral extends BLangExpression implements StringTemplateLiteralNode {
 
-    public List<ExpressionNode> expressions;
+    public List<BLangExpression> expressions;
     
     public BLangStringTemplateLiteral() {
-        expressions = new ArrayList<ExpressionNode>();
+        expressions = new ArrayList<BLangExpression>();
     }
 
     @Override
-    public List<ExpressionNode> getExpressions() {
+    public List<BLangExpression> getExpressions() {
         return expressions;
     }
 
     @Override
     public void addExpressions(ExpressionNode expression) {
-        this.expressions.add(expression);
+        this.expressions.add((BLangExpression) expression);
     }
 
     @Override

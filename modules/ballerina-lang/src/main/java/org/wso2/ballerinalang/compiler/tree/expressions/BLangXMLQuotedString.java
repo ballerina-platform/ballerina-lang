@@ -31,21 +31,22 @@ import java.util.List;
  */
 public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedStringNode {
 
-    public List<ExpressionNode> textFragments;
+    public List<BLangExpression> textFragments;
     public QuoteType quoteType;
+    public BLangExpression concatExpr;
     
     public BLangXMLQuotedString() {
-        textFragments = new ArrayList<ExpressionNode>();
+        textFragments = new ArrayList<BLangExpression>();
     }
 
     @Override
-    public List<ExpressionNode> getTextFragments() {
+    public List<BLangExpression> getTextFragments() {
         return textFragments;
     }
 
     @Override
     public void addTextFragment(ExpressionNode textFragment) {
-        this.textFragments.add(textFragment);
+        this.textFragments.add((BLangExpression) textFragment);
     }
 
     @Override

@@ -17,8 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -28,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -346,7 +348,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         bLangXMLQName.namespaceURI = ((BXMLNSSymbol) xmlnsSymbol).namespaceURI;
-        bLangXMLQName.nsSymbol = xmlnsSymbol;
+        bLangXMLQName.nsSymbol = (BXMLNSSymbol) xmlnsSymbol;
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -359,18 +361,14 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr((BLangExpression) bLangXMLAttribute.value, xmlAttributeEnv, Lists.of(symTable.stringType));
 
         symbolEnter.defineNode(bLangXMLAttribute, env);
-
-//        if (bLangXMLAttribute.isDefaultNs) {
-//            ((BLangXMLElementLiteral) env.node).defaultNsSymbol = bLangXMLAttribute.value;
-//        }
     }
 
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
-//        if (bLangXMLElementLiteral.isRoot) {
-//            addNamespacesInScope(bLangXMLElementLiteral, xmlElementEnv);
-//        }
+        if (bLangXMLElementLiteral.isRoot) {
+            addNamespacesInScope(bLangXMLElementLiteral, xmlElementEnv);
+        }
 
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
             checkExpr((BLangExpression) attribute, xmlElementEnv, Lists.of(symTable.noType));
@@ -381,7 +379,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol defaultNsSymbol =
                     symResolver.lookupSymbol(env, names.fromString(XMLConstants.DEFAULT_NS_PREFIX), SymTag.XMLNS);
             if (defaultNsSymbol != symTable.notFoundSymbol) {
-                bLangXMLElementLiteral.defaultNsSymbol = defaultNsSymbol;
+                bLangXMLElementLiteral.defaultNsSymbol = (BXMLNSSymbol) defaultNsSymbol;
             }
         } else if (bLangXMLElementLiteral.defaultNsSymbol == null && !bLangXMLElementLiteral.isRoot) {
             bLangXMLElementLiteral.defaultNsSymbol = ((BLangXMLElementLiteral) env.node).defaultNsSymbol;
@@ -389,40 +387,37 @@ public class TypeChecker extends BLangNodeVisitor {
 
         validateTags(bLangXMLElementLiteral, xmlElementEnv);
 
-        bLangXMLElementLiteral.children.forEach(child -> {
-            // TODO: expType type can be either XML or string
-            checkExpr((BLangExpression) child, xmlElementEnv, Lists.of(symTable.xmlType));
-        });
+//        bLangXMLElementLiteral.children.forEach(child -> {
+//            // expType type can be either XML or string FIXME
+//            BType actualType = checkExpr((BLangExpression) child, xmlElementEnv).get(0);
+//            if (actualType != symTable.xmlType) {
+//                checkExpr((BLangExpression) child, xmlElementEnv, Lists.of(symTable.stringType));
+//            }
+//        });
+        
+        bLangXMLElementLiteral.concatChildren = getXMLConcatChildren(bLangXMLElementLiteral.children);
 
         resultTypes = Lists.of(checkType(bLangXMLElementLiteral, symTable.xmlType, expTypes.get(0)));
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
-        bLangXMLTextLiteral.textFragments.forEach(expr -> {
-            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
-        });
+        bLangXMLTextLiteral.concatExpr = getStringTemplateConcatExpr(bLangXMLTextLiteral.textFragments);
         resultTypes = Lists.of(checkType(bLangXMLTextLiteral, symTable.xmlType, expTypes.get(0)));
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
-        bLangXMLCommentLiteral.textFragments.forEach(expr -> {
-            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
-        });
+        bLangXMLCommentLiteral.concatExpr = getStringTemplateConcatExpr(bLangXMLCommentLiteral.textFragments);
         resultTypes = Lists.of(checkType(bLangXMLCommentLiteral, symTable.xmlType, expTypes.get(0)));
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr((BLangExpression) bLangXMLProcInsLiteral.target, env, Lists.of(symTable.stringType));
-        bLangXMLProcInsLiteral.dataFragments.forEach(expr -> {
-            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
-        });
+        bLangXMLProcInsLiteral.dataConcatExpr = getStringTemplateConcatExpr(bLangXMLProcInsLiteral.dataFragments);
         resultTypes = Lists.of(checkType(bLangXMLProcInsLiteral, symTable.xmlType, expTypes.get(0)));
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
-        bLangXMLQuotedString.textFragments.forEach(expr -> {
-            checkExpr((BLangExpression) expr, env, Lists.of(symTable.stringType));
-        });
+        bLangXMLQuotedString.concatExpr = getStringTemplateConcatExpr(bLangXMLQuotedString.textFragments);
         resultTypes = Lists.of(checkType(bLangXMLQuotedString, symTable.stringType, expTypes.get(0)));
     }
 
@@ -617,7 +612,7 @@ public class TypeChecker extends BLangNodeVisitor {
         env.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol instanceof BXMLNSSymbol) {
                 BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
-//                bLangXMLElementLiteral.namespaces.put(nsSymbol.name.value, nsSymbol.namespaceUri);
+                bLangXMLElementLiteral.namespaces.put(nsSymbol.name.value, nsSymbol);
             }
         });
         addNamespacesInScope(bLangXMLElementLiteral, env.enclEnv);
@@ -646,5 +641,87 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
+    }
+    
+    private BLangExpression getStringTemplateConcatExpr(List<BLangExpression> exprs) {
+        BLangExpression concatExpr = null;
+        for (BLangExpression expr : exprs) {
+            checkExpr((BLangExpression) expr, env);
+            if (concatExpr == null) {
+                concatExpr = expr;
+                continue;
+            }
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
+            if (opSymbol == symTable.notFoundSymbol) {
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
+                return concatExpr;
+            }
+
+            BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+            binaryExpressionNode.pos = expr.pos;
+            binaryExpressionNode.rhsExpr = expr;
+            binaryExpressionNode.lhsExpr = concatExpr;
+            binaryExpressionNode.opKind = OperatorKind.ADD;
+            checkExpr(binaryExpressionNode, env);
+            concatExpr = binaryExpressionNode;
+        }
+        
+        return concatExpr;
+    }
+    
+    /**
+     * Concatenate the consecutive text type nodes, and get the reduced set of children.
+     * 
+     * @param exprs Child nodes
+     * @return Reduced set of children
+     */
+    private List<BLangExpression> getXMLConcatChildren(List<BLangExpression> exprs) {
+        List<BLangExpression> newChildren = new ArrayList<BLangExpression>();
+        BLangExpression strConcatExpr = null;
+        
+        for (BLangExpression expr : exprs) {
+            BType exprType = checkExpr((BLangExpression) expr, env).get(0);
+
+            if (exprType == symTable.xmlType) {
+                if (strConcatExpr != null) {
+                    BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+                    xmlTextLiteral.concatExpr = strConcatExpr;
+                    xmlTextLiteral.pos = strConcatExpr.pos;
+                    newChildren.add(xmlTextLiteral);
+                    strConcatExpr = null;
+                }
+                newChildren.add(expr);
+                continue;
+            }
+
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, exprType);
+            if (opSymbol == symTable.notFoundSymbol) {
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
+                return null;
+            }
+
+            if (strConcatExpr == null) {
+                strConcatExpr = expr;
+                continue;
+            }
+
+            BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+            binaryExpressionNode.pos = expr.pos;
+            binaryExpressionNode.rhsExpr = expr;
+            binaryExpressionNode.lhsExpr = strConcatExpr;
+            binaryExpressionNode.opKind = OperatorKind.ADD;
+            checkExpr(binaryExpressionNode, env);
+            strConcatExpr = binaryExpressionNode;
+        }
+
+        // Add remaining concatenated text nodes as children
+        if (strConcatExpr != null) {
+            BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+            xmlTextLiteral.concatExpr = strConcatExpr;
+            xmlTextLiteral.pos = strConcatExpr.pos;
+            newChildren.add(xmlTextLiteral);
+        }
+
+        return newChildren;
     }
 }

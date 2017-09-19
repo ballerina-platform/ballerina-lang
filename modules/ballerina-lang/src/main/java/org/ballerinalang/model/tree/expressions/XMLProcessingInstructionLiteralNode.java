@@ -28,7 +28,7 @@ public interface XMLProcessingInstructionLiteralNode extends XMLLiteralNode {
 
     void setTarget(LiteralNode target);
 
-    List<ExpressionNode> getDataTextFragments();
+    List<? extends ExpressionNode> getDataTextFragments();
 
     void addDataTextFragment(ExpressionNode textFragment);
 }

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -29,10 +30,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNode {
 
-    public ExpressionNode name;
+    public BLangExpression name;
     public BLangXMLQuotedString value;
     public boolean isNamespaceDeclr;
     public boolean isDefaultNs;
+    public BSymbol symbol;
 
     @Override
     public ExpressionNode getName() {
@@ -41,7 +43,7 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
 
     @Override
     public void setName(ExpressionNode name) {
-        this.name = name;
+        this.name = (BLangExpression) name;
     }
 
     @Override

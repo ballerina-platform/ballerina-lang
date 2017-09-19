@@ -189,6 +189,14 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      */
     public abstract void setChildren(BXML<?> seq);
     
+
+    /**
+     * Add a XMl sequence to this XML as children.
+     * 
+     * @param seq XML Sequence to be added as the children 
+     */
+    public abstract void addChildren(BXML<?> seq);
+
     /**
      * Strips any text items from the XML that are all whitespace.
      *
