@@ -22,6 +22,8 @@ import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
 import { util } from './../../../../visitors/sizing-utils';
 import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import ASTFactory from './../../../../ast/ast-factory';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.
@@ -72,6 +74,44 @@ export default class GlobalDefinitionItem extends React.Component {
     }
 
     /**
+     * renders an ExpressionEditor in the add new variable area.
+     * @param {Object} bBox - bounding box ExpressionEditor should be rendered.
+     */
+    openEditor(bBox) {
+        let getterFunc;
+        let setterFunc;
+        const editorOuterPadding = 10;
+
+        if (ASTFactory.isGlobalVariableDefinition(this.props.globalDec)) {
+            getterFunc = this.props.globalDec.getGlobalVariableDefinitionAsString;
+            setterFunc = this.props.globalDec.setGlobalVariableDefinitionFromString;
+        } else {
+            getterFunc = this.props.globalDec.getStatementString;
+            setterFunc = this.props.globalDec.setStatementFromString;
+        }
+
+        const options = {
+            propertyType: 'text',
+            key: 'Global Variable',
+            model: this.props.globalDec,
+            getterMethod: getterFunc,
+            setterMethod: setterFunc,
+        };
+
+        const editorBBox = {
+            x: (bBox.x + (editorOuterPadding / 2)),
+            y: bBox.y,
+            h: bBox.h,
+            w: (bBox.w - editorOuterPadding),
+        };
+
+        const packageScope = this.context.enviornment;
+
+        new ExpressionEditor(editorBBox, s => {} /* no-op */, options, packageScope)
+            .render(this.context.getOverlayContainer());
+    }
+
+    /**
      * Renders the view for a GlobalDefinitionItem component.
      * @returns {ReactElement} The react element for GlobalDefinitionItem.
      * @memberof GlobalDefinitionItem
@@ -92,28 +132,31 @@ export default class GlobalDefinitionItem extends React.Component {
         if (this.state.highlighted) {
             className = 'global-definition-item-hightlighted';
         }
-        return (
 
+        return (
 
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
 
                 <title> {this.props.getValue(this.props.globalDec)} </title>
-                <rect
-                    x={x}
-                    y={y}
-                    height={h}
-                    width={w}
-                    className="background"
-                />
-                <text
-                    x={x + leftPadding}
-                    y={y + (h / 2)}
-                    rx="0"
-                    ry="0"
-                    className="global-definition-text"
-                >
-                    {util.getTextWidth(this.props.getValue(this.props.globalDec), 0, DesignerDefaults.globalDeclarationWidth).text}
-                </text>
+                <g onClick={e => { this.openEditor(this.props.bBox) }}>
+                    <rect
+                        x={x}
+                        y={y}
+                        height={h}
+                        width={w}
+                        className="background"
+                    />
+                    <text
+                        x={x + leftPadding}
+                        y={y + (h / 2)}
+                        rx="0"
+                        ry="0"
+                        className="global-definition-text"
+                    >
+                        {util.getTextWidth(this.props.getValue(this.props.globalDec), 0,
+                            DesignerDefaults.globalDeclarationWidth).text}
+                    </text>
+                </g>
                 <rect
                     x={x + w - 30}
                     y={y}
@@ -148,4 +191,9 @@ GlobalDefinitionItem.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     globalDec: PropTypes.object.isRequired,
     getValue: PropTypes.func.isRequired,
+};
+
+GlobalDefinitionItem.contextTypes = {
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };

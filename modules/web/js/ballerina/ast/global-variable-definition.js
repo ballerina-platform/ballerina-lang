@@ -20,6 +20,7 @@ import log from 'log';
 import ASTNode from './node';
 import BallerinaAstFactory from './ast-factory';
 import ASTFactory from './ast-factory.js';
+import { parseContent } from './../../api-client/api-client';
 
 /**
  * Constructor GlobalVariableDefinition
@@ -59,6 +60,28 @@ class GlobalVariableDefinition extends ASTNode {
         return defString;
     }
 
+    // TODO: This Need to be refactored, in order to tally with the setStatementFromString
+    setGlobalVariableDefinitionFromString(value) {
+        const currentIndex = _.indexOf(this.getParent().getChildren(), this);
+        this.getParent().removeChild(this, true);
+
+        if (!value) {
+            return;
+        }
+
+        value += ';\n';
+        parseContent(value)
+            .then((jsonTree) => {
+                // 0 th object of jsonTree is a packageDeclaration. Next should be global var or const.
+                if (!jsonTree.root[1]) {
+                    return;
+                }
+
+                this.getParent().addGlobal(jsonTree.root[1], currentIndex);
+            })
+            .catch(log.error);
+    }
+
     _createVarDef(jsonNode){
         const args = {
             name: jsonNode.global_variable_definition_identifier,
@@ -89,6 +112,30 @@ class GlobalVariableDefinition extends ASTNode {
             this.addChild(child);
             child.initFromJson(childNode);
         }
+    }
+
+    /**
+     * Get the content replace region on content suggestion at design view
+     * @returns {{startC: {number}, stopC: {number}}} - object containing start char and the stop char
+     */
+    getContentReplaceRegion() {
+        const segments = this.getFile().getContent().split(/\r?\n/);
+        const position = this.getPosition();
+        const joinedSegments = segments.slice(0, position.startLine - 1).join();
+        const start = joinedSegments.length + 1 + position.startOffset;
+        const stop = start + this.getGlobalVariableDefinitionAsString().length + 1;
+        return {
+            startC: start,
+            stopC: stop,
+        };
+    }
+
+    /**
+     * Get the content start position for the statement
+     * @returns {number} - start position
+     */
+    getContentStartCursorPosition() {
+        return this.getPosition().startOffset;
     }
 }
 

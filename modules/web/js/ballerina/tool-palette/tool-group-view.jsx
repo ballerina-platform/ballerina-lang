@@ -91,8 +91,8 @@ class ToolGroupView extends React.Component {
         const children = [];
         group.tools.forEach((element) => {
             if (element.attributes.seperator) {
-                children.push(<div className="clear-fix " key="clear-fix" />);
-                children.push(<div className="tool-separator" key="tool-separator" />);
+                children.push(<div className="clear-fix " key={`${element.attributes.id}-clear-fix`} />);
+                children.push(<div className="tool-separator" key={`${element.attributes.id}-tool-separator`} />);
             } else {
                 children.push(
                     <ToolView
@@ -105,10 +105,10 @@ class ToolGroupView extends React.Component {
         }, this);
 
         const toolGroupName = this.getToolGroupName();
-
         const trigger = (currentStatus) => {
             // Do not show doc icon for Constructs and Current Package
-            const canShowDoc = toolGroupName !== 'Constructs' && toolGroupName !== 'Current Package';
+            const canShowDoc = toolGroupName !== 'Constructs' && toolGroupName !== 'Current Package' &&
+                !toolGroupName.includes(' operators');
             const docIcon = canShowDoc ? (<span className="fw fw-document" />) : '';
 
             return (<div className="tool-group-header">

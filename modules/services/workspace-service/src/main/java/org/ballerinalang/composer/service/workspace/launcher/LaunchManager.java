@@ -166,6 +166,7 @@ public class LaunchManager {
                 } else {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                 }
+
             }
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);

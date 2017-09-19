@@ -240,7 +240,7 @@ const config = {
                         panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
                         panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
                         type_mapper_icon: 'fw fw-type-converter',
-                        type_struct_icon: 'fw fw-dgm-service fw-inverse',
+                        type_struct_icon: 'fw fw-service fw-inverse',
                         canvas_heading_new: 'canvas-heading-new',
                     },
                     notifications: {

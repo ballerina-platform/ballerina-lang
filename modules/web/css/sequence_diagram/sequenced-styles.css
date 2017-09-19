@@ -295,6 +295,12 @@ text-anchor: start;
     fill: url(/#statementDeleteIcon);
 }
 
+.property-pane-action-button-delete-disabled {
+    opacity: 0.5;
+    fill: url(/#statementDeleteIcon);
+    cursor: not-allowed;
+}
+
 .property-pane-action-button-delete:hover {
     cursor: pointer;
     opacity: 1;
@@ -304,6 +310,12 @@ text-anchor: start;
 .property-pane-action-button-breakpoint {
     opacity: 0.8;
     fill: url(/#addBreakpointIcon);
+}
+
+.property-pane-action-button-breakpoint-disabled {
+    opacity: 0.5;
+    fill: url(/#addBreakpointIcon);
+    cursor: not-allowed;
 }
 
 .property-pane-action-button-breakpoint:hover {
@@ -320,6 +332,12 @@ text-anchor: start;
 .property-pane-action-button-jump {
     opacity: 0.8;
     fill: url(/#statementJumpIcon);
+}
+
+.property-pane-action-button-jump-disabled {
+    opacity: 0.5;
+    fill: url(/#statementJumpIcon);
+    cursor: not-allowed;
 }
 
 .property-pane-action-button-jump:hover {

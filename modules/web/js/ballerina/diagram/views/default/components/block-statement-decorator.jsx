@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import { blockStatement, statement, actionBox } from '../../../../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
 import ASTNode from '../../../../ast/node';
@@ -27,8 +28,6 @@ import ActionBox from './action-box';
 import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
-import breakpointHOC from './../../../../../debugger/breakpoint-hoc';
-
 
 const CLASS_MAP = {
     hidden: 'hide-action',
@@ -305,6 +304,7 @@ class BlockStatementDecorator extends React.Component {
                     onDelete={this.onDelete}
                     onJumptoCodeLine={this.onJumpToCodeLine}
                     onBreakpointClick={this.props.onBreakpointClick}
+                    disableButtons={this.props.disabledButtons}
                 />}
                 {
                     <g className={utilClassName}>
@@ -325,6 +325,11 @@ BlockStatementDecorator.defaultProps = {
     utilities: null,
     parameterBbox: null,
     expression: null,
+    disabledButtons: {
+        debug: false,
+        delete: false,
+        jump: false,
+    },
 };
 
 BlockStatementDecorator.propTypes = {
@@ -358,6 +363,11 @@ BlockStatementDecorator.propTypes = {
     }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
+    disabledButtons: PropTypes.shape({
+        debug: PropTypes.bool.isRequired,
+        delete: PropTypes.bool.isRequired,
+        jump: PropTypes.bool.isRequired,
+    }),
 };
 
 BlockStatementDecorator.contextTypes = {
@@ -369,4 +379,4 @@ BlockStatementDecorator.contextTypes = {
     mode: PropTypes.string,
 };
 
-export default breakpointHOC(BlockStatementDecorator);
+export default breakpointHoc(BlockStatementDecorator);
