@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
@@ -31,7 +31,7 @@ public class ValidateTestCase {
     private int inEventCount;
     private int removeEventCount;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         inEventCount = 0;
@@ -60,7 +60,7 @@ public class ValidateTestCase {
     }
 
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void validateTest2() throws InterruptedException {
         log.info("validate test2");
         SiddhiManager siddhiManager = new SiddhiManager();

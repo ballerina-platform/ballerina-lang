@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.query.sequence.absent;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.TestUtil;
@@ -67,9 +67,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event not arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -106,9 +106,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event not arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 2, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -143,9 +143,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event not arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -184,9 +184,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event not arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -221,9 +221,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -263,9 +263,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -304,9 +304,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -344,9 +344,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -388,9 +388,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -430,9 +430,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -471,9 +471,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -517,9 +517,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -551,9 +551,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event not arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -592,9 +592,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -634,9 +634,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -673,9 +673,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 2, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 2, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -717,9 +717,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event not arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event not arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -760,9 +760,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -802,9 +802,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 0, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertFalse("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 0, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertFalse("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }
@@ -847,9 +847,9 @@ public class EveryAbsentSequenceTestCase {
         Thread.sleep(100);
 
         callback.throwAssertionErrors();
-        Assert.assertEquals("Number of success events", 1, callback.getInEventCount());
-        Assert.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
-        Assert.assertTrue("Event arrived", callback.isEventArrived());
+        AssertJUnit.assertEquals("Number of success events", 1, callback.getInEventCount());
+        AssertJUnit.assertEquals("Number of remove events", 0, callback.getRemoveEventCount());
+        AssertJUnit.assertTrue("Event arrived", callback.isEventArrived());
 
         siddhiAppRuntime.shutdown();
     }

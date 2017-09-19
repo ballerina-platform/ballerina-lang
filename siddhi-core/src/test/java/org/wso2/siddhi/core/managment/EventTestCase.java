@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
 
 public class EventTestCase {
@@ -31,7 +31,7 @@ public class EventTestCase {
     private long firstValue;
     private long lastValue;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -46,8 +46,8 @@ public class EventTestCase {
         Event event1 = new Event(123, new Object[]{23, 234.5, 3f, 234L, "adfsad", true});
         Event event2 = new Event(123, new Object[]{23, 234.5, 3f, 234L, "adfsad", true});
 
-        Assert.assertEquals(event1, event2);
-        Assert.assertTrue(event1.equals(event2));
+        AssertJUnit.assertEquals(event1, event2);
+        AssertJUnit.assertTrue(event1.equals(event2));
 
     }
 
@@ -58,7 +58,7 @@ public class EventTestCase {
         Event event1 = new Event(1223, new Object[]{23, 234.5, 3f, 234L, "adfsad", true});
         Event event2 = new Event(123, new Object[]{23, 234.5, 3f, 234L, "adfsad", true});
 
-        Assert.assertTrue(!event1.equals(event2));
+        AssertJUnit.assertTrue(!event1.equals(event2));
 
     }
 
@@ -69,7 +69,7 @@ public class EventTestCase {
         Event event1 = new Event(123, new Object[]{23, 2343.5, 3f, 234L, "adfsad", true});
         Event event2 = new Event(123, new Object[]{23, 234.5, 3f, 234L, "adfsad", true});
 
-        Assert.assertTrue(!event1.equals(event2));
+        AssertJUnit.assertTrue(!event1.equals(event2));
 
 
     }

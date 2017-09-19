@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -31,8 +31,8 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 public class CustomJoinWindowTestCase {
     private static final Logger log = Logger.getLogger(CustomJoinWindowTestCase.class);
@@ -42,7 +42,7 @@ public class CustomJoinWindowTestCase {
     private boolean eventArrived;
     private long value;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         inEventCount = 0;
@@ -92,7 +92,7 @@ public class CustomJoinWindowTestCase {
                                 assertArrayEquals(new Object[]{"WSO2", "WSO2", 100L}, event.getData());
                                 break;
                             default:
-                                org.junit.Assert.assertSame(1, inEventCount);
+                                org.testng.AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -380,7 +380,7 @@ public class CustomJoinWindowTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testWindowAfterWindow() throws InterruptedException {
         log.info("Test traditional window for a stream out of window");
 
@@ -481,9 +481,9 @@ public class CustomJoinWindowTestCase {
             Thread.sleep(500);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            Assert.assertEquals(2, inEventCount);
-            Assert.assertEquals(0, removeEventCount);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(2, inEventCount);
+            AssertJUnit.assertEquals(0, removeEventCount);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -696,9 +696,9 @@ public class CustomJoinWindowTestCase {
             // current event {"IBM", 59.6f, 100} will match with the window.
             cseEventStreamHandler.send(new Object[]{"IBM", 59.6f, 100});
             Thread.sleep(1000);
-            Assert.assertEquals(3, inEventCount);
-            Assert.assertEquals(1, removeEventCount);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertEquals(3, inEventCount);
+            AssertJUnit.assertEquals(1, removeEventCount);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }

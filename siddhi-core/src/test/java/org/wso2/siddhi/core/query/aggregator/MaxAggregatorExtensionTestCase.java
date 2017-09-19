@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.aggregator;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +34,7 @@ public class MaxAggregatorExtensionTestCase {
     private volatile int count;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -63,19 +63,19 @@ public class MaxAggregatorExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36.0, event.getData(0));
+                            AssertJUnit.assertEquals(36.0, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37.88, event.getData(0));
+                            AssertJUnit.assertEquals(37.88, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(37.88, event.getData(0));
+                            AssertJUnit.assertEquals(37.88, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(null, event.getData(0));
+                            AssertJUnit.assertEquals(null, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -90,8 +90,8 @@ public class MaxAggregatorExtensionTestCase {
         Thread.sleep(2000);
 
         Thread.sleep(300);
-        Assert.assertEquals(4, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

@@ -18,7 +18,7 @@
 package org.wso2.siddhi.query.api;
 
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;

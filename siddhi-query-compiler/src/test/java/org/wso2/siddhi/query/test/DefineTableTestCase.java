@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.query.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -32,7 +32,7 @@ public class DefineTableTestCase {
     public void test1() throws SiddhiParserException {
         TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table cseStream ( symbol " +
                 "string, price int, volume float )");
-        Assert.assertEquals(TableDefinition.
+        AssertJUnit.assertEquals(TableDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
@@ -44,7 +44,7 @@ public class DefineTableTestCase {
     public void test2() throws SiddhiParserException {
         TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table `define` ( `string` " +
                 "string, price int, volume float );");
-        Assert.assertEquals(TableDefinition.
+        AssertJUnit.assertEquals(TableDefinition.
                         id("define").
                         attribute("string", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
@@ -56,7 +56,7 @@ public class DefineTableTestCase {
     public void test3() throws SiddhiParserException {
         TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table cseStream ( symbol " +
                 "string, price int, volume float )");
-        Assert.assertEquals(TableDefinition.
+        AssertJUnit.assertEquals(TableDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
@@ -69,7 +69,7 @@ public class DefineTableTestCase {
         TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("" +
                 " @from(datasource='MyDatabase','CUSTOM')" +
                 " define table cseStream ( symbol string, price int, volume float )");
-        Assert.assertEquals(TableDefinition.
+        AssertJUnit.assertEquals(TableDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).

@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.stream;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
@@ -41,7 +41,7 @@ public class JunctionTestCase {
     private ExecutorService executorService;
     private SiddhiAppContext siddhiAppContext;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -76,8 +76,8 @@ public class JunctionTestCase {
         streamPublisherA.send(new StreamEvent(2, 2, 2));
         streamPublisherA.send(new StreamEvent(2, 2, 2));
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, count);
         streamJunctionA.stopProcessing();
 
     }
@@ -119,7 +119,7 @@ public class JunctionTestCase {
                 count += streamEvents.length;
                 eventArrived = true;
                 for (Event streamEvent : streamEvents) {
-                    Assert.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals
+                    AssertJUnit.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals
                             ("WSO2")));
                 }
             }
@@ -144,8 +144,8 @@ public class JunctionTestCase {
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, count);
         streamJunctionA.stopProcessing();
         streamJunctionB.stopProcessing();
 
@@ -214,7 +214,7 @@ public class JunctionTestCase {
                 for (Event streamEvent : streamEvents) {
                     count++;
                     eventArrived = true;
-                    Assert.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals
+                    AssertJUnit.assertTrue(streamEvent.getData()[0].equals("IBM") || (streamEvent.getData()[0].equals
                             ("WSO2")));
                 }
             }
@@ -239,8 +239,8 @@ public class JunctionTestCase {
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
         streamJunctionA.stopProcessing();
         streamJunctionB.stopProcessing();
 
@@ -407,10 +407,10 @@ public class JunctionTestCase {
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
         Thread.sleep(100);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(12, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(12, count);
         for (boolean arrived : eventsArrived) {
-            Assert.assertTrue(arrived);
+            AssertJUnit.assertTrue(arrived);
         }
         streamJunctionA.stopProcessing();
         streamJunctionB.stopProcessing();
@@ -586,10 +586,10 @@ public class JunctionTestCase {
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
         Thread.sleep(1000);
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(12, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(12, count);
         for (boolean arrived : eventsArrived) {
-            Assert.assertTrue(arrived);
+            AssertJUnit.assertTrue(arrived);
         }
         streamJunctionA.stopProcessing();
         streamJunctionB.stopProcessing();

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.partition;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class TablePartitionTestCase {
     private int stockStreamEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count.set(0);
         eventArrived = false;
@@ -72,7 +72,7 @@ public class TablePartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(0, count.get());
+        AssertJUnit.assertEquals(0, count.get());
     }
 
     @Test
@@ -122,8 +122,8 @@ public class TablePartitionTestCase {
         streamBInputHandler.send(new Object[]{"IBM"});
         SiddhiTestHelper.waitForEvents(100, 2, count, 60000);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count.get());
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(2, count.get());
+        AssertJUnit.assertEquals(true, eventArrived);
     }
 
     @Test
@@ -176,8 +176,8 @@ public class TablePartitionTestCase {
         streamBInputHandler.send(new Object[]{"IBM"});
         SiddhiTestHelper.waitForEvents(100, 2, count, 60000);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(2, count.get());
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(2, count.get());
+        AssertJUnit.assertEquals(true, eventArrived);
     }
 
 

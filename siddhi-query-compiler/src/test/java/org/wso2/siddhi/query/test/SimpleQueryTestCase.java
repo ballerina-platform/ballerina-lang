@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.query.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -41,7 +41,7 @@ public class SimpleQueryTestCase {
                 "having (price >= 20) " +
                 "insert all events into StockQuote; "
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
                 filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN, Expression
@@ -55,7 +55,7 @@ public class SimpleQueryTestCase {
                                 Compare.Operator.GREATER_THAN_EQUAL,
                                 Expression.value(20)))).
                 insertInto("StockQuote", OutputStream.OutputEventType.ALL_EVENTS);
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
 
 
     }
@@ -69,7 +69,7 @@ public class SimpleQueryTestCase {
                 "having avgPrice>50 " +
                 "insert into StockQuote; "
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("StockStream").
                 filter(Expression.compare(Expression.variable("price"), Compare.Operator.GREATER_THAN_EQUAL,
@@ -84,7 +84,7 @@ public class SimpleQueryTestCase {
                                 Compare.Operator.GREATER_THAN,
                                 Expression.value(50)))).
                 insertInto("StockQuote");
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class SimpleQueryTestCase {
                                         Compare.Operator.GREATER_THAN,
                                         Expression.variable("price"))))).
                 insertInto("FastMovingStockQuotes");
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class SimpleQueryTestCase {
                 "select symbol, avg(price) as avgPrice " +
                 "return ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query().from(InputStream.stream("AllStockQuotes").
                 window("lenghtBatch", Expression.value(50))).
@@ -130,7 +130,7 @@ public class SimpleQueryTestCase {
                         select("symbol", Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price")))).
                 returns();
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
 
@@ -140,7 +140,7 @@ public class SimpleQueryTestCase {
                 "select symbol, avg(price) as avgPrice " +
                 "return ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
         Query api = Query.query().from(InputStream.stream("AllStockQuotes").
                 filter(Expression.and(Expression.compare(Expression.variable("price"), Compare.Operator.EQUAL,
                         Expression.variable("price").ofStream("Foo")), Expression.compare(Expression.variable("try")
@@ -148,7 +148,7 @@ public class SimpleQueryTestCase {
                 select(Selector.selector().
                         select("symbol", Expression.variable("symbol")).
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))));
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
 //    from StockStream[ 7+9.5>price AND 100>=volume]
@@ -164,7 +164,7 @@ public class SimpleQueryTestCase {
                 "having avgPrice>= 50 " +
                 "insert into OutStockStream ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query();
         api.from(
@@ -194,7 +194,7 @@ public class SimpleQueryTestCase {
                         ))
         );
         api.insertInto("OutStockStream");
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
 
     }
 
@@ -207,7 +207,7 @@ public class SimpleQueryTestCase {
                 "having avgPrice!= 50 " +
                 "insert into OutStockStream ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query();
         api.from(
@@ -237,7 +237,7 @@ public class SimpleQueryTestCase {
                         ))
         );
         api.insertInto("OutStockStream");
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
 
     }
 
@@ -250,7 +250,7 @@ public class SimpleQueryTestCase {
                 "having avgPrice  >= 50 " +
                 "insert into OutStockStream ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query();
         api.from(
@@ -287,7 +287,7 @@ public class SimpleQueryTestCase {
         );
         api.insertInto("OutStockStream");
 
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
     @Test
@@ -300,7 +300,7 @@ public class SimpleQueryTestCase {
                 "having avgPrice  >= 50 " +
                 "insert into OutStockStream ;"
         );
-        Assert.assertNotNull(query);
+        AssertJUnit.assertNotNull(query);
 
         Query api = Query.query();
         api.from(
@@ -341,10 +341,10 @@ public class SimpleQueryTestCase {
         );
         api.insertInto("OutStockStream");
 
-        Assert.assertEquals(api, query);
+        AssertJUnit.assertEquals(api, query);
     }
 
-    @Test(expected = DuplicateAttributeException.class)
+    @Test(expectedExceptions = DuplicateAttributeException.class)
     public void testCreatingFilterQueryWithDuplicateOutputAttribute() {
         SiddhiCompiler.parseQuery("from  StockStream[7*9.5 > price and 100 >= volume]#window.length(50) " +
                 "select symbol, avg(price) as price, price as price " +
@@ -370,7 +370,7 @@ public class SimpleQueryTestCase {
                 "select symbol, avgPrice " +
                 "insert into OutStockStream ;"
         );
-        Assert.assertNotNull(query1);
+        AssertJUnit.assertNotNull(query1);
 
         Query query2 = SiddhiCompiler.parseQuery("from  ( from StockStream[StockStream.price >= 20][ StockStream" +
                 ".price is null]  " +
@@ -379,7 +379,7 @@ public class SimpleQueryTestCase {
                 "select symbol, avgPrice " +
                 "insert into OutStockStream ;"
         );
-        Assert.assertNotNull(query2);
+        AssertJUnit.assertNotNull(query2);
 
         Query api = Query.query();
         api.from(InputStream.stream(
@@ -404,8 +404,8 @@ public class SimpleQueryTestCase {
                         select("avgPrice", Expression.variable("avgPrice"))
         );
         api.insertInto("OutStockStream");
-        Assert.assertEquals(api, query1);
-        Assert.assertEquals(api, query2);
+        AssertJUnit.assertEquals(api, query1);
+        AssertJUnit.assertEquals(api, query2);
     }
 
 //    from StockStream[win.lengthBatch(50)][price >= 20]
@@ -496,7 +496,7 @@ public class SimpleQueryTestCase {
                 "    StockQuote.volume = volume " +
                 " on symbol==StockQuote.symbol ;"
         );
-        Assert.assertNotNull(queryString);
+        AssertJUnit.assertNotNull(queryString);
 
         Query query = Query.query();
         query.from(
@@ -531,7 +531,7 @@ public class SimpleQueryTestCase {
                         Compare.Operator.EQUAL,
                         Expression.variable("symbol").ofStream("StockQuote")));
 
-        Assert.assertEquals(query, queryString);
+        AssertJUnit.assertEquals(query, queryString);
 
     }
 

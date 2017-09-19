@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core;
 
-import org.junit.Assert;
+import org.testng.AssertJUnit;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -133,7 +133,7 @@ public class TestUtil {
                     int inEvent = inEventCount.incrementAndGet();
                     if (noOfExpectedEvents > 0 && inEvent <= noOfExpectedEvents) {
                         try {
-                            Assert.assertArrayEquals(expected[inEvent - 1], event.getData());
+                            AssertJUnit.assertArrayEquals(expected[inEvent - 1], event.getData());
                         } catch (AssertionError e) {
                             assertionErrors.add(e);
                         }
@@ -197,7 +197,7 @@ public class TestUtil {
                     int inEvent = inEventCount.incrementAndGet();
                     if (noOfExpectedEvents > 0 && inEvent <= noOfExpectedEvents) {
                         try {
-                            Assert.assertArrayEquals(expected[inEvent - 1], event.getData());
+                            AssertJUnit.assertArrayEquals(expected[inEvent - 1], event.getData());
                         } catch (AssertionError e) {
                             assertionErrors.add(e);
                         }

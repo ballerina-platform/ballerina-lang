@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class LengthWindowTestCase {
     private int count;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         inEventCount = 0;
@@ -60,8 +60,8 @@ public class LengthWindowTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.assertEquals("Message order inEventCount", inEventCount, inEvents[0].getData(2));
-                Assert.assertEquals("Events cannot be expired", false, inEvents[0].isExpired());
+                AssertJUnit.assertEquals("Message order inEventCount", inEventCount, inEvents[0].getData(2));
+                AssertJUnit.assertEquals("Events cannot be expired", false, inEvents[0].isExpired());
                 inEventCount = inEventCount + inEvents.length;
                 eventArrived = true;
             }
@@ -73,8 +73,8 @@ public class LengthWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(500);
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, inEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -101,12 +101,12 @@ public class LengthWindowTestCase {
                 for (Event event : events) {
                     if (count >= length && count % 2 == 0) {
                         removeEventCount++;
-                        Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
-                        Assert.assertEquals("Expired event triggering position", inEventCount + 1,
+                        AssertJUnit.assertEquals("Remove event order", removeEventCount, event.getData(2));
+                        AssertJUnit.assertEquals("Expired event triggering position", inEventCount + 1,
                                 length + removeEventCount);
                     } else {
                         inEventCount++;
-                        Assert.assertEquals("In event order", inEventCount, event.getData(2));
+                        AssertJUnit.assertEquals("In event order", inEventCount, event.getData(2));
                     }
                     count++;
                 }
@@ -122,9 +122,9 @@ public class LengthWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
-        Assert.assertEquals("In event count", 6, inEventCount);
-        Assert.assertEquals("Remove event count", 2, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals("In event count", 6, inEventCount);
+        AssertJUnit.assertEquals("Remove event count", 2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -177,9 +177,9 @@ public class LengthWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
-        Assert.assertEquals("In event count", 6, inEventCount);
-        Assert.assertEquals("Remove event count", 2, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals("In event count", 6, inEventCount);
+        AssertJUnit.assertEquals("Remove event count", 2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -37,7 +37,7 @@ public class CastFunctionExecutorTestCase {
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count.set(0);
         eventArrived = false;
@@ -61,15 +61,15 @@ public class CastFunctionExecutorTestCase {
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals(100.3d, event.getData(2));
+                        AssertJUnit.assertEquals(100.3d, event.getData(2));
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
-                        Assert.assertEquals(true, event.getData(2));
+                        AssertJUnit.assertEquals(true, event.getData(2));
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
-                        Assert.assertEquals(300d, event.getData(2));
+                        AssertJUnit.assertEquals(300d, event.getData(2));
                         eventArrived = true;
                     }
                 }
@@ -82,8 +82,8 @@ public class CastFunctionExecutorTestCase {
         inputHandler.send(new Object[]{"WSO2", true, 200L});
         inputHandler.send(new Object[]{"XYZ", 300d, 200L});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count.get());
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count.get());
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 

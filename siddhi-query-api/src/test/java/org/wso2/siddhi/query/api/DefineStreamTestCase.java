@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.query.api;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -37,7 +37,7 @@ public class DefineStreamTestCase {
 
     }
 
-    @Test(expected = DuplicateAttributeException.class)
+    @Test(expectedExceptions = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
         StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute
                 .Type.INT).attribute("volume", Attribute.Type.FLOAT);
@@ -62,8 +62,8 @@ public class DefineStreamTestCase {
     public void testAttribute() {
         StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
-        Assert.assertEquals(1, streamDefinition.getAttributePosition("price"));
-        Assert.assertEquals(Attribute.Type.FLOAT, streamDefinition.getAttributeType("volume"));
+        AssertJUnit.assertEquals(1, streamDefinition.getAttributePosition("price"));
+        AssertJUnit.assertEquals(Attribute.Type.FLOAT, streamDefinition.getAttributeType("volume"));
     }
 
 }

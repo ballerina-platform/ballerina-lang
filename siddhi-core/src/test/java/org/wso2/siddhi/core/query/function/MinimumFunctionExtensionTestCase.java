@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class MinimumFunctionExtensionTestCase {
     private volatile int count;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -62,25 +62,25 @@ public class MinimumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(35.75, event.getData(0));
+                            AssertJUnit.assertEquals(35.75, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37.62, event.getData(0));
+                            AssertJUnit.assertEquals(37.62, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(38.62, event.getData(0));
+                            AssertJUnit.assertEquals(38.62, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(36.75, event.getData(0));
+                            AssertJUnit.assertEquals(36.75, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(37.75, event.getData(0));
+                            AssertJUnit.assertEquals(37.75, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(37.75, event.getData(0));
+                            AssertJUnit.assertEquals(37.75, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -97,13 +97,13 @@ public class MinimumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{38.12, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testMinFunctionExtension2() throws InterruptedException {
         log.info("MinimumFunctionExecutor TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -139,16 +139,16 @@ public class MinimumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36, event.getData(0));
+                            AssertJUnit.assertEquals(36, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37, event.getData(0));
+                            AssertJUnit.assertEquals(37, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(9, event.getData(0));
+                            AssertJUnit.assertEquals(9, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -162,8 +162,8 @@ public class MinimumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{9, 39, 38});
 
         Thread.sleep(300);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -189,25 +189,25 @@ public class MinimumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(35.75f, event.getData(0));
+                            AssertJUnit.assertEquals(35.75f, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37.62f, event.getData(0));
+                            AssertJUnit.assertEquals(37.62f, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(38.62f, event.getData(0));
+                            AssertJUnit.assertEquals(38.62f, event.getData(0));
                             break;
                         case 4:
-                            Assert.assertEquals(36.75f, event.getData(0));
+                            AssertJUnit.assertEquals(36.75f, event.getData(0));
                             break;
                         case 5:
-                            Assert.assertEquals(37.75f, event.getData(0));
+                            AssertJUnit.assertEquals(37.75f, event.getData(0));
                             break;
                         case 6:
-                            Assert.assertEquals(37.75f, event.getData(0));
+                            AssertJUnit.assertEquals(37.75f, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -224,8 +224,8 @@ public class MinimumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{38.12, 40, 37.75});
 
         Thread.sleep(300);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -251,16 +251,16 @@ public class MinimumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(36L, event.getData(0));
+                            AssertJUnit.assertEquals(36L, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(37L, event.getData(0));
+                            AssertJUnit.assertEquals(37L, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(9L, event.getData(0));
+                            AssertJUnit.assertEquals(9L, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            org.testng.AssertJUnit.fail();
                     }
                 }
             }
@@ -274,8 +274,8 @@ public class MinimumFunctionExtensionTestCase {
         inputHandler.send(new Object[]{9, 39, 38});
 
         Thread.sleep(300);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.debugger;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -40,7 +40,7 @@ public class TestDebugger {
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private AtomicInteger debugEventCount = new AtomicInteger(0);
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount.set(0);
         debugEventCount.set(0);
@@ -91,21 +91,21 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
-                    Assert.assertEquals("Incorrect break point", "query 1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
+                    AssertJUnit.assertEquals("Incorrect break point", "query 1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
                             event.getOutputData());
                 } else if (count == 2) {
-                    Assert.assertEquals("Incorrect break point", "query 1OUT", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 50f, 60},
-                            event.getOutputData());
+                    AssertJUnit.assertEquals("Incorrect break point", "query 1OUT", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 50f,
+                            60}, event.getOutputData());
                 } else if (count == 3) {
-                    Assert.assertEquals("Incorrect break point", "query 1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
+                    AssertJUnit.assertEquals("Incorrect break point", "query 1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
                             event.getOutputData());
                 } else if (count == 4) {
-                    Assert.assertEquals("Incorrect break point", "query 1OUT", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 70f, 40},
-                            event.getOutputData());
+                    AssertJUnit.assertEquals("Incorrect break point", "query 1OUT", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2",
+                            70f, 40}, event.getOutputData());
                 }
                 debugger.next();
             }
@@ -116,8 +116,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -157,20 +157,20 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
                             event.getOutputData());
                 } else if (count == 2) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
                             event.getOutputData());
                 } else if (count == 3) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
                             event.getOutputData());
                 } else if (count == 4) {
-                    Assert.assertEquals("Incorrect break point", "query1OUT", queryName + queryTerminal);
-                    Assert.assertEquals("Incorrect number of events received", 3, getCount(event));
+                    AssertJUnit.assertEquals("Incorrect break point", "query1OUT", queryName + queryTerminal);
+                    AssertJUnit.assertEquals("Incorrect number of events received", 3, getCount(event));
                 }
                 debugger.next();
             }
@@ -184,8 +184,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 6, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 6, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -224,16 +224,16 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
                             event.getOutputData());
                 } else if (count == 2) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
                             event.getOutputData());
                 } else if (count == 3) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
                             event.getOutputData());
                 }
 
@@ -250,8 +250,8 @@ public class TestDebugger {
 
         Thread.sleep(3500);
 
-        Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -275,7 +275,7 @@ public class TestDebugger {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
-                Assert.assertEquals("Cannot emit all three in one time", 1, events.length);
+                AssertJUnit.assertEquals("Cannot emit all three in one time", 1, events.length);
             }
         });
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
@@ -310,8 +310,8 @@ public class TestDebugger {
 
         Thread.sleep(1500);
 
-        Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -351,13 +351,13 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
                             event.getOutputData());
                 } else if (count == 2) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2", 70f, 40},
-                            event.getOutputData());
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at OUT", new Object[]{"WSO2",
+                            70f, 40}, event.getOutputData());
                 }
 
                 debugger.play();
@@ -371,8 +371,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 2, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 2, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -413,16 +413,16 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
                             event.getOutputData());
                 } else if (count == 2) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
                             event.getOutputData());
                 } else if (count == 3) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
                             event.getOutputData());
                 }
                 debugger.play();
@@ -437,8 +437,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -477,16 +477,16 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 50f, 60},
                             event.getOutputData());
                 } else if (count == 2) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 70f, 40},
                             event.getOutputData());
                 } else if (count == 3) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
-                    Assert.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received at IN", new Object[]{"WSO2", 60f, 50},
                             event.getOutputData());
                 }
 
@@ -502,8 +502,8 @@ public class TestDebugger {
 
         Thread.sleep(3500);
 
-        Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -541,7 +541,7 @@ public class TestDebugger {
                 log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
-                Assert.assertEquals("Only one event can be emitted from the window", 1, getCount(event));
+                AssertJUnit.assertEquals("Only one event can be emitted from the window", 1, getCount(event));
 
                 if (count != 1 && "query1IN".equals(queryName)) {
                     try {
@@ -561,8 +561,8 @@ public class TestDebugger {
 
         Thread.sleep(1500);
 
-        Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -615,7 +615,7 @@ public class TestDebugger {
                             break;
                         }
                     }
-                    Assert.assertArrayEquals(streamEvent.getOutputData(), new Object[]{"WSO2", 50.0f, null});
+                    AssertJUnit.assertArrayEquals(streamEvent.getOutputData(), new Object[]{"WSO2", 50.0f, null});
                 }
                 debugger.next();
             }
@@ -626,8 +626,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -673,21 +673,21 @@ public class TestDebugger {
                 int count = debugEventCount.addAndGet(getCount(event));
                 if ((count - 1) / 4 == 0) {
                     // First four events
-                    Assert.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 50f, 60}, event
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 50f, 60}, event
                             .getOutputData());
                 } else {
                     // Next four events
-                    Assert.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 70f, 40}, event
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 70f, 40}, event
                             .getOutputData());
                 }
                 if (count == 1 || count == 5) {
-                    Assert.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
+                    AssertJUnit.assertEquals("Incorrect break point", "query1IN", queryName + queryTerminal);
                 } else if (count == 2 || count == 6) {
-                    Assert.assertEquals("Incorrect break point", "query1OUT", queryName + queryTerminal);
+                    AssertJUnit.assertEquals("Incorrect break point", "query1OUT", queryName + queryTerminal);
                 } else if (count == 3 || count == 7) {
-                    Assert.assertEquals("Incorrect break point", "query2IN", queryName + queryTerminal);
+                    AssertJUnit.assertEquals("Incorrect break point", "query2IN", queryName + queryTerminal);
                 } else {
-                    Assert.assertEquals("Incorrect break point", "query2OUT", queryName + queryTerminal);
+                    AssertJUnit.assertEquals("Incorrect break point", "query2OUT", queryName + queryTerminal);
                 }
 
                 debugger.next();
@@ -699,8 +699,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 8, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 8, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -747,11 +747,11 @@ public class TestDebugger {
 
                 if ((count - 1) / 2 == 0) {
                     // WSO2 in stream 1
-                    Assert.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 50f, 60}, event
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 50f, 60}, event
                             .getOutputData());
                 } else {
                     // IBM in stream 2
-                    Assert.assertArrayEquals("Incorrect debug event received", new Object[]{"IBM", 50f, 60}, event
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received", new Object[]{"IBM", 50f, 60}, event
                             .getOutputData());
                 }
 
@@ -768,8 +768,8 @@ public class TestDebugger {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("Invalid number of output events", 1, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 1, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }
@@ -828,13 +828,13 @@ public class TestDebugger {
                         this.queryOneResumed.set(true);
                     } catch (InterruptedException e) {
                     }
-                    Assert.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 50f, 60}, event
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received", new Object[]{"WSO2", 50f, 60}, event
                             .getOutputData());
                 } else if ("query2IN".equals(queryName)) {
                     // If query2IN is reached, query1IN must left that break point
-                    Assert.assertTrue("Query 2 thread enterted the checkpoint before query 1 is debugged",
+                    AssertJUnit.assertTrue("Query 2 thread enterted the checkpoint before query 1 is debugged",
                             queryOneResumed.get());
-                    Assert.assertArrayEquals("Incorrect debug event received", new Object[]{"IBM", 45f, 80}, event
+                    AssertJUnit.assertArrayEquals("Incorrect debug event received", new Object[]{"IBM", 45f, 80}, event
                             .getOutputData());
                 }
                 debugger.next();
@@ -866,8 +866,8 @@ public class TestDebugger {
 
         Thread.sleep(2000);
 
-        Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
-        Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
+        AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
         siddhiAppRuntime.shutdown();
     }

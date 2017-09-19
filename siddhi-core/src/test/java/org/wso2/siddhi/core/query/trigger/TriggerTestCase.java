@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.trigger;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -39,7 +39,7 @@ public class TriggerTestCase {
     private volatile long lastTimeStamp;
     private volatile boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         lastTimeStamp = 0;
@@ -61,7 +61,7 @@ public class TriggerTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQuery2() throws InterruptedException {
         log.info("testTrigger2 - OUT 0");
 
@@ -77,7 +77,7 @@ public class TriggerTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery3() throws InterruptedException {
         log.info("testTrigger3 - OUT 0");
 
@@ -135,8 +135,8 @@ public class TriggerTestCase {
         siddhiAppRuntime.start();
 
         Thread.sleep(100);
-        Assert.assertEquals(1, count);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(1, count);
+        AssertJUnit.assertEquals(true, eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -166,8 +166,8 @@ public class TriggerTestCase {
         siddhiAppRuntime.start();
 
         Thread.sleep(1100);
-        Assert.assertEquals(2, count);
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertEquals(true, eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -194,7 +194,7 @@ public class TriggerTestCase {
                     count++;
                     if (count > 1) {
                         float triggerTimeDiff = timestamp / 1000 - lastTimeStamp / 1000;
-                        Assert.assertTrue(1.0f == triggerTimeDiff);
+                        AssertJUnit.assertTrue(1.0f == triggerTimeDiff);
                     }
                     lastTimeStamp = timestamp;
                 }
@@ -206,7 +206,7 @@ public class TriggerTestCase {
 
         Thread.sleep(1000);
         siddhiAppRuntime.shutdown();
-        Assert.assertEquals(true, eventArrived);
+        AssertJUnit.assertEquals(true, eventArrived);
 
     }
 

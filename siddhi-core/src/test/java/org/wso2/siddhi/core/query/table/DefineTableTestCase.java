@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
@@ -67,7 +67,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery3() throws InterruptedException {
         log.info("testTableDefinition3 - OUT 0");
 
@@ -78,7 +78,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery4() throws InterruptedException {
         log.info("testTableDefinition4 - OUT 0");
 
@@ -100,7 +100,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery6() throws InterruptedException {
         log.info("testTableDefinition6 - OUT 0");
 
@@ -111,7 +111,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery7() throws InterruptedException {
         log.info("testTableDefinition7 - OUT 0");
 
@@ -122,7 +122,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void testQuery8() throws InterruptedException {
         log.info("testTableDefinition8 - OUT 0");
 
@@ -140,7 +140,7 @@ public class DefineTableTestCase {
     }
 
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery9() throws InterruptedException {
         log.info("testTableDefinition9 - OUT 0");
 
@@ -156,7 +156,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery10() throws InterruptedException {
         log.info("testTableDefinition10 - OUT 0");
 
@@ -204,7 +204,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery13() throws InterruptedException {
         log.info("testTableDefinition13 - OUT 0");
 
@@ -220,7 +220,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testQuery14() throws InterruptedException {
         log.info("testTableDefinition14 - OUT 0");
 
@@ -236,7 +236,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQuery15() throws InterruptedException {
         log.info("testTableDefinition15 - OUT 0");
 
@@ -274,7 +274,7 @@ public class DefineTableTestCase {
         Map<String, String> expectedStoreConfigs = new HashMap<>();
         expectedStoreConfigs.put("type", "test");
         expectedStoreConfigs.put("uri", "http://localhost");
-        Assert.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+        AssertJUnit.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
     }
 
     @Test
@@ -292,7 +292,7 @@ public class DefineTableTestCase {
         Map<String, String> expectedStoreConfigs = new HashMap<>();
         expectedStoreConfigs.put("type", "test");
         expectedStoreConfigs.put("uri", "http://localhost:8080");
-        Assert.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+        AssertJUnit.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
     }
 
     @Test
@@ -318,10 +318,10 @@ public class DefineTableTestCase {
         expectedStoreConfigs.put("type", "test");
         expectedStoreConfigs.put("uri", "http://localhost:8080");
         expectedStoreConfigs.put("table.name", "Foo");
-        Assert.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+        AssertJUnit.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQuery19() {
         log.info("testTableDefinition19 - Table w/ ref w/o type");
 
@@ -340,7 +340,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQuery20() {
         log.info("testTableDefinition20 - Table w/ ref to an undefined store");
 
@@ -359,7 +359,7 @@ public class DefineTableTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQuery21() {
         log.info("testTableDefinition21 - Table w/ ref to an undefined store type");
 

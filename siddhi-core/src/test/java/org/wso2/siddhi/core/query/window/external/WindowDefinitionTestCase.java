@@ -19,14 +19,14 @@
 package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class WindowDefinitionTestCase {
     private static final Logger log = Logger.getLogger(WindowDefinitionTestCase.class);
@@ -83,7 +83,7 @@ public class WindowDefinitionTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void testEventWindow5() throws InterruptedException {
         log.info("WindowDefinitionTestCase Test5");
 
@@ -95,7 +95,7 @@ public class WindowDefinitionTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiAppCreationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testEventWindow6() throws InterruptedException {
         log.info("WindowDefinitionTestCase Test6");
 
@@ -107,7 +107,7 @@ public class WindowDefinitionTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void testEventWindow7() throws InterruptedException {
         log.info("WindowDefinitionTestCase Test7");
 
@@ -119,7 +119,7 @@ public class WindowDefinitionTestCase {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = DuplicateDefinitionException.class)
+    @Test(expectedExceptions = DuplicateDefinitionException.class)
     public void testEventWindow8() throws InterruptedException {
         log.info("WindowDefinitionTestCase Test8");
 

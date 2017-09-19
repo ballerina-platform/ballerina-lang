@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class InstanceOfFunctionTestCase {
     private int count;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -65,10 +65,10 @@ public class InstanceOfFunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(true, inEvent.getData(1));
+                        AssertJUnit.assertEquals(true, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(false, inEvent.getData(1));
+                        AssertJUnit.assertEquals(false, inEvent.getData(1));
                     }
                     eventArrived = true;
                 }
@@ -80,8 +80,8 @@ public class InstanceOfFunctionTestCase {
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{1990, false, 602, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         Thread.sleep(100);
-        org.junit.Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        org.testng.AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -110,10 +110,10 @@ public class InstanceOfFunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(true, inEvent.getData(1));
+                        AssertJUnit.assertEquals(true, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(false, inEvent.getData(1));
+                        AssertJUnit.assertEquals(false, inEvent.getData(1));
                     }
                     eventArrived = true;
                 }
@@ -126,8 +126,8 @@ public class InstanceOfFunctionTestCase {
         inputHandler.send(new Object[]{19900813115534L, "notAvailable", 602, "temperature", 90.34344, 20.44345, 2.3f,
                 20.44345});
         Thread.sleep(100);
-        org.junit.Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        org.testng.AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -156,10 +156,10 @@ public class InstanceOfFunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(true, inEvent.getData(1));
+                        AssertJUnit.assertEquals(true, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(false, inEvent.getData(1));
+                        AssertJUnit.assertEquals(false, inEvent.getData(1));
                     }
                     eventArrived = true;
                 }
@@ -172,8 +172,8 @@ public class InstanceOfFunctionTestCase {
         inputHandler.send(new Object[]{19900813115534L, true, 60232434.657, "temperature", 90.34344, 20.44345, 2.3f,
                 20.44345});
         Thread.sleep(100);
-        org.junit.Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        org.testng.AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -202,10 +202,10 @@ public class InstanceOfFunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(true, inEvent.getData(1));
+                        AssertJUnit.assertEquals(true, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(false, inEvent.getData(1));
+                        AssertJUnit.assertEquals(false, inEvent.getData(1));
                     }
                     eventArrived = true;
                 }
@@ -217,8 +217,8 @@ public class InstanceOfFunctionTestCase {
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 602, 90.34344, 90.34344, 20.44345, 2.3f, 20.44345});
         Thread.sleep(1000);
-        org.junit.Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        org.testng.AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -247,10 +247,10 @@ public class InstanceOfFunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(true, inEvent.getData(1));
+                        AssertJUnit.assertEquals(true, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(false, inEvent.getData(1));
+                        AssertJUnit.assertEquals(false, inEvent.getData(1));
                     }
                     eventArrived = true;
                 }
@@ -262,8 +262,8 @@ public class InstanceOfFunctionTestCase {
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 602, "temperature", "90.3434", 20.44345, 2.3f, 20.44345});
         Thread.sleep(100);
-        org.junit.Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        org.testng.AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -292,10 +292,10 @@ public class InstanceOfFunctionTestCase {
                 for (Event inEvent : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(true, inEvent.getData(1));
+                        AssertJUnit.assertEquals(true, inEvent.getData(1));
                     }
                     if (count == 2) {
-                        Assert.assertEquals(false, inEvent.getData(1));
+                        AssertJUnit.assertEquals(false, inEvent.getData(1));
                     }
                     eventArrived = true;
                 }
@@ -307,8 +307,8 @@ public class InstanceOfFunctionTestCase {
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 602, "temperature", 90.34344, 20.44345, 2.3, 20.44345});
         Thread.sleep(100);
-        org.junit.Assert.assertEquals(2, count);
-        Assert.assertTrue(eventArrived);
+        org.testng.AssertJUnit.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }

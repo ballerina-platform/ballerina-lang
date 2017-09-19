@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.query.test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -36,7 +36,7 @@ public class DefineStreamTestCase {
     public void test1() throws SiddhiParserException {
         StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("define stream cseStream ( symbol " +
                 "string, price int, volume float )");
-        Assert.assertEquals(StreamDefinition.
+        AssertJUnit.assertEquals(StreamDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
@@ -48,7 +48,7 @@ public class DefineStreamTestCase {
     public void test2() throws SiddhiParserException {
         StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("define stream `define` ( `string` " +
                 "string, price int, volume float );");
-        Assert.assertEquals(StreamDefinition.
+        AssertJUnit.assertEquals(StreamDefinition.
                         id("define").
                         attribute("string", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
@@ -64,10 +64,10 @@ public class DefineStreamTestCase {
                 "string, price int, volume float );");
         StreamDefinition api = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
-        Assert.assertEquals(api, streamDefinition);
+        AssertJUnit.assertEquals(api, streamDefinition);
     }
 
-    @Test(expected = DuplicateAttributeException.class)
+    @Test(expectedExceptions = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
         StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("define stream StockStream ( symbol " +
                 "string, symbol int, volume float );");
@@ -82,14 +82,14 @@ public class DefineStreamTestCase {
         StreamDefinition api = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.DOUBLE).attribute("data",
                         Attribute.Type.OBJECT);
-        Assert.assertEquals(api, streamDefinition);
+        AssertJUnit.assertEquals(api, streamDefinition);
     }
 
     @Test
     public void testEqualObjects() throws SiddhiParserException {
         StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("@Foo(name='bar','Custom')define " +
                 "stream cseStream ( symbol string, price int, volume float )");
-        Assert.assertEquals(StreamDefinition.
+        AssertJUnit.assertEquals(StreamDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
@@ -109,7 +109,7 @@ public class DefineStreamTestCase {
                         "define stream fooStream (id int, name string);"
         );
 
-        Assert.assertEquals(
+        AssertJUnit.assertEquals(
                 StreamDefinition
                         .id("fooStream")
                         .attribute("id", Attribute.Type.INT)
@@ -141,7 +141,7 @@ public class DefineStreamTestCase {
                 ") " +
                 "define stream fooStream (id int, name string);");
 
-        Assert.assertEquals(
+        AssertJUnit.assertEquals(
                 StreamDefinition
                         .id("fooStream")
                         .attribute("id", Attribute.Type.INT)

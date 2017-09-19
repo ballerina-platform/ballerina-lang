@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.partition;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class JoinPartitionTestCase {
     private AtomicInteger count = new AtomicInteger(0);
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count.set(0);
         eventArrived = false;
@@ -78,7 +78,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hellno World", "WSO2"});
 
         SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
-        Assert.assertEquals(4, count.get());
+        AssertJUnit.assertEquals(4, count.get());
         siddhiAppRuntime.shutdown();
 
     }
@@ -123,7 +123,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
         SiddhiTestHelper.waitForEvents(1000, 8, count, 12000);
-        Assert.assertEquals(8, count.get());
+        AssertJUnit.assertEquals(8, count.get());
         siddhiAppRuntime.shutdown();
 
     }
@@ -171,8 +171,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
         SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
-        Assert.assertEquals(8, count.get());
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(8, count.get());
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -224,7 +224,7 @@ public class JoinPartitionTestCase {
         outputStreamStreamHandler.send(new Object[]{"GOOG", "new_user_2"});
 
         SiddhiTestHelper.waitForEvents(100, 10, count, 6000);
-        Assert.assertEquals(10, count.get());
+        AssertJUnit.assertEquals(10, count.get());
         siddhiAppRuntime.shutdown();
 
     }
@@ -275,8 +275,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User3", "Hello World", "GOOG"});
 
         SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
-        Assert.assertEquals(4, count.get());
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, count.get());
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -322,8 +322,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
 
         SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
-        Assert.assertEquals(4, count.get());
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, count.get());
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -371,8 +371,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "World", "IBM", 10});
 
         SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
-        Assert.assertEquals(8, count.get());
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(8, count.get());
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -414,7 +414,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User3", "Hellno World", "WSO2"});
 
         SiddhiTestHelper.waitForEvents(100, 6, count, 6000);
-        Assert.assertEquals(6, count.get());
+        AssertJUnit.assertEquals(6, count.get());
         siddhiAppRuntime.shutdown();
 
     }
@@ -461,7 +461,7 @@ public class JoinPartitionTestCase {
         cseEventStreamHandler.send(new Object[]{"WSO2", "User3", 100});
 
         SiddhiTestHelper.waitForEvents(100, 2, count, 60000);
-        Assert.assertEquals(2, count.get());
+        AssertJUnit.assertEquals(2, count.get());
         siddhiAppRuntime.shutdown();
 
 
@@ -522,7 +522,7 @@ public class JoinPartitionTestCase {
         cseEventStreamHandler.send(new Object[]{"WSO2", "User3", 100});
 
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count.get());
+        AssertJUnit.assertEquals(3, count.get());
         siddhiAppRuntime.shutdown();
 
 

@@ -18,9 +18,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -34,7 +34,7 @@ public class TimeBatchWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -61,7 +61,7 @@ public class TimeBatchWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                    AssertJUnit.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
                             == null);
                 }
                 if (inEvents != null) {
@@ -79,9 +79,9 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(3000);
-        Assert.assertEquals(1, inEventCount);
-        Assert.assertEquals(1, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, inEventCount);
+        AssertJUnit.assertEquals(1, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -109,7 +109,7 @@ public class TimeBatchWindowTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -128,9 +128,9 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(2000);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(1, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(1, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -160,7 +160,7 @@ public class TimeBatchWindowTestCase {
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
-                Assert.assertTrue("Remove events should not arrive ", removeEvents == null);
+                AssertJUnit.assertTrue("Remove events should not arrive ", removeEvents == null);
                 eventArrived = true;
             }
 
@@ -177,9 +177,9 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(2000);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(0, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(0, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -208,7 +208,7 @@ public class TimeBatchWindowTestCase {
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
-                Assert.assertTrue("inEvents should not arrive ", inEvents == null);
+                AssertJUnit.assertTrue("inEvents should not arrive ", inEvents == null);
                 eventArrived = true;
             }
 
@@ -225,9 +225,9 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(2000);
-        Assert.assertEquals(0, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(0, inEventCount);
+        AssertJUnit.assertEquals(3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -270,9 +270,9 @@ public class TimeBatchWindowTestCase {
             Thread.sleep(1100);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            Assert.assertTrue("In Events can be 1 or 2 ", inEventCount == 1 || inEventCount == 2);
-            Assert.assertTrue("Removed Events can be 1 or 2 ", removeEventCount == 1 || removeEventCount == 2);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertTrue("In Events can be 1 or 2 ", inEventCount == 1 || inEventCount == 2);
+            AssertJUnit.assertTrue("Removed Events can be 1 or 2 ", removeEventCount == 1 || removeEventCount == 2);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -317,9 +317,9 @@ public class TimeBatchWindowTestCase {
             Thread.sleep(1500);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
             Thread.sleep(1000);
-            Assert.assertTrue("In Events can be 1 or 2 ", inEventCount == 1 || inEventCount == 2);
-            Assert.assertEquals(0, removeEventCount);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertTrue("In Events can be 1 or 2 ", inEventCount == 1 || inEventCount == 2);
+            AssertJUnit.assertEquals(0, removeEventCount);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -345,7 +345,7 @@ public class TimeBatchWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                    AssertJUnit.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
                             == null);
                 }
                 if (inEvents != null) {
@@ -373,9 +373,9 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"TT", 60.5f, 1});
         inputHandler.send(new Object[]{"YY", 60.5f, 1});
         Thread.sleep(5000);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(0, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(0, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -401,10 +401,11 @@ public class TimeBatchWindowTestCase {
 //                    inEventCount = inEventCount + inEvents.length;
 //                }
 //                if (removeEvents != null) {
-//                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+//                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
 //                    // checking whether events are emitted close to a round time with 10% error.
 //                    long timestamp = removeEvents[0].getTimestamp();
-//                    Assert.assertTrue("Remove events timestamps are close to round times", (timestamp % 1000) < 100);
+//                    AssertJUnit.assertTrue("Remove events timestamps are close to round times",
+//                            (timestamp % 1000) < 100);
 //                    removeEventCount = removeEventCount + removeEvents.length;
 //                }
 //                eventArrived = true;
@@ -426,9 +427,9 @@ public class TimeBatchWindowTestCase {
 //        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
 //        Thread.sleep(5000);
 //
-//        Assert.assertEquals(4, inEventCount);
-//        Assert.assertEquals(2, removeEventCount);
-//        Assert.assertTrue(eventArrived);
+//        AssertJUnit.assertEquals(4, inEventCount);
+//        AssertJUnit.assertEquals(2, removeEventCount);
+//        AssertJUnit.assertTrue(eventArrived);
 //        siddhiAppRuntime.shutdown();
 //    }
 

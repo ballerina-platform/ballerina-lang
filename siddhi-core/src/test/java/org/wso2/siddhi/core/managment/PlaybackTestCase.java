@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class PlaybackTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -65,7 +65,7 @@ public class PlaybackTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                    AssertJUnit.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
                             == null);
                 }
                 if (inEvents != null) {
@@ -95,9 +95,9 @@ public class PlaybackTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -125,7 +125,7 @@ public class PlaybackTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                    AssertJUnit.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
                             == null);
                 }
                 if (inEvents != null) {
@@ -155,9 +155,9 @@ public class PlaybackTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(0, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(0, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -184,7 +184,7 @@ public class PlaybackTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                    AssertJUnit.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
                             == null);
                 }
                 if (inEvents != null) {
@@ -212,9 +212,9 @@ public class PlaybackTestCase {
 
         Thread.sleep(200);  // Anything more than 100 is enough. Used 200 to be on safe side
 
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(0, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(0, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -262,9 +262,9 @@ public class PlaybackTestCase {
 
             Thread.sleep(200);  // Anything more than 100 is enough. Used 200 to be on safe side
 
-            Assert.assertTrue("In Events can be 1 or 2 ", inEventCount == 1 || inEventCount == 2);
-            Assert.assertEquals(0, removeEventCount);
-            Assert.assertTrue(eventArrived);
+            AssertJUnit.assertTrue("In Events can be 1 or 2 ", inEventCount == 1 || inEventCount == 2);
+            AssertJUnit.assertEquals(0, removeEventCount);
+            AssertJUnit.assertTrue(eventArrived);
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -291,7 +291,7 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -313,9 +313,9 @@ public class PlaybackTestCase {
 
         inputHandler.send(timestamp, new Object[]{"GOOGLE", 90.5f, 5});
 
-        Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(5, inEventCount);
+        AssertJUnit.assertEquals(4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -341,7 +341,7 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -362,9 +362,9 @@ public class PlaybackTestCase {
 
         Thread.sleep(200);  // Anything more than 100 is enough. Used 200 to be on safe side
 
-        Assert.assertEquals(4, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, inEventCount);
+        AssertJUnit.assertEquals(4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -393,7 +393,7 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -409,9 +409,9 @@ public class PlaybackTestCase {
         timestamp += 2000;
         inputHandler.send(timestamp, new Object[]{"GOOGLE", 0.0f, 1});
         Thread.sleep(100);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -440,7 +440,7 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -456,13 +456,13 @@ public class PlaybackTestCase {
 
         Thread.sleep(200);  // Anything more than 100 is enough. Used 200 to be on safe side
 
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, inEventCount);
+        AssertJUnit.assertEquals(2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void playbackTest9() throws InterruptedException {
         log.info("Playback Test 9: Testing playback with invalid increment time constant");
 
@@ -480,7 +480,7 @@ public class PlaybackTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expectedExceptions = SiddhiParserException.class)
     public void playbackTest10() throws InterruptedException {
         log.info("Playback Test 10: Testing playback with invalid idle.time time constant");
 
@@ -523,11 +523,11 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                     if (removeEventCount == 3) {
                         // Last timestamp is 200 + 4 sec (increment) = 2200
-                        Assert.assertEquals(4200, removeEvents[0].getTimestamp());
+                        AssertJUnit.assertEquals(4200, removeEvents[0].getTimestamp());
                     }
                 }
                 eventArrived = true;
@@ -544,9 +544,9 @@ public class PlaybackTestCase {
 
         Thread.sleep(350);  // Anything more than 100 is enough. Used 200 to be on safe side
 
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -575,11 +575,11 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                     if (removeEventCount == 3) {
                         // Last timestamp is 1900 + 3 sec (increment) = 2200
-                        Assert.assertEquals(4900, removeEvents[0].getTimestamp());
+                        AssertJUnit.assertEquals(4900, removeEvents[0].getTimestamp());
                     }
                 }
                 eventArrived = true;
@@ -596,9 +596,9 @@ public class PlaybackTestCase {
 
         Thread.sleep(350);  // Anything more than 100 is enough. Used 200 to be on safe side
 
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -628,11 +628,11 @@ public class PlaybackTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                     if (removeEventCount == 3) {
                         // Last timestamp is 200 + 3 * 2000 (increment) = 6200
-                        Assert.assertEquals(6200, removeEvents[0].getTimestamp());
+                        AssertJUnit.assertEquals(6200, removeEvents[0].getTimestamp());
                     }
                 }
                 eventArrived = true;
@@ -648,9 +648,9 @@ public class PlaybackTestCase {
         inputHandler.send(250, new Object[]{"ORACLE", 500.0f, 2});
         Thread.sleep(450);
 
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, inEventCount);
+        AssertJUnit.assertEquals(3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 }

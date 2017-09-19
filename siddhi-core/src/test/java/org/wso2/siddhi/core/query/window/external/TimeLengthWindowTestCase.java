@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class TimeLengthWindowTestCase {
     private boolean eventArrived;
     private int count = 0;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -71,7 +71,7 @@ public class TimeLengthWindowTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -90,9 +90,9 @@ public class TimeLengthWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 4});
         Thread.sleep(5000);
 
-        Assert.assertEquals(4, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, inEventCount);
+        AssertJUnit.assertEquals(4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -124,7 +124,7 @@ public class TimeLengthWindowTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -142,9 +142,9 @@ public class TimeLengthWindowTestCase {
         Thread.sleep(1200);
         inputHandler.send(new Object[]{"Yahoo", 90.5f, 3});
         Thread.sleep(4000);
-        Assert.assertEquals(4, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, inEventCount);
+        AssertJUnit.assertEquals(4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
     }
@@ -177,7 +177,7 @@ public class TimeLengthWindowTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -205,9 +205,9 @@ public class TimeLengthWindowTestCase {
 
         Thread.sleep(2000);
 
-        Assert.assertEquals(8, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(8, inEventCount);
+        AssertJUnit.assertEquals(4, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -241,7 +241,7 @@ public class TimeLengthWindowTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    AssertJUnit.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -264,9 +264,9 @@ public class TimeLengthWindowTestCase {
 
         Thread.sleep(2100);
 
-        Assert.assertEquals(6, inEventCount);
-        Assert.assertEquals(6, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(6, inEventCount);
+        AssertJUnit.assertEquals(6, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -297,26 +297,26 @@ public class TimeLengthWindowTestCase {
 
                 if (inEvents != null) {
                     if (inEvents[0].getData(0).toString().equals("id6")) {
-                        Assert.assertEquals("6", inEvents[0].getData(1).toString());
+                        AssertJUnit.assertEquals("6", inEvents[0].getData(1).toString());
                     }
                     if (inEvents[0].getData(0).toString().equals("id7")) {
-                        Assert.assertEquals("6", inEvents[0].getData(1).toString());
+                        AssertJUnit.assertEquals("6", inEvents[0].getData(1).toString());
                     }
                     if (inEvents[0].getData(0).toString().equals("id8")) {
-                        Assert.assertEquals("6", inEvents[0].getData(1).toString());
+                        AssertJUnit.assertEquals("6", inEvents[0].getData(1).toString());
                     }
                     inEventCount++;
                 }
 
                 if (removeEvents != null) {
                     if (removeEvents[0].getData(0).toString().equals("id1")) {
-                        Assert.assertEquals("5", removeEvents[0].getData(1).toString());
+                        AssertJUnit.assertEquals("5", removeEvents[0].getData(1).toString());
                     }
                     if (removeEvents[0].getData(0).toString().equals("id2")) {
-                        Assert.assertEquals("5", removeEvents[0].getData(1).toString());
+                        AssertJUnit.assertEquals("5", removeEvents[0].getData(1).toString());
                     }
                     if (removeEvents[0].getData(0).toString().equals("id3")) {
-                        Assert.assertEquals("3", removeEvents[0].getData(1).toString());
+                        AssertJUnit.assertEquals("3", removeEvents[0].getData(1).toString());
                     }
                     removeEventCount++;
                 }
@@ -344,9 +344,9 @@ public class TimeLengthWindowTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals(8, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(8, inEventCount);
+        AssertJUnit.assertEquals(2, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -375,7 +375,7 @@ public class TimeLengthWindowTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.assertEquals((long) count + 1, (inEvents[0].getData(1)));
+                AssertJUnit.assertEquals((long) count + 1, (inEvents[0].getData(1)));
 
                 count++;
                 eventArrived = true;
@@ -394,8 +394,8 @@ public class TimeLengthWindowTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals(4, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(4, count);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -466,9 +466,9 @@ public class TimeLengthWindowTestCase {
         Thread.sleep(500);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 80});
         Thread.sleep(5000);
-        Assert.assertEquals("In event count", 8, inEventCount);
-        Assert.assertEquals("Remove event count", 3, removeEventCount);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals("In event count", 8, inEventCount);
+        AssertJUnit.assertEquals("Remove event count", 3, removeEventCount);
+        AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 }

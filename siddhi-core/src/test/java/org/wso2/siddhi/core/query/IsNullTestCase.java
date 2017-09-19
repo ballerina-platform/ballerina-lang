@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class IsNullTestCase {
     private int inEventCount;
     private int removeEventCount;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         inEventCount = 0;
@@ -69,7 +69,7 @@ public class IsNullTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.assertTrue(inEvents[0].getData(0) == null);
+                AssertJUnit.assertTrue(inEvents[0].getData(0) == null);
                 count = count + inEvents.length;
                 eventArrived = true;
             }
@@ -85,8 +85,8 @@ public class IsNullTestCase {
         inputHandler.send(new Object[]{null, 60.5f, 200L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
-        Assert.assertEquals(1, count);
-        Assert.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, count);
+        AssertJUnit.assertTrue(eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -121,11 +121,11 @@ public class IsNullTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                org.junit.Assert.assertArrayEquals(new Object[]{43.6f, 58.7f, true, null, 58.7f,
+                                org.testng.AssertJUnit.assertArrayEquals(new Object[]{43.6f, 58.7f, true, null, 58.7f,
                                         45.6f, false}, event.getData());
                                 break;
                             default:
-                                org.junit.Assert.assertSame(1, inEventCount);
+                                org.testng.AssertJUnit.assertSame(1, inEventCount);
                         }
                     }
                     eventArrived = true;
@@ -160,9 +160,9 @@ public class IsNullTestCase {
         stream1.send(new Object[]{"IBM", 45.6f, 100});
         Thread.sleep(100);
 
-        org.junit.Assert.assertEquals("Number of success events", 1, inEventCount);
-        org.junit.Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+        org.testng.AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        org.testng.AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        org.testng.AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

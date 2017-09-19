@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class FrequentWindowTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void initialize() {
         eventArrived = false;
         inEventCount = 0;
@@ -84,9 +84,9 @@ public class FrequentWindowTestCase {
             inputHandler.send(new Object[]{"9853-3244-2432-4125", 78.36f});
         }
         Thread.sleep(1000);
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Event count", 8, inEventCount);
-        Assert.assertEquals("Out Event count", 6, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("In Event count", 8, inEventCount);
+        AssertJUnit.assertEquals("Out Event count", 6, removeEventCount);
 
         siddhiAppRuntime.shutdown();
     }
@@ -134,9 +134,9 @@ public class FrequentWindowTestCase {
             inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f});
         }
         Thread.sleep(1000);
-        Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Event count", 8, inEventCount);
-        Assert.assertEquals("Out Event count", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("In Event count", 8, inEventCount);
+        AssertJUnit.assertEquals("Out Event count", 0, removeEventCount);
 
         siddhiAppRuntime.shutdown();
 

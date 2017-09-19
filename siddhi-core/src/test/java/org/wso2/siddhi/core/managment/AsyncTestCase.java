@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class AsyncTestCase {
     private long firstValue;
     private long lastValue;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -76,7 +76,7 @@ public class AsyncTestCase {
                 eventArrived = true;
                 for (Event event : events) {
                     count++;
-                    Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
                 }
             }
 
@@ -89,8 +89,8 @@ public class AsyncTestCase {
 
         Thread.sleep(1000);
         siddhiAppRuntime.shutdown();
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
 
     }
 
@@ -126,7 +126,7 @@ public class AsyncTestCase {
                 eventArrived = true;
                 for (Event event : events) {
                     count++;
-                    Assert.assertTrue("WSO2".equals(event.getData(0)));
+                    AssertJUnit.assertTrue("WSO2".equals(event.getData(0)));
                 }
             }
 
@@ -139,8 +139,8 @@ public class AsyncTestCase {
 
         Thread.sleep(100);
         siddhiAppRuntime.shutdown();
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(1, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(1, count);
 
     }
 
@@ -176,7 +176,7 @@ public class AsyncTestCase {
                 eventArrived = true;
                 for (Event event : events) {
                     count++;
-                    Assert.assertTrue("WSO2".equals(event.getData(0)));
+                    AssertJUnit.assertTrue("WSO2".equals(event.getData(0)));
                 }
             }
 
@@ -189,8 +189,8 @@ public class AsyncTestCase {
 
         Thread.sleep(1000);
         siddhiAppRuntime.shutdown();
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(2, count);
 
     }
 
@@ -249,9 +249,9 @@ public class AsyncTestCase {
         long timeDiff = System.currentTimeMillis() - startTime;
         Thread.sleep(9000);
         siddhiAppRuntime.shutdown();
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(7, count);
-        Assert.assertTrue(timeDiff >= 1000);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(7, count);
+        AssertJUnit.assertTrue(timeDiff >= 1000);
 
     }
 
@@ -310,9 +310,9 @@ public class AsyncTestCase {
         long timeDiff = System.currentTimeMillis() - startTime;
         Thread.sleep(5000);
         siddhiAppRuntime.shutdown();
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(5, count);
-        Assert.assertTrue(timeDiff >= 2000);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(5, count);
+        AssertJUnit.assertTrue(timeDiff >= 2000);
 
     }
 

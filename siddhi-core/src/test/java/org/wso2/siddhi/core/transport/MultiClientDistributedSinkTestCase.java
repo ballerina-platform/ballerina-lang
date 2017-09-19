@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.transport;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -34,7 +34,7 @@ public class MultiClientDistributedSinkTestCase {
     private AtomicInteger topic1Count = new AtomicInteger(0);
     private AtomicInteger topic2Count = new AtomicInteger(0);
 
-    @Before
+    @BeforeMethod
     public void init() {
         topic1Count.set(0);
         topic2Count.set(0);
@@ -100,8 +100,8 @@ public class MultiClientDistributedSinkTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 3, topic1Count.get());
-        Assert.assertEquals("Number of IBM events", 2, topic2Count.get());
+        AssertJUnit.assertEquals("Number of WSO2 events", 3, topic1Count.get());
+        AssertJUnit.assertEquals("Number of IBM events", 2, topic2Count.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -171,8 +171,8 @@ public class MultiClientDistributedSinkTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of topic 1 events", 2, topic1Count.get());
-        Assert.assertEquals("Number of topic 2 events", 4, topic2Count.get());
+        AssertJUnit.assertEquals("Number of topic 1 events", 2, topic1Count.get());
+        AssertJUnit.assertEquals("Number of topic 2 events", 4, topic2Count.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -242,8 +242,8 @@ public class MultiClientDistributedSinkTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of topic 1 events", 6, topic1Count.get());
-        Assert.assertEquals("Number of topic 2 events", 6, topic2Count.get());
+        AssertJUnit.assertEquals("Number of topic 1 events", 6, topic1Count.get());
+        AssertJUnit.assertEquals("Number of topic 2 events", 6, topic2Count.get());
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

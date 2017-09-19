@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.pattern;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -36,7 +36,7 @@ public class LogicalPatternTestCase {
     private int removeEventCount;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
@@ -66,7 +66,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG"}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", "GOOG"}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -87,9 +87,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"GOOG", 59.6f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -117,7 +117,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -138,9 +138,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 10.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -168,7 +168,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, null}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 72.7f, null}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -191,9 +191,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 75.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -221,7 +221,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 4.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 72.7f, 4.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -244,9 +244,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 4.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -274,7 +274,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 72.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 72.7f, 72.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -297,9 +297,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 75.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -327,7 +327,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 75.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 72.7f, 75.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -350,9 +350,9 @@ public class LogicalPatternTestCase {
         stream1.send(new Object[]{"IBM", 75.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -380,7 +380,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 4.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 72.7f, 4.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -403,9 +403,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 4.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -433,7 +433,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", null, 4.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", null, 4.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -456,9 +456,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 4.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -486,7 +486,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{null, 72.7f, 4.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{null, 72.7f, 4.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -506,9 +506,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 4.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -536,7 +536,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", null, 4.7f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", null, 4.7f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -557,9 +557,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 4.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -592,13 +592,13 @@ public class LogicalPatternTestCase {
                     inEventCount = inEventCount + inEvents.length;
                     switch (inEventCount) {
                         case 1:
-                            Assert.assertArrayEquals(new Object[]{25.5f, 45.5f, 46.56f}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{25.5f, 45.5f, 46.56f}, inEvents[0].getData());
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Object[]{59.65f, 45.5f, 46.56f}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{59.65f, 45.5f, 46.56f}, inEvents[0].getData());
                             break;
                         default:
-                            Assert.assertEquals("Number of success events", 2, inEventCount);
+                            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
                     }
                     eventArrived = true;
                 }
@@ -625,9 +625,9 @@ public class LogicalPatternTestCase {
         stream3.send(new Object[]{"WSO2", 46.56f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -660,13 +660,13 @@ public class LogicalPatternTestCase {
                     inEventCount = inEventCount + inEvents.length;
                     switch (inEventCount) {
                         case 1:
-                            Assert.assertArrayEquals(new Object[]{25.5f, 45.5f, null}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{25.5f, 45.5f, null}, inEvents[0].getData());
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Object[]{59.65f, 45.5f, null}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{59.65f, 45.5f, null}, inEvents[0].getData());
                             break;
                         default:
-                            Assert.assertEquals("Number of success events", 2, inEventCount);
+                            AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
                     }
                     eventArrived = true;
                 }
@@ -691,9 +691,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 45.5f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -721,7 +721,7 @@ public class LogicalPatternTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", 35.0f}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 35.0f}, inEvents[0].getData());
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
@@ -746,9 +746,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"ORACLE", 55.0f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -777,7 +777,7 @@ public class LogicalPatternTestCase {
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                     eventArrived = true;
-                    Assert.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
                 }
                 if (removeEvents != null) {
                     removeEventCount = removeEventCount + removeEvents.length;
@@ -799,9 +799,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"ORACLE", 45.0f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 1, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -832,10 +832,10 @@ public class LogicalPatternTestCase {
                     eventArrived = true;
                     switch (inEventCount) {
                         case 1:
-                            Assert.assertArrayEquals(new Object[]{"WSO2", 35.0f}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{"WSO2", 35.0f}, inEvents[0].getData());
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Object[]{"GOOGLE", 55.0f}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{"GOOGLE", 55.0f}, inEvents[0].getData());
                     }
                 }
                 if (removeEvents != null) {
@@ -860,9 +860,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"ORACLE", 55.0f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -894,13 +894,13 @@ public class LogicalPatternTestCase {
 
                     switch (inEventCount) {
                         case 1:
-                            Assert.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{"WSO2", null}, inEvents[0].getData());
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Object[]{null, 35.0f}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{null, 35.0f}, inEvents[0].getData());
                             break;
                         case 3:
-                            Assert.assertArrayEquals(new Object[]{null, 45.0f}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{null, 45.0f}, inEvents[0].getData());
                     }
                 }
                 if (removeEvents != null) {
@@ -923,9 +923,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"ORACLE", 45.0f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 3, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -974,9 +974,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"GOOG", 59.6f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", false, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", false, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -1027,9 +1027,9 @@ public class LogicalPatternTestCase {
         stream2.send(new Object[]{"IBM", 4.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertEquals("Event arrived", false, eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 0, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertEquals("Event arrived", false, eventArrived);
 
         siddhiAppRuntime.shutdown();
     }
@@ -1062,11 +1062,11 @@ public class LogicalPatternTestCase {
 
                     switch (inEventCount) {
                         case 1:
-                            Assert.assertArrayEquals(new Object[]{"ORACLE", "MICROSOFT", "GOOGLE"},
+                            AssertJUnit.assertArrayEquals(new Object[]{"ORACLE", "MICROSOFT", "GOOGLE"},
                                     inEvents[0].getData());
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Object[]{"IBM", "WSO2", "GOOGLE"}, inEvents[0].getData());
+                            AssertJUnit.assertArrayEquals(new Object[]{"IBM", "WSO2", "GOOGLE"}, inEvents[0].getData());
                     }
                 }
                 if (removeEvents != null) {
@@ -1095,9 +1095,9 @@ public class LogicalPatternTestCase {
         Thread.sleep(100);
 
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
-        Assert.assertTrue("Event arrived", eventArrived);
+        AssertJUnit.assertEquals("Number of success events", 2, inEventCount);
+        AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount);
+        AssertJUnit.assertTrue("Event arrived", eventArrived);
 
         siddhiAppRuntime.shutdown();
     }

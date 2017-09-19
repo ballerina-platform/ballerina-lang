@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -40,7 +40,7 @@ public class StatisticsTestCase {
     private long firstValue;
     private long lastValue;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -76,7 +76,7 @@ public class StatisticsTestCase {
                 eventArrived = true;
                 for (Event event : events) {
                     count++;
-                    Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
+                    AssertJUnit.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
                 }
             }
         });
@@ -93,21 +93,21 @@ public class StatisticsTestCase {
 
         Thread.sleep(5010);
         siddhiAppRuntime.shutdown();
-        Assert.assertTrue(eventArrived);
-        Assert.assertEquals(3, count);
+        AssertJUnit.assertTrue(eventArrived);
+        AssertJUnit.assertEquals(3, count);
 
         System.out.flush();
         System.setOut(old);
         String output = baos.toString();
 
-        Assert.assertTrue(output.contains("Gauges"));
-        Assert.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS));
-        Assert.assertTrue(output.contains("query1.memory"));
-        Assert.assertTrue(output.contains("Meters"));
-        Assert.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+        AssertJUnit.assertTrue(output.contains("Gauges"));
+        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS));
+        AssertJUnit.assertTrue(output.contains("query1.memory"));
+        AssertJUnit.assertTrue(output.contains("Meters"));
+        AssertJUnit.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
                 SiddhiConstants.METRIC_INFIX_STREAMS + SiddhiConstants.METRIC_DELIMITER + "cseEventStream"));
-        Assert.assertTrue(output.contains("Timers"));
-        Assert.assertTrue(output.contains("query1.latency"));
+        AssertJUnit.assertTrue(output.contains("Timers"));
+        AssertJUnit.assertTrue(output.contains("query1.latency"));
 
         log.info(output);
     }

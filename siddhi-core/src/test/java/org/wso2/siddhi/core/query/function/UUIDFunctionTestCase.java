@@ -19,9 +19,9 @@
 package org.wso2.siddhi.core.query.function;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -35,7 +35,7 @@ public class UUIDFunctionTestCase {
     private int count;
     private boolean eventArrived;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
         eventArrived = false;
@@ -63,9 +63,9 @@ public class UUIDFunctionTestCase {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                Assert.assertEquals(1.56, inEvents[0].getData()[1]);
-                Assert.assertNotNull("UUID is expected", inEvents[0].getData()[3]);
-                Assert.assertTrue("String UUID is expected", inEvents[0].getData()[3] instanceof String);
+                AssertJUnit.assertEquals(1.56, inEvents[0].getData()[1]);
+                AssertJUnit.assertNotNull("UUID is expected", inEvents[0].getData()[3]);
+                AssertJUnit.assertTrue("String UUID is expected", inEvents[0].getData()[3] instanceof String);
                 count = count + inEvents.length;
             }
         });
@@ -74,7 +74,7 @@ public class UUIDFunctionTestCase {
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56d, 60L, 6});
         Thread.sleep(200);
-        org.junit.Assert.assertEquals(1, count);
+        org.testng.AssertJUnit.assertEquals(1, count);
         siddhiAppRuntime.shutdown();
     }
 }
