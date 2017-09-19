@@ -17,7 +17,6 @@
  */
 package org.wso2.siddhi.core.event.stream;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 
 import java.io.IOException;
@@ -212,14 +211,13 @@ public class StreamEvent implements ComplexEvent {
 
     @Override
     public String toString() {
-       return toString(100);
+        return toString(100);
     }
 
-    public String toString(int maxNoOfEventsToPrint) {
-        if(maxNoOfEventsToPrint==0){
+    public String toString(long maxNoOfEventsToPrint) {
+        if (maxNoOfEventsToPrint == 0) {
             return "...";
         }
-        maxNoOfEventsToPrint = --maxNoOfEventsToPrint;
         return "StreamEvent{ timestamp=" + timestamp +
                 ", beforeWindowData=" + (beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData)
                 .toString()) +
@@ -227,7 +225,7 @@ public class StreamEvent implements ComplexEvent {
                 (onAfterWindowData).toString()) +
                 ", outputData=" + (outputData == null ? "null" : Arrays.asList(outputData).toString()) +
                 ", type=" + type +
-                ", next=" + next.toString(maxNoOfEventsToPrint) +
+                ", next=" + next.toString(maxNoOfEventsToPrint - 1) +
                 '}';
     }
 
