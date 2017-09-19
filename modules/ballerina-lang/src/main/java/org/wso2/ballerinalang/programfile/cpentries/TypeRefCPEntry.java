@@ -17,11 +17,6 @@
 */
 package org.wso2.ballerinalang.programfile.cpentries;
 
-
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-
-import java.util.Objects;
-
 /**
  * {@code TypeCPEntry} represents a Ballerina type in the constant pool.
  *
@@ -29,31 +24,10 @@ import java.util.Objects;
  */
 public class TypeRefCPEntry implements ConstantPoolEntry {
 
-    private int typeSigCPIndex;
-    private String typeSig;
+    public int typeSigCPIndex;
 
-    // Index to a valid name index in the constant pool
-    private BType type;
-
-    public TypeRefCPEntry(int typeSigCPIndex, String typeSig) {
+    public TypeRefCPEntry(int typeSigCPIndex) {
         this.typeSigCPIndex = typeSigCPIndex;
-        this.typeSig = typeSig;
-    }
-
-    public int getTypeSigCPIndex() {
-        return typeSigCPIndex;
-    }
-
-    public String getTypeSig() {
-        return typeSig;
-    }
-
-    public BType getType() {
-        return type;
-    }
-
-    public void setType(BType type) {
-        this.type = type;
     }
 
     @Override
@@ -62,12 +36,21 @@ public class TypeRefCPEntry implements ConstantPoolEntry {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(type.toString());
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TypeRefCPEntry that = (TypeRefCPEntry) o;
+        return typeSigCPIndex == that.typeSigCPIndex;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof TypeRefCPEntry && typeSig.equals(((TypeRefCPEntry) obj).typeSig);
+    public int hashCode() {
+        return typeSigCPIndex;
     }
 }

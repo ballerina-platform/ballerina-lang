@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -683,11 +684,12 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addJoinCause(String identifier) {
+    public void addJoinCause(String identifier, Set<Whitespace> ws) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.setJoinResultsName(this.createIdentifier(identifier));
-        forkJoin.setJoinResultsType(this.typeNodeStack.pop());
+        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
+        forkJoin.joinResultVar = resultVar;
     }
 
     public void addJoinCondition(String joinType, List<String> workerNames, int joinCount) {
@@ -702,18 +704,13 @@ public class BLangPackageBuilder {
     }
 
     public void addTimeoutCause(String paramName) {
-        BLangSimpleVarRef varRef =
-                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.variableName = (BLangIdentifier) createIdentifier(paramName);
-
         BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
         variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
         variableNode.name = (BLangIdentifier) createIdentifier(paramName);
-        variableNode.expr = varRef;
 
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.timeoutExpression = this.exprNodeStack.pop();
+        forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
         forkJoin.timeoutVariable = variableNode;
     }
 
@@ -1040,6 +1037,17 @@ public class BLangPackageBuilder {
         BLangBreak breakNode = (BLangBreak) TreeBuilder.createBreakNode();
         breakNode.pos = pos;
         addStmtToCurrentBlock(breakNode);
+    }
+    
+    public void addReturnStatement(DiagnosticPos pos, boolean exprAvailable) {
+        BLangReturn retStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        retStmt.pos = pos;
+        if (exprAvailable) {
+            for (ExpressionNode expr : this.exprNodeListStack.pop()) {
+                retStmt.exprs.add((BLangExpression) expr);
+            }
+        }
+        addStmtToCurrentBlock(retStmt);
     }
 
     public void startTransactionStmt() {

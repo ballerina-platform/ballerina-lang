@@ -1252,7 +1252,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        this.pkgBuilder.addJoinCause(ctx.Identifier().getText());
+        this.pkgBuilder.addJoinCause(ctx.Identifier().getText(), this.getWS(ctx));
     }
 
     @Override
@@ -1349,6 +1349,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx) {
+        this.pkgBuilder.addReturnStatement(this.getCurrentPos(ctx), ctx.expressionList() != null);
     }
 
     /**

@@ -17,17 +17,16 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
-import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,12 +45,11 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     public int joinedWorkerCount;
     public BLangBlockStmt joinedBody;
 
-    public ExpressionNode timeoutExpression;
-    public VariableNode timeoutVariable;
+    public BLangExpression timeoutExpression;
+    public BLangVariable timeoutVariable;
     public BLangBlockStmt timeoutBody;
     
-    public BLangIdentifier joinResultsName;
-    public BLangType joinResultsType;
+    public BLangVariable joinResultVar;
 
     public BLangForkJoin() {
         this.workers = new ArrayList<>();
@@ -113,29 +111,19 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
         return "BLangForkJoin: " + Arrays.toString(workers.toArray()) +
                 (joinedBody != null ? " Join: " + joinType + " " + joinedWorkerCount + " " +
                         (joinedWorkers.isEmpty() ? "" : Arrays.toString(joinedWorkers.toArray())) +
-                        " (" + joinResultsType + " " + joinResultsName + ") {" + joinedBody + "}" : "") +
+                        " (" + joinResultVar + ") {" + joinedBody + "}" : "") +
                 (timeoutBody != null ? " Timeout: (" + timeoutExpression + ") (" + timeoutVariable + ")"
                         + " {" + timeoutBody + "}" : "");
     }
 
     @Override
-    public IdentifierNode getJoinResultsName() {
-        return joinResultsName;
+    public VariableNode getJoinResultVar() {
+        return (BLangVariable) joinResultVar;
     }
 
     @Override
-    public TypeNode getJoinResultsType() {
-        return joinResultsType;
-    }
-
-    @Override
-    public void setJoinResultsName(IdentifierNode joinResultsName) {
-        this.joinResultsName = (BLangIdentifier) joinResultsName;
-    }
-
-    @Override
-    public void setJoinResultsType(TypeNode joinResultsType) {
-        this.joinResultsType = (BLangType) joinResultsType;
+    public void setJoinResultVar(VariableNode var) {
+        this.joinResultVar = (BLangVariable) var;
     }
     
 }

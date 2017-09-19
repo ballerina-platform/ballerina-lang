@@ -30,4 +30,6 @@ public interface MultiReturnExpr extends ExpressionNode {
     List<BType> getTypes();
 
     void setTypes(List<BType> types);
+
+    int[] getRegIndexes();
 }

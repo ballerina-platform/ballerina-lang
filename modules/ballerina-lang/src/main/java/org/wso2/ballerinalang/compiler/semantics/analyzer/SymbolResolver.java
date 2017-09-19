@@ -270,10 +270,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BSymbol pkgSymbol = resolvePkgSymbol(userDefinedTypeNode.pos, this.env,
+                names.fromIdNode(userDefinedTypeNode.pkgAlias));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            resultType = symTable.errType;
+            return;
+        }
 
         // 2) Lookup the current package scope.
-        BSymbol symbol = lookupMemberSymbol(env.enclPkg.symbol.scope, typeName, SymTag.TYPE);
+        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, typeName, SymTag.TYPE);
         if (symbol == symTable.notFoundSymbol) {
             // 3) Lookup the root scope for types such as 'error'
             symbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
@@ -284,7 +290,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
-
         resultType = symbol.type;
     }
 

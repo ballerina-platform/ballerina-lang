@@ -26,6 +26,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -220,12 +221,23 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
+        if (varName == Names.IGNORE) {
+            if (varRefExpr.lhsVariable) {
+                varRefExpr.type = this.symTable.noType;
+            } else {
+                varRefExpr.type = this.symTable.errType;
+                dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+            }
+            resultTypes = Lists.of(varRefExpr.type);
+            return;
+        }
         BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
         } else {
             BVarSymbol varSym = (BVarSymbol) symbol;
             checkSefReferences(varRefExpr.pos, env, varSym);
+            varRefExpr.symbol = varSym;
             actualType = varSym.type;
         }
 
@@ -483,6 +495,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(expr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
                 resultTypes = getListWithErrorTypes(expected);
             }
+        }
+
+        if (resultTypes.size() > 0) {
             expr.type = resultTypes.get(0);
         }
     }
@@ -525,10 +540,14 @@ public class TypeChecker extends BLangNodeVisitor {
         Name funcName = names.fromIdNode(iExpr.name);
         BSymbol funcSymbol = symResolver.resolveInvokable(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION,
                 this.env, names.fromIdNode(iExpr.pkgAlias), funcName);
-        if (funcSymbol == symTable.errSymbol) {
+        if (funcSymbol == symTable.errSymbol || funcSymbol == symTable.notFoundSymbol) {
             resultTypes = actualTypes;
             return;
         }
+
+        // Set the resolved function symbol in the invocation expression.
+        // This is used in the code generation phase.
+        iExpr.symbol = (BInvokableSymbol) funcSymbol;
 
         List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
         if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -77,6 +78,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -161,7 +163,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineStructFields(pkgNode.structs, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
-        // TODO Define package level variables
+
         definePackageInitFunction(pkgNode, pkgEnv);
     }
 
@@ -194,7 +196,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         structNode.symbol = structSymbol;
         defineSymbol(structNode.pos, structSymbol);
     }
-    
+
     @Override
     public void visit(BLangWorker workerNode) {
         BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
@@ -223,7 +225,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol funcSymbol = Symbols
                 .createFunctionSymbol(Flags.asMask(funcNode.flagSet), names.fromIdNode(funcNode.name), null,
                         env.scope.owner);
-        SymbolEnv invokableEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, env, funcSymbol.scope);
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
     }
 
@@ -231,7 +233,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name), null,
                         env.scope.owner);
-        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, env, actionSymbol.scope);
+        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
     }
 
@@ -239,7 +241,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol resourceSymbol = Symbols
                 .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name), null,
                         env.scope.owner);
-        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, env, resourceSymbol.scope);
+        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
@@ -255,17 +257,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // Create variable symbol
-        Scope enclScope = env.scope;
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(varNode.flagSet),
-                varName, varType, enclScope.owner);
-
-        // Add it to the enclosing scope
-        // Find duplicates
-        varNode.symbol = varSymbol;
-        if (symResolver.checkForUniqueSymbol(varNode.pos, env, varSymbol)) {
-            enclScope.define(varSymbol.name, varSymbol);
-        }
+        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varType, varName, env);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {
@@ -401,7 +393,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructType structType = new BStructType((BTypeSymbol) struct.symbol, new ArrayList<>());
             struct.symbol.type = structType;
 
-            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, pkgEnv, struct.symbol.scope);
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, struct.symbol.scope, pkgEnv);
             structType.fields = struct.fields.stream()
                     .peek(field -> defineNode(field, structEnv))
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
@@ -411,13 +403,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineActions(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createResourceActionSymbolEnv(connector, pkgEnv, connector.symbol.scope);
+            SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
             connector.actions.forEach(action -> defineNode(action, conEnv));
         });
     }
 
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
-            SymbolEnv invokableEnv) {
+                                       SymbolEnv invokableEnv) {
         invokableNode.symbol = funcSymbol;
         defineSymbol(invokableNode.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
@@ -425,7 +417,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,
-            SymbolEnv invokableEnv) {
+                                             SymbolEnv invokableEnv) {
         List<BVarSymbol> paramSymbols =
                 invokableNode.params.stream()
                         .peek(varNode -> defineNode(varNode, invokableEnv))
@@ -459,12 +451,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(symbol.name, symbol);
         }
     }
-    
+
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
+    }
+
+    public BVarSymbol defineVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
+                                      SymbolEnv env) {
+        // Create variable symbol
+        Scope enclScope = env.scope;
+        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName, varType, enclScope.owner);
+
+        // Add it to the enclosing scope
+        // Find duplicates
+        if (symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+            enclScope.define(varSymbol.name, varSymbol);
+        }
+        return varSymbol;
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {

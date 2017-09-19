@@ -63,7 +63,17 @@ public enum DiagnosticCode {
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
+    
+    MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
+    SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
+    TOO_MANY_RETURN_VALUES("return.value.too.many"),
+    NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
+    RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
 
+    NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
+    INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
+    UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
+    
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags")
     ;
