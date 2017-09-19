@@ -107,4 +107,9 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public void setTypes(List<BType> types) {
         this.types = types;
     }
+
+    @Override
+    public int[] getRegIndexes() {
+        return this.regIndexes;
+    }
 }

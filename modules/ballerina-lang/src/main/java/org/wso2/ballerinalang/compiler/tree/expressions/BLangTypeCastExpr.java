@@ -84,4 +84,9 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     public void setTypes(List<BType> types) {
         this.types = types;
     }
+
+    @Override
+    public int[] getRegIndexes() {
+        return this.regIndexes;
+    }
 }
