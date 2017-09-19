@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.jms;
+package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
+import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -35,35 +35,27 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.jms.Session;
 
+
 /**
- * Acknowledge the jms message.
+ * To rollback the transactions.
  */
-@BallerinaFunction(
-        packageName = "ballerina.net.jms",
-        functionName = "acknowledge",
-        args = {@Argument(name = "m", type = TypeKind.MESSAGE),
-                @Argument(name = "deliveryStatus", type = TypeKind.STRING)},
-        isPublic = true
-)
+@BallerinaFunction(packageName = "ballerina.net.jms", functionName = "rollback", args = {
+        @Argument(name = "m", type = TypeEnum.MESSAGE) }, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Message acknowledgement action implementation for jms connector when using jms client "
-                + "acknowledgement mode") })
+        value = "Session rollback action implementation for jms connector when using jms session transaction mode") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
-        value = "message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "deliveryStatus",
-        value = "Specify whether message delivery is SUCCESS or ERROR") })
-public class Acknowledge extends AbstractNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(Acknowledge.class);
+        value = "message")})
+public class Rollback extends AbstractNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(Rollback.class);
 
     public BValue[] execute(Context ctx) {
         BMessage msg = (BMessage) getRefArgument(ctx, 0);
         CarbonMessage carbonMessage = msg.value();
-        String deliveryStatus = getStringArgument(ctx, 0);
         Object jmsSessionAcknowledgementMode = carbonMessage
                 .getProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
 
         if (null == jmsSessionAcknowledgementMode) {
-            log.warn("JMS Acknowledge function can only be used with JMS Messages. "
+            log.warn("JMS Rollback function can only be used with JMS Messages. "
                     + Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
             return VOID_RETURN;
         }
@@ -71,19 +63,13 @@ public class Acknowledge extends AbstractNativeFunction {
             throw new BallerinaException(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
                     + "integer value. ");
         }
-        if (Session.CLIENT_ACKNOWLEDGE == (Integer) jmsSessionAcknowledgementMode) {
-            if (Constants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)
-                    || Constants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
-                carbonMessage.setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);
-                ctx.getBalCallback().done(carbonMessage);
-            } else {
-                throw new BallerinaException(
-                        "Second parameter for the jms:acknowledge function should be within the " + "set ["
-                                + Constants.JMS_MESSAGE_DELIVERY_SUCCESS + ", "
-                                + Constants.JMS_MESSAGE_DELIVERY_ERROR + "]. '" + deliveryStatus + "' is invalid.");
-            }
+        if (Session.SESSION_TRANSACTED == (Integer) jmsSessionAcknowledgementMode) {
+            carbonMessage
+                    .setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, Constants.JMS_MESSAGE_DELIVERY_ERROR);
+            ctx.getBalCallback().done(carbonMessage);
+
         } else {
-            log.warn("JMS Acknowledge function can only be used with JMS CLIENT ACKNOWLEDGEMENT Mode");
+            log.warn("JMS Rollback function can only be used with JMS Session Transacted Mode.");
         }
         return VOID_RETURN;
     }

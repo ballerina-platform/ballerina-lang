@@ -1,6 +1,6 @@
 package ballerina.net.jms;
 
-public annotation configuration attach service<> {
+annotation configuration attach service<> {
     string initialContextFactory;
     string providerUrl;
     string connectionFactoryType;

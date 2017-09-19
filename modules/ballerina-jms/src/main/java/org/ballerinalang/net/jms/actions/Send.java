@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.jms.client;
+package org.ballerinalang.net.jms.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
-import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
+import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.jms.JMSUtils;
@@ -50,6 +51,7 @@ import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.Map;
+import javax.jms.Message;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -58,13 +60,13 @@ import java.util.Map;
         packageName = "ballerina.net.jms",
         actionName = "send",
         connectorName = Constants.CONNECTOR_NAME,
-        args = { @Argument(name = "jmsClientConnector", type = TypeKind.CONNECTOR),
-                 @Argument(name = "destinationName", type = TypeKind.STRING),
-                 @Argument(name = "msgType", type = TypeKind.STRING),
-                 @Argument(name = "m", type = TypeKind.MESSAGE)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        args = { @Argument(name = "jmsClientConnector", type = TypeEnum.CONNECTOR),
+                 @Argument(name = "destinationName", type = TypeEnum.STRING),
+                 @Argument(name = "msgType", type = TypeEnum.STRING),
+                 @Argument(name = "m", type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         connectorArgs = {
-                @Argument(name = "properties", type = TypeKind.MAP)
+                @Argument(name = "properties", type = TypeEnum.MAP)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "SEND action implementation of the JMS Connector") })
@@ -84,10 +86,13 @@ public class Send extends AbstractJMSAction {
 
         // Extract argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        BMessage bMessage = (BMessage) getRefArgument(context, 1);
+        BStruct messageStruct  = ((BStruct) getRefArgument(context, 1));
         String destination = getStringArgument(context, 0);
 
-        CarbonMessage message = bMessage.value();
+        CarbonMessage carbonMessage = (CarbonMessage) messageStruct
+                .getNativeData(org.ballerinalang.net.jms.Constants.TRANSPORT_MESSAGE);
+        Message jmsMessage = (Message) carbonMessage.getProperty(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE);
+
         validateParams(bConnector);
 
         // Set return value to the current frame
@@ -100,33 +105,32 @@ public class Send extends AbstractJMSAction {
         Map<String, String> propertyMap = JMSUtils.preProcessJmsConfig(properties);
 
         // Create message content according to the message type.
-        String messageType = message.getHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
-        if (messageType == null) {
-            messageType = org.ballerinalang.nativeimpl.lang.utils.Constants.OCTET_STREAM;
-        }
-
-        message.setHeader(Constants.JMS_MESSAGE_TYPE, messageType);
-        switch (messageType) {
-            case org.ballerinalang.nativeimpl.lang.utils.Constants.TEXT_PLAIN:
-            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_JSON:
-            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_XML:
-                message = getTextCarbonMessage(bMessage, messageType, context);
-                break;
-            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_FORM:
-                message = getMapCarbonMessage(bMessage, context);
-                break;
-            case org.ballerinalang.nativeimpl.lang.utils.Constants.OCTET_STREAM:
-            default:
-                message = getBlobCarbonMessage(bMessage, context);
-        }
-
+//        String messageType = message.getHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
+//        if (messageType == null) {
+//            messageType = org.ballerinalang.nativeimpl.lang.utils.Constants.OCTET_STREAM;
+//        }
+//
+//        message.setHeader(Constants.JMS_MESSAGE_TYPE, messageType);
+//        switch (messageType) {
+//            case org.ballerinalang.nativeimpl.lang.utils.Constants.TEXT_PLAIN:
+//            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_JSON:
+//            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_XML:
+//                message = getTextCarbonMessage(bMessage, messageType, context);
+//                break;
+//            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_FORM:
+//                message = getMapCarbonMessage(bMessage, context);
+//                break;
+//            case org.ballerinalang.nativeimpl.lang.utils.Constants.OCTET_STREAM:
+//            default:
+//                message = getBlobCarbonMessage(bMessage, context);
+//        }
         propertyMap.put(JMSConstants.PARAM_DESTINATION_NAME, destination);
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Sending " + messageType + " to " + propertyMap.get(JMSConstants.PARAM_DESTINATION_NAME));
+                log.debug("Sending JMS Message to " + propertyMap.get(JMSConstants.PARAM_DESTINATION_NAME));
             }
 
-            new JMSConnectorFactoryImpl().createClientConnector().send(message, propertyMap);
+            new JMSConnectorFactoryImpl().createClientConnector().send(jmsMessage, propertyMap);
         } catch (JMSConnectorException e) {
             throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
         }
@@ -176,11 +180,7 @@ public class Send extends AbstractJMSAction {
         return carbonMessage;
     }
 
-    public void execute(Context context, BalConnectorCallback connectorCallback) {
-        //Not needed for jms.
-    }
-
-    public void validate(BalConnectorCallback connectorCallback) {
+    @Override public void validate(BalConnectorCallback connectorCallback) {
         //Not needed for jms.
     }
 
