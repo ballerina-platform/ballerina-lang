@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.jms.client;
+package org.ballerinalang.net.jms.actions;
 
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;

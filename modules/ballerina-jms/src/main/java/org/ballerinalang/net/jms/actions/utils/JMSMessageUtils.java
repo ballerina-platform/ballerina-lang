@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.jms.utils;
+package org.ballerinalang.net.jms.actions.utils;
 
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
