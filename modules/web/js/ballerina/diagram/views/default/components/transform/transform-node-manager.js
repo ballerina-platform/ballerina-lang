@@ -625,6 +625,9 @@ class TransformNodeManager {
                 title: `Variable update ${varName}`,
                 data: {},
             });
+            return true;
+        } else {
+            return false;
         }
     }
  }

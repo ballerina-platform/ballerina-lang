@@ -18,6 +18,7 @@
 
 import React from 'react';
 import './variable-endpoint.css';
+import VariableTypeDropdown from './variable-type-dropdown.jsx'
 
 export default class VariableEndpoint extends React.Component {
     constructor(props, context) {
@@ -105,11 +106,11 @@ export default class VariableEndpoint extends React.Component {
                 </span>
                 { this.state.onEdit &&
                 <div className='transform-edit-panel'>
-                    <input
-                        type='text'
-                        className='variable-edit-type'
+                    <VariableTypeDropdown
                         value={this.state.varType}
                         onChange={this.typeChange}
+                        onEnter={() => this.hideAddSuggestions()}
+                        onSuggestionSelected={this.typeChange}
                     />
                     <input
                         type='text'
@@ -142,8 +143,9 @@ export default class VariableEndpoint extends React.Component {
             </div>
         );
     }
-    typeChange(e) {
-        this.setState({ varType: e.target.value });
+
+    typeChange(val) {
+        this.setState({ varType: val });
     }
 
     nameChange(e) {
@@ -163,8 +165,10 @@ export default class VariableEndpoint extends React.Component {
             qoutes = '"';
         }
         const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes + this.state.varVal + qoutes;
-        this.setState({ onEdit: false });
-        this.props.updateVariable(this.props.variable.name, statement, this.props.type);
+        const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
+        if (isUpdated) {
+            this.setState({ onEdit: false });
+        }
     }
 
     /**
