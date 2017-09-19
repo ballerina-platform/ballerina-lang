@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -26,11 +27,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -45,7 +48,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -239,6 +244,31 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Resolve and return the namespaces visible to the given environment, as a map.
+     * 
+     * @param env Environment to get the visible namespaces
+     * @return Map of namespace symbols visible to the given environment
+     */
+    public Map<Name, BXMLNSSymbol> resolveAllNamespaces(SymbolEnv env) {
+        Map<Name, BXMLNSSymbol> namespaces = new HashMap<Name, BXMLNSSymbol>();
+        addNamespacesInScope(namespaces, env);
+        return namespaces;
+    }
+
+    private void addNamespacesInScope(Map<Name, BXMLNSSymbol> namespaces, SymbolEnv env) {
+        if (env == null) {
+            return;
+        }
+        env.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol.kind == SymbolKind.XMLNS) {
+                BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
+                namespaces.put(name, nsSymbol);
+            }
+        });
+        addNamespacesInScope(namespaces, env.enclEnv);
     }
 
     // visit type nodes

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 
@@ -331,12 +333,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.node.getKind() == NodeKind.XML_ATTRIBUTE && prefix.isEmpty()
                 && bLangXMLQName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             BLangXMLAttribute attribute = (BLangXMLAttribute) env.node;
-            attribute.isDefaultNs = true;
             attribute.isNamespaceDeclr = true;
-            return;
-        }
-
-        if (prefix.isEmpty()) {
             return;
         }
 
@@ -352,7 +349,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BSymbol xmlnsSymbol = symResolver.lookupSymbol(env, names.fromIdNode(bLangXMLQName.prefix), SymTag.XMLNS);
-        if (xmlnsSymbol == symTable.notFoundSymbol) {
+
+        if (prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
+            return;
+        }
+
+        if (!prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix);
             bLangXMLQName.type = symTable.errType;
             return;
@@ -376,23 +378,15 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
 
-        if (bLangXMLElementLiteral.isRoot) {
-            addNamespacesInScope(bLangXMLElementLiteral, xmlElementEnv);
-        }
-
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
             checkExpr((BLangExpression) attribute, xmlElementEnv, Lists.of(symTable.noType));
         });
-
-        // set the default namespace
-        if (bLangXMLElementLiteral.defaultNsSymbol == null && bLangXMLElementLiteral.isRoot) {
-            BSymbol defaultNsSymbol =
-                    symResolver.lookupSymbol(env, names.fromString(XMLConstants.DEFAULT_NS_PREFIX), SymTag.XMLNS);
-            if (defaultNsSymbol != symTable.notFoundSymbol) {
-                bLangXMLElementLiteral.defaultNsSymbol = (BXMLNSSymbol) defaultNsSymbol;
-            }
-        } else if (bLangXMLElementLiteral.defaultNsSymbol == null && !bLangXMLElementLiteral.isRoot) {
-            bLangXMLElementLiteral.defaultNsSymbol = ((BLangXMLElementLiteral) env.node).defaultNsSymbol;
+        
+        Map<Name, BXMLNSSymbol> namespaces = symResolver.resolveAllNamespaces(xmlElementEnv);
+        bLangXMLElementLiteral.namespaces.putAll(namespaces);
+        Name defaultNs = names.fromString(XMLConstants.DEFAULT_NS_PREFIX);
+        if (namespaces.containsKey(defaultNs)) {
+            bLangXMLElementLiteral.defaultNsSymbol = namespaces.get(defaultNs);
         }
 
         validateTags(bLangXMLElementLiteral, xmlElementEnv);
@@ -609,20 +603,6 @@ public class TypeChecker extends BLangNodeVisitor {
         BVarSymbol fieldSymbol = (BVarSymbol) symbol;
         BLangExpression valueExpr = keyValuePair.valueExpr;
         checkExpr(valueExpr, this.env, Lists.of(fieldSymbol.type));
-    }
-
-    private void addNamespacesInScope(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv env) {
-        if (env == null) {
-            return;
-        }
-
-        env.scope.entries.forEach((name, scopeEntry) -> {
-            if (scopeEntry.symbol instanceof BXMLNSSymbol) {
-                BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
-                bLangXMLElementLiteral.namespaces.put(nsSymbol.name.value, nsSymbol);
-            }
-        });
-        addNamespacesInScope(bLangXMLElementLiteral, env.enclEnv);
     }
 
     private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {

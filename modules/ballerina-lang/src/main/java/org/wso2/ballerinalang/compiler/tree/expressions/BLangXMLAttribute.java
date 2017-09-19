@@ -33,7 +33,6 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
     public BLangExpression name;
     public BLangXMLQuotedString value;
     public boolean isNamespaceDeclr;
-    public boolean isDefaultNs;
     public BSymbol symbol;
 
     @Override
