@@ -26,18 +26,13 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.BufferFactory;
 import org.wso2.carbon.messaging.Header;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +40,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
 /**
  * HTTP based representation for CarbonMessage.
@@ -58,9 +51,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
-
-    private ByteBufferInputStream byteBufferInputStream;
-    private ByteBufferOutputStream byteBufferOutputStream;
 
     private int soTimeOut = 60;
     private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
@@ -138,28 +128,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         return byteBufferList;
     }
 
-    public InputStream getInputStream() {
-        String contentEncodingHeader = getHeader(Constants.CONTENT_ENCODING);
-        if (contentEncodingHeader != null) {
-            // removing the header because, we are handling the decoded content and we need to send out
-            // as encoded one. so once this header is removed, transport will encode again by looking the
-            // accept-encoding request header
-            removeHeader(Constants.CONTENT_ENCODING);
-            try {
-                if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_GZIP)) {
-                    return new GZIPInputStream(createInputStreamIfNull());
-                } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
-                    return new InflaterInputStream(createInputStreamIfNull());
-                } else {
-                    LOG.warn("Unknown Content-Encoding: " + contentEncodingHeader);
-                }
-            } catch (IOException e) {
-                LOG.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
-            }
-        }
-        return createInputStreamIfNull();
-    }
-
     @Override
     public boolean isEmpty() {
         return this.httpContentQueue.isEmpty();
@@ -216,14 +184,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         if (isAlreadyRead()) {
             httpContentQueue.addAll(outContentQueue);
             outContentQueue.clear();
-        }
-        if (byteBufferOutputStream != null) {
-            try {
-                this.byteBufferOutputStream.flush();
-            } catch (IOException e) {
-                LOG.error("Exception occurred while flushing the buffer", e);
-                byteBufferOutputStream.close();
-            }
         }
     }
 
@@ -282,100 +242,5 @@ public class HTTPCarbonMessage extends CarbonMessage {
         this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
         httpCarbonMessage.setEndOfMsgAdded(true);
         return httpCarbonMessage;
-    }
-
-    /**
-     * A class which represents the InputStream of the ByteBuffers
-     * No need to worry about thread safety of this class this is called only once by
-     * for a message instance from one thread.
-     */
-    protected class ByteBufferInputStream extends InputStream {
-
-        private int count;
-        private boolean chunkFinished = true;
-        private int limit;
-        private ByteBuffer byteBuffer;
-
-        @Override
-        public int read() throws IOException {
-            setAlreadyRead(true); // TODO: No need to set this again and again
-            if (isEndOfMsgAdded() && isEmpty() && chunkFinished) {
-                return -1;
-            } else if (chunkFinished) {
-                byteBuffer = getMessageBody();
-                count = 0;
-                limit = byteBuffer.limit();
-                if (limit == 0) {
-                    return -1;
-                }
-                chunkFinished = false;
-            }
-            count++;
-            if (count == limit) {
-                chunkFinished = true;
-            }
-            return byteBuffer.get() & 0xff;
-        }
-    }
-
-    /**
-     * A class which write byteStream into ByteBuffers and add those
-     * ByteBuffers to Content Queue.
-     * No need to worry about thread safety of this class this is called only once by
-     * one thread at particular time.
-     */
-    protected class ByteBufferOutputStream extends OutputStream {
-
-        private ByteBuffer buffer;
-
-        @Override
-        public void write(int b) throws IOException {
-            if (buffer == null) {
-                buffer = BufferFactory.getInstance().getBuffer();
-            }
-            if (buffer.hasRemaining()) {
-                buffer.put((byte) b);
-            } else {
-                buffer.flip();
-                addMessageBody(buffer);
-                buffer = BufferFactory.getInstance().getBuffer();
-                buffer.put((byte) b);
-            }
-        }
-
-        @Override
-        public void flush() throws IOException {
-            if (buffer != null && buffer.position() > 0) {
-                buffer.flip();
-                addMessageBody(buffer);
-                buffer = BufferFactory.getInstance().getBuffer();
-            }
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (IOException e) {
-                LOG.error("Error while closing output stream but underlying resources are reset", e);
-            } finally {
-                byteBufferOutputStream = null;
-                buffer = null;
-            }
-        }
-    }
-
-    public OutputStream getOutputStream() {
-        if (byteBufferOutputStream == null) {
-            byteBufferOutputStream = new HTTPCarbonMessage.ByteBufferOutputStream();
-        }
-        return byteBufferOutputStream;
-    }
-
-    public InputStream createInputStreamIfNull() {
-        if (byteBufferInputStream == null) {
-            byteBufferInputStream = new ByteBufferInputStream();
-        }
-        return byteBufferInputStream;
     }
 }
