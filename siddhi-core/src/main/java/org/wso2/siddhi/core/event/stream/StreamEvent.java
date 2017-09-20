@@ -225,7 +225,7 @@ public class StreamEvent implements ComplexEvent {
                 (onAfterWindowData).toString()) +
                 ", outputData=" + (outputData == null ? "null" : Arrays.asList(outputData).toString()) +
                 ", type=" + type +
-                ", next=" + next.toString(maxNoOfEventsToPrint - 1) +
+                ", next=" + next != null ? next.toString(maxNoOfEventsToPrint - 1) : "null" +
                 '}';
     }
 
