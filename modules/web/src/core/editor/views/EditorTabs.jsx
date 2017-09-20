@@ -209,7 +209,7 @@ class EditorTabs extends View {
      */
     renderPreviewTab() {
         const editor = this.props.editorPlugin.appContext.editor.getActiveEditor();
-        if (!_.isNil(editor)) {
+        if (!_.isNil(editor) && !(editor instanceof CustomEditor)) {
             const { file, definition } = editor;
             const previewDefinition = definition.previewView;
             return (
@@ -249,8 +249,7 @@ class EditorTabs extends View {
             <SplitPane
                 ref={(ref) => { this.previewSplitRef = ref; }}
                 split="vertical"
-                minSize={this.state.previewViewEnabled ? MINIMUM_PREVIEW_VIEW_SIZE : '100%'}
-                maxSize={1500}
+                minSize={this.state.previewViewEnabled ? MINIMUM_PREVIEW_VIEW_SIZE : 0}
                 defaultSize={this.getPreviewViewSize(this.state.previewViewEnabled)}
                 onDragFinished={(previewViewSize) => {
                     this.setPreviewViewState(previewViewSize);
@@ -271,7 +270,7 @@ class EditorTabs extends View {
                     }}
                     renderTabBar={() =>
                         (
-                            <TabBar />
+                            <ScrollableInkTabBar />
                         )
                     }
                     renderTabContent={() =>
