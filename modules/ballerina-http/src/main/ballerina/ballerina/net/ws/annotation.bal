@@ -6,7 +6,7 @@ annotation configuration attach service {
     string host;
     int port;
     int wssPort;
-    int idleTimeOutSeconds;
+    int idleTimeoutInSeconds;
     string keyStoreFile;
     string keyStorePass;
     string certPass;
