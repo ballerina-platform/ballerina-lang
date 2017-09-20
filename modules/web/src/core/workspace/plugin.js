@@ -172,13 +172,21 @@ class WorkspacePlugin extends Plugin {
     }
 
     /**
-     * Close an opened folder from explorer
+     * Remove an opened folder from explorer
      *
      * @param {String} folderPath Path of the folder.
      * @return {Promise} Resolves or reject with error.
      */
-    closeFolder(folderPath) {
-        return new Promise();
+    removeFolder(folderPath) {
+        return new Promise((resolve, reject) => {
+            if (_.findIndex(this.openedFolders, folder => folder === folderPath) !== -1) {
+                _.remove(this.openedFolders, folder => folder === folderPath);
+                const { pref: { history } } = this.appContext;
+                history.put(HISTORY.OPENED_FOLDERS, this.openedFolders);
+                this.reRender();
+            }
+            resolve();
+        });
     }
 
     /**
@@ -190,7 +198,7 @@ class WorkspacePlugin extends Plugin {
             openFile: this.openFile.bind(this),
             openFolder: this.openFolder.bind(this),
             closeFile: this.closeFile.bind(this),
-            closeFolder: this.closeFolder.bind(this),
+            removeFolder: this.removeFolder.bind(this),
         };
     }
 
@@ -255,6 +263,14 @@ class WorkspacePlugin extends Plugin {
                                 handleAction: () => {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
+                                },
+                            },
+                            {
+                                icon: 'refresh',
+                                isActive: () => {
+                                    return true;
+                                },
+                                handleAction: () => {
                                 },
                             },
                         ],

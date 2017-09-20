@@ -12,6 +12,8 @@
             }
         }
         .tree-node-header {
+            white-space: nowrap;
+            overflow-x: hidden;
             line-height: 24px;
             &.active, &.active:hover  {
                 .tree-node-highlight-row {

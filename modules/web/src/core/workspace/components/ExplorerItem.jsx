@@ -30,6 +30,8 @@ class ExplorerItem extends React.Component {
             },
         };
         this.onOpen = this.onOpen.bind(this);
+        this.onRemoveProjectFolderClick = this.onRemoveProjectFolderClick.bind(this);
+        this.onRefreshProjectFolderClick = this.onRefreshProjectFolderClick.bind(this);
     }
 
     /**
@@ -40,6 +42,23 @@ class ExplorerItem extends React.Component {
         if (node.type === 'file') {
             this.props.workspaceManager.openFile(node.id);
         }
+    }
+
+    /**
+     * On Remove Project Folder
+     */
+    onRemoveProjectFolderClick(e) {
+        this.props.workspaceManager.removeFolder(this.props.folderPath);
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    /**
+     * On Refresh Project Folder
+     */
+    onRefreshProjectFolderClick(e) {
+        e.stopPropagation();
+        e.preventDefault();
     }
 
     /**
@@ -61,6 +80,10 @@ class ExplorerItem extends React.Component {
                     <div className={classnames('arrow', { collapsed: !this.state.open })} />
                     <i className="fw fw-folder icon" />
                     <span className="root-label">{this.state.node.label}</span>
+                    <span className="root-actions">
+                        <i className="fw fw-minus action" onClick={this.onRemoveProjectFolderClick} />
+                        <i className="fw fw-refresh action" onClick={this.onRefreshProjectFolderClick} />
+                    </span>
                 </div>
                 <Collapse in={this.state.open}>
                     <div className="file-tree">
