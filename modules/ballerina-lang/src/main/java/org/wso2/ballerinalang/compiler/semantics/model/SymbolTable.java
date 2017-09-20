@@ -191,7 +191,7 @@ public class SymbolTable {
     }
 
     private void defineOperators() {
-        // Binary operator symbols
+        // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
@@ -200,17 +200,18 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
-
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);
-
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.DIV, intType, intType, intType, -1);
-
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.MUL, intType, intType, intType, -1);
+
+        // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+
+        // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType, InstructionCodes.ILE);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType, InstructionCodes.IGT);
