@@ -20,8 +20,6 @@ package org.wso2.ballerinalang.compiler.codegen;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -129,7 +127,6 @@ import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -1117,31 +1114,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (!xmlQName.isUsedInXML) {
             String qName =
                     (xmlQName.namespaceURI == null ? "" : "{" + xmlQName.namespaceURI + "}") + xmlQName.localname;
-            BLangLiteral qNameLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            qNameLiteral.value = qName;
-            qNameLiteral.typeTag = TypeTags.STRING;
-            genNode(qNameLiteral, env);
-            xmlQName.regIndex = qNameLiteral.regIndex;
+            xmlQName.regIndex = createStringLiteral(qName, env);
             return;
         }
 
         // Else, treat it as QName
-
         int nsURIIndex = getNamespaceURIIndex(xmlQName.nsSymbol);
-
-        BLangLiteral localnameLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        localnameLiteral.value = xmlQName.localname.value;
-        localnameLiteral.typeTag = TypeTags.STRING;
-        genNode(localnameLiteral, env);
-
-        BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        prefixLiteral.value = xmlQName.prefix.value;
-        prefixLiteral.typeTag = TypeTags.STRING;
-        genNode(prefixLiteral, env);
-
+        int localnameIndex = createStringLiteral(xmlQName.localname.value, env);
+        int prefixIndex = createStringLiteral(xmlQName.prefix.value, env);
         xmlQName.regIndex = ++regIndexes.tRef;
-        emit(InstructionCodes.NEWQNAME, localnameLiteral.regIndex, nsURIIndex, prefixLiteral.regIndex,
-                xmlQName.regIndex);
+        emit(InstructionCodes.NEWQNAME, localnameIndex, nsURIIndex, prefixIndex, xmlQName.regIndex);
     }
 
     public void visit(BLangXMLAttribute xmlAttribute) {
@@ -1173,6 +1155,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(xmlElementLiteral, env);
         xmlElementLiteral.regIndex = ++regIndexes.tRef;
 
+        // Visit attributes. Attributes are visited first as the namespaces are also
+        // treated as attributes. Namespaces needs to be visited first before visiting
+        // the start and end tag names of the element.
+        xmlElementLiteral.attributes.forEach(attribute -> {
+            genNode(attribute, xmlElementEnv);
+        });
+        
         BLangExpression startTagName = (BLangExpression) xmlElementLiteral.getStartTagName();
         genNode(startTagName, xmlElementEnv);
         int startTagNameRegIndex = startTagName.regIndex;
@@ -1198,19 +1187,16 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultNsURIIndex);
 
         // Add attributes
-        List<XMLAttributeNode> attributes = xmlElementLiteral.attributes;
-        for (XMLAttributeNode attribute : attributes) {
-            BLangXMLAttribute attr = (BLangXMLAttribute) attribute;
-            genNode(attr, xmlElementEnv);
-            emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, attr.name.regIndex, attr.value.regIndex);
-        }
+        xmlElementLiteral.attributes.forEach(attribute -> {
+            emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, attribute.name.regIndex,
+                    attribute.value.regIndex);
+        });
 
         // Add children
-        for (ExpressionNode child : xmlElementLiteral.modifiedChildren) {
-            BLangExpression childExpr = (BLangExpression) child;
-            genNode(childExpr, xmlElementEnv);
-            emit(InstructionCodes.XMLSTORE, xmlElementLiteral.regIndex, childExpr.regIndex);
-        }
+        xmlElementLiteral.modifiedChildren.forEach(child -> {
+            genNode(child, xmlElementEnv);
+            emit(InstructionCodes.XMLSTORE, xmlElementLiteral.regIndex, child.regIndex);
+        });
     }
 
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
@@ -1255,13 +1241,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             return opcodeAndIndex.index;
         }
 
-        // create the prefix literal
-        BLangLiteral nsURI = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        nsURI.value = XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
-        nsURI.typeTag = TypeTags.STRING;
-        genNode(nsURI, env);
-
-        return nsURI.regIndex;
+        // create the prefix literal, and return its index
+        return createStringLiteral(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, env);
     }
 
     private void generateURILookupInstructions(Map<Name, BXMLNSSymbol> namespaces, int localNameRegIndex,
@@ -1296,14 +1277,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Below section creates instructions to be executed, if the above condition succeeds (then body)
 
             // create the prefix literal
-            BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            prefixLiteral.value = prefix;
-            prefixLiteral.typeTag = TypeTags.STRING;
-            genNode(prefixLiteral, env);
+            int prefixIndex = createStringLiteral(prefix, env);
 
             // create a qname
-            emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.regIndex,
-                    targetQNameRegIndex);
+            emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
 
             Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
             emit(endJumpInstr);
@@ -1322,10 +1299,22 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createQNameWithEmptyPrefix(int localNameRegIndex, int uriRegIndex, int targetQNameRegIndex,
                                             DiagnosticPos pos) {
+        int prefixIndex = createStringLiteral("", env);
+        emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixIndex, targetQNameRegIndex);
+    }
+
+    /**
+     * Creates a string literal expression, generate the code and returns the registry index.
+     * 
+     * @param value String value to generate the string literal
+     * @param env Environment
+     * @return String registry index of the generated string
+     */
+    private int createStringLiteral(String value, SymbolEnv env) {
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        prefixLiteral.value = "";
+        prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;
         genNode(prefixLiteral, env);
-        emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.regIndex, targetQNameRegIndex);
+        return prefixLiteral.regIndex;
     }
 }

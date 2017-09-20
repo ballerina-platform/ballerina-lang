@@ -1260,14 +1260,6 @@ public class BLangPackageBuilder {
         parentXMLExpr.addChild(child);
     }
 
-    public void createXMLTextLiteral(DiagnosticPos pos, String text) {
-        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        addLiteralValue(pos, TypeTags.STRING, text);
-        xmlTextLiteral.addTextFragment(exprNodeStack.pop());
-        xmlTextLiteral.pos = pos;
-        addExpressionNode(xmlTextLiteral);
-    }
-
     public void createXMLTextLiteral(DiagnosticPos pos, Stack<String> precedingTextFragments, String endingText) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.textFragments =

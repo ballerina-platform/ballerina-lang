@@ -38,6 +38,7 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      */
     public int nsURIIndex = -1;
     
+    // TODO: find a better way to represent the level
     public boolean definedInline;
     
     public BXMLNSSymbol(Name prefix, String namespaceURI, BSymbol owner) {

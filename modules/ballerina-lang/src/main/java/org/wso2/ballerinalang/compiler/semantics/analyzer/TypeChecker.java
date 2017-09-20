@@ -676,7 +676,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
     }
-    
+
     private BLangExpression getStringTemplateConcatExpr(List<BLangExpression> exprs) {
         BLangExpression concatExpr = null;
         for (BLangExpression expr : exprs) {
@@ -690,22 +690,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (expr.type != symTable.errType) {
                     dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
                 }
+
                 return concatExpr;
             }
-
-            BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-            binaryExpressionNode.pos = expr.pos;
-            binaryExpressionNode.rhsExpr = expr;
-            binaryExpressionNode.lhsExpr = concatExpr;
-            binaryExpressionNode.opKind = OperatorKind.ADD;
-            
-            checkExpr(binaryExpressionNode, env);
-            concatExpr = binaryExpressionNode;
+            concatExpr = getBinaryAddExppression(concatExpr, expr);
         }
-        
+
         return concatExpr;
     }
-    
+
     /**
      * Concatenate the consecutive text type nodes, and get the reduced set of children.
      * 
@@ -715,16 +708,12 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BLangExpression> concatSimilarKindXMLNodes(List<BLangExpression> exprs) {
         List<BLangExpression> newChildren = new ArrayList<BLangExpression>();
         BLangExpression strConcatExpr = null;
-        
+
         for (BLangExpression expr : exprs) {
             BType exprType = checkExpr((BLangExpression) expr, env).get(0);
-
             if (exprType == symTable.xmlType) {
                 if (strConcatExpr != null) {
-                    BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-                    xmlTextLiteral.concatExpr = strConcatExpr;
-                    xmlTextLiteral.pos = strConcatExpr.pos;
-                    newChildren.add(xmlTextLiteral);
+                    newChildren.add(getXMLTextLiteral(strConcatExpr));
                     strConcatExpr = null;
                 }
                 newChildren.add(expr);
@@ -743,25 +732,31 @@ public class TypeChecker extends BLangNodeVisitor {
                 strConcatExpr = expr;
                 continue;
             }
-
-            BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-            binaryExpressionNode.pos = expr.pos;
-            binaryExpressionNode.rhsExpr = expr;
-            binaryExpressionNode.lhsExpr = strConcatExpr;
-            binaryExpressionNode.opKind = OperatorKind.ADD;
-            
-            checkExpr(binaryExpressionNode, env);
-            strConcatExpr = binaryExpressionNode;
+            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr);
         }
 
         // Add remaining concatenated text nodes as children
         if (strConcatExpr != null) {
-            BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-            xmlTextLiteral.concatExpr = strConcatExpr;
-            xmlTextLiteral.pos = strConcatExpr.pos;
-            newChildren.add(xmlTextLiteral);
+            newChildren.add(getXMLTextLiteral(strConcatExpr));
         }
 
         return newChildren;
+    }
+
+    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr) {
+        BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpressionNode.lhsExpr = lExpr;
+        binaryExpressionNode.rhsExpr = rExpr;
+        binaryExpressionNode.pos = rExpr.pos;
+        binaryExpressionNode.opKind = OperatorKind.ADD;
+        checkExpr(binaryExpressionNode, env);
+        return binaryExpressionNode;
+    }
+
+    private BLangExpression getXMLTextLiteral(BLangExpression contentExpr) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.concatExpr = contentExpr;
+        xmlTextLiteral.pos = contentExpr.pos;
+        return xmlTextLiteral;
     }
 }

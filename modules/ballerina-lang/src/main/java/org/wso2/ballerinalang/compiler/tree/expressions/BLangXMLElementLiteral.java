@@ -39,7 +39,7 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
 
     public BLangExpression startTagName;
     public BLangExpression endTagName;
-    public List<XMLAttributeNode> attributes;
+    public List<BLangXMLAttribute> attributes;
     public List<BLangExpression> children;
     public Map<Name, BXMLNSSymbol> namespaces;
     public BXMLNSSymbol defaultNsSymbol;
@@ -48,7 +48,7 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     public List<BLangExpression> modifiedChildren;
     
     public BLangXMLElementLiteral() {
-        attributes = new ArrayList<XMLAttributeNode>();
+        attributes = new ArrayList<BLangXMLAttribute>();
         children = new ArrayList<BLangExpression>();
         namespaces = new HashMap<Name, BXMLNSSymbol>();
     }
@@ -74,13 +74,13 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     }
 
     @Override
-    public List<XMLAttributeNode> getAttributes() {
+    public List<BLangXMLAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
     public void addAttribute(XMLAttributeNode attribute) {
-        this.attributes.add(attribute);
+        this.attributes.add((BLangXMLAttribute) attribute);
     }
 
     @Override
