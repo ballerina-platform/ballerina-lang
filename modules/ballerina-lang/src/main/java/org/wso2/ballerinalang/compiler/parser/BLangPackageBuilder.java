@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -1118,7 +1119,10 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addRetrytmt() {
+    public void addRetrytmt(DiagnosticPos pos) {
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        addStmtToCurrentBlock(retryNode);
         TransactionNode transactionNode = transactionNodeStack.peek();
         transactionNode.setRetryCount(exprNodeStack.pop());
     }

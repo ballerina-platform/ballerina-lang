@@ -48,6 +48,8 @@ public enum DiagnosticCode {
     UNREACHABLE_CODE("unreachable.code"),
     DEAD_CODE("dead.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
+    ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
+    RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK("retry.cannot.be.outside.transaction.failed.block"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),

@@ -49,6 +49,7 @@ public enum NodeKind {
     PACKAGE_DECLARATION,
     SERVICE,
     REPLY,
+    RETRY,
     RESOURCE,
     RETURN,
     STRUCT,
