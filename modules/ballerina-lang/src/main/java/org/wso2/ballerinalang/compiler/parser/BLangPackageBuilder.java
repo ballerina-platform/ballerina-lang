@@ -362,7 +362,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, true);
+        endFunctionDef(pos, null, false, false, true, false);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos, String identifier, boolean exprAvailable) {
@@ -622,11 +622,13 @@ public class BLangPackageBuilder {
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
     }
 
+
     public void endFunctionDef(DiagnosticPos pos,
                                Set<Whitespace> ws,
                                boolean publicFunc,
                                boolean nativeFunc,
-                               boolean bodyExists) {
+                               boolean bodyExists,
+                               boolean isReceiverAttached) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.pos = pos;
         function.addWS(ws);
@@ -641,6 +643,10 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        }
+
+        if (isReceiverAttached) {
+            function.receiver = (BLangVariable) this.varStack.pop();
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -682,11 +688,12 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addJoinCause(String identifier) {
+    public void addJoinCause(String identifier, Set<Whitespace> ws) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.setJoinResultsName(this.createIdentifier(identifier));
-        forkJoin.setJoinResultsType(this.typeNodeStack.pop());
+        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
+        forkJoin.joinResultVar = resultVar;
     }
 
     public void addJoinCondition(String joinType, List<String> workerNames, int joinCount) {
@@ -701,18 +708,13 @@ public class BLangPackageBuilder {
     }
 
     public void addTimeoutCause(String paramName) {
-        BLangSimpleVarRef varRef =
-                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.variableName = (BLangIdentifier) createIdentifier(paramName);
-
         BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
         variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
         variableNode.name = (BLangIdentifier) createIdentifier(paramName);
-        variableNode.expr = varRef;
 
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.timeoutExpression = this.exprNodeStack.pop();
+        forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
         forkJoin.timeoutVariable = variableNode;
     }
 
@@ -1040,12 +1042,14 @@ public class BLangPackageBuilder {
         breakNode.pos = pos;
         addStmtToCurrentBlock(breakNode);
     }
-    
-    public void addReturnStatement(DiagnosticPos pos) {
+
+    public void addReturnStatement(DiagnosticPos pos, boolean exprAvailable) {
         BLangReturn retStmt = (BLangReturn) TreeBuilder.createReturnNode();
         retStmt.pos = pos;
-        for (ExpressionNode expr : this.exprNodeListStack.pop()) {
-            retStmt.exprs.add((BLangExpression) expr);
+        if (exprAvailable) {
+            for (ExpressionNode expr : this.exprNodeListStack.pop()) {
+                retStmt.exprs.add((BLangExpression) expr);
+            }
         }
         addStmtToCurrentBlock(retStmt);
     }

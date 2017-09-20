@@ -43,6 +43,7 @@ public class BBuiltInRefType extends BType implements ReferenceType {
             case XML:
             case DATATABLE:
             case ANY:
+                return TypeDescriptor.SIG_ANY;
             case MAP:
                 return TypeDescriptor.SIG_REFTYPE + getKind().typeName() + ";";
             default:

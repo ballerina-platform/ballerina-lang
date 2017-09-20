@@ -80,12 +80,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-launcher</artifactId>
+                <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-native</artifactId>
+                <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -96,6 +96,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-test</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -228,6 +233,7 @@
         <module>modules/ballerina-samples</module>
         <module>modules/ballerina-logging</module>
         <module>modules/packerina</module>
+        <module>modules/ballerina-test</module>
     </modules>
 
 </project>

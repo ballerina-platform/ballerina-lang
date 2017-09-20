@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerinalang.programfile.cpentries;
 
-import org.wso2.ballerinalang.programfile.FunctionInfo;
-
 import java.util.Objects;
 
 /**
@@ -29,45 +27,14 @@ import java.util.Objects;
 public class FunctionRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
-    private int packageCPIndex;
-    private String packagePath;
+    public int packageCPIndex;
 
     // Index to a valid name index in the constant pool
-    private int nameCPIndex;
-    private String functionName;
+    public int nameCPIndex;
 
-    // TODO 
-    private FunctionInfo functionInfo;
-
-    public FunctionRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String functionName) {
+    public FunctionRefCPEntry(int packageCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
-        this.packagePath = packagePath;
         this.nameCPIndex = nameCPIndex;
-        this.functionName = functionName;
-    }
-
-    public int getPackageCPIndex() {
-        return packageCPIndex;
-    }
-
-    public String getPackagePath() {
-        return packagePath;
-    }
-
-    public int getNameCPIndex() {
-        return nameCPIndex;
-    }
-
-    public String getFunctionName() {
-        return functionName;
-    }
-
-    public FunctionInfo getFunctionInfo() {
-        return functionInfo;
-    }
-
-    public void setFunctionInfo(FunctionInfo functionInfo) {
-        this.functionInfo = functionInfo;
     }
 
     public EntryType getEntryType() {
@@ -83,16 +50,5 @@ public class FunctionRefCPEntry implements ConstantPoolEntry {
     public boolean equals(Object obj) {
         return obj instanceof FunctionRefCPEntry && packageCPIndex == (((FunctionRefCPEntry) obj).packageCPIndex) &&
                 nameCPIndex == ((FunctionRefCPEntry) obj).nameCPIndex;
-    }
-
-    @Override
-    public String toString() {
-        return "FunctionRefCPEntry{" +
-                "packageCPIndex=" + packageCPIndex +
-                ", packagePath='" + packagePath + '\'' +
-                ", nameCPIndex=" + nameCPIndex +
-                ", functionName='" + functionName + '\'' +
-                ", functionInfo=" + functionInfo +
-                '}';
     }
 }

@@ -191,7 +191,7 @@ public class SymbolTable {
     }
 
     private void defineOperators() {
-        // Binary operator symbols
+        // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
@@ -200,15 +200,22 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
-
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);
-
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.DIV, intType, intType, intType, -1);
-
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.MUL, intType, intType, intType, -1);
+
+        // Binary equality operators ==, !=
+        defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+
+        // Binary comparison operators <=, <, >=, >
+        defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType, InstructionCodes.ILE);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType, InstructionCodes.IGT);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType, InstructionCodes.IGE);
 
         // Unary operator symbols
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
@@ -227,34 +234,34 @@ public class SymbolTable {
 
     private void defineCastOperators() {
         // Define both implicit and explicit cast operators
-        defineCastOperator(intType, jsonType, true, -1);
-        defineCastOperator(intType, anyType, true, -1);
-        defineCastOperator(floatType, jsonType, true, -1);
-        defineCastOperator(floatType, anyType, true, -1);
-        defineCastOperator(stringType, jsonType, true, -1);
-        defineCastOperator(stringType, anyType, true, -1);
-        defineCastOperator(booleanType, jsonType, true, -1);
-        defineCastOperator(booleanType, anyType, true, -1);
-        defineCastOperator(blobType, anyType, true, -1);
+        defineCastOperator(intType, jsonType, true, InstructionCodes.I2JSON);
+        defineCastOperator(intType, anyType, true, InstructionCodes.I2ANY);
+        defineCastOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
+        defineCastOperator(floatType, anyType, true, InstructionCodes.F2ANY);
+        defineCastOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
+        defineCastOperator(stringType, anyType, true, InstructionCodes.S2ANY);
+        defineCastOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
+        defineCastOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
+        defineCastOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineCastOperator(typeType, anyType, true, -1);
         defineCastOperator(nullType, jsonType, true, -1);
 
         // Define explicit cast operators
-        defineExplicitCastOperator(anyType, intType, false, -1);
-        defineExplicitCastOperator(anyType, floatType, false, -1);
-        defineExplicitCastOperator(anyType, stringType, false, -1);
-        defineExplicitCastOperator(anyType, booleanType, false, -1);
-        defineExplicitCastOperator(anyType, blobType, false, -1);
-        defineExplicitCastOperator(anyType, typeType, false, -1);
-        defineExplicitCastOperator(anyType, jsonType, false, -1);
-        defineExplicitCastOperator(anyType, xmlType, false, -1);
-        defineExplicitCastOperator(anyType, mapType, false, -1);
-        defineExplicitCastOperator(anyType, datatableType, false, -1);
+        defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);
+        defineExplicitCastOperator(anyType, floatType, false, InstructionCodes.ANY2F);
+        defineExplicitCastOperator(anyType, stringType, false, InstructionCodes.ANY2S);
+        defineExplicitCastOperator(anyType, booleanType, false, InstructionCodes.ANY2B);
+        defineExplicitCastOperator(anyType, blobType, false, InstructionCodes.ANY2L);
+        defineExplicitCastOperator(anyType, typeType, false, InstructionCodes.ANY2TYPE);
+        defineExplicitCastOperator(anyType, jsonType, false, InstructionCodes.ANY2JSON);
+        defineExplicitCastOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
+        defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
+        defineExplicitCastOperator(anyType, datatableType, false, InstructionCodes.ANY2DT);
 
-        defineExplicitCastOperator(jsonType, intType, false, -1);
-        defineExplicitCastOperator(jsonType, floatType, false, -1);
-        defineExplicitCastOperator(jsonType, stringType, false, -1);
-        defineExplicitCastOperator(jsonType, booleanType, false, -1);
+        defineExplicitCastOperator(jsonType, intType, false, InstructionCodes.JSON2I);
+        defineExplicitCastOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
+        defineExplicitCastOperator(jsonType, stringType, false, InstructionCodes.JSON2S);
+        defineExplicitCastOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
     }
 
     private void defineBinaryOperator(OperatorKind kind,
