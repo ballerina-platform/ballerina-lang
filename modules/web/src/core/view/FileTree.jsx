@@ -87,6 +87,7 @@ class FileTree extends React.Component {
                     node={node}
                     key={node.id}
                     onClick={() => this.onToggle(node, !node.collapsed)}
+                    onDoubleClick={this.props.onOpen}
                 >
                     {
                         node.children
