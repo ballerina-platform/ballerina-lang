@@ -163,6 +163,7 @@ class EditorTabs extends View {
                         file={file}
                         commandProxy={this.props.editorPlugin.appContext.command}
                         {...customPropsProvider()}
+                        isPreviewViewEnabled={this.state.previewViewEnabled}
                     />
                 </TabPane>
             );

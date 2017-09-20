@@ -137,6 +137,7 @@ class BallerinaFileEditor extends React.Component {
             editor: this,
             astRoot: this.state.model,
             environment: this.environment,
+            isPreviewViewEnabled: this.props.isPreviewViewEnabled,
         };
     }
 
@@ -478,19 +479,19 @@ class BallerinaFileEditor extends React.Component {
         // If there are syntax errors, forward editor to source view & update state
         // to make that decision reflect in state. This is to prevent automatic
         // redirection to design view once the syntax errors are fixed in source view.
-        if (!this.props.disableSourceView && !this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
+        if (!this.props.isPreviewViewEnabled && !this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
                 && this.state.activeView !== SOURCE_VIEW) {
             this.state.activeView = SOURCE_VIEW;
         }
 
         const showDesignView = this.state.initialParsePending
-                                    || ((!this.state.parseFailed || this.props.disableSourceView)
+            || ((!this.state.parseFailed || this.props.isPreviewViewEnabled)
                                             && _.isEmpty(this.state.syntaxErrors)
                                                 && this.state.activeView === DESIGN_VIEW);
-        const showSourceView = !this.props.disableSourceView && (this.state.parseFailed
+        const showSourceView = !this.props.isPreviewViewEnabled && (this.state.parseFailed
             || !_.isEmpty(this.state.syntaxErrors)
             || this.state.activeView === SOURCE_VIEW);
-        const showSwaggerView = !this.props.disableSourceView && (!this.state.parseFailed
+        const showSwaggerView = !this.props.isPreviewViewEnabled && (!this.state.parseFailed
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW);
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
@@ -548,11 +549,11 @@ BallerinaFileEditor.propTypes = {
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
     }).isRequired,
-    disableSourceView: PropTypes.bool,
+    isPreviewViewEnabled: PropTypes.bool,
 };
 
 BallerinaFileEditor.defaultProps = {
-    disableSourceView: false,
+    isPreviewViewEnabled: false,
 };
 
 BallerinaFileEditor.childContextTypes = {
@@ -560,6 +561,7 @@ BallerinaFileEditor.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
 export default BallerinaFileEditor;

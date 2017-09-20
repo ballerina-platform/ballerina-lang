@@ -21,6 +21,7 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
+import cn from 'classnames';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import ASTFactory from '../ast/ast-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
@@ -321,7 +322,7 @@ class SwaggerView extends React.Component {
                                 Design View
                         </div>
                     </div>
-                    <div className="view-source-btn btn-icon">
+                    <div className={cn('view-source-btn btn-icon', { hide: this.context.isPreviewViewEnabled })}>
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
@@ -374,6 +375,7 @@ SwaggerView.defaultProps = {
 SwaggerView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     astRoot: PropTypes.instanceOf(Object).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
 export default SwaggerView;

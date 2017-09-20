@@ -33,7 +33,6 @@ class DesignView extends React.Component {
         this.state = {
             isTransformActive: false,
             mode: 'default',
-            splitViewEnabled: false,
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -48,12 +47,6 @@ class DesignView extends React.Component {
         this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
         this.props.commandProxy.on('diagram-mode-change', (mode) => {
             this.setMode(mode);
-        });
-        this.props.commandProxy.on('show-split-view', (enabled) => {
-            this.setState({
-                splitViewEnabled: enabled,
-            });
-            this.forceUpdate();
         });
     }
 
@@ -180,7 +173,7 @@ class DesignView extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className={cn('bottom-right-controls-container', { hide: this.state.splitViewEnabled })}>
+                <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div className="view-source-btn btn-icon">
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
@@ -224,6 +217,7 @@ DesignView.propTypes = {
 
 DesignView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
 DesignView.childContextTypes = {

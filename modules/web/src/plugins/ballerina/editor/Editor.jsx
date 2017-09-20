@@ -28,6 +28,11 @@ Editor.propTypes = {
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
     }).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
+};
+
+Editor.defaultProps = {
+    isPreviewViewEnabled: false,
 };
 
 export default Editor;
