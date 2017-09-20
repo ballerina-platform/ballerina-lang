@@ -44,6 +44,7 @@ class VariableTypeDropdown extends React.Component {
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+        this.onSelectionChange = this.onSelectionChange.bind(this);
         this.onChange = this.onChange.bind(this);
     }
 
@@ -76,6 +77,11 @@ class VariableTypeDropdown extends React.Component {
         this.typeChange(selectedVal.newValue);
     }
 
+    onSelectionChange(e, selectedVal) {
+        this.setState({ value: selectedVal.suggestion });
+        this.typeChange(selectedVal.suggestion);
+    }
+
     render() {
         const inputProps = {
             value: this.state.value,
@@ -87,7 +93,7 @@ class VariableTypeDropdown extends React.Component {
                 suggestions={this.state.suggestions}
                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                 onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                onSuggestionSelected={this.props.onSuggestionSelected}
+                onSuggestionSelected={this.onSelectionChange}
                 shouldRenderSuggestions={shouldRenderSuggestions}
                 getSuggestionValue={getSuggestionValue}
                 renderSuggestion={renderSuggestion}
@@ -101,8 +107,6 @@ class VariableTypeDropdown extends React.Component {
 VariableTypeDropdown.propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
-    onSuggestionSelected: PropTypes.instanceOf(Object).isRequired,
-    onEnter: PropTypes.func.isRequired,
 };
 
 VariableTypeDropdown.contextTypes = {

@@ -109,8 +109,6 @@ export default class VariableEndpoint extends React.Component {
                     <VariableTypeDropdown
                         value={this.state.varType}
                         onChange={this.typeChange}
-                        onEnter={() => this.hideAddSuggestions()}
-                        onSuggestionSelected={this.typeChange}
                     />
                     <input
                         type='text'
@@ -169,23 +167,5 @@ export default class VariableEndpoint extends React.Component {
         if (isUpdated) {
             this.setState({ onEdit: false });
         }
-    }
-
-    /**
-     * Handle struct type change in input
-     * @param {string} value - Struct type
-     */
-    onAddStructTypeChange(value) {
-        this.validateStructType(value);
-        this.setState({
-            newType: value,
-        });
-    }
-
-    /**
-     * Hide new struct definition type dropdown
-     */
-    hideAddSuggestions() {
-        this.setState({ canShowAddType: false });
     }
 }
