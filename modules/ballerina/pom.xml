@@ -162,7 +162,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-native,ballerina-samples
+                                ballerina-native,ballerina-http,ballerina-samples
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
