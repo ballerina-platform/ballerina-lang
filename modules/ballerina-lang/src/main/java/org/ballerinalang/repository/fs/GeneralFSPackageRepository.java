@@ -82,10 +82,22 @@ public class GeneralFSPackageRepository implements PackageRepository {
         PackageEntity result = this.lookupPackageSource(pkgID, entryName);
         return result;
     }
+    
+    private String sanatize(String name, String separator) {
+        if (name.startsWith(separator)) {
+            name = name.substring(separator.length());
+        }
+        if (name.endsWith(separator)) {
+            name = name.substring(0, name.length() - separator.length());
+        }
+        return name;
+    }
 
     @Override
     public Set<PackageID> listPackages() {
-        final Set<PackageID> result = new LinkedHashSet<>();
+        Set<PackageID> result = new LinkedHashSet<>();
+        int baseNameCount = this.basePath.getNameCount();
+        String separator = this.basePath.getFileSystem().getSeparator();
         try {
             Files.walkFileTree(this.basePath, new SimpleFileVisitor<Path>() {
                 @Override
@@ -93,8 +105,12 @@ public class GeneralFSPackageRepository implements PackageRepository {
                     if (e == null) {
                         List<Name> nameComps = new ArrayList<>();
                         if (Files.list(dir).filter(f -> Files.isRegularFile(f)).count() > 0) {
-                            basePath.relativize(dir).forEach(f -> nameComps.add(new Name(f.getFileName().toString())));
-                            result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                            int dirNameCount = dir.getNameCount();
+                            if (dirNameCount > baseNameCount) {
+                                dir.subpath(baseNameCount, dirNameCount).forEach(
+                                        f -> nameComps.add(new Name(sanatize(f.getFileName().toString(), separator))));
+                                result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                            }
                         }
                         return FileVisitResult.CONTINUE;
                     } else {
