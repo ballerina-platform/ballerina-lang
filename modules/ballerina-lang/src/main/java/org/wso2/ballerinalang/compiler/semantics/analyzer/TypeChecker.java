@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -184,16 +184,11 @@ public class TypeChecker extends BLangNodeVisitor {
             expTypes = Lists.of(symTable.mapType);
         }
 
-//        if (expTypeTag == TypeTags.MAP ||
-//                expTypeTag == TypeTags.JSON) {
-//            recordLiteral.keyValuePairs.forEach(keyValuePair ->
-//                    checkStructLiteralKeyValuePair(keyValuePair, expTypes.get(0)));
-//            actualType = expTypes.get(0);
-//        }
-
-        if (expTypeTag == TypeTags.STRUCT) {
+        if (expTypeTag == TypeTags.JSON ||
+                expTypeTag == TypeTags.MAP ||
+                expTypeTag == TypeTags.STRUCT) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
-                    checkStructLiteralKeyValuePair(keyValuePair, (BStructType) expTypes.get(0)));
+                    checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
             actualType = expTypes.get(0);
         }
 
@@ -337,6 +332,9 @@ public class TypeChecker extends BLangNodeVisitor {
             return type;
         } else if (type.tag == expType.tag) {
             return type;
+        } else if (expType.tag == TypeTags.ANY) {
+            // TODO Implicit cast possible
+            return expType;
         }
 
         // TODO Add more logic to check type compatibility assignability etc.
@@ -467,20 +465,35 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = checkTypes(iExpr, actualTypes, expTypes);
     }
 
-    private void checkStructLiteralKeyValuePair(BLangRecordKeyValue keyValuePair, BStructType structType) {
-        BLangExpression keyExpr = keyValuePair.keyExpr;
+    private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
+        BType fieldType = symTable.errType;
+        switch (recType.tag) {
+            case TypeTags.STRUCT:
+                fieldType = checkStructLiteralKeyExpr(keyValuePair.keyExpr, recType, RecordKind.STRUCT);
+                break;
+            case TypeTags.MAP:
+                fieldType = checkMAPLiteralKeyExpr(keyValuePair.keyExpr, recType, RecordKind.STRUCT);
+                break;
+            case TypeTags.JSON:
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.keyExpr, recType, RecordKind.STRUCT);
+        }
+
+        BLangExpression valueExpr = keyValuePair.valueExpr;
+        checkExpr(valueExpr, this.env, Lists.of(fieldType));
+    }
+
+    private BType checkStructLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
         Name fieldName;
-        if (keyExpr.getKind() != NodeKind.LITERAL &&
-                keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_STRUCT_LITERAL);
-            return;
+
+        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
+            return symTable.errType;
+
+        } else if (keyExpr.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
+            // keys of the struct literal can only be string literals and identifiers
+            dlog.error(keyExpr.pos, DiagnosticCode.STRING_TEMPLATE_LIT_NOT_ALLOWED);
+            return symTable.errType;
 
         } else if (keyExpr.getKind() == NodeKind.LITERAL) {
-            BType keyExprType = checkExpr(keyExpr, this.env, Lists.of(symTable.stringType)).get(0);
-            if (keyExprType == symTable.errType) {
-                return;
-            }
-
             Object literalValue = ((BLangLiteral) keyExpr).value;
             fieldName = names.fromString((String) literalValue);
 
@@ -490,13 +503,48 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check weather the struct field exists
-        BSymbol symbol = symResolver.resolveStructField(keyExpr.pos, fieldName, structType.tsymbol);
-        if (symbol == symTable.notFoundSymbol) {
-            return;
+        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, fieldName, recordType.tsymbol);
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            return symTable.errType;
         }
 
-        BVarSymbol fieldSymbol = (BVarSymbol) symbol;
-        BLangExpression valueExpr = keyValuePair.valueExpr;
-        checkExpr(valueExpr, this.env, Lists.of(fieldSymbol.type));
+        return fieldSymbol.type;
+    }
+
+    private BType checkJSONLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
+        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
+            return symTable.errType;
+        }
+
+        // TODO constrained json
+        return symTable.jsonType;
+    }
+
+    private BType checkMAPLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
+        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
+            return symTable.errType;
+        }
+
+        // TODO constrained map
+        return symTable.anyType;
+    }
+
+    private BType checkRecLiteralKeyExpr(BLangExpression keyExpr, RecordKind recKind) {
+        // keys of the record literal can only be string literals, identifiers or string template literals
+        if (keyExpr.getKind() != NodeKind.LITERAL &&
+                keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                keyExpr.getKind() != NodeKind.STRING_TEMPLATE_LITERAL) {
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, recKind.value);
+            return symTable.errType;
+
+        } else if (keyExpr.getKind() == NodeKind.LITERAL ||
+                keyExpr.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
+            return checkExpr(keyExpr, this.env, Lists.of(symTable.stringType)).get(0);
+        }
+
+        // If the key expression is an identifier then we simply set the type as string.
+        keyExpr.type = symTable.stringType;
+        return keyExpr.type;
+
     }
 }

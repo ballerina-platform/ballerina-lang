@@ -447,6 +447,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
     }
 
+    public void visit(BLangSimpleVarRef varRefExpr) {
+        // TODO 
+    }
+
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         /* ignore */
     }
@@ -1059,10 +1063,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangSimpleVarRef varRefExpr) {
         /* ignore */
     }
 
