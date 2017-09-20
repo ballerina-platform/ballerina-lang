@@ -570,6 +570,29 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    public static LookupElement createAttachedFunctionsLookupElement(@NotNull PsiElement element,
+                                                                     @Nullable InsertHandler<LookupElement>
+                                                                             insertHandler) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
+                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
+                .withInsertHandler(insertHandler);
+        return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createAttachedFunctionsLookupElements(@NotNull Collection<IdentifierPSINode>
+                                                                                    functions) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement function : functions) {
+            LookupElement lookupElement = createAttachedFunctionsLookupElement(function,
+                    ParenthesisInsertHandler.INSTANCE);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
+    @NotNull
     public static List<LookupElement> createLambdaFunctionLookupElements(@Nullable InsertHandler<LookupElement>
                                                                                  insertHandler) {
         @NotNull List<String> lambdaFunctions = getAllLambdaFunctions();

@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi.impl;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
@@ -40,9 +41,11 @@ import com.intellij.psi.impl.source.tree.LeafElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.Query;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
@@ -102,10 +105,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1538,7 +1543,7 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
-                                                                                                 definitionNode) {
+                                                                                             definitionNode) {
 
         NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(definitionNode, NameReferenceNode.class);
         if (nameReferenceNode == null) {
@@ -2006,5 +2011,37 @@ public class BallerinaPsiImplUtil {
         return directories.get(0);
     }
 
+    @NotNull
+    public static List<IdentifierPSINode> getAttachedFunctions(@NotNull StructDefinitionNode structDefinitionNode) {
+        List<IdentifierPSINode> attachedFunctions = new CopyOnWriteArrayList<>();
+        IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(structDefinitionNode, IdentifierPSINode.class);
+        if (identifier == null) {
+            return attachedFunctions;
+        }
+        ApplicationManager.getApplication().runReadAction(() -> {
+            Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
+            Collection<PsiReference> references = psiReferences.findAll();
+            references.parallelStream().forEach(reference -> {
+                        ProgressManager.checkCanceled();
+                        ApplicationManager.getApplication().runReadAction(() -> {
+                            PsiElement element = reference.getElement();
+                            CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getParentOfType(element,
+                                    CodeBlockParameterNode.class);
+                            if (codeBlockParameterNode == null) {
+                                return;
+                            }
+                            PsiElement parent = codeBlockParameterNode.getParent();
+                            if (!(parent instanceof FunctionDefinitionNode)) {
+                                return;
+                            }
+                            IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(parent, IdentifierPSINode
+                                    .class);
 
+                            attachedFunctions.add(functionName);
+                        });
+                    }
+            );
+        });
+        return attachedFunctions;
+    }
 }

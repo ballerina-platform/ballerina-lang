@@ -45,6 +45,7 @@ import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
+import org.ballerinalang.plugins.idea.psi.references.StructReference;
 import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
 import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.ballerinalang.plugins.idea.psi.references.WorkerReference;
@@ -198,6 +199,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new StatementReference(this);
                 case RULE_invocation:
                     return suggestReferenceTypeForInvocation();
+                case RULE_structReference:
+                    return new StructReference(this);
                 default:
                     return null;
             }
@@ -223,10 +226,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return null;
         }
         PsiElement definitionNode = resolvedElement.getParent();
-        if (!(definitionNode instanceof ConnectorVarDefStatementNode)) {
-            return null;
+        if ((definitionNode instanceof ConnectorVarDefStatementNode)) {
+            return new ActionInvocationReference(this);
+        } else if ((definitionNode instanceof VariableDefinitionNode)) {
+            return new FieldReference(this);
         }
-        return new ActionInvocationReference(this);
+        return null;
     }
 
     private PsiReference checkAndSuggestReferenceAfterDot() {

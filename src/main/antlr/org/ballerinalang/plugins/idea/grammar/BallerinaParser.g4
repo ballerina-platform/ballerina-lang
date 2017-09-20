@@ -69,13 +69,13 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :    connectorVarDefStatement* statement* workerDeclaration*
-    |    connectorVarDefStatement* workerDeclaration+
+    :  connectorVarDefStatement* statement*
+    |  connectorVarDefStatement* workerDeclaration+
     ;
 
 functionDefinition
     :   (PUBLIC)? NATIVE FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   (PUBLIC)? FUNCTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    |   (PUBLIC)? FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 lambdaFunction
@@ -300,7 +300,7 @@ connectorInitExpression
     ;
 
 filterInitExpression
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 filterInitExpressionList
@@ -337,7 +337,7 @@ codeBlockBody
     ;
 
 codeBlockParameter
-    :   typeName Identifier
+    :   structReference Identifier
     ;
 
 //todo replace with 'foreach'
@@ -432,7 +432,7 @@ variableReference
     ;
 
 field
-    :   DOT Identifier
+    : DOT Identifier
     ;
 
 index
