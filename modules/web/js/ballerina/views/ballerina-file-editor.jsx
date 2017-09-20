@@ -90,7 +90,9 @@ class BallerinaFileEditor extends React.Component {
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
-                        this.setState(state);
+                        if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
+                            this.setState(state);
+                        }
                     })
                     .catch(error => log.error(error));
             } else {
@@ -150,7 +152,9 @@ class BallerinaFileEditor extends React.Component {
         this.validateAndParseFile()
             .then((state) => {
                 state.initialParsePending = false;
-                this.setState(state);
+                if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
+                    this.setState(state);
+                }
             })
             .catch((error) => {
                 log.error(error);
@@ -306,8 +310,10 @@ class BallerinaFileEditor extends React.Component {
             this.validateAndParseFile()
                 .then((state) => {
                     this.skipLoadingOverlay = false;
-                    this.setState(state);
-                    this.forceUpdate();
+                    if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
+                        this.setState(state);
+                        this.forceUpdate();
+                    }
                 })
                 .catch(error => log.error(error));
         } else {
@@ -485,13 +491,13 @@ class BallerinaFileEditor extends React.Component {
         }
 
         const showDesignView = this.state.initialParsePending
-            || ((!this.state.parseFailed || this.props.isPreviewViewEnabled)
+            || ((!this.state.parseFailed)
                                             && _.isEmpty(this.state.syntaxErrors)
                                                 && this.state.activeView === DESIGN_VIEW);
-        const showSourceView = !this.props.isPreviewViewEnabled && (this.state.parseFailed
+        const showSourceView = this.state.parseFailed
             || !_.isEmpty(this.state.syntaxErrors)
-            || this.state.activeView === SOURCE_VIEW);
-        const showSwaggerView = !this.props.isPreviewViewEnabled && (!this.state.parseFailed
+            || this.state.activeView === SOURCE_VIEW;
+        const showSwaggerView = (!this.state.parseFailed
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW);
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
