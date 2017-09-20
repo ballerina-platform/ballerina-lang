@@ -21,28 +21,6 @@ import Node from '../node';
 class ServiceNodeAbstract extends Node {
 
 
-    setProtocolPackageIdentifier(newValue, title) {
-        let oldValue = this.protocolPackageIdentifier;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.protocolPackageIdentifier = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'protocolPackageIdentifier',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getProtocolPackageIdentifier() {
-        return this.protocolPackageIdentifier;
-    }
-
-
-
     setInitFunction(newValue, title) {
         let oldValue = this.initFunction;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -61,6 +39,28 @@ class ServiceNodeAbstract extends Node {
 
     getInitFunction() {
         return this.initFunction;
+    }
+
+
+
+    setProtocolPackageIdentifier(newValue, title) {
+        let oldValue = this.protocolPackageIdentifier;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.protocolPackageIdentifier = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'protocolPackageIdentifier',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getProtocolPackageIdentifier() {
+        return this.protocolPackageIdentifier;
     }
 
 

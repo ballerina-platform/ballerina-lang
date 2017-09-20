@@ -21,24 +21,24 @@ import Node from '../node';
 class TransactionNodeAbstract extends Node {
 
 
-    setCondition(newValue, title) {
-        let oldValue = this.condition;
+    setFailedBody(newValue, title) {
+        let oldValue = this.failedBody;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.condition = newValue;
+        this.failedBody = newValue;
         this.trigger('tree-modified', {
             origin: this,
             type: 'modify-node',
             title,
             data: {
-                attributeName: 'condition',
+                attributeName: 'failedBody',
                 newValue,
                 oldValue,
             }
         });
     }
 
-    getCondition() {
-        return this.condition;
+    getFailedBody() {
+        return this.failedBody;
     }
 
 
@@ -61,28 +61,6 @@ class TransactionNodeAbstract extends Node {
 
     getTransactionBody() {
         return this.transactionBody;
-    }
-
-
-
-    setFailedBody(newValue, title) {
-        let oldValue = this.failedBody;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.failedBody = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'failedBody',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getFailedBody() {
-        return this.failedBody;
     }
 
 
@@ -127,6 +105,28 @@ class TransactionNodeAbstract extends Node {
 
     getAbortedBody() {
         return this.abortedBody;
+    }
+
+
+
+    setCondition(newValue, title) {
+        let oldValue = this.condition;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.condition = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'condition',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getCondition() {
+        return this.condition;
     }
 
 

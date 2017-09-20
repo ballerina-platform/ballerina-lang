@@ -21,6 +21,50 @@ import Node from '../node';
 class ConnectorNodeAbstract extends Node {
 
 
+    setInitFunction(newValue, title) {
+        let oldValue = this.initFunction;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.initFunction = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'initFunction',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
+    setInitAction(newValue, title) {
+        let oldValue = this.initAction;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.initAction = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'initAction',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getInitAction() {
+        return this.initAction;
+    }
+
+
+
     setFilteredParameter(newValue, title) {
         let oldValue = this.filteredParameter;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -83,50 +127,6 @@ class ConnectorNodeAbstract extends Node {
             },
         });
     }
-
-
-    setInitAction(newValue, title) {
-        let oldValue = this.initAction;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.initAction = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'initAction',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getInitAction() {
-        return this.initAction;
-    }
-
-
-
-    setInitFunction(newValue, title) {
-        let oldValue = this.initFunction;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.initFunction = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'initFunction',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
 
 
     setName(newValue, title) {

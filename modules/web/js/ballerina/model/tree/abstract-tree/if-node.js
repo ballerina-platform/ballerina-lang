@@ -43,28 +43,6 @@ class IfNodeAbstract extends Node {
 
 
 
-    setCondition(newValue, title) {
-        let oldValue = this.condition;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.condition = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'condition',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getCondition() {
-        return this.condition;
-    }
-
-
-
     setElseStatement(newValue, title) {
         let oldValue = this.elseStatement;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -83,6 +61,28 @@ class IfNodeAbstract extends Node {
 
     getElseStatement() {
         return this.elseStatement;
+    }
+
+
+
+    setCondition(newValue, title) {
+        let oldValue = this.condition;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.condition = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'condition',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getCondition() {
+        return this.condition;
     }
 
 

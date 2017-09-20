@@ -21,6 +21,28 @@ import Node from '../node';
 class AssignmentNodeAbstract extends Node {
 
 
+    setExpression(newValue, title) {
+        let oldValue = this.expression;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.expression = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'expression',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
+
+
     setVariables(newValue, title) {
         let oldValue = this.variables;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -61,28 +83,6 @@ class AssignmentNodeAbstract extends Node {
             },
         });
     }
-
-
-    setExpression(newValue, title) {
-        let oldValue = this.expression;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.expression = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'expression',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
     setWS(newValue, title) {

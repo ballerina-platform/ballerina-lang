@@ -21,28 +21,6 @@ import Node from '../node';
 class ActionNodeAbstract extends Node {
 
 
-    setBody(newValue, title) {
-        let oldValue = this.body;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.body = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'body',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getBody() {
-        return this.body;
-    }
-
-
-
     setReturnParameters(newValue, title) {
         let oldValue = this.returnParameters;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -83,6 +61,28 @@ class ActionNodeAbstract extends Node {
             },
         });
     }
+
+
+    setBody(newValue, title) {
+        let oldValue = this.body;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.body = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'body',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getBody() {
+        return this.body;
+    }
+
 
 
     setWorkers(newValue, title) {

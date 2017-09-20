@@ -21,48 +21,6 @@ import Node from '../node';
 class PackageNodeAbstract extends Node {
 
 
-    setCompilationUnits(newValue, title) {
-        let oldValue = this.compilationUnits;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.compilationUnits = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'compilationUnits',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getCompilationUnits() {
-        return this.compilationUnits;
-    }
-
-
-    addCompilationUnits(node, i = -1){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.compilationUnits.push(node);
-            index = this.compilationUnits.length;
-        } else {
-            this.compilationUnits.splice(i, 0, node);
-        }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
-    }
-
-
     setPackageDeclaration(newValue, title) {
         let oldValue = this.packageDeclaration;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -114,6 +72,48 @@ class PackageNodeAbstract extends Node {
             index = this.imports.length;
         } else {
             this.imports.splice(i, 0, node);
+        }
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'child-added',
+            title: `Add ${child.kind}`,
+            data: {
+                child,
+                index,
+            },
+        });
+    }
+
+
+    setCompilationUnits(newValue, title) {
+        let oldValue = this.compilationUnits;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.compilationUnits = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'compilationUnits',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getCompilationUnits() {
+        return this.compilationUnits;
+    }
+
+
+    addCompilationUnits(node, i = -1){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.compilationUnits.push(node);
+            index = this.compilationUnits.length;
+        } else {
+            this.compilationUnits.splice(i, 0, node);
         }
         this.trigger('tree-modified', {
             origin: this,
@@ -377,28 +377,6 @@ class PackageNodeAbstract extends Node {
             },
         });
     }
-
-
-    setInitFunction(newValue, title) {
-        let oldValue = this.initFunction;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.initFunction = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'initFunction',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
 
 
     setAnnotations(newValue, title) {

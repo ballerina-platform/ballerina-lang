@@ -63,70 +63,6 @@ class ForkjoinNodeAbstract extends Node {
     }
 
 
-    setJoinType(newValue, title) {
-        let oldValue = this.joinType;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.joinType = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'joinType',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getJoinType() {
-        return this.joinType;
-    }
-
-
-
-    setJoinedWorkerIdentifiers(newValue, title) {
-        let oldValue = this.joinedWorkerIdentifiers;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.joinedWorkerIdentifiers = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'joinedWorkerIdentifiers',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getJoinedWorkerIdentifiers() {
-        return this.joinedWorkerIdentifiers;
-    }
-
-
-    addJoinedWorkerIdentifiers(node, i = -1){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.joinedWorkerIdentifiers.push(node);
-            index = this.joinedWorkerIdentifiers.length;
-        } else {
-            this.joinedWorkerIdentifiers.splice(i, 0, node);
-        }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
-    }
-
-
     setJoinCount(newValue, title) {
         let oldValue = this.joinCount;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
@@ -167,28 +103,6 @@ class ForkjoinNodeAbstract extends Node {
 
     getJoinBody() {
         return this.joinBody;
-    }
-
-
-
-    setTimeOutExpression(newValue, title) {
-        let oldValue = this.timeOutExpression;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.timeOutExpression = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'timeOutExpression',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getTimeOutExpression() {
-        return this.timeOutExpression;
     }
 
 
@@ -237,46 +151,110 @@ class ForkjoinNodeAbstract extends Node {
 
 
 
-    setJoinResultsName(newValue, title) {
-        let oldValue = this.joinResultsName;
+    setJoinResultVar(newValue, title) {
+        let oldValue = this.joinResultVar;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.joinResultsName = newValue;
+        this.joinResultVar = newValue;
         this.trigger('tree-modified', {
             origin: this,
             type: 'modify-node',
             title,
             data: {
-                attributeName: 'joinResultsName',
+                attributeName: 'joinResultVar',
                 newValue,
                 oldValue,
             }
         });
     }
 
-    getJoinResultsName() {
-        return this.joinResultsName;
+    getJoinResultVar() {
+        return this.joinResultVar;
     }
 
 
 
-    setJoinResultsType(newValue, title) {
-        let oldValue = this.joinResultsType;
+    setJoinedWorkerIdentifiers(newValue, title) {
+        let oldValue = this.joinedWorkerIdentifiers;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.joinResultsType = newValue;
+        this.joinedWorkerIdentifiers = newValue;
         this.trigger('tree-modified', {
             origin: this,
             type: 'modify-node',
             title,
             data: {
-                attributeName: 'joinResultsType',
+                attributeName: 'joinedWorkerIdentifiers',
                 newValue,
                 oldValue,
             }
         });
     }
 
-    getJoinResultsType() {
-        return this.joinResultsType;
+    getJoinedWorkerIdentifiers() {
+        return this.joinedWorkerIdentifiers;
+    }
+
+
+    addJoinedWorkerIdentifiers(node, i = -1){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.joinedWorkerIdentifiers.push(node);
+            index = this.joinedWorkerIdentifiers.length;
+        } else {
+            this.joinedWorkerIdentifiers.splice(i, 0, node);
+        }
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'child-added',
+            title: `Add ${child.kind}`,
+            data: {
+                child,
+                index,
+            },
+        });
+    }
+
+
+    setJoinType(newValue, title) {
+        let oldValue = this.joinType;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.joinType = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'joinType',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getJoinType() {
+        return this.joinType;
+    }
+
+
+
+    setTimeOutExpression(newValue, title) {
+        let oldValue = this.timeOutExpression;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.timeOutExpression = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'timeOutExpression',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getTimeOutExpression() {
+        return this.timeOutExpression;
     }
 
 

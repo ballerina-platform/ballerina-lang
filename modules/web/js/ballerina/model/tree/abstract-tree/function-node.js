@@ -21,24 +21,24 @@ import Node from '../node';
 class FunctionNodeAbstract extends Node {
 
 
-    setBody(newValue, title) {
-        let oldValue = this.body;
+    setReceiver(newValue, title) {
+        let oldValue = this.receiver;
         title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.body = newValue;
+        this.receiver = newValue;
         this.trigger('tree-modified', {
             origin: this,
             type: 'modify-node',
             title,
             data: {
-                attributeName: 'body',
+                attributeName: 'receiver',
                 newValue,
                 oldValue,
             }
         });
     }
 
-    getBody() {
-        return this.body;
+    getReceiver() {
+        return this.receiver;
     }
 
 
@@ -83,6 +83,28 @@ class FunctionNodeAbstract extends Node {
             },
         });
     }
+
+
+    setBody(newValue, title) {
+        let oldValue = this.body;
+        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        this.body = newValue;
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'modify-node',
+            title,
+            data: {
+                attributeName: 'body',
+                newValue,
+                oldValue,
+            }
+        });
+    }
+
+    getBody() {
+        return this.body;
+    }
+
 
 
     setWorkers(newValue, title) {
