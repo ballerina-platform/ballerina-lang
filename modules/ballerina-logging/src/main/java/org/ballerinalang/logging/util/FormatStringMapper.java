@@ -59,7 +59,7 @@ public class FormatStringMapper {
             if (tokens[i].startsWith(Constants.FMT_TIMESTAMP)) {
                 dateFormat =
                         new SimpleDateFormat(
-                                tokens[i].substring(Constants.FMT_TIMESTAMP.length() + 3, tokens[i].length() - 1));
+                                tokens[i].substring(Constants.FMT_TIMESTAMP.length() + 1, tokens[i].length() - 1));
                 formatBuilder.append("%" + (j + 1) + "$s");
                 j++;
             } else if (isAPlaceholderToken(tokens[i])) {
