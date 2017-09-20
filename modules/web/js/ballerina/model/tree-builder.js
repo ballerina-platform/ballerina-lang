@@ -74,7 +74,7 @@ class TreeBuilder {
                 } else if (child instanceof Array) {
                     for (let i = 0; i < child.length; i++) {
                         const childItem = child[i];
-                        if (_.isPlainObject(childItem) && child.kind) {
+                        if (_.isPlainObject(childItem) && childItem.kind) {
                             child[i] = TreeBuilder.build(childItem, node);
                         }
                     }

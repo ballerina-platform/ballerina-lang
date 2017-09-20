@@ -376,6 +376,7 @@ class BallerinaFileEditor extends React.Component {
                             */
                             // get ast from json
                             const ast = TreeBuilder.build(jsonTree /* , this.props.file*/);
+                            console.log(ast);
                             // TODOX this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {

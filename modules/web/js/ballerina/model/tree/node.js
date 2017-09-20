@@ -60,12 +60,12 @@ class Node extends EventChannel {
         for (const childName in this) {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
                 const child = this[childName];
-                if (child instanceof Node) {
+                if (child instanceof Node && child.kind) {
                     child.accept(visitor);
                 } else if (child instanceof Array) {
                     for (let i = 0; i < child.length; i++) {
                         const childItem = child[i];
-                        if (childItem instanceof Node) {
+                        if (childItem instanceof Node && child.kind) {
                             childItem.accept(visitor);
                         }
                     }
