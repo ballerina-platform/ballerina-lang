@@ -20,20 +20,12 @@ package org.ballerinalang.logging.formatters;
 
 import org.ballerinalang.logging.BLogRecord;
 
-import java.text.SimpleDateFormat;
-
 /**
- * A base class for log formatters.
+ * The interface to be implemented by all Ballerina uesr level log formatters.
  *
  * @since 0.94
  */
-public abstract class BLogFormatter {
-
-    //    private static final String logFormatRegex =
-//            "\\{\\{\\w+\\}\\}(\\[[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']+\\])?";
-//    private static final Pattern logPattern = Pattern.compile(logFormatRegex);
-//
-    protected SimpleDateFormat dateFormat;
+public interface BLogFormatter {
 
     /**
      * A method for formatting a log record.
@@ -41,50 +33,5 @@ public abstract class BLogFormatter {
      * @param logRecord The log record containing the information to be logged.
      * @return Returns the formatted log record as a String.
      */
-    public abstract String format(BLogRecord logRecord);
-
-//    protected String buildJDKLogFormat(String logFormat) {
-//        String[] tokens = parseFormatString(logFormat);
-//        StringBuilder formatBuilder = new StringBuilder();
-//
-//        for (int i = 0, j = 0; i < tokens.length; i++) {
-//            if (tokens[i].startsWith("{{timestamp}}")) {
-//                dateFormat =
-//                        new SimpleDateFormat(tokens[i].substring("{{timestamp}}".length() + 3, tokens[i].length() -
-// 1));
-//                formatBuilder.append("%" + (j + 1) + "$s");
-//                j++;
-//            } else if (tokens[i].startsWith("{{level}}")) {
-//                formatBuilder.append("%" + (j + 1) + "$-5s");
-//                j++;
-//            } else if (tokens[i].startsWith("{{")) {
-//                formatBuilder.append("%" + (j + 1) + "$s");
-//                j++;
-//            } else {
-//                formatBuilder.append(tokens[i]);
-//            }
-//        }
-//        formatBuilder.append('\n');
-//
-//        return formatBuilder.toString();
-//    }
-//
-//    private String[] parseFormatString(String formatString) {
-//        List<String> tokens = new ArrayList<>();
-//        Matcher matcher = logPattern.matcher(formatString);
-//
-//        int i = 0;
-//        while (matcher.find()) {
-//            if (matcher.start() != i) {
-//                tokens.add(formatString.substring(i, matcher.start()));
-//            }
-//
-//            tokens.add(formatString.substring(matcher.start(), matcher.end()));
-//            i = matcher.end();
-//        }
-//        tokens.add(formatString.substring(i));
-//
-//        // TODO: Validate the tokens
-//        return tokens.toArray(new String[tokens.size()]);
-//    }
+    String format(BLogRecord logRecord);
 }

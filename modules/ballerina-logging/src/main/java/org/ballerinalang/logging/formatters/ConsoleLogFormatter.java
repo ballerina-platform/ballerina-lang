@@ -20,8 +20,10 @@ package org.ballerinalang.logging.formatters;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.BLogRecord;
+import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.logging.util.FormatStringMapper;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -29,14 +31,16 @@ import java.util.Date;
  *
  * @since 0.94
  */
-public class ConsoleLogFormatter extends BLogFormatter {
+public class ConsoleLogFormatter implements BLogFormatter {
 
     private final String logFormat;
     private final String jdkLogFormat;
     private final FormatStringMapper parser = new FormatStringMapper();
 
+    private SimpleDateFormat dateFormat;
+
     public ConsoleLogFormatter() {
-        logFormat = BLogManager.getLogManager().getProperty("ballerina.format");
+        logFormat = BLogManager.getLogManager().getProperty(Constants.BALLERINA_LOG_FORMAT);
         jdkLogFormat = parser.buildJDKLogFormat(logFormat);
         dateFormat = parser.getDateFormat();
     }

@@ -25,6 +25,10 @@ package org.ballerinalang.logging.util;
  */
 public class Constants {
 
+    /* GENERAL */
+    public static final String BALLERINA = "ballerina";
+    public static final String BALLERINA_RUNTIME = BALLERINA + ".runtime";
+
     /* LOG DESTINATIONS */
     public static final String LOG_DEST_CONSOLE = "__console";
 
@@ -46,10 +50,10 @@ public class Constants {
     public static final String LEVEL = ".level";
 
     // Ballerina user level loggers
-    public static final String BALLERINA = "ballerina";
     public static final String BALLERINA_HANDLERS = BALLERINA + ".handlers";
-    public static final String BALLERINA_LEVEL = BALLERINA + ".level";
+    public static final String BALLERINA_LEVEL = "log.level";
     public static final String BALLERINA_USE_PARENT_HANDLERS = BALLERINA + ".useParentHandlers";
+    public static final String BALLERINA_LOG_FORMAT = "log.format";
 
     // Ballerina Log API loggers
     public static final String BALLERINA_LOG_API = "org.ballerinalang.nativeimpl.utils.logger";

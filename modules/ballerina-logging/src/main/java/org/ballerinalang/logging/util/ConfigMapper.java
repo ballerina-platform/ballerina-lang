@@ -44,9 +44,9 @@ public class ConfigMapper {
 
     private static void buildConfigMap() {
         configMap = Collections.unmodifiableMap(Stream.of(
-                new SimpleEntry<>("ballerina.runtime.level", Constants.BRE_LOG_FILE_HANDLER_LEVEL),
-                new SimpleEntry<>("ballerina.runtime.format", Constants.BRE_LOG_FORMATTER_FORMAT),
-                new SimpleEntry<>("tracelog.http.format", Constants.HTTP_TRACELOG_FORMATTER_FORMAT)
+                new SimpleEntry<>("log.ballerina.runtime.level", Constants.BRE_LOG_FILE_HANDLER_LEVEL),
+                new SimpleEntry<>("log.ballerina.runtime.format", Constants.BRE_LOG_FORMATTER_FORMAT),
+                new SimpleEntry<>("log.tracelog.http.format", Constants.HTTP_TRACELOG_FORMATTER_FORMAT)
         ).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
     }
 }

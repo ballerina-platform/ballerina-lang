@@ -18,6 +18,8 @@
 
 package org.ballerinalang.logging.util;
 
+import org.ballerinalang.logging.BLogManager;
+
 import java.util.logging.Level;
 
 /**
@@ -73,7 +75,8 @@ public class BLogLevelMapper {
             case "OFF":
                 return "OFF";
             default:
-                return "<UNDEFINED>";
+                BLogManager.STD_ERR.println("Invalid log level: " + level + ", using INFO instead.");
+                return "INFO";
         }
     }
 }

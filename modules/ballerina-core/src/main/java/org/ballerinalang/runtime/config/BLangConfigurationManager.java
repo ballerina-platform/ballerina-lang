@@ -23,7 +23,6 @@ import org.wso2.carbon.config.ConfigProviderFactory;
 import org.wso2.carbon.config.ConfigurationException;
 import org.wso2.carbon.config.provider.ConfigProvider;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -76,16 +75,9 @@ public class BLangConfigurationManager {
         if (configProvider != null) {
             return configProvider;
         }
-        Path balConfPath = null;
-        String balConfString = System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF);
-        if (balConfString != null) {
-            balConfPath = Paths.get(new File(balConfString).toURI());
-        }
-        if (balConfPath == null) {
-            balConfPath = Paths.get(System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME),
-                    ConfigConstants.DEFAULT_CONF_DIR_BRE, ConfigConstants.DEFAULT_CONF_DIR_CONF,
-                    ConfigConstants.DEFAULT_CONF_FILE_NAME);
-        }
+        Path balConfPath = Paths.get(System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME),
+                                     ConfigConstants.DEFAULT_CONF_DIR_BRE, ConfigConstants.DEFAULT_CONF_DIR_CONF,
+                                     ConfigConstants.DEFAULT_CONF_FILE_NAME);
         configProvider = ConfigProviderFactory.getConfigProvider(balConfPath);
         return configProvider;
     }

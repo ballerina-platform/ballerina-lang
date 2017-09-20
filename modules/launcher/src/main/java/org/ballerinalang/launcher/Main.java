@@ -18,28 +18,33 @@
 
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.logging.LogManager;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -212,14 +217,12 @@ public class Main {
         @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
         private String ballerinaDebugPort;
 
-        //TODO: Fix this. Hardcoded parameter for HTTP trace logs due to an issue with JCommander. Github issue #3245
-        @Parameter(names = "-Btracelog.http", hidden = true, description = "enable HTTP trace logging")
-        private boolean httpTraceLogEnabled;
-
-        @Parameter(names = "-Blog.level", hidden = true, description = "set log API log level")
-        private String logLevel;
+        @DynamicParameter(names = "-B", hidden = true, description = "dynamic parameters for the BVM")
+        private Map<String, String> params = new HashMap<>();
 
         public void execute() {
+            readBallerinaConfigFile();
+
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
                 outStream.println(commandUsageInfo);
@@ -230,12 +233,11 @@ public class Main {
                 throw LauncherUtils.createUsageException("no ballerina program given");
             }
 
-            if (httpTraceLogEnabled) {
-                System.setProperty(Constants.HTTP_TRACELOG, Constants.LOG_DEST_CONSOLE);
-            }
-
-            if(logLevel != null) {
-                System.setProperty("log.level", logLevel);
+            params.forEach((k, v) -> System.setProperty(k, v)); // override any configs set through ballerina.conf
+            try {
+                LogManager.getLogManager().readConfiguration();
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("error in reading 'ballerina.conf'");
             }
 
             // Enable remote debugging
@@ -299,6 +301,21 @@ public class Main {
 
         @Override
         public void setSelfCmdParser(JCommander selfCmdParser) {
+        }
+
+        private void readBallerinaConfigFile() {
+            String configFilePath = System.getProperty("ballerina.conf");
+            Properties properties = new Properties();
+
+            try (FileInputStream fi = new FileInputStream(configFilePath);
+                 BufferedInputStream bis = new BufferedInputStream(fi)) {
+                properties.load(bis);
+                properties.forEach((k, v) -> System.setProperty((String) k, (String) v));
+            } catch (FileNotFoundException e) {
+                throw LauncherUtils.createLauncherException("file not found: " + configFilePath);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException(e.getMessage());
+            }
         }
     }
 

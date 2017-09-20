@@ -21,7 +21,6 @@ package org.ballerinalang.logging;
 import org.ballerinalang.logging.handlers.BConsoleLogHandler;
 import org.ballerinalang.logging.handlers.BLogHandler;
 import org.ballerinalang.logging.util.BLogLevel;
-import org.ballerinalang.logging.util.Constants;
 
 /**
  * Logger for the Ballerina log API
