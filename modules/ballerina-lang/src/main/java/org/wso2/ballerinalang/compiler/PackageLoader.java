@@ -162,6 +162,7 @@ public class PackageLoader {
                 this.loadSystemRepository(),
                 this.loadUserRepository(),
                 programRepo);
+        System.out.println("* Package Listing: " + this.packageRepo.listPackages());
     }
 
     private PackageRepository loadSystemRepository() {

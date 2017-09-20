@@ -19,6 +19,8 @@ package org.ballerinalang.repository;
 
 import org.ballerinalang.model.elements.PackageID;
 
+import java.util.Set;
+
 /**
  * This represents a composite {@link HierarchicalPackageRepository} which will encapsulate a given
  * {@link PackageRepository}.
@@ -43,6 +45,11 @@ public class CompositePackageRepository extends HierarchicalPackageRepository {
     @Override
     public PackageEntity lookupPackage(PackageID pkgId, String entryName) {
         return this.myRepo.loadPackage(pkgId, entryName);
+    }
+
+    @Override
+    public Set<PackageID> lookupPackageIDs() {
+        return this.myRepo.listPackages();
     }
 
 }

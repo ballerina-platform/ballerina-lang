@@ -23,14 +23,19 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -78,6 +83,31 @@ public class GeneralFSPackageRepository implements PackageRepository {
         return result;
     }
 
+    @Override
+    public Set<PackageID> listPackages() {
+        final Set<PackageID> result = new LinkedHashSet<>();
+        try {
+            Files.walkFileTree(this.basePath, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+                    if (e == null) {
+                        List<Name> nameComps = new ArrayList<>();
+                        if (Files.list(dir).filter(f -> Files.isRegularFile(f)).count() > 0) {
+                            basePath.relativize(dir).forEach(f -> nameComps.add(new Name(f.getFileName().toString())));
+                            result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                        }
+                        return FileVisitResult.CONTINUE;
+                    } else {
+                        throw e;
+                    }
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Error in listing packages: " + e.getMessage(), e);
+        }
+        return result;
+    }
+    
     private Path generatePath(PackageID pkgID) {
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
