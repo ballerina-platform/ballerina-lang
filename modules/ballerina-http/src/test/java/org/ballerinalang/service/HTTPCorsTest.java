@@ -355,7 +355,7 @@ public class HTTPCorsTest {
                 , "X-PINGOTHER", "POST", "-1");
     }
 
-    @Test(description = "Test simple request with worker", enabled = false)
+    @Test(description = "Test simple request with worker")
     public void testSimpleReqwithWorker() {
         String path = "/hello3/info2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", "Hello there");
