@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.logging.formatters;
+package org.ballerinalang.logging.formatters.jul;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevelMapper;
@@ -30,11 +30,11 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom log formatter for formatting HTTP trace log files.
+ * A custom log formatter for formatting the BRE log
  *
- * @since 0.93
+ * @since 0.94
  */
-public class HTTPTraceLogFormatter extends Formatter {
+public class BRELogFormatter extends Formatter {
 
     private final String format;
     private final String jdkLogFormat;
@@ -42,8 +42,8 @@ public class HTTPTraceLogFormatter extends Formatter {
 
     private SimpleDateFormat dateFormat;
 
-    public HTTPTraceLogFormatter() {
-        format = BLogManager.getLogManager().getProperty(HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
+    public BRELogFormatter() {
+        format = BLogManager.getLogManager().getProperty(BRELogFormatter.class.getCanonicalName() + ".format");
         jdkLogFormat = parser.buildJDKLogFormat(format);
         dateFormat = parser.getDateFormat();
     }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.logging;
 
-import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.formatters.jul.HTTPTraceLogFormatter;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.logging.util.BLogLevelMapper;
 import org.ballerinalang.logging.util.ConfigMapper;
@@ -25,7 +25,6 @@ import org.ballerinalang.logging.util.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -36,7 +35,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
@@ -129,17 +127,6 @@ public class BLogManager extends LogManager {
         }
     }
 
-//    private BLogLevel parseLogLevel(String logLevel) {
-//        BLogLevel level;
-//        try {
-//            level = BLogLevel.valueOf(logLevel);
-//        } catch (IllegalArgumentException e) {
-//            STD_ERR.println("Invalid log level value: " + logLevel);
-//            level = BLogLevel.INFO;
-//        }
-//        return level;
-//    }
-
 //    private String substituteVariables(String value) {
 //        Matcher matcher = varPattern.matcher(value);
 //        boolean found = matcher.find();
@@ -185,12 +172,10 @@ public class BLogManager extends LogManager {
     }
 
     private Properties getDefaultConfiguration() {
-
         // Configurations for BRE log
         logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_LEVEL, Level.WARNING.getName());
         logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_PATTERN,
-                               System.getProperty("ballerina.home") + File.separator + "logs" + File.separator +
-                                       "bre.log");
+                               System.getProperty(Constants.BALLERINA_RUNTIME_LOG_FILE));
         logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_LIMIT, String.valueOf(1000000));
         logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_APPEND, "true");
         logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_FORMATTER, Constants.BRE_LOG_FORMATTER);

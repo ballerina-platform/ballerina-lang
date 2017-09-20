@@ -28,15 +28,12 @@ public class Constants {
     /* GENERAL */
     public static final String BALLERINA = "ballerina";
     public static final String BALLERINA_RUNTIME = BALLERINA + ".runtime";
+    public static final String BALLERINA_RUNTIME_LOG_FILE = BALLERINA_RUNTIME + ".log";
 
     /* LOG DESTINATIONS */
     public static final String LOG_DEST_CONSOLE = "__console";
 
     /* HANDLERS */
-    public static final String JUL_CONSOLE_HANDLER = "java.util.logging.ConsoleHandler";
-    public static final String JUL_CONSOLE_HANDLER_LEVEL = JUL_CONSOLE_HANDLER + ".level";
-    public static final String JUL_CONSOLE_HANDLER_FORMATTER = JUL_CONSOLE_HANDLER + ".formatter";
-
     public static final String BRE_LOG_FILE_HANDLER = "org.ballerinalang.logging.handlers.BRELogFileHandler";
     public static final String BRE_LOG_FILE_HANDLER_LEVEL = BRE_LOG_FILE_HANDLER + ".level";
     public static final String BRE_LOG_FILE_HANDLER_PATTERN = BRE_LOG_FILE_HANDLER + ".pattern";
@@ -50,14 +47,8 @@ public class Constants {
     public static final String LEVEL = ".level";
 
     // Ballerina user level loggers
-    public static final String BALLERINA_HANDLERS = BALLERINA + ".handlers";
     public static final String BALLERINA_LEVEL = "log.level";
-    public static final String BALLERINA_USE_PARENT_HANDLERS = BALLERINA + ".useParentHandlers";
     public static final String BALLERINA_LOG_FORMAT = "log.format";
-
-    // Ballerina Log API loggers
-    public static final String BALLERINA_LOG_API = "org.ballerinalang.nativeimpl.utils.logger";
-    public static final String BALLERINA_LOG_API_HANDLERS = BALLERINA_LOG_API + ".handlers";
 
     // HTTP trace logger
     public static final String HTTP_TRACELOG = "tracelog.http";
@@ -65,13 +56,11 @@ public class Constants {
     public static final String HTTP_TRACELOG_USE_PARENT_HANDLERS = HTTP_TRACELOG + ".useParentHandlers";
 
     /* FORMATTERS */
-    public static final String BALLERINA_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BallerinaLogFormatter";
-    public static final String BALLERINA_LOG_FORMATTER_FORMAT = BALLERINA_LOG_FORMATTER + ".format";
-
-    public static final String BRE_LOG_FORMATTER = "org.ballerinalang.logging.formatters.BRELogFormatter";
+    public static final String BRE_LOG_FORMATTER = "org.ballerinalang.logging.formatters.jul.BRELogFormatter";
     public static final String BRE_LOG_FORMATTER_FORMAT = BRE_LOG_FORMATTER + ".format";
 
-    public static final String HTTP_TRACELOG_FORMATTER = "org.ballerinalang.logging.formatters.HTTPTraceLogFormatter";
+    public static final String HTTP_TRACELOG_FORMATTER =
+            "org.ballerinalang.logging.formatters.jul.HTTPTraceLogFormatter";
     public static final String HTTP_TRACELOG_FORMATTER_FORMAT = HTTP_TRACELOG_FORMATTER + ".format";
 
     /* FORMAT STRING PLACEHOLDERS */

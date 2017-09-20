@@ -36,16 +36,16 @@ import java.util.stream.Stream;
  */
 public class FormatStringMapper {
 
-    private static final String LOG_FORMAT_REGEX =
+    private static final String logFormatRegex =
             "\\{\\{timestamp\\}\\}(\\[[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']+\\])?|\\{\\{\\w+\\}\\}";
-    private static final Pattern LOG_PATTERN = Pattern.compile(LOG_FORMAT_REGEX);
-    private static final Set<String> VALID_PLACEHOLDERS;
+    private static final Pattern logPattern = Pattern.compile(logFormatRegex);
+    private static final Set<String> validPlaceholders;
 
     private SimpleDateFormat dateFormat;
     private String[] tokens;
 
     static {
-        VALID_PLACEHOLDERS = Collections.unmodifiableSet(Stream.of(
+        validPlaceholders = Collections.unmodifiableSet(Stream.of(
                 Constants.FMT_TIMESTAMP, Constants.FMT_LEVEL, Constants.FMT_LOGGER, Constants.FMT_PACKAGE,
                 Constants.FMT_UNIT, Constants.FMT_FILE, Constants.FMT_LINE, Constants.FMT_WORKER, Constants.FMT_MESSAGE,
                 Constants.FMT_ERROR).collect(Collectors.toSet()));
@@ -84,7 +84,7 @@ public class FormatStringMapper {
 
     private String[] parseFormatString(String formatString) {
         List<String> tokens = new ArrayList<>();
-        Matcher matcher = LOG_PATTERN.matcher(formatString);
+        Matcher matcher = logPattern.matcher(formatString);
 
         int i = 0;
         while (matcher.find()) {
@@ -102,6 +102,6 @@ public class FormatStringMapper {
     }
 
     private boolean isAPlaceholderToken(String token) {
-        return VALID_PLACEHOLDERS.contains(token);
+        return validPlaceholders.contains(token);
     }
 }
