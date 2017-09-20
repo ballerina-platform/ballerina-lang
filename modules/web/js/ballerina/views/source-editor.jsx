@@ -306,7 +306,10 @@ class SourceEditor extends React.Component {
         if (!debugHit && this.debugPointMarker) {
             this.editor.getSession().removeMarker(this.debugPointMarker);
         }
-        this.editor.getSession().setValue(nextProps.file.content);
+
+        if (this.editor.getSession().getValue() !== nextProps.file.content) {
+            this.editor.getSession().setValue(nextProps.file.content);
+        }
         this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
