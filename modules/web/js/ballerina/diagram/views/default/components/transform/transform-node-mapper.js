@@ -371,7 +371,7 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping function ${source.funcInv.getFunctionName()} to operator ${target.funcInv.getFunctionName()}`,
+            title: `Create mapping function ${source.funcInv.getFunctionName()} to function ${target.funcInv.getFunctionName()}`,
             data: {},
         });
     }

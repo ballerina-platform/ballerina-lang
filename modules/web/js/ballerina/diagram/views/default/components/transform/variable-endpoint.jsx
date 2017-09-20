@@ -26,7 +26,7 @@ export default class VariableEndpoint extends React.Component {
         let type = '';
         let name = '';
         let val = '';
-        if (this.props.variable.varDeclarationString != null) {
+        if (this.props.variable.varDeclarationString) {
             type = this.props.variable.varDeclarationString.split('=')[0].split(' ')[0].trim();
             name = this.props.variable.varDeclarationString.split('=')[0].split(' ')[1].trim();
             val = this.props.variable.varDeclarationString.split('=')[1].replace(/"/g, '').trim();
