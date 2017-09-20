@@ -89,6 +89,7 @@
                         <extensionRepository>siddhi-gpl-execution-geo</extensionRepository>
                         <extensionRepository>siddhi-gpl-execution-nlp</extensionRepository>
                         <extensionRepository>siddhi-gpl-execution-r</extensionRepository>
+                        <extensionRepository>siddhi-gpl-execution-streamingml</extensionRepository>
                         <extensionRepository>siddhi-gpl-script-r</extensionRepository>
                     </extensionRepositories>
                 </configuration>
