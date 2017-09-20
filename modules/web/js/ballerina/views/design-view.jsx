@@ -4,7 +4,7 @@ import BallerinaDiagram from './../diagram2/diagram';
 import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
-import CompilationUnitNode from './../model/tree/compilation-unit';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
 
 class DesignView extends React.Component {

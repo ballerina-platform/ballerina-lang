@@ -28,7 +28,7 @@ import ToolGroup from './../tool-palette/tool-group';
 import DefaultASTFactory from '../ast/default-ast-factory';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import {binaryOpTools, unaryOpTools} from './operator-tools';
-import CompilationUnitNode from './../model/tree/compilation-unit';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 class ToolsPanel extends React.Component {
 

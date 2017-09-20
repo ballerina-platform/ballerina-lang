@@ -28,7 +28,7 @@ class Node extends EventChannel {
 
     constructor() {
         super();
-        // Set an id
+        // Set an id @TODO move to a path base ID.
         this.id = uuid();
 
         // Following will propergate tree modified event to the top.

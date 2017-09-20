@@ -40,7 +40,7 @@ import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visi
 import FindLineNumbersVisiter from './../visitors/find-line-numbers';
 import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
 import TreeBuilder from './../model/tree-builder';
-import CompilationUnitNode from './../model/tree/compilation-unit';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 const sourceViewTabHeaderClass = 'inverse';
 

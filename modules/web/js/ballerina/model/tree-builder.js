@@ -69,12 +69,12 @@ class TreeBuilder {
             // if child name is position || whitespace skip convection.
             if (childName !== 'position' && childName !== 'ws') {
                 const child = json[childName];
-                if (_.isPlainObject(child)) {
+                if (_.isPlainObject(child) && child.kind) {
                     json[childName] = TreeBuilder.build(child, node);
                 } else if (child instanceof Array) {
                     for (let i = 0; i < child.length; i++) {
                         const childItem = child[i];
-                        if (_.isPlainObject(childItem)) {
+                        if (_.isPlainObject(childItem) && child.kind) {
                             child[i] = TreeBuilder.build(childItem, node);
                         }
                     }

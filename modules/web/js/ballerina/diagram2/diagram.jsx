@@ -18,15 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// TODOX import CanvasDecorator from './views/default/components/canvas-decorator';
+import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
 // TODOX import PositionVisitor from './position-visitor';
-// TODOX import DimensionVisitor from './dimension-visitor';
+import DimensionVisitor from './visitors/dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
-import ClearOffset from '../visitors/clear-offset';
+import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
-// TODOX import { getComponentForNodeArray, getDesigner } from './diagram-util';
+import { getComponentForNodeArray, getDesigner } from './diagram-util';
 import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
-import CompilationUnitNode from './../model/tree/compilation-unit';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 
 /**
@@ -44,8 +44,8 @@ class Diagram extends React.Component {
      */
     constructor(props) {
         super(props);
-        /* TODOX
         this.dimentionVisitor = new DimensionVisitor();
+        /* TODOX
         this.positionCalc = new PositionVisitor();
         */
     }
@@ -68,20 +68,22 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
-        /* TODOX
         const designer = getDesigner([this.props.mode]);
+
         // Following is how we render the diagram.
-        // 1. We will visit the model tree and calculate width and height of all
-        //    the elements. We will use DimensionCalcVisitor.
-        // 1.1 First clear any offset values we have set.
-        this.props.model.accept(new ClearOffset());
-        // 1.2 Run the dimention calculator.
+        // 1 First clear any intermediate state we have set.
+        this.props.model.accept(new Clean());
+
+        // 2. We will visit the model tree and calculate width and height of all
+        //    the elements. We will run the DimensionVisitor.
         this.dimentionVisitor.setMode(this.props.mode);
         this.dimentionVisitor.setDesigner(designer);
         this.props.model.accept(this.dimentionVisitor);
+
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
-        const viewState = this.props.model.getViewState();
+        const viewState = this.props.model.viewState;
+        /* TODOX
         viewState.container = {
             width: $(this.context.getDiagramContainer()).width(),
             height: $(this.context.getDiagramContainer()).height(),
@@ -121,16 +123,15 @@ class Diagram extends React.Component {
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    a CsnvasDecorator and pass child components for that.
 
+        */
         return (<CanvasDecorator
             dropTarget={this.props.model}
-            title="StatementContainer"
             bBox={viewState.bBox}
-            annotations={annotations}
+            // TODOX annotations={annotations}
         >
-            {others}
+            <h2> design </h2>
+            { /* TODOX others */}
         </CanvasDecorator>);
-        */
-        return <h1>Design</h1>;
     }
 }
 
