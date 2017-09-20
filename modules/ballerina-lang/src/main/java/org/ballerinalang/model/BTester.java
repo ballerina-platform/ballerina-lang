@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.io.PrintStream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
@@ -40,8 +41,10 @@ public class BTester {
 
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(COMPILER_PHASE, "typeCheck");
+//        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
+        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+        options.put(COMPILER_PHASE, "codeGen");
+        options.put(PRESERVE_WHITESPACE, "false");
 
         // How to set a custom diagnostic listener
         DiagnosticListener listener = diagnostic -> out.println(diagnostic.getMessage());
@@ -52,7 +55,9 @@ public class BTester {
         //context.put(PackageRepository.class, repo);
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile("bar.bal");
+//        compiler.compile("bar.bal");
+        compiler.compile("pkg.bal");
+//        compiler.compile("a.b.c");
     }
 
 }

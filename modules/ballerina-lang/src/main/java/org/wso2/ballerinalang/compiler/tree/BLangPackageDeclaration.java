@@ -17,30 +17,55 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
  */
 public class BLangPackageDeclaration extends BLangNode implements PackageDeclarationNode {
 
-    public PackageID pkgId;
+    public List<BLangIdentifier> pkgNameComps;
+    public BLangIdentifier version;
 
     @Override
-    public PackageID getPackageID() {
-        return pkgId;
+    public List<? extends IdentifierNode> getPackageName() {
+        return pkgNameComps;
     }
 
     @Override
-    public void setPackageID(PackageID pkgId) {
-        this.pkgId = pkgId;
+    public void setPackageName(List<? extends IdentifierNode> nameParts) {
+        this.pkgNameComps = new ArrayList<>();
+        this.pkgNameComps.add((BLangIdentifier) nameParts);
+    }
+
+    @Override
+    public IdentifierNode getPackageVersion() {
+        return version;
+    }
+
+    @Override
+    public void setPackageVersion(IdentifierNode version) {
+        this.version = (BLangIdentifier) version;
     }
 
     @Override
     public String toString() {
-        return "BLangPackageDeclaration: " + this.pkgId;
+        String pkgName = String.join(".", pkgNameComps.stream()
+                .map(id -> id.value)
+                .collect(Collectors.toList()));
+
+        String versionStr = (this.version.value != null) ? this.version.value : "";
+        if (!versionStr.isEmpty()) {
+            versionStr = " version " + versionStr;
+        }
+
+        return "package " + pkgName + versionStr;
     }
 
     @Override

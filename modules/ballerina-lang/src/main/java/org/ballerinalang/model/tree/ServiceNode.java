@@ -41,5 +41,9 @@ public interface ServiceNode extends AnnotatableNode, TopLevelNode {
     List<? extends ResourceNode> getResources();
     
     void addResource(ResourceNode resource);
+
+    void setInitFunction(FunctionNode function);
+
+    FunctionNode getInitFunction();
     
 }

@@ -20,10 +20,17 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.ProgramFile;
+import org.wso2.ballerinalang.programfile.ProgramFileWriter;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Paths;
 
 /**
  * @since 0.94
@@ -36,6 +43,7 @@ public class Compiler {
     private CompilerOptions options;
     private PackageLoader pkgLoader;
     private SemanticAnalyzer semAnalyzer;
+    private CodeAnalyzer codeAnalyzer;
     private CodeGenerator codeGenerator;
 
     private CompilerPhase compilerPhase;
@@ -54,6 +62,7 @@ public class Compiler {
         this.options = CompilerOptions.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
         this.compilerPhase = getCompilerPhase();
@@ -68,10 +77,10 @@ public class Compiler {
                 typeCheck(define(sourcePkg));
                 break;
             case CODE_ANALYZE:
-                typeCheck(define(sourcePkg));
+                codeAnalyze(typeCheck(define(sourcePkg)));
                 break;
             case CODE_GEN:
-                gen(typeCheck(define(sourcePkg)));
+                gen(codeAnalyze(typeCheck(define(sourcePkg))));
                 break;
         }
     }
@@ -84,8 +93,20 @@ public class Compiler {
         return semAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage codeAnalyze(BLangPackage pkgNode) {
+        return codeAnalyzer.analyze(pkgNode);
+    }
+
     private void gen(BLangPackage pkgNode) {
-        this.codeGenerator.generate(pkgNode);
+        ProgramFile programFile = this.codeGenerator.generate(pkgNode);
+
+        try {
+            ProgramFileWriter.writeProgram(programFile, Paths.get("temp.balx"));
+        } catch (IOException e) {
+            // TODO FIX This ASAP
+            PrintStream err = System.err;
+            err.println(e.getMessage());
+        }
     }
 
     private CompilerPhase getCompilerPhase() {

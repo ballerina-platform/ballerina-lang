@@ -32,12 +32,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
@@ -55,6 +59,7 @@ public class PackageLoader {
     private CompilerOptions options;
     private Parser parser;
     private SymbolEnter symbolEnter;
+    private Names names;
 
     private Map<PackageID, BPackageSymbol> packages;
     private PackageRepository packageRepo;
@@ -74,32 +79,59 @@ public class PackageLoader {
         this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.names = Names.getInstance(context);
 
         this.packages = new HashMap<>();
         loadPackageRepository(context);
     }
 
     public BLangPackage loadEntryPackage(String sourcePkg) {
+        if (sourcePkg == null || sourcePkg.isEmpty()) {
+            throw new IllegalArgumentException("source package/file cannot be null");
+        }
+
+        PackageEntity pkgEntity;
+        PackageID pkgId = PackageID.EMPTY;
+        if (sourcePkg.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
+            pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
+        } else {
+            String[] pkgParts = sourcePkg.split("\\.");
+            List<Name> pkgNameComps = Arrays.stream(pkgParts)
+                    .map(part -> names.fromString(part))
+                    .collect(Collectors.toList());
+
+            pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+            pkgEntity = this.packageRepo.loadPackage(pkgId);
+        }
+
         // TODO Implement the support for loading a source package
-        BLangIdentifier version = new BLangIdentifier();
-        version.setValue("0.0.0");
-        PackageID pkgId = new PackageID(new ArrayList<>(), version);
-        PackageEntity pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         log("* Package Entity: " + pkgEntity);
 
+        return loadPackage(pkgId, pkgEntity);
+    }
+
+    public BLangPackage loadPackage(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
+        List<Name> nameComps = pkgNameComps.stream()
+                .map(identifier -> names.fromIdNode(identifier))
+                .collect(Collectors.toList());
+        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
+        return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
+    }
+
+    private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
         BLangPackage pkgNode;
+        BPackageSymbol pSymbol;
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
-
-            BPackageSymbol pSymbol = symbolEnter.definePackage(pkgNode);
+            pSymbol = symbolEnter.definePackage(pkgNode);
             pkgNode.symbol = pSymbol;
-            packages.put(pkgId, pSymbol);
         } else {
             // This is a compiled package.
             // TODO Throw an error. Entry package cannot be a compiled package
             throw new RuntimeException("TODO Entry package cannot be a compiled package");
         }
 
+        packages.put(pkgId, pSymbol);
         return pkgNode;
     }
 
@@ -130,6 +162,7 @@ public class PackageLoader {
                 this.loadSystemRepository(),
                 this.loadUserRepository(),
                 programRepo);
+        System.out.println("* Package Listing: " + this.packageRepo.listPackages());
     }
 
     private PackageRepository loadSystemRepository() {

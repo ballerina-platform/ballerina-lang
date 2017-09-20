@@ -50,6 +50,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangAnnotation> annotations;
+    public BLangFunction initFunction;
 
     public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;

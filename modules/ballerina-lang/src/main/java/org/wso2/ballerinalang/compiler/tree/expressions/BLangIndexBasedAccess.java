@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -28,25 +28,31 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangIndexBasedAccess extends BLangVariableReference implements IndexBasedAccessNode {
 
-    public ExpressionNode index, expression;
+    public BLangExpression indexExpr;
+    public BLangVariableReference expr;
 
     @Override
-    public ExpressionNode getExpression() {
-        return expression;
+    public BLangVariableReference getExpression() {
+        return expr;
     }
 
     @Override
-    public ExpressionNode getIndex() {
-        return index;
+    public BLangExpression getIndex() {
+        return indexExpr;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(expression) + "[" + String.valueOf(index) + "]";
+        return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.INDEX_BASED_ACCESS_EXPR;
     }
 }

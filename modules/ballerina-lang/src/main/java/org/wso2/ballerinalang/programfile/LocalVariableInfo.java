@@ -15,18 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
-
-import org.ballerinalang.model.tree.IdentifierNode;
-
-import java.util.Map;
+package org.wso2.ballerinalang.programfile;
 
 /**
- * {key1:value1, key2:value2, string`key{{n}}`:value3, ...}
+ * {@code LocalVariableAttributeInfo} contains common metadata of a given local variable.
  *
- * @since 0.94
+ * @since 0.88
  */
-public interface RecordTypeLiteralNode extends ExpressionNode {
-    // TODO Check whether we can string template literals
-    Map<IdentifierNode, ExpressionNode> getKeyValuePairs();
+public class LocalVariableInfo {
+
+    public int varNameCPIndex;
+    public int varTypeSigCPIndex;
+    public int varIndex;
+
+    public int[] attachmentIndexes = new int[0];
+
+    public LocalVariableInfo(int varNameCPIndex, int varTypeSigCPIndex, int varIndex) {
+        this.varNameCPIndex = varNameCPIndex;
+        this.varTypeSigCPIndex = varTypeSigCPIndex;
+        this.varIndex = varIndex;
+    }
 }

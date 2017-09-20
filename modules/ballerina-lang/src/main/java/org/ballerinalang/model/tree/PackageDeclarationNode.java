@@ -17,15 +17,18 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.elements.PackageID;
+import java.util.List;
 
 /**
  * @since 0.94
  */
 public interface PackageDeclarationNode extends Node, TopLevelNode {
 
-    PackageID getPackageID();
-    
-    void setPackageID(PackageID pkgId);
-    
+    List<? extends IdentifierNode> getPackageName();
+
+    void setPackageName(List<? extends IdentifierNode> nameParts);
+
+    IdentifierNode getPackageVersion();
+
+    void setPackageVersion(IdentifierNode version);
 }

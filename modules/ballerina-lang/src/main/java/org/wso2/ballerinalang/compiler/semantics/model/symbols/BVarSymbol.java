@@ -28,8 +28,13 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
  */
 public class BVarSymbol extends BSymbol implements VariableSymbol {
 
-    public BVarSymbol(Name name, BType type, BSymbol owner) {
-        super(VARIABLE, name, type, owner);
+    /**
+     * Represent the index of the variable in a memory block of the VM.
+     */
+    public int varIndex;
+
+    public BVarSymbol(int flags, Name name, BType type, BSymbol owner) {
+        super(VARIABLE, flags, name, type, owner);
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -36,6 +37,8 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     public BLangExpression expr;
     public BLangType typeNode;
     public List<BType> types = new ArrayList<>(0);
+    public BOperatorSymbol castSymbol;
+    public int[] regIndexes;
 
     public ExpressionNode getExpression() {
         return expr;
@@ -80,5 +83,10 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     @Override
     public void setTypes(List<BType> types) {
         this.types = types;
+    }
+
+    @Override
+    public int[] getRegIndexes() {
+        return this.regIndexes;
     }
 }

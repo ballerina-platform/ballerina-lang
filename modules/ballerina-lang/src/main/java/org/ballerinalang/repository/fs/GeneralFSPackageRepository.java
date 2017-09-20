@@ -22,14 +22,20 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +53,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID) {
         Path path = this.generatePath(pkgID);
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
         return new FSPackageSource(pkgID, path);
@@ -55,7 +61,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     private PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
         Path path = this.generatePath(pkgID);
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return null;
         }
         return new FSPackageSource(pkgID, path, entryName);
@@ -73,16 +79,57 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
     @Override
     public PackageEntity loadPackage(PackageID pkgID, String entryName) {
-        PackageEntity result = null;
-        //TODO check compiled packages first
-        if (result == null) {
-            result = this.lookupPackageSource(pkgID, entryName);
+        PackageEntity result = this.lookupPackageSource(pkgID, entryName);
+        return result;
+    }
+    
+    private String sanatize(String name, String separator) {
+        if (name.startsWith(separator)) {
+            name = name.substring(separator.length());
+        }
+        if (name.endsWith(separator)) {
+            name = name.substring(0, name.length() - separator.length());
+        }
+        return name;
+    }
+
+    @Override
+    public Set<PackageID> listPackages() {
+        Set<PackageID> result = new LinkedHashSet<>();
+        int baseNameCount = this.basePath.getNameCount();
+        String separator = this.basePath.getFileSystem().getSeparator();
+        try {
+            Files.walkFileTree(this.basePath, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+                    if (e == null) {
+                        List<Name> nameComps = new ArrayList<>();
+                        if (Files.list(dir).filter(f -> Files.isRegularFile(f)).count() > 0) {
+                            int dirNameCount = dir.getNameCount();
+                            if (dirNameCount > baseNameCount) {
+                                dir.subpath(baseNameCount, dirNameCount).forEach(
+                                        f -> nameComps.add(new Name(sanatize(f.getFileName().toString(), separator))));
+                                result.add(new PackageID(nameComps, Names.DEFAULT_VERSION));
+                            }
+                        }
+                        return FileVisitResult.CONTINUE;
+                    } else {
+                        throw e;
+                    }
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Error in listing packages: " + e.getMessage(), e);
         }
         return result;
     }
-
+    
     private Path generatePath(PackageID pkgID) {
-        return this.basePath.resolve(pkgID.getPackageName().getValue().replace('.', File.separatorChar));
+        Path pkgDirPath = this.basePath;
+        for (Name comp : pkgID.getNameComps()) {
+            pkgDirPath = pkgDirPath.resolve(comp.value);
+        }
+        return pkgDirPath;
     }
 
     /**

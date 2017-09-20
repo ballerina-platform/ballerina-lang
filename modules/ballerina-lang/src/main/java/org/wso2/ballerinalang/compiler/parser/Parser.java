@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.PackageSource;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
@@ -41,6 +43,7 @@ import java.io.IOException;
 public class Parser {
 
     private static final CompilerContext.Key<Parser> PARSER_KEY = new CompilerContext.Key<>();
+    private final boolean preserveWhitespace;
 
     private CompilerContext context;
 
@@ -56,6 +59,9 @@ public class Parser {
     public Parser(CompilerContext context) {
         this.context = context;
         this.context.put(PARSER_KEY, this);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
     }
 
     public BLangPackage parse(PackageSource pkgSource) {
@@ -78,8 +84,7 @@ public class Parser {
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
-            BLangParserListener listener = new BLangParserListener(compUnit, diagnosticSrc);
-            parser.addParseListener(listener);
+            parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
             return compUnit;
         } catch (IOException e) {
@@ -87,8 +92,18 @@ public class Parser {
         }
     }
 
+    private BLangParserListener newListener(CommonTokenStream tokenStream,
+                                            CompilationUnitNode compUnit,
+                                            BDiagnosticSource diagnosticSrc) {
+        if (this.preserveWhitespace) {
+            return new BLangWSPreservingParserListener(tokenStream, compUnit, diagnosticSrc);
+        } else {
+            return new BLangParserListener(compUnit, diagnosticSrc);
+        }
+    }
+
     private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {
-        Name pkgName = sourceEntry.getPackageID().getPackageName();
+        Name pkgName = sourceEntry.getPackageID().getName();
         Name pkgVersion = sourceEntry.getPackageID().getPackageVersion();
         String entryName = sourceEntry.getEntryName();
         return new BDiagnosticSource(pkgName.getValue(), pkgVersion.getValue(), entryName);

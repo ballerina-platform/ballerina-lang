@@ -9,6 +9,7 @@ lexer grammar BallerinaLexer;
 PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
+PUBLIC      : 'public' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;

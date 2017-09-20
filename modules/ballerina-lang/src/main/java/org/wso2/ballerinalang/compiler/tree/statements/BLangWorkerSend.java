@@ -69,6 +69,7 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

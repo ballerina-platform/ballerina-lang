@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
 
     public BLangAnnotation() {
         this.attributes = new ArrayList<>();
-        this.flags = new HashSet<>();
+        this.flags = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
     }
 

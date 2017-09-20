@@ -29,12 +29,22 @@ public class Names {
             new CompilerContext.Key<>();
 
     public static final Name EMPTY = new Name("");
+    public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
+    public static final Name STACK_FRAME = new Name("stackFrame");
+    public static final Name CALLER = new Name("caller");
+    public static final Name PACKAGE = new Name("package");
+    public static final Name FILE_NAME = new Name("fileName");
+    public static final Name LINE_NUMBER = new Name("lineNumber");
     public static final Name MSG = new Name("msg");
     public static final Name ERROR = new Name("error");
+    public static final Name CAUSE = new Name("cause");
+    public static final Name STACK_TRACE = new Name("stackTrace");
+    public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
+    public static final Name CONNECTOR = new Name("connector");
 
     public CompilerContext context;
 
@@ -54,12 +64,17 @@ public class Names {
 
     public Name fromIdNode(BLangIdentifier identifier) {
         // identifier.value cannot be null
-        return identifier.value.equals("") ? EMPTY : new Name(identifier.value);
+        return fromString(identifier.value);
     }
 
     public Name fromString(String value) {
         // value cannot be null
-        return value.equals("") ? EMPTY : new Name(value);
+        if (value.equals("")) {
+            return EMPTY;
+        } else if (value.equals("_")) {
+            return IGNORE;
+        }
+        return new Name(value);
     }
 
     public Name fromTypeKind(TypeKind typeKind) {

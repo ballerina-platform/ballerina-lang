@@ -33,10 +33,11 @@ public class BInvokableSymbol extends BSymbol implements InvokableSymbol {
     public List<BVarSymbol> retParams;
 
     public BInvokableSymbol(int tag,
+                            int flags,
                             Name name,
                             BType type,
                             BSymbol owner) {
-        super(tag, name, type, owner);
+        super(tag, flags, name, type, owner);
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();
     }

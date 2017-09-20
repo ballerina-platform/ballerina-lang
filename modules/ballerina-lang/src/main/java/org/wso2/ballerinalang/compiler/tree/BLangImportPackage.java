@@ -17,34 +17,51 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
  */
 public class BLangImportPackage extends BLangNode implements ImportPackageNode {
 
-    public PackageID pkgId;
+    public List<BLangIdentifier> pkgNameComps;
+    public BLangIdentifier version;
     public BLangIdentifier alias;
+    public BPackageSymbol symbol;
 
     @Override
-    public PackageID getPackageID() {
-        return pkgId;
+    public List<BLangIdentifier> getPackageName() {
+        return pkgNameComps;
     }
 
     @Override
-    public void setPackageID(PackageID pkgId) {
-        this.pkgId = pkgId;
+    public void setPackageName(List<? extends IdentifierNode> nameParts) {
+        this.pkgNameComps = new ArrayList<>();
+        this.pkgNameComps.add((BLangIdentifier) nameParts);
+    }
+
+    @Override
+    public IdentifierNode getPackageVersion() {
+        return version;
+    }
+
+    @Override
+    public void setPackageVersion(IdentifierNode version) {
+        this.version = (BLangIdentifier) version;
     }
 
     @Override
     public BLangIdentifier getAlias() {
         return alias;
     }
-    
+
     @Override
     public void setAlias(IdentifierNode alias) {
         this.alias = (BLangIdentifier) alias;
@@ -71,18 +88,37 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
         }
 
         BLangImportPackage that = (BLangImportPackage) o;
-        return pkgId.equals(that.pkgId) && alias.equals(that.alias);
+        if (pkgNameComps != null ? !pkgNameComps.equals(that.pkgNameComps) :
+                that.pkgNameComps != null) {
+            return false;
+        }
+
+        return version != null ? version.equals(that.version) : that.version == null;
     }
 
     @Override
     public int hashCode() {
-        int result = pkgId.hashCode();
-        result = 31 * result + alias.hashCode();
+        int result = pkgNameComps != null ? pkgNameComps.hashCode() : 0;
+        result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "BLangImportPackage: " + this.pkgId + ((this.alias != null) ? " -> " + this.alias : "");
+        String pkgName = String.join(".", pkgNameComps.stream()
+                .map(id -> id.value)
+                .collect(Collectors.toList()));
+
+        String versionStr = (this.version.value != null) ? this.version.value : "";
+        if (!versionStr.isEmpty()) {
+            versionStr = " version " + versionStr;
+        }
+
+        String aliasStr = (this.version.value != null) ? this.version.value : "";
+        if (!aliasStr.isEmpty()) {
+            aliasStr = " as " + aliasStr;
+        }
+
+        return "import " + pkgName + versionStr + aliasStr;
     }
 }
