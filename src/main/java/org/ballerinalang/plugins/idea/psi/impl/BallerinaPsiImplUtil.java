@@ -1538,11 +1538,8 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static ConnectorDefinitionNode resolveConnectorFromVariableDefinitionNode(@NotNull PsiElement
-                                                                                             definitionNode) {
-//        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
-//        if (typeNameNode == null) {
-//            return null;
-//        }
+                                                                                                 definitionNode) {
+
         NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(definitionNode, NameReferenceNode.class);
         if (nameReferenceNode == null) {
             return null;

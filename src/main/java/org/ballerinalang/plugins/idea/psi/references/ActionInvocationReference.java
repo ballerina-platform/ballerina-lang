@@ -64,10 +64,18 @@ public class ActionInvocationReference extends BallerinaElementReference {
         //            }
         //            reference = connectorName.findReferenceAt(connectorName.getTextLength());
         //        }
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+        PsiReference variableReference=null;
+        if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+            PsiElement connectorVariable = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+            if (connectorVariable != null) {
+                variableReference = connectorVariable.findReferenceAt(connectorVariable.getTextLength());
+            }
+        } else {
+            PsiElement prevSibling = parent.getPrevSibling();
+            variableReference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+        }
 
-        PsiElement prevSibling = parent.getPrevSibling();
-
-        PsiReference variableReference = prevSibling.findReferenceAt(prevSibling.getTextLength());
         if (variableReference == null) {
             return null;
         }
