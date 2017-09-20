@@ -32,7 +32,7 @@ import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
 
 const DEFAULT_PREVIEW_VIEW_SIZE = 500;
-const MINIMUM_PREVIEW_VIEW_SIZE = 200;
+const MINIMUM_PREVIEW_VIEW_SIZE = 250;
 /**
  * Editor Tabs
  */
@@ -52,27 +52,14 @@ class EditorTabs extends View {
         super(props);
         this.onTabClose = this.onTabClose.bind(this);
         this.onPreviewViewTabClose = this.onPreviewViewTabClose.bind(this);
-        this.editorArea = undefined;
         this.previewSplitRef = undefined;
 
         const { history } = props.editorPlugin.appContext.pref;
         const previewViewEnabled = !_.isNil(history.get(HISTORY.ACTIVE_PREVIEW_VIEW));
 
-        let previewViewSize;
-        if (previewViewEnabled) {
-            if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
-                previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
-            } else {
-                previewViewSize = DEFAULT_PREVIEW_VIEW_SIZE;
-            }
-        } else {
-            previewViewSize = '100%';
-        }
-
         // Setting view states.
         this.state = {
             previewViewEnabled,
-            previewViewSize,
         };
 
         // Binding commands.
@@ -104,6 +91,28 @@ class EditorTabs extends View {
     }
 
     /**
+     * Gets the size of the preview view.
+     * @param {boolean} previewViewEnabled Whether preview view is enabled.
+     * @returns {number|string} The preview view size.
+     * @memberof EditorTabs
+     */
+    getPreviewViewSize(previewViewEnabled) {
+        const { history } = this.props.editorPlugin.appContext.pref;
+        let previewViewSize;
+        if (previewViewEnabled) {
+            if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
+                previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
+            } else {
+                previewViewSize = DEFAULT_PREVIEW_VIEW_SIZE;
+            }
+        } else {
+            previewViewSize = '100%';
+        }
+
+        return previewViewSize;
+    }
+
+    /**
      * On split view button/icon is clicked.
      * @memberof EditorTabs
      */
@@ -130,15 +139,10 @@ class EditorTabs extends View {
     setPreviewViewState(previewViewSize) {
         const { history } = this.props.editorPlugin.appContext.pref;
         if (_.isNil(previewViewSize)) {
-            const sizeFromHistory = history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE);
-            previewViewSize = !_.isNil(sizeFromHistory) && sizeFromHistory !== 0
-                ? sizeFromHistory : DEFAULT_PREVIEW_VIEW_SIZE;
+            previewViewSize = this.getPreviewViewSize(true);
         }
         history.put(HISTORY.PREVIEW_VIEW_ENABLED_SIZE, previewViewSize);
-        this.setState({
-            previewViewSize,
-        });
-        this.props.editorPlugin.reRender();
+        this.forceUpdate();
     }
 
     /**
@@ -241,20 +245,21 @@ class EditorTabs extends View {
         });
 
         const previewTab = this.renderPreviewTab();
-        return (<div
-            className="editor-area"
-            ref={(ref) => {
-                this.editorArea = ref;
-            }}
-        >
+        return (<div className="editor-area">
             <SplitPane
                 ref={(ref) => { this.previewSplitRef = ref; }}
                 split="vertical"
                 minSize={this.state.previewViewEnabled ? MINIMUM_PREVIEW_VIEW_SIZE : '100%'}
                 maxSize={1500}
-                defaultSize={this.state.previewViewEnabled ? this.state.previewViewSize : '100%'}
+                defaultSize={this.getPreviewViewSize(this.state.previewViewEnabled)}
                 onDragFinished={(previewViewSize) => {
                     this.setPreviewViewState(previewViewSize);
+                    if (!_.isNil(this.previewSplitRef)) {
+                        this.previewSplitRef.setState({
+                            resized: false,
+                            draggedSize: undefined,
+                        });
+                    }
                 }}
             >
                 <Tabs

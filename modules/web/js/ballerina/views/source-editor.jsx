@@ -87,6 +87,7 @@ class SourceEditor extends React.Component {
         this.format = this.format.bind(this);
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
+        this.onFileContentChanged = this.onFileContentChanged.bind(this);
     }
 
     /**
@@ -133,13 +134,7 @@ class SourceEditor extends React.Component {
             // listen to changes done to file content
             // by other means (eg: design-view changes or redo/undo actions)
             // and update ace content accordingly
-            this.props.file.on(CONTENT_MODIFIED, (evt) => {
-                if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                    // no need to update the file again, hence
-                    // the second arg to skip update event
-                    this.replaceContent(evt.newContent, true);
-                }
-            });
+            this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
 
             editor.on('guttermousedown', (e) => {
                 const target = e.domEvent.target;
@@ -172,6 +167,19 @@ class SourceEditor extends React.Component {
                 });
                 this.props.onLintErrors(errors);
             });
+        }
+    }
+
+    /**
+     * Event handler when the content of the file object is changed.
+     * @param {Object} evt The event object.
+     * @memberof SourceEditor
+     */
+    onFileContentChanged(evt) {
+        if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+            // no need to update the file again, hence
+            // the second arg to skip update event
+            this.replaceContent(evt.newContent, true);
         }
     }
 
@@ -307,9 +315,12 @@ class SourceEditor extends React.Component {
             this.editor.getSession().removeMarker(this.debugPointMarker);
         }
 
-        if (this.editor.getSession().getValue() !== nextProps.file.content) {
-            this.editor.getSession().setValue(nextProps.file.content);
-        }
+        // Removing the file content changed event of the previous file.
+        this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
+        // Adding the file content changed event to the new file.
+        nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
+        this.replaceContent(nextProps.file.content, false);
+
         this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
