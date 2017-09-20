@@ -117,6 +117,7 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() {
             try {
+                flush();
                 httpCarbonMessage.setEndOfMsgAdded(true);
                 super.close();
             } catch (IOException e) {
