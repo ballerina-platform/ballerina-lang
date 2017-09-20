@@ -24,7 +24,8 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, EVENTS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, 
+    HISTORY, EVENTS, COMMANDS as COMMAND_IDS } from './constants';
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
@@ -252,25 +253,8 @@ class WorkspacePlugin extends Plugin {
                                     return true;
                                 },
                                 handleAction: () => {
-
-                                },
-                            },
-                            {
-                                icon: 'delete',
-                                isActive: () => {
-                                    return true;
-                                },
-                                handleAction: () => {
-
-                                },
-                            },
-                            {
-                                icon: 'refresh',
-                                isActive: () => {
-                                    return true;
-                                },
-                                handleAction: () => {
-
+                                    const { command: { dispatch } } = this.appContext;
+                                    dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
                                 },
                             },
                         ],
