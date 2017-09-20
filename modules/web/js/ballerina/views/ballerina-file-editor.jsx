@@ -90,7 +90,9 @@ class BallerinaFileEditor extends React.Component {
                         // remove new AST from new state to be set
                         delete state.model;
                         this.skipLoadingOverlay = false;
-                        this.setState(state);
+                        if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
+                            this.setState(state);
+                        }
                     })
                     .catch(error => log.error(error));
             } else {
@@ -137,6 +139,7 @@ class BallerinaFileEditor extends React.Component {
             editor: this,
             astRoot: this.state.model,
             environment: this.environment,
+            isPreviewViewEnabled: this.props.isPreviewViewEnabled,
         };
     }
 
@@ -149,7 +152,9 @@ class BallerinaFileEditor extends React.Component {
         this.validateAndParseFile()
             .then((state) => {
                 state.initialParsePending = false;
-                this.setState(state);
+                if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
+                    this.setState(state);
+                }
             })
             .catch((error) => {
                 log.error(error);
@@ -305,8 +310,10 @@ class BallerinaFileEditor extends React.Component {
             this.validateAndParseFile()
                 .then((state) => {
                     this.skipLoadingOverlay = false;
-                    this.setState(state);
-                    this.forceUpdate();
+                    if (!(state.parseFailed && this.props.isPreviewViewEnabled)) {
+                        this.setState(state);
+                        this.forceUpdate();
+                    }
                 })
                 .catch(error => log.error(error));
         } else {
@@ -472,31 +479,34 @@ class BallerinaFileEditor extends React.Component {
         // if we are automatically switching to source view due to syntax errors in file,
         // popup error list in source view so that the user is aware of the cause
         const popupErrorListInSourceView = this.state.activeView === DESIGN_VIEW
-                    && (!_.isEmpty(this.state.syntaxErrors)
-                         || (this.state.parseFailed && !this.state.parsePending));
+            && (!_.isEmpty(this.state.syntaxErrors)
+                || (this.state.parseFailed && !this.state.parsePending));
 
         // If there are syntax errors, forward editor to source view & update state
         // to make that decision reflect in state. This is to prevent automatic
         // redirection to design view once the syntax errors are fixed in source view.
-        if (!this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
+        if (!this.props.isPreviewViewEnabled && !this.state.validatePending && !_.isEmpty(this.state.syntaxErrors)
                 && this.state.activeView !== SOURCE_VIEW) {
             this.state.activeView = SOURCE_VIEW;
         }
 
         const showDesignView = this.state.initialParsePending
-                                    || (!this.state.parseFailed
+            || ((!this.state.parseFailed)
                                             && _.isEmpty(this.state.syntaxErrors)
                                                 && this.state.activeView === DESIGN_VIEW);
         const showSourceView = this.state.parseFailed
-                                    || !_.isEmpty(this.state.syntaxErrors)
-                                        || this.state.activeView === SOURCE_VIEW;
-        const showSwaggerView = !this.state.parseFailed
+            || !_.isEmpty(this.state.syntaxErrors)
+            || this.state.activeView === SOURCE_VIEW;
+        const showSwaggerView = (!this.state.parseFailed
                                     && !_.isNil(this.state.swaggerViewTargetService)
-                                        && this.state.activeView === SWAGGER_VIEW;
+                                        && this.state.activeView === SWAGGER_VIEW);
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         return (
-            <div id={`bal-file-editor-${this.props.file.id}`} className='bal-file-editor'>
+            <div
+                id={`bal-file-editor-${this.props.file.id}`}
+                className='bal-file-editor'
+            >
                 <CSSTransitionGroup
                     transitionName="loading-overlay"
                     transitionEnterTimeout={300}
@@ -545,6 +555,11 @@ BallerinaFileEditor.propTypes = {
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
     }).isRequired,
+    isPreviewViewEnabled: PropTypes.bool,
+};
+
+BallerinaFileEditor.defaultProps = {
+    isPreviewViewEnabled: false,
 };
 
 BallerinaFileEditor.childContextTypes = {
@@ -552,6 +567,7 @@ BallerinaFileEditor.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
 export default BallerinaFileEditor;

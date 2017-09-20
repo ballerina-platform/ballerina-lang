@@ -19,6 +19,8 @@ export const DIALOGS = {};
 
 export const HISTORY = {
     ACTIVE_EDITOR: 'composer.plugin.editor.active-editor',
+    ACTIVE_PREVIEW_VIEW: 'active-preview-view',
+    PREVIEW_VIEW_ENABLED_SIZE: 'preview-view-pane-size',
 };
 
 export const PLUGIN_ID = 'composer.plugin.editor';

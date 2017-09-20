@@ -7,6 +7,17 @@
             }
         }
     }
+    .rc-tabs-bar {
+        .split-view-icon {
+            font-size: 20px;
+            margin-right: 20px;
+            opacity: 0.6;
+        }
+        .split-view-icon:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+    }
 }
 
 .ballerina-editor {
@@ -54,13 +65,17 @@
 
     .bottom-right-controls-container {
         position: absolute;
-        bottom: 100px;
-        right: 60px;
+        bottom: 23px;
+        right: 50px;
         z-index: 30;
         background: $bottom-right-controls-bgcolor;
         color: #fff;
         padding: 0;
         line-height: 30px;
+
+        .btn-icon {
+            float: left;
+        }
     }    
     
     .bottom-right-controls-container .btn-icon span {
