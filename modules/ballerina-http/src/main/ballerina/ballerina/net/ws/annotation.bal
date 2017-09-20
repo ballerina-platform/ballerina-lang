@@ -12,5 +12,5 @@ annotation configuration attach service {
     string certPass;
 }
 
-annotation ClientService attach service {
+annotation clientService attach service {
 }

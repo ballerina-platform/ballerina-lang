@@ -31,9 +31,9 @@ public class Constants extends org.ballerinalang.net.http.Constants {
     public static final String PROTOCOL_WEBSOCKET = "ws";
 
     public static final String ANNOTATION_CONFIGURATION = "configuration";
-    public static final String ANNOTATION_WEBSOCKET_CLIENT_SERVICE = "ClientService";
+    public static final String ANNOTATION_WEBSOCKET_CLIENT_SERVICE = "clientService";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
-    public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeOutSeconds";
+    public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
     public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
 
     public static final String RESOURCE_NAME_ON_HANDSHAKE = "onHandshake";
