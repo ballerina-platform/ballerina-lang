@@ -24,6 +24,7 @@ class File extends EventChannel {
         this._isPersisted = !_.isNil(isPersisted) ? isPersisted : false;
         this._lastPersisted = lastPersisted || _.now();
         this._isDirty = !_.isNil(isDirty) ? isDirty : true;
+        this._lastUpdate = _.now();
     }
 
     /**
@@ -119,6 +120,7 @@ class File extends EventChannel {
     setContent(newContent, originEvt) {
         const oldContent = this._content;
         this._content = newContent;
+        this.lastUpdated = _.now();
 
         /**
          * Fired when a change is made to file content
@@ -166,6 +168,21 @@ class File extends EventChannel {
      */
     set lastPersisted(lastPersisted) {
         this._lastPersisted = lastPersisted;
+        this.trigger(EVENTS.FILE_UPDATED);
+    }
+
+    /**
+     * Returns lastUpdated
+     */
+    get lastUpdated() {
+        return this._lastUpdated;
+    }
+
+    /**
+     * Sets lastUpdated
+     */
+    set lastUpdated(lastUpdated) {
+        this._lastUpdated = lastUpdated;
         this.trigger(EVENTS.FILE_UPDATED);
     }
 

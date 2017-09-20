@@ -70,6 +70,7 @@ class BallerinaFileEditor extends React.Component {
             syntaxErrors: [],
             model: astRoot,
             activeView: DESIGN_VIEW,
+            lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
         // listen for the changes to file content
@@ -175,6 +176,13 @@ class BallerinaFileEditor extends React.Component {
             // we need to re-render
             this.update();
         }
+    }
+
+    /**
+     * Decide whether to re-render or not
+     */
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.state.lastRenderedTimestamp !== nextState.lastRenderedTimestamp;
     }
 
     /**
@@ -400,6 +408,7 @@ class BallerinaFileEditor extends React.Component {
                                 this.onASTModified(evt);
                             });
 
+                            newState.lastRenderedTimestamp = file.lastUpdated;
                             newState.parseFailed = false;
                             newState.isASTInvalid = false;
                             newState.model = ast;
