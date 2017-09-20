@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -43,7 +43,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public BLangVariableReference expr;
     public List<BType> types = new ArrayList<>(0);
     public int[] regIndexes;
-    public BInvokableSymbol symbol;
+    public BSymbol symbol;
+    public boolean functionPointerInvocation;
 
     public boolean isMultiReturnExpr() {
         return true;

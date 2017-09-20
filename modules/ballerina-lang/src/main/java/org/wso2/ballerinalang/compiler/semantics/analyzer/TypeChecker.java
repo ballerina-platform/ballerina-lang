@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -42,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -417,6 +417,9 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = checkTypes(conversionExpr, actualTypes, expTypes);
     }
 
+    @Override
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+    }
 
     // Private methods
 
@@ -451,6 +454,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // TODO Add more logic to check type compatibility assignability etc.
+
+        // TODO: Add invokable type compatibility check.
 
         // e.g. incompatible types: expected 'int', found 'string'
         dlog.error(pos, diagCode, expType, type);
@@ -549,16 +554,23 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         Name funcName = names.fromIdNode(iExpr.name);
-        BSymbol funcSymbol = symResolver.resolveInvokable(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION,
-                this.env, names.fromIdNode(iExpr.pkgAlias), funcName);
-        if (funcSymbol == symTable.errSymbol || funcSymbol == symTable.notFoundSymbol) {
-            resultTypes = actualTypes;
-            return;
+        BSymbol funcSymbol = symResolver.resolveFunction(iExpr.pos, this.env,
+                names.fromIdNode(iExpr.pkgAlias), funcName);
+        if (funcSymbol == symTable.notFoundSymbol) {
+            // Check for function pointer.
+            BSymbol functionPointer = symResolver.lookupSymbol(env, funcName, SymTag.VARIABLE);
+            if (functionPointer.type.tag != TypeTags.INVOKABLE) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+                resultTypes = actualTypes;
+                return;
+            }
+            iExpr.functionPointerInvocation = true;
+            funcSymbol = functionPointer;
         }
 
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
-        iExpr.symbol = (BInvokableSymbol) funcSymbol;
+        iExpr.symbol = funcSymbol;
 
         List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
         if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {

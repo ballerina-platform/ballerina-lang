@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
@@ -537,6 +538,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLocalVarRef localVarRef) {
+        if (localVarRef.type.tag == TypeTags.INVOKABLE && localVarRef.symbol.tag == SymTag.FUNCTION) {
+            // function pointer load.
+            visitFunctionPointerLoad((BInvokableSymbol) localVarRef.symbol);
+            return;
+        }
         int lvIndex = localVarRef.symbol.varIndex;
         if (varAssignment) {
             int opcode = getOpcode(localVarRef.type.tag, InstructionCodes.ISTORE);
@@ -689,7 +695,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangInvocation iExpr) {
         if (iExpr.expr == null) {
-            BInvokableSymbol funcSymbol = iExpr.symbol;
+            if (iExpr.functionPointerInvocation) {
+                visitFunctionPointerInvocation(iExpr);
+                return;
+            }
+            BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
             BPackageSymbol pkgSymbol = (BPackageSymbol) funcSymbol.owner;
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
@@ -1714,4 +1724,39 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         /* ignore */
     }
+
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        visitFunctionPointerLoad(((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
+    }
+
+    // private helper methods of visitors.
+
+    private void visitFunctionPointerLoad(BInvokableSymbol funcSymbol) {
+        BPackageSymbol pkgSymbol = (BPackageSymbol) funcSymbol.owner;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
+        emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BVarSymbol varSymbol = (BVarSymbol) iExpr.symbol;
+        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int ownerSymTag = env.scope.owner.tag;
+        OpcodeAndIndex opcodeAndIndex = null;
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            opcodeAndIndex = getOpcodeAndIndex(varSymbol.type.tag,
+                    InstructionCodes.ILOAD, regIndexes);
+        } else {
+            // TODO Support other variable nodes
+        }
+        int opcode = opcodeAndIndex.opcode;
+        int regIndex = opcodeAndIndex.index;
+        emit(opcode, varSymbol.varIndex, regIndex);
+        emit(InstructionCodes.FPCALL, regIndexes.tRef, funcCallCPIndex);
+    }
+
 }
