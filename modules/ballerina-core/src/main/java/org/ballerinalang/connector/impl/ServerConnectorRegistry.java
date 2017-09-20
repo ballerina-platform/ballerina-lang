@@ -91,6 +91,15 @@ public class ServerConnectorRegistry {
         serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
     }
 
+    public void unRegisterService(ServiceInfo serviceInfo) {
+        if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
+                    serviceInfo.getProtocolPkgPath());
+        }
+        Service service = buildService(serviceInfo);
+        serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceUnregistered(service);
+    }
+
     /**
      * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
      *

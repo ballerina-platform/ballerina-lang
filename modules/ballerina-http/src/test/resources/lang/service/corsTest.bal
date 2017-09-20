@@ -105,11 +105,11 @@ service<http> echo3 {
     }
     resource info2 (http:Request req, http:Response res) {
         //message result = {};
-        req -> sampleWorker;
+        res -> sampleWorker;
         res <- sampleWorker;
         response:send(res);
         worker sampleWorker {
-            req <- default;
+            res <- default;
             json responseJson = {"echo":"worker"};
             response:setJsonPayload(res, responseJson);
             res -> default;
