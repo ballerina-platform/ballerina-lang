@@ -21,20 +21,22 @@ import Node from '../node';
 class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
 
-    setValueArray(newValue, title) {
+    setValueArray(newValue, silent, title) {
         let oldValue = this.valueArray;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.valueArray = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'valueArray',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'valueArray',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getValueArray() {
@@ -42,7 +44,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
     }
 
 
-    addValueArray(node, i = -1){
+    addValueArray(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -51,32 +53,36 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         } else {
             this.valueArray.splice(i, 0, node);
         }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
     }
 
 
-    setValue(newValue, title) {
+    setValue(newValue, silent, title) {
         let oldValue = this.value;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.value = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'value',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'value',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getValue() {
@@ -85,20 +91,22 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
 
 
-    setWS(newValue, title) {
+    setWS(newValue, silent, title) {
         let oldValue = this.wS;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'wS',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'wS',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getWS() {
@@ -107,20 +115,22 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
 
 
-    setKind(newValue, title) {
+    setKind(newValue, silent, title) {
         let oldValue = this.kind;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'kind',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'kind',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getKind() {
@@ -129,20 +139,22 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, title) {
+    setPosition(newValue, silent, title) {
         let oldValue = this.position;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'position',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'position',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getPosition() {

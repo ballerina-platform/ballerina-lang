@@ -21,20 +21,22 @@ import Node from '../node';
 class IfNodeAbstract extends Node {
 
 
-    setBody(newValue, title) {
+    setBody(newValue, silent, title) {
         let oldValue = this.body;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.body = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'body',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'body',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getBody() {
@@ -43,42 +45,22 @@ class IfNodeAbstract extends Node {
 
 
 
-    setElseStatement(newValue, title) {
-        let oldValue = this.elseStatement;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
-        this.elseStatement = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'elseStatement',
-                newValue,
-                oldValue,
-            }
-        });
-    }
-
-    getElseStatement() {
-        return this.elseStatement;
-    }
-
-
-
-    setCondition(newValue, title) {
+    setCondition(newValue, silent, title) {
         let oldValue = this.condition;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.condition = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'condition',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'condition',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getCondition() {
@@ -87,20 +69,46 @@ class IfNodeAbstract extends Node {
 
 
 
-    setWS(newValue, title) {
+    setElseStatement(newValue, silent, title) {
+        let oldValue = this.elseStatement;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.elseStatement = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'elseStatement',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getElseStatement() {
+        return this.elseStatement;
+    }
+
+
+
+    setWS(newValue, silent, title) {
         let oldValue = this.wS;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'wS',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'wS',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getWS() {
@@ -109,20 +117,22 @@ class IfNodeAbstract extends Node {
 
 
 
-    setKind(newValue, title) {
+    setKind(newValue, silent, title) {
         let oldValue = this.kind;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'kind',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'kind',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getKind() {
@@ -131,20 +141,22 @@ class IfNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, title) {
+    setPosition(newValue, silent, title) {
         let oldValue = this.position;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'position',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'position',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getPosition() {

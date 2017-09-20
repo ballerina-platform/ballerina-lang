@@ -18,20 +18,20 @@
 
 import Node from '../node';
 
-class AbortNodeAbstract extends Node {
+class {{name}}Abstract extends Node {
 
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
+{{#each attributes}}
+    set{{methodSuffix}}(newValue, silent, title) {
+        let oldValue = this.{{property}};
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.{{property}} = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: '{{property}}',
                     newValue,
                     oldValue,
                 }
@@ -39,60 +39,34 @@ class AbortNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    get{{methodSuffix}}() {
+        return this.{{property}};
     }
 
-
-
-    setKind(newValue, silent, title) {
-        let oldValue = this.kind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+{{#if list}}
+    add{{methodSuffix}}(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.{{property}}.push(node);
+            index = this.{{property}}.length;
+        } else {
+            this.{{property}}.splice(i, 0, node);
+        }
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'modify-node',
-                title,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
                 data: {
-                    attributeName: 'kind',
-                    newValue,
-                    oldValue,
-                }
+                    node,
+                    index,
+                },
             });
         }
     }
-
-    getKind() {
-        return this.kind;
-    }
-
-
-
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'position',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getPosition() {
-        return this.position;
-    }
-
-
-
+{{/if}}
+{{/each}}
 }
 
-export default AbortNodeAbstract;
+export default {{name}}Abstract;

@@ -50,7 +50,7 @@ public class ModelGenerator {
             generateSourceFiles(node, "position-visitor.hbs" , "position/" + lowerHyphenName + "-position.js");
             kinds.add(node.get("kind"));
         }
-        //generateSourceFiles(nodes);
+        generateSourceFiles(nodes, "abstract-tree-util.hbs" , "abstract-tree-util.js");
     }
 
     public static JsonObject getContext() {

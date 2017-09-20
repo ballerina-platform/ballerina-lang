@@ -21,20 +21,22 @@ import Node from '../node';
 class ConnectorNodeAbstract extends Node {
 
 
-    setInitFunction(newValue, title) {
+    setInitFunction(newValue, silent, title) {
         let oldValue = this.initFunction;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.initFunction = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'initFunction',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getInitFunction() {
@@ -43,20 +45,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setInitAction(newValue, title) {
+    setInitAction(newValue, silent, title) {
         let oldValue = this.initAction;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.initAction = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'initAction',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initAction',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getInitAction() {
@@ -65,20 +69,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setFilteredParameter(newValue, title) {
+    setFilteredParameter(newValue, silent, title) {
         let oldValue = this.filteredParameter;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.filteredParameter = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'filteredParameter',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'filteredParameter',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getFilteredParameter() {
@@ -87,20 +93,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setVariableDefs(newValue, title) {
+    setVariableDefs(newValue, silent, title) {
         let oldValue = this.variableDefs;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.variableDefs = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'variableDefs',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'variableDefs',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getVariableDefs() {
@@ -108,7 +116,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addVariableDefs(node, i = -1){
+    addVariableDefs(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -117,32 +125,36 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.variableDefs.splice(i, 0, node);
         }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
     }
 
 
-    setName(newValue, title) {
+    setName(newValue, silent, title) {
         let oldValue = this.name;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'name',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'name',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getName() {
@@ -151,20 +163,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setActions(newValue, title) {
+    setActions(newValue, silent, title) {
         let oldValue = this.actions;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.actions = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'actions',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'actions',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getActions() {
@@ -172,7 +186,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addActions(node, i = -1){
+    addActions(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -181,32 +195,36 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.actions.splice(i, 0, node);
         }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
     }
 
 
-    setParameters(newValue, title) {
+    setParameters(newValue, silent, title) {
         let oldValue = this.parameters;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.parameters = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'parameters',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'parameters',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getParameters() {
@@ -214,7 +232,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addParameters(node, i = -1){
+    addParameters(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -223,32 +241,36 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.parameters.splice(i, 0, node);
         }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
     }
 
 
-    setFlags(newValue, title) {
+    setFlags(newValue, silent, title) {
         let oldValue = this.flags;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.flags = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'flags',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getFlags() {
@@ -257,20 +279,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setAnnotationAttachments(newValue, title) {
+    setAnnotationAttachments(newValue, silent, title) {
         let oldValue = this.annotationAttachments;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.annotationAttachments = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'annotationAttachments',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'annotationAttachments',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getAnnotationAttachments() {
@@ -278,7 +302,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addAnnotationAttachments(node, i = -1){
+    addAnnotationAttachments(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -287,32 +311,36 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.annotationAttachments.splice(i, 0, node);
         }
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'child-added',
-            title: `Add ${child.kind}`,
-            data: {
-                child,
-                index,
-            },
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
     }
 
 
-    setWS(newValue, title) {
+    setWS(newValue, silent, title) {
         let oldValue = this.wS;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'wS',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'wS',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getWS() {
@@ -321,20 +349,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setKind(newValue, title) {
+    setKind(newValue, silent, title) {
         let oldValue = this.kind;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'kind',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'kind',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getKind() {
@@ -343,20 +373,22 @@ class ConnectorNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, title) {
+    setPosition(newValue, silent, title) {
         let oldValue = this.position;
-        title = (_.isNil(title))? 'Modify ${child.kind}':title;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'modify-node',
-            title,
-            data: {
-                attributeName: 'position',
-                newValue,
-                oldValue,
-            }
-        });
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'position',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
     }
 
     getPosition() {
