@@ -58,6 +58,84 @@ class Node extends EventChannel {
         }
         visitor.endVisit(this);
     }
+
+    getSource() {
+        return Node.getSourceOf(this);
+    }
+
+    static getSourceOf(node) {
+        if (!node) {
+            return '';
+        }
+        let i = 0;
+        let s;
+        const ws = node.ws ? node.ws.map(wsObj => wsObj.ws) : [];
+
+        function w() {
+            const wsI = ws[i++];
+            return wsI === undefined ? ' ' : wsI;
+        }
+
+        switch (node.kind) {
+            case 'Identifier':
+                return node.value + w();
+            case 'Literal':
+                return node.value + w();
+            case 'ValueType':
+                return node.typeKind + w();
+            case 'UserDefinedType':
+                return node.typeName.value + w();
+            case 'VariableDef':
+                return node.variable.getSource() + ';' + w();
+            case 'SimpleVariableRef':
+                return node.variableName.value + w();
+            case 'ExpressionStatement':
+                return node.expression.getSource() + ';' + w();
+            case 'CompilationUnit':
+                return node.topLevelNodes.map(Node.getSourceOf).join('');
+            case 'PackageDeclaration':
+                return node.packageName.map(Node.getSourceOf).join('');
+            case 'ArrayType':
+                return node.elementType.getSource() + '[' + w() + ']' + w();
+            case 'Block':
+                return '{' + w() + node.statements.map(Node.getSourceOf).join('') + '}' + w();
+            case 'Assignment':
+                return node.variables.map(Node.getSourceOf).join('') + '=' + w() + node.expression.getSource()
+                    + ';' + w();
+            case 'Return':
+                return 'return' + w() + node.expressions.map(Node.getSourceOf).join(',') + ';' + w();
+            case 'BinaryExpr':
+                return node.leftExpression.getSource() + node.operatorKind + w() + node.rightExpression.getSource();
+            case 'IndexBasedAccessExpr' :
+                return node.expression.getSource() + node.index.getSource();
+            case 'Variable':
+                return node.typeNode.getSource() + node.name.value + w() + (node.initialExpression ? '=' +
+                        w() + node.initialExpression.getSource() : '');
+            case 'Invocation':
+                return (node.packageAlias.value ? node.packageAlias.value + w() + ':' : '') + w() +
+                    node.name.value + w() + '(' + w() +
+                    node.argumentExpressions.map(Node.getSourceOf).join('') + ')' + w();
+            case 'Function':
+                s = 'function' + w() + node.name.value + w() + '(' + w();
+                for (let j = 0; j < node.parameters.length; j++) {
+                    s += node.parameters[j].getSource();
+                    if (j !== node.parameters.length - 1) {
+                        s += ',' + w();
+                    }
+                }
+                s += ')' + w() + '(' + w();
+                for (let j = 0; j < node.returnParameters.length; j++) {
+                    s += node.returnParameters[j].getSource();
+                    if (j !== node.returnParameters.length - 1) {
+                        s += ',' + w();
+                    }
+                }
+                s += ')' + w() + node.body.getSource();
+                return s;
+            default:
+                return '';
+        }
+    }
 }
 
 export default Node;

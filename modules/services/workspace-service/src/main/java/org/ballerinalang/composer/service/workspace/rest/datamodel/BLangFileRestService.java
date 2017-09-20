@@ -26,14 +26,17 @@ import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.repository.PackageRepository;
@@ -213,14 +216,19 @@ public class BLangFileRestService {
                 .collect(Collectors.toList());
         JsonObject nodeJson = new JsonObject();
 
-        //JsonArray wsJson = new JsonArray();
-//        Set<Whitespace> ws = node.getWS();
-//        if (ws != null && !ws.isEmpty()) {
-//            for (Whitespace whitespace : ws) {
-//                wsJson.add(whitespace.getWs());
-//            }
-//            nodeJson.add("ws", wsJson);
-//        }
+        JsonArray wsJsonArray = new JsonArray();
+        Set<Whitespace> ws = node.getWS();
+        if (ws != null && !ws.isEmpty()) {
+            for (Whitespace whitespace : ws) {
+                JsonObject wsJson = new JsonObject();
+                wsJson.addProperty("ws", whitespace.getWs());
+                wsJson.addProperty("i", whitespace.getIndex());
+                wsJson.addProperty("text", whitespace.getPrevious());
+                wsJson.addProperty("static", whitespace.isStatic());
+                wsJsonArray.add(wsJson);
+            }
+            nodeJson.add("ws", wsJsonArray);
+        }
         Diagnostic.DiagnosticPosition position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
@@ -278,8 +286,14 @@ public class BLangFileRestService {
                         comps.add(i.getValue());
                     }
                     nodeJson.add("packageComps", comps);
+                } else if (prop instanceof TypeKind) {
+                    nodeJson.addProperty(jsonName, prop.toString().toLowerCase());
                 } else if (prop instanceof String) {
-                    nodeJson.addProperty(jsonName, (String) prop);
+                    if (node instanceof LiteralNode) {
+                        nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
+                    } else {
+                        nodeJson.addProperty(jsonName, (String) prop);
+                    }
                 } else if (prop instanceof Number) {
                     nodeJson.addProperty(jsonName, (Number) prop);
                 } else if (prop instanceof Boolean) {
@@ -287,7 +301,7 @@ public class BLangFileRestService {
                 } else if (prop instanceof NodeKind) {
                     String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
                     nodeJson.addProperty(jsonName, kindName);
-                } else if (prop instanceof OperatorKind || prop instanceof TypeKind) {
+                } else if (prop instanceof OperatorKind) {
                     nodeJson.addProperty(jsonName, prop.toString());
                 } else if (prop != null) {
                     nodeJson.addProperty(jsonName, prop.toString());
