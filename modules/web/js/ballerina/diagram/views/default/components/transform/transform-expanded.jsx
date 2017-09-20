@@ -1037,8 +1037,12 @@ class TransformExpanded extends React.Component {
         } else if (ASTFactory.isBinaryExpression(nodeExpression)
                       || ASTFactory.isUnaryExpression(nodeExpression)) {
             const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement, intermediateNodes, nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getRightExpression(), statement, intermediateNodes, nodeExpression);
+            if (ASTFactory.isBinaryExpression(nodeExpression)) {
+                this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
+                                                            intermediateNodes, nodeExpression);
+            }
+            this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
+                                                intermediateNodes, nodeExpression);
             intermediateNodes.push({
                 type: 'operator',
                 operator,
@@ -1104,7 +1108,8 @@ class TransformExpanded extends React.Component {
                 if (!ASTFactory.isAssignmentStatement(child)) {
                     return; // TODO: handle var def stmts as well
                 }
-                const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(child.getRightExpression(), child);
+                const { exp: rightExpression, isTemp } = this.transformNodeManager
+                                                    .getResolvedExpression(child.getRightExpression(), child);
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)
                     || ASTFactory.isBinaryExpression(rightExpression)
