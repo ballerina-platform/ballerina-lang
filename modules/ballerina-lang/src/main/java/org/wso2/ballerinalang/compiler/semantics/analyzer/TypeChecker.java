@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -52,6 +53,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.Instruction;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -275,14 +278,32 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
 
         if (exprType != symTable.errType) {
-            BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos,
-                    unaryExpr.operator, exprType);
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(unaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                        unaryExpr.operator, exprType);
+            // Handle typeof operator separately
+            if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+                List<BType> paramTypes = Lists.of(unaryExpr.expressionNode.type);
+                List<BType> retTypes = Lists.of(symTable.typeType);
+                BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+                if (unaryExpr.expressionNode.type.tag == TypeTags.ANY) {
+                    BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
+                            opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
+                    unaryExpr.opSymbol = symbol;
+                    actualType = symbol.type.getReturnTypes().get(0);
+                } else {
+                    BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
+                            opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
+                    unaryExpr.opSymbol = symbol;
+                    actualType = symbol.type.getReturnTypes().get(0);
+                }
             } else {
-                unaryExpr.opSymbol = (BOperatorSymbol) symbol;
-                actualType = symbol.type.getReturnTypes().get(0);
+                BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos,
+                        unaryExpr.operator, exprType);
+                if (symbol == symTable.notFoundSymbol) {
+                    dlog.error(unaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
+                            unaryExpr.operator, exprType);
+                } else {
+                    unaryExpr.opSymbol = (BOperatorSymbol) symbol;
+                    actualType = symbol.type.getReturnTypes().get(0);
+                }
             }
         }
 

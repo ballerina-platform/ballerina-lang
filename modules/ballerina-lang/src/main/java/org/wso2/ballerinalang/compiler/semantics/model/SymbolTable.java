@@ -214,16 +214,13 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
         defineUnaryOperator(OperatorKind.ADD, intType, intType, -1);
 
-        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, -1);
-        defineUnaryOperator(OperatorKind.SUB, intType, intType, -1);
+        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, InstructionCodes.INEG);
+        defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
-        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, -1);
+        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
 
-        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, -1);
-        defineUnaryOperator(OperatorKind.LENGTHOF, new BArrayType(noType), intType, -1);
-
-        // TODO: improve resolve operator logic
-        defineUnaryOperator(OperatorKind.TYPEOF, noType, typeType, -1);
+        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOFJSON);
+        defineUnaryOperator(OperatorKind.LENGTHOF, new BArrayType(noType), intType, InstructionCodes.LENGTHOF);
 
         defineCastOperators();
     }

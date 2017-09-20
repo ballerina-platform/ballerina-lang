@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.antlr.v4.runtime.atn.SemanticContext;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -99,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
@@ -115,12 +118,7 @@ import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
-import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
-import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.*;
 
 import java.util.ArrayList;
 
@@ -899,7 +897,37 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        /* ignore */
+        genNode(unaryExpr.expressionNode, this.env);
+
+        int opcode;
+        int exprIndex;
+
+        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+            if (unaryExpr.expressionNode.type.tag == TypeTags.ANY) {
+                exprIndex = ++regIndexes.tRef;
+                opcode = unaryExpr.opSymbol.opcode;
+                emit(opcode, unaryExpr.expressionNode.regIndex, exprIndex);
+            } else {
+                String typeDesc = unaryExpr.expressionNode.type.getDesc();
+                UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeDesc);
+                int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeDesc);
+                typeRefCPEntry.setType(unaryExpr.expressionNode.type);
+                int typeCPindex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+                exprIndex = ++regIndexes.tRef;
+                opcode = unaryExpr.opSymbol.opcode;
+                emit(opcode, typeCPindex, exprIndex);
+            }
+        } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            unaryExpr.regIndex = unaryExpr.expressionNode.regIndex;
+        } else {
+            opcode = unaryExpr.opSymbol.opcode;
+            exprIndex = getNextIndex(unaryExpr.type.tag, regIndexes);
+
+            unaryExpr.regIndex = exprIndex;
+            emit(opcode, unaryExpr.expressionNode.regIndex, exprIndex);
+        }
+
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
