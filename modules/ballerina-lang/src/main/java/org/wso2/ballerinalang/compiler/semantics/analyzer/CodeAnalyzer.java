@@ -582,8 +582,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             return expList.toArray(new BLangExpression[expList.size()]);
         } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-            //TODO:Uncomment this once BLangTypeConversionExpr.expr is converted to BLangExpression
-            // return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
+            return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {
             return getVariableReferencesFromExpression(((BLangTypeCastExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
