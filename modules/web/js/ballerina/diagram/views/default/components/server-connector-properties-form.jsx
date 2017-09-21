@@ -280,14 +280,17 @@ class ServerConnectorPropertiesForm extends React.Component {
                 left: this.props.bBox.x + 10 + 'px',
             },
         };
-
+        const supportedKeys = this.getSupportedKeys();
+        if (!supportedKeys.length) {
+            return null;
+        }
         return (
             <PropertiesWindow
                 model={this.props.model}
                 formHeading={formH}
                 key={`servicedefProp/${this.props.model.id}`}
                 styles={styles}
-                supportedProps={this.getSupportedKeys()}
+                supportedProps={supportedKeys}
                 editor={this.props.editor}
                 addedValues={this.getDataFromPropertyForm}
             />);

@@ -198,7 +198,6 @@ class ConnectorPropertiesForm extends React.Component {
         const connectorInit = this.props.model.getDeclarationStatement().getRightExpression();
         const expr = 'create' + this.getConnectorInstanceString(connectorInit, data);
         connectorInit.setExpressionFromString(expr);
-        console.log(connectorInit.getExpressionString());
     }
 
     /**
