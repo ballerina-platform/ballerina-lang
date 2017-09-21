@@ -590,7 +590,7 @@ class TransformNodeMapper {
         const expression = _.find(functionInv.getChildren(), (child) => {
             return (this.getMappableExpression(child).getExpressionString().trim() === sourceName);
         });
-        functionInv.replaceChild(expression, ASTFactory.createNullLiteralExpression(), index, true);
+        functionInv.replaceChildByIndex(ASTFactory.createNullLiteralExpression(), target.index, true);
 
         // TODO: work on this logic
         if (expression.getExpressionString().startsWith('__temp')) {
@@ -604,8 +604,8 @@ class TransformNodeMapper {
             }
         }
         this._transformStmt.trigger('tree-modified', {
-            origin: this,
-            type: 'function-connection-removed',
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
             title: `Remove mapping ${sourceName} to ${functionInv.getFunctionName()}`,
             data: {},
         });
@@ -642,8 +642,8 @@ class TransformNodeMapper {
         //     }
         // }
         this._transformStmt.trigger('tree-modified', {
-            origin: this,
-            type: 'function-connection-removed',
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
             title: `Remove mapping ${sourceName} to ${operatorExp.getOperator()}`,
             data: {},
         });
@@ -684,8 +684,8 @@ class TransformNodeMapper {
             .createTransformAssignmentRightExpStatement({ rightExp: source.funcInv });
         this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
         this._transformStmt.trigger('tree-modified', {
-            origin: this,
-            type: 'function-connection-removed',
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
             title: `Remove mapping ${source.funcInv.getFunctionName()} to ${target.funcInv.getFunctionName()}`,
             data: {},
         });
@@ -716,8 +716,8 @@ class TransformNodeMapper {
         this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
-            origin: this,
-            type: 'function-connection-removed',
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
             title: `Remove mapping ${source.operator.getOperator()} to ${target.operator.getOperator()}`,
             data: {},
         });
@@ -750,8 +750,8 @@ class TransformNodeMapper {
         this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
-            origin: this,
-            type: 'function-connection-removed',
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
             title: `Remove mapping ${source.funcInv.getFunctionName()} to ${target.operator.getOperator()}`,
             data: {},
         });
@@ -775,8 +775,8 @@ class TransformNodeMapper {
         this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
-            origin: this,
-            type: 'function-connection-removed',
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
             title: `Remove mapping ${source.operator.getOperator()} to ${target.funcInv.getFunctionName()}`,
             data: {},
         });
