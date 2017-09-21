@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -125,8 +126,10 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
@@ -185,6 +188,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
     private boolean varAssignment = false;
+    private boolean arrayMapAssignment;
+    private boolean structAssignment;
     
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
@@ -648,13 +653,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Clone lvIndex structure here. This structure contain local variable indexes of the input and
             // out parameters and they are common for all the workers.
             VariableIndex lvIndexCopy = this.copyVarIndex(lvIndexes);
-            
             this.processWorker(invokableNode, callableUnitInfo.defaultWorkerInfo, invokableNode.body, 
                     localVarAttributeInfo, invokableSymbolEnv, true, lvIndexCopy);
-            
             for (BLangWorker worker : invokableNode.getWorkers()) {
                 this.processWorker(invokableNode, callableUnitInfo.getWorkerInfo(worker.name.value), 
                         worker.body, localVarAttributeInfo, invokableSymbolEnv, false, lvIndexCopy);
+                this.genNode(worker, this.env);
             }
         }
     }
@@ -662,7 +666,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void processWorker(BLangInvokableNode invokableNode, WorkerInfo workerInfo, BLangBlockStmt body, 
             LocalVariableAttributeInfo localVarAttributeInfo, SymbolEnv invokableSymbolEnv,
             boolean defaultWorker, VariableIndex lvIndexCopy) {
-        int codeAttrNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, AttributeInfo.Kind.CODE_ATTRIBUTE.value());
+        int codeAttrNameCPIndex = this.addUTF8CPEntry(this.currentPkgInfo, AttributeInfo.Kind.CODE_ATTRIBUTE.value());
         workerInfo.codeAttributeInfo.attributeNameIndex = codeAttrNameCPIndex;
         workerInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
         
@@ -673,7 +677,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.lvIndexes = this.copyVarIndex(lvIndexCopy);
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (invokableNode.retParams.isEmpty()) {
+            if (invokableNode.retParams.isEmpty() && defaultWorker) {
                 /* for functions that has no return values, we must provide a default
                  * return statement to stop the execution and jump to the caller */
                 this.emit(InstructionCodes.RET);
@@ -681,6 +685,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
+        if (!defaultWorker) {
+            this.emit(InstructionCodes.HALT);
+        }
     }
 
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
@@ -850,7 +857,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
         WorkerInfo defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, "default");
         callableUnitInfo.defaultWorkerInfo = defaultWorkerInfo;
-
         for (BLangWorker worker : workers) {
             workerNameCPEntry = new UTF8CPEntry(worker.name.value);
             workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
@@ -928,7 +934,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorker workerNode) {
-        /* ignore */
+        this.genNode(workerNode.body, this.env);
     }
 
     public void visit(BLangForkJoin forkJoin) {
@@ -945,34 +951,93 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex);
         this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex);
-        int workerInvocationIndex = this.getWorkerInvocationCPIndex(workerSendNode);
+        int workerInvocationIndex = this.getWorkerSendCPIndex(workerSendNode);
         emit(InstructionCodes.WRKINVOKE, wrkrInvRefCPIndex, workerInvocationIndex);
     }
     
-    private int getWorkerInvocationCPIndex(BLangWorkerSend workerInvocationStmt) {
-        List<BLangExpression> argExprs = workerInvocationStmt.exprs;
-        int[] argRegs = new int[argExprs.size()];
-        BType[] bTypes = new BType[argExprs.size()];
-        for (int i = 0; i < argRegs.length; i++) {
-            BLangExpression argExpr = argExprs.get(i);
-            this.genNode(argExpr, this.env);
-            argRegs[i] = argExpr.regIndex;
-            bTypes[i] = argExpr.type;
+    private void genNodeList(List<BLangExpression> exprs, SymbolEnv env) {
+        exprs.forEach(e -> this.genNode(e, env));
+    }
+    
+    private int[] extractsRegisters(List<BLangExpression> exprs) {
+        int[] regs = new int[exprs.size()];
+        for (int i = 0; i < regs.length; i++) {
+            regs[i] = exprs.get(i).regIndex;
         }
+        return regs;
+    }
+    
+    private BType[] extractTypes(List<BLangExpression> exprs) {
+        return exprs.stream().map(e -> e.type).collect(Collectors.toList()).toArray(new BType[0]);
+    }
+    
+    private String generateSig(BType[] types) {
+        StringBuilder builder = new StringBuilder();
+        Arrays.stream(types).forEach(e -> builder.append(e.getDesc()));
+        return builder.toString();
+    }
+    
+    private int getWorkerSendCPIndex(BLangWorkerSend workerSendStmt) {
+        List<BLangExpression> argExprs = workerSendStmt.exprs;
+        this.genNodeList(argExprs, this.env);
+        int[] argRegs = this.extractsRegisters(argExprs);
+        BType[] bTypes = this.extractTypes(argExprs);
         WrkrInteractionArgsCPEntry workerInvokeCPEntry = new WrkrInteractionArgsCPEntry(argRegs, bTypes);
-        StringBuilder strBuilder = new StringBuilder();
-        for (BType paramType : bTypes) {
-            strBuilder.append(paramType.getDesc());
-        }
-        String sig = strBuilder.toString();
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(sig);
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
         int sigCPIndex = this.currentPkgInfo.addCPEntry(sigCPEntry);
         workerInvokeCPEntry.setTypesSignatureCPIndex(sigCPIndex);
         return this.currentPkgInfo.addCPEntry(workerInvokeCPEntry);
     }
 
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        /* ignore */
+        WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo, 
+                workerReceiveNode.workerIdentifier.value, this.currentWorkerInfo.getWorkerName());
+        WorkerDataChannelRefCPEntry wrkrChnlRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
+                .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+        wrkrChnlRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+        int wrkrRplyRefCPIndex = currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry);
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex);
+        int workerReplyIndex = getWorkerReplyCPIndex(workerReceiveNode);
+        WrkrInteractionArgsCPEntry wrkrRplyCPEntry  = (WrkrInteractionArgsCPEntry) this.currentPkgInfo.getCPEntry(
+                workerReplyIndex);
+        emit(InstructionCodes.WRKREPLY, wrkrRplyRefCPIndex, workerReplyIndex);
+        /* generate store instructions to store the values */
+        int[] rhsExprRegIndexes = wrkrRplyCPEntry.getArgRegs();
+        List<BLangExpression> lhsExprs = workerReceiveNode.exprs;
+        for (int i = 0; i < lhsExprs.size(); i++) {
+            this.genRHSExpr(lhsExprs.get(i), rhsExprRegIndexes[i]);
+        }
+    }
+    
+    private void genRHSExpr(BLangExpression lExpr, int regIndex) {
+        this.rhsExprRegIndex = regIndex;
+        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            this.varAssignment = true;
+            this.genNode(lExpr, this.env);
+            this.varAssignment = false;
+        } else if (lExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            this.arrayMapAssignment = true;
+            this.genNode(lExpr, this.env);
+            this.arrayMapAssignment = false;
+        } else if (lExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            this.structAssignment = true;
+            this.genNode(lExpr, this.env);
+            this.structAssignment = false;
+        }
+    }
+    
+    private int getWorkerReplyCPIndex(BLangWorkerReceive workerReplyStmt) {
+        BType[] retTypes = this.extractTypes(workerReplyStmt.exprs);
+        int[] argRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            argRegs[i] = getNextIndex(retType.tag, this.regIndexes);
+        }
+        WrkrInteractionArgsCPEntry wrkrRplyCPEntry = new WrkrInteractionArgsCPEntry(argRegs, retTypes);
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(retTypes));
+        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+        wrkrRplyCPEntry.setTypesSignatureCPIndex(sigCPIndex);
+        return currentPkgInfo.addCPEntry(wrkrRplyCPEntry);
     }
 
     public void visit(BLangService serviceNode) {

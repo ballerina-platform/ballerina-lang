@@ -189,6 +189,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLiteral litNode) {
         litNode.type = this.typeChecker.checkExpr(litNode, this.env).get(0);
     }
+    
+    public void visit(BLangSimpleVarRef varRefExpr) {
+        varRefExpr.type = this.typeChecker.checkExpr(varRefExpr, this.env).get(0);
+    }
 
     // Statements
 
@@ -347,6 +351,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        workerReceiveNode.exprs.forEach(e -> this.analyzeNode(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
