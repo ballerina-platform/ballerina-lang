@@ -1,7 +1,8 @@
 package routingServices.samples;
 
 import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
@@ -10,19 +11,18 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/"
     }
-    resource hbrResource (message m) {
+    resource hbrResource (http:Request req, http:Response res) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
         string nyseString = "nyse";
-        string nameString = messages:getHeader(m, "name");
-        message response = {};
+        string nameString = request:getHeader(req, "name");
         if (nameString == nyseString) {
-            response = nyseEP.post("/stocks", m);
+            res = nyseEP.post("/stocks", req);
         }
         else {
-            response = nasdaqEP.post("/stocks", m);
+            res = nasdaqEP.post("/stocks", req);
         }
-        reply response;
+        response:send(res);
         
     }
     
