@@ -1313,7 +1313,7 @@ public class BLangPackageBuilder {
                                             String endingText) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
-        stringTemplateLiteral.expr =
+        stringTemplateLiteral.exprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         stringTemplateLiteral.pos = pos;
         addExpressionNode(stringTemplateLiteral);

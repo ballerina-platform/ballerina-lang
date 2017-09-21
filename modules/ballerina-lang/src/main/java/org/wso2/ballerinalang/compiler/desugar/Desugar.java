@@ -402,7 +402,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.expr = rewrite(stringTemplateLiteral.expr);
+        stringTemplateLiteral.exprs = rewrite(stringTemplateLiteral.exprs);
         result = stringTemplateLiteral;
     }
 
