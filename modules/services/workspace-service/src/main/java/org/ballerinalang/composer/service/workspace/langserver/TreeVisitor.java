@@ -88,7 +88,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         BSymbol funcSymbol = funcNode.symbol;
-        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, symbolEnv, funcSymbol.scope);
+        SymbolEnv funcEnv = SymbolEnv.createPkgLevelSymbolEnv(funcNode, funcSymbol.scope, symbolEnv);
         this.acceptNode(funcNode.body, funcEnv);
     }
 
@@ -120,7 +120,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
-        blockNode.statements.forEach(stmt -> this.acceptNode(stmt, blockEnv));
+        //blockNode.statements.forEach(stmt -> this.acceptNode(stmt, blockEnv));
     }
 
     public void visit(BLangVariableDef varDefNode) {
