@@ -280,6 +280,18 @@ DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args = 
     return assignmentStmt;
 };
 
+DefaultASTFactory.createTransformAssignmentRightExpStatement = function (args) {
+    const assignmentStmt = ASTFactory.createAssignmentStatement();
+    if (_.has(args, 'rightExp')) {
+        assignmentStmt.setIsDeclaredWithVar(true);
+        const variableRefList = ASTFactory.createVariableReferenceList(args);
+        variableRefList.setExpressionFromString('var __output1');
+        assignmentStmt.addChild(variableRefList, 0);
+        assignmentStmt.addChild(args.rightExp, 1);
+    }
+    return assignmentStmt;
+};
+
 DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = function (args) {
     const assignmentStmt = ASTFactory.createAssignmentStatement();
     const opts = {
@@ -325,15 +337,6 @@ DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = functio
         variableRefList.setExpressionFromString(varRefListString);
         assignmentStmt.addChild(variableRefList, 0);
         assignmentStmt.addChild(funcInvocationExpression, 1);
-        return assignmentStmt;
-    }
-
-    if (_.has(args, 'funcInv')) {
-        assignmentStmt.setIsDeclaredWithVar(true);
-        const variableRefList = ASTFactory.createVariableReferenceList(args);
-        variableRefList.setExpressionFromString('var __output1');
-        assignmentStmt.addChild(variableRefList, 0);
-        assignmentStmt.addChild(args.funcInv, 1);
         return assignmentStmt;
     }
     return assignmentStmt;

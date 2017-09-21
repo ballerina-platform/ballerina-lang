@@ -171,85 +171,39 @@ class TransformNodeManager {
      */
     removeStatementEdge(connection) {
         const { source, target } = connection;
+
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
-            const assignmentStmt = _.find(this._transformStmt.getChildren(), (child) => {
-                if (BallerinaASTFactory.isAssignmentStatement(child)) {
-                    return child.getLeftExpression().getChildren().find((leftExpression) => {
-                        const leftExpressionStr = leftExpression.getExpressionString().trim();
-                        const rightExpressionStr = this.getMappingExpression(
-                            child.getRightExpression()).getExpressionString().trim();
-                        return (leftExpressionStr === target.name) && (rightExpressionStr === source.name);
-                    });
-                }
-                return false;
-            });
-            this._transformStmt.removeChild(assignmentStmt);
+            this._mapper.removeInputToOutputMapping(source.name, target.name);
             return;
         }
 
         if (source.endpointKind === 'input') {
-            // Connection source is a struct and target is a function.
-            // get the function invocation expression for nested and single cases.
-            const funcInvocationExpression = target.funcInv;
-            const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
-                return (this.getMappingExpression(child).getExpressionString().trim() === source.name);
-            });
-            const index = funcInvocationExpression.getIndexOfChild(expression);
-            funcInvocationExpression.removeChild(expression, true);
-            funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
-
-            if (expression.getExpressionString().startsWith('__temp')) {
-                // remove temp variable assignment if it is not used
-                const tempUsages = this.findTempVarUsages(expression.getExpressionString());
-                if (tempUsages.length === 0) {
-                    const tempAssignStmt = this.findAssignedVertexForTemp(expression);
-                    if (tempAssignStmt) {
-                        this._transformStmt.removeChild(tempAssignStmt, true);
-                    }
-                }
+            if (target.funcInv) {
+                this._mapper.removeInputToFunctionMapping(source.name, target);
+                return;
             }
-            this._transformStmt.trigger('tree-modified', {
-                origin: this,
-                type: 'function-connection-removed',
-                title: `Remove ${source.name}`,
-                data: {},
-            });
-            return;
+            if (target.operator) {
+                this._mapper.removeInputToOperatorMapping(source.name, target);
+            }
         }
 
         if (target.endpointKind === 'output') {
-            // Connection target is not a struct and source is a struct.
-            // Target could be a function node.
-            const assignmentStmtSource = this.getParentAssignmentStmt(source.funcInv);
-            const expression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
-                return (child.getExpressionString().trim() === target.name);
-            });
-            assignmentStmtSource.getLeftExpression().removeChild(expression, true);
-
-            const errExpression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
-                return (child.getExpressionString().trim() === '_');
-            });
-            assignmentStmtSource.getLeftExpression().removeChild(errExpression, true);
-
-            assignmentStmtSource.setIsDeclaredWithVar(true);
-            const simpleVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-            simpleVarRefExpression.setExpressionFromString('__output' + (source.index + 1));
-            assignmentStmtSource.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1);
+            this._mapper.removeNodeToOutputMapping(source, target.name);
             return;
         }
 
-        // Connection source and target are not structs
-        // Source and target could be function nodes.
-        const assignmentStmt = this.findEnclosingAssignmentStatement(target.funcInv);
-        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt);
+        this._mapper.removeNodeToNodeMapping(source, target);
+    }
 
-        const index = target.funcInv.getIndexOfChild(source.funcInv);
-        target.funcInv.removeChild(source.funcInv, true);
-        target.funcInv.addChild(BallerinaASTFactory.createNullLiteralExpression(), index, true);
-
-        const newAssignmentStmt = DefaultBallerinaASTFactory
-            .createTransformAssignmentFunctionInvocationStatement({ funcInv: source.funcInv });
-        this._transformStmt.addChild(newAssignmentStmt, newAssignIndex);
+    /**
+     * Remove intermediate node which is a function or an operator
+     * @param {any} expression expression
+     * @param {any} parentNode parent node expression
+     * @param {any} statement enclosing statement
+     * @memberof TransformNodeManager
+     */
+    removeIntermediateNode(expression, parentNode, statement) {
+        this._mapper.removeNode(expression, parentNode, statement);
     }
 
     /**
@@ -359,6 +313,7 @@ class TransformNodeManager {
             displayName: '',
             type: 'var',
             operator: operatorExpression,
+            index: 0,
         });
 
         return {

@@ -85,6 +85,7 @@ class TransformExpanded extends React.Component {
         this.foldEndpoint = this.foldEndpoint.bind(this);
         this.foldFunction = this.foldFunction.bind(this);
         this.removeEndpoint = this.removeEndpoint.bind(this);
+        this.removeIntermediateNode = this.removeIntermediateNode.bind(this);
         this.updateVariable = this.updateVariable.bind(this);
         this.onDragLeave = this.onDragLeave.bind(this);
         this.onDragEnter = this.onDragEnter.bind(this);
@@ -113,6 +114,10 @@ class TransformExpanded extends React.Component {
 
     removeEndpoint(key) {
         this.mapper.remove(key);
+    }
+
+    removeIntermediateNode(expression, parentNode, statement) {
+        this.transformNodeManager.removeIntermediateNode(expression, parentNode, statement);
     }
 
     onConnectionCallback(connection) {
@@ -1010,7 +1015,7 @@ class TransformExpanded extends React.Component {
         });
     }
 
-    getIntermediateNodes(nodeExpression, intermediateNodes = [], parentNode) {
+    getIntermediateNodes(nodeExpression, statement, intermediateNodes = [], parentNode) {
         if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
             const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
             if (_.isUndefined(func)) {
@@ -1019,24 +1024,30 @@ class TransformExpanded extends React.Component {
                 return [];
             }
             nodeExpression.getChildren().forEach((child) => {
-                this.getIntermediateNodes(child, intermediateNodes, nodeExpression);
+                this.getIntermediateNodes(child, statement, intermediateNodes, nodeExpression);
             });
             intermediateNodes.push({
                 type: 'function',
                 func,
                 parentNode,
+                statement,
                 funcInv: nodeExpression,
             });
             return intermediateNodes;
         } else if (ASTFactory.isBinaryExpression(nodeExpression)
                       || ASTFactory.isUnaryExpression(nodeExpression)) {
             const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getLeftExpression(), intermediateNodes, nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getRightExpression(), intermediateNodes, nodeExpression);
+            if (ASTFactory.isBinaryExpression(nodeExpression)) {
+                this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
+                                                            intermediateNodes, nodeExpression);
+            }
+            this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
+                                                intermediateNodes, nodeExpression);
             intermediateNodes.push({
                 type: 'operator',
                 operator,
                 parentNode,
+                statement,
                 opExp: nodeExpression,
             });
             return intermediateNodes;
@@ -1095,9 +1106,10 @@ class TransformExpanded extends React.Component {
 
             this.props.model.getChildren().forEach((child) => {
                 if (!ASTFactory.isAssignmentStatement(child)) {
-                    return;
+                    return; // TODO: handle var def stmts as well
                 }
-                const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(child.getRightExpression(), child);
+                const { exp: rightExpression, isTemp } = this.transformNodeManager
+                                                    .getResolvedExpression(child.getRightExpression(), child);
 
                 if (ASTFactory.isFunctionInvocationExpression(rightExpression)
                     || ASTFactory.isBinaryExpression(rightExpression)
@@ -1106,7 +1118,7 @@ class TransformExpanded extends React.Component {
                         // only add if the function invocation is not pre available.
                         // this check is required for instances where the function invocations
                         // are used via temporary variables
-                        intermediateNodes.push(...this.getIntermediateNodes(rightExpression));
+                        intermediateNodes.push(...this.getIntermediateNodes(rightExpression, child));
                     }
                 }
             });
@@ -1188,13 +1200,14 @@ class TransformExpanded extends React.Component {
                                             return (<FunctionInv
                                                 key={node.funcInv.getID()}
                                                 func={node.func}
-                                                enclosingAssignmentStatement={node.assignmentStmt}
-                                                parentFunc={node.parentFunc}
+                                                statement={node.statement}
+                                                parentNode={node.parentNode}
                                                 funcInv={node.funcInv}
                                                 recordSourceElement={this.recordSourceElement}
                                                 recordTargetElement={this.recordTargetElement}
                                                 viewId={this.props.model.getID()}
                                                 onEndpointRemove={this.removeEndpoint}
+                                                onFunctionRemove={this.removeIntermediateNode}
                                                 onConnectPointMouseEnter={this.onConnectPointMouseEnter}
                                                 foldEndpoint={this.foldEndpoint}
                                                 foldedEndpoints={this.state.foldedEndpoints}
@@ -1205,11 +1218,14 @@ class TransformExpanded extends React.Component {
                                         return (<Operator
                                             key={node.opExp.getID()}
                                             operator={node.operator}
+                                            statement={node.statement}
+                                            parentNode={node.parentNode}
                                             opExp={node.opExp}
                                             recordSourceElement={this.recordSourceElement}
                                             recordTargetElement={this.recordTargetElement}
                                             viewId={this.props.model.getID()}
                                             onEndpointRemove={this.removeEndpoint}
+                                            onOperatorRemove={this.removeIntermediateNode}
                                             onConnectPointMouseEnter={this.onConnectPointMouseEnter}
                                         />);
                                     })
