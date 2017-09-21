@@ -225,18 +225,61 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        // TODO
+        BType actualType = symTable.errType;
+        // First analyze the variable reference expression.
         checkExpr(fieldAccessExpr.expr, this.env, Lists.of(symTable.noType));
+
+        BType varRefType = fieldAccessExpr.expr.type;
+        switch (varRefType.tag) {
+            case TypeTags.STRUCT:
+                Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+                actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
+                break;
+            case TypeTags.MAP:
+                break;
+            case TypeTags.JSON:
+                break;
+            case TypeTags.ERROR:
+                // Do nothing
+                break;
+            default:
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS,
+                        varRefType);
+        }
+
+        resultTypes = checkTypes(fieldAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        // TODO
+        BType actualType = symTable.errType;
         // First analyze the variable reference expression.
         checkExpr(indexAccessExpr.expr, this.env, Lists.of(symTable.noType));
 
-        // Validate the index expression
-        // Expected type == int, if the variable is an array.
-        checkExpr(indexAccessExpr.indexExpr, this.env, Lists.of(symTable.intType));
+        BType indexExprType;
+        BType varRefType = indexAccessExpr.expr.type;
+        switch (varRefType.tag) {
+            case TypeTags.STRUCT:
+                indexExprType = checkIndexExprForStructFieldAccess(indexAccessExpr.indexExpr);
+                if (indexExprType.tag == TypeTags.STRING) {
+                    String fieldName = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
+                    actualType = checkStructFieldAccess(indexAccessExpr, names.fromString(fieldName), varRefType);
+                }
+                break;
+            case TypeTags.MAP:
+                break;
+            case TypeTags.JSON:
+                break;
+            case TypeTags.ARRAY:
+                break;
+            case TypeTags.ERROR:
+                // Do nothing
+                break;
+            default:
+                dlog.error(indexAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                        indexAccessExpr.expr.type);
+        }
+
+        resultTypes = checkTypes(indexAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
     public void visit(BLangInvocation iExpr) {
@@ -503,12 +546,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check weather the struct field exists
-        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, fieldName, recordType.tsymbol);
-        if (fieldSymbol == symTable.notFoundSymbol) {
-            return symTable.errType;
-        }
-
-        return fieldSymbol.type;
+        return checkStructFieldAccess(keyExpr, fieldName, recordType);
     }
 
     private BType checkJSONLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
@@ -545,6 +583,22 @@ public class TypeChecker extends BLangNodeVisitor {
         // If the key expression is an identifier then we simply set the type as string.
         keyExpr.type = symTable.stringType;
         return keyExpr.type;
+    }
 
+    private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
+        if (indexExpr.getKind() != NodeKind.LITERAL) {
+            dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
+            return symTable.errType;
+        }
+
+        return checkExpr(indexExpr, this.env, Lists.of(symTable.stringType)).get(0);
+    }
+
+    private BType checkStructFieldAccess(BLangExpression fieldAccessExpr, Name fieldName, BType structType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, fieldName, structType.tsymbol);
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            return symTable.errType;
+        }
+        return fieldSymbol.type;
     }
 }
