@@ -337,7 +337,7 @@ codeBlockBody
     ;
 
 codeBlockParameter
-    :   structReference Identifier
+    :   typeName Identifier
     ;
 
 //todo replace with 'foreach'

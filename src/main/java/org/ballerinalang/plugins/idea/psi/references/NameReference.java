@@ -111,8 +111,15 @@ public class NameReference extends BallerinaElementReference {
             if (elementInScope != null) {
                 return elementInScope;
             }
-            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true,
-                    true, true, true, true, true);
+            PsiElement resolvedElement;
+            TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(identifier, TypeNameNode.class);
+            if (typeNameNode == null) {
+                resolvedElement = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true,
+                        true, true, true, true);
+            } else {
+                resolvedElement = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true,
+                        true, false, false, true);
+            }
             if (resolvedElement != null) {
                 return resolvedElement;
             }

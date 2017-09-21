@@ -2014,34 +2014,109 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<IdentifierPSINode> getAttachedFunctions(@NotNull StructDefinitionNode structDefinitionNode) {
         List<IdentifierPSINode> attachedFunctions = new CopyOnWriteArrayList<>();
-        IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(structDefinitionNode, IdentifierPSINode.class);
-        if (identifier == null) {
-            return attachedFunctions;
-        }
-        ApplicationManager.getApplication().runReadAction(() -> {
-            Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
-            Collection<PsiReference> references = psiReferences.findAll();
-            references.parallelStream().forEach(reference -> {
-                        ProgressManager.checkCanceled();
-                        ApplicationManager.getApplication().runReadAction(() -> {
-                            PsiElement element = reference.getElement();
-                            CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getParentOfType(element,
-                                    CodeBlockParameterNode.class);
-                            if (codeBlockParameterNode == null) {
-                                return;
-                            }
-                            PsiElement parent = codeBlockParameterNode.getParent();
-                            if (!(parent instanceof FunctionDefinitionNode)) {
-                                return;
-                            }
-                            IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(parent, IdentifierPSINode
-                                    .class);
+        GlobalSearchScope scope = GlobalSearchScope.allScope(structDefinitionNode.getProject());
 
-                            attachedFunctions.add(functionName);
-                        });
+        FileTypeIndex.getFiles(BallerinaFileType.INSTANCE, scope).parallelStream().forEach(file -> {
+            ProgressManager.checkCanceled();
+            ApplicationManager.getApplication().runReadAction(() -> {
+                PsiFile psiFile = PsiManager.getInstance(structDefinitionNode.getProject()).findFile(file);
+                Collection<FunctionDefinitionNode> functionDefinitionNodes = PsiTreeUtil.findChildrenOfType(psiFile,
+                        FunctionDefinitionNode.class);
+
+                for (FunctionDefinitionNode functionDefinitionNode : functionDefinitionNodes) {
+                    ProgressManager.checkCanceled();
+                    CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getChildOfType(functionDefinitionNode,
+                            CodeBlockParameterNode.class);
+                    if (codeBlockParameterNode == null) {
+                        continue;
                     }
-            );
+                    TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(codeBlockParameterNode, TypeNameNode.class);
+                    if (typeNameNode == null) {
+                        continue;
+                    }
+                    PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+                    if (reference == null) {
+                        continue;
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        continue;
+                    }
+                    if (!resolvedElement.getParent().equals(structDefinitionNode)) {
+                        continue;
+                    }
+                    IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(functionDefinitionNode,
+                            IdentifierPSINode.class);
+                    attachedFunctions.add(functionName);
+                }
+            });
         });
+
+        //        List<IdentifierPSINode> attachedFunctions = new CopyOnWriteArrayList<>();
+        //        IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(structDefinitionNode, IdentifierPSINode
+        // .class);
+        //        if (identifier == null) {
+        //            return attachedFunctions;
+        //        }
+        //        ApplicationManager.getApplication().runReadAction(() -> {
+        //            Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
+        //            Collection<PsiReference> references = psiReferences.findAll();
+        //            references.parallelStream().forEach(reference -> {
+        //                        ProgressManager.checkCanceled();
+        //                        ApplicationManager.getApplication().runReadAction(() -> {
+        //                            PsiElement element = reference.getElement();
+        //                            CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getParentOfType
+        // (element,
+        //                                    CodeBlockParameterNode.class);
+        //                            if (codeBlockParameterNode == null) {
+        //                                return;
+        //                            }
+        //                            PsiElement parent = codeBlockParameterNode.getParent();
+        //                            if (!(parent instanceof FunctionDefinitionNode)) {
+        //                                return;
+        //                            }
+        //                            IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(parent,
+        // IdentifierPSINode
+        //                                    .class);
+        //
+        //                            attachedFunctions.add(functionName);
+        //                        });
+        //                    }
+        //            );
+        //        });
         return attachedFunctions;
+        //        List<IdentifierPSINode> attachedFunctions = new CopyOnWriteArrayList<>();
+        //        IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(structDefinitionNode, IdentifierPSINode
+        // .class);
+        //        if (identifier == null) {
+        //            return attachedFunctions;
+        //        }
+        //        ApplicationManager.getApplication().runReadAction(() -> {
+        //            Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
+        //            Collection<PsiReference> references = psiReferences.findAll();
+        //            references.parallelStream().forEach(reference -> {
+        //                        ProgressManager.checkCanceled();
+        //                        ApplicationManager.getApplication().runReadAction(() -> {
+        //                            PsiElement element = reference.getElement();
+        //                            CodeBlockParameterNode codeBlockParameterNode = PsiTreeUtil.getParentOfType
+        // (element,
+        //                                    CodeBlockParameterNode.class);
+        //                            if (codeBlockParameterNode == null) {
+        //                                return;
+        //                            }
+        //                            PsiElement parent = codeBlockParameterNode.getParent();
+        //                            if (!(parent instanceof FunctionDefinitionNode)) {
+        //                                return;
+        //                            }
+        //                            IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(parent,
+        // IdentifierPSINode
+        //                                    .class);
+        //
+        //                            attachedFunctions.add(functionName);
+        //                        });
+        //                    }
+        //            );
+        //        });
+        //        return attachedFunctions;
     }
 }

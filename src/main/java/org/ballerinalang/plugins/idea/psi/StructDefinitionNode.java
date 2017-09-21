@@ -64,15 +64,6 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
                 }
             }
         }
-//        List<IdentifierPSINode> attachedFunctions = BallerinaPsiImplUtil.getAttachedFunctions(this);
-//        for (IdentifierPSINode attachedFunction : attachedFunctions) {
-//            IdentifierPSINode functionName = PsiTreeUtil.getChildOfType(attachedFunction, IdentifierPSINode.class);
-//            if (functionName != null) {
-//                if (functionName.getText().equals(element.getText())) {
-//                    return functionName;
-//                }
-//            }
-//        }
         return null;
     }
 }

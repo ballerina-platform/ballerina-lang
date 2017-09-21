@@ -40,6 +40,7 @@ import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
+import org.ballerinalang.plugins.idea.psi.references.LambdaFunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.NameSpaceReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
@@ -167,6 +168,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                             return new AttachmentPointReference(this);
                         }
                     }
+
                     return new NameReference(this);
                 case RULE_field:
                     return new FieldReference(this);
@@ -229,7 +231,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if ((definitionNode instanceof ConnectorVarDefStatementNode)) {
             return new ActionInvocationReference(this);
         } else if ((definitionNode instanceof VariableDefinitionNode)) {
-            return new FieldReference(this);
+
+            StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
+                    (definitionNode);
+            if(structDefinitionNode!=null){
+                return new LambdaFunctionReference(this);
+            }
         }
         return null;
     }

@@ -24,7 +24,6 @@ import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -69,8 +68,6 @@ public class FieldReference extends BallerinaElementReference {
             if (prevSibling == null) {
                 return null;
             }
-        } else if (parent instanceof InvocationNode) {
-            prevSibling = parent.getPrevSibling();
         } else if (parent instanceof NameReferenceNode) {
             prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
             if (prevSibling != null && ".".equals(prevSibling.getText())) {
@@ -130,19 +127,7 @@ public class FieldReference extends BallerinaElementReference {
             return null;
         }
         // Resolve the field and return the resolved element.
-        PsiElement resolvedField = structDefinitionNode.resolve(identifier);
-        if (resolvedField != null) {
-            return resolvedField;
-        }
-        List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAttachedFunctions(structDefinitionNode);
-        for (IdentifierPSINode function : functions) {
-            if (function != null) {
-                if (function.getText().equals(identifier.getText())) {
-                    return function;
-                }
-            }
-        }
-        return null;
+        return structDefinitionNode.resolve(identifier);
     }
 
     @NotNull
