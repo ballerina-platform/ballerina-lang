@@ -19,6 +19,9 @@ import React from 'react';
 import _ from 'lodash';
 import './properties-form.css';
 
+/**
+ * Pagination component
+ */
 class Pagination extends React.Component {
     constructor(props) {
         super(props);
@@ -31,6 +34,10 @@ class Pagination extends React.Component {
         }
     }
 
+    /**
+     * Set the page number and its items
+     * @param page
+     */
     setPage(page) {
         const items = this.props.items;
         let pager = this.state.pager;
@@ -39,35 +46,32 @@ class Pagination extends React.Component {
             return;
         }
 
-        // get new pager object for specified page
         pager = this.getPager(items.length, page);
-
-        // get new page of items from items array
         const pageOfItems = items.slice(pager.startIndex, pager.endIndex + 1);
 
         this.setState({ pager });
-        // call change page function in parent component
         this.props.onChangePage(pageOfItems);
     }
 
+    /**
+     * Get info about a single page
+     * @param totalItems
+     * @param currentPage
+     * @param pageSize
+     * @returns {{totalItems: *, currentPage: (*|number), pageSize: (*|number), totalPages: number, startPage: *, endPage: *, startIndex: number, endIndex: number, pages}}
+     */
     getPager(totalItems, currentPage, pageSize) {
-        // default to first page
         currentPage = currentPage || 1;
-
-        // default page size is 10
         pageSize = pageSize || 4;
 
-        // calculate total pages
         const totalPages = Math.ceil(totalItems / pageSize);
 
         let startPage,
             endPage;
         if (totalPages <= 10) {
-            // less than 10 total pages so show all
             startPage = 1;
             endPage = totalPages;
         } else {
-            // more than 10 total pages so calculate start and end pages
             if (currentPage <= 6) {
                 startPage = 1;
                 endPage = 10;
@@ -80,14 +84,9 @@ class Pagination extends React.Component {
             }
         }
 
-        // calculate start and end item indexes
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
-
-        // create an array of pages to ng-repeat in the pager control
         const pages = _.range(startPage, endPage + 1);
-
-        // return object with all pager properties required by the view
         return {
             totalItems,
             currentPage,
@@ -101,6 +100,10 @@ class Pagination extends React.Component {
         };
     }
 
+    /**
+     * Renders the pagination view
+     * @returns {*}
+     */
     render() {
         const pager = this.state.pager;
         if (!pager.pages || pager.pages.length <= 1) {
@@ -108,17 +111,17 @@ class Pagination extends React.Component {
         }
 
         return (<div className="progress">
-            {pager.pages.map((page, index) =>
-                (<div key={index} className={pager.currentPage === page ? 'circle active' : 'circle done'}>
-                    <span className="label" onClick={() => this.setPage(page)}>{page}</span>
-                </div>
-                ),
-            )}
             {pager.currentPage !== 1 &&
             <div className="prevNext done">
                 <span className='label'
                       onClick={() => this.setPage(pager.currentPage - 1)}>Previous</span>
             </div> }
+            {pager.pages.map((page, index) =>
+                (<div key={index} className={pager.currentPage === page ? 'circle active' : 'circle done'}>
+                        <span className="label" onClick={() => this.setPage(page)}>{page}</span>
+                    </div>
+                ),
+            )}
             {pager.currentPage !== pager.totalPages &&
             <div className="prevNext done">
                 <span  className='label'

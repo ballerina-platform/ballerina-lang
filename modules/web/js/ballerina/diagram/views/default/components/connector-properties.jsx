@@ -23,9 +23,9 @@ import './properties-form.css';
 import ASTFactory from '../../../../ast/ast-factory';
 import PropertiesWindow from './property-window';
 /**
- * React component for a service definition.
+ * React component for a connector prop window
  *
- * @class ServiceDefinition
+ * @class ConnectorPropertiesForm
  * @extends {React.Component}
  */
 class ConnectorPropertiesForm extends React.Component {
@@ -40,6 +40,11 @@ class ConnectorPropertiesForm extends React.Component {
         this.getFullPkgPath = this.getFullPkgPath.bind(this);
     }
 
+    /**
+     * Get already added values to properties
+     * @param node
+     * @returns {string}
+     */
     getAddedValueOfProp(node) {
         let value = '';
         if (ASTFactory.isBasicLiteralExpression(node)) {
@@ -50,6 +55,11 @@ class ConnectorPropertiesForm extends React.Component {
         return value;
     }
 
+    /**
+     * Get full package path of connector
+     * @param pkgName
+     * @returns {string}
+     */
     getFullPkgPath(pkgName) {
         let pkgPath = '';
         switch (pkgName) {
@@ -119,6 +129,11 @@ class ConnectorPropertiesForm extends React.Component {
         }
         return pkgPath;
     }
+
+    /**
+     * Get the connector properties supported by each connector
+     * @returns {*}
+     */
     getSupportedProps() {
         const fullPkgPath = this.getFullPkgPath(this.props.model.getDeclarationStatement().getRightExpression()
             .getConnectorName().getPackageName());
@@ -132,6 +147,12 @@ class ConnectorPropertiesForm extends React.Component {
         return connectorProps;
     }
 
+    /**
+     * Create the connector init string
+     * @param connectorInit
+     * @param data
+     * @returns {string}
+     */
     getConnectorInstanceString(connectorInit, data) {
         let spacesBeforeNameRef = '';
         let spacesNameRefToArgStart = '';
@@ -169,6 +190,10 @@ class ConnectorPropertiesForm extends React.Component {
         return connectorInstanceString + ')';
     }
 
+    /**
+     * Set data to the connector init arguments and create the connector init string
+     * @param data
+     */
     setDataToConnectorInitArgs(data) {
         const connectorInit = this.props.model.getDeclarationStatement().getRightExpression();
         const expr = 'create' + this.getConnectorInstanceString(connectorInit, data);
@@ -176,6 +201,10 @@ class ConnectorPropertiesForm extends React.Component {
         console.log(connectorInit.getExpressionString());
     }
 
+    /**
+     * Get the values already added as arguments to the connector init expression
+     * @returns {Expression[]}
+     */
     getDataAddedToConnectorInit() {
         return this.props.model.getDeclarationStatement().getRightExpression().getArgs();
     }

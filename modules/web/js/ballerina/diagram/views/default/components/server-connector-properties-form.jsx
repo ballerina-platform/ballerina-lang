@@ -24,7 +24,7 @@ import './properties-form.css';
 import PropertiesWindow from './property-window';
 
 /**
- * React component for a service definition.
+ * React component for a server connector properties form
  *
  * @class ServiceDefinition
  * @extends {React.Component}
@@ -40,6 +40,11 @@ class ServerConnectorPropertiesForm extends React.Component {
         this.getProtocolPkgPath = this.getProtocolPkgPath.bind(this);
     }
 
+    /**
+     * Get the protocol package path for a service def
+     * @param protocolPkgName
+     * @returns {*}
+     */
     getProtocolPkgPath(protocolPkgName) {
         let protocolPkgPath;
         switch (protocolPkgName) {
@@ -59,6 +64,10 @@ class ServerConnectorPropertiesForm extends React.Component {
         return protocolPkgPath;
     }
 
+    /**
+     * Get service config annotations and values added for a service using the prop form
+     * @param data
+     */
     getDataFromPropertyForm(data) {
         if (!ASTFactory.isAnnotationAttachment(this.props.model.getChildren()[0])) {
             const serviceConfigAnnotation = ASTFactory.createAnnotationAttachment({
@@ -73,7 +82,7 @@ class ServerConnectorPropertiesForm extends React.Component {
             methodsValue,
             getValue;
         Object.keys(data).forEach((key) => {
-            if (data[key] || (typeof (data[key]) === 'boolean')) {
+            if (data[key]) {
                 let exists = false;
                 // For Arrays
                 if (this.isArrayTypeConfigurationAttribute(key)) {
@@ -153,6 +162,10 @@ class ServerConnectorPropertiesForm extends React.Component {
         });
     }
 
+    /**
+     * Get config values that are already added to the service def
+     * @returns {Array}
+     */
     getAddedValues() {
         const addedValues = [];
         if (ASTFactory.isAnnotationAttachment(this.props.model.getChildren()[0])) {
@@ -183,6 +196,10 @@ class ServerConnectorPropertiesForm extends React.Component {
         return addedValues;
     }
 
+    /**
+     * Get the config keys/attributes that is supported by the service def
+     * @returns {Array}
+     */
     getSupportedKeys() {
         const supportedKeysArray = [];
         const addedValues = this.getAddedValues();
@@ -218,6 +235,12 @@ class ServerConnectorPropertiesForm extends React.Component {
         });
         return supportedKeysArray;
     }
+
+    /**
+     * Get the type of the configuration attribute
+     * @param value
+     * @returns {*}
+     */
     getBTypeOfConfigurationAttribute(value) {
         const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
             this.props.environment, value, this.getProtocolPkgPath(this.props.model.getProtocolPkgName()),
@@ -225,6 +248,11 @@ class ServerConnectorPropertiesForm extends React.Component {
         return annotationAttributeDef.getBType();
     }
 
+    /**
+     * Check if the attribute is of type array
+     * @param value
+     * @returns {*}
+     */
     isArrayTypeConfigurationAttribute(value) {
         const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
             this.props.environment, value, this.getProtocolPkgPath(this.props.model.getProtocolPkgName()),
@@ -262,7 +290,6 @@ class ServerConnectorPropertiesForm extends React.Component {
                 supportedProps={this.getSupportedKeys()}
                 editor={this.props.editor}
                 addedValues={this.getDataFromPropertyForm}
-                visibility={this.props.visibility}
             />);
     }
 }

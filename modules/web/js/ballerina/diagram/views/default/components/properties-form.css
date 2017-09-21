@@ -74,7 +74,6 @@
     width: 100%;
     background-color: rgb(249, 249, 249);
     border-style: none;
-    /*height: 60px;*/
     padding-left: 10px;
     color: #232222;
 }
@@ -94,6 +93,7 @@
     cursor: pointer;
     background-color: #707070;
     transition: background-color ease 0.3s;
+    border: 1px solid #b5a7a7;
 }
 
 .toggle:before {
@@ -142,7 +142,7 @@
 #property-modal {
     background-color: lightgray;
     position: absolute;
-    width: 32%;
+    width: 40%;
     z-index:1000;
     box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42)
 }
@@ -221,7 +221,6 @@
     border-bottom: 10px solid rgb(211, 211, 211);
     width: 0;
     height: 0;
-    /*box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42)*/
 }
 
 /* Form Progress */
@@ -317,44 +316,54 @@
 
 span { cursor: pointer; }
 
-.popover-collapsed{
+@keyframes slideUp{
+    from {
+        transform: translateY(-3%);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(0%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideDown{
+    from {
+        transform: translateY(-3%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+/* CSS Transition Group */
+
+.propWindow-enter {
+    opacity: 0.01;
+}
+
+.propWindow-enter.propWindow-enter-active {
     will-change: transform;
-    transition: 0.3s all ease;
-    cursor: pointer;
-    animation: collapse .3s ease;
+    animation: slideDown 1s ease;
 }
 
-.popover-expanded {
-    animation: expand .3s ease;
-}
-
-@keyframes collapse {
-    0%, 10% {
-        right: calc(100% - 10px);
-    }
-    20%, 40% {
-        right: calc(100% - 10px);
-    }
-}
-
-@keyframes expand {
-    0%, 80% {
-        right: calc(100% + 2px);
-    }
-    90%, 100% {
-        right: calc(100% + 2px);
-        width: 135px;
-        bottom: 0;
-        background: #565656;
-    }
-}
-
-.mountAnimation {
+.propWindow-leave {
     opacity: 1;
-    transition: all 1s ease;
 }
 
-.unmountAnimation {
-    opacity: 0;
-    transition: all 1s ease;
+.propWindow-leave.propWindow-leave-active {
+    will-change: transform;
+    animation: slideUp 0.8s ease;
+
+}
+
+.propWindow-appear {
+    opacity: 0.01;
+}
+
+.propWindow-appear.propWindow-appear-active {
+    will-change: transform;
+    animation: slideDown 1s ease;
 }

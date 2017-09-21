@@ -15,14 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 /**
  * A helper class relations ballerina environment connectors.
  *
  * @class ConnectorHelper
  */
 class ConnectorHelper {
-
+    /**
+     * Get the default values of the connector parameters according to the bType
+     * @param bType
+     * @returns {*}
+     */
     static getDefaultValuesAccordingToBType(bType) {
         let defaultValue;
         switch (bType) {
@@ -44,6 +47,12 @@ class ConnectorHelper {
         return defaultValue;
     }
 
+    /**
+     * Gets the connector parameters of a connector
+     * @param environment The ballerina environment.
+     * @param fullPackageName of the connector
+     * @returns {Array}
+     */
     static getConnectorParameters(environment, fullPackageName) {
         const connectorParameters = [];
         for (const packageDefintion of environment.getPackages()) {

@@ -214,11 +214,12 @@ class PanelDecorator extends React.Component {
 
         let protocolOffset = 0;
         let protocolTextSize = 0;
-        if (this.props.protocol) {
+        const isResourceDef = ASTFactory.isResourceDefinition(this.props.model);
+        const wsResourceDef = (isResourceDef && this.props.protocol === 'ws');
+        if (this.props.protocol && !isResourceDef) {
             protocolOffset = 50;
             protocolTextSize = util.getTextWidth(this.props.protocol, 0).w;
         }
-
         return (<g className="panel">
             <g className="panel-header">
                 <rect
@@ -232,21 +233,50 @@ class PanelDecorator extends React.Component {
                     data-original-title=""
                     title=""
                 />
-                <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
-                <EditableText
-                    x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 30}
-                    y={bBox.y + titleHeight / 2 + annotationBodyHeight}
-                    width={titleWidth.w}
-                    onBlur={() => { this.onTitleInputBlur(); }}
-                    onClick={() => { this.onTitleClick(); }}
-                    editing={this.state.titleEditing}
-                    onChange={(e) => { this.onTitleInputChange(e); }}
-                    displayText={titleWidth.text}
-                    onKeyDown={(e) => { this.onTitleKeyDown(e); }}
-                >
-                    {this.state.editingTitle}
-                </EditableText>
-                {this.props.protocol &&
+                <rect
+                    x={bBox.x - 1}
+                    y={bBox.y + annotationBodyHeight}
+                    height={titleHeight}
+                    rx="0"
+                    ry="0"
+                    className="panel-heading-decorator"
+                />
+                {wsResourceDef && <g>
+                    <rect
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                        width={titleWidth.w}
+                    />
+                    <text
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 5}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 5}
+                        className="resourceName"
+                    >{titleWidth.text}</text>
+                </g>}
+                {!wsResourceDef &&
+                    <EditableText
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 30}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                        width={titleWidth.w}
+                        onBlur={() => {
+                            this.onTitleInputBlur();
+                        }}
+                        onClick={() => {
+                            this.onTitleClick();
+                        }}
+                        editing={this.state.titleEditing}
+                        onChange={(e) => {
+                            this.onTitleInputChange(e);
+                        }}
+                        displayText={titleWidth.text}
+                        onKeyDown={(e) => {
+                            this.onTitleKeyDown(e);
+                        }}
+                    >
+                        {this.state.editingTitle}
+                    </EditableText>
+                }
+                {(this.props.protocol && !isResourceDef) &&
                     <ServerConnectorProperties
                         bBox={bBox}
                         model={this.props.model}
@@ -279,25 +309,6 @@ class PanelDecorator extends React.Component {
                     className="annotation-icon"
                 >
                     <title>Add Annotation</title> </image>
-                {/* {this.props.protocol &&
-                <g>
-                    <rect
-                        x={bBox.x + iconSize + 98}
-                        y={bBox.y + annotationBodyHeight}
-                        width={iconSize + 15}
-                        height={titleHeight - 3}
-                        style={{ fill: 'white' }}
-                    />
-                    <image
-                        x={bBox.x + iconSize + 105}
-                        y={bBox.y + 10 + annotationBodyHeight}
-                        width={iconSize}
-                        height={iconSize}
-                        xlinkHref={ImageUtil.getSVGIconString('tool-icons/comment')}
-                        onClick={this.props.onPropertiesBtnClick}
-                        className="properties-icon"
-                    /> </g>
-                }*/}
                 {titleComponents}
                 {rightHeadingButtons}
             </g>

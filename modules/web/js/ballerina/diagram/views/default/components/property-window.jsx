@@ -50,22 +50,11 @@ class PropertiesWindow extends React.Component {
         this.renderTextInputs = this.renderTextInputs.bind(this);
         this.renderBooleanInputs = this.renderBooleanInputs.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
-        this.unMountStyle = this.unMountStyle.bind(this);
-        this.mountStyle = this.mountStyle.bind(this);
         this.onChangePage = this.onChangePage.bind(this);
-    }
-
-    unMountStyle() { // css for unmount animation
-        this.props.model.getViewState().showPropertyForm = 'hide';
-    }
-
-    mountStyle() { // css for mount animation
-        this.props.model.getViewState().showPropertyForm = 'show';
     }
 
     componentDidMount() {
         if (this.props.model.getViewState().showPropertyForm) {
-            setTimeout(this.mountStyle(), 10);
             document.addEventListener('mouseup', this.handleOutsideClick, false);
         } else {
             document.removeEventListener('mouseup', this.handleOutsideClick, false);
@@ -84,24 +73,30 @@ class PropertiesWindow extends React.Component {
         document.removeEventListener('mouseup', this.handleOutsideClick, false);
     }
 
-    /* componentWillReceiveProps(newProps) { // check for the mounted props
-        if (newProps.visibility !== this.props.visibility) {
-            return this.unMountStyle();
-        } // call outro animation when mounted prop is false
-        setTimeout(this.mountStyle, 10); // call the into animiation
-        this.props.editor.update();
-    }*/
-
+    /**
+     * On page change event
+     * @param pageOfItems
+     */
     onChangePage(pageOfItems) {
         // update state with new page of items
         this.setState({ pageOfItems });
     }
 
+    /**
+     * On change event for form inputs
+     * @param event
+     * @param index
+     */
     onChange(event, index) {
         const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
         this.setState({ data: _.extend(this.state.data, { [index]: value }) });
     }
 
+    /**
+     * Handle when tags are added to tag inputs
+     * @param event
+     * @param index
+     */
     onTagsAdded(event, index) {
         if (event.keyCode === 13) {
             event.preventDefault();
@@ -119,21 +114,30 @@ class PropertiesWindow extends React.Component {
         }
     }
 
+    /**
+     * Hanldes the dismiss/cancel event of the prop window
+     */
     handleDismiss() {
         this.props.addedValues(this.state.data);
-        if (this.props.model.getViewState().showPropertyForm === 'show') {
-            setTimeout(this.unMountStyle(), 100);
-        }
-       // this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
+        this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
         this.props.editor.update();
     }
 
+    /**
+     * Handles the tags that are removed from the tag input
+     * @param identifier
+     * @param index
+     */
     removeTagsAdded(identifier, index) {
         this.setState({ data: _.extend(this.state.data, { [identifier]:
             this.state.data[identifier].filter((item, i) => i !== index),
         }) });
     }
 
+    /**
+     * Handles the outside click of the prop window
+     * @param e
+     */
     handleOutsideClick(e) {
         if (this.node) {
             if (!this.node.contains(e.target)) {
@@ -142,6 +146,11 @@ class PropertiesWindow extends React.Component {
         }
     }
 
+    /**
+     * Renders text input for form
+     * @param key
+     * @returns {XML}
+     */
     renderTextInputs(key) {
         return (
             <div key={key.identifier} className="form-group">
@@ -156,7 +165,7 @@ class PropertiesWindow extends React.Component {
                         id={key.identifier}
                         name={key.identifier}
                         type='text'
-                        placeholder={key.desc}
+                        placeholder={key.identifier}
                         value={this.state.data[key.identifier]}
                         onChange={event => this.onChange(event, key.identifier)}
                     />
@@ -164,6 +173,11 @@ class PropertiesWindow extends React.Component {
             </div>);
     }
 
+    /**
+     * Renders numeric input for form
+     * @param key
+     * @returns {XML}
+     */
     renderNumericInputs(key) {
         return (
             <div key={key.identifier} className="form-group">
@@ -186,6 +200,12 @@ class PropertiesWindow extends React.Component {
             </div>);
     }
 
+    /**
+     * Renders boolean input for form
+     * @param key
+     * @param booleanValue
+     * @returns {XML}
+     */
     renderBooleanInputs(key, booleanValue) {
         return (
             <div key={key.identifier} className="form-group">
@@ -206,6 +226,11 @@ class PropertiesWindow extends React.Component {
             </div>);
     }
 
+    /**
+     * Renders tag inputs for form
+     * @param key
+     * @returns {XML}
+     */
     renderTagInputs(key) {
         return (<div key={key.identifier} className="form-group">
             <label
@@ -226,6 +251,11 @@ class PropertiesWindow extends React.Component {
         </div>);
     }
 
+    /**
+     * Renders structs / collapsible divs for form
+     * @param key
+     * @returns {XML}
+     */
     renderStructs(key) {
         const dataTarget = '#' + key.identifier;
         return (<div className="structsContainer" id="accordion">
@@ -270,23 +300,12 @@ class PropertiesWindow extends React.Component {
         </div>);
     }
     /**
-     * Renders the view for a service definition.
+     * Renders the view for a property window
      *
      * @returns {ReactElement} The view.
-     * @memberof ServiceDefinition
+     * @memberof PropertyWindow
      */
     render() {
-        if (this.props.model.getViewState().showPropertyForm === 'show') {
-            /*this.node.classList.remove('unmountAnimation');
-            this.refs.popoverArrow.classList.remove('unmountAnimation');*/
-            this.node.classList.add('mountAnimation');
-            this.refs.popoverArrow.classList.add('mountAnimation');
-        } if (this.props.model.getViewState().showPropertyForm === 'hide') {
-            /*this.node.classList.remove('mountAnimation');
-            this.refs.popoverArrow.classList.remove('mountAnimation');*/
-            this.node.classList.add('unmountAnimation');
-            this.refs.popoverArrow.classList.add('unmountAnimation');
-        }
         return (
             <div
                 id={`popover-${this.props.model.id}`}
@@ -294,7 +313,6 @@ class PropertiesWindow extends React.Component {
             >
                 <div
                     id="popover-arrow"
-                    ref="popoverArrow"
                     style={this.props.styles.arrowStyle}
                 />
                 <div

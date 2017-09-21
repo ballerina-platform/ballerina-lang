@@ -27,7 +27,8 @@ import './canvas-decorator.css';
 import { setCanvasOverlay } from '../../../../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
-
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import './properties-form.css';
 /**
  * React component for a canvas decorator.
  *
@@ -115,10 +116,23 @@ class CanvasDecorator extends React.Component {
                     {/* This space is used to render html elements over svg*/ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
-                {(this.props.serverConnectorPropsViews && this.props.serverConnectorPropsViews.length > 0) ?
+                <CSSTransitionGroup
+                    transitionName="propWindow"
+                    transitionAppear
+                    transitionAppearTimeout={800}
+                    transitionEnter
+                    transitionEnterTimeout={800}
+                    transitionLeave
+                    transitionLeaveTimeout={800}
+                >
+                    {(this.props.serverConnectorPropsViews && this.props.serverConnectorPropsViews.length > 0) ?
                     this.props.serverConnectorPropsViews : null }
-                {(this.props.connectorPropsViews && this.props.connectorPropsViews.length > 0)
+                    {(this.props.connectorPropsViews && this.props.connectorPropsViews.length > 0)
                     ? this.props.connectorPropsViews : null }
+                    {(this.props.overlayComponentViews && this.props.overlayComponentViews.length > 0)
+                        ? this.props.overlayComponentViews : null }
+                </CSSTransitionGroup>
+
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
                     <rect
                         x="0"
@@ -148,12 +162,14 @@ CanvasDecorator.propTypes = {
     annotations: PropTypes.arrayOf(PropTypes.element),
     serverConnectorPropsViews: PropTypes.arrayOf(PropTypes.element),
     connectorPropsViews: PropTypes.arrayOf(PropTypes.element),
+    overlayComponentViews: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {
     annotations: [],
     serverConnectorPropsViews: [],
     connectorPropsViews: [],
+    overlayComponentViews: [],
 };
 
 CanvasDecorator.contextTypes = {

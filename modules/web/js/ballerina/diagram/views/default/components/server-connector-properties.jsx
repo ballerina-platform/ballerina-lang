@@ -22,9 +22,9 @@ import { panel } from '../../../../configs/designer-defaults.js';
 import './properties-form.css';
 import { util } from '../sizing-util';
 /**
- * React component for a service definition.
+ * React component for a server connector properties handler
  *
- * @class ServiceDefinition
+ * @class ServerConnectorProperties
  * @extends {React.Component}
  */
 class ServerConnectorProperties extends React.Component {
@@ -34,16 +34,19 @@ class ServerConnectorProperties extends React.Component {
         this.handleShowModal = this.handleShowModal.bind(this);
     }
 
+    /**
+     * Show the property window
+     */
     handleShowModal() {
         this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
         this.context.editor.update();
     }
 
     /**
-     * Renders the view for a service definition.
+     * Renders the view for a connector properties handler
      *
      * @returns {ReactElement} The view.
-     * @memberof ServiceDefinition
+     * @memberof ServerConnectorProperties
      */
     render() {
         const bBox = this.props.bBox;

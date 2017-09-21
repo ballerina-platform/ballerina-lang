@@ -28,12 +28,20 @@ const createhttpServiceDefTool = {
     meta: {
         protocolPkgName: 'http',
         protocolPkgPath: 'ballerina.net.http',
-        resourceParams: {
-            requestParamType: 'http:request',
-            requestParamValue: 'req',
-            responseParamType: 'http:response',
-            responseParamValue: 'resp',
-        },
+        resources: [
+            {
+                parameters: [
+                    {
+                        type: 'http:Request',
+                        value: 'req',
+                    },
+                    {
+                        type: 'http:Response',
+                        value: 'resp',
+                    },
+                ],
+            },
+        ],
     },
     cssClass: 'icon fw fw-http',
     title: 'HTTP Service',
@@ -47,12 +55,43 @@ const createwsServiceDefTool = {
     meta: {
         protocolPkgName: 'ws',
         protocolPkgPath: 'ballerina.net.ws',
-        resourceParams: {
-            requestParamType: 'ws:request',
-            requestParamValue: 'req',
-            responseParamType: 'ws:response',
-            responseParamValue: 'resp',
-        },
+        resources: [
+            {
+                resourceName: 'onOpen',
+                parameters: [
+                    {
+                        type: 'ws:Connection',
+                        value: 'conn',
+                    },
+                ],
+            },
+            {
+                resourceName: 'onTextMessage',
+                parameters: [
+                    {
+                        type: 'ws:Connection',
+                        value: 'conn',
+                    },
+                    {
+                        type: 'ws:TextFrame',
+                        value: 'frame',
+                    },
+                ],
+            },
+            {
+                resourceName: 'onClose',
+                parameters: [
+                    {
+                        type: 'ws:Connection',
+                        value: 'conn',
+                    },
+                    {
+                        type: 'ws:CloseFrame',
+                        value: 'frame',
+                    },
+                ],
+            },
+        ],
     },
     cssClass: 'icon fw fw-web-service',
     title: 'WS Service',
@@ -66,67 +105,25 @@ const createjmsServiceDefTool = {
     meta: {
         protocolPkgName: 'jms',
         protocolPkgPath: 'ballerina.net.jms',
-        resourceParams: {
-            requestParamType: 'jms:request',
-            requestParamValue: 'req',
-            responseParamType: 'jms:response',
-            responseParamValue: 'resp',
-        },
+        resources: [
+            {
+                parameters: [
+                    {
+                        type: 'jms:request',
+                        value: 'req',
+                    },
+                    {
+                        type: 'jms:response',
+                        value: 'resp',
+                    },
+                ],
+            },
+        ],
     },
     cssClass: 'icon fw fw-jaxws',
     title: 'JMS Service',
     nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
     definition: 'JMS container of resources, each of which defines the logic for handling one type of request',
-};
-
-const createfileServiceDefTool = {
-    id: 'service',
-    name: 'file',
-    meta: {
-        protocolPkgName: 'file',
-        protocolPkgPath: 'ballerina.net.ftp',
-        resourceParams: {
-            requestParamType: 'file:request',
-            requestParamValue: 'req',
-            responseParamType: 'file:response',
-            responseParamValue: 'resp',
-        },
-
-    },
-    cssClass: 'icon fw fw-dgm-service',
-    title: 'File Service',
-    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
-    definition: 'File container of resources, each of which defines the logic for handling one type of request',
-};
-
-const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool,
-    createjmsServiceDefTool, createfileServiceDefTool];
-
-const createResourceDefTool = {
-    id: 'resource',
-    name: 'Resource',
-    cssClass: 'icon fw fw-resource',
-    title: 'Resource',
-    nodeFactoryMethod: DefaultASTFactory.createResourceDefinition,
-    definition: 'Construct that handles one request within a service',
-};
-
-const createServiceDefTool = {
-    id: 'service',
-    name: 'Service',
-    cssClass: 'icon fw fw-service',
-    title: 'Service',
-    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
-    definition: 'Container of resources, each of which defines the logic for handling one type of request',
-};
-
-const createFunctionDefTool = {
-    id: 'function',
-    name: 'Function',
-    cssClass: 'icon fw fw-function',
-    title: 'Function',
-    nodeFactoryMethod: ASTFactory.createFunctionDefinition,
-    definition: 'Single operation that is intended to be a unit of reusable functionality',
 };
 
 const createMainFunctionDefTool = {
@@ -145,6 +142,35 @@ const createMainFunctionDefTool = {
     title: 'Main Function',
     nodeFactoryMethod: DefaultASTFactory.createMainFunctionDefinition,
     definition: 'Potential entry point for command line execution',
+};
+
+const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool, createMainFunctionDefTool];
+
+/* const createResourceDefTool = {
+    id: 'resource',
+    name: 'Resource',
+    cssClass: 'icon fw fw-resource',
+    title: 'Resource',
+    nodeFactoryMethod: DefaultASTFactory.createResourceDefinition,
+    definition: 'Construct that handles one request within a service',
+};
+
+const createServiceDefTool = {
+    id: 'service',
+    name: 'Service',
+    cssClass: 'icon fw fw-service',
+    title: 'Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'Container of resources, each of which defines the logic for handling one type of request',
+};*/
+
+const createFunctionDefTool = {
+    id: 'function',
+    name: 'Function',
+    cssClass: 'icon fw fw-function',
+    title: 'Function',
+    nodeFactoryMethod: ASTFactory.createFunctionDefinition,
+    definition: 'Single operation that is intended to be a unit of reusable functionality',
 };
 
 const createConnectorDefTool = {
@@ -193,8 +219,7 @@ const createAnnotationDefTool = {
 };
 
 const mainToolDefArray = [/* createServiceDefTool, createResourceDefTool, */
-    createFunctionDefTool,
-    createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
+    createFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
     createWorkerDecTool, createAnnotationDefTool];
 
 const createIfStatementTool = {
