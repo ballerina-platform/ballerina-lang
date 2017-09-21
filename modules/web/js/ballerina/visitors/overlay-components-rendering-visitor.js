@@ -21,7 +21,7 @@ import OverlayPropContainer from '../diagram/views/default/components/utils/over
 class OverlayComponentsRenderingVisitor {
 
     constructor() {
-        this.overlayComponents = [];
+        this.resourcesForWS = [];
         this.serverConnectorProperties = [];
         this.connectorProperties = [];
     }
@@ -49,14 +49,14 @@ class OverlayComponentsRenderingVisitor {
             // drop down with pre defined methods for web sockets
             if (node.getProtocolPkgName() === 'ws') {
                 let bBox = node.getViewState().components.transportLine;
-                this.overlayComponents.push(new OverlayPropContainer(bBox, node));
+                this.resourcesForWS.push(new OverlayPropContainer(bBox, node));
                 if (node.getChildren()) {
                     node.getChildren().map((child) => {
                         const thisChildIndex = node.getIndexOfChild(child);
                         if (ASTFactory.isResourceDefinition(child) &&
                             (thisChildIndex !== node.getChildren().length - 1)) {
                             bBox = child.getViewState().bBox;
-                            this.overlayComponents.push(new OverlayPropContainer(bBox, child));
+                            this.resourcesForWS.push(new OverlayPropContainer(bBox, child));
                         }
                     });
                 }
@@ -78,8 +78,8 @@ class OverlayComponentsRenderingVisitor {
         return undefined;
     }
 
-    getOverlayComponents() {
-        return (this.overlayComponents.length > 0) ? this.overlayComponents : false;
+    getResourcesForWS() {
+        return (this.resourcesForWS.length > 0) ? this.resourcesForWS : false;
     }
     getServerConnectorProperties() {
         return (this.serverConnectorProperties.length > 0) ? this.serverConnectorProperties : false;

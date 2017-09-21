@@ -155,12 +155,12 @@ class Diagram extends React.Component {
         }
 
         // 6 Get overlay component
-        const overlayComponentsRender = new OverlayComponentsRenderingVisitor();
-        this.props.model.accept(overlayComponentsRender);
-        const overlayComponentViews = [];
-        if (overlayComponentsRender.getOverlayComponents()) {
-            (overlayComponentsRender.getOverlayComponents()).map((overlayComp) => {
-                overlayComponentViews.push(<DropdownMenu
+        const dropDownResourcesforWS = new OverlayComponentsRenderingVisitor();
+        this.props.model.accept(dropDownResourcesforWS);
+        const wsResourceViews = [];
+        if (dropDownResourcesforWS.getResourcesForWS()) {
+            (dropDownResourcesforWS.getResourcesForWS()).map((overlayComp) => {
+                wsResourceViews.push(<DropdownMenu
                     key={overlayComp.node.getID()}
                     model={overlayComp.node}
                     bBox={overlayComp.bBox}
