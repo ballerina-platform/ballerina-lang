@@ -1091,6 +1091,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, typeCPIndex, exprIndex);
             }
+            unaryExpr.regIndex = exprIndex;
         } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
             unaryExpr.regIndex = unaryExpr.expr.regIndex;
         } else {
