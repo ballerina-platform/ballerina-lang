@@ -60,3 +60,7 @@
 .protocol-rect-http{
     fill: #3498db !important;
 }
+
+.resourceName{
+    fill: black;
+}

@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
@@ -28,8 +27,6 @@ import ServiceDefinitionAST from './../../../../ast/service-definition';
 import PanelDecoratorButton from './panel-decorator-button';
 import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './image-util';
-import SimpleBBox from './../../../../ast/simple-bounding-box';
-import EditableText from './editable-text';
 import ASTFactory from '../../../../ast/ast-factory';
 
 /**
@@ -47,8 +44,13 @@ class ServiceDefinition extends React.Component {
      */
     constructor(props) {
         super(props);
+        this.state = {
+            style: 'hideResourceGroup',
+        };
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
+        this.onMouseEnter = this.onMouseEnter.bind(this);
+        this.onMouseLeave = this.onMouseLeave.bind(this);
     }
 
     /**
@@ -93,7 +95,21 @@ class ServiceDefinition extends React.Component {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
         this.context.editor.update();
     }
+    /**
+     * Handles the mouse enter event on the service definition
+     */
+    onMouseEnter() {
+        this.setState({ style: 'showResourceGroup' });
+    }
 
+    /**
+     * Handles the mouse leave event on the service definition
+     */
+    onMouseLeave() {
+        if (!this.props.model.getViewState().showWebSocketMethods) {
+            this.setState({ style: 'hideResourceGroup' });
+        }
+    }
     /**
      * Renders the view for a service definition.
      *
@@ -144,11 +160,16 @@ class ServiceDefinition extends React.Component {
         const resources = this.props.model.filterChildren(child => ASTFactory.isResourceDefinition(child));
         this.props.model.getViewState().components.transportLine.y2 = 0;
         if (resources[resources.length - 1]) {
-            this.props.model.getViewState().components.transportLine.y2 = resources[resources.length - 1].getViewState().components.body.y - 15;
+            this.props.model.getViewState().components.transportLine.y2
+                = resources[resources.length - 1].getViewState().components.body.y - 15;
         }
 
         return (
-            <g className={`protocol-${this.props.model.getProtocolPkgName()}`}>
+            <g
+                className={`protocol-${this.props.model.getProtocolPkgName()}`}
+                onMouseLeave={this.onMouseLeave}
+                onMouseEnter={this.onMouseEnter}
+            >
                 <PanelDecorator
                     icon="tool-icons/service"
                     title={title}
@@ -158,9 +179,14 @@ class ServiceDefinition extends React.Component {
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     rightComponents={rightComponents}
                     protocol={this.props.model.getProtocolPkgName()}
+                    showPropertyForm={this.props.model.getViewState().showPropertyForm}
                 >
-                    { resources.length &&
-                        <ServiceTransportLine bBox={this.props.model.getViewState().components.transportLine} />}
+                    <ServiceTransportLine
+                        model={this.props.model}
+                        bBox={this.props.model.getViewState().components.transportLine}
+                        style={this.state.style}
+                        resources={resources}
+                    />
                     {
                             viewState.variablesExpanded ?
                                 <GlobalExpanded

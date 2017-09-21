@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
@@ -32,6 +33,7 @@ import { util } from '../sizing-util';
 import SimpleBBox from '../../../../ast/simple-bounding-box';
 import PanelDecoratorButton from './panel-decorator-button';
 import SuggestionsText from './suggestions-text';
+import ServerConnectorProperties from './server-connector-properties';
 
 class PanelDecorator extends React.Component {
 
@@ -42,7 +44,7 @@ class PanelDecorator extends React.Component {
             dropZoneDropNotAllowed: false,
             titleEditing: false,
             editingTitle: this.props.title,
-            showProtocolSelect: false
+            showProtocolSelect: false,
         };
 
         this.handleProtocolClick = this.handleProtocolClick.bind(this);
@@ -50,22 +52,22 @@ class PanelDecorator extends React.Component {
         this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
 
         // todo : another hack for now we need to move this to correct place and make it dynamic.
-        this.availableProtocols = [{ name: 'http'}, {name: 'ws'}, {name: 'jms'}, {name: 'file'}];
+        this.availableProtocols = [{ name: 'http' }, { name: 'ws' }, { name: 'jms' }, { name: 'file' }];
     }
 
     handleProtocolClick() {
-        this.setState({ showProtocolSelect : true });
+        this.setState({ showProtocolSelect: true });
     }
 
     handleProtocolBlur(value) {
         value = (typeof value === 'string') ? value : value.currentTarget.textContent;
         value = (value === '') ? 'http' : value;
         this.props.model.setProtocolPkgName(value);
-        this.setState({ showProtocolSelect : false });
+        this.setState({ showProtocolSelect: false });
     }
 
     handleProtocolEnter(value) {
-        this.setState({ showProtocolSelect : false });
+        this.setState({ showProtocolSelect: false });
     }
 
     onCollapseClick() {
@@ -212,59 +214,98 @@ class PanelDecorator extends React.Component {
 
         let protocolOffset = 0;
         let protocolTextSize = 0;
-        if (this.props.protocol) {
+        const isResourceDef = ASTFactory.isResourceDefinition(this.props.model);
+        const wsResourceDef = (isResourceDef && this.props.protocol === 'ws');
+        if (this.props.protocol && !isResourceDef) {
             protocolOffset = 50;
             protocolTextSize = util.getTextWidth(this.props.protocol, 0).w;
         }
-
         return (<g className="panel">
             <g className="panel-header">
                 <rect
-                    x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
-                    className="headingRect" data-original-title="" title=""
+                    x={bBox.x}
+                    y={bBox.y + annotationBodyHeight}
+                    width={bBox.w}
+                    height={titleHeight}
+                    rx="0"
+                    ry="0"
+                    className="headingRect"
+                    data-original-title=""
+                    title=""
                 />
-                <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
-                <EditableText
-                    x={bBox.x + titleHeight + iconSize + 15 + protocolOffset } y={bBox.y + titleHeight / 2 + annotationBodyHeight}
-                    width={titleWidth.w}
-                    onBlur={() => { this.onTitleInputBlur(); }}
-                    onClick={() => { this.onTitleClick(); }}
-                    editing={this.state.titleEditing}
-                    onChange={(e) => { this.onTitleInputChange(e); }}
-                    displayText={titleWidth.text}
-                    onKeyDown={(e) => { this.onTitleKeyDown(e); }}
-                >
-                    {this.state.editingTitle}
-                </EditableText>
-                {this.props.protocol &&
-                    <g>
-                        <rect
-                            x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
-                            className="protocol-rect"
-                            onClick={this.handleProtocolClick}
-                        />
-                        <text className="protocol-text" onClick={this.handleProtocolClick} x={bBox.x + titleHeight + iconSize + 15 + 3 + ((protocolOffset - protocolTextSize) / 2)} y={bBox.y + annotationBodyHeight + 15} style={{ dominantBaseline: 'central' }}>{this.props.protocol}</text>
-                        <SuggestionsText
-                            x={bBox.x + titleHeight + iconSize + 15 + 3} y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
-                            suggestionsPool={this.availableProtocols}
-                            show={this.state.showProtocolSelect}
-                            onBlur={this.handleProtocolBlur}
-                            onEnter={this.handleProtocolEnter}
-                            onSuggestionSelected={this.handleProtocolBlur}
-                        />
-                    </g>
+                <rect
+                    x={bBox.x - 1}
+                    y={bBox.y + annotationBodyHeight}
+                    height={titleHeight}
+                    rx="0"
+                    ry="0"
+                    className="panel-heading-decorator"
+                />
+                {wsResourceDef && <g>
+                    <rect
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                        width={titleWidth.w}
+                    />
+                    <text
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 5}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 5}
+                        className="resourceName"
+                    >{titleWidth.text}</text>
+                </g>}
+                {!wsResourceDef &&
+                    <EditableText
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 30}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                        width={titleWidth.w}
+                        onBlur={() => {
+                            this.onTitleInputBlur();
+                        }}
+                        onClick={() => {
+                            this.onTitleClick();
+                        }}
+                        editing={this.state.titleEditing}
+                        onChange={(e) => {
+                            this.onTitleInputChange(e);
+                        }}
+                        displayText={titleWidth.text}
+                        onKeyDown={(e) => {
+                            this.onTitleKeyDown(e);
+                        }}
+                    >
+                        {this.state.editingTitle}
+                    </EditableText>
+                }
+                {(this.props.protocol && !isResourceDef) &&
+                    <ServerConnectorProperties
+                        bBox={bBox}
+                        model={this.props.model}
+                        protocol={this.props.protocol}
+                        annotationBodyHeight={annotationBodyHeight}
+                        showPropertyForm={this.props.showPropertyForm}
+                    />
                 }
                 <image
-                    x={bBox.x + 8} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
+                    x={bBox.x + 8}
+                    y={bBox.y + 8 + annotationBodyHeight}
+                    width={iconSize}
+                    height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}
                 />
                 <rect
-                    x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight - 3}
+                    x={bBox.x + iconSize + 16}
+                    y={bBox.y + annotationBodyHeight}
+                    width={iconSize + 15}
+                    height={titleHeight - 3}
                     className="annotation-icon-wrapper"
                 />
                 <image
-                    x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
-                    xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
+                    x={bBox.x + iconSize + 24}
+                    y={bBox.y + 8 + annotationBodyHeight}
+                    width={iconSize}
+                    height={iconSize}
+                    xlinkHref={ImageUtil.getSVGIconString('annotation-black')}
+                    onClick={this.onAnnotationEditButtonClick.bind(this)}
                     className="annotation-icon"
                 >
                     <title>Add Annotation</title> </image>
@@ -284,7 +325,9 @@ class PanelDecorator extends React.Component {
                         y={panelBBox.y}
                         width={panelBBox.w}
                         height={panelBBox.h}
-                        rx="0" ry="0" fill="#fff"
+                        rx="0"
+                        ry="0"
+                        fill="#fff"
                         className={dropZoneClassName}
                         onMouseOver={e => this.onDropZoneActivate(e)}
                         onMouseOut={e => this.onDropZoneDeactivate(e)}

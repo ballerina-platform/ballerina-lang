@@ -22,17 +22,23 @@ import PropTypes from 'prop-types';
 import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
-import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './../../../diagram-util';
 import { lifeLine } from './../../../../configs/designer-defaults';
 import ImageUtil from './image-util';
 import ASTFactory from '../../../../ast/ast-factory.js';
+import './service-definition.css';
+import AddResourceDefinition from './add-resource-definition';
 
 class ResourceDefinition extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            style: 'hideResourceGroup',
+        };
+        this.onMouseOver = this.onMouseOver.bind(this);
+        this.onMouseOut = this.onMouseOut.bind(this);
     }
 
     canDropToPanelBody(nodeBeingDragged) {
@@ -44,9 +50,26 @@ class ResourceDefinition extends React.Component {
             || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 
+    /**
+     * Handles the mouse enter event on the service definition
+     */
+    onMouseOver() {
+        this.setState({ style: 'showResourceGroup' });
+    }
+
+    /**
+     * Handles the mouse leave event on the service definition
+     */
+    onMouseOut() {
+        if (!this.props.model.getViewState().showWebSocketMethods) {
+            this.setState({ style: 'hideResourceGroup' });
+        }
+    }
+
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getResourceName();
+        const parentNode = this.props.model.getParent();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
         const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState().components.statementContainer);
         const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
@@ -81,7 +104,7 @@ class ResourceDefinition extends React.Component {
 
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
-
+        const thisNodeIndex = parentNode.getIndexOfChild(this.props.model);
         return (
             <g>
                 <ResourceTransportLink bBox={tLinkBox} />
@@ -93,6 +116,7 @@ class ResourceDefinition extends React.Component {
                     dropTarget={this.props.model}
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     titleComponentData={titleComponentData}
+                    protocol={parentNode.getProtocolPkgName()}
                 >
                     <g>
                         <LifeLineDecorator
@@ -123,11 +147,42 @@ class ResourceDefinition extends React.Component {
                         </StatementContainer>
                     </g>
                 </PanelDecorator>
+                {(thisNodeIndex !== parentNode.getChildren().length - 1) &&
+                <g
+                    className={this.state.style}
+                    onMouseOver={this.onMouseOver}
+                    onMouseOut={this.onMouseOut}
+                >
+                    <rect
+                        x={bBox.x - 20}
+                        y={bBox.y + bBox.h}
+                        width={bBox.w + 20}
+                        height='50'
+                        fillOpacity="0"
+                        strokeOpacity="0"
+                    />
+                    <line
+                        x1={bBox.x - 20}
+                        y1={bBox.y + bBox.h + 25}
+                        x2={bBox.x + 40}
+                        y2={bBox.y + bBox.h + 25}
+                        strokeDasharray="5, 5"
+                        strokeWidth="3"
+                        className="add-resources-protocol-line"
+                    />
+                    <AddResourceDefinition
+                        model={this.props.model}
+                        bBox={bBox}
+                        style={this.state.style}
+                    />
+                </g>
+                }
             </g>);
     }
 }
 
 ResourceDefinition.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
 };
 

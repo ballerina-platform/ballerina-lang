@@ -27,7 +27,8 @@ import './canvas-decorator.css';
 import { setCanvasOverlay } from '../../../../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
-
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import './properties-form.css';
 /**
  * React component for a canvas decorator.
  *
@@ -115,6 +116,23 @@ class CanvasDecorator extends React.Component {
                     {/* This space is used to render html elements over svg*/ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
+                <CSSTransitionGroup
+                    transitionName="propWindow"
+                    transitionAppear
+                    transitionAppearTimeout={800}
+                    transitionEnter
+                    transitionEnterTimeout={800}
+                    transitionLeave
+                    transitionLeaveTimeout={800}
+                >
+                    {(this.props.serverConnectorPropsViews && this.props.serverConnectorPropsViews.length > 0) ?
+                    this.props.serverConnectorPropsViews : null }
+                    {(this.props.connectorPropsViews && this.props.connectorPropsViews.length > 0)
+                    ? this.props.connectorPropsViews : null }
+                    {(this.props.wsResourceViews && this.props.wsResourceViews.length > 0)
+                        ? this.props.wsResourceViews : null }
+                </CSSTransitionGroup>
+
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
                     <rect
                         x="0"
@@ -142,10 +160,16 @@ CanvasDecorator.propTypes = {
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
     annotations: PropTypes.arrayOf(PropTypes.element),
+    serverConnectorPropsViews: PropTypes.arrayOf(PropTypes.element),
+    connectorPropsViews: PropTypes.arrayOf(PropTypes.element),
+    wsResourceViews: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {
     annotations: [],
+    serverConnectorPropsViews: [],
+    connectorPropsViews: [],
+    wsResourceViews: [],
 };
 
 CanvasDecorator.contextTypes = {

@@ -43,6 +43,7 @@ class AnnotationDefinition extends EventChannel {
         this._name = _.get(args, 'name');
         this._attachmentPoints = _.get(args, 'attachmentPoints', []);
         this._annotationAttributeDefinitions = _.get(args, 'annotationAttributeDefinitions', []);
+        this._annotationAttachments = _.get(args, 'annotationAttachments', []);
     }
 
     setPackagePath(packagePath) {
@@ -95,6 +96,17 @@ class AnnotationDefinition extends EventChannel {
                                           annotationAttributeDefinitionToBeRemoved.getAttributeName();
         });
     }
+    setAnnotationAttachments(annotationAttachments) {
+        this._annotationAttachments = annotationAttachments;
+    }
+
+    getAnnotationAttachments() {
+        return this._annotationAttachments;
+    }
+
+    addAnnotationAttachment(annotationAttachment) {
+        this._annotationAttachments.push(annotationAttachment);
+    }
 
     /**
      * returns the action by name
@@ -127,6 +139,13 @@ class AnnotationDefinition extends EventChannel {
             const annotationAttributeDefinition = BallerinaEnvFactory.createAnnotationAttributeDefinition();
             annotationAttributeDefinition.initFromJson(annotationattributeDef);
             this.addAnnotationAttributeDefinition(annotationAttributeDefinition);
+        }
+
+        // Setting the fields of the annotation attachments.
+        for (const annotationAttch of jsonNode.annotationAttachments) {
+            const annotationAttachment = BallerinaEnvFactory.createAnnotationAttachment();
+            annotationAttachment.initFromJson(annotationAttch);
+            this.addAnnotationAttachment(annotationAttachment);
         }
     }
 }

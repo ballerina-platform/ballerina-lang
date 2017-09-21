@@ -1,0 +1,369 @@
+.modal-dialog.servicedef-properties-modal-dialog {
+    margin: 100px auto 0;
+}
+
+.servicedef-properties-modal-dialog {
+    width: 745px;
+}
+
+.submitServiceDefProperty{
+    margin-right: 10px;
+}
+
+.property-dialog-label{
+    margin-top: 8px;
+    font-weight: 300;
+    text-align: right;
+}
+
+.property-dialog-form-control{
+    width: 100%;
+    background-color: rgb(249, 249, 249);
+    border-style: none;
+    padding-left: 10px;
+    color: #232222;
+    font-weight:600;
+    margin-top: 8px;
+}
+
+.property-dialog-form-control::-webkit-input-placeholder { /* Chrome */
+    color: #232222;
+    opacity: 0.4;
+    font-style: italic;
+}
+.property-dialog-form-control:-ms-input-placeholder { /* IE 10+ */
+    color: #232222;
+    opacity: 0.4;
+    font-style: italic;
+}
+.property-dialog-form-control::-moz-placeholder { /* Firefox 19+ */
+    color: #232222;
+    opacity: 0.4;
+    font-style: italic;
+}
+
+.property-dialog-form-btn{
+    float: right;
+    margin-right: 43px;
+}
+
+/*Tags Input*/
+#ulContainer {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.tagItems {
+    display: inline-block;
+    padding: 2px;
+    border: 2px solid #9E9E9E;
+    border-radius: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.tagInput{
+    outline: none;
+    border: none;
+    background-color: rgb(249, 249, 249);
+    color: #232222;
+    width: 40%;
+}
+
+.tagLabel{
+    width: 100%;
+    background-color: rgb(249, 249, 249);
+    border-style: none;
+    padding-left: 10px;
+    color: #232222;
+}
+
+.toggle {
+    -webkit-appearance: none;
+    margin-left: 10px;
+    appearance: none;
+    width: 75px;
+    height: 26px;
+    display: inline-block;
+    position: relative;
+    border-radius: 50px;
+    overflow: hidden;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background-color: #707070;
+    transition: background-color ease 0.3s;
+    border: 1px solid #b5a7a7;
+}
+
+.toggle:before {
+    content: "True False";
+    display: block;
+    position: absolute;
+    z-index: 2;
+    width: 27px;
+    height: 25px;
+    background: #fff;
+    left: 0px;
+    border-radius: 50%;
+    font: 10px/28px Helvetica;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-indent: -36px;
+    word-spacing: 37px;
+    color: #fff;
+    text-shadow: -1px -1px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    transition: all cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
+}
+
+.toggle:checked {
+    background-color: #4CD964;
+}
+
+.toggle:checked:before {
+    left: 48px;
+}
+
+.deleteSpan{
+    background-color: #a7a0a0;
+    margin-left: 9px;
+    display: inline-block;
+    width: 15px;
+}
+
+.iconDelete{
+    font-size: 11px;
+    margin-left: 2px;
+}
+
+/*New popup window*/
+#property-modal {
+    background-color: lightgray;
+    position: absolute;
+    width: 40%;
+    z-index:1000;
+    box-shadow:  0 3px 10px rgba(0, 0, 0, 0.42)
+}
+
+.form-header{
+    text-align: left;
+}
+
+.form-body {
+    text-align: center;
+}
+
+.properties-checkbox{
+    text-align: left;
+}
+
+#propertyWindowHolder{
+    width: 100%;
+    height: 100%;
+}
+
+.properties-tags{
+    text-align: left;
+}
+
+.tagInput::-webkit-input-placeholder {
+    font-weight: normal;
+    font-style: italic;
+    color: #6f6f6f;
+}
+
+.propertyForm{
+    text-align: left;
+}
+
+.panel-heading a:after {
+    font-family:'Glyphicons Halflings';
+    content:"\2212";
+    float: right;
+    color: grey;
+    font-size: 19px;
+    font-weight: bolder;
+}
+.panel-heading a.collapsed:after {
+    content:"\2b";
+    font-size: 19px;
+    font-weight: bolder;
+}
+
+.collapsibleTitle {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.collapsiblePanelHeaderDiv {
+    height: 40px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+}
+
+.collapsiblePanelBody {
+    padding-top: 10px;
+}
+
+.structsContainer {
+    margin-left: 24px;
+}
+
+#popover-arrow {
+    position: absolute;
+    top: 0px;
+    left: 4px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid rgb(211, 211, 211);
+    width: 0;
+    height: 0;
+}
+
+/* Form Progress */
+.progress {
+    text-align: center;
+    height: 32px;
+    background-color: #d3d3d3;
+    box-shadow: none;
+    position:absolute;
+    bottom:0;
+    width:100%;
+}
+.progress .circle,
+.progress .bar {
+    display: inline-block;
+    background: #fff;
+    width: 26px;
+    height: 28px;
+    border-radius: 34px;
+    border: 1px solid #d5d5da;
+    margin-right: 30px;
+}
+.progress .bar {
+    position: relative;
+    width: 80px;
+    height: 6px;
+    top: -7px;
+    margin-left: -5px;
+    margin-right: -5px;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+.progress .circle .label {
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    line-height: 16px;
+    border-radius: 32px;
+    margin-top: 3px;
+    color: #b5b5ba;
+    font-size: 12px;
+}
+/* Done / Active */
+.progress .bar.done,
+.progress .circle.done {
+    background: #eee;
+}
+.progress .bar.active {
+    background: linear-gradient(to right, #EEE 40%, #FFF 60%);
+}
+.progress .circle.done .label {
+    color: #FFF;
+    background: rgba(140, 140, 140, 0.46);
+    box-shadow: inset 0 0 63px rgba(0,0,0,.2);
+}
+.progress .circle.done .title {
+    color: #444;
+}
+.progress .circle.active .label {
+    color: #FFF;
+    background: #0c95be;
+    box-shadow: inset 0 0 63px rgba(0,0,0,.2);
+}
+.progress .circle.active .title {
+    color: #0c95be;
+}
+
+.progress .prevNext {
+    display: inline-block;
+    background: #fff;
+    width: 78px;
+    height: 32px;
+    border: 1px solid #d5d5da;
+    margin-right: 30px;
+}
+
+.progress .prevNext.done .label {
+    color: #FFF;
+    background: #8c8c8c;
+    box-shadow: inset 0 0 63px rgba(0,0,0,.2);
+}
+
+.progress .prevNext .label {
+    display: inline-block;
+    width: 70px;
+    height: 24px;
+    line-height: 20px;
+    margin-top: 3px;
+    color: #b5b5ba;
+    font-size: 13px;
+}
+
+span { cursor: pointer; }
+
+@keyframes slideUp{
+    from {
+        transform: translateY(-3%);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(0%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideDown{
+    from {
+        transform: translateY(-3%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+/* CSS Transition Group */
+
+.propWindow-enter {
+    opacity: 0.01;
+}
+
+.propWindow-enter.propWindow-enter-active {
+    will-change: transform;
+    animation: slideDown 1s ease;
+}
+
+.propWindow-leave {
+    opacity: 1;
+}
+
+.propWindow-leave.propWindow-leave-active {
+    will-change: transform;
+    animation: slideUp 0.8s ease;
+
+}
+
+.propWindow-appear {
+    opacity: 0.01;
+}
+
+.propWindow-appear.propWindow-appear-active {
+    will-change: transform;
+    animation: slideDown 1s ease;
+}
