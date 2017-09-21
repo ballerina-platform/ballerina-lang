@@ -226,6 +226,30 @@ class AnnotationHelper {
             return attributeDefinition.getIdentifier() === attributeName;
         })[0];
     }
+
+    /**
+     * Get the annotation attachments - doc annotations for the attributes
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
+     * @param fullPackageName
+     * @param annotationDefinitionName - configuration
+     * @returns {Array}
+     */
+    static getAnnotationAttachments(environment, fullPackageName, annotationDefinitionName) {
+        const annotationAttachments = [];
+        for (const packageDefintion of environment.getPackages()) {
+            if (packageDefintion.getName() === fullPackageName) {
+                for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+                    if (annotationDefinition.getName() === annotationDefinitionName) {
+                        for (const annotationAttribute of annotationDefinition.getAnnotationAttachments()) {
+                            annotationAttachments.push(annotationAttribute);
+                        }
+                    }
+                }
+            }
+        }
+        return annotationAttachments;
+    }
+
 }
 
 export default AnnotationHelper;

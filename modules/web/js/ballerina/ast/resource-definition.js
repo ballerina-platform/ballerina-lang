@@ -45,7 +45,7 @@ class ResourceDefinition extends ASTNode {
     }
 
     setResourceName(resourceName, options) {
-        if (!_.isNil(resourceName)) {
+        if (!_.isNil(resourceName) && resourceName !== undefined) {
             this.setAttribute('_resourceName', resourceName, options);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');

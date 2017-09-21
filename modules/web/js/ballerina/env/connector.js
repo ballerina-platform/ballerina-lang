@@ -112,6 +112,11 @@ class Connector {
             action.initFromJson(actionNode);
             this.addAction(action);
         });
+
+        // Parameters
+        _.each(jsonNode.parameters, (paramNode) => {
+            this.addParam(paramNode);
+        });
     }
 }
 

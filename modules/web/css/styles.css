@@ -1673,8 +1673,18 @@ span.fw-stack.fw-lg {
     stroke: #607D8B;
 }
 
+.add-resources-protocol-line{
+    stroke: #a7a2a2;
+}
+
 .protocol-rect{
     fill: #607D8B;
+    fill-opacity: 0.5;
+    cursor: pointer;
+}
+
+.protocol-rect-clicked{
+    fill: #00184e;
     fill-opacity: 0.5;
     cursor: pointer;
 }

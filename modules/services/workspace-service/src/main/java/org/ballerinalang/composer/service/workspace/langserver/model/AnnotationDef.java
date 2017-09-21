@@ -33,7 +33,9 @@ public class AnnotationDef {
     private List<String> attachmentPoints = new ArrayList<String>();
 
     private List<AnnotationAttributeDef> annotationAttributeDefs = new ArrayList<>();
-    
+
+    private List<AnnotationAttachment> annotationAttachments = new ArrayList<>();
+
     /**
      * Converts a {@link org.ballerinalang.model.AnnotationDef} to {@link AnnotationDef}.
      * @param annotationDef The model to be converted.
@@ -49,13 +51,19 @@ public class AnnotationDef {
             attachmentPoints.add(annotationAttachmentPoint.getAttachmentPoint().getValue());
         }
         tempAnnotation.setAttachmentPoints(attachmentPoints);
-    
+        //Annotation Definitions
         for (org.ballerinalang.model.AnnotationAttributeDef annotationAttributeDef : annotationDef.getAttributeDefs()) {
             AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef.convertToPackageModel(
                                                                                                 annotationAttributeDef);
             tempAnnotation.getAnnotationAttributeDefs().add(tempAnnotationAttributeDef);
         }
-        
+        //Annotation Attachments
+        for (org.ballerinalang.model.AnnotationAttachment annotationAttachment
+                : annotationDef.getAnnotations()) {
+            AnnotationAttachment tempAnnotationAttachment = AnnotationAttachment.convertToPackageModel(
+                    annotationAttachment);
+            tempAnnotation.getAnnotationAttachments().add(tempAnnotationAttachment);
+        }
         return tempAnnotation;
     }
     
@@ -90,7 +98,14 @@ public class AnnotationDef {
     public void setAnnotationAttributeDefs(List<AnnotationAttributeDef> annotationAttributeDefs) {
         this.annotationAttributeDefs = annotationAttributeDefs;
     }
-    
+
+    public List<AnnotationAttachment> getAnnotationAttachments() {
+        return annotationAttachments;
+    }
+
+    public void setAnnotationAttachments(List<AnnotationAttachment> annotationAttachments) {
+        this.annotationAttachments = annotationAttachments;
+    }
     /**
      * {@inheritDoc}
      */
