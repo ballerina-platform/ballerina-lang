@@ -43,6 +43,7 @@ class ConnectorDeclaration extends ASTNode {
             3: '',
             4: '\n',
         };
+        this._icon = _.get(options, 'icon');
     }
 
     /**
@@ -217,6 +218,14 @@ class ConnectorDeclaration extends ASTNode {
         const variable = _.find(this._declarationStatement.children,
             ASTFactory.isSimpleVariableReferenceExpression);
         return variable.getVariableName();
+    }
+
+    /**
+     * Get the connector icon name
+     * @returns {string} - connector icon name
+     */
+    getIconName() {
+        return this._icon;
     }
 }
 

@@ -16,6 +16,9 @@
  * under the License.
  */
 
+import $ from 'jquery';
+import { getServiceEndpoint } from './../../../../../api-client/api-client';
+
 /**
  * Gets the base name of a file.
  *
@@ -62,6 +65,40 @@ class ImageUtils {
      */
     static getSVGIconString(iconName) {
         return images[iconName];
+    }
+
+    /**
+     * Get the connector icon from service
+     * @param {string} connectorName - connector name
+     * @returns {object} - server response data
+     */
+    static getConnectorIcon(connectorName) {
+        const requestJson = {
+            connectorName: connectorName,
+            iconPath: 'testPath',
+        };
+        let data = {};
+        const epUrl = getServiceEndpoint('imageutil');
+        $.ajax({
+            type: 'POST',
+            context: this,
+            url: epUrl,
+            data: JSON.stringify(requestJson),
+            contentType: 'application/json; charset=utf-8',
+            async: false,
+            dataType: 'json',
+            success(response) {
+                if (response.status === 'success') {
+                    data = response.content;
+                } else {
+                    data = this.getSVGIconString('tool-icons/connector');
+                }
+            },
+            error() {
+                data = this.getSVGIconString('tool-icons/connector');
+            },
+        });
+        return data;
     }
 }
 
