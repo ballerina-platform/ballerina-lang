@@ -29,9 +29,15 @@
             <outputDirectory>resources/composer/web</outputDirectory>
             <includes>
                 <include>public/**</include>
-                <include>dist/**</include>
                 <include>resources/**</include>
                 <include>errors/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>resources/composer/web/public</outputDirectory>
+            <includes>
+                <include>dist/**</include>
             </includes>
         </fileSet>
     </fileSets>
