@@ -45,7 +45,7 @@
                         </goals>
                         <configuration>
                             <descriptors>
-                                <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
+                                <descriptor>${basedir}/assembly/bin.xml</descriptor>
                             </descriptors>
                             <finalName>${project.artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>

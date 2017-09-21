@@ -1,0 +1,81 @@
+.file-tree {
+    .tree-node {
+        color: #c7c7c7;
+        cursor: pointer;
+        overflow-y: hidden;
+        &.empty {
+            .tree-node-header {
+                margin-left: 14px;
+                .tree-node-arrow {
+                    display: none;
+                }
+            }
+        }
+        .tree-node-header {
+            white-space: nowrap;
+            overflow-x: hidden;
+            line-height: 24px;
+            &.active, &.active:hover  {
+                .tree-node-highlight-row {
+                    background: #232323;
+                }
+            }
+            &:hover {
+                .tree-node-highlight-row {
+                    background: #2E2E2E;
+                }
+            }
+            .tree-node-highlight-row {
+                width: calc(100% + 600px);
+                height: 24px;
+                position: absolute;
+                margin-left: -600px;
+                z-index: -2;
+            }
+            .tree-node-focus-highlighter {
+                position: absolute;
+                top:0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                opacity: 0.3;
+                z-index: 5;
+            }
+            .tree-node-name-input {
+                z-index: 6;
+                position:relative
+            }
+            .tree-node-loading {
+                margin-right: 5px;
+            }
+            .tree-node-arrow {
+                transition: all 0.1s;
+                margin-right: 6px;
+                display: inline-block;
+                &::after {
+                    content: '▾';
+                }
+            }
+            .tree-node-icon {
+                margin-right: 5px;
+            }
+            .tree-node-label {
+
+            }
+        }
+        .tree-node-children {
+            margin-left: 16px;
+        }
+        &.collapsed {
+            .tree-node-header {
+                .tree-node-arrow {
+                    transform: rotate(-90deg);
+                }
+            }
+            .tree-node-children {
+                height: 0px;
+            }
+        }
+    }
+}

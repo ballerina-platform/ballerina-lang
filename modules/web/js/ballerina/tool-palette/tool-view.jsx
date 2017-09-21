@@ -19,6 +19,8 @@ import React from 'react';
 import log from 'log';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/themes/base/draggable.css';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import PropTypes from 'prop-types';

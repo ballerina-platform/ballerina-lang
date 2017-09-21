@@ -1,9 +1,15 @@
 .header.header-default {
     background-color: $header-bgcolor;
-    min-height: 24px;
+    min-height: $header-min-height;
 
     & .brand {
+        @extend .unseletable-content;
+        font-size: 16px;
+        cursor: default;
         color: $header-brand-color;
+        padding: 0 10px;
+        margin-right: 25px;
+        line-height: 35px;
         
         & a {
             color: $header-brand-color;
@@ -11,48 +17,7 @@
         
         & span.appname {
             color: #f17b31;
+            margin-left: 5px;
         }
-    }
-}
-
-.menu-bar .menu-group {
-    & > a {
-        color: $menubar-link-color;
-
-        &:hover {
-            background-color: $menubar-link-hover-bgcolor;
-            color: $menubar-link-hover-color;
-        }
-    }
-    & > .file-dropdown-menu {
-        background-color: $menubar-file-dropdown-menu-bgcolor;
-        margin-top: 12px;
-        width: 300px;
-        
-        & > li {
-            & > a {
-                &:hover, &:focus {
-                    text-decoration: none;
-                    color: $menubar-file-dropdown-menu-link-hover-color;
-                    background-color: $menubar-file-dropdown-menu-link-hover-bgcolor;
-                    cursor: pointer;
-                }
-            }
-            &.menu-item-disabled > a {
-                color: $menubar-link-disabled-color;
-                padding: 3px 10px;
-                height: 27px;
-                
-                & > .shortcut-label {
-                    color: $menubar-link-disabled-color;
-                }
-                
-                &:hover, &:focus {
-                    color: $menubar-link-disabled-color;
-                    background-color: $menubar-file-dropdown-menu-bgcolor;
-                    cursor: default;
-                }
-            }
-        } 
     }
 }

@@ -1,0 +1,49 @@
+.modal-about {
+
+    .modal-header {
+        float: right;
+    }
+
+    .logo {
+        height: 50px;
+        margin-bottom: 10px;
+    }
+
+    .appname {
+        color: #f17b31;
+        margin-left: 5px;
+        font-size: 43px;
+        vertical-align: -1px;
+    } 
+
+    .modal-footer {
+        .icon {
+            font-size: 35px;
+            vertical-align: middle;
+        }
+
+        a {
+            text-decoration: none;
+        }  
+    }
+}
+
+.editor-area {
+    .rc-tabs-tab-active {
+        .tab-title-wrapper {
+            &.welcome-page-tab-title {
+                background-color: white;
+                color: #7D7D7D;
+            }
+        }
+    }
+}
+
+.welcome-page {
+    background: #FFF;
+    height: 100%;
+
+    .logo{
+        fill: black;
+    }
+}

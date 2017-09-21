@@ -29,6 +29,7 @@ import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
+import org.ballerinalang.composer.service.workspace.rest.TryItService;
 import org.ballerinalang.composer.service.workspace.rest.WorkspaceService;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
 import org.ballerinalang.composer.service.workspace.rest.exception.DefaultExceptionMapper;
@@ -175,7 +176,8 @@ public class WorkspaceServiceRunner {
         }
 
         String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB)
+                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB,
+                 Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB_PUBLIC)
                 .toString();
 
         FileContentProvider fileContentProvider = new FileContentProvider();
@@ -190,6 +192,7 @@ public class WorkspaceServiceRunner {
                 .deploy(new BLangFileRestService())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
                 .deploy(new TypeLatticeService())
+                .deploy(new TryItService())
                 .deploy(fileContentProvider)
                 .start();
 

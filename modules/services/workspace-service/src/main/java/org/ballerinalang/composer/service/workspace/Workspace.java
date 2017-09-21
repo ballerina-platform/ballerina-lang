@@ -27,11 +27,9 @@ import java.util.List;
  */
 public interface Workspace {
     
-    JsonArray listRoots() throws IOException;
+    JsonArray listRoots(List<String> extensionList) throws IOException;
 
-    JsonArray getRoots(List<Path> rootPaths) throws IOException;
-    
-    JsonArray listDirectoriesInPath(String path) throws IOException;
+    JsonArray getJsonForRoots(List<Path> rootPaths, List<String> extensionList) throws IOException;
     
     /**
      * Returns a JSON array with the files in a specific path.

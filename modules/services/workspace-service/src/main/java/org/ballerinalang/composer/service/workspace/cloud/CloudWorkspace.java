@@ -29,17 +29,12 @@ import java.util.List;
  */
 public class CloudWorkspace implements Workspace {
     @Override
-    public JsonArray listRoots() throws IOException {
+    public JsonArray listRoots(List<String> extensionList) throws IOException {
         return null;
     }
 
     @Override
-    public JsonArray getRoots(List<Path> rootPaths) throws IOException {
-        return null;
-    }
-
-    @Override
-    public JsonArray listDirectoriesInPath(String path) {
+    public JsonArray getJsonForRoots(List<Path> rootPaths, List<String> extensionList) throws IOException {
         return null;
     }
     

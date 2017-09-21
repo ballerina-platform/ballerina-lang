@@ -55,7 +55,7 @@ function breakpointHOC(WrappedComponent) {
             }
             this.addListner = DebugManager.on('breakpoint-added', ({ lineNumber, fileName: bpFileName }) => {
                 const { editor } = this.context;
-                const fileName = editor.getFile().getName();
+                const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
                 if (fileName === bpFileName && this.props.model.getLineNumber() === lineNumber) {
                     this.setState({
                         isBreakpoint: true,
@@ -67,7 +67,7 @@ function breakpointHOC(WrappedComponent) {
             });
             this.removeListner = DebugManager.on('breakpoint-removed', ({ lineNumber, fileName: bpFileName }) => {
                 const { editor } = this.context;
-                const fileName = editor.getFile().getName();
+                const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
                 if (fileName === bpFileName && this.props.model.getLineNumber() === lineNumber) {
                     this.setState({
                         isBreakpoint: false,
@@ -138,7 +138,7 @@ function breakpointHOC(WrappedComponent) {
         addBreakpoint() {
             const lineNumber = this.props.model.getLineNumber();
             const { editor, astRoot } = this.context;
-            const fileName = editor.getFile().getName();
+            const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
             const packagePath = astRoot.getPackageDefinition().getPackageName() || '.';
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         }
@@ -148,7 +148,7 @@ function breakpointHOC(WrappedComponent) {
         removeBreakpoint() {
             const lineNumber = this.props.model.getLineNumber();
             const { editor, astRoot } = this.context;
-            const fileName = editor.getFile().getName();
+            const fileName = `${editor.props.file.name}.${editor.props.file.extension}`;
             const packagePath = astRoot.getPackageDefinition().getPackageName() || '.';
             DebugManager.removeBreakPoint(lineNumber, fileName, packagePath);
         }

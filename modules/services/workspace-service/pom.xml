@@ -161,6 +161,11 @@
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.msf4j.example</groupId>
+            <artifactId>stockquote-fatjar</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,0 +1,102 @@
+.debug-frames-container .tree-view {
+    font-size : 1.1em;
+    margin-bottom: 3px;
+    color: #f2f0ec;
+}
+
+/** added !important to override inline styles **/
+.debug-frames-container .react-json-view{
+    background: inherit !important;
+    color: inherit!important;
+    font-size: 14px!important;
+}
+
+.debug-frames-container .tree-view .node{
+    padding-top: 6px;
+}
+
+.debug-frames-container .tree-view .tree-view_item{
+    padding-top: 8px;
+}
+
+.debug-frames-container .HTMLTree{
+    background-color: inherit;
+    font-size: 14px;
+}
+
+
+
+#frameAccordion{
+    border-bottom: 1px solid #232323;
+}
+
+#frameAccordion .panel-heading {
+    border-top: 1px solid #232323;
+    padding: 0px;
+}
+
+#frameAccordion .panel-heading a.in {
+    background:#232323;
+}
+
+#frameAccordion .panel-heading:hover a{
+    background:#232323;
+    border:0;
+}
+
+#frameAccordion .panel-heading a{
+    padding:5px 12px;
+    color:#fff;
+    background:#333;
+    display:block;
+    margin:0;
+    padding-bottom:2px;
+    font-size: 17px;
+
+}
+
+#frameAccordion .debug-frame-pkg-name{
+    display: block;
+    color:#00bbea;
+    font-size: 0.75em;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#frameAccordion .panel-body{
+    border-top:0px;
+}
+
+#frameAccordion .jstree-default .jstree-last{
+    background: #333 !important;
+}
+
+#frameAccordion .panel{
+    margin:0px;
+}
+
+#frameAccordion .panel-body{
+    margin-bottom: 10px;
+    padding:0 20px;
+}
+
+#frameAccordion .panel-title{
+    border: 0px;
+}
+
+.debug-panel-header{
+    padding: 8px;
+    color: #FFF !important;
+    font-weight: bold;
+}
+
+.debug-panel-header a{
+    padding:5px;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.debug-variables-container{
+    color: white;
+}
