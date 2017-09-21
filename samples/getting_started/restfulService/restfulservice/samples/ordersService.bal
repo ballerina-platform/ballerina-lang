@@ -1,8 +1,9 @@
 package restfulservice.samples;
 
-import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.net.http;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/orderservice"}
 service<http> OrderMgtService {
@@ -10,9 +11,9 @@ service<http> OrderMgtService {
     @http:resourceConfig {
         methods:["GET", "POST"]
     }
-    resource orders (message m) {
+    resource orders (http:Request req, http:Response res) {
         json payload = {};
-        string httpMethod = http:getMethod(m);
+        string httpMethod = request:getMethod(req);
         if (strings:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Order": {"ID": "111999", "Name": "ABC123","Description": "Sample order."}};
 
@@ -21,10 +22,8 @@ service<http> OrderMgtService {
             payload = {"Status":"Order is successfully added."};
 
         }
-        message response = {};
-        messages:setJsonPayload(response, payload);
-        reply response;
-
+        response:setJsonPayload(res, payload);
+        response:send(res);
     }
 
 }

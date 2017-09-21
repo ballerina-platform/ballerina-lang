@@ -159,6 +159,7 @@ public class HttpUtil {
             } else {
                 result = new BJSON(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
+                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
                 httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
