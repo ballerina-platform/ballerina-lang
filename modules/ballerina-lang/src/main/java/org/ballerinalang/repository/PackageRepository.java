@@ -19,6 +19,8 @@ package org.ballerinalang.repository;
 
 import org.ballerinalang.model.elements.PackageID;
 
+import java.util.Set;
+
 /**
  * This represents a package repository. For example, implementation can be used to
  * fetch source code / compiled objects from the file system, network etc...
@@ -31,7 +33,7 @@ public interface PackageRepository {
      * Looks up and returns a {@link PackageEntity} given the package identifier.
      * 
      * @param pkgId the package identifier
-     * @return The package entity is returned if it's available, or else, null will be returned.
+     * @return the package entity is returned if it's available, or else, null will be returned.
      */
     PackageEntity loadPackage(PackageID pkgId);
     
@@ -40,8 +42,14 @@ public interface PackageRepository {
      * and its specific entry.
      * 
      * @param entryName the entry name
-     * @return
+     * @return the package entity
      */
     PackageEntity loadPackage(PackageID pkgId, String entryName);
+    
+    /**
+     * Lists all the packages that are available in this repository.
+     * @return the list of packages
+     */
+    Set<PackageID> listPackages();
     
 }

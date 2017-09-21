@@ -110,7 +110,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int loopCount;
     private boolean statementReturns;
     private boolean deadCode;
-    private boolean unreachableCodeCheckDone;
     private DiagnosticLog dlog;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -131,7 +130,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     
     private void resetFunction() {
-        this.unreachableCodeCheckDone = false;
         this.resetStatementReturns();
     }
     
@@ -178,10 +176,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     
     private void checkUnreachableCode(BLangStatement stmt) {
-        if (this.statementReturns && !this.unreachableCodeCheckDone) {
+        if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
-            /* to make sure we don't give the same error again to following statements */
-            this.unreachableCodeCheckDone = true;
         }
     }
     
@@ -210,41 +206,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangIf ifStmt) {
-        boolean originalDeadCode = this.deadCode;
         this.checkStatementExecutionValidity(ifStmt);
-        boolean ifTrue = this.isBooleanTrue(ifStmt.expr);
-        boolean ifFalse = this.isBooleanFalse(ifStmt.expr);
-        boolean extendedDeadCode = false;
-        if (ifFalse) {
-            this.deadCode = true;
-        }
-        ifStmt.body.accept(this);
-        if (ifTrue && this.statementReturns) {
-            extendedDeadCode = true;
-        }
-        if (ifStmt.elseStmt != null) {
-            if (ifTrue) {
+        if (this.statementReturns) {
+            /* if statement has already returned, 
+             * don't check dead code and all */
+            ifStmt.body.accept(this);
+            if (ifStmt.elseStmt != null) {
+                ifStmt.elseStmt.accept(this);
+            }
+        } else {
+            boolean currentDeadCode = this.deadCode;
+            if (isBooleanFalse(ifStmt.expr)) {
                 this.deadCode = true;
             }
-            boolean ifStatementReturns = this.statementReturns;
+            ifStmt.body.accept(this);
+            boolean ifStmtReturns = this.statementReturns;
+            if (ifStmtReturns && isBooleanTrue(ifStmt.expr)) {
+                currentDeadCode = true;
+            }
             this.resetStatementReturns();
-            ifStmt.elseStmt.accept(this);
-            if (ifFalse && this.statementReturns) {
-                extendedDeadCode = true;
+            this.deadCode = currentDeadCode;
+            if (ifStmt.elseStmt != null) {
+                if (isBooleanTrue(ifStmt.expr)) {
+                    this.deadCode = true;
+                }
+                ifStmt.elseStmt.accept(this);
+                if (this.statementReturns && isBooleanFalse(ifStmt.expr)) {
+                    currentDeadCode = true;
+                }
+                this.statementReturns = ifStmtReturns && this.statementReturns;
+                this.deadCode = currentDeadCode;
             }
-            this.statementReturns = ifStatementReturns && this.statementReturns;
-            /* if the whole if/else returns for sure, the following is not dead code,
-             * but rather unreachable code */
-            if (this.statementReturns) {
-                extendedDeadCode = false;
-            }
-        }
-        /* this is the case where if (true) return or if (false) else return,
-         * where after the if/else, the following statements are also dead code */
-        if (extendedDeadCode) {
-            this.deadCode = true;
-        } else {
-            this.deadCode = originalDeadCode;
         }
     }
     
