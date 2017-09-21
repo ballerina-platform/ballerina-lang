@@ -27,6 +27,7 @@ import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * HTTP based representation for CarbonMessage.
@@ -51,6 +53,8 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
+
+//    private AtomicBoolean alreadyRead, endOfMsgAdded = new AtomicBoolean(false);
 
     private int soTimeOut = 60;
     private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
@@ -84,7 +88,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         }
     }
 
-    @Override
     public ByteBuffer getMessageBody() {
         try {
             HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
@@ -100,7 +103,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         }
     }
 
-    @Override
     public List<ByteBuffer> getFullMessageBody() {
         List<ByteBuffer> byteBufferList = new ArrayList<>();
 
@@ -128,7 +130,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
         return byteBufferList;
     }
 
-    @Override
     public boolean isEmpty() {
         return this.httpContentQueue.isEmpty();
     }
@@ -157,12 +158,10 @@ public class HTTPCarbonMessage extends CarbonMessage {
         return size;
     }
 
-    @Override
     public boolean isEndOfMsgAdded() {
         return super.isEndOfMsgAdded();
     }
 
-    @Override
     public void addMessageBody(ByteBuffer msgBody) {
         if (isAlreadyRead()) {
             outContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
@@ -216,7 +215,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(newCarbonMessage::setProperty);
 
-        newCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
+//        newCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
         return newCarbonMessage;
     }
 
@@ -237,10 +236,19 @@ public class HTTPCarbonMessage extends CarbonMessage {
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(httpCarbonMessage::setProperty);
 
-        httpCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
+//        httpCarbonMessage.setFaultHandlerStack(this.getFaultHandlerStack());
 
         this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
         httpCarbonMessage.setEndOfMsgAdded(true);
         return httpCarbonMessage;
+    }
+
+    public List<ByteBuffer> getCopyOfFullMessageBody() {
+        List<ByteBuffer> fullMessageBody = getFullMessageBody();
+        List<ByteBuffer> newCopy = fullMessageBody.stream().map(MessageUtil::deepCopy)
+                .collect(Collectors.toList());
+        fullMessageBody.forEach(this::addMessageBody);
+        markMessageEnd();
+        return newCopy;
     }
 }

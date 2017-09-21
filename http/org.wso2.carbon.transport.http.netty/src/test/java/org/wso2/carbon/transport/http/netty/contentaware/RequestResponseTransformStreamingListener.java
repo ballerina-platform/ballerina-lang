@@ -68,8 +68,7 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 OutputStream outputStream = new HttpMessageDataStreamer(httpRequestMessage).getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
-                outputStream.flush();
-                httpRequestMessage.setEndOfMsgAdded(true);
+                outputStream.close();
                 httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                 httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
@@ -82,8 +81,8 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 }
 
                 String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                   scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                        .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
@@ -98,8 +97,7 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputS);
                                 outputS.write(bytes);
-                                outputS.flush();
-                                httpResponse.setEndOfMsgAdded(true);
+                                outputS.close();
                             } catch (IOException e) {
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }

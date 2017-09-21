@@ -18,108 +18,33 @@
 
 package org.wso2.carbon.transport.http.netty.message;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * Data carrier between the components.
  */
 public abstract class CarbonMessage {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CarbonMessage.class);
-
     protected Headers headers = new Headers();
     protected Map<String, Object> properties = new HashMap<>();
-    private BlockingQueue<ByteBuffer> messageBody = new LinkedBlockingQueue<>();
-    private Stack<FaultHandler> faultHandlerStack = new Stack<>();
     private MessageDataSource messageDataSource;
-
-    /**
-     * Exception related to fault CarbonMessage.
-     */
-    protected MessagingException messagingException = null;
-
-    protected AtomicBoolean alreadyRead = new AtomicBoolean(false);
-    protected AtomicBoolean endOfMsgAdded = new AtomicBoolean(false);
-
-    // TODO: Remove these as the next step
-//    private Writer writer;
-//    private boolean isMessageBodyAdded;
-//    private boolean bufferContent = true;
+    MessagingException messagingException = null;
+    AtomicBoolean alreadyRead = new AtomicBoolean(false);
+    AtomicBoolean endOfMsgAdded = new AtomicBoolean(false);
 
     public CarbonMessage() {
     }
 
     public boolean isEndOfMsgAdded() {
         return endOfMsgAdded.get();
-    }
-
-    public boolean isEmpty() {
-        return messageBody.isEmpty();
-    }
-
-    public ByteBuffer getMessageBody() {
-        try {
-            return messageBody.take();
-        } catch (InterruptedException e) {
-            LOG.error("Error while retrieving chunk from queue.", e);
-            return null;
-        }
-    }
-
-    /**
-     * Calling this method will be blocked until all the message content is received.
-     *
-     * @return Full message body as list of {@link ByteBuffer}
-     */
-    public List<ByteBuffer> getFullMessageBody() {
-        List<ByteBuffer> byteBufferList = new ArrayList<>();
-
-        while (true) {
-            try {
-                if (endOfMsgAdded.get() && messageBody.isEmpty()) {
-                    break;
-                }
-                byteBufferList.add(messageBody.take());
-            } catch (InterruptedException e) {
-                LOG.error("Error while getting full message body", e);
-            }
-        }
-        return byteBufferList;
-    }
-
-    public void addMessageBody(ByteBuffer msgBody) {
-        messageBody.add(msgBody);
-        // TODO: Remove these as the next step
-//        isMessageBodyAdded = true;
-//        if (bufferContent) {
-//            messageBody.add(msgBody);
-//        }
-//        messageBody.add(msgBody);
-//        else {
-//            if (writer != null) {
-//                writer.write(msgBody);
-//            } else {
-//                LOG.error("Cannot write content no registered writer found");
-//            }
-//        }
     }
 
     public Headers getHeaders() {
@@ -166,41 +91,11 @@ public abstract class CarbonMessage {
         properties.remove(key);
     }
 
-    public Stack<FaultHandler> getFaultHandlerStack() {
-        return faultHandlerStack;
-    }
-
-    public void setFaultHandlerStack(Stack<FaultHandler> faultHandlerStack) {
-        this.faultHandlerStack = faultHandlerStack;
-    }
-
-    // TODO: Remove these as the next step
-//    public int getFullMessageLength() {
-//        List<ByteBuffer> fullMessageBody = getFullMessageBody();
-//        int size = (int) fullMessageBody.stream().mapToInt(Buffer::limit).sum();
-//        fullMessageBody.forEach(this::addMessageBody);
-//        return size;
-//    }
-
-    public List<ByteBuffer> getCopyOfFullMessageBody() {
-        List<ByteBuffer> fullMessageBody = getFullMessageBody();
-        List<ByteBuffer> newCopy = fullMessageBody.stream().map(MessageUtil::deepCopy)
-                .collect(Collectors.toList());
-        fullMessageBody.forEach(this::addMessageBody);
-        markMessageEnd();
-        return newCopy;
-    }
-
     /**
      * This method is used to mark the end of the message when cloning the content.
      */
     public void markMessageEnd() {
     }
-
-    // TODO: Remove this as the next step of the refactor
-//    public boolean isBufferContent() {
-//        return bufferContent;
-//    }
 
     public MessageDataSource getMessageDataSource() {
         return messageDataSource;
