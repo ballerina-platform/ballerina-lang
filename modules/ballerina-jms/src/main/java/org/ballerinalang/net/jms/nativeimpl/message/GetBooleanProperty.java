@@ -18,7 +18,7 @@ package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -27,61 +27,55 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 
 /**
- * Get content of the JMS Message.
+ * Get Boolean Property from the JMS Message.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.jms.jmsmessage",
-        functionName = "getContent",
+        functionName = "getBooleanProperty",
         args = {@Argument(name = "msg", type = TypeEnum.STRUCT, structType = "JMSMessage",
-                          structPackage = "ballerina.net.jms")},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+                          structPackage = "ballerina.net.jms"),
+                @Argument(name = "propertyName", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Get content of the message") })
+        value = "Gets a transport boolean property from the message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
         value = "The JMS message") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The message content") })
-public class GetContent extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
+        value = "The property name") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
+        value = "The property value") })
+public class GetBooleanProperty extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(GetContent.class);
+    private static final Logger log = LoggerFactory.getLogger(GetBooleanProperty.class);
 
     public BValue[] execute(Context context) {
 
         BStruct messageStruct  = ((BStruct) this.getRefArgument(context, 0));
+        String propertyName = this.getStringArgument(context, 0);
 
-//        CarbonMessage carbonMessage = (CarbonMessage) messageStruct.getNativeData(Constants.TRANSPORT_MESSAGE);
-//        Message jmsMessage = (Message) carbonMessage.getProperty(Constants.JMS_API_MESSAGE);
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
 
-        String messageContent = null;
-
+        boolean propertyValue = false;
         try {
-            if (jmsMessage instanceof TextMessage) {
-                messageContent = ((TextMessage) jmsMessage).getText();
-            } else {
-                log.error("Unsupported JMS Message type. ");
-            }
+            propertyValue = jmsMessage.getBooleanProperty(propertyName);
         } catch (JMSException e) {
-            log.error("Error when retrieving JMS message content :" + e.getLocalizedMessage());
+            log.error("Error when retrieving the boolean property :" + e.getLocalizedMessage());
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Get content from the JMS message");
+            log.debug("Get boolean property" + propertyName + " from message with value: " + propertyValue);
         }
 
-        return this.getBValues(new BString(messageContent));
+        return this.getBValues(new BBoolean(propertyValue));
     }
 }

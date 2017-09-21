@@ -19,6 +19,7 @@
 package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
@@ -32,6 +33,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.services.dispatchers.jms.JMSUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -74,7 +76,8 @@ public class CreateTextMessage extends AbstractNativeFunction {
             throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
         }
 
-        BStruct bStruct = new BStruct(new BStructType("JMSMessage", "ballerina.net.jms"));
+        BStruct bStruct = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_JMS, "JMSMessage");
+
         carbonMessage.setProperty(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE, jmsMessage);
         bStruct.addNativeData(org.ballerinalang.net.jms.Constants.TRANSPORT_MESSAGE, carbonMessage);
 
