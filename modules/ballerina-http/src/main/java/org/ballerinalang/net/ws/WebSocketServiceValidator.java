@@ -151,6 +151,8 @@ public class WebSocketServiceValidator {
 
     private static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
                                            String structName) {
+        // TODO: checking instance of gives a struct def when running a program and BStructType when compile
+        // and running a .balx file
         if (!(paramDetail.getVarType() instanceof StructDef)) {
             throw new BallerinaException(
                     String.format("Invalid parameter %s:%s %s in resource %s . Requires %s:%s",

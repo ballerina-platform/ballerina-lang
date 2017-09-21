@@ -4,10 +4,11 @@ import ballerina.lang.blobs;
 import ballerina.net.ws;
 
 @ws:configuration {
-    basePath:"/echo-server/ws",
+    basePath:"/echo/ws",
     port:9090
 }
 service<ws> EchoServer {
+
     resource onOpen(ws:Connection conn) {
         system:println("New client : " + ws:getID(conn));
     }
