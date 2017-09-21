@@ -78,12 +78,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -194,7 +194,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.statements.forEach(e -> {
+        blockNode.stmts.forEach(e -> {
             e.accept(this);
         });
     }
@@ -252,7 +252,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
-        whileNode.body.statements.forEach(e -> e.accept(this));
+        whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
     }
     
@@ -367,7 +367,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(transactionNode);
     }
 
-    public void visit(BlangTransform transformNode) {
+    public void visit(BLangTransform transformNode) {
         this.checkStatementExecutionValidity(transformNode);
     }
 

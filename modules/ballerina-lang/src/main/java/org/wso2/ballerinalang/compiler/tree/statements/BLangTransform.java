@@ -15,35 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
+import org.ballerinalang.model.tree.statements.TransformNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangXMLTextLiteral extends BLangExpression implements XMLTextLiteralNode {
+public class BLangTransform extends BLangStatement implements TransformNode {
+    public BLangBlockStmt body;
 
-    public List<BLangExpression> textFragments;
-
-    public BLangXMLTextLiteral() {
-        textFragments = new ArrayList<BLangExpression>();
+    public BLangTransform(BLangBlockStmt body) {
+        this.body = body;
     }
 
     @Override
-    public List<BLangExpression> getTextFragments() {
-        return textFragments;
-    }
-
-    @Override
-    public void addTextFragment(ExpressionNode textFragment) {
-        this.textFragments.add((BLangExpression) textFragment);
+    public BLangBlockStmt getBody() {
+        return body;
     }
 
     @Override
@@ -53,11 +43,6 @@ public class BLangXMLTextLiteral extends BLangExpression implements XMLTextLiter
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.XML_TEXT_LITERAL;
-    }
-
-    @Override
-    public String toString() {
-        return "BLangXMLTextLiteral: " + textFragments;
+        return NodeKind.TRANSFORM;
     }
 }

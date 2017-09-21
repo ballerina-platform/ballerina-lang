@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;

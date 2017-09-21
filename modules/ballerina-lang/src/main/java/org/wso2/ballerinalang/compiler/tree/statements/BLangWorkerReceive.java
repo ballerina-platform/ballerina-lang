@@ -19,9 +19,9 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,16 +34,16 @@ import java.util.List;
  */
 public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveNode {
 
-    public List<ExpressionNode> expressions;
+    public List<BLangExpression> exprs;
     public IdentifierNode workerIdentifier;
 
     public BLangWorkerReceive() {
-        this.expressions = new ArrayList<>();
+        this.exprs = new ArrayList<>();
     }
 
     @Override
-    public List<ExpressionNode> getExpressions() {
-        return expressions;
+    public List<BLangExpression> getExpressions() {
+        return exprs;
     }
 
     @Override
@@ -68,6 +68,6 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     @Override
     public String toString() {
-        return "BLangWorkerReceive: " + Arrays.toString(this.expressions.toArray()) + " <- " + workerIdentifier;
+        return "BLangWorkerReceive: " + Arrays.toString(this.exprs.toArray()) + " <- " + workerIdentifier;
     }
 }

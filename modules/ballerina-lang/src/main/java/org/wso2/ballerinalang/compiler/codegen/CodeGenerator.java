@@ -87,12 +87,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
@@ -288,7 +288,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
-        for (BLangStatement stmt : blockNode.statements) {
+        for (BLangStatement stmt : blockNode.stmts) {
 //            if (stmt instanceof CommentStmt) {
 //                continue;
 //            }
@@ -1075,7 +1075,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BlangTransform transformNode) {
+    public void visit(BLangTransform transformNode) {
         /* ignore */
     }
 

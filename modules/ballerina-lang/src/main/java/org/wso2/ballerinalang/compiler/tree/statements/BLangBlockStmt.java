@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class BLangBlockStmt extends BLangStatement implements BlockNode {
 
-    public List<BLangStatement> statements;
+    public List<BLangStatement> stmts;
 
     /**
      * We need to keep a reference to the block statements scope here.
@@ -40,12 +40,12 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     public Scope scope;
 
     public BLangBlockStmt() {
-        this.statements = new ArrayList<>();
+        this.stmts = new ArrayList<>();
     }
 
     @Override
     public List<BLangStatement> getStatements() {
-        return statements;
+        return stmts;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
 
     @Override
     public void addStatement(StatementNode statement) {
-        this.statements.add((BLangStatement) statement);
+        this.stmts.add((BLangStatement) statement);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     
     @Override
     public String toString() {
-        return "BLangBlockStmt: " + this.statements.toString();
+        return "BLangBlockStmt: " + this.stmts.toString();
     }
     
 }
