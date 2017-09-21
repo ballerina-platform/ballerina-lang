@@ -56,7 +56,7 @@ class DimensionVisitor {
     }
 
     beginVisit(node) {
-        if (getDimentionVisitor(`${node.getKind()}DimensionCalculatorVisitor`, this.mode)) {
+        if (getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
             const nodeVisitor = new (getDimentionVisitor(`${node.getKind()}DimensionVisitor`,
                 this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.beginVisit(node);

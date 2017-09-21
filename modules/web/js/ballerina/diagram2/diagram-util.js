@@ -76,6 +76,12 @@ function getDimentionVisitor(name, mode = 'default') {
     }
 }
 
+function getPositionVisitor(name) {
+    // lets load the view components diffrent modes.
+    let diagramVisitors = requireAll(require.context('./views/default/visitors/position', true, /\.js$/));
+    return diagramVisitors[name];
+}
+
 function getDesigner(modes) {
     const designer = {};
     Object.assign(designer, DesignerDefaults);
@@ -94,5 +100,6 @@ export {
     getComponentForNodeArray,
     requireAll,
     getDimentionVisitor,
+    getPositionVisitor,
     getDesigner,
 };

@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
-// TODOX import PositionVisitor from './position-visitor';
+import PositionVisitor from './visitors/position-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
@@ -45,9 +45,7 @@ class Diagram extends React.Component {
     constructor(props) {
         super(props);
         this.dimentionVisitor = new DimensionVisitor();
-        /* TODOX
         this.positionCalc = new PositionVisitor();
-        */
     }
 
     /**
@@ -80,10 +78,10 @@ class Diagram extends React.Component {
         this.dimentionVisitor.setDesigner(designer);
         this.props.model.accept(this.dimentionVisitor);
 
-        // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
+        // 3 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.viewState;
-        /* TODOX
+
         viewState.container = {
             width: $(this.context.getDiagramContainer()).width(),
             height: $(this.context.getDiagramContainer()).height(),
@@ -91,6 +89,7 @@ class Diagram extends React.Component {
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
         this.props.model.accept(this.positionCalc);
+        /* TODOX
         // 2.1 Lets resolve arrow conflicts.
         this.props.model.accept(new ArrowConflictResolver());
         // we re run the dimention and possition calculator again there are any conflicts.

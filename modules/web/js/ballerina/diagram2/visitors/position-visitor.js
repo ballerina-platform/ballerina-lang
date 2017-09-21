@@ -16,35 +16,27 @@
  * under the License.
  */
 
-/**
- * Position Calculater for CompilationUnit.
- *
- * @class CompilationUnitPositionVisitor
- * */
-class CompilationUnitPositionVisitor {
+import log from 'log';
+import { getPositionVisitor, getDesigner } from '../diagram-util.js';
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitPositionVisitor
-     * */
+class PositionVisitor {
+
     beginVisit(node) {
-        node.viewState.bBox.h = node.viewState.container.height;
-        node.viewState.bBox.w = node.viewState.container.width;
+        if (getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
+            const nodeVisitor = new (getPositionVisitor(`${node.getKind()}PositionVisitor`))();
+            return nodeVisitor.beginVisit(node);
+        }
+        return undefined;
     }
 
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitPositionVisitor
-     * */
     endVisit(node) {
-        
+        if (getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
+            const nodeVisitor = new (getPositionVisitor(`${node.getKind()}PositionVisitor`))();
+            return nodeVisitor.endVisit(node);
+        }
+        // log.warn(`Unable to find Position Calculator for : ${node.getKind()}`);
+        return undefined;
     }
 }
 
-export default CompilationUnitPositionVisitor;
+export default PositionVisitor;
