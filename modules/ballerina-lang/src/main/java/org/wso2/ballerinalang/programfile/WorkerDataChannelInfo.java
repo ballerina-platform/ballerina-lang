@@ -17,12 +17,7 @@
 */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * {@code WorkerDataChannelInfo} represents data channels used in Ballerina in order to communicate between workers.
@@ -42,7 +37,6 @@ public class WorkerDataChannelInfo {
 
     private int dataChannelRefIndex;
 
-    private BlockingQueue<Object[]> channel;
     private BType[] types;
 
     public WorkerDataChannelInfo(int sourceCPIndex, String source, int targetCPIndex, String target) {
@@ -50,31 +44,14 @@ public class WorkerDataChannelInfo {
         this.source = source;
         this.targetCPIndex = targetCPIndex;
         this.target = target;
-        this.channel =  new LinkedBlockingQueue<>();
     }
 
-    public void putData(Object[] data) {
-        try {
-            if (data != null) {
-                channel.put(data);
-            }
-        } catch (InterruptedException e) {
-            // Handle the error properly
-        }
-    }
-
-    public Object[] takeData() {
-        Object[] data = null;
-        try {
-            data = channel.poll(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // Handle the error properly
-        }
-        return data;
-    }
-
-    public String getChannelName() {
+    public static String generateChannelName(String source, String target) {
         return source + "->" + target;
+    }
+    
+    public String getChannelName() {
+        return generateChannelName(this.source, this.target);
     }
 
     public int getSourceCPIndex() {

@@ -1155,7 +1155,7 @@ public class BLangPackageBuilder {
 
     public void addWorkerSendStmt(DiagnosticPos pos, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
-        workerSendNode.workerIdentifier = createIdentifier(workerName);
+        workerSendNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
@@ -1164,7 +1164,7 @@ public class BLangPackageBuilder {
 
     public void addWorkerReceiveStmt(DiagnosticPos pos, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.workerIdentifier = createIdentifier(workerName);
+        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
         workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);

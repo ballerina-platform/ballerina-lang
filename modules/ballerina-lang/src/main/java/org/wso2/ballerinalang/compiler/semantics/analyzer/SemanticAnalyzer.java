@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -185,6 +186,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         varNode.type = varNode.symbol.type;
     }
 
+    public void visit(BLangLiteral litNode) {
+        litNode.type = this.typeChecker.checkExpr(litNode, this.env).get(0);
+    }
 
     // Statements
 
@@ -331,6 +335,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.exprs.forEach(e -> this.analyzeNode(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
