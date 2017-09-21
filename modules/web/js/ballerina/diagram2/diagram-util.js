@@ -66,8 +66,8 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
 function getDimentionVisitor(name, mode = 'default') {
     // lets load the view components diffrent modes.
     diagramVisitors.default = requireAll(require.context('./views/default/visitors/dimention', true, /\.js$/));
-    diagramVisitors.action = requireAll(require.context('./views/action/visitors/dimention', true, /\.js$/));
-    diagramVisitors.compact = requireAll(require.context('./views/compact/visitors/dimention', true, /\.js$/));
+    //diagramVisitors.action = requireAll(require.context('./views/action/visitors/dimention', true, /\.js$/));
+    //diagramVisitors.compact = requireAll(require.context('./views/compact/visitors/dimention', true, /\.js$/));
 
     if (diagramVisitors[mode][name]) {
         return diagramVisitors[mode][name];

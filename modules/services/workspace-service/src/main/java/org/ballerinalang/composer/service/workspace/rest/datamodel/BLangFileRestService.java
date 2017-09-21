@@ -222,9 +222,9 @@ public class BLangFileRestService {
             for (Whitespace whitespace : ws) {
                 JsonObject wsJson = new JsonObject();
                 wsJson.addProperty("ws", whitespace.getWs());
-                wsJson.addProperty("i", whitespace.getIndex());
-                wsJson.addProperty("text", whitespace.getPrevious());
-                wsJson.addProperty("static", whitespace.isStatic());
+                //wsJson.addProperty("i", whitespace.getIndex());
+                //wsJson.addProperty("text", whitespace.getPrevious());
+                //wsJson.addProperty("static", whitespace.isStatic());
                 wsJsonArray.add(wsJson);
             }
             nodeJson.add("ws", wsJsonArray);
