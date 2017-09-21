@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -236,8 +237,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
                 break;
             case TypeTags.MAP:
+                actualType = ((BMapType) varRefType).getConstraint();
                 break;
             case TypeTags.JSON:
+                // TODO with constrained json
                 break;
             case TypeTags.ERROR:
                 // Do nothing
@@ -250,36 +253,48 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = checkTypes(fieldAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
-    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+    public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         BType actualType = symTable.errType;
         // First analyze the variable reference expression.
-        checkExpr(indexAccessExpr.expr, this.env, Lists.of(symTable.noType));
+        checkExpr(indexBasedAccessExpr.expr, this.env, Lists.of(symTable.noType));
 
         BType indexExprType;
-        BType varRefType = indexAccessExpr.expr.type;
+        BType varRefType = indexBasedAccessExpr.expr.type;
+        BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
-                indexExprType = checkIndexExprForStructFieldAccess(indexAccessExpr.indexExpr);
+                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
                 if (indexExprType.tag == TypeTags.STRING) {
-                    String fieldName = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
-                    actualType = checkStructFieldAccess(indexAccessExpr, names.fromString(fieldName), varRefType);
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
                 }
                 break;
             case TypeTags.MAP:
+                indexExprType = checkExpr(indexExpr, this.env,
+                        Lists.of(symTable.stringType)).get(0);
+                if (indexExprType.tag == TypeTags.STRING) {
+                    actualType = ((BMapType) varRefType).getConstraint();
+                }
                 break;
             case TypeTags.JSON:
+                // TODO with constrained json
                 break;
             case TypeTags.ARRAY:
+                indexExprType = checkExpr(indexExpr, this.env,
+                        Lists.of(symTable.intType)).get(0);
+                if (indexExprType.tag == TypeTags.INT) {
+                    actualType = ((BArrayType) varRefType).getElementType();
+                }
                 break;
             case TypeTags.ERROR:
                 // Do nothing
                 break;
             default:
-                dlog.error(indexAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                        indexAccessExpr.expr.type);
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                        indexBasedAccessExpr.expr.type);
         }
 
-        resultTypes = checkTypes(indexAccessExpr, Lists.of(actualType), this.expTypes);
+        resultTypes = checkTypes(indexBasedAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
     public void visit(BLangInvocation iExpr) {
