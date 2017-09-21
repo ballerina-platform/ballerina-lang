@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import uuid from 'uuid/v1';
 import classnames from 'classnames';
 import { ContextMenuTrigger as ReactContextMenuTrigger, ContextMenu, MenuItem } from 'react-contextmenu';
@@ -24,8 +25,20 @@ class ContextMenuTrigger extends React.Component {
                     {this.props.children}
                 </ReactContextMenuTrigger>
                 <ContextMenu id={this.props.id}>
-                    <MenuItem onClick={this.handleClick} data={{ action: 'Added' }}>Add 1 count</MenuItem>
-                    <MenuItem onClick={this.handleClick} data={{ action: 'Removed' }}>Remove 1 count</MenuItem>
+                    {this.props.menu.map((menuItem, i) => {
+                        const { divider, handler, label, isActive } = menuItem;
+                        return (
+                            divider
+                                ? <MenuItem key={i} divider />
+                                : <MenuItem
+                                    key={i}
+                                    disabled={_.isFunction(isActive) ? !isActive() : false}
+                                    onClick={handler}
+                                >
+                                    {label}
+                                </MenuItem>
+                        );
+                    })}
                 </ContextMenu>
             </div>
         );
@@ -34,10 +47,11 @@ class ContextMenuTrigger extends React.Component {
 }
 
 const MenuDef = PropTypes.shape({
+    divider: PropTypes.bool,
     icon: PropTypes.string,
-    label: PropTypes.string.isRequired,
-    handler: PropTypes.func.isRequired,
-    isActive: PropTypes.func.isRequired,
+    label: PropTypes.string,
+    handler: PropTypes.func,
+    isActive: PropTypes.func,
     children: PropTypes.arrayOf(Object),
 });
 

@@ -8,6 +8,7 @@ import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
 import './styles.scss';
 
 import FileTree from './../../view/tree-view/FileTree';
+import { getContextMenuItems } from './../../view/tree-view/TreeNode';
 
 const TREE_NODE_TYPE = 'root';
 
@@ -68,18 +69,8 @@ class ExplorerItem extends React.Component {
         return (
             <div className="explorer-item">
                 <ContextMenuTrigger
-                    menu={[
-                        {
-                            icon: '',
-                            label: 'menu 1',
-                            handler: () => {
-                            },
-                            isActive: () => {
-                                return true;
-                            },
-                            children: [],
-                        },
-                    ]}
+                    id={this.state.node.id}
+                    menu={getContextMenuItems(this.state.node)}
                 >
                     <div
                         className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
@@ -103,6 +94,7 @@ class ExplorerItem extends React.Component {
                 <Collapse in={this.state.open}>
                     <div className="file-tree">
                         <FileTree
+                            enableContextMenu
                             root={this.props.folderPath}
                             onOpen={this.onOpen}
                             onSelect={this.props.onSelect}

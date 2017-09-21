@@ -88,6 +88,7 @@ class FileTree extends React.Component {
                     key={node.id}
                     onClick={() => this.onToggle(node, !node.collapsed)}
                     onDoubleClick={this.props.onOpen}
+                    enableContextMenu={this.props.enableContextMenu}
                 >
                     {
                         node.children
@@ -106,12 +107,14 @@ class FileTree extends React.Component {
 }
 
 FileTree.propTypes = {
+    enableContextMenu: PropTypes.bool,
     onOpen: PropTypes.func,
     onSelect: PropTypes.func,
     root: PropTypes.string,
 };
 
 FileTree.defaultProps = {
+    enableContextMenu: false,
     onOpen: () => {},
     onSelect: () => {},
     root: FS_ROOT,
