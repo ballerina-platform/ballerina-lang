@@ -27,52 +27,49 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * Native function to set given property to carbon message.
- * ballerina.model.messages:setProperty
+ * Set a boolean property to the JMS message
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.jms.jmsmessage",
-        functionName = "setProperty",
+        functionName = "setBooleanProperty",
         args = {@Argument(name = "jmsmessage", type = TypeEnum.STRUCT, structType = "JMSMessage",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "key", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.STRING)},
+                @Argument(name = "value", type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets the value of a transport property") })
+        value = "Sets a boolean value of a transport property") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jmsmessage",
         value = "The current message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The property name") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
         value = "The property value") })
-public class SetProperty extends AbstractNativeFunction {
+public class SetBooleanProperty extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(SetProperty.class);
+    private static final Logger log = LoggerFactory.getLogger(SetBooleanProperty.class);
 
     @Override
     public BValue[] execute(Context context) {
 
         BStruct messageStruct  = ((BStruct) this.getRefArgument(context, 0));
         String propertyName = this.getStringArgument(context, 0);
-        String propertyValue = this.getStringArgument(context, 1);
+        boolean propertyValue = this.getBooleanArgument(context, 0);
 
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
 
         try {
-            jmsMessage.setStringProperty(propertyName, propertyValue);
+            jmsMessage.setBooleanProperty(propertyName, propertyValue);
         } catch (JMSException e) {
             log.error("Error when setting the property :" + e.getLocalizedMessage());
         }

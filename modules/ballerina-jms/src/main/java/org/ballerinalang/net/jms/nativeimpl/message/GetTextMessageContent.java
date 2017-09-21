@@ -35,52 +35,50 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.TextMessage;
 
 /**
- * Get the Property of the JMS Message.
+ * Get text content of the JMS Message.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.jms.jmsmessage",
-        functionName = "getProperty",
+        functionName = "getTextMessageContent",
         args = {@Argument(name = "msg", type = TypeEnum.STRUCT, structType = "JMSMessage",
-                          structPackage = "ballerina.net.jms"),
-                @Argument(name = "propertyName", type = TypeEnum.STRING)},
+                          structPackage = "ballerina.net.jms")},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets a transport property from the message") })
+        value = "Get text content of the message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
         value = "The JMS message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
-        value = "The property name") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The property value") })
-public class GetProperty extends AbstractNativeFunction {
+        value = "The text message content") })
+public class GetTextMessageContent extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(GetProperty.class);
+    private static final Logger log = LoggerFactory.getLogger(GetTextMessageContent.class);
 
     public BValue[] execute(Context context) {
 
         BStruct messageStruct  = ((BStruct) this.getRefArgument(context, 0));
-        String propertyName = this.getStringArgument(context, 0);
-
-//        CarbonMessage carbonMessage = (CarbonMessage) messageStruct.getNativeData(Constants.TRANSPORT_MESSAGE);
-//        Message jmsMessage = (Message) carbonMessage.getProperty(Constants.JMS_API_MESSAGE);
-
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
 
-        String propertyValue = null;
+        String messageContent = null;
+
         try {
-            propertyValue = jmsMessage.getStringProperty(propertyName);
+            if (jmsMessage instanceof TextMessage) {
+                messageContent = ((TextMessage) jmsMessage).getText();
+            } else {
+                log.error("JMSMessage is not a Text message. ");
+            }
         } catch (JMSException e) {
-            log.error("Error when retrieving the property :" + e.getLocalizedMessage());
+            log.error("Error when retrieving JMS message content :" + e.getLocalizedMessage());
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Get " + propertyName + " from message with value: " + propertyValue);
+            log.debug("Get content from the JMS message");
         }
 
-        return this.getBValues(new BString(propertyValue));
+        return this.getBValues(new BString(messageContent));
     }
 }
