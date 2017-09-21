@@ -1656,7 +1656,15 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
-        /* ignore */
+        this.genNode(ternaryExpr.expr, this.env);
+        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, -1);
+        this.emit(ifCondJumpInstr);
+        this.genNode(ternaryExpr.thenExpr, this.env);
+        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(endJumpInstr);
+        ifCondJumpInstr.setOperand(1, this.nextIP());
+        this.genNode(ternaryExpr.elseExpr, this.env);
+        endJumpInstr.setOperand(0, this.nextIP());
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {

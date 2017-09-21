@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -317,6 +318,25 @@ public class TypeChecker extends BLangNodeVisitor {
 //        checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
     }
 
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        BType expType = checkExpr(ternaryExpr.expr, env, Lists.of(this.symTable.booleanType)).get(0);
+        BType thenType = checkExpr(ternaryExpr.thenExpr, env, expTypes).get(0);
+        BType elseType = checkExpr(ternaryExpr.elseExpr, env, expTypes).get(0);
+        if (expType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
+            resultTypes = Lists.of(symTable.errType);
+        } else if (expTypes.size() > 0 && expTypes.get(0) == symTable.noType) {
+            // TODO : Fix this.
+            if (thenType == elseType) {
+                resultTypes = Lists.of(thenType);
+            } else {
+                dlog.error(ternaryExpr.pos, DiagnosticCode.TERNARY_TYPES_NOT_MATCHED);
+                resultTypes = Lists.of(symTable.errType);
+            }
+        } else {
+            resultTypes = expTypes;
+        }
+    }
+
     public void visit(BLangBinaryExpr binaryExpr) {
         BType lhsType = checkExpr(binaryExpr.lhsExpr, env).get(0);
         BType rhsType = checkExpr(binaryExpr.rhsExpr, env).get(0);
@@ -383,6 +403,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType targetType = symResolver.resolveTypeNode(castExpr.typeNode, env);
         BType sourceType = checkExpr(castExpr.expr, env, Lists.of(symTable.noType)).get(0);
+
+        if (sourceType == symTable.errType || targetType == symTable.errType) {
+            resultTypes = Lists.of(sourceType);
+            return;
+        }
 
         // Lookup type explicit cast operator symbol
         BSymbol symbol = symResolver.resolveExplicitCastOperator(sourceType, targetType);
