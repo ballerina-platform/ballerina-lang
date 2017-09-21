@@ -94,10 +94,11 @@ const config = [{
             cssTemplateClassName: 'fw', // TODO: map with proper class name
             template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
             dest: {
-                fontsDir: path.resolve(__dirname, 'dist/font-ballerina/fonts'),
-                stylesDir: path.resolve(__dirname, 'dist/font-ballerina/css'),
+                fontsDir: path.resolve(__dirname, 'public/font-ballerina/fonts'),
+                stylesDir: path.resolve(__dirname, 'public/font-ballerina/css'),
                 outputFilename: 'font-ballerina.css',
             },
+            hash: new Date().getTime()
         }),
         /*
         new CircularDependencyPlugin({
