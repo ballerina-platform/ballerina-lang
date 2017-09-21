@@ -33,11 +33,6 @@ native function setReasonPhrase (http:Response res, string reasonPhrase);
 @doc:Return { value:"json: The JSON reresentation of the message payload" }
 native function getJsonPayload (http:Response res) (json);
 
-@doc:Description { value:"Gets the message payload in JSON format"}
-@doc:Param { value:"res: The response message" }
-@doc:Return { value:"json: The JSON reresentation of the message payload" }
-native function getJsonPayload (http:Response res) (json);
-
 @doc:Description { value:"Gets the message payload in XML format"}
 @doc:Param { value:"res: The response message" }
 @doc:Return { value:"xml: The XML representation of the message payload" }

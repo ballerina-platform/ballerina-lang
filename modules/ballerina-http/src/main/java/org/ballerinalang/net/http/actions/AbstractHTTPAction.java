@@ -213,7 +213,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         String path = getStringArgument(context, 0);
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
-        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, null);
+        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
         prepareRequest(bConnector, path, cMsg);
         return cMsg;
     }

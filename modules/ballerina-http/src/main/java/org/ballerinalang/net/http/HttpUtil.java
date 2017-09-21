@@ -229,21 +229,24 @@ public class HttpUtil {
         BXML result = null;
         try {
             // Accessing First Parameter Value.
-            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+//            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+            BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(struct, new HTTPCarbonMessage());
 
-            if (msg.isAlreadyRead()) {
-                MessageDataSource payload = msg.getMessageDataSource();
+            if (httpCarbonMessage.isAlreadyRead()) {
+                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
                 if (payload instanceof BXML) {
                     // if the payload is already xml, return it as it is.
                     result = (BXML) payload;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
+                    result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                result = XMLUtils.parse(msg.value().getInputStream());
-                msg.setMessageDataSource(result);
-                msg.setAlreadyRead(true);
+                result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
+                httpCarbonMessage.setMessageDataSource(result);
+//                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+                httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
             //            ErrorHandler.handleJsonException(OPERATION, e);
