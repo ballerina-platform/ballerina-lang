@@ -24,10 +24,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.94
  */
-public class BlangTransform extends BLangStatement implements TransformNode {
+public class BLangTransform extends BLangStatement implements TransformNode {
     public BLangBlockStmt body;
 
-    public BlangTransform(BLangBlockStmt body) {
+    public BLangTransform(BLangBlockStmt body) {
         this.body = body;
     }
 

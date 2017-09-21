@@ -28,6 +28,8 @@ public enum CompilerPhase {
 
     CODE_ANALYZE("codeAnalyze"),
 
+    DESUGAR("desugar"),
+
     CODE_GEN("codeGen");
 
     private String value;
@@ -44,6 +46,8 @@ public enum CompilerPhase {
                 return TYPE_CHECK;
             case "codeAnalyze":
                 return CODE_ANALYZE;
+            case "desugar":
+                return DESUGAR;
             case "codeGen":
                 return CODE_GEN;
             default:

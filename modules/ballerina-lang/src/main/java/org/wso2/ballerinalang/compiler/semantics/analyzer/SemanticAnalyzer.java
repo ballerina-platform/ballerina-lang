@@ -190,7 +190,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        blockNode.statements.forEach(stmt -> analyzeStmt(stmt, blockEnv));
+        blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 
     public void visit(BLangVariableDef varDefNode) {
