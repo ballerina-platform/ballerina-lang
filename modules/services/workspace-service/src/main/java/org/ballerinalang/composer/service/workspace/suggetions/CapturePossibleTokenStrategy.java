@@ -40,10 +40,10 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
 
     private SuggestionsFilterDataModel suggestionsFilterDataModel;
 
-    public CapturePossibleTokenStrategy(Position cursorPosition) {
+    public CapturePossibleTokenStrategy(Position cursorPosition, SuggestionsFilterDataModel filterDataModel) {
         this.cursorPosition = cursorPosition;
         possibleTokens = new LinkedList<>();
-        this.setSuggestionsFilterDataModel(new SuggestionsFilterDataModel());
+        this.suggestionsFilterDataModel = filterDataModel;
     }
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
@@ -85,10 +85,7 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
                     }
                 }
             });
-
-            SuggestionsFilterDataModel sfdModel =
-                    new SuggestionsFilterDataModel(parser, currentContext, this.possibleTokens);
-            this.setSuggestionsFilterDataModel(sfdModel);
+            this.suggestionsFilterDataModel.initParserContext(parser, currentContext, this.possibleTokens);
         }
 
     }
@@ -135,24 +132,5 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
         position.setLine(token.getLine());
         position.setCharacter(token.getCharPositionInLine());
         return position;
-    }
-
-    /**
-     * Get the SuggestionsFilterDataModel
-     * @return {@link SuggestionsFilterDataModel}
-     */
-    public SuggestionsFilterDataModel getSuggestionsFilterDataModel() {
-        if (this.suggestionsFilterDataModel == null) {
-            this.suggestionsFilterDataModel = new SuggestionsFilterDataModel(null, null, null);
-        }
-        return suggestionsFilterDataModel;
-    }
-
-    /**
-     * Set the SuggestionsFilterDataModel
-     * @param suggestionsFilterDataModel - suggestions filter data model
-     */
-    public void setSuggestionsFilterDataModel(SuggestionsFilterDataModel suggestionsFilterDataModel) {
-        this.suggestionsFilterDataModel = suggestionsFilterDataModel;
     }
 }

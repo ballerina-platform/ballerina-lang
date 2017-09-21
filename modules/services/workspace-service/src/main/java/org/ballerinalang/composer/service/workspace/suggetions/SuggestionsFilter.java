@@ -22,9 +22,9 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.CallableUnitBodyContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ResolveCommandExecutor;
-import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.StatementKind;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,15 +50,15 @@ public class SuggestionsFilter {
      */
     public ArrayList<CompletionItem> getCompletionItems(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols) {
-        SymbolScope closestScope = dataModel.getClosestScope();
-        if (closestScope == null) {
+        BLangNode symbolEnvNode = dataModel.getSymbolEnvNode();
+        if (symbolEnvNode == null) {
             return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
         } else {
-            if (closestScope instanceof BlockStmt) {
+            if (symbolEnvNode instanceof BLangBlockStmt) {
                 return resolveCommandExecutor.resolveCompletionItems(this.blockStatementContextResolver
                         .get(StatementKind.CALLABLE_UNIT_BLOCK.getKey()), dataModel, symbols);
             } else {
-                return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
+                return resolveCommandExecutor.resolveCompletionItems(symbolEnvNode.getClass(), dataModel, symbols);
             }
         }
     }
