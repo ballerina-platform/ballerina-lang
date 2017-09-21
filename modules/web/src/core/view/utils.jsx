@@ -22,7 +22,7 @@ function collect(props) {
     return { name: props.name };
 }
 
-export function withContextMenu(Trigger, pluginID) {
+export function withContextMenu(Trigger) {
     class ContextMenuTriggerWrapper extends React.Component {
         constructor(props) {
             super(props);

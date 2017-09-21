@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
-import FileTree from './../../view/FileTree';
+import FileTree from './../../view/tree-view/FileTree';
 
 const FILE_TYPE = 'file';
 
