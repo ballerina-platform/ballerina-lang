@@ -23,7 +23,8 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.impl.ConnectorUtils;
+import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -56,7 +57,7 @@ public class JMSDispatcher {
         }
 
         // Find the Service Dispatcher
-        JMSServerConnector jmsServerConnector = (JMSServerConnector) Executor
+        JMSServerConnector jmsServerConnector = (JMSServerConnector) ServerConnectorRegistry.getInstance()
                 .getBallerinaServerConnector(Constants.PROTOCOL_PACKAGE_JMS);
         if (jmsServerConnector == null) {
             throw new BallerinaConnectorException("no service dispatcher available to handle protocol: " + protocol);
