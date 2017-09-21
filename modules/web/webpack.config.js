@@ -6,7 +6,7 @@ const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 const extractThemes = new ExtractTextPlugin('./[name].css');
 const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
-var exportConfig = {};
+let exportConfig = {};
 const config = [{
     entry: {
         bundle: './index.js',

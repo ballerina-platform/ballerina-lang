@@ -17,6 +17,7 @@
  */
 
 import $ from 'jquery';
+import { getServiceEndpoint } from './../../../../../api-client/api-client';
 
 /**
  * Gets the base name of a file.
@@ -77,10 +78,11 @@ class ImageUtils {
             iconPath: 'testPath',
         };
         let data = {};
+        const epUrl = getServiceEndpoint('imageutil');
         $.ajax({
             type: 'POST',
             context: this,
-            url: 'http://localhost:8289/file/connector/icon',
+            url: epUrl,
             data: JSON.stringify(requestJson),
             contentType: 'application/json; charset=utf-8',
             async: false,
