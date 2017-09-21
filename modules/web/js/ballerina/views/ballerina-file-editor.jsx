@@ -182,7 +182,7 @@ class BallerinaFileEditor extends React.Component {
      * Decide whether to re-render or not
      */
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.lastRenderedTimestamp !== nextState.lastRenderedTimestamp;
+        return true;
     }
 
     /**

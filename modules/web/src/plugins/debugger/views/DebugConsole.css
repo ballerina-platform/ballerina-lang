@@ -22,3 +22,9 @@
 
 #console .INFO { color: #03a9f4 !important; }
 #console .ERROR { color: #f44336 !important; }
+
+/* ------------ console ------*/
+.DATA a {
+    color: #fff;
+    text-decoration: underline;
+}
