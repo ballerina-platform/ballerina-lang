@@ -81,8 +81,8 @@ public class BLogManager extends LogManager {
         });
 
         try {
-            ballerinaRootLogLevel = BLogLevel.valueOf(
-                    BLogLevelMapper.getBallerinaLogLevel(logConfigs.getProperty(Constants.BALLERINA_LEVEL)));
+            ballerinaRootLogLevel =
+                    BLogLevelMapper.getBallerinaLogLevel(logConfigs.getProperty(Constants.BALLERINA_LEVEL));
         } catch (IllegalArgumentException e) {
             STD_ERR.println("Invalid log level value given for 'log.level'");
             STD_ERR.println("Setting 'log.level=INFO'");
@@ -92,7 +92,7 @@ public class BLogManager extends LogManager {
 
         String traceLogLevel = logConfigs.getProperty(Constants.HTTP_TRACELOG_LEVEL);
         if (traceLogLevel != null &&
-                (BLogLevel.valueOf(BLogLevelMapper.getBallerinaLogLevel(traceLogLevel)) == BLogLevel.DEBUG)) {
+                (BLogLevelMapper.getBallerinaLogLevel(traceLogLevel) == BLogLevel.DEBUG)) {
             System.setProperty(Constants.HTTP_TRACELOG, Constants.LOG_DEST_CONSOLE);
             setHttpTraceLogHandler();
         }
@@ -101,8 +101,8 @@ public class BLogManager extends LogManager {
     }
 
     public BLogLevel getPackageLogLevel(String pkg) {
-        BLogLevel level = logLevelMap.get(pkg);
-        return level != null ? level : ballerinaRootLogLevel;
+        String level = this.getProperty("log." + pkg + ".level");
+        return level != null ? BLogLevelMapper.getBallerinaLogLevel(level) : ballerinaRootLogLevel;
     }
 
     public void setHttpTraceLogHandler() throws IOException {

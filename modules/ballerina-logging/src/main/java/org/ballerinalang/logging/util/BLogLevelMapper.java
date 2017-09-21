@@ -29,32 +29,33 @@ import java.util.logging.Level;
  */
 public class BLogLevelMapper {
 
-    public static String getBallerinaLogLevel(String level) {
+    public static BLogLevel getBallerinaLogLevel(String level) {
         switch (level) {
             case "SEVERE":
-                return "ERROR";
+                return BLogLevel.ERROR;
             case "WARNING":
-                return "WARN";
+                return BLogLevel.WARN;
             case "INFO":
-                return "INFO";
+                return BLogLevel.INFO;
             case "CONFIG":
-                return "INFO";
+                return BLogLevel.INFO;
             case "FINE":
-                return "DEBUG";
+                return BLogLevel.DEBUG;
             case "FINER":
-                return "DEBUG";
+                return BLogLevel.DEBUG;
             case "FINEST":
-                return "TRACE";
+                return BLogLevel.TRACE;
             case "ALL":
-                return "ALL";
+                return BLogLevel.ALL;
             case "OFF":
-                return "OFF";
+                return BLogLevel.OFF;
             default:
-                return "<UNDEFINED>";
+                BLogManager.STD_ERR.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
+                return BLogLevel.INFO;
         }
     }
 
-    public static String getBallerinaLogLevel(Level level) {
+    public static BLogLevel getBallerinaLogLevel(Level level) {
         return getBallerinaLogLevel(level.getName());
     }
 
@@ -75,7 +76,7 @@ public class BLogLevelMapper {
             case "OFF":
                 return "OFF";
             default:
-                BLogManager.STD_ERR.println("Invalid log level: " + level + ", using INFO instead.");
+                BLogManager.STD_ERR.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
                 return "INFO";
         }
     }
