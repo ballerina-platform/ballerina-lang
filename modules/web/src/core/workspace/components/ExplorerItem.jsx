@@ -8,7 +8,7 @@ import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
 import './styles.scss';
 
 import FileTree from './../../view/tree-view/FileTree';
-import { getContextMenuItems } from './../../view/tree-view/TreeNode';
+import { getContextMenuItems } from './../../view/tree-view/menu';
 
 const TREE_NODE_TYPE = 'root';
 
