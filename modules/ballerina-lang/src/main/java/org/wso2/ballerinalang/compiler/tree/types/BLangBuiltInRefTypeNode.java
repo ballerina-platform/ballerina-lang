@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -41,5 +42,10 @@ public class BLangBuiltInRefTypeNode extends BLangType implements BuiltInReferen
     @Override
     public String toString() {
         return this.typeKind.name();
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.BUILT_IN_REF_TYPE;
     }
 }

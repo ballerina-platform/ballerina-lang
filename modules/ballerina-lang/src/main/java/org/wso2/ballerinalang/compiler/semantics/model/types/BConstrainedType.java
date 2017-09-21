@@ -15,17 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import java.util.List;
+import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.Type;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
  * @since 0.94
  */
-public interface XMLQuotedStringNode extends ExpressionNode {
+public class BConstrainedType extends BType implements ConstrainedType {
 
-    List<? extends ExpressionNode> getTextFragments();
+    public BType constraint;
 
-    void addTextFragment(ExpressionNode textFragment);
+    public BConstrainedType(int tag, BType constraint, BTypeSymbol tsymbol) {
+        super(tag, tsymbol);
+        this.constraint = constraint;
+    }
 
+    @Override
+    public Type getConstraint() {
+        return this.constraint;
+    }
 }

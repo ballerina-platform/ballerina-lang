@@ -202,7 +202,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.statements.forEach(e -> {
+        blockNode.stmts.forEach(e -> {
             e.accept(this);
         });
     }
@@ -260,7 +260,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
-        whileNode.body.statements.forEach(e -> e.accept(this));
+        whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
     }
     
@@ -280,7 +280,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         inputs.forEach((k, v) -> transformNode.addInputExpression(v));
         outputs.forEach((k, v) -> transformNode.addOutputExpression(v));
     }
-    
+
     public void visit(BLangPackageDeclaration pkgDclNode) {
         /* ignore */
     }

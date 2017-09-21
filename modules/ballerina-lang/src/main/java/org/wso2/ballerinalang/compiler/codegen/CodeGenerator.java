@@ -288,7 +288,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
-        for (BLangStatement stmt : blockNode.statements) {
+        for (BLangStatement stmt : blockNode.stmts) {
 //            if (stmt instanceof CommentStmt) {
 //                continue;
 //            }
@@ -366,7 +366,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangTransform transformNode) {
         this.genNode(transformNode.body, this.env);
     }
-    
+
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
         case TypeTags.INT:
