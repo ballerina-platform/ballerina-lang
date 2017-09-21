@@ -611,7 +611,6 @@ class TransformNodeMapper {
         });
     }
 
-
     /**
      * Remove input variable to operator mapping.
      * @param {any} sourceName source name
@@ -620,8 +619,7 @@ class TransformNodeMapper {
      */
     removeInputToOperatorMapping(sourceName, target) {
         const operatorExp = target.operator;
-        const defaultExp = ASTFactory.createBasicLiteralExpression();
-        defaultExp.setExpressionFromString('0');
+        const defaultExp = ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 });
 
         if (this.getMappableExpression(operatorExp.getRightExpression()).getExpressionString().trim() === sourceName) {
             operatorExp.setRightExpression(defaultExp, { doSilently: true });
@@ -778,6 +776,100 @@ class TransformNodeMapper {
             origin: this._transformStmt,
             type: 'transform-connection-removed',
             title: `Remove mapping ${source.operator.getOperator()} to ${target.funcInv.getFunctionName()}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove source types
+     * @param {any} type type
+     * @memberof TransformNodeMapper
+     */
+    removeSourceType(type) {
+        this._transformStmt.removeInput(type);
+        this._transformStmt
+            .filterChildren(ASTFactory.isAssignmentStatement || ASTFactory.isVariableDefinitionStatement)
+            .forEach((stmt) => {
+                const rightExpression = stmt.getRightExpression();
+                this.removeInputVertices(rightExpression, type.name);
+            });
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-source-removed',
+            title: `Remove source ${type.name}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove input vertices in statements of the given source
+     * @param {any} expression expression
+     * @param {any} vertex vertex to remove
+     * @memberof TransformNodeMapper
+     */
+    removeInputVertices(expression, vertex) {
+        if (ASTFactory.isFunctionInvocationExpression(expression)) {
+            expression.getChildren().forEach((child, index) => {
+                if (child.getExpressionString().trim() === vertex) {
+                    expression.replaceChildByIndex(ASTFactory.createNullLiteralExpression(), index);
+                } else {
+                    this.removeInputVertices(child, vertex);
+                }
+            });
+        } else if (ASTFactory.isUnaryExpression(expression)) {
+            if (expression.getRightExpression().getExpressionString().trim() === vertex) {
+                expression.setRightExpression(
+                    ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }));
+            } else {
+                this.removeInputVertices(expression.getRightExpression(), vertex);
+            }
+        } else if (ASTFactory.isBinaryExpression(expression)) {
+            if (expression.getRightExpression().getExpressionString().trim() === vertex) {
+                expression.setRightExpression(
+                    ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }));
+            } else {
+                this.removeInputVertices(expression.getRightExpression(), vertex);
+            }
+            if (expression.getLeftExpression().getExpressionString().trim() === vertex) {
+                expression.setLeftExpression(
+                    ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }));
+            } else {
+                this.removeInputVertices(expression.getLeftExpression(), vertex);
+            }
+        } else if (ASTFactory.isSimpleVariableReferenceExpression(expression)) {
+            const stmt = this.getParentAssignmentStmt(expression);
+            this._transformStmt.removeChild(stmt, true);
+        }
+    }
+
+    /**
+     * Remove target types
+     * @param {any} type type
+     * @memberof TransformNodeMapper
+     */
+    removeTargetType(type) {
+        this._transformStmt.removeOutput(type);
+        this._transformStmt
+            .filterChildren(ASTFactory.isAssignmentStatement || ASTFactory.isVariableDefinitionStatement)
+            .forEach((stmt) => {
+                stmt.getLeftExpression().getChildren().forEach((exp, index) => {
+                    if (exp.getExpressionString().trim() === type.name) {
+                        if (ASTFactory.isSimpleVariableReferenceExpression(stmt.getLeftExpression())) {
+                            this._transformStmt.removeChild(stmt, true);
+                        } else {
+                            stmt.getLeftExpression().removeChild(exp, true);
+                            stmt.setIsDeclaredWithVar(true);
+                            const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
+                            simpleVarRefExpression.setExpressionFromString('__output' + (index + 1));
+                            stmt.getLeftExpression().replaceChildByIndex(simpleVarRefExpression, index + 1, true);
+                        }
+                    }
+                });
+            });
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-target-removed',
+            title: `Remove target ${type.name}`,
             data: {},
         });
     }
