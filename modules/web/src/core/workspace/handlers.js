@@ -31,6 +31,12 @@ export function getHandlerDefinitions(workspaceManager) {
             },
         },
         {
+            cmdID: COMMANDS.REMOVE_FOLDER,
+            handler: ({ folderPath }) => {
+                workspaceManager.removeFolder(folderPath);
+            },
+        },
+        {
             cmdID: COMMANDS.SAVE_FILE,
             handler: () => {
                 const { command: { dispatch }, editor } = workspaceManager.appContext;

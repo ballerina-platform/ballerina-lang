@@ -70,7 +70,7 @@ class ExplorerItem extends React.Component {
             <div className="explorer-item">
                 <ContextMenuTrigger
                     id={this.state.node.id}
-                    menu={getContextMenuItems(this.state.node)}
+                    menu={getContextMenuItems(this.state.node, this.context.command)}
                 >
                     <div
                         className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
@@ -114,6 +114,17 @@ ExplorerItem.propTypes = {
 
 ExplorerItem.defaultProps = {
     onSelect: () => {},
+};
+
+ExplorerItem.contextTypes = {
+    history: PropTypes.shape({
+        put: PropTypes.func,
+        get: PropTypes.func,
+    }).isRequired,
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
+    }).isRequired,
 };
 
 export default ExplorerItem;

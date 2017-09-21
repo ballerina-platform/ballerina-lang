@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
+import { COMMANDS as WORKSPACE_CMDS } from './../../workspace/constants';
 
 /**
  * Creates the context menu items for given node type
@@ -10,6 +11,7 @@ import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
  */
 export function getContextMenuItems(node, command) {
     const menu = [];
+    const { dispatch } = command;
     const { type } = node;
 
     const menuDivider = {
@@ -44,6 +46,7 @@ export function getContextMenuItems(node, command) {
                 icon: '',
                 label: 'Remove Program Directory',
                 handler: () => {
+                    dispatch(WORKSPACE_CMDS.REMOVE_FOLDER, { folderPath: node.id });
                 },
                 isActive: () => {
                     return true;
@@ -155,7 +158,7 @@ class TreeNode extends React.Component {
                 {this.props.enableContextMenu &&
                 <ContextMenuTrigger
                     id={node.id}
-                    menu={getContextMenuItems(node)}
+                    menu={getContextMenuItems(node, this.context.command)}
                 >
                     {treeNodeHeader}
                 </ContextMenuTrigger>

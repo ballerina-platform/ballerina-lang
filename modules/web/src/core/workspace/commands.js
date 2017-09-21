@@ -29,6 +29,12 @@ export function getCommandDefinitions() {
             },
         },
         {
+            id: COMMANDS.REMOVE_FOLDER,
+            argTypes: {
+                folderPath: PropTypes.string.isRequired,
+            },
+        },
+        {
             id: COMMANDS.SAVE_FILE,
             shortcut: {
                 default: 'ctrl+s',

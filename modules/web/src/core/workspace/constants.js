@@ -2,6 +2,7 @@ export const COMMANDS = {
     CREATE_NEW_FILE: 'create-new-file',
     OPEN_FILE: 'open-file',
     OPEN_FOLDER: 'open-folder',
+    REMOVE_FOLDER: 'remove-folder',
     SAVE_FILE: 'save-file',
     SAVE_FILE_AS: 'save-as-file',
     SHOW_FILE_OPEN_WIZARD: 'show-file-open-wizard',
