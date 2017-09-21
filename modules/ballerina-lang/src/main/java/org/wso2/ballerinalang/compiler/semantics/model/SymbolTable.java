@@ -265,22 +265,22 @@ public class SymbolTable {
 
     private void defineConversionOperators() {
         // Define conversion operators
-        defineConversionOperator(intType, floatType, true, -1);
-        defineConversionOperator(intType, stringType, true, -1);
-        defineConversionOperator(intType, booleanType, true, -1);
-        defineConversionOperator(floatType, stringType, true, -1);
-        defineConversionOperator(floatType, booleanType, true, -1);
-        defineConversionOperator(floatType, intType, true, -1);
-        defineConversionOperator(stringType, floatType, false, -1);
-        defineConversionOperator(stringType, intType, false, -1);
-        defineConversionOperator(stringType, booleanType, false, -1);
-        defineConversionOperator(booleanType, stringType, true, -1);
-        defineConversionOperator(booleanType, intType, true, -1);
-        defineConversionOperator(booleanType, floatType, true, -1);
-        defineConversionOperator(jsonType, xmlType, false, -1);
-        defineConversionOperator(xmlType, jsonType, false, -1);
-        defineConversionOperator(datatableType, xmlType, false, -1);
-        defineConversionOperator(datatableType, jsonType, false, -1);
+        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
+        defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
+        defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
+        defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);
+        defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
+        defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
+        defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
+        defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
+        defineConversionOperator(stringType, booleanType, false, InstructionCodes.S2B);
+        defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
+        defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
+        defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
+        defineConversionOperator(jsonType, xmlType, false, InstructionCodes.JSON2XML);
+        defineConversionOperator(xmlType, jsonType, false, InstructionCodes.XML2JSON);
+        defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
+        defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
     }
 
     private void defineBinaryOperator(OperatorKind kind,

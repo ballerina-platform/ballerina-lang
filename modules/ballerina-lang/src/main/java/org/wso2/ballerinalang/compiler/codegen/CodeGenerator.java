@@ -517,6 +517,35 @@ public class CodeGenerator extends BLangNodeVisitor {
         castExpr.regIndex = castExpr.regIndexes[0];
     }
 
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        BLangExpression rExpr = conversionExpr.expr;
+        genNode(rExpr, this.env);
+
+        int opCode = conversionExpr.conversionSymbol.opcode;
+        int errorRegIndex = ++regIndexes.tRef;
+
+        if (opCode == InstructionCodes.MAP2T || opCode == InstructionCodes.JSON2T) {
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, conversionExpr.type.getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+            int targetRegIndex = getNextIndex(conversionExpr.type.tag, regIndexes);
+
+            conversionExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
+            emit(opCode, rExpr.regIndex, typeCPIndex, targetRegIndex, errorRegIndex);
+
+        } else if (opCode != 0) {
+            int targetRegIndex = getNextIndex(conversionExpr.type.tag, regIndexes);
+            conversionExpr.regIndexes = new int[]{targetRegIndex, errorRegIndex};
+            emit(opCode, rExpr.regIndex, targetRegIndex, errorRegIndex);
+
+        } else {
+            // Ignore  NOP opcode
+            conversionExpr.regIndexes = new int[]{rExpr.regIndex, errorRegIndex};
+        }
+
+        conversionExpr.regIndex = conversionExpr.regIndexes[0];
+    }
+
     public void visit(BLangExpressionStmt exprStmtNode) {
         genNode(exprStmtNode.expr, this.env);
     }
@@ -1074,9 +1103,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangTypeConversionExpr conversionExpr) {
-        /* ignore */
-    }
 
     public void visit(BLangXMLQName xmlQName) {
         /* ignore */

@@ -302,27 +302,23 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
+        // Set error type as the actual type.
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
         // Lookup type conversion operator symbol
-        BSymbol symbol = symResolver.resolveConversionOperator(conversionExpr.pos, sourceType, targetType);
+        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
         if (symbol == symTable.notFoundSymbol) {
-            conversionExpr.type = symTable.errType;
-            return;
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        } else {
+            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+            conversionExpr.conversionSymbol = conversionSym;
+            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
         }
 
-        BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
-        // If this conversion is an unsafe conversion , then there MUST to be two l variables
-        // resulting two expected types
-        // If this is an safe conversion, then the error variable is optional
-        if (!conversionSym.safe && expTypes.size() < 2) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
-        } else if (conversionSym.safe && expTypes.size() < 2) {
-            expTypes.add(symTable.errStructType);
-        }
-
-        resultTypes = checkTypes(conversionExpr, conversionSym.type.getReturnTypes(), expTypes);
+        resultTypes = checkTypes(conversionExpr, actualTypes, expTypes);
     }
 
 
@@ -423,6 +419,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
         } else if (expected == 2) {
             actualTypes = castSymbol.type.getReturnTypes();
+
+        } else if (expected == 0 || expected > 2) {
+            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);
+        }
+
+        return actualTypes;
+    }
+
+    private List<BType> getActualTypesOfConversionExpr(BLangTypeConversionExpr castExpr,
+                                                       BType targetType,
+                                                       BType sourceType,
+                                                       BConversionOperatorSymbol conversionSymbol) {
+        // If this cast is an unsafe conversion, then there MUST to be two expected types/variables
+        // If this is an safe cast, then the error variable is optional
+        int expected = expTypes.size();
+        List<BType> actualTypes = getListWithErrorTypes(expected);
+        if (conversionSymbol.safe && expected == 1) {
+            actualTypes = Lists.of(conversionSymbol.type.getReturnTypes().get(0));
+        } else if (!conversionSymbol.safe && expected == 1) {
+            dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
+
+        } else if (expected == 2) {
+            actualTypes = conversionSymbol.type.getReturnTypes();
 
         } else if (expected == 0 || expected > 2) {
             dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);

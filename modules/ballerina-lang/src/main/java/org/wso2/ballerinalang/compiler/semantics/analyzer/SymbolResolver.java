@@ -99,19 +99,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(entry, types);
     }
 
-    public BSymbol resolveConversionOperator(DiagnosticPos pos,
-                                             BType sourceType,
+    public BSymbol resolveConversionOperator(BType sourceType,
                                              BType targetType) {
         ScopeEntry entry = symTable.rootScope.lookup(Names.CONVERSION_OP);
-        List<BType> types = new ArrayList<>(2);
-        types.add(sourceType);
-        types.add(targetType);
+        List<BType> types = Lists.of(sourceType, targetType);
 
-        BSymbol symbol = resolveOperator(entry, types);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
-        }
-        return symbol;
+        return resolveOperator(entry, types);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
