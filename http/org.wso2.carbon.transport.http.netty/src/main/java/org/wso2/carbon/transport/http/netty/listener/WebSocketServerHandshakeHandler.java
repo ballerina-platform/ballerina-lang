@@ -100,7 +100,6 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecured = true;
         }
-
         String uri = httpRequest.uri();
         WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
 
@@ -120,6 +119,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         initMessage.setTarget(httpRequest.uri());
         initMessage.setListenerInterface(interfaceId);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
+        initMessage.setIsConnectionSecured(isSecured);
 
         serverConnectorFuture.notifyWSListener(initMessage);
     }

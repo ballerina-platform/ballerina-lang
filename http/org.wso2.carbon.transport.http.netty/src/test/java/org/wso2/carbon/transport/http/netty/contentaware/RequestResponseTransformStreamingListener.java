@@ -34,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -63,8 +64,8 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             try {
-                InputStream inputStream = httpRequestMessage.getInputStream();
-                OutputStream outputStream = httpRequestMessage.getOutputStream();
+                InputStream inputStream = new HttpMessageDataStreamer(httpRequestMessage).getInputStream();
+                OutputStream outputStream = new HttpMessageDataStreamer(httpRequestMessage).getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
                 outputStream.flush();
@@ -92,8 +93,8 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            InputStream inputS = httpResponse.getInputStream();
-                            OutputStream outputS = httpResponse.getOutputStream();
+                            InputStream inputS = new HttpMessageDataStreamer(httpResponse).getInputStream();
+                            OutputStream outputS = new HttpMessageDataStreamer(httpResponse).getOutputStream();
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputS);
                                 outputS.write(bytes);

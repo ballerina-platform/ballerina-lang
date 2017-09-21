@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,7 @@ public class ContentReadingListener implements HttpConnectorListener {
     public void onMessage(HTTPCarbonMessage httpMessage) {
         executor.execute(() -> {
             try {
-                InputStream inputStream = httpMessage.getInputStream();
+                InputStream inputStream = new HttpMessageDataStreamer(httpMessage).getInputStream();
                 String response = new String(ByteStreams.toByteArray(inputStream), Charset.defaultCharset());
                 String alteredContent = "Altered " + response + " content";
 
