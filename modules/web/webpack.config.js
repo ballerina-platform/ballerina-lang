@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
 const CircularDependencyPlugin = require('circular-dependency-plugin');
+const WebfontPlugin = require('webpack-webfont').default;
 
 const extractThemes = new ExtractTextPlugin('./[name].css');
 const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
@@ -83,6 +84,27 @@ const config = [{
             $: 'jquery',
             jQuery: 'jquery',
         }),
+        new WebfontPlugin({
+            files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
+            css: true,
+            cssTemplateFontPath: '../fonts/',
+            fontName: 'font-ballerina',
+            fontHeight: 1000,
+            normalize: true,
+            cssTemplateClassName: 'fw', // TODO: map with proper class name
+            template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
+            dest: {
+                fontsDir: path.resolve(__dirname, 'dist/font-ballerina/fonts'),
+                stylesDir: path.resolve(__dirname, 'dist/font-ballerina/css'),
+                outputFilename: 'font-ballerina.css',
+            },
+        }),
+        /*
+        new CircularDependencyPlugin({
+            exclude: /a\.css|node_modules/,
+            failOnError: true,
+        }),
+        */
     ],
     devServer: {
         publicPath: '/dist/',

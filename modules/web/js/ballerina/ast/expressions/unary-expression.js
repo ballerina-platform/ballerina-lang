@@ -40,12 +40,11 @@ class UnaryExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      * */
     initFromJson(jsonNode) {
-        if (!_.isEmpty(jsonNode.children)) {
-            jsonNode.children.forEach((childNode) => {
-                const child = ASTFactory.createFromJson(childNode);
-                child.initFromJson(childNode);
-                this.addChild(child);
-            });
+        if (!_.isNil(jsonNode.children[0])) {
+            const rightExpression = ASTFactory.createFromJson(jsonNode.children[0]);
+            rightExpression.setParent(this, { doSilently: true });
+            rightExpression.initFromJson(jsonNode.children[0]);
+            this.setRightExpression(rightExpression, { doSilently: true });
         }
     }
 
@@ -72,16 +71,24 @@ class UnaryExpression extends Expression {
 
     getExpressionString() {
         let expString = this.getOperator() + this.getWSRegion(1);
-        expString += (!_.isEmpty(this.children)) ? this.children[0].getExpressionString() : '';
+        expString += (!_.isNil(this.getRightExpression())) ? this.getRightExpression().getExpressionString() : '';
         return expString;
     }
 
-    /**
-     * Get the operator.
-     * @return {String} Operator
-     * */
+    setOperator(operator, options) {
+        this.setAttribute('_operator', operator, options);
+    }
+
     getOperator() {
         return this._operator;
+    }
+
+    setRightExpression(rightExpression, options) {
+        this.setAttribute('_rightExpression', rightExpression, options);
+    }
+
+    getRightExpression() {
+        return this._rightExpression;
     }
 }
 

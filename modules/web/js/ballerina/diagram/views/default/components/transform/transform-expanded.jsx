@@ -150,6 +150,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (ASTFactory.isVariableDefinitionStatement(statement)) {
+            // TODO: handle this
             return;
         }
 
@@ -161,9 +162,7 @@ class TransformExpanded extends React.Component {
         // There can be multiple left expressions.
         // E.g. : e.name, e.username = p.first_name;
         const leftExpression = statement.getLeftExpression();
-        const rightExpression = this.transformNodeManager
-                                    .getMappingExpression(statement.getRightExpression());
-
+        const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(statement.getRightExpression(), statement);
         if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
               ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
@@ -186,23 +185,219 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
-            this.drawFunctionInvocationExpression(leftExpression, rightExpression, statement);
-        }
-        if (ASTFactory.isBinaryExpression(rightExpression)
+        if (ASTFactory.isFunctionInvocationExpression(rightExpression)
+                    || ASTFactory.isBinaryExpression(rightExpression)
                     || ASTFactory.isUnaryExpression(rightExpression)) {
-            const targetId = leftExpression.getExpressionString().trim() + ':' + viewId;
-            if (ASTFactory.isBinaryExpression(rightExpression)) {
-                const leftId = rightExpression.getLeftExpression().getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
-                const rightId = rightExpression.getRightExpression().getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(rightId, rightExpression.getID() + ':1:' + viewId);
-            } else {
-                const leftId = rightExpression.children[0].getExpressionString().trim() + ':' + viewId;
-                this.drawConnection(leftId, rightExpression.getID() + ':0:' + viewId);
-            }
-            this.drawConnection(rightExpression.getID() + ':return:0:' + viewId, targetId);
+            this.drawIntermediateNode(leftExpression, rightExpression, statement);
         }
+    }
+
+    /**
+     * Draw connections in intermediate nodes. Intermediate nodes are functions and operators.
+     * @param {any} argumentExpressions argument expressions
+     * @param {any} nodeExpression intermediate node expression
+     * @param {any} statement enclosing statement
+     * @memberof TransformExpanded
+     */
+    drawIntermediateNode(argumentExpressions, nodeExpression, statement) {
+        if (!ASTFactory.isFunctionInvocationExpression(nodeExpression)
+            && !ASTFactory.isBinaryExpression(nodeExpression)
+            && !ASTFactory.isUnaryExpression(nodeExpression)) {
+            return;
+        }
+
+        const viewId = this.props.model.getID();
+        let nodeDef;
+        let nodeName;
+        let paramExpressions = [];
+        
+        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
+            nodeName = nodeExpression.getFunctionName();
+            paramExpressions = nodeExpression.getChildren();
+        } else {
+            nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            nodeName = nodeExpression.getOperator();
+            if (ASTFactory.isBinaryExpression(nodeExpression)) {
+                paramExpressions.push(nodeExpression.getLeftExpression());
+            }
+            paramExpressions.push(nodeExpression.getRightExpression());
+        }
+        
+        if (_.isUndefined(nodeDef)) {
+            // alerts.error('Definition for "' + nodeName + '" cannot be found');
+            return;
+        }
+        if (nodeDef.parameters.length !== paramExpressions.length) {
+            // alerts.warn('Inputs and mapping count does not match in "' + nodeName + '"');
+        }
+
+        const returnParams = nodeDef.returnParams;
+        const nodeExpID = nodeExpression.getID();
+
+        paramExpressions.forEach((expression, i) => {
+            if (ASTFactory.isFunctionInvocationExpression(expression)
+                    || ASTFactory.isBinaryExpression(expression)
+                    || ASTFactory.isUnaryExpression(expression)) {
+                this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement);
+            } else {
+                let target;
+                let source;
+                const { exp, isTemp} = this.transformNodeManager.getResolvedExpression(expression, statement);
+                expression = exp;
+                if (ASTFactory.isKeyValueExpression(expression.children[0])) {
+                    // if parameter is a key value expression, iterate each expression and draw connections
+                    _.forEach(expression.children, (propParam) => {
+                        source = this.getConnectionProperties('source', propParam.children[1]);
+                        target = this.getConnectionProperties('target', nodeDef.getParameters()[i]);
+                        target.targetProperty.push(propParam.children[0].getVariableName());
+                        const typeDef = _.find(this.state.vertices, { typeName: nodeDef.getParameters()[i].type });
+                        const propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName() });
+                        target.targetType.push(propType.type);
+                        this.drawConnection(statement.getID() + nodeExpression.getID(), source, target);
+                    });
+                } else {
+                    // expression = this.transformNodeManager.getResolvedExpression(expression);
+                    let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                    let folded = false;
+                    if (!this.sourceElements[sourceId]) {
+                        folded = true;
+                        sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
+                    }
+
+                    let targetId = `${nodeExpID}:${i}:${viewId}`;
+
+                    if (!this.targetElements[targetId]) {
+                        // function is folded
+                        folded = true;
+                        targetId = `${nodeExpID}:${viewId}`;
+                    }
+
+                    this.drawConnection(sourceId, targetId, folded);
+                }
+            }
+        });
+
+        if (nodeDef.returnParams.length !== argumentExpressions.getChildren().length) {
+            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+        }
+        _.forEach(argumentExpressions.getChildren(), (expression, i) => {
+            if (!returnParams[i]) {
+                return;
+            }
+            let folded = false;
+
+            let sourceId = `${nodeExpID}:${i}:return:${viewId}`;
+            if (!this.sourceElements[sourceId]) {
+                // function is folded
+                folded = true;
+                sourceId = `${nodeExpID}:${viewId}`;
+            }
+
+
+            let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
+            if (!this.targetElements[targetId]) {
+                folded = true;
+                targetId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'target');
+            }
+
+            this.drawConnection(sourceId, targetId, folded);
+        });
+        this.mapper.reposition(this.props.model.getID());
+    }
+
+    /**
+     * Draw nested intermediate nodes
+     * @param {any} parentNodeExpression parent node expression
+     * @param {any} nodeExpression node expression
+     * @param {any} parentNodeDefinition parent node definition
+     * @param {any} parentParameterIndex parameter index of the parent node
+     * @param {any} statement enclosed statement
+     * @memberof TransformExpanded
+     */
+    drawInnerIntermediateNode(parentNodeExpression, nodeExpression, parentNodeDefinition,
+                                      parentParameterIndex, statement) {
+        if (!ASTFactory.isFunctionInvocationExpression(nodeExpression)
+                && !ASTFactory.isBinaryExpression(nodeExpression)
+                && !ASTFactory.isUnaryExpression(nodeExpression)) {
+            return;
+        }
+        const viewId = this.props.model.getID();
+        const nodeExpID = nodeExpression.getID();
+        let nodeDef;
+        let nodeName;
+        let paramExpressions = [];
+
+        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
+            nodeName = nodeExpression.getFunctionName();
+            paramExpressions = nodeExpression.getChildren();
+        } else {
+            nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            nodeName = nodeExpression.getOperator();
+            if (ASTFactory.isBinaryExpression(nodeExpression)) {
+                paramExpressions.push(nodeExpression.getLeftExpression());
+            }
+            paramExpressions.push(nodeExpression.getRightExpression());
+        }
+
+        if (_.isUndefined(nodeDef)) {
+            // alerts.error(
+            // 'Function definition for "' + nodeName + '" cannot be found');
+            return;
+        }
+
+        if (nodeDef.parameters.length !== paramExpressions.length) {
+            // alerts.warn('Function inputs and mapping count does not match in "' + nodeName + '"');
+        }
+
+        paramExpressions.forEach((expression, i) => {
+            if (ASTFactory.isFunctionInvocationExpression(expression)
+                || ASTFactory.isBinaryExpression(expression)
+                || ASTFactory.isUnaryExpression(expression)) {
+                this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement);
+            } else {
+                let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                let folded = false;
+                if (!this.sourceElements[sourceId]) {
+                    folded = true;
+                    sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
+                }
+
+                let targetId = `${nodeExpID}:${i}:${viewId}`;
+                if (!this.targetElements[targetId]) {
+                    // function is folded
+                    folded = true;
+                    targetId = `${nodeExpID}:${viewId}`;
+                }
+
+                this.drawConnection(sourceId, targetId, folded);
+            }
+        });
+
+        if (!parentNodeDefinition) {
+            return;
+        }
+
+        let folded = false;
+
+        let sourceId = `${nodeExpID}:0:return:${viewId}`;
+        if (!this.sourceElements[sourceId]) {
+            // function is folded
+            folded = true;
+            sourceId = `${nodeExpID}:${viewId}`;
+        }
+
+        const parentNodeID = parentNodeExpression.getID();
+        let targetId = `${parentNodeID}:${parentParameterIndex}:${viewId}`;
+        if (!this.targetElements[targetId]) {
+            // function is folded
+            folded = true;
+            targetId = `${parentNodeID}:${viewId}`;
+        }
+
+        this.drawConnection(sourceId, targetId, folded);
+        this.mapper.reposition(this.props.model.getID());
     }
 
     getFoldedEndpointId(exprString, viewId, type = 'source') {
@@ -219,154 +414,6 @@ class TransformExpanded extends React.Component {
         }
 
         return endpointId;
-    }
-
-    drawInnerFunctionInvocationExpression(parentFunctionInvocationExpression, functionInvocationExpression,
-                                          parentFunctionDefinition, parentParameterIndex, statement) {
-        const viewId = this.props.model.getID();
-        const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
-        if (_.isUndefined(func)) {
-            // alerts.error(
-            //     'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
-            return;
-        }
-
-        if (func.parameters.length !== functionInvocationExpression.getChildren().length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        }
-
-        const functionInvID = functionInvocationExpression.getID();
-
-        _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-            if (ASTFactory.isFunctionInvocationExpression(expression)) {
-                this.drawInnerFunctionInvocationExpression(
-                    functionInvocationExpression, expression, func, i, statement);
-            } else {
-                let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                let folded = false;
-                if (!this.sourceElements[sourceId]) {
-                    folded = true;
-                    sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
-                }
-
-                let targetId = `${functionInvID}:${i}:${viewId}`;
-                if (!this.targetElements[targetId]) {
-                    // function is folded
-                    folded = true;
-                    targetId = `${functionInvID}:${viewId}`;
-                }
-
-                this.drawConnection(sourceId, targetId, folded);
-            }
-        });
-
-        if (!parentFunctionDefinition) {
-            return;
-        }
-
-        let folded = false;
-
-        let sourceId = `${functionInvID}:0:return:${viewId}`;
-        if (!this.sourceElements[sourceId]) {
-            // function is folded
-            folded = true;
-            sourceId = `${functionInvID}:${viewId}`;
-        }
-
-        const parentFuncInvID = parentFunctionInvocationExpression.getID();
-        let targetId = `${parentFuncInvID}:${parentParameterIndex}:${viewId}`;
-        if (!this.targetElements[targetId]) {
-            // function is folded
-            folded = true;
-            targetId = `${parentFuncInvID}:${viewId}`;
-        }
-
-        this.drawConnection(sourceId, targetId, folded);
-        this.mapper.reposition(this.props.model.getID());
-    }
-
-    drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
-        const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
-        const viewId = this.props.model.getID();
-        if (_.isUndefined(func)) {
-            // alerts.error(
-            //     'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
-            return;
-        }
-        if (func.parameters.length !== functionInvocationExpression.getChildren().length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        }
-
-        const returnParams = func.returnParams;
-        const funcInvID = functionInvocationExpression.getID();
-
-        _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-            if (ASTFactory.isFunctionInvocationExpression(expression)) {
-                this.drawInnerFunctionInvocationExpression(
-                    functionInvocationExpression, expression, func, i, statement);
-            } else {
-                let target;
-                let source;
-                expression = this.transformNodeManager.getMappingExpression(expression);
-                if (ASTFactory.isKeyValueExpression(expression.children[0])) {
-                // if parameter is a key value expression, iterate each expression and draw connections
-                    _.forEach(expression.children, (propParam) => {
-                        source = this.getConnectionProperties('source', propParam.children[1]);
-                        target = this.getConnectionProperties('target', func.getParameters()[i]);
-                        target.targetProperty.push(propParam.children[0].getVariableName());
-                        const typeDef = _.find(this.state.vertices, { typeName: func.getParameters()[i].type });
-                        const propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName() });
-                        target.targetType.push(propType.type);
-                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                    });
-                } else {
-                    expression = this.transformNodeManager.getMappingExpression(expression);
-                    let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                    let folded = false;
-                    if (!this.sourceElements[sourceId]) {
-                        folded = true;
-                        sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
-                    }
-
-                    let targetId = `${funcInvID}:${i}:${viewId}`;
-
-                    if (!this.targetElements[targetId]) {
-                        // function is folded
-                        folded = true;
-                        targetId = `${funcInvID}:${viewId}`;
-                    }
-
-                    this.drawConnection(sourceId, targetId, folded);
-                }
-            }
-        });
-
-        if (func.returnParams.length !== argumentExpressions.getChildren().length) {
-            // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        }
-        _.forEach(argumentExpressions.getChildren(), (expression, i) => {
-            if (!returnParams[i]) {
-                return;
-            }
-            let folded = false;
-
-            let sourceId = `${funcInvID}:${i}:return:${viewId}`;
-            if (!this.sourceElements[sourceId]) {
-                // function is folded
-                folded = true;
-                sourceId = `${funcInvID}:${viewId}`;
-            }
-
-
-            let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
-            if (!this.targetElements[targetId]) {
-                folded = true;
-                targetId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'target');
-            }
-
-            this.drawConnection(sourceId, targetId, folded);
-        });
-        this.mapper.reposition(this.props.model.getID());
     }
 
     getConnectionProperties(type, expression) {
@@ -559,7 +606,9 @@ class TransformExpanded extends React.Component {
     }
 
     componentWillUnmount() {
-        this.scrollTimer && clearInterval(this.scrollTimer);
+        if (this.scrollTimer) {
+            clearInterval(this.scrollTimer);
+        }
     }
 
     onDragLeave(e) {
@@ -631,13 +680,11 @@ class TransformExpanded extends React.Component {
             this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
             this.transformOverlayDraggingContentDiv.classList.add('drop-valid');
         }
-        console.log(isValid);
     }
 
     onTransformDropZoneActivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model;
-        const model = this.props.model;
 
         if (dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
@@ -963,25 +1010,49 @@ class TransformExpanded extends React.Component {
         });
     }
 
-    findFunctionInvocations(functionInvocationExpression, functions = [], parentFunc) {
-        const func = this.transformNodeManager.getFunctionVertices(functionInvocationExpression);
-        if (_.isUndefined(func)) {
-            // alerts.error('Function definition for "' +
-            //     functionInvocationExpression.getFunctionName() + '" cannot be found');
-            return;
-        }
-        functionInvocationExpression.getChildren().forEach((child) => {
-            if (ASTFactory.isFunctionInvocationExpression(child)) {
-                this.findFunctionInvocations(child, functions, functionInvocationExpression);
+    getIntermediateNodes(nodeExpression, intermediateNodes = [], parentNode) {
+        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+            const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
+            if (_.isUndefined(func)) {
+                // alerts.error('Function definition for "' +
+                //     functionInvocationExpression.getFunctionName() + '" cannot be found');
+                return [];
             }
-        });
-        functions.push({ type: 'function', func, parentFunc, funcInv: functionInvocationExpression });
-        return functions;
+            nodeExpression.getChildren().forEach((child) => {
+                this.getIntermediateNodes(child, intermediateNodes, nodeExpression);
+            });
+            intermediateNodes.push({
+                type: 'function',
+                func,
+                parentNode,
+                funcInv: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (ASTFactory.isBinaryExpression(nodeExpression)
+                      || ASTFactory.isUnaryExpression(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getLeftExpression(), intermediateNodes, nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getRightExpression(), intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else {
+            return [];
+        }
     }
 
     updateVariable(varName, statementString, type) {
-        this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type);
+        const isUpdated = this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type);
         this.loadVertices();
+        if (!isUpdated) {
+            alerts.error('Invalid value for variable ' + varName);
+            return false;
+        }
+        return true;
     }
 
     markConnectedEndpoints() {
@@ -995,7 +1066,7 @@ class TransformExpanded extends React.Component {
         const outputNodes = this.props.model.getOutput();
         const inputs = [];
         const outputs = [];
-        const functions = [];
+        const intermediateNodes = [];
 
         if (this.state.vertices.length > 0) {
             inputNodes.forEach((inputNode) => {
@@ -1026,37 +1097,21 @@ class TransformExpanded extends React.Component {
                 if (!ASTFactory.isAssignmentStatement(child)) {
                     return;
                 }
-                let rightExpression = child.getRightExpression();
-                rightExpression = this.transformNodeManager.getMappingExpression(rightExpression);
+                const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(child.getRightExpression(), child);
 
-                if (ASTFactory.isFunctionInvocationExpression(rightExpression)) {
-                    const funcInvs = this.findFunctionInvocations(rightExpression);
-                    funcInvs.forEach((funcDetails) => {
-                        funcDetails.assignmentStmt = child;
-                    });
-                    funcInvs.type = 'function';
-                    functions.push(...funcInvs);
-                } else if (ASTFactory.isBinaryExpression(rightExpression)
-                            || ASTFactory.isUnaryExpression(rightExpression)) {
-                    const operatorInfo = {};
-                    operatorInfo.name = rightExpression.getOperator();
-                    operatorInfo.parameters = [];
-                    operatorInfo.returnParams = [];
-                    operatorInfo.parameters[0] = { name: rightExpression.getID() + ':0',
-                        displayName: '',
-                        type: 'var' };
-                    if (ASTFactory.isBinaryExpression(rightExpression)) {
-                        operatorInfo.parameters[1] = { name: rightExpression.getID() + ':1',
-                            displayName: '',
-                            type: 'var' };
+                if (ASTFactory.isFunctionInvocationExpression(rightExpression)
+                    || ASTFactory.isBinaryExpression(rightExpression)
+                    || ASTFactory.isUnaryExpression(rightExpression)) {
+                    if (!isTemp) {
+                        // only add if the function invocation is not pre available.
+                        // this check is required for instances where the function invocations
+                        // are used via temporary variables
+                        intermediateNodes.push(...this.getIntermediateNodes(rightExpression));
                     }
-                    operatorInfo.returnParams.push({ name: rightExpression.getID() + ':return:0',
-                        displayName: '',
-                        type: 'var' });
-                    functions.push({ type: 'operator', operator: operatorInfo, opStmt: rightExpression });
-                 }
+                }
             });
         }
+
         return (
             <div
                 className='transformOverlay'
@@ -1128,14 +1183,14 @@ class TransformExpanded extends React.Component {
                             </div>
                             <div className="middle-content">
                                 {
-                                    functions.map((func) => {
-                                        if (func.type === 'function') {
+                                    intermediateNodes.map((node) => {
+                                        if (node.type === 'function') {
                                             return (<FunctionInv
-                                                key={func.funcInv.getID()}
-                                                func={func.func}
-                                                enclosingAssignmentStatement={func.assignmentStmt}
-                                                parentFunc={func.parentFunc}
-                                                funcInv={func.funcInv}
+                                                key={node.funcInv.getID()}
+                                                func={node.func}
+                                                enclosingAssignmentStatement={node.assignmentStmt}
+                                                parentFunc={node.parentFunc}
+                                                funcInv={node.funcInv}
                                                 recordSourceElement={this.recordSourceElement}
                                                 recordTargetElement={this.recordTargetElement}
                                                 viewId={this.props.model.getID()}
@@ -1143,14 +1198,14 @@ class TransformExpanded extends React.Component {
                                                 onConnectPointMouseEnter={this.onConnectPointMouseEnter}
                                                 foldEndpoint={this.foldEndpoint}
                                                 foldedEndpoints={this.state.foldedEndpoints}
-                                                isCollapsed={this.state.foldedFunctions[func.funcInv.getID()]}
+                                                isCollapsed={this.state.foldedFunctions[node.funcInv.getID()]}
                                                 onHeaderClick={this.foldFunction}
                                             />);
                                         }
                                         return (<Operator
-                                            key={func.opStmt.getID()}
-                                            operator={func.operator}
-                                            opStmt={func.opStmt}
+                                            key={node.opExp.getID()}
+                                            operator={node.operator}
+                                            opExp={node.opExp}
                                             recordSourceElement={this.recordSourceElement}
                                             recordTargetElement={this.recordTargetElement}
                                             viewId={this.props.model.getID()}

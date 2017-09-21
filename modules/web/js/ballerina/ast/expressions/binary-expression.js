@@ -47,15 +47,15 @@ class BinaryExpression extends Expression {
     initFromJson(jsonNode) {
         if (!_.isNil(jsonNode.children[0])) {
             const leftExpression = ASTFactory.createFromJson(jsonNode.children[0]);
-            leftExpression.setParent(this, {doSilently: true});
+            leftExpression.setParent(this, { doSilently: true });
             leftExpression.initFromJson(jsonNode.children[0]);
-            this._leftExpression = leftExpression;
+            this.setLeftExpression(leftExpression, { doSilently: true });
         }
         if (!_.isNil(jsonNode.children[1])) {
             const rightExpression = ASTFactory.createFromJson(jsonNode.children[1]);
-            rightExpression.setParent(this, {doSilently: true});
+            rightExpression.setParent(this, { doSilently: true });
             rightExpression.initFromJson(jsonNode.children[1]);
-            this._rightExpression = rightExpression;
+            this.setRightExpression(rightExpression, { doSilently: true });
         }
     }
 
@@ -67,10 +67,10 @@ class BinaryExpression extends Expression {
                     || !_.has(parsedJson, 'syntax_errors'))) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({isValid: true});
+                    callback({ isValid: true });
                 }
             } else if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }
@@ -91,24 +91,24 @@ class BinaryExpression extends Expression {
         return expressionString;
     }
 
-    setOperator(operator) {
-        this._operator = operator;
+    setOperator(operator, options) {
+        this.setAttribute('_operator', operator, options);
     }
 
     getOperator() {
         return this._operator;
     }
 
-    setLeftExpression(leftExpression) {
-        this._leftExpression = leftExpression;
+    setLeftExpression(leftExpression, options) {
+        this.setAttribute('_leftExpression', leftExpression, options);
     }
 
     getLeftExpression() {
         return this._leftExpression;
     }
 
-    setRightExpression(rightExpression) {
-        this._rightExpression = rightExpression;
+    setRightExpression(rightExpression, options) {
+        this.setAttribute('_rightExpression', rightExpression, options);
     }
 
     getRightExpression() {
