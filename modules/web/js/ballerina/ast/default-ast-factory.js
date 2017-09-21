@@ -479,7 +479,10 @@ DefaultASTFactory.createConnectorDeclaration = function (args) {
     const declarationStatement = (packageName !== 'Current Package' ? args.pkgName + ':' : '') + args.connectorName
         + ' endpoint = create ' + (packageName !== 'Current Package' ? args.pkgName + ':' : '')
         + args.connectorName + '()';
-    const connectorDeclaration = ASTFactory.createConnectorDeclaration();
+
+    // Currently we are setting the package name
+    // TODO: later will enforce the url
+    const connectorDeclaration = ASTFactory.createConnectorDeclaration({ icon: packageName });
     connectorDeclaration.setStatementFromString(declarationStatement);
     connectorDeclaration.setFullPackageName(args.fullPackageName);
     connectorDeclaration.accept(new EnableDefaultWSVisitor());
