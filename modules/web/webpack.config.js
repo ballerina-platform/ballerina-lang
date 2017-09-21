@@ -121,41 +121,22 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: ['src', 'lib', 'js', 'node_modules', path.resolve(__dirname)],
+        modules: ['src', 'public/lib', 'js', 'node_modules', path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //
             // //////////////////////
-            svg_pan_zoom: 'svg-panNZoom/jquery.svg.pan.zoom',
             theme_wso2: 'theme-wso2-2.0.0/js/theme-wso2',
             mcustom_scroller: 'malihu-custom-scrollbar-plugin',
-            respond: 'respond_1.4.2/respond.min',
-            select2: 'select2-4.0.3/dist/js/select2.full.min',
             underscore: 'lodash',
             ace: 'ace-builds/src-noconflict',
-            // dagre uses an older version of lodash which conflicts
-            // with the lodash version used by the composer.
-            // hence dagre is added to libs
-            // https://github.com/cpettitt/graphlib/issues/58
-            dagre: 'dagre-0.7.4/dagre.min.js',
-
             // /////////////////////
             // custom modules ////
             // ////////////////////
             log: 'log/log',
-            d3utils: 'utils/d3-utils',
-            diagram_core: 'diagram-core/module',
-            command: 'command/command',
             event_channel: 'event/channel',
-            drag_drop_manager: 'drag-drop/manager',
-            main_elements: 'main-elements/module',
-            processors: 'processors/module',
-            file_browser: 'file-browser/file-browser',
-            menu_bar: 'menu-bar/menu-bar',
-            context_menu: 'context-menu/context-menu',
             tool_bar: 'tool-bar/tool-bar',
             alerts: 'utils/alerts',
-            property_pane_utils: 'property-pane/property-pane-utils',
             expression_editor_utils: 'expression-editor/expression-editor-utils',
             constants: 'constants/constants',
             typeMapper: 'type-mapper/type-mapper-renderer',
@@ -163,6 +144,7 @@ const config = [{
             bal_utils: 'ballerina/utils',
             bal_configs: 'ballerina/configs',
             console: 'launcher/console',
+            images: 'public/images',
             workspace$: 'workspace/module',
             ballerina$: 'ballerina/module',
             'welcome-page$': 'welcome-page/module',
@@ -242,7 +224,7 @@ if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electro
 
   // reassign entry so it uses the entry point for the electron app
     config[0].entry = {
-        bundle: './electron-index.js',
+        bundle: './src-electron/electron-index.js',
     };
 }
 

@@ -28,14 +28,10 @@
             <directory>.</directory>
             <outputDirectory>resources/composer/web</outputDirectory>
             <includes>
-                <include>css/**</include>
+                <include>public/**</include>
                 <include>dist/**</include>
-                <include>images/**</include>
-                <include>lib/**</include>
                 <include>resources/**</include>
-                <include>favicon.ico</include>
                 <include>errors/**</include>
-                <include>index.html</include>
             </includes>
         </fileSet>
     </fileSets>

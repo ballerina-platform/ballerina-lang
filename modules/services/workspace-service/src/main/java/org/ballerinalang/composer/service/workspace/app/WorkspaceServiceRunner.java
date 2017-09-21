@@ -176,7 +176,8 @@ public class WorkspaceServiceRunner {
         }
 
         String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB)
+                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB,
+                 Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB_PUBLIC)
                 .toString();
 
         FileContentProvider fileContentProvider = new FileContentProvider();
