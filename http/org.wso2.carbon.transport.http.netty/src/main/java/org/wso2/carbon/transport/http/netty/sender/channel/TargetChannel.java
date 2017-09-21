@@ -174,7 +174,13 @@ public class TargetChannel {
                 }
             }
         } catch (Exception e) {
-            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            String msg;
+            if (e instanceof NullPointerException) {
+                msg = "Failed to send the request";
+            } else {
+                msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            }
+
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             httpCarbonRequest.setMessagingException(messagingException);
