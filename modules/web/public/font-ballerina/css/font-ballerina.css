@@ -1,0 +1,1223 @@
+@font-face{
+     font-family: font-ballerina;
+        src: url("../fonts/font-ballerina.eot?1505997950909");
+        src: url("../fonts/font-ballerina.eot?#iefix") format("embedded-opentype"), url("../fonts/font-ballerina.woff2?1505997950909") format("woff2"), url("../fonts/font-ballerina.woff?1505997950909") format("woff"), url("../fonts/font-ballerina.ttf?1505997950909") format("truetype"), url("../fonts/font-ballerina.svg?1505997950909#font-ballerina") format("svg");
+   	font-weight:normal;
+   	font-style:normal;
+}
+
+.fw, [class^="fw-"], [class*=" fw-"] {
+    font: normal normal normal 14px/1 font-ballerina;
+    display: inline-block;
+    font-weight: normal;
+    font-style: normal;
+    font-size: inherit;
+    font-variant: normal;
+    speak: none;
+    text-decoration: inherit;
+
+    /* Better Font Rendering =========== */
+    text-transform: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================================================
+ * font options
+ * ======================================================================== */
+
+.fw-lg {
+    font-size: 1.33333333em;
+    line-height: 0.75em;
+    vertical-align: -15%;
+}
+.fw-2x {
+    font-size: 2em;
+}
+.fw-3x {
+    font-size: 3em;
+}
+.fw-4x {
+    font-size: 4em;
+}
+.fw-5x {
+    font-size: 5em;
+}
+.fw-fw {
+    width: 1.28571429em;
+    text-align: center;
+}
+.fw-ul {
+    padding-left: 0;
+    margin-left: 2.14285714em;
+    list-style-type: none;
+}
+.fw-ul > li {
+    position: relative;
+}
+.fw-li {
+    position: absolute;
+    left: -2.14285714em;
+    width: 2.14285714em;
+    top: 0.14285714em;
+    text-align: center;
+}
+.fw-li.fw-lg {
+    left: -1.85714286em;
+}
+.fw-border {
+    padding: .2em .25em .15em;
+    border: solid 0.08em #eeeeee;
+    border-radius: .1em;
+}
+.fw-background {
+    background: #888;
+    border-radius: .3em;
+    padding: .4em .50em .45em;
+}
+.fw-pull-left {
+    float: left;
+}
+.fw-pull-right {
+    float: right;
+}
+.fw.fw-pull-left {
+    margin-right: .3em;
+}
+.fw.fw-pull-right {
+    margin-left: .3em;
+}
+.fw-spin {
+    -webkit-animation: fw-spin 2s infinite linear;
+    animation: fw-spin 2s infinite linear;
+}
+@-webkit-keyframes fw-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes fw-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+.fw-pulse {
+    -webkit-animation: fw-pulse 2s ease-out infinite;
+    animation: fw-pulse 2s ease-out infinite;
+}
+@-webkit-keyframes fw-pulse {
+    0%, 30%  {
+        opacity: 0.3;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.3;
+    }
+}
+@keyframes fw-pulse {
+    0%, 30%  {
+        opacity: 0.3;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.3;
+    }
+}
+.fw-rotate-90 {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.fw-rotate-180 {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+.fw-rotate-270 {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    -webkit-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+.fw-flip-horizontal {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);
+    -webkit-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+.fw-flip-vertical {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+    -webkit-transform: scale(1, -1);
+    -ms-transform: scale(1, -1);
+    transform: scale(1, -1);
+}
+:root .fw-rotate-90,
+:root .fw-rotate-180,
+:root .fw-rotate-270,
+:root .fw-flip-horizontal,
+:root .fw-flip-vertical {
+    filter: none;
+}
+.fw-stack,
+.fw-helper {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 1.85em;
+    vertical-align: middle;
+}
+.fw-stack-1x,
+.fw-stack-2x,
+.fw-helper:before,
+.fw-helper:after {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+.fw-stack-1x,
+.fw-helper:before {
+    line-height: inherit;
+}
+.fw-stack-2x,
+.fw-helper:after {
+    font-size: 1.9em;
+}
+.fw-helper-slash:before {
+    font-size: 1.4em;
+}
+.fw-helper-circle:before,
+.fw-helper-square:before {
+    z-index: 1;
+}
+.fw-helper-circle-outline:after {
+    content: "\e61f";
+}
+.fw-helper-circle:after {
+    content: "\e61a";
+}
+.fw-helper-square-outline:after {
+    content: "\e6b2";
+}
+.fw-helper-square:after {
+    content: "\e6b1";
+}
+.fw-helper-slash:after {
+    content: "\e6e1";
+}
+.fw-stack > .fw-stack {
+    position: absolute;
+    font-size: 0.5em;
+}
+.fw-stack > .fw-stack.fw-move-top {
+    top: -0.2em;
+}
+.fw-stack > .fw-stack.fw-move-bottom {
+    bottom: -0.2em;
+}
+.fw-stack > .fw.stack.fw-move-left {
+    left: -0.5em;
+}
+.fw-stack > .fw-stack.fw-move-right {
+    right: -0.5em;
+}
+.fw-inverse:before,
+.fw-helper-inverse:after,
+.fw-number {
+    color: #ffffff;
+}
+.fw-shadow:before,
+.fw-helper-shadow:after {
+    text-shadow: #ffffff 1px 1px 0;
+}
+.fw-stroke:before,
+.fw-helper-stroke:after {
+    text-shadow: -2px -2px 0 #ffffff,
+                 2px -2px 0 #ffffff,
+                 -2px 2px 0 #ffffff,
+                 2px 2px 0 #ffffff;
+}
+.fw-number {
+    line-height: 2em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ========================================================================
+ * font icons
+ * ======================================================================== */
+
+.fw-abort::before {
+    content: "\ea01";
+}
+.fw-action-invoke::before {
+    content: "\ea02";
+}
+.fw-action::before {
+    content: "\ea03";
+}
+.fw-activate::before {
+    content: "\ea04";
+}
+.fw-add::before {
+    content: "\ea05";
+}
+.fw-airplay::before {
+    content: "\ea06";
+}
+.fw-alarm::before {
+    content: "\ea07";
+}
+.fw-alert::before {
+    content: "\ea08";
+}
+.fw-analytics-extensions::before {
+    content: "\ea09";
+}
+.fw-android-logcat::before {
+    content: "\ea0a";
+}
+.fw-android-sense::before {
+    content: "\ea0b";
+}
+.fw-android::before {
+    content: "\ea0c";
+}
+.fw-annotation::before {
+    content: "\ea0d";
+}
+.fw-api::before {
+    content: "\ea0e";
+}
+.fw-apn::before {
+    content: "\ea0f";
+}
+.fw-apple::before {
+    content: "\ea10";
+}
+.fw-application::before {
+    content: "\ea11";
+}
+.fw-arduino::before {
+    content: "\ea12";
+}
+.fw-assign::before {
+    content: "\ea13";
+}
+.fw-ballerina-service::before {
+    content: "\ea14";
+}
+.fw-ballerina::before {
+    content: "\ea15";
+}
+.fw-bar-chart::before {
+    content: "\ea16";
+}
+.fw-battery::before {
+    content: "\ea17";
+}
+.fw-blank-document::before {
+    content: "\ea18";
+}
+.fw-block::before {
+    content: "\ea19";
+}
+.fw-bookmark::before {
+    content: "\ea1a";
+}
+.fw-bpel::before {
+    content: "\ea1b";
+}
+.fw-bpmn::before {
+    content: "\ea1c";
+}
+.fw-break::before {
+    content: "\ea1d";
+}
+.fw-bug::before {
+    content: "\ea1e";
+}
+.fw-build::before {
+    content: "\ea1f";
+}
+.fw-calendar::before {
+    content: "\ea20";
+}
+.fw-call-mediator::before {
+    content: "\ea21";
+}
+.fw-camera::before {
+    content: "\ea22";
+}
+.fw-cancel::before {
+    content: "\ea23";
+}
+.fw-carbon::before {
+    content: "\ea24";
+}
+.fw-chat::before {
+    content: "\ea25";
+}
+.fw-check::before {
+    content: "\ea26";
+}
+.fw-checklist::before {
+    content: "\ea27";
+}
+.fw-circle-outline::before {
+    content: "\ea28";
+}
+.fw-circle::before {
+    content: "\ea29";
+}
+.fw-clear::before {
+    content: "\ea2a";
+}
+.fw-clock::before {
+    content: "\ea2b";
+}
+.fw-cloud::before {
+    content: "\ea2c";
+}
+.fw-code-view::before {
+    content: "\ea2d";
+}
+.fw-code::before {
+    content: "\ea2e";
+}
+.fw-comment::before {
+    content: "\ea2f";
+}
+.fw-compare::before {
+    content: "\ea30";
+}
+.fw-computer::before {
+    content: "\ea31";
+}
+.fw-configarations::before {
+    content: "\ea32";
+}
+.fw-connector::before {
+    content: "\ea33";
+}
+.fw-console::before {
+    content: "\ea34";
+}
+.fw-constant::before {
+    content: "\ea35";
+}
+.fw-contact::before {
+    content: "\ea36";
+}
+.fw-continue::before {
+    content: "\ea37";
+}
+.fw-contract::before {
+    content: "\ea38";
+}
+.fw-copy::before {
+    content: "\ea39";
+}
+.fw-cut::before {
+    content: "\ea3a";
+}
+.fw-dashboard::before {
+    content: "\ea3b";
+}
+.fw-data-mapper::before {
+    content: "\ea3c";
+}
+.fw-database::before {
+    content: "\ea3d";
+}
+.fw-delete::before {
+    content: "\ea3e";
+}
+.fw-depend::before {
+    content: "\ea3f";
+}
+.fw-deploy::before {
+    content: "\ea40";
+}
+.fw-deprecate::before {
+    content: "\ea41";
+}
+.fw-design-view::before {
+    content: "\ea42";
+}
+.fw-devices::before {
+    content: "\ea43";
+}
+.fw-dgm-action-invoke::before {
+    content: "\ea44";
+}
+.fw-dgm-action::before {
+    content: "\ea45";
+}
+.fw-dgm-connector::before {
+    content: "\ea46";
+}
+.fw-dgm-constant-definition::before {
+    content: "\ea47";
+}
+.fw-dgm-fork::before {
+    content: "\ea48";
+}
+.fw-dgm-header::before {
+    content: "\ea49";
+}
+.fw-dgm-if-else::before {
+    content: "\ea4a";
+}
+.fw-dgm-import::before {
+    content: "\ea4b";
+}
+.fw-dgm-lifeline::before {
+    content: "\ea4c";
+}
+.fw-dgm-logger::before {
+    content: "\ea4d";
+}
+.fw-dgm-resource::before {
+    content: "\ea4e";
+}
+.fw-dgm-service::before {
+    content: "\ea4f";
+}
+.fw-dgm-try-catch::before {
+    content: "\ea50";
+}
+.fw-dgm-type-convertor::before {
+    content: "\ea51";
+}
+.fw-dgm-type::before {
+    content: "\ea52";
+}
+.fw-dgm-while::before {
+    content: "\ea53";
+}
+.fw-dial-up::before {
+    content: "\ea54";
+}
+.fw-disabled::before {
+    content: "\ea55";
+}
+.fw-display::before {
+    content: "\ea56";
+}
+.fw-docker::before {
+    content: "\ea57";
+}
+.fw-document::before {
+    content: "\ea58";
+}
+.fw-down-arrow::before {
+    content: "\ea59";
+}
+.fw-down::before {
+    content: "\ea5a";
+}
+.fw-download::before {
+    content: "\ea5b";
+}
+.fw-dss::before {
+    content: "\ea5c";
+}
+.fw-ebook::before {
+    content: "\ea5d";
+}
+.fw-edit::before {
+    content: "\ea5e";
+}
+.fw-ellipsis::before {
+    content: "\ea5f";
+}
+.fw-endpoint::before {
+    content: "\ea60";
+}
+.fw-enterprise::before {
+    content: "\ea61";
+}
+.fw-error::before {
+    content: "\ea62";
+}
+.fw-esb-connector::before {
+    content: "\ea63";
+}
+.fw-expand::before {
+    content: "\ea64";
+}
+.fw-export::before {
+    content: "\ea65";
+}
+.fw-extensions::before {
+    content: "\ea66";
+}
+.fw-facebook::before {
+    content: "\ea67";
+}
+.fw-factory-reset::before {
+    content: "\ea68";
+}
+.fw-fan::before {
+    content: "\ea69";
+}
+.fw-faq::before {
+    content: "\ea6a";
+}
+.fw-file-browse::before {
+    content: "\ea6b";
+}
+.fw-filter::before {
+    content: "\ea6c";
+}
+.fw-folder-open::before {
+    content: "\ea6d";
+}
+.fw-folder::before {
+    content: "\ea6e";
+}
+.fw-foreach::before {
+    content: "\ea6f";
+}
+.fw-fork-join::before {
+    content: "\ea70";
+}
+.fw-format::before {
+    content: "\ea71";
+}
+.fw-forum::before {
+    content: "\ea72";
+}
+.fw-function-invoke::before {
+    content: "\ea73";
+}
+.fw-function::before {
+    content: "\ea74";
+}
+.fw-gadget::before {
+    content: "\ea75";
+}
+.fw-geo-fence-inbound::before {
+    content: "\ea76";
+}
+.fw-geo-fence-outbound::before {
+    content: "\ea77";
+}
+.fw-github::before {
+    content: "\ea78";
+}
+.fw-globe::before {
+    content: "\ea79";
+}
+.fw-google-docs::before {
+    content: "\ea7a";
+}
+.fw-google-drive::before {
+    content: "\ea7b";
+}
+.fw-google-glass::before {
+    content: "\ea7c";
+}
+.fw-google-plus::before {
+    content: "\ea7d";
+}
+.fw-google-sheets::before {
+    content: "\ea7e";
+}
+.fw-google-slides::before {
+    content: "\ea7f";
+}
+.fw-google::before {
+    content: "\ea80";
+}
+.fw-grid::before {
+    content: "\ea81";
+}
+.fw-grip::before {
+    content: "\ea82";
+}
+.fw-group::before {
+    content: "\ea83";
+}
+.fw-hardware::before {
+    content: "\ea84";
+}
+.fw-hdd::before {
+    content: "\ea85";
+}
+.fw-header::before {
+    content: "\ea86";
+}
+.fw-heart::before {
+    content: "\ea87";
+}
+.fw-hide::before {
+    content: "\ea88";
+}
+.fw-home::before {
+    content: "\ea89";
+}
+.fw-hour-glass::before {
+    content: "\ea8a";
+}
+.fw-html::before {
+    content: "\ea8b";
+}
+.fw-http::before {
+    content: "\ea8c";
+}
+.fw-image::before {
+    content: "\ea8d";
+}
+.fw-import::before {
+    content: "\ea8e";
+}
+.fw-in-sequence::before {
+    content: "\ea8f";
+}
+.fw-incoming-call::before {
+    content: "\ea90";
+}
+.fw-info::before {
+    content: "\ea91";
+}
+.fw-instagram::before {
+    content: "\ea92";
+}
+.fw-integration::before {
+    content: "\ea93";
+}
+.fw-invitation::before {
+    content: "\ea94";
+}
+.fw-invoke::before {
+    content: "\ea95";
+}
+.fw-is-connector::before {
+    content: "\ea96";
+}
+.fw-iterate::before {
+    content: "\ea97";
+}
+.fw-jaggery::before {
+    content: "\ea98";
+}
+.fw-java-spring::before {
+    content: "\ea99";
+}
+.fw-java::before {
+    content: "\ea9a";
+}
+.fw-javaee::before {
+    content: "\ea9b";
+}
+.fw-javascript::before {
+    content: "\ea9c";
+}
+.fw-jaxrs::before {
+    content: "\ea9d";
+}
+.fw-jaxws::before {
+    content: "\ea9e";
+}
+.fw-jquery::before {
+    content: "\ea9f";
+}
+.fw-key::before {
+    content: "\eaa0";
+}
+.fw-laptop::before {
+    content: "\eaa1";
+}
+.fw-layout::before {
+    content: "\eaa2";
+}
+.fw-ldap::before {
+    content: "\eaa3";
+}
+.fw-left-arrow::before {
+    content: "\eaa4";
+}
+.fw-left::before {
+    content: "\eaa5";
+}
+.fw-lifecycle::before {
+    content: "\eaa6";
+}
+.fw-light::before {
+    content: "\eaa7";
+}
+.fw-linkedin::before {
+    content: "\eaa8";
+}
+.fw-list-sort::before {
+    content: "\eaa9";
+}
+.fw-list::before {
+    content: "\eaaa";
+}
+.fw-loader::before {
+    content: "\eaab";
+}
+.fw-loader2::before {
+    content: "\eaac";
+}
+.fw-loader3::before {
+    content: "\eaad";
+}
+.fw-loader4::before {
+    content: "\eaae";
+}
+.fw-loader5::before {
+    content: "\eaaf";
+}
+.fw-lock::before {
+    content: "\eab0";
+}
+.fw-log::before {
+    content: "\eab1";
+}
+.fw-logical::before {
+    content: "\eab2";
+}
+.fw-mail::before {
+    content: "\eab3";
+}
+.fw-main-function::before {
+    content: "\eab4";
+}
+.fw-map-location::before {
+    content: "\eab5";
+}
+.fw-mapping::before {
+    content: "\eab6";
+}
+.fw-menu::before {
+    content: "\eab7";
+}
+.fw-message::before {
+    content: "\eab8";
+}
+.fw-micro-services::before {
+    content: "\eab9";
+}
+.fw-minus::before {
+    content: "\eaba";
+}
+.fw-mobile::before {
+    content: "\eabb";
+}
+.fw-ms-document::before {
+    content: "\eabc";
+}
+.fw-mute::before {
+    content: "\eabd";
+}
+.fw-namespace::before {
+    content: "\eabe";
+}
+.fw-nodejs::before {
+    content: "\eabf";
+}
+.fw-notification::before {
+    content: "\eac0";
+}
+.fw-organization::before {
+    content: "\eac1";
+}
+.fw-out-sequence::before {
+    content: "\eac2";
+}
+.fw-own::before {
+    content: "\eac3";
+}
+.fw-package::before {
+    content: "\eac4";
+}
+.fw-pages::before {
+    content: "\eac5";
+}
+.fw-paste::before {
+    content: "\eac6";
+}
+.fw-payload-factory::before {
+    content: "\eac7";
+}
+.fw-pdf::before {
+    content: "\eac8";
+}
+.fw-pending::before {
+    content: "\eac9";
+}
+.fw-php::before {
+    content: "\eaca";
+}
+.fw-pie-chart::before {
+    content: "\eacb";
+}
+.fw-pinterest::before {
+    content: "\eacc";
+}
+.fw-policy::before {
+    content: "\eacd";
+}
+.fw-polygon::before {
+    content: "\eace";
+}
+.fw-property::before {
+    content: "\eacf";
+}
+.fw-prototype::before {
+    content: "\ead0";
+}
+.fw-proxy::before {
+    content: "\ead1";
+}
+.fw-public::before {
+    content: "\ead2";
+}
+.fw-publish::before {
+    content: "\ead3";
+}
+.fw-question::before {
+    content: "\ead4";
+}
+.fw-raspberry::before {
+    content: "\ead5";
+}
+.fw-redo::before {
+    content: "\ead6";
+}
+.fw-reduce::before {
+    content: "\ead7";
+}
+.fw-refresh::before {
+    content: "\ead8";
+}
+.fw-register::before {
+    content: "\ead9";
+}
+.fw-rename::before {
+    content: "\eada";
+}
+.fw-reply::before {
+    content: "\eadb";
+}
+.fw-resource::before {
+    content: "\eadc";
+}
+.fw-rest-api::before {
+    content: "\eadd";
+}
+.fw-rest-service::before {
+    content: "\eade";
+}
+.fw-resume::before {
+    content: "\eadf";
+}
+.fw-retire::before {
+    content: "\eae0";
+}
+.fw-return::before {
+    content: "\eae1";
+}
+.fw-retweet::before {
+    content: "\eae2";
+}
+.fw-right-arrow::before {
+    content: "\eae3";
+}
+.fw-right::before {
+    content: "\eae4";
+}
+.fw-ringing::before {
+    content: "\eae5";
+}
+.fw-rules::before {
+    content: "\eae6";
+}
+.fw-run::before {
+    content: "\eae7";
+}
+.fw-save::before {
+    content: "\eae8";
+}
+.fw-scep::before {
+    content: "\eae9";
+}
+.fw-schema::before {
+    content: "\eaea";
+}
+.fw-search::before {
+    content: "\eaeb";
+}
+.fw-security-policy::before {
+    content: "\eaec";
+}
+.fw-security::before {
+    content: "\eaed";
+}
+.fw-send::before {
+    content: "\eaee";
+}
+.fw-sequence::before {
+    content: "\eaef";
+}
+.fw-server::before {
+    content: "\eaf0";
+}
+.fw-service-provider::before {
+    content: "\eaf1";
+}
+.fw-service::before {
+    content: "\eaf2";
+}
+.fw-settings::before {
+    content: "\eaf3";
+}
+.fw-share::before {
+    content: "\eaf4";
+}
+.fw-shell::before {
+    content: "\eaf5";
+}
+.fw-shortcut::before {
+    content: "\eaf6";
+}
+.fw-sign-in::before {
+    content: "\eaf7";
+}
+.fw-sign-out::before {
+    content: "\eaf8";
+}
+.fw-skype::before {
+    content: "\eaf9";
+}
+.fw-slash::before {
+    content: "\eafa";
+}
+.fw-soap::before {
+    content: "\eafb";
+}
+.fw-sort-down::before {
+    content: "\eafc";
+}
+.fw-sort-up::before {
+    content: "\eafd";
+}
+.fw-sort::before {
+    content: "\eafe";
+}
+.fw-speed-alert::before {
+    content: "\eaff";
+}
+.fw-square-outline::before {
+    content: "\eb00";
+}
+.fw-square::before {
+    content: "\eb01";
+}
+.fw-star::before {
+    content: "\eb02";
+}
+.fw-start::before {
+    content: "\eb03";
+}
+.fw-statistics::before {
+    content: "\eb04";
+}
+.fw-stepin::before {
+    content: "\eb05";
+}
+.fw-stepout::before {
+    content: "\eb06";
+}
+.fw-stepover::before {
+    content: "\eb07";
+}
+.fw-stop::before {
+    content: "\eb08";
+}
+.fw-store::before {
+    content: "\eb09";
+}
+.fw-struct::before {
+    content: "\eb0a";
+}
+.fw-subscribe::before {
+    content: "\eb0b";
+}
+.fw-success::before {
+    content: "\eb0c";
+}
+.fw-swagger::before {
+    content: "\eb0d";
+}
+.fw-sync::before {
+    content: "\eb0e";
+}
+.fw-table::before {
+    content: "\eb0f";
+}
+.fw-tag::before {
+    content: "\eb10";
+}
+.fw-task::before {
+    content: "\eb11";
+}
+.fw-text::before {
+    content: "\eb12";
+}
+.fw-theme::before {
+    content: "\eb13";
+}
+.fw-throttling-policy::before {
+    content: "\eb14";
+}
+.fw-throw::before {
+    content: "\eb15";
+}
+.fw-tiles::before {
+    content: "\eb16";
+}
+.fw-transaction::before {
+    content: "\eb17";
+}
+.fw-try-catch::before {
+    content: "\eb18";
+}
+.fw-twitter::before {
+    content: "\eb19";
+}
+.fw-type-converter::before {
+    content: "\eb1a";
+}
+.fw-uncheck::before {
+    content: "\eb1b";
+}
+.fw-undo::before {
+    content: "\eb1c";
+}
+.fw-ungroup::before {
+    content: "\eb1d";
+}
+.fw-unmute::before {
+    content: "\eb1e";
+}
+.fw-up-arrow::before {
+    content: "\eb1f";
+}
+.fw-up::before {
+    content: "\eb20";
+}
+.fw-upload::before {
+    content: "\eb21";
+}
+.fw-uri::before {
+    content: "\eb22";
+}
+.fw-usb-drive::before {
+    content: "\eb23";
+}
+.fw-use::before {
+    content: "\eb24";
+}
+.fw-user::before {
+    content: "\eb25";
+}
+.fw-variable::before {
+    content: "\eb26";
+}
+.fw-view::before {
+    content: "\eb27";
+}
+.fw-vpn::before {
+    content: "\eb28";
+}
+.fw-wadl::before {
+    content: "\eb29";
+}
+.fw-war::before {
+    content: "\eb2a";
+}
+.fw-warning::before {
+    content: "\eb2b";
+}
+.fw-web-app::before {
+    content: "\eb2c";
+}
+.fw-web-clip::before {
+    content: "\eb2d";
+}
+.fw-web-service::before {
+    content: "\eb2e";
+}
+.fw-website::before {
+    content: "\eb2f";
+}
+.fw-wifi::before {
+    content: "\eb30";
+}
+.fw-windows::before {
+    content: "\eb31";
+}
+.fw-worker-invoke::before {
+    content: "\eb32";
+}
+.fw-worker-reply::before {
+    content: "\eb33";
+}
+.fw-worker::before {
+    content: "\eb34";
+}
+.fw-wsdl::before {
+    content: "\eb35";
+}
+.fw-wso2-logo::before {
+    content: "\eb36";
+}
+.fw-wso2::before {
+    content: "\eb37";
+}
+.fw-xacml::before {
+    content: "\eb38";
+}
+.fw-xml::before {
+    content: "\eb39";
+}
+.fw-xq::before {
+    content: "\eb3a";
+}
+.fw-xsd::before {
+    content: "\eb3b";
+}
+.fw-xslt::before {
+    content: "\eb3c";
+}
+.fw-youtube::before {
+    content: "\eb3d";
+}
+.fw-zoom-in::before {
+    content: "\eb3e";
+}
+.fw-zoom-out::before {
+    content: "\eb3f";
+}
