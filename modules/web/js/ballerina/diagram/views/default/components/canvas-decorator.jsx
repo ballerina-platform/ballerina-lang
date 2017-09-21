@@ -129,8 +129,8 @@ class CanvasDecorator extends React.Component {
                     this.props.serverConnectorPropsViews : null }
                     {(this.props.connectorPropsViews && this.props.connectorPropsViews.length > 0)
                     ? this.props.connectorPropsViews : null }
-                    {(this.props.overlayComponentViews && this.props.overlayComponentViews.length > 0)
-                        ? this.props.overlayComponentViews : null }
+                    {(this.props.wsResourceViews && this.props.wsResourceViews.length > 0)
+                        ? this.props.wsResourceViews : null }
                 </CSSTransitionGroup>
 
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
@@ -162,14 +162,14 @@ CanvasDecorator.propTypes = {
     annotations: PropTypes.arrayOf(PropTypes.element),
     serverConnectorPropsViews: PropTypes.arrayOf(PropTypes.element),
     connectorPropsViews: PropTypes.arrayOf(PropTypes.element),
-    overlayComponentViews: PropTypes.arrayOf(PropTypes.element),
+    wsResourceViews: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {
     annotations: [],
     serverConnectorPropsViews: [],
     connectorPropsViews: [],
-    overlayComponentViews: [],
+    wsResourceViews: [],
 };
 
 CanvasDecorator.contextTypes = {

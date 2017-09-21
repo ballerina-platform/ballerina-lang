@@ -179,7 +179,7 @@ class Diagram extends React.Component {
             annotations={annotations}
             serverConnectorPropsViews={serverConnectorPropsViews}
             connectorPropsViews={connectorPropsViews}
-            overlayComponentViews={overlayComponentViews}
+            wsResourceViews={wsResourceViews}
         >
             {others}
         </CanvasDecorator>);
