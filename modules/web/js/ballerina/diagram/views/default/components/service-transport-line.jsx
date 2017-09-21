@@ -73,7 +73,7 @@ class ServiceTransportLine extends React.Component {
                         x1={bBox.x}
                         y1={bBox.y + 50}
                         x2={bBox.x}
-                        y2={bBox.y + 100}
+                        y2={bBox.y + this.props.model.viewState.components.body.h - 30}
                         stroke="black"
                         strokeWidth="3"
                         className="protocol-line"
