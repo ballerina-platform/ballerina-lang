@@ -47,10 +47,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                              @Attribute(name = "msg", value = "The message to be logged.")})
 public class LogError extends AbstractLogFunction {
 
-    private static final BLogger logger = new BLogger(LogError.class.getCanonicalName());
+    private static final BLogger logger = new BLogger("ballerina.logger.error");
 
     public BValue[] execute(Context ctx) {
         BLogRecord logRecord = createLogRecord(ctx, BLogLevel.ERROR);
+        logRecord.setLoggerName("ballerina.logger.error");
         logger.log(logRecord);
         return VOID_RETURN;
     }

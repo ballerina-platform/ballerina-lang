@@ -47,10 +47,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                                         value = "The message to be logged.")})
 public class LogInfo extends AbstractLogFunction {
 
-    private static final BLogger logger = new BLogger(LogInfo.class.getCanonicalName());
+    private static final BLogger logger = new BLogger("ballerina.logger.info");
 
     public BValue[] execute(Context ctx) {
         BLogRecord logRecord = createLogRecord(ctx, BLogLevel.INFO);
+        logRecord.setLoggerName("ballerina.logger.info");
         logger.log(logRecord);
         return VOID_RETURN;
     }

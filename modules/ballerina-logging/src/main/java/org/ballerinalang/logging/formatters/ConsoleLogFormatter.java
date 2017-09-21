@@ -51,6 +51,7 @@ public class ConsoleLogFormatter implements BLogFormatter {
         return String.format(jdkLogFormat,
                              dateFormat.format(new Date(logRecord.getTimestamp())),
                              logRecord.getLevel().name(),
+                             logRecord.getLoggerName(),
                              logRecord.getPackageName(), logRecord.getCallableUnitName(),
                              logRecord.getFileName(), logRecord.getLineNumber(),
                              logRecord.getWorkerName(),

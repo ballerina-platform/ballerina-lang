@@ -48,12 +48,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                              @Attribute(name = "err", value = "The error to be logged.")})
 public class LogErrorCause extends AbstractLogFunction {
 
-    private static final BLogger logger = new BLogger(LogErrorCause.class.getCanonicalName());
+    private static final BLogger logger = new BLogger("ballerina.logger.errorCause");
 
     public BValue[] execute(Context ctx) {
         BLogRecord logRecord = createLogRecord(ctx, BLogLevel.ERROR);
         BValue error = getRefArgument(ctx, 0);
         logRecord.setError(error.stringValue());
+        logRecord.setLoggerName("ballerina.logger.errorCause");
         logger.log(logRecord);
         return VOID_RETURN;
     }

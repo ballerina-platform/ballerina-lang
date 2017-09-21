@@ -29,17 +29,18 @@ public class BLogRecord {
 
     private long timestamp;
     private BLogLevel level;
+    private String loggerName;
     private String packageName;
     private String callableUnitName;
     private int lineNumber;
     private String fileName;
     private String workerName;
-    private String msg;
+    private String message;
     private String error;
 
     public BLogRecord(BLogLevel level, String msg) {
         this.level = level;
-        this.msg = msg;
+        this.message = msg;
         this.timestamp = System.currentTimeMillis();
     }
 
@@ -47,12 +48,16 @@ public class BLogRecord {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public BLogLevel getLevel() {
         return level;
+    }
+
+    public String getLoggerName() {
+        return loggerName;
+    }
+
+    public void setLoggerName(String loggerName) {
+        this.loggerName = loggerName;
     }
 
     public String getPackageName() {
@@ -96,11 +101,11 @@ public class BLogRecord {
     }
 
     public String getMessage() {
-        return msg;
+        return message;
     }
 
     public void setMessage(String msg) {
-        this.msg = msg;
+        this.message = msg;
     }
 
     public String getError() {
