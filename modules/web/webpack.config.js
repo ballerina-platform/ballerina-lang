@@ -98,6 +98,7 @@ const config = [{
                 stylesDir: path.resolve(__dirname, 'dist/font-ballerina/css'),
                 outputFilename: 'font-ballerina.css',
             },
+            hash: new Date().getTime()
         }),
         /*
         new CircularDependencyPlugin({
