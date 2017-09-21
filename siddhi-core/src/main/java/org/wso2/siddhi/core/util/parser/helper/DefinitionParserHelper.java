@@ -609,8 +609,9 @@ public class DefinitionParserHelper {
         if (groupDeterminer == null) {
             List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptHolder.getDynamicOptionsKeys()
                     .size());
-            transportOptHolder.getDynamicOptionsKeys().
-                    forEach(option -> dynamicTransportOptions.add(transportOptHolder.validateAndGetOption(option)));
+            for (String option : transportOptHolder.getDynamicOptionsKeys()) {
+                dynamicTransportOptions.add(transportOptHolder.validateAndGetOption(option));
+            }
 
             if (dynamicTransportOptions.size() > 0) {
                 groupDeterminer = new DynamicOptionGroupDeterminer(dynamicTransportOptions);
