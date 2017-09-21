@@ -34,6 +34,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -396,5 +398,15 @@ public abstract class AbstractItemResolver {
         completionItem.setSortText(priority);
         completionItem.setLabel(label);
         return completionItem;
+    }
+
+    protected void populateBasicTypes(List<CompletionItem> completionItems, SymbolTable symbolTable) {
+        symbolTable.rootScope.entries.forEach((key, value) -> {
+            if (value.symbol instanceof BTypeSymbol) {
+                String insertText = value.symbol.getName().getValue();
+                completionItems.add(populateCompletionItem(insertText, ItemResolverConstants.B_TYPE,
+                        ItemResolverConstants.PRIORITY_4, insertText));
+            }
+        });
     }
 }

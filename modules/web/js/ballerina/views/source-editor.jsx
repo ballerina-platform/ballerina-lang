@@ -289,7 +289,7 @@ class SourceEditor extends React.Component {
      * lifecycle hook for component will receive props
      */
     componentWillReceiveProps(nextProps) {
-        if (!nextProps.parseFailed) {
+        if (true) {
             getLangServerClientInstance()
                 .then((langserverClient) => {
                     // Set source view completer
