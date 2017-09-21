@@ -789,15 +789,18 @@ class TransformExpanded extends React.Component {
         this.addTarget(this.state.selectedTarget);
     }
 
-    removeSourceType(removedType) {
+    removeSourceType(type) {
         _.remove(this.state.vertices, (vertex) => {
-            return vertex.name === removedType.name && vertex.varDeclarationString;
+            return vertex.name === type.name && vertex.varDeclarationString;
         });
-        this.props.model.removeInput(removedType);
+        this.transformNodeManager.removeSourceType(type);
     }
 
-    removeTargetType(removedType) {
-        this.props.model.removeOutput(removedType);
+    removeTargetType(type) {
+        _.remove(this.state.vertices, (vertex) => {
+            return vertex.name === type.name && vertex.varDeclarationString;
+        });
+        this.transformNodeManager.removeTargetType(type);
     }
 
     addSource(selectedSource) {
@@ -835,7 +838,7 @@ class TransformExpanded extends React.Component {
         getLangServerClientInstance().then((langServerClient) => {
             const vertices = [];
 
-            const fileData = this.context.designView.context.editor.props.file.attributes;
+            const fileData = this.context.designView.context.editor.props.file;
             const position = this.props.model.getPosition();
 
             const options = {

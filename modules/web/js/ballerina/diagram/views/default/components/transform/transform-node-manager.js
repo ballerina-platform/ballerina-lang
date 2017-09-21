@@ -19,7 +19,6 @@
 import _ from 'lodash';
 import log from 'log';
 import BallerinaASTFactory from '../../../../../ast/ast-factory';
-import DefaultBallerinaASTFactory from '../../../../../ast/default-ast-factory';
 import Mapper from './transform-node-mapper';
 
 /**
@@ -204,6 +203,14 @@ class TransformNodeManager {
      */
     removeIntermediateNode(expression, parentNode, statement) {
         this._mapper.removeNode(expression, parentNode, statement);
+    }
+
+    removeSourceType(type) {
+        this._mapper.removeSourceType(type);
+    }
+
+    removeTargetType(type) {
+        this._mapper.removeTargetType(type);
     }
 
     /**
