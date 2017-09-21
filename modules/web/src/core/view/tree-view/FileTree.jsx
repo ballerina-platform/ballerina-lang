@@ -37,6 +37,7 @@ class FileTree extends React.Component {
                 this.setState({
                     data,
                 });
+                this.props.onLoadData(data);
             });
     }
 
@@ -72,7 +73,7 @@ class FileTree extends React.Component {
      * @inheritdoc
      */
     render() {
-        const renderNode = (node) => {
+        const renderNode = (node, parentNode) => {
             if (_.isNil(node.collapsed)) {
                 node.collapsed = true;
             }
@@ -89,18 +90,33 @@ class FileTree extends React.Component {
                     onClick={() => this.onToggle(node, !node.collapsed)}
                     onDoubleClick={this.props.onOpen}
                     enableContextMenu={this.props.enableContextMenu}
+                    onNodeUpdate={() => {
+                        this.forceUpdate();
+                    }}
+                    onNodeDelete={(targetNode) => {
+                        if (!_.isNil(parentNode)) {
+                            _.remove(parentNode.children, ['id', targetNode.id]);
+                        } else {
+                            _.remove(this.state.data, ['id', targetNode.id]);
+                        }
+                        this.forceUpdate();
+                    }}
                 >
                     {
                         node.children
                             && _.isArray(node.children)
-                            && node.children.map(renderNode)
+                            && node.children.map((childNode) => {
+                                return renderNode(childNode, node);
+                            })
                     }
                 </TreeNode>
             );
         };
         return (
             <div className="file-tree">
-                {this.state.data.map(renderNode)}
+                {this.state.data.map((childNode) => {
+                    return renderNode(childNode, undefined);
+                })}
             </div>
         );
     }
@@ -108,6 +124,7 @@ class FileTree extends React.Component {
 
 FileTree.propTypes = {
     enableContextMenu: PropTypes.bool,
+    onLoadData: PropTypes.func,
     onOpen: PropTypes.func,
     onSelect: PropTypes.func,
     root: PropTypes.string,
@@ -115,6 +132,7 @@ FileTree.propTypes = {
 
 FileTree.defaultProps = {
     enableContextMenu: false,
+    onLoadData: () => {},
     onOpen: () => {},
     onSelect: () => {},
     root: FS_ROOT,

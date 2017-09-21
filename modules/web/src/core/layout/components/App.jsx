@@ -154,7 +154,7 @@ class App extends React.Component {
      */
     render() {
         return (
-            <div className="">
+            <div className="" onContextMenu={() => false}>
                 <Header>
                     {this.headerViews}
                 </Header>

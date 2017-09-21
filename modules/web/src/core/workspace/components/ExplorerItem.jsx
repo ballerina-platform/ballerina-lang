@@ -22,8 +22,8 @@ class ExplorerItem extends React.Component {
     constructor(...args) {
         super(...args);
         this.state = {
-            open: false,
             node: {
+                collapsed: true,
                 id: this.props.folderPath,
                 type: TREE_NODE_TYPE,
                 active: false,
@@ -70,19 +70,22 @@ class ExplorerItem extends React.Component {
             <div className="explorer-item">
                 <ContextMenuTrigger
                     id={this.state.node.id}
-                    menu={getContextMenuItems(this.state.node, this.context.command)}
+                    menu={getContextMenuItems(this.state.node, this.context.command, () => {
+                        this.forceUpdate();
+                    })}
                 >
                     <div
                         className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
                         onClick={() => {
                             this.state.node.active = true;
-                            this.setState({ open: !this.state.open });
+                            this.state.node.collapsed = !this.state.node.collapsed;
+                            this.forceUpdate();
                             // un-select child nodes when clicked on root
                             this.props.onSelect(this.state.node);
                         }
                         }
                     >
-                        <div className={classnames('arrow', { collapsed: !this.state.open })} />
+                        <div className={classnames('arrow', { collapsed: this.state.node.collapsed })} />
                         <i className="fw fw-folder icon" />
                         <span className="root-label">{this.state.node.label}</span>
                         <span className="root-actions">
@@ -91,10 +94,13 @@ class ExplorerItem extends React.Component {
                         </span>
                     </div>
                 </ContextMenuTrigger>
-                <Collapse in={this.state.open}>
+                <Collapse in={!this.state.node.collapsed}>
                     <div className="file-tree">
                         <FileTree
                             enableContextMenu
+                            onLoadData={(data) => {
+                                this.state.node.children = data;
+                            }}
                             root={this.props.folderPath}
                             onOpen={this.onOpen}
                             onSelect={this.props.onSelect}
