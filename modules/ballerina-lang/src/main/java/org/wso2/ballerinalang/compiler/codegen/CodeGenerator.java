@@ -658,7 +658,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             for (BLangWorker worker : invokableNode.getWorkers()) {
                 this.processWorker(invokableNode, callableUnitInfo.getWorkerInfo(worker.name.value), 
                         worker.body, localVarAttributeInfo, invokableSymbolEnv, false, lvIndexCopy);
-                this.genNode(worker, this.env);
             }
         }
     }
@@ -669,7 +668,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int codeAttrNameCPIndex = this.addUTF8CPEntry(this.currentPkgInfo, AttributeInfo.Kind.CODE_ATTRIBUTE.value());
         workerInfo.codeAttributeInfo.attributeNameIndex = codeAttrNameCPIndex;
         workerInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
-        
         if (body != null) {
             localVarAttrInfo = new LocalVariableAttributeInfo(localVarAttributeInfo.attributeNameIndex);
             localVarAttrInfo.localVars = new ArrayList<>(localVarAttributeInfo.localVars);
@@ -683,7 +681,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 this.emit(InstructionCodes.RET);
             }
         }
-
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
         if (!defaultWorker) {
             this.emit(InstructionCodes.HALT);
