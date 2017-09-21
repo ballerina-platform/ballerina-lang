@@ -116,7 +116,7 @@ class AddResourceDefinition extends React.Component {
             xPositionOfAddResourceLbl = 105;
         }
         return (
-            <g>
+            <g onClick={this.onAddResourceClick}>
                 <rect
                     x={bBox.x + xPositionOfAddResourceRect}
                     y={yPosition + yPositionOfResourceBtn}
@@ -141,7 +141,6 @@ class AddResourceDefinition extends React.Component {
                     rx={12.5}
                     ry={12.5}
                     className="add-resource-button"
-                    onClick={this.onAddResourceClick}
                     fill={this.props.model.getViewState().showWebSocketMethods ? '#63605f' : '#a09c9b'}
                 />
                 <text
@@ -150,7 +149,6 @@ class AddResourceDefinition extends React.Component {
                     width={25}
                     height={25}
                     className="add-resource-button-label"
-                    onClick={this.onAddResourceClick}
                 >+</text>
             </g>
         );

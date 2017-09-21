@@ -107,7 +107,7 @@ class ServiceDefinition extends React.Component {
      */
     onMouseLeave() {
         if (!this.props.model.getViewState().showWebSocketMethods) {
-            this.setState({style: 'hideResourceGroup'});
+            this.setState({ style: 'hideResourceGroup' });
         }
     }
     /**
@@ -181,12 +181,12 @@ class ServiceDefinition extends React.Component {
                     protocol={this.props.model.getProtocolPkgName()}
                     showPropertyForm={this.props.model.getViewState().showPropertyForm}
                 >
-                    { resources.length &&
-                        <ServiceTransportLine
-                            model={this.props.model}
-                            bBox={this.props.model.getViewState().components.transportLine}
-                            style={this.state.style}
-                        />}
+                    <ServiceTransportLine
+                        model={this.props.model}
+                        bBox={this.props.model.getViewState().components.transportLine}
+                        style={this.state.style}
+                        resources={resources}
+                    />
                     {
                             viewState.variablesExpanded ?
                                 <GlobalExpanded

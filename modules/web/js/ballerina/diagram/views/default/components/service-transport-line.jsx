@@ -38,6 +38,7 @@ class ServiceTransportLine extends React.Component {
         const bBox = this.props.bBox;
         return (
             <g>
+                {this.props.resources.length &&
                 <g id="resourceProtocolLine" className={this.props.style}>
                     <AddResourceDefinition
                         model={this.props.model}
@@ -52,8 +53,8 @@ class ServiceTransportLine extends React.Component {
                         strokeWidth="3"
                         className="add-resources-protocol-line"
                     />
-                </g>
-                <line
+                </g> }
+                {this.props.resources.length && <line
                     x1={bBox.x}
                     y1={bBox.y + 50}
                     x2={bBox.x}
@@ -61,7 +62,23 @@ class ServiceTransportLine extends React.Component {
                     stroke="black"
                     strokeWidth="3"
                     className="protocol-line"
-                />
+                />}
+                {!this.props.resources.length &&
+                <g>
+                    <AddResourceDefinition
+                        model={this.props.model}
+                        bBox={this.props.bBox}
+                    />
+                    <line
+                        x1={bBox.x}
+                        y1={bBox.y + 50}
+                        x2={bBox.x}
+                        y2={bBox.y + 100}
+                        stroke="black"
+                        strokeWidth="3"
+                        className="protocol-line"
+                    />
+                </g> }
                 <line
                     x1={bBox.x - 1}
                     y1={bBox.y + 50 + 2}

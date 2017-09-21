@@ -3,6 +3,7 @@
 }
 
 .add-resource-button-label{
+    cursor: pointer;
     fill: #fff;
     dominant-baseline: central;
     cursor: pointer;
@@ -21,4 +22,5 @@
 
 .add-resource-label{
     fill: #fff2ef;
+    cursor: pointer;
 }
