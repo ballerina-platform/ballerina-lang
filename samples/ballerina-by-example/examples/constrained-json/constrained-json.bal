@@ -42,7 +42,8 @@ service<http> PeopleManagementService {
         path:"/employee/"
     }
     @doc:Description {
-        value: "Resource to get employee for the person by index which can be invoked with /people/employee?index={index}"
+        value: "Resource to get employee for the person by index
+        which can be invoked with /people/employee?index={index}"
     }
     resource getEmployee (message m, @http:QueryParam {value:"index"}
                                      int index) {
@@ -72,7 +73,8 @@ service<http> PeopleManagementService {
         path:"/update"
     }
     @doc:Description {
-        value: "Resource to update person by index which can be invoked with /people/update?index={index}"
+        value: "Resource to update person by index which can be invoked
+         with /people/update?index={index}"
     }
     resource updatePerson (message m, @http:QueryParam{value:"index"}
                                       int index) {
