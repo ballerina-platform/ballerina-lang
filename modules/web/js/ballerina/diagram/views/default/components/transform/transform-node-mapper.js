@@ -137,6 +137,13 @@ class TransformNodeMapper {
         });
     }
 
+    /**
+     * Create direct input to operator mapping
+     * @param {any} sourceExpression source expression
+     * @param {any} target target
+     * @param {any} compatibility compatibility
+     * @memberof TransformNodeMapper
+     */
     createInputToOperatorMapping(sourceExpression, target, compatibility) {
         if (ASTFactory.isBinaryExpression(target.operator)) {
             this.createInputToBinaryOperatorMapping(sourceExpression, target, compatibility);
@@ -454,6 +461,326 @@ class TransformNodeMapper {
 
     // **** REMOVE MAPPING FUNCTIONS **** //
 
+    /**
+     * Remove node which is a function or an operator. If there are nested nodes,
+     * they are moved to a new assignment statement.
+     * @param {any} nodeExpression node expression
+     * @param {any} parentNode parent node
+     * @param {any} statement enclosing statement
+     * @memberof TransformNodeMapper
+     */
+    removeNode(nodeExpression, parentNode, statement) {
+        const nestedNodes = [];
+        let nodeName;
+        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+            nodeName = nodeExpression.getFunctionName();
+            nodeExpression.getChildren().forEach((paramExp) => {
+                if (this.isComplexExpression(paramExp)) {
+                    nestedNodes.push(paramExp);
+                }
+            });
+        } else {
+            nodeName = nodeExpression.getOperator();
+            if (this.isComplexExpression(nodeExpression.getRightExpression())) {
+                nestedNodes.push(nodeExpression.getRightExpression());
+            }
+            if (ASTFactory.isBinaryExpression(nodeExpression)
+                        && this.isComplexExpression(nodeExpression.getLeftExpression())) {
+                nestedNodes.push(nodeExpression.getLeftExpression());
+            }
+        }
+
+        let statementIndex = this._transformStmt.getIndexOfChild(statement);
+        statementIndex = (statementIndex === 0) ? 0 : statementIndex - 1;
+        nestedNodes.forEach((node) => {
+            const assignmentStmt = DefaultASTFactory
+                    .createTransformAssignmentRightExpStatement({ rightExp: node });
+            this._transformStmt.addChild(assignmentStmt, statementIndex, true);
+        });
+
+        if (!parentNode) {
+            this._transformStmt.removeChild(statement, true);
+        } else if (ASTFactory.isFunctionInvocationExpression(parentNode)) {
+            parentNode.removeChild(nodeExpression, true);
+        } else if (ASTFactory.isUnaryExpression(parentNode)
+                    && (parentNode.getLeftExpression() === nodeExpression)) {
+            parentNode.setLeftExpression(ASTFactory.createNullLiteralExpression(), { doSilently: true });
+        } else {
+            parentNode.setRightExpression(ASTFactory.createNullLiteralExpression(), { doSilently: true });
+        }
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
+            title: `Remove mapping function ${nodeName}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove direct input to output mapping.
+     * @param {any} sourceName source name
+     * @param {any} targetName target name
+     * @memberof TransformNodeMapper
+     */
+    removeInputToOutputMapping(sourceName, targetName) {
+        const assignmentStmt = _.find(this._transformStmt.getChildren(), (child) => {
+            if (ASTFactory.isAssignmentStatement(child)) {
+                return child.getLeftExpression().getChildren().find((leftExpression) => {
+                    const leftExpressionStr = leftExpression.getExpressionString().trim();
+                    const rightExpressionStr = this.getMappableExpression(
+                        child.getRightExpression()).getExpressionString().trim();
+                    return (leftExpressionStr === targetName) && (rightExpressionStr === sourceName);
+                });
+            }
+            return false;
+        });
+        this._transformStmt.removeChild(assignmentStmt, true);
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
+            title: `Remove mapping ${sourceName} to ${targetName}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove function/operator node to output variable mapping.
+     * @param {any} source source
+     * @param {any} targetName target name
+     * @memberof TransformNodeMapper
+     */
+    removeNodeToOutputMapping(source, targetName) {
+        const nodeExpression = (source.funcInv) ? source.funcInv : source.operator;
+        const nodeName = (source.funcInv) ? nodeExpression.getFunctionName() : nodeExpression.getOperator();
+
+        const assignmentStmtSource = this.getParentAssignmentStmt(nodeExpression);
+        const expression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
+            return (child.getExpressionString().trim() === targetName);
+        });
+        assignmentStmtSource.getLeftExpression().removeChild(expression, true);
+
+        // TODO: revisit this logic to support multiple returns
+        // const errExpression = _.find(assignmentStmtSource.getLeftExpression().getChildren(), (child) => {
+        //     return (child.getExpressionString().trim() === '_');
+        // });
+        // assignmentStmtSource.getLeftExpression().removeChild(errExpression, true);
+
+        assignmentStmtSource.setIsDeclaredWithVar(true);
+        const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
+        simpleVarRefExpression.setExpressionFromString('__output' + (source.index + 1));
+        assignmentStmtSource.getLeftExpression().addChild(simpleVarRefExpression, source.index + 1, true);
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this._transformStmt,
+            type: 'transform-connection-removed',
+            title: `Remove mapping ${nodeName} to ${targetName}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove input variable to function mapping.
+     * @param {any} sourceName source name
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeInputToFunctionMapping(sourceName, target) {
+        const functionInv = target.funcInv;
+        const expression = _.find(functionInv.getChildren(), (child) => {
+            return (this.getMappableExpression(child).getExpressionString().trim() === sourceName);
+        });
+        functionInv.replaceChild(expression, ASTFactory.createNullLiteralExpression(), index, true);
+
+        // TODO: work on this logic
+        if (expression.getExpressionString().startsWith('__temp')) {
+            // remove temp variable assignment if it is not used
+            const tempUsages = this.findTempVarUsages(expression.getExpressionString());
+            if (tempUsages.length === 0) {
+                const tempAssignStmt = this.findAssignedVertexForTemp(expression);
+                if (tempAssignStmt) {
+                    this._transformStmt.removeChild(tempAssignStmt, true);
+                }
+            }
+        }
+        this._transformStmt.trigger('tree-modified', {
+            origin: this,
+            type: 'function-connection-removed',
+            title: `Remove mapping ${sourceName} to ${functionInv.getFunctionName()}`,
+            data: {},
+        });
+    }
+
+
+    /**
+     * Remove input variable to operator mapping.
+     * @param {any} sourceName source name
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeInputToOperatorMapping(sourceName, target) {
+        const operatorExp = target.operator;
+        const defaultExp = ASTFactory.createBasicLiteralExpression();
+        defaultExp.setExpressionFromString('0');
+
+        if (this.getMappableExpression(operatorExp.getRightExpression()).getExpressionString().trim() === sourceName) {
+            operatorExp.setRightExpression(defaultExp, { doSilently: true });
+        } else if (ASTFactory.isBinaryExpression(operatorExp)
+           && this.getMappableExpression(operatorExp.getLeftExpression()).getExpressionString().trim() === sourceName) {
+            operatorExp.setLeftExpression(defaultExp, { doSilently: true });
+        }
+
+        // TODO: work on this logic
+        // if (expression.getExpressionString().startsWith('__temp')) {
+        //     // remove temp variable assignment if it is not used
+        //     const tempUsages = this.findTempVarUsages(expression.getExpressionString());
+        //     if (tempUsages.length === 0) {
+        //         const tempAssignStmt = this.findAssignedVertexForTemp(expression);
+        //         if (tempAssignStmt) {
+        //             this._transformStmt.removeChild(tempAssignStmt, true);
+        //         }
+        //     }
+        // }
+        this._transformStmt.trigger('tree-modified', {
+            origin: this,
+            type: 'function-connection-removed',
+            title: `Remove mapping ${sourceName} to ${operatorExp.getOperator()}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove complex node to node mappings. Complex nodes are functions and operators.
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeNodeToNodeMapping(source, target) {
+        if (source.funcInv && target.funcInv) {
+            this.removeFunctionToFunctionMapping(source, target);
+        } else if (source.funcInv && target.operator) {
+            this.removeFunctionToOperatorMapping(source, target);
+        } else if (source.operator && target.funcInv) {
+            this.removeOperatorToFunctionMapping(source, target);
+        } else if (source.operator && target.operator) {
+            this.removeOperatorToOperatorMapping(source, target);
+        }
+    }
+
+    /**
+     * Remove function to function mapping.
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeFunctionToFunctionMapping(source, target) {
+        const assignmentStmt = this.getParentAssignmentStmt(target.funcInv);
+        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt);
+
+        const index = target.funcInv.getIndexOfChild(source.funcInv);
+        target.funcInv.replaceChild(source.funcInv, ASTFactory.createNullLiteralExpression(), index, true);
+
+        const newAssignmentStmt = DefaultASTFactory
+            .createTransformAssignmentRightExpStatement({ rightExp: source.funcInv });
+        this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
+        this._transformStmt.trigger('tree-modified', {
+            origin: this,
+            type: 'function-connection-removed',
+            title: `Remove mapping ${source.funcInv.getFunctionName()} to ${target.funcInv.getFunctionName()}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove operator to operator mapping.
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeOperatorToOperatorMapping(source, target) {
+        const assignmentStmt = this.getParentAssignmentStmt(target.operator);
+        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt);
+
+        if ((source.index === 1) || ASTFactory.isUnaryExpression(target.operator)) {
+            target.operator.setRightExpression(
+                ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }),
+                { doSilently: true });
+        } else {
+            target.operator.setLeftExpression(
+                ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }),
+                { doSilently: true });
+        }
+
+        const newAssignmentStmt = DefaultASTFactory
+            .createTransformAssignmentRightExpStatement({ rightExp: source.operator });
+        this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this,
+            type: 'function-connection-removed',
+            title: `Remove mapping ${source.operator.getOperator()} to ${target.operator.getOperator()}`,
+            data: {},
+        });
+    }
+
+    /**
+     * remove function to operator mapping.
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeFunctionToOperatorMapping(source, target) {
+        // Connection source and target are not structs
+        // Source and target could be function nodes.
+        const assignmentStmt = this.getParentAssignmentStmt(target.operator);
+        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt);
+
+        if ((source.index === 1) || ASTFactory.isUnaryExpression(target.operator)) {
+            target.operator.setRightExpression(
+                ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }),
+                { doSilently: true });
+        } else {
+            target.operator.setLeftExpression(
+                ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 }),
+                { doSilently: true });
+        }
+
+        const newAssignmentStmt = DefaultASTFactory
+            .createTransformAssignmentRightExpStatement({ rightExp: source.funcInv });
+        this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this,
+            type: 'function-connection-removed',
+            title: `Remove mapping ${source.funcInv.getFunctionName()} to ${target.operator.getOperator()}`,
+            data: {},
+        });
+    }
+
+    /**
+     * Remove operator to function mapping.
+     * @param {any} source source
+     * @param {any} target target
+     * @memberof TransformNodeMapper
+     */
+    removeOperatorToFunctionMapping(source, target) {
+        const assignmentStmt = this.getParentAssignmentStmt(target.funcInv);
+        const newAssignIndex = this._transformStmt.getIndexOfChild(assignmentStmt);
+
+        const index = target.funcInv.getIndexOfChild(source.operator);
+        target.funcInv.replaceChild(source.operator, ASTFactory.createNullLiteralExpression(), index, true);
+
+        const newAssignmentStmt = DefaultASTFactory
+            .createTransformAssignmentRightExpStatement({ rightExp: source.operator });
+        this._transformStmt.addChild(newAssignmentStmt, newAssignIndex, true);
+
+        this._transformStmt.trigger('tree-modified', {
+            origin: this,
+            type: 'function-connection-removed',
+            title: `Remove mapping ${source.operator.getOperator()} to ${target.funcInv.getFunctionName()}`,
+            data: {},
+        });
+    }
 
     // **** UTILITY FUNCTIONS ***** //
 
@@ -476,6 +803,7 @@ class TransformNodeMapper {
     * @memberof TransformStatementDecorator
     */
     getParentAssignmentStmt(node) {
+        // TODO: extend to return var def statement as well
         if (ASTFactory.isAssignmentStatement(node)) {
             return node;
         } else {
@@ -812,18 +1140,27 @@ class TransformNodeMapper {
     * Is the assignment statement a complex one or not. A complex statement will have
     * function invocation or an operator as the right expression.
     * @param {AssignmentStatement} assignmentStmt the assignment statement
-    * @return {boolean} is direct or not
+    * @return {boolean} is complex or not
     * @memberof TransformNodeMapper
     */
     isComplexStatement(assignmentStmt) {
-        const rightExp = this.getMappableExpression(assignmentStmt.getRightExpression());
-        if (ASTFactory.isFunctionInvocationExpression(rightExp)) {
+        return (this.isComplexExpression(this.getMappableExpression(assignmentStmt.getRightExpression())));
+    }
+
+    /**
+     * An expression is complex if it is function invocation or an operator expression.
+     * @param {Expression} expression expression
+     * @returns {boolean} is complex or not
+     * @memberof TransformNodeMapper
+     */
+    isComplexExpression(expression) {
+        if (ASTFactory.isFunctionInvocationExpression(expression)) {
             return true;
         }
-        if (ASTFactory.isBinaryExpression(rightExp)) {
+        if (ASTFactory.isBinaryExpression(expression)) {
             return true;
         }
-        if (ASTFactory.isUnaryExpression(rightExp)) {
+        if (ASTFactory.isUnaryExpression(expression)) {
             return true;
         }
         return false;
