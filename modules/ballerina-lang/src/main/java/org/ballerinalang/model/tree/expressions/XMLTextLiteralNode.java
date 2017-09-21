@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface XMLTextLiteralNode extends XMLLiteralNode {
 
-    List<ExpressionNode> getTextFragments();
+    List<? extends ExpressionNode> getTextFragments();
 
     void addTextFragment(ExpressionNode textFragment);
 

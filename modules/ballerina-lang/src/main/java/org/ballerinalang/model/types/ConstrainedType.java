@@ -15,17 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
-
-import java.util.List;
+package org.ballerinalang.model.types;
 
 /**
  * @since 0.94
  */
-public interface XMLQuotedStringNode extends ExpressionNode {
+public interface ConstrainedType extends ReferenceType {
 
-    List<? extends ExpressionNode> getTextFragments();
-
-    void addTextFragment(ExpressionNode textFragment);
-
+    Type getConstraint();
 }

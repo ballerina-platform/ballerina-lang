@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,8 @@ import java.util.List;
  */
 public class BLangTypeConversionExpr extends BLangExpression implements TypeConversionNode, MultiReturnExpr {
 
-    public ExpressionNode expr;
-    public TypeNode typeName;
+    public BLangExpression expr;
+    public BLangType typeName;
     public List<BType> types = new ArrayList<>(0);
     public int[] regIndexes;
 
@@ -43,15 +44,15 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     }
 
     public void setExpression(ExpressionNode expr) {
-        this.expr = expr;
+        this.expr = (BLangExpression) expr;
     }
 
-    public TypeNode getTypeName() {
+    public BLangType getTypeName() {
         return typeName;
     }
 
     public void setTypeName(TypeNode typeName) {
-        this.typeName = typeName;
+        this.typeName = (BLangType) typeName;
     }
 
     public boolean isMultiReturnExpr() {

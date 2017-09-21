@@ -88,12 +88,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
@@ -289,7 +289,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
-        for (BLangStatement stmt : blockNode.statements) {
+        for (BLangStatement stmt : blockNode.stmts) {
 //            if (stmt instanceof CommentStmt) {
 //                continue;
 //            }
@@ -1047,7 +1047,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BlangTransform transformNode) {
+    public void visit(BLangTransform transformNode) {
         /* ignore */
     }
 
@@ -1072,18 +1072,18 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        genNode(unaryExpr.expressionNode, this.env);
+        genNode(unaryExpr.expr, this.env);
 
         int opcode;
         int exprIndex;
 
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            if (unaryExpr.expressionNode.type.tag == TypeTags.ANY) {
+            if (unaryExpr.expr.type.tag == TypeTags.ANY) {
                 exprIndex = ++regIndexes.tRef;
                 opcode = unaryExpr.opSymbol.opcode;
-                emit(opcode, unaryExpr.expressionNode.regIndex, exprIndex);
+                emit(opcode, unaryExpr.expr.regIndex, exprIndex);
             } else {
-                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, unaryExpr.expressionNode.type.getDesc());
+                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, unaryExpr.expr.type.getDesc());
                 TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
                 int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
 
@@ -1092,13 +1092,13 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(opcode, typeCPIndex, exprIndex);
             }
         } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-            unaryExpr.regIndex = unaryExpr.expressionNode.regIndex;
+            unaryExpr.regIndex = unaryExpr.expr.regIndex;
         } else {
             opcode = unaryExpr.opSymbol.opcode;
             exprIndex = getNextIndex(unaryExpr.type.tag, regIndexes);
 
             unaryExpr.regIndex = exprIndex;
-            emit(opcode, unaryExpr.expressionNode.regIndex, exprIndex);
+            emit(opcode, unaryExpr.expr.regIndex, exprIndex);
         }
 
     }
