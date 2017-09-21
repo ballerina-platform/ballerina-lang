@@ -22,24 +22,32 @@ import EventChannel from 'event_channel';
  * Class to represent undo/redo manager
  * @class UndoManager
  * @augments EventChannel
- * @param args
- * @constructor
  */
 class UndoManager extends EventChannel {
+
+    /**
+     * @inheritdoc
+     */
     constructor(args) {
         super();
-        // FIXME: get this limit via a config
         this._limit = _.get(args, 'limit', 50);
         this._undoStack = [];
         this._redoStack = [];
     }
 
+    /**
+     * Reset undo-redo stack
+     */
     reset() {
         this._undoStack = [];
         this._redoStack = [];
         this.trigger('updated');
     }
 
+    /**
+     * Push a new undoable op to stack
+     * @param {UndoableOperation} undoableOperation Op Instance
+     */
     push(undoableOperation) {
         if (this._undoStack.length === this._limit) {
             // remove oldest undoable operation
@@ -49,18 +57,30 @@ class UndoManager extends EventChannel {
         this.trigger('updated');
     }
 
+    /**
+     * @returns {boolean} true if has undoable operations
+     */
     hasUndo() {
         return !_.isEmpty(this._undoStack);
     }
 
+    /**
+     * @returns {UndoableOperation} peek of undo stack
+     */
     undoStackTop() {
         return _.last(this._undoStack);
     }
 
+    /**
+     * @returns {UndoableOperation} peek of redo stack
+     */
     redoStackTop() {
         return _.last(this._redoStack);
     }
 
+    /**
+     * Undo most recent operation
+     */
     undo() {
         const taskToUndo = this._undoStack.pop();
         taskToUndo.prepareUndo((canContinue) => {
@@ -72,14 +92,20 @@ class UndoManager extends EventChannel {
         });
     }
 
+    /**
+     * @returns {boolean} true if has redoable operations
+     */
     hasRedo() {
         return !_.isEmpty(this._redoStack);
     }
 
+    /**
+     * Redo most recent undone operation
+     */
     redo() {
         const taskToRedo = this._redoStack.pop();
         taskToRedo.prepareRedo((canContinue) => {
-            if (canContinue) {        
+            if (canContinue) {   
                 taskToRedo.redo();
                 this._undoStack.push(taskToRedo);
                 this.trigger('updated');

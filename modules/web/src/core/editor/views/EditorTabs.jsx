@@ -30,6 +30,7 @@ import { VIEWS, HISTORY } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
+import { withUndoRedoSupport } from './utils';
 
 const DEFAULT_PREVIEW_VIEW_SIZE = 500;
 const MINIMUM_PREVIEW_VIEW_SIZE = 250;
@@ -153,6 +154,7 @@ class EditorTabs extends View {
         const { activeEditorID } = this.props.editorPlugin;
         if (editor instanceof Editor) {
             const { file, definition, definition: { customPropsProvider } } = editor;
+            const EditorComponent = withUndoRedoSupport(definition.component);
             return (
                 <TabPane
                     tab={
@@ -161,7 +163,7 @@ class EditorTabs extends View {
                     data-extra="tabpane"
                     key={file.fullPath}
                 >
-                    <definition.component
+                    <EditorComponent
                         editorTab={editor}
                         isActive={activeEditorID === file.fullPath}
                         file={file}

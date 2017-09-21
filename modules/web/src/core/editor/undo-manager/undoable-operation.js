@@ -19,13 +19,15 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 
 /**
- * Class to represent undoable operation
+ * Class to represent an undoable operation
  * @class UndoableOperation
  * @augments EventChannel
- * @param args
- * @constructor
  */
 class UndoableOperation extends EventChannel {
+
+    /**
+     * @inheritdoc
+     */
     constructor(args) {
         super();
         this.setTitle(_.get(args, 'title', undefined));
@@ -74,8 +76,11 @@ class UndoableOperation extends EventChannel {
         this._file = file;
     }
 
-    undo() {}
-    redo() {}
+    undo() {
+    }
+
+    redo() {
+    }
 }
 
 export default UndoableOperation;

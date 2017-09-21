@@ -5,6 +5,8 @@ export const COMMANDS = {
 
 export const EVENTS = {
     UPDATE_TAB_TITLE: 'update-tab-title',
+    UNDO_EVENT: 'undo-event',
+    REDO_EVENT: 'redo-event',
 };
 
 export const VIEWS = {
