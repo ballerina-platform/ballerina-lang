@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { COMMANDS } from './../constants';
-import UndoManager from './../undo-manager/undo-manager';
 
 /**
  * Enable Undo/Redo support for editor component
@@ -18,7 +17,6 @@ export function withUndoRedoSupport(Editor) {
          */
         constructor(...args) {
             super(...args);
-            this.undoManager = new UndoManager();
             this.onUndoableOperation = this.onUndoableOperation.bind(this);
         }
 
@@ -39,7 +37,7 @@ export function withUndoRedoSupport(Editor) {
          * @param {UndoableOperation} op instance
          */
         onUndoableOperation(op) {
-            this.undoManager.push(op);
+            this.props.editorModel.undoManager.push(op);
         }
 
          /**
@@ -50,10 +48,14 @@ export function withUndoRedoSupport(Editor) {
         }
     }
 
-    EditorWrapper.contextTypes = {
-        command: PropTypes.shape({
-            on: PropTypes.func,
-            dispatch: PropTypes.func,
+    EditorWrapper.propTypes = {
+        editorModel: PropTypes.objectOf(Object).isRequired,
+        file: PropTypes.objectOf(Object).isRequired,
+        isActive: PropTypes.bool.isRequired,
+        commandProxy: PropTypes.shape({
+            on: PropTypes.func.isRequired,
+            dispatch: PropTypes.func.isRequired,
+            getCommands: PropTypes.func.isRequired,
         }).isRequired,
     };
 

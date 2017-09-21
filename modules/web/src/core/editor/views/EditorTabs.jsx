@@ -154,7 +154,6 @@ class EditorTabs extends View {
         const { activeEditorID } = this.props.editorPlugin;
         if (editor instanceof Editor) {
             const { file, definition, definition: { customPropsProvider } } = editor;
-            const EditorComponent = withUndoRedoSupport(definition.component);
             return (
                 <TabPane
                     tab={
@@ -163,8 +162,8 @@ class EditorTabs extends View {
                     data-extra="tabpane"
                     key={file.fullPath}
                 >
-                    <EditorComponent
-                        editorTab={editor}
+                    <definition.component
+                        editorModel={editor}
                         isActive={activeEditorID === file.fullPath}
                         file={file}
                         commandProxy={this.props.editorPlugin.appContext.command}
