@@ -989,6 +989,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startTransformStmt();
     }
 
     /**
@@ -998,6 +1002,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createTransformStatement(getCurrentPos(ctx));
     }
 
     /**

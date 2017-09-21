@@ -87,12 +87,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
@@ -361,6 +361,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
         emit(InstructionCodes.RET);
+    }
+
+    public void visit(BLangTransform transformNode) {
+        this.genNode(transformNode.body, this.env);
     }
     
     private int typeTagToInstr(int typeTag) {
@@ -1043,10 +1047,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransaction transactionNode) {
-        /* ignore */
-    }
-
-    public void visit(BlangTransform transformNode) {
         /* ignore */
     }
 
