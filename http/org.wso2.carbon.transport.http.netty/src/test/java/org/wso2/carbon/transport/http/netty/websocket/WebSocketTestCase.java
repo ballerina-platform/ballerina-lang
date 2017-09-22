@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 public class WebSocketTestCase {
 
     private int threadSleepTime = 100;
-    private int messageDeliveryCountDown = 40;
+    private int messageDeliveryCountDown = 100;
 
     protected void setThreadSleepTime(int threadSleepTime) {
         this.threadSleepTime = threadSleepTime;
