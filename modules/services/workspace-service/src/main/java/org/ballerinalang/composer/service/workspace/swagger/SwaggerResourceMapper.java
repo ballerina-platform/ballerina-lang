@@ -38,7 +38,8 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.services.dispatchers.http.Constants;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,7 +76,7 @@ public class SwaggerResourceMapper {
      * @param resources Resource array to be convert.
      * @return map of string and swagger path objects.
      */
-    protected Map<String, Path> convertResourceToPath(Resource[] resources) {
+    protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
         Map<String, Path> pathMap = new HashMap<>();
         for (Resource resource : resources) {
             if (this.getHttpMethods(resource).size() > 1) {
