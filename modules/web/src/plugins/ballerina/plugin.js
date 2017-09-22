@@ -28,6 +28,7 @@ import { PLUGIN_ID, EDITOR_ID } from './constants';
  */
 class BallerinaPlugin extends Plugin {
 
+
     /**
      * @inheritdoc
      */
@@ -48,6 +49,7 @@ class BallerinaPlugin extends Plugin {
                     component: Editor,
                     customPropsProvider: () => {
                         return {
+                            ballerinaPlugin: this,
                         };
                     },
                     previewView: {

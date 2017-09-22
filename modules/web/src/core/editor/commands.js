@@ -26,5 +26,17 @@ export function getCommandDefinitions() {
                 propsProvider: PropTypes.func.isRequired,
             },
         },
+        {
+            id: COMMANDS.UNDO,
+            shortcut: {
+                default: 'ctrl+z',
+            },
+        },
+        {
+            id: COMMANDS.REDO,
+            shortcut: {
+                default: 'ctrl+shift+z',
+            },
+        },
     ];
 }

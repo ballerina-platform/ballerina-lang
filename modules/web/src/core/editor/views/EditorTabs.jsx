@@ -30,6 +30,7 @@ import { VIEWS, HISTORY } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
+import { withUndoRedoSupport } from './utils';
 
 const DEFAULT_PREVIEW_VIEW_SIZE = 500;
 const MINIMUM_PREVIEW_VIEW_SIZE = 250;
@@ -162,7 +163,7 @@ class EditorTabs extends View {
                     key={file.fullPath}
                 >
                     <definition.component
-                        editorTab={editor}
+                        editorModel={editor}
                         isActive={activeEditorID === file.fullPath}
                         file={file}
                         commandProxy={this.props.editorPlugin.appContext.command}

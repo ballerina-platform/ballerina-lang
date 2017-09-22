@@ -1,5 +1,6 @@
 import EventChannel from 'event_channel';
 import { EVENTS } from './../constants';
+import UndoManager from './../undo-manager/undo-manager';
 
 /**
  * Class to represent an editor tab
@@ -16,6 +17,7 @@ class Editor extends EventChannel {
         this._file = file;
         this._definition = definition;
         this._customTitleClass = definition.tabTitleClass || '';
+        this.undoManager = new UndoManager();
     }
 
     /**

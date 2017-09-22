@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { COMMANDS } from './constants';
 /**
  * Provides command handler definitions of editor plugin.
@@ -17,6 +18,26 @@ export function getHandlerDefinitions(editorPlugin) {
             cmdID: COMMANDS.OPEN_FILE_IN_EDITOR,
             handler: (args) => {
                 editorPlugin.onOpenFileInEditor(args);
+            },
+        },
+        {
+            cmdID: COMMANDS.UNDO,
+            handler: () => {
+                const { editor } = editorPlugin.appContext;
+                const activeEditor = editor.getActiveEditor();
+                if (activeEditor && !_.isNil(activeEditor.undoManager) && activeEditor.undoManager.hasUndo()) {
+                    activeEditor.undoManager.undo();
+                }
+            },
+        },
+        {
+            cmdID: COMMANDS.REDO,
+            handler: () => {
+                const { editor } = editorPlugin.appContext;
+                const activeEditor = editor.getActiveEditor();
+                if (activeEditor && !_.isNil(activeEditor.undoManager) && activeEditor.undoManager.hasRedo()) {
+                    activeEditor.undoManager.redo();
+                }
             },
         },
     ];

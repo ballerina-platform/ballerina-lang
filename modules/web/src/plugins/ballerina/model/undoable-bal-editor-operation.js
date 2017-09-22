@@ -15,19 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import UndoableOperation from './undoable-operation';
-import SwitchToSourceViewConfirmDialog from './../../dialog/switch-to-source-confirm-dialog';
-import { UNDO_EVENT, REDO_EVENT } from './../../constants/events';
-import { CHANGE_EVT_TYPES } from './../views/constants';
+import { CHANGE_EVT_TYPES } from 'ballerina/views/constants';
+import UndoableOperation from 'core/editor/undo-manager/undoable-operation';
+import { EVENTS } from 'core/editor/constants';
 
 /**
  * Class to represent an undoable operation in ballerina file editor
- * 
+ *
  * @class UndoableBalEditorOperation
  * @augments UndoableOperation
  */
 class UndoableBalEditorOperation extends UndoableOperation {
+
+    /**
+     * @inheritdoc
+     */
     constructor(args) {
         super({
             oldContent: args.changeEvent.oldContent,
@@ -45,7 +47,7 @@ class UndoableBalEditorOperation extends UndoableOperation {
 
     undo() {
         this.getFile().setContent(this.getOldContent(), {
-            type: UNDO_EVENT, 
+            type: EVENTS.UNDO_EVENT,
             originEvt: this.originEvt,
         });
     }
@@ -56,7 +58,7 @@ class UndoableBalEditorOperation extends UndoableOperation {
 
     redo() {
         this.getFile().setContent(this.getNewContent(), {
-            type: REDO_EVENT, 
+            type: EVENTS.REDO_EVENT,
             originEvt: this.originEvt,
         });
     }

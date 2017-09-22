@@ -207,9 +207,9 @@ class BallerinaFileEditor extends React.Component {
     setActiveView(newView) {
         if (this.state.activeView !== newView) {
             if (newView === DESIGN_VIEW) {
-                this.props.editorTab.customTitleClass = CLASSES.TAB_TITLE.DESIGN_VIEW;
+                this.props.editorModel.customTitleClass = CLASSES.TAB_TITLE.DESIGN_VIEW;
             } else {
-                this.props.editorTab.customTitleClass = '';
+                this.props.editorModel.customTitleClass = '';
             }
         }
         // avoid additional re-render by directly updating state
@@ -557,7 +557,7 @@ class BallerinaFileEditor extends React.Component {
 }
 
 BallerinaFileEditor.propTypes = {
-    editorTab: PropTypes.objectOf(Object).isRequired,
+    editorModel: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.instanceOf(File).isRequired,
     isActive: PropTypes.bool.isRequired,
     commandProxy: PropTypes.shape({

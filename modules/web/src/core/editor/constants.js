@@ -1,19 +1,31 @@
 export const COMMANDS = {
     OPEN_FILE_IN_EDITOR: 'open-file-in-editor',
     OPEN_CUSTOM_EDITOR_TAB: 'open-custom-editor-tab',
+    UNDO: 'undo',
+    REDO: 'redo',
 };
 
 export const EVENTS = {
     UPDATE_TAB_TITLE: 'update-tab-title',
+    UNDO_EVENT: 'undo-event',
+    REDO_EVENT: 'redo-event',
 };
 
 export const VIEWS = {
     EDITOR_TABS: 'composer.view.editor.tabs',
 };
 
-export const MENUS = {};
+export const MENUS = {
+    EDIT: 'composer.menu.editor.edit',
+    UNDO: 'composer.menu.editor.undo',
+    REDO: 'composer.menu.editor.redo',
+};
 
-export const LABELS = {};
+export const LABELS = {
+    EDIT: 'Edit',
+    UNDO: 'Undo',
+    REDO: 'Redo',
+};
 
 export const DIALOGS = {};
 
