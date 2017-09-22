@@ -69,6 +69,12 @@ class DebuggerPanel extends View {
                 message: processFrames(message),
             });
         });
+        this.props.DebugManager.on('resume-execution', () => {
+            this.setState({
+                navigation: false,
+                message: { frames: [] },
+            });
+        });
     }
 
     /**

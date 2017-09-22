@@ -124,11 +124,14 @@ class Frames extends React.Component {
     render() {
         const { message: { frames = [] } } = this.props;
         return (
-            <div className="debug-frames-container">
-                <div className="debug-panel-header debug-frame-header">
-                    <div><a className="tool-group-header-title">Frames</a></div>
-                </div>
-                <div>
+            <div className="debugger-frames-wrapper">
+                {
+                    frames.length ?
+                        <div className="debug-panel-header debug-frame-header">
+                            <div><a className="tool-group-header-title">Frames</a></div>
+                        </div> : ''
+                }
+                <div className="debugger-frames-container">
                     {frames.map((frame, i) => {
                         return (
                             <div className="" key={frame.frameName}>

@@ -19,6 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import DebugManager from '../DebugManager';
+import './DebuggerHoc.scss';
 
 /**
  * Higher order component to add add/remove breakpoint for diagram view nodes
@@ -43,7 +44,7 @@ function debuggerHoc(WrappedComponent) {
             this.removeListner = DebugManager.on('breakpoint-removed', this.updateBreakpoints.bind(this));
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
             this.endListner = DebugManager.on('session-ended', this.end.bind(this));
-            this.cmpListner = DebugManager.on('session-completed', this.end.bind(this));
+            this.cmpListner = DebugManager.on('execution-ended', this.end.bind(this));
             this.resumeListner = DebugManager.on('resume-execution', this.end.bind(this));
         }
         /**
@@ -54,14 +55,14 @@ function debuggerHoc(WrappedComponent) {
             DebugManager.off('breakpoint-removed', this.removeListner, this);
             DebugManager.off('debug-hit', this.hitListner, this);
             DebugManager.off('session-ended', this.endListner, this);
-            DebugManager.off('session-completed', this.cmpListner, this);
+            DebugManager.off('execution-ended', this.cmpListner, this);
             DebugManager.off('resume-execution', this.resumeListner, this);
         }
         /**
          * update breakpoints
          */
         updateBreakpoints() {
-            const fileName = this.props.file.name;
+            const fileName = this.getFileName();
             const breakpoints = DebugManager.getDebugPoints(fileName);
             const sourceViewBreakpoints = breakpoints.map(breakpoint => breakpoint - 1);
             this.setState({
@@ -75,7 +76,7 @@ function debuggerHoc(WrappedComponent) {
          * @param {object} message - parsed message from backend
          */
         debugHit(message) {
-            const fileName = this.props.file.name;
+            const fileName = this.getFileName();
             const position = message.location;
             const packagePath = this.props.file.packageName || '.';
 
@@ -106,7 +107,7 @@ function debuggerHoc(WrappedComponent) {
          * add breakpoint
          */
         addBreakpoint(lineNumber) {
-            const fileName = this.props.file.name;
+            const fileName = this.getFileName();
             const packagePath = this.props.file.packageName || '.';
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         }
@@ -114,9 +115,16 @@ function debuggerHoc(WrappedComponent) {
          * remove breakpoint
          */
         removeBreakpoint(lineNumber) {
-            const fileName = this.props.file.name;
+            const fileName = this.getFileName();
             const packagePath = this.props.file.packageName || '.';
             DebugManager.removeBreakPoint(lineNumber, fileName, packagePath);
+        }
+        /**
+         * Get File name with extension
+         * @returns String - file name
+         */
+        getFileName() {
+            return `${this.props.file.name}.${this.props.file.extension}`;
         }
 
         /**

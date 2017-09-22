@@ -113,7 +113,7 @@ class DebugManager extends EventChannel {
             this.trigger('debug-hit', message);
             this.currentThreadId = message.threadId;
         }
-        if (message.code === 'COMPLETE') {
+        if (message.code === 'COMPLETE' || message.code === 'EXIT') {
             this.trigger('session-completed');
         }
     }
@@ -135,6 +135,9 @@ class DebugManager extends EventChannel {
         this.channel.on('connected', () => {
             this.publishBreakpoints();
             this.startDebug();
+        });
+        this.channel.on('session-ended session-terminated', () => {
+            this.trigger('execution-ended');
         });
     }
     /**
