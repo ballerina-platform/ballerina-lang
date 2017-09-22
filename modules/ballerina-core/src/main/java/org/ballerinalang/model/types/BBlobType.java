@@ -36,11 +36,11 @@ public class BBlobType extends BType {
     }
 
     @Override public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BBlob(new byte[0]);
     }
 
     @Override public <V extends BValue> V getEmptyValue() {
-        return null;
+        return (V) new BBlob(new byte[0]);
     }
 
     @Override public TypeSignature getSig() {
