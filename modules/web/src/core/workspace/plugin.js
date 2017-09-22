@@ -24,8 +24,8 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, 
-    HISTORY, EVENTS, COMMANDS as COMMAND_IDS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS,
+    HISTORY, EVENTS, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
 
 import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
@@ -235,7 +235,7 @@ class WorkspacePlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, VIEWS, DIALOGS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, VIEWS, DIALOGS, TOOLS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
@@ -304,6 +304,34 @@ class WorkspacePlugin extends Plugin {
                         return {
                             workspaceManager: this,
                         };
+                    },
+                },
+            ],
+            [TOOLS]: [
+                {
+                    id: TOOL_IDS.NEW_FILE,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'blank-document',
+                    commandID: COMMAND_IDS.CREATE_NEW_FILE,
+                },
+                {
+                    id: TOOL_IDS.OPEN_FILE,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'folder-open',
+                    commandID: COMMAND_IDS.SHOW_FILE_OPEN_WIZARD,
+                },
+                {
+                    id: TOOL_IDS.SAVE_FILE,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'save',
+                    commandID: COMMAND_IDS.SAVE_FILE,
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        if (activeEditor && !_.isNil(activeEditor.file)) {
+                            return activeEditor.file.isDirty;
+                        }
+                        return false;
                     },
                 },
             ],

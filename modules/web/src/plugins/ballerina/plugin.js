@@ -21,7 +21,7 @@ import { CONTRIBUTIONS } from 'core/plugin/constants';
 import SourceEditor from 'ballerina/views/source-editor';
 import { CLASSES } from 'ballerina/views/constants';
 import Editor from './editor/Editor';
-import { PLUGIN_ID, EDITOR_ID } from './constants';
+import { PLUGIN_ID, EDITOR_ID, COMMANDS as COMMAND_IDS, TOOLS as TOOL_IDS } from './constants';
 
 /**
  * Plugin for Ballerina Lang
@@ -40,7 +40,7 @@ class BallerinaPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { EDITORS } = CONTRIBUTIONS;
+        const { EDITORS, TOOLS } = CONTRIBUTIONS;
         return {
             [EDITORS]: [
                 {
@@ -61,6 +61,44 @@ class BallerinaPlugin extends Plugin {
                         },
                     },
                     tabTitleClass: CLASSES.TAB_TITLE.DESIGN_VIEW,
+                },
+            ],
+            [TOOLS]: [
+                {
+                    id: TOOL_IDS.DEFAULT_VIEWS,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'default-view',
+                    commandID: COMMAND_IDS.DIAGRAM_MODE_CHANGE,
+                    commandArgs: { mode: 'default' },
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        return (activeEditor && activeEditor.file);
+                    },
+                },
+                {
+                    id: TOOL_IDS.ACTION_VIEW,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'action-view',
+                    commandID: COMMAND_IDS.DIAGRAM_MODE_CHANGE,
+                    commandArgs: { mode: 'action' },
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        return (activeEditor && activeEditor.file);
+                    },
+                },
+                {
+                    id: TOOL_IDS.COMPACT_VIEW,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'compact-view',
+                    commandID: COMMAND_IDS.DIAGRAM_MODE_CHANGE,
+                    commandArgs: { mode: 'compact' },
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        return (activeEditor && activeEditor.file);
+                    },
                 },
             ],
         };

@@ -19,3 +19,14 @@
 export const PLUGIN_ID = 'composer.plugin.lang.ballerina';
 
 export const EDITOR_ID = 'composer.editor.ballerina';
+
+export const COMMANDS = {
+    DIAGRAM_MODE_CHANGE: 'diagram-mode-change',
+};
+
+export const TOOLS = {
+    GROUP: 'composer.tool.group.ballerina',
+    DEFAULT_VIEWS: 'composer.tool.ballerina.default-view',
+    ACTION_VIEW: 'composer.tool.ballerina.action-view',
+    COMPACT_VIEW: 'composer.tool.ballerina.compact-view',
+};
