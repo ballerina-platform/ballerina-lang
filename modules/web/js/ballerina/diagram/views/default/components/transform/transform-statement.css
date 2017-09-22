@@ -62,6 +62,7 @@
     color: #3d3d3d;
     float: left;
     position: relative;
+    min-width: 300px;
 }
 
 .struct {;
@@ -396,4 +397,5 @@ div.operator-expanded-func {
     line-height: 30px;
     padding: 0;
     color: #bababb;
+    z-index: 0 !important;
 }
