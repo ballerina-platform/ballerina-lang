@@ -324,12 +324,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BType elseType = checkExpr(ternaryExpr.elseExpr, env, expTypes).get(0);
         if (expType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
             resultTypes = Lists.of(symTable.errType);
-        } else if (expTypes.size() > 0 && expTypes.get(0) == symTable.noType) {
+        } else if (expTypes.get(0) == symTable.noType) {
             // TODO : Fix this.
             if (thenType == elseType) {
                 resultTypes = Lists.of(thenType);
             } else {
-                dlog.error(ternaryExpr.pos, DiagnosticCode.TERNARY_TYPES_NOT_MATCHED);
+                dlog.error(ternaryExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, thenType, elseType);
                 resultTypes = Lists.of(symTable.errType);
             }
         } else {
@@ -405,7 +405,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType sourceType = checkExpr(castExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
         if (sourceType == symTable.errType || targetType == symTable.errType) {
-            resultTypes = Lists.of(sourceType);
+            resultTypes = Lists.of(symTable.errType);
             return;
         }
 
