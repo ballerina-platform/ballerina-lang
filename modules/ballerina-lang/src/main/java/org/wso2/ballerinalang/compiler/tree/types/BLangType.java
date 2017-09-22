@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
