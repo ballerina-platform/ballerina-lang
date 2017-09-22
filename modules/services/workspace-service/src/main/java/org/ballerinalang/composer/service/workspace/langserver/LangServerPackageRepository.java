@@ -1,6 +1,7 @@
 package org.ballerinalang.composer.service.workspace.langserver;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
@@ -20,8 +21,6 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class LangServerPackageRepository extends GeneralFSPackageRepository {
-
-    protected Path basePath;
 
     protected HashMap<String, byte[]> contentMap;
 
@@ -44,6 +43,22 @@ public class LangServerPackageRepository extends GeneralFSPackageRepository {
             return null;
         }
         return new LangServerPackageSource(pkgID, path, entryName);
+    }
+
+    @Override
+    public PackageEntity loadPackage(PackageID pkgID) {
+        PackageEntity result = null;
+        //TODO check compiled packages first
+        if (result == null) {
+            result = this.lookupPackageSource(pkgID);
+        }
+        return result;
+    }
+
+    @Override
+    public PackageEntity loadPackage(PackageID pkgID, String entryName) {
+        PackageEntity result = this.lookupPackageSource(pkgID, entryName);
+        return result;
     }
 
     /**

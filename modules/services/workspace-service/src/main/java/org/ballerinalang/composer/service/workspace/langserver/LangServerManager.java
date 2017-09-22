@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.common.Utils;
@@ -45,6 +46,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentP
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
+import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
@@ -540,11 +542,13 @@ public class LangServerManager {
             options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
             options.put(COMPILER_PHASE, "typeCheck");
 
-            LangServerPackageRepository pkgRepo =
+                LangServerPackageRepository pkgRepo =
                     new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
-            compilerContext.put(PackageRepository.class, pkgRepo);
-
             SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
+
+            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
+            compilerContext.put(PackageRepository.class, pkgRepo);
+            compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
             Compiler compiler = Compiler.getInstance(compilerContext);
             // here we need to compile the whole package

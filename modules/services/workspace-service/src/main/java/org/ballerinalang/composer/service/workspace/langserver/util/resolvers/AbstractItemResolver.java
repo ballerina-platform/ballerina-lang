@@ -30,12 +30,14 @@ import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,129 +60,173 @@ public abstract class AbstractItemResolver {
     public void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
 
         symbolInfoList.forEach(symbolInfo -> {
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(symbolInfo.getSymbolName());
-            String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-            completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+            CompletionItem completionItem = null;
             if (symbolInfo.getSymbol() instanceof NativeUnitProxy
                     && symbolInfo.getSymbolName().contains("ClientConnector")) {
-                this.populateClientConnectorCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateClientConnectorCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
-                this.populateNativeUnitProxyCompletionItem(completionItem, symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof BallerinaFunction) {
-                this.populateBallerinaFunctionCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateNativeUnitProxyCompletionItem(symbolInfo);
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+                completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
-                this.populateNativePackageProxyCompletionItem(completionItem, symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof VariableDef) {
-                this.populateVariableDefCompletionItem(completionItem, symbolInfo);
-            } else if ((symbolInfo.getSymbol() instanceof StructDef)) {
-                this.populateStructDefCompletionItem(completionItem, symbolInfo);
-            } else if (symbolInfo.getSymbol() instanceof BType) {
-                this.populateBTypeCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateNativePackageProxyCompletionItem(symbolInfo);
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BVarSymbol) {
+                completionItem = this.populateVariableDefCompletionItem(symbolInfo);
+            } else if (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol) {
+                completionItem = this.populateBTypeCompletionItem(symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof NamespaceDeclaration) {
-                this.populateNamespaceDeclarationCompletionItem(completionItem, symbolInfo);
+                completionItem = this.populateNamespaceDeclarationCompletionItem(symbolInfo);
             }
-            completionItems.add(completionItem);
+
+            if (completionItem != null) {
+                completionItems.add(completionItem);
+            }
         });
     }
 
     /**
      * Populate the Client Connector Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateClientConnectorCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateClientConnectorCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
         completionItem.setKind(ItemResolverConstants.ACTION_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Native Proxy Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateNativeUnitProxyCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
         completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
+
+        return completionItem;
     }
 
     /**
      * Populate the Ballerina Function Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getLabel());
-        completionItem.setInsertText(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getInsertText());
+    CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symbolInfo.getScopeEntry().symbol;
+        if (bInvokableSymbol.getName().getValue().equals(".<init>") ||
+                bInvokableSymbol.getName().getValue().equals("main")) {
+            return null;
+        }
+        FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
+        completionItem.setLabel(functionSignature.getLabel());
+        completionItem.setInsertText(functionSignature.getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItem.setKind(ItemResolverConstants.FUNCTION_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Native Package Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateNativePackageProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateNativePackageProxyCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItem.setKind(ItemResolverConstants.PACKAGE_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Variable Definition Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateVariableDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        String typeName = "";
-        SimpleTypeName type = ((VariableDef) symbolInfo.getSymbol()).getTypeName();
-        if (type != null) {
-            typeName = type.getName();
-        }
+    CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+        String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
 
         CompletionItemData data = new CompletionItemData();
-        data.addData("type", type);
+//        data.addData("type", type);
         completionItem.setData(data);
 
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
         completionItem.setKind(ItemResolverConstants.VAR_DEF_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Struct Definition Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateStructDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateStructDefCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItem.setKind(ItemResolverConstants.STRUCT_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the BType Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateBTypeCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.B_TYPE);
         completionItem.setKind(ItemResolverConstants.B_TYPE_KIND);
+
+        return completionItem;
     }
 
     /**
      * Populate the Namespace declaration Completion Item
-     * @param completionItem - completion item
      * @param symbolInfo - symbol information
+     * @return completion item
      */
-    void populateNamespaceDeclarationCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+    CompletionItem populateNamespaceDeclarationCompletionItem(SymbolInfo symbolInfo) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(symbolInfo.getSymbolName());
+        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.XMLNS);
+
+        return completionItem;
     }
 
     /**
@@ -213,23 +259,23 @@ public abstract class AbstractItemResolver {
 
     /**
      * Get the function signature
-     * @param ballerinaFunction - ballerina function instance
+     * @param bInvokableSymbol - ballerina function instance
      * @return {@link String}
      */
-    private FunctionSignature getFunctionSignature(BallerinaFunction ballerinaFunction) {
-        StringBuffer signature = new StringBuffer(ballerinaFunction.getName() + "(");
-        StringBuffer insertText = new StringBuffer(ballerinaFunction.getName() + "(");
-        ParameterDef[] parameterDefs = ballerinaFunction.getParameterDefs();
+    private FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
+        StringBuffer signature = new StringBuffer(bInvokableSymbol.getName() + "(");
+        StringBuffer insertText = new StringBuffer(bInvokableSymbol.getName() + "(");
+        List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
-        for (int itr = 0; itr < parameterDefs.length; itr++) {
-            signature.append(parameterDefs[itr].getTypeName()).append(" ")
-                    .append(parameterDefs[itr].getName());
+        for (int itr = 0; itr < parameterDefs.size(); itr++) {
+            signature.append(parameterDefs.get(itr).getType().toString()).append(" ")
+                    .append(parameterDefs.get(itr).getName());
             insertText.append("${")
                     .append((itr + 1))
                     .append(":")
-                    .append(parameterDefs[itr].getName())
+                    .append(parameterDefs.get(itr).getName())
                     .append("}");
-            if (itr < parameterDefs.length - 1) {
+            if (itr < parameterDefs.size() - 1) {
                 signature.append(", ");
                 insertText.append(", ");
             }
@@ -238,8 +284,14 @@ public abstract class AbstractItemResolver {
         insertText.append(")");
         String initString = "(";
         String endString = "";
-        for (ParameterDef simpleTypeName : ballerinaFunction.getReturnParameters()) {
-            signature.append(initString).append(simpleTypeName.getTypeName());
+
+        List<BType> returnTypes = bInvokableSymbol.type.getReturnTypes();
+        List<BVarSymbol> returnParams = bInvokableSymbol.getReturnParameters();
+        for (int itr = 0; itr < returnTypes.size(); itr ++) {
+            signature.append(initString).append(returnTypes.get(itr).toString());
+            if (returnParams.size() > itr) {
+                signature.append(" ").append(returnParams.get(itr).getName());
+            }
             initString = ", ";
             endString = ")";
         }
