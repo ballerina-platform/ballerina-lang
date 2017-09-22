@@ -20,6 +20,7 @@ package org.wso2.siddhi.core;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.config.StatisticsConfiguration;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
@@ -103,6 +104,15 @@ public class SiddhiManager {
      */
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.siddhiContext.setPersistenceStore(persistenceStore);
+    }
+
+    /**
+     * Method to set sink handler manager that would create sink handlers for each sink
+     *
+     * @param sinkHandlerManager Sink Handler Manager Implementation to be used.
+     */
+    public void setSinkHandlerFactory(SinkHandlerManager sinkHandlerManager) {
+        this.siddhiContext.setSinkHandlerManager(sinkHandlerManager);
     }
 
     /**
