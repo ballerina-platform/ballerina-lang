@@ -20,6 +20,7 @@ package org.wso2.siddhi.core;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.config.StatisticsConfiguration;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.config.ConfigManager;
 import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
@@ -103,6 +104,10 @@ public class SiddhiManager {
      */
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.siddhiContext.setPersistenceStore(persistenceStore);
+    }
+
+    public void setSinkHandlerFactory(SinkHandlerManager sinkHandlerManager) {
+        this.siddhiContext.setSinkHandlerManager(sinkHandlerManager);
     }
 
     /**

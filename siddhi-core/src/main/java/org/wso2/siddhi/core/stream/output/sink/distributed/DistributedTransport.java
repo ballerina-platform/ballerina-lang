@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandler;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -82,14 +83,14 @@ public abstract class DistributedTransport extends Sink {
      */
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder,
+                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder, SinkHandler sinkHandler,
                      List<Element> payloadElementList, ConfigReader mapperConfigReader,
                      SiddhiAppContext siddhiAppContext, List<OptionHolder> destinationOptionHolders,
                      Annotation sinkAnnotation, DistributionStrategy strategy, String[] supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
         init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
-                payloadElementList, mapperConfigReader, siddhiAppContext);
+                sinkHandler, payloadElementList, mapperConfigReader, siddhiAppContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
                 siddhiAppContext);
     }

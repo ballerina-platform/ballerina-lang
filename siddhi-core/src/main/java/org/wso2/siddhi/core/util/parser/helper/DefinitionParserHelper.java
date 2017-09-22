@@ -32,6 +32,8 @@ import org.wso2.siddhi.core.stream.output.sink.DynamicOptionGroupDeterminer;
 import org.wso2.siddhi.core.stream.output.sink.OutputGroupDeterminer;
 import org.wso2.siddhi.core.stream.output.sink.PartitionedGroupDeterminer;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandler;
+import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
@@ -499,6 +501,13 @@ public class DefinitionParserHelper {
                         List<Element> payloadElementList = getPayload(mapAnnotation);
 
                         OptionHolder distributionOptHolder = null;
+                        SinkHandlerManager sinkHandlerManager = siddhiAppContext.getSiddhiContext().
+                                getSinkHandlerManager();
+                        SinkHandler sinkHandler = null;
+                        if (sinkHandlerManager != null) {
+                            sinkHandler = sinkHandlerManager.generateSinkHandler();
+                        }
+
                         if (isDistributedTransport) {
                             distributionOptHolder = constructOptionProcessor(streamDefinition, distributionAnnotation,
                                     sinkExt, supportedDynamicOptions);
@@ -519,14 +528,19 @@ public class DefinitionParserHelper {
 
                             ((DistributedTransport) sink).init(streamDefinition, sinkType,
                                     transportOptionHolder, sinkConfigReader, sinkMapper,
-                                    mapType, mapOptionHolder,
+                                    mapType, mapOptionHolder, sinkHandler,
                                     payloadElementList, mapperConfigReader, siddhiAppContext,
                                     destinationOptHolders,
                                     sinkAnnotation, distributionStrategy,
                                     supportedDynamicOptions);
                         } else {
                             sink.init(streamDefinition, sinkType, transportOptionHolder, sinkConfigReader, sinkMapper,
-                                    mapType, mapOptionHolder, payloadElementList, mapperConfigReader, siddhiAppContext);
+                                    mapType, mapOptionHolder, sinkHandler, payloadElementList, mapperConfigReader,
+                                    siddhiAppContext);
+                        }
+
+                        if (sinkHandlerManager != null) {
+                            sinkHandlerManager.registerSinkHandler(sinkHandler);
                         }
 
                         validateSinkMapperCompatibility(streamDefinition, sinkType, mapType, sink, sinkMapper,
