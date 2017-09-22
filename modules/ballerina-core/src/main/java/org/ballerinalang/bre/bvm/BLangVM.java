@@ -578,8 +578,7 @@ public class BLangVM {
                     }
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-
-                    funcRefCPEntry = (FunctionRefCPEntry) constPool[((BFunctionPointer) sf.refRegs[i]).value()];
+                    funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
                     if (functionInfo.isNative()) {
                         invokeNativeFunction(functionInfo, funcCallCPEntry);
@@ -590,7 +589,8 @@ public class BLangVM {
                 case InstructionCodes.FPLOAD:
                     i = operands[0];
                     j = operands[1];
-                    sf.refRegs[j] = new BFunctionPointer(i);
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[i];
+                    sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
                     break;
 
                 case InstructionCodes.I2ANY:
