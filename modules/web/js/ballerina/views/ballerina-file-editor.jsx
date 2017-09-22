@@ -273,7 +273,9 @@ class BallerinaFileEditor extends React.Component {
      * @param {number} offset Line offset
      */
     jumpToSourcePosition(line, offset) {
-        this.setActiveView(SOURCE_VIEW);
+        if (!this.props.isPreviewViewEnabled) {
+            this.setActiveView(SOURCE_VIEW);
+        }
         this.props.commandProxy
             .dispatch(GO_TO_POSITION, {
                 file: this.props.file,
