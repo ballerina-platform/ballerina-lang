@@ -21,7 +21,6 @@ package org.ballerinalang.net.ws;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.StructDef;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
@@ -152,27 +151,19 @@ public class WebSocketServiceValidator {
     private static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
                                            String structName) {
         // TODO: checking instance of gives a struct def when running a program and BStructType when compile
-        // and running a .balx file
-        if (!(paramDetail.getVarType() instanceof StructDef)) {
+
+        if (!paramDetail.getVarType().getPackagePath().equals(packageName)) {
             throw new BallerinaException(
-                    String.format("Invalid parameter %s:%s %s in resource %s . Requires %s:%s",
+                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
                                   paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
                                   paramDetail.getVarName(), resourceName, packageName, structName));
         }
 
-        StructDef structDef = (StructDef) paramDetail.getVarType();
-        if (!structDef.getPackagePath().equals(packageName)) {
+        if (!paramDetail.getVarType().getName().equals(structName)) {
             throw new BallerinaException(
                     String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
-                                  structDef.getPackagePath(), structDef.getName(), paramDetail.getVarName(),
-                                  resourceName, packageName, structName));
-        }
-
-        if (!structDef.getName().equals(structName)) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
-                                  structDef.getPackagePath(), structDef.getName(), paramDetail.getVarName(),
-                                  resourceName, packageName, structName));
+                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
+                                  paramDetail.getVarName(), resourceName, packageName, structName));
         }
     }
 }
