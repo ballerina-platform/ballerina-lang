@@ -187,7 +187,7 @@ public class LangServerManager {
                     this.getCompletionItems(message);
                     break;
                 case LangServerConstants.PROGRAM_DIRECTORY_PACKAGES:
-                    this.getProgramPackages(message);
+                    //this.getProgramPackages(message);
                     break;
                 case LangServerConstants.BUILT_IN_PACKAGES:
                     this.getBuiltInPackages(message);
@@ -451,41 +451,41 @@ public class LangServerManager {
      *
      * @param message Request Message
      */
-    private void getProgramPackages(Message message) {
-        if (message instanceof RequestMessage) {
-            JsonObject response = new JsonObject();
-            Map<String, ModelPackage> packages;
-            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
-                    TextDocumentPositionParams.class);
-            String fileName = textDocumentPositionParams.getFileName();
-            String filePath = textDocumentPositionParams.getFilePath();
-            String packageName = textDocumentPositionParams.getPackageName();
-            if ("temp".equals(filePath) || ".".equals(packageName)) {
-                // No need to resolve packages if the package is not defined or if the file is not saved
-                return;
-            }
-            Path file = Paths.get(filePath + File.separator + fileName);
-            packages = resolveProgramPackages(Paths.get(filePath), packageName);
-            programPackagesMap.put(file, packages);
-            LangServerManager.this.setPackages(packages.entrySet());
-
-            // add package info into response
-            Gson gson = new Gson();
-            String json = gson.toJson(packages.values());
-            JsonParser parser = new JsonParser();
-            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
-            response.add("packages", packagesArray);
-
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setId(((RequestMessage) message).getId());
-            responseMessage.setResult(response);
-            pushMessageToClient(langServerSession, responseMessage);
-
-        } else {
-            logger.warn("Invalid Message type found");
-        }
-    }
+//    private void getProgramPackages(Message message) {
+//        if (message instanceof RequestMessage) {
+//            JsonObject response = new JsonObject();
+//            Map<String, ModelPackage> packages;
+//            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
+//            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
+//                    TextDocumentPositionParams.class);
+//            String fileName = textDocumentPositionParams.getFileName();
+//            String filePath = textDocumentPositionParams.getFilePath();
+//            String packageName = textDocumentPositionParams.getPackageName();
+//            if ("temp".equals(filePath) || ".".equals(packageName)) {
+//                // No need to resolve packages if the package is not defined or if the file is not saved
+//                return;
+//            }
+//            Path file = Paths.get(filePath + File.separator + fileName);
+//            packages = resolveProgramPackages(Paths.get(filePath), packageName);
+//            programPackagesMap.put(file, packages);
+//            LangServerManager.this.setPackages(packages.entrySet());
+//
+//            // add package info into response
+//            Gson gson = new Gson();
+//            String json = gson.toJson(packages.values());
+//            JsonParser parser = new JsonParser();
+//            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+//            response.add("packages", packagesArray);
+//
+//            ResponseMessage responseMessage = new ResponseMessage();
+//            responseMessage.setId(((RequestMessage) message).getId());
+//            responseMessage.setResult(response);
+//            pushMessageToClient(langServerSession, responseMessage);
+//
+//        } else {
+//            logger.warn("Invalid Message type found");
+//        }
+//    }
 
     /**
      * Get all the built-in packages.
@@ -631,31 +631,31 @@ public class LangServerManager {
      * @param filePath    - file path to parent directory of the .bal file
      * @param packageName - package name
      */
-    private Map<String, ModelPackage> resolveProgramPackages(java.nio.file.Path filePath, String packageName) {
-        // Filter out Default package scenario
-        if (!".".equals(packageName)) {
-            // find nested directory count using package name
-            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
-                    : 1;
-
-            // find program directory
-            java.nio.file.Path parentDir = filePath;
-            for (int i = 0; i < directoryCount; ++i) {
-                if (parentDir != null) {
-                    parentDir = parentDir.getParent();
-                }
-            }
-
-            // we shouldn't proceed if the parent directory is null
-            if (parentDir == null) {
-                return null;
-            }
-
-            // get packages in program directory
-            return getPackagesInProgramDirectory(parentDir);
-        }
-        return null;
-    }
+//    private Map<String, ModelPackage> resolveProgramPackages(java.nio.file.Path filePath, String packageName) {
+//        // Filter out Default package scenario
+//        if (!".".equals(packageName)) {
+//            // find nested directory count using package name
+//            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
+//                    : 1;
+//
+//            // find program directory
+//            java.nio.file.Path parentDir = filePath;
+//            for (int i = 0; i < directoryCount; ++i) {
+//                if (parentDir != null) {
+//                    parentDir = parentDir.getParent();
+//                }
+//            }
+//
+//            // we shouldn't proceed if the parent directory is null
+//            if (parentDir == null) {
+//                return null;
+//            }
+//
+//            // get packages in program directory
+//            return getPackagesInProgramDirectory(parentDir);
+//        }
+//        return null;
+//    }
 
 
     /**
@@ -665,39 +665,39 @@ public class LangServerManager {
      * @return a map contains package details
      * @throws BallerinaException
      */
-    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath) {
-        Map<String, ModelPackage> modelPackageMap = new HashMap();
-
-        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
-        List<java.nio.file.Path> filePaths = new ArrayList<>();
-        searchFilePathsForBalFiles(programDirPath, filePaths, Constants.DIRECTORY_DEPTH);
-
-        // add resolved packages into map
-        for (java.nio.file.Path filePath : filePaths) {
-            int compare = filePath.compareTo(programDirPath);
-            String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
-                    filePath.toString().length());
-            try {
-                BLangProgram bLangProgram = new BLangASTBuilder()
-                        .build(programDirPath, Paths.get(sourcePath));
-
-                //
-                java.nio.file.Path path = programDirPath.resolve(sourcePath);
-                programMap.put(path, bLangProgram);
-
-                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
-                modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
-            } catch (BallerinaException e) {
-                logger.warn(e.getMessage());
-                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
-
-                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
-                // those scenarios we still needs to proceed even without package resolving for that particular package.
-                // Hence ignoring the exception.
-            }
-        }
-        return modelPackageMap;
-    }
+//    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath) {
+//        Map<String, ModelPackage> modelPackageMap = new HashMap();
+//
+//        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
+//        List<java.nio.file.Path> filePaths = new ArrayList<>();
+//        searchFilePathsForBalFiles(programDirPath, filePaths, Constants.DIRECTORY_DEPTH);
+//
+//        // add resolved packages into map
+//        for (java.nio.file.Path filePath : filePaths) {
+//            int compare = filePath.compareTo(programDirPath);
+//            String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
+//                    filePath.toString().length());
+//            try {
+//                BLangProgram bLangProgram = new BLangASTBuilder()
+//                        .build(programDirPath, Paths.get(sourcePath));
+//
+//                //
+//                java.nio.file.Path path = programDirPath.resolve(sourcePath);
+//                programMap.put(path, bLangProgram);
+//
+//                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
+//                modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
+//            } catch (BallerinaException e) {
+//                logger.warn(e.getMessage());
+//                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
+//
+//                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
+//                // those scenarios we still needs to proceed even without package resolving for that particular package.
+//                // Hence ignoring the exception.
+//            }
+//        }
+//        return modelPackageMap;
+//    }
 
     /**
      * Recursive method to search for .bal files and add their parent directory paths to the provided List
