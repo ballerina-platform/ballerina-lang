@@ -18,12 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty.message;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.ReferenceCounted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Header;
@@ -38,14 +33,9 @@ import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -57,151 +47,78 @@ public class HTTPCarbonMessage {
 
     protected Headers headers = new Headers();
     protected Map<String, Object> properties = new HashMap<>();
-
-    private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
-    private AtomicBoolean alreadyRead = new AtomicBoolean(false);
-    private AtomicBoolean endOfMsgAdded = new AtomicBoolean(false);
+    private EntityCollector blockingEntityCollector;
 
     private MessagingException messagingException = null;
-
     private MessageDataSource messageDataSource;
-
-    private int soTimeOut = 60;
     private ServerConnectorFuture serverConnectorFuture = new HttpWsServerConnectorFuture();
+    private int soTimeOut = 60;
 
     public HTTPCarbonMessage() {
         BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
         if (clientBootstrapConfig != null) {
             soTimeOut = clientBootstrapConfig.getSocketTimeout();
-            return;
+        } else {
+            ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
+            if (serverBootstrapConfiguration != null) {
+                soTimeOut = serverBootstrapConfiguration.getSoTimeOut();
+            }
         }
-        ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
-        if (serverBootstrapConfiguration != null) {
-            soTimeOut = serverBootstrapConfiguration.getSoTimeOut();
-        }
+        setBlockingEntityCollector(new BlockingEntityCollector(soTimeOut));
     }
 
     public void addHttpContent(HttpContent httpContent) {
-        try {
-            httpContentQueue.put(httpContent);
-        } catch (InterruptedException e) {
-            LOG.error("Cannot put content to queue", e);
-        }
+        blockingEntityCollector.addHttpContent(httpContent);
     }
 
     public HttpContent getHttpContent() {
-        try {
-            return httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOG.error("Error while retrieving http content from queue.", e);
-            return null;
-        }
+        return blockingEntityCollector.getHttpContent();
     }
 
     public ByteBuffer getMessageBody() {
-        try {
-            HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-            if (httpContent instanceof LastHttpContent) {
-                this.endOfMsgAdded.set(true);
-            }
-            ByteBuf buf = httpContent.content();
-            garbageCollected.add(httpContent);
-            return buf.nioBuffer();
-        } catch (InterruptedException e) {
-            LOG.error("Error while retrieving message body from queue.", e);
-            return null;
-        }
+        return blockingEntityCollector.getMessageBody();
     }
 
     public List<ByteBuffer> getFullMessageBody() {
-        List<ByteBuffer> byteBufferList = new ArrayList<>();
-
-        boolean isEndOfMessageProcessed = false;
-        while (!isEndOfMessageProcessed) {
-            try {
-                HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                // This check is to make sure we add the last http content after getClone and avoid adding
-                // empty content to bytebuf list again and again
-                if (httpContent instanceof EmptyLastHttpContent) {
-                    break;
-                }
-
-                if (httpContent instanceof LastHttpContent) {
-                    isEndOfMessageProcessed = true;
-                }
-                ByteBuf buf = httpContent.content();
-                garbageCollected.add(httpContent);
-                byteBufferList.add(buf.nioBuffer());
-            } catch (InterruptedException e) {
-                LOG.error("Error while getting full message body", e);
-            }
-        }
-
-        return byteBufferList;
+        return blockingEntityCollector.getFullMessageBody();
     }
 
     public boolean isEmpty() {
-        return this.httpContentQueue.isEmpty();
+        return blockingEntityCollector.isEmpty();
     }
 
     public int getFullMessageLength() {
-        List<HttpContent> contentList = new ArrayList<>();
-        boolean isEndOfMessageProcessed = false;
-        while (!isEndOfMessageProcessed) {
-            try {
-                HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
-                if ((httpContent instanceof LastHttpContent) || (isEndOfMsgAdded() && httpContentQueue.isEmpty())) {
-                    isEndOfMessageProcessed = true;
-                }
-                contentList.add(httpContent);
-
-            } catch (InterruptedException e) {
-                LOG.error("Error while getting full message length", e);
-            }
-        }
-        int size = 0;
-        for (HttpContent httpContent : contentList) {
-            size += httpContent.content().readableBytes();
-            httpContentQueue.add(httpContent);
-        }
-
-        return size;
+        return blockingEntityCollector.getFullMessageLength();
     }
 
     public boolean isEndOfMsgAdded() {
-        return endOfMsgAdded.get();
+        return blockingEntityCollector.isEndOfMsgAdded();
     }
 
     public void addMessageBody(ByteBuffer msgBody) {
-        if (isAlreadyRead()) {
-            outContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
-        } else {
-            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
-        }
+        blockingEntityCollector.addMessageBody(msgBody);
     }
 
     private void markMessageEnd() {
-        if (isAlreadyRead()) {
-            outContentQueue.add(new EmptyLastHttpContent());
-        } else {
-            httpContentQueue.add(new EmptyLastHttpContent());
-        }
+        blockingEntityCollector.markMessageEnd();
     }
 
     public void setEndOfMsgAdded(boolean endOfMsgAdded) {
-        this.endOfMsgAdded.compareAndSet(false, endOfMsgAdded);
-        if (isAlreadyRead()) {
-            httpContentQueue.addAll(outContentQueue);
-            outContentQueue.clear();
-        }
+        blockingEntityCollector.setEndOfMsgAdded(endOfMsgAdded);
     }
 
     public void release() {
-        httpContentQueue.forEach(ReferenceCounted::release);
-        garbageCollected.forEach(ReferenceCounted::release);
+        blockingEntityCollector.release();
     }
+
+    public boolean isAlreadyRead() {
+        return blockingEntityCollector.isAlreadyRead();
+    }
+
+    public void setAlreadyRead(boolean alreadyRead) {
+        blockingEntityCollector.setAlreadyRead(alreadyRead);
+    }
+
 
     public ServerConnectorFuture getHTTPConnectorFuture() {
         return this.serverConnectorFuture;
@@ -299,21 +216,13 @@ public class HTTPCarbonMessage {
         return httpCarbonMessage;
     }
 
-    public List<ByteBuffer> getCopyOfFullMessageBody() {
+    private List<ByteBuffer> getCopyOfFullMessageBody() {
         List<ByteBuffer> fullMessageBody = getFullMessageBody();
         List<ByteBuffer> newCopy = fullMessageBody.stream().map(MessageUtil::deepCopy)
                 .collect(Collectors.toList());
         fullMessageBody.forEach(this::addMessageBody);
         markMessageEnd();
         return newCopy;
-    }
-
-    public boolean isAlreadyRead() {
-        return alreadyRead.get();
-    }
-
-    public void setAlreadyRead(boolean alreadyRead) {
-        this.alreadyRead.set(alreadyRead);
     }
 
     public MessageDataSource getMessageDataSource() {
@@ -340,5 +249,9 @@ public class HTTPCarbonMessage {
      */
     public void setMessagingException(MessagingException messagingException) {
         this.messagingException = messagingException;
+    }
+
+    public void setBlockingEntityCollector(BlockingEntityCollector blockingEntityCollector) {
+        this.blockingEntityCollector = blockingEntityCollector;
     }
 }
