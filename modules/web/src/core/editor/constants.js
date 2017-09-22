@@ -21,6 +21,12 @@ export const MENUS = {
     REDO: 'composer.menu.editor.redo',
 };
 
+export const TOOLS = {
+    GROUP: 'composer.tool.group.editor',
+    UNDO: 'composer.tool.editor.undo',
+    REDO: 'composer.tool.editor.redo',
+};
+
 export const LABELS = {
     EDIT: 'Edit',
     UNDO: 'Undo',

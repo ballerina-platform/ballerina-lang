@@ -45,7 +45,7 @@ class DesignView extends React.Component {
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.dragDropManager = new DragDropManager();
         this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
-        this.props.commandProxy.on('diagram-mode-change', (mode) => {
+        this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
             this.setMode(mode);
         });
     }

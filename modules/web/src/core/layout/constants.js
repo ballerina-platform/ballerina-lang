@@ -31,6 +31,7 @@ export const HISTORY = {
 
 export const REGIONS = {
     HEADER: 'composer.layout.region.header',
+    TOOL_AREA: 'composer.layout.region.tool-area',
     ACTIVITY_BAR: 'composer.layout.region.activity-bar',
     LEFT_PANEL: 'composer.layout.region.left-panel',
     RIGHT_PANEL: 'composer.layout.region.right-panel',

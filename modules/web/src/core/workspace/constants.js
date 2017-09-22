@@ -29,6 +29,13 @@ export const MENUS = {
     SAVE_FILE_AS: 'composer.menu.workspace.save-file-as',
 };
 
+export const TOOLS = {
+    GROUP: 'composer.tool.group.file',
+    NEW_FILE: 'composer.tool.workspace.new-file',
+    SAVE_FILE: 'composer.tool.workspace.save-file',
+    OPEN_FILE: 'composer.tool.workspace.open-file',
+};
+
 export const LABELS = {
     NEW_FILE: 'New File',
     SAVE: 'Save',

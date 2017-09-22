@@ -12,6 +12,7 @@ export const CONTRIBUTIONS = {
     HANDLERS: 'handlers',
     MENUS: 'menus',
     VIEWS: 'views',
+    TOOLS: 'tools',
 };
 
 export const EVENTS = {
