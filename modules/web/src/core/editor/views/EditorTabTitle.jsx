@@ -35,6 +35,21 @@ class EditorTabTitle extends React.Component {
     }
 
     /**
+     * @inheritdoc
+     */
+    componentWillReceiveProps(nextProps) {
+        if (this.props.editor.file.id !== nextProps.editor.file.id) {
+            this.props.editor.file
+                .off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.onFileDirtyStateChange);
+            nextProps.editor.file
+                .on(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.onFileDirtyStateChange);
+            this.setState({
+                isFileDirty: nextProps.editor.file.isDirty,
+            });
+        }
+    }
+
+    /**
      * When File's dirty state changed
      * @param {boolean} isFileDirty Flag to indicate dirty state
      */
@@ -48,9 +63,9 @@ class EditorTabTitle extends React.Component {
      * @inheritdoc
      */
     render() {
-        const { editor, editor: { file }, onTabClose } = this.props;
+        const { editor, editor: { file }, onTabClose, customClass } = this.props;
         return (
-            <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
+            <div data-extra="tab-bar-title" className={`tab-title-wrapper ${customClass}`}>
                 <i className="fw fw-ballerina tab-icon" />
                 {file.name}
                 {this.state.isFileDirty && <span className="dirty-indicator">*</span> }
@@ -67,8 +82,13 @@ class EditorTabTitle extends React.Component {
 }
 
 EditorTabTitle.propTypes = {
+    customClass: PropTypes.string,
     editor: PropTypes.objectOf(Object).isRequired,
     onTabClose: PropTypes.func.isRequired,
+};
+
+EditorTabTitle.defaultProps = {
+    customClass: '',
 };
 
 export default EditorTabTitle;

@@ -157,7 +157,11 @@ class EditorTabs extends View {
             return (
                 <TabPane
                     tab={
-                        <EditorTabTitle editor={editor} onTabClose={this.onTabClose} />
+                        <EditorTabTitle
+                            editor={editor}
+                            onTabClose={this.onTabClose}
+                            customClass={editor.customTitleClass}
+                        />
                     }
                     data-extra="tabpane"
                     key={file.fullPath}
