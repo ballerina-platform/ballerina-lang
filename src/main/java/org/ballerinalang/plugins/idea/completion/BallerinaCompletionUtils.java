@@ -528,9 +528,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createAnnotationLookupElements(@NotNull List<PsiElement> annotations) {
+    public static List<LookupElement> createAnnotationLookupElements(@NotNull List<IdentifierPSINode> annotations) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement annotation : annotations) {
+        for (IdentifierPSINode annotation : annotations) {
             LookupElement lookupElement = BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
             lookupElements.add(lookupElement);
         }
@@ -548,9 +548,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<PsiElement> functions) {
+    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<IdentifierPSINode> functions) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement function : functions) {
+        for (IdentifierPSINode function : functions) {
             LookupElement lookupElement = createFunctionsLookupElement(function, ParenthesisInsertHandler.INSTANCE);
             lookupElements.add(lookupElement);
         }
@@ -558,11 +558,11 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<PsiElement> functions,
+    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<IdentifierPSINode> functions,
                                                                     @Nullable InsertHandler<LookupElement>
                                                                             insertHandler) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement function : functions) {
+        for (IdentifierPSINode function : functions) {
             LookupElement lookupElement = createFunctionsLookupElement(function, insertHandler);
             lookupElements.add(lookupElement);
         }
@@ -625,11 +625,11 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createConnectorLookupElements(@NotNull List<PsiElement> connectors,
+    public static List<LookupElement> createConnectorLookupElements(@NotNull List<IdentifierPSINode> connectors,
                                                                     @Nullable InsertHandler<LookupElement>
                                                                             insertHandler) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement connector : connectors) {
+        for (IdentifierPSINode connector : connectors) {
             LookupElement lookupElement = createConnectorLookupElement(connector, insertHandler);
             lookupElements.add(lookupElement);
         }
@@ -658,9 +658,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createStructLookupElements(@NotNull List<PsiElement> structs) {
+    public static List<LookupElement> createStructLookupElements(@NotNull List<IdentifierPSINode> structs) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement struct : structs) {
+        for (IdentifierPSINode struct : structs) {
             lookupElements.add(createStructLookupElement(struct));
         }
         return lookupElements;
@@ -674,9 +674,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createVariableLookupElements(@NotNull List<PsiElement> variables) {
+    public static List<LookupElement> createVariableLookupElements(@NotNull List<IdentifierPSINode> variables) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement variable : variables) {
+        for (IdentifierPSINode variable : variables) {
             LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement(variable);
             lookupElements.add(lookupElement);
         }
@@ -691,9 +691,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createParameterLookupElements(@NotNull List<PsiElement> parameters) {
+    public static List<LookupElement> createParameterLookupElements(@NotNull List<IdentifierPSINode> parameters) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement parameter : parameters) {
+        for (IdentifierPSINode parameter : parameters) {
             LookupElement lookupElement = createParameterLookupElement(parameter);
             lookupElements.add(lookupElement);
         }
@@ -708,9 +708,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createConstantLookupElements(@NotNull List<PsiElement> constants) {
+    public static List<LookupElement> createConstantLookupElements(@NotNull List<IdentifierPSINode> constants) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement constant : constants) {
+        for (IdentifierPSINode constant : constants) {
             LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement(constant);
             lookupElements.add(lookupElement);
         }
@@ -725,9 +725,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createGlobalVariableLookupElements(@NotNull List<PsiElement> variables) {
+    public static List<LookupElement> createGlobalVariableLookupElements(@NotNull List<IdentifierPSINode> variables) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement variable : variables) {
+        for (IdentifierPSINode variable : variables) {
             LookupElement lookupElement = createGlobalVariableLookupElement(variable);
             lookupElements.add(lookupElement);
         }

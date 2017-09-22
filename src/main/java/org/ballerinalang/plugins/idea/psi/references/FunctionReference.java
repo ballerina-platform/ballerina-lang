@@ -105,7 +105,8 @@ public class FunctionReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
 
         if (containingPackage != null) {
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, true);
+            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
+                    true);
             results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions,
                     ParenthesisInsertHandler.INSTANCE));
         }
@@ -125,7 +126,7 @@ public class FunctionReference extends BallerinaElementReference {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
+        List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
         results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
         return results;
     }

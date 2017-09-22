@@ -111,10 +111,11 @@ public class AnnotationReference extends BallerinaElementReference {
     @Nullable
     private PsiElement findMatchingAnnotationDefinition(@NotNull PsiDirectory currentPackage, boolean includePrivate) {
         IdentifierPSINode identifier = getElement();
-        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage, includePrivate);
-        for (PsiElement annotation : annotations) {
+        List<IdentifierPSINode> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage,
+                includePrivate);
+        for (IdentifierPSINode annotation : annotations) {
             String text = annotation.getText();
-            if (text != null && text.equals(identifier.getText())) {
+            if (text.equals(identifier.getText())) {
                 return annotation;
             }
         }
@@ -139,7 +140,7 @@ public class AnnotationReference extends BallerinaElementReference {
         if (containingPackage == null) {
             return results;
         }
-        List<PsiElement> annotations;
+        List<IdentifierPSINode> annotations;
         if (allAnnotations) {
             annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(containingPackage, true);
         } else {
@@ -164,7 +165,7 @@ public class AnnotationReference extends BallerinaElementReference {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        List<PsiElement> annotations;
+        List<IdentifierPSINode> annotations;
         if (allAnnotations) {
             annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(resolvedPackage, false);
         } else {

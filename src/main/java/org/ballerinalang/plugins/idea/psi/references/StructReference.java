@@ -103,7 +103,7 @@ public class StructReference extends BallerinaElementReference {
         PsiFile containingFile = identifier.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
         PsiDirectory containingPackage = originalFile.getParent();
-        List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, true);
+        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, true);
         results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
         return results;
     }
@@ -117,7 +117,7 @@ public class StructReference extends BallerinaElementReference {
         }
 
         PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
-        List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false);
+        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false);
         results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
         return results;
     }
