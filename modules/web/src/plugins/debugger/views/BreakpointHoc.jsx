@@ -19,6 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import DebugManager from '../DebugManager';
+import './BreakpointHoc.scss';
 
 /**
  * Higher order component to add add/remove breakpoint for diagram view nodes
@@ -76,7 +77,7 @@ function breakpointHoc(WrappedComponent) {
             });
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
             this.endListner = DebugManager.on('session-ended', this.end.bind(this));
-            this.cmpListner = DebugManager.on('session-completed', this.end.bind(this));
+            this.cmpListner = DebugManager.on('execution-ended', this.end.bind(this));
             this.continueListner = DebugManager.on('resume-execution', this.end.bind(this));
         }
         /**
@@ -87,7 +88,7 @@ function breakpointHoc(WrappedComponent) {
             DebugManager.off('breakpoint-removed', this.removeListner, this);
             DebugManager.off('debug-hit', this.hitListner, this);
             DebugManager.off('session-ended', this.endListner, this);
-            DebugManager.off('session-completed', this.cmpListner, this);
+            DebugManager.off('execution-ended', this.cmpListner, this);
             DebugManager.off('resume-execution', this.continueListner, this);
         }
         /**

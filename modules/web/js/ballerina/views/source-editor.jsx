@@ -304,15 +304,12 @@ class SourceEditor extends React.Component {
         }
 
         const { debugHit, sourceViewBreakpoints } = nextProps;
+        if (this.debugPointMarker) {
+            this.editor.getSession().removeMarker(this.debugPointMarker);
+        }
         if (debugHit > 0) {
-            if (this.debugPointMarker) {
-                this.editor.getSession().removeMarker(this.debugPointMarker);
-            }
             this.debugPointMarker = this.editor.getSession().addMarker(
                 new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
-        }
-        if (!debugHit && this.debugPointMarker) {
-            this.editor.getSession().removeMarker(this.debugPointMarker);
         }
 
         // Removing the file content changed event of the previous file.

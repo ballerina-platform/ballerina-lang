@@ -57,6 +57,7 @@ class DebugToolbarView extends React.Component {
                 DebugManager.stepOut();
                 break;
         }
+        DebugManager.trigger('resume-execution');
     }
     /**
       * Render tool view.
