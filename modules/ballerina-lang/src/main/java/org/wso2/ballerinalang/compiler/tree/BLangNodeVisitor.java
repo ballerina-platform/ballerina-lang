@@ -22,11 +22,20 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -319,6 +328,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+
     // Type nodes
 
     public void visit(BLangValueType valueType) {
@@ -338,6 +348,45 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
+        throw new AssertionError();
+    }
+
+
+    // expressions that will used only after the Desugar phase
+
+    public void visit(BLangLocalVarRef localVarRef) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFieldVarRef fieldVarRef) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangPackageVarRef packageVarRef) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMapAccessExpr mapKeyAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangJSONLiteral jsonLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMapLiteral mapLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangStructLiteral structLiteral) {
         throw new AssertionError();
     }
 }

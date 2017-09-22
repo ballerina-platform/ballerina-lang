@@ -20,8 +20,10 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Implementation of {@link FieldBasedAccessNode}.
@@ -57,5 +59,24 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
     @Override
     public NodeKind getKind() {
         return NodeKind.FIELD_BASED_ACCESS_EXPR;
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangStructFieldAccessExpr extends BLangFieldBasedAccess {
+
+        public BVarSymbol fieldSymbol;
+
+        public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BVarSymbol fieldSymbol) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.fieldSymbol = fieldSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }
