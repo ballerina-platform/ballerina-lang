@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.service.websocket.sample;
 
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
@@ -38,7 +37,7 @@ import java.io.File;
 public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     private final int threadSleepTime = 100;
-    private final int messageDeliveryCountDown = 40;
+    private final int messageDeliveryCountDown = 100;
     private final int clientCount = 5;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
     private ServerInstance ballerinaServer;
@@ -52,34 +51,33 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
         // Initializing ballerina server instance.
         ballerinaServer = ServerInstance.initBallerinaServer();
-        String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
-        String balFile = serviceSampleDir + File.separator + "websocket" + File.separator + "clientConnector"
-                + File.separator + "clientConnectorSample.balx";
-        ballerinaServer.startBallerinaServer(balFile);
+        String balFilePath =
+                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                 "websocket" + File.separator + "SimpleProxyServer.bal").getAbsolutePath();
+        ballerinaServer.startBallerinaServer(balFilePath);
 
         // Initializing WebSocket clients.
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i] = new WebSocketClient("ws://localhost:9090/client-connector/ws");
+            wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws");
         }
     }
 
     @Test(priority = 0)
-    public void testFullMediation() throws Exception {
+    public void testFullTextMediation() throws Exception {
         handshakeAllClients(wsClients);
-
         // Send and wait to receive message back from the remote server.
         for (int i = 0; i < clientCount; i++) {
             wsClients[i].sendText(i + "");
         }
 
         for (int i = 0; i < clientCount; i++) {
-            String expectedMessage = "client service : " + i;
+            String expectedMessage = "client service: " + i;
             assertWebSocketClientStringMessage(wsClients[i], expectedMessage, threadSleepTime,
                                                messageDeliveryCountDown);
         }
     }
 
-    @Test(priority = 1)
+    @Test(priority = 2)
     public void testRemoteConnectionClosureFromRemoteClient() throws InterruptedException {
         wsClients[0].shutDown();
         Thread.sleep(threadSleepTime);
@@ -87,13 +85,14 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
         for (WebSocketRemoteServerFrameHandler frameHandler : WebSocketRemoteServerInitializer.FRAME_HANDLERS) {
             if (!frameHandler.isOpen()) {
                 isConnectionClosed = true;
+                WebSocketRemoteServerInitializer.FRAME_HANDLERS.remove(frameHandler);
                 break;
             }
         }
         Assert.assertTrue(isConnectionClosed);
     }
 
-    @Test(priority = 2)
+    @Test(priority = 3)
     public void testRemoteConnectionClosureFromBallerina() throws InterruptedException {
         wsClients[1].sendText("closeMe");
         Thread.sleep(threadSleepTime);

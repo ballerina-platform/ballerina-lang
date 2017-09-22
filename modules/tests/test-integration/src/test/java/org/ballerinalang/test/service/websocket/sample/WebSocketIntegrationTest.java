@@ -27,16 +27,18 @@ public class WebSocketIntegrationTest extends IntegrationTestCase {
         }
     }
 
-    protected void assertWebSocketClientStringMessage(WebSocketClient client, String expected,
+    protected void assertWebSocketClientStringMessage(WebSocketClient client, String expectedValue,
                                                       int threadSleepTime, int messageDeliveryCountDown)
             throws InterruptedException {
+        String realValue = null;
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
-            if (expected.equals(client.getTextReceived())) {
-                Assert.assertTrue(true);
+            realValue = client.getTextReceived();
+            if (realValue != null) {
+                Assert.assertEquals(realValue, expectedValue);
                 return;
             }
         }
-        Assert.assertTrue(false);
+        Assert.assertEquals(realValue, expectedValue);
     }
 }
