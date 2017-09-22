@@ -54,7 +54,7 @@ public abstract class AbstractLogFunction extends AbstractNativeFunction {
         String workerName = workerInfo != null ? workerInfo.getWorkerName() : "default";
 
         LineNumberInfo lineNumberInfo =
-                callableUnitInfo.getPackageInfo().getLineNumberInfo(ctx.getBLangVM().getCurrentIP() - 1);
+                callableUnitInfo.getPackageInfo().getLineNumberInfo(ctx.getBLangVM().getInstructionPointer() - 1);
         String fileName = lineNumberInfo.getFileName();
         int lineNumber = lineNumberInfo.getLineNumber();
 

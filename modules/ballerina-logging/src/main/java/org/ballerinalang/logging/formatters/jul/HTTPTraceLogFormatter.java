@@ -43,9 +43,8 @@ import java.util.stream.Stream;
 public class HTTPTraceLogFormatter extends Formatter {
 
     public static final Map<String, Integer> PLACEHOLDERS_MAP;
+
     private final String format;
-//    private final String jdkLogFormat;
-//    private final FormatStringMapper parser;
 
     private SimpleDateFormat dateFormat;
 
@@ -61,9 +60,7 @@ public class HTTPTraceLogFormatter extends Formatter {
     }
 
     public HTTPTraceLogFormatter() {
-//        parser = new FormatStringMapper();
         format = BLogManager.getLogManager().getProperty(HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
-//        jdkLogFormat = parser.buildJDKLogFormat(, format);
         dateFormat = FormatStringMapper.getInstance().getDateFormat(Constants.LOG_TRACELOG_HTTP_FORMAT);
     }
 

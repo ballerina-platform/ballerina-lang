@@ -159,7 +159,7 @@ public class BLangVM {
         }
     }
 
-    public int getCurrentIP() {
+    public int getInstructionPointer() {
         return ip;
     }
 
