@@ -84,6 +84,7 @@ const config = [{
             $: 'jquery',
             jQuery: 'jquery',
         }),
+        new webpack.WatchIgnorePlugin([path.resolve(__dirname, './font/dist/')]),
         new WebfontPlugin({
             files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
             css: true,
@@ -94,11 +95,11 @@ const config = [{
             cssTemplateClassName: 'fw', // TODO: map with proper class name
             template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
             dest: {
-                fontsDir: path.resolve(__dirname, 'public/font-ballerina/fonts'),
-                stylesDir: path.resolve(__dirname, 'public/font-ballerina/css'),
+                fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
+                stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
                 outputFilename: 'font-ballerina.css',
             },
-            hash: new Date().getTime()
+            hash: new Date().getTime(),
         }),
         /*
         new CircularDependencyPlugin({
@@ -122,7 +123,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: ['src', 'public/lib', 'js', 'node_modules', path.resolve(__dirname)],
+        modules: ['src', 'public/lib', 'font/dist', 'js', 'node_modules', path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //

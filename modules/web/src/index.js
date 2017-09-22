@@ -10,6 +10,7 @@ import 'bootstrap';
 import 'theme_wso2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
+import 'font-ballerina/css/font-ballerina.css';
 
 
 // Before start rendering, fetch api endpoint information & other configs from config service
