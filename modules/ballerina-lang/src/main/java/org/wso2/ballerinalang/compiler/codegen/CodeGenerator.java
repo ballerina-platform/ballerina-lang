@@ -51,12 +51,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -180,7 +186,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
     private boolean varAssignment = false;
-    
+
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
 
@@ -343,6 +349,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(varDefNode.var, this.env);
     }
 
+
     public void visit(BLangReturn returnNode) {
         BLangExpression expr;
         int i = 0;
@@ -362,23 +369,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         emit(InstructionCodes.RET);
     }
-    
+
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
-        case TypeTags.INT:
-            return InstructionCodes.IRET;
-        case TypeTags.FLOAT:
-            return InstructionCodes.FRET;
-        case TypeTags.STRING:
-            return InstructionCodes.SRET;
-        case TypeTags.BOOLEAN:
-            return InstructionCodes.BRET;
-        case TypeTags.BLOB:
-            return InstructionCodes.LRET;
-        default:
-            return InstructionCodes.RRET;
+            case TypeTags.INT:
+                return InstructionCodes.IRET;
+            case TypeTags.FLOAT:
+                return InstructionCodes.FRET;
+            case TypeTags.STRING:
+                return InstructionCodes.SRET;
+            case TypeTags.BOOLEAN:
+                return InstructionCodes.BRET;
+            case TypeTags.BLOB:
+                return InstructionCodes.LRET;
+            default:
+                return InstructionCodes.RRET;
         }
     }
+
 
     // Expressions
 
@@ -436,6 +444,100 @@ public class CodeGenerator extends BLangNodeVisitor {
         literalExpr.regIndex = regIndex;
     }
 
+    @Override
+    public void visit(BLangJSONLiteral jsonLiteral) {
+
+    }
+
+    @Override
+    public void visit(BLangMapLiteral mapLiteral) {
+
+    }
+
+    @Override
+    public void visit(BLangStructLiteral structLiteral) {
+
+    }
+
+    @Override
+    public void visit(BLangLocalVarRef localVarRef) {
+        int lvIndex = localVarRef.symbol.varIndex;
+        if (varAssignment) {
+            int opcode = getOpcode(localVarRef.type.tag, InstructionCodes.ISTORE);
+            emit(opcode, rhsExprRegIndex, lvIndex);
+            return;
+        }
+
+        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(localVarRef.type.tag,
+                InstructionCodes.ILOAD, regIndexes);
+        int opcode = opcodeAndIndex.opcode;
+        int exprRegIndex = opcodeAndIndex.index;
+        emit(opcode, lvIndex, exprRegIndex);
+        localVarRef.regIndex = exprRegIndex;
+    }
+
+    @Override
+    public void visit(BLangFieldVarRef fieldVarRef) {
+        int varRegIndex;
+        int fieldIndex = fieldVarRef.symbol.varIndex;
+        if (fieldVarRef.type.tag == TypeTags.STRUCT) {
+            // This is a struct field.
+            // the struct reference must be stored in the current reference register index.
+            varRegIndex = regIndexes.tRef;
+        } else {
+            // This is a connector field.
+            // the connector reference must be stored in the current reference register index.
+            varRegIndex = ++regIndexes.tRef;
+
+            // The connector is always the first parameter of the action
+            emit(InstructionCodes.RLOAD, 0, varRegIndex);
+        }
+
+        if (varAssignment) {
+            int opcode = getOpcode(fieldVarRef.type.tag,
+                    InstructionCodes.IFIELDSTORE);
+            emit(opcode, varRegIndex, fieldIndex, rhsExprRegIndex);
+            return;
+        }
+
+        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(fieldVarRef.type.tag,
+                InstructionCodes.IFIELDLOAD, regIndexes);
+        int opcode = opcodeAndIndex.opcode;
+        int exprRegIndex = opcodeAndIndex.index;
+        emit(opcode, varRegIndex, fieldIndex, exprRegIndex);
+        fieldVarRef.regIndex = exprRegIndex;
+    }
+
+    @Override
+    public void visit(BLangPackageVarRef packageVarRef) {
+        int gvIndex = packageVarRef.symbol.varIndex;
+        if (varAssignment) {
+            int opcode = getOpcode(packageVarRef.type.tag,
+                    InstructionCodes.IGSTORE);
+            emit(opcode, rhsExprRegIndex, gvIndex);
+            return;
+        }
+
+        OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(packageVarRef.type.tag,
+                InstructionCodes.IGLOAD, regIndexes);
+        int opcode = opcodeAndIndex.opcode;
+        int exprRegIndex = opcodeAndIndex.index;
+        emit(opcode, gvIndex, exprRegIndex);
+        packageVarRef.regIndex = exprRegIndex;
+    }
+
+    @Override
+    public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangMapAccessExpr mapKeyAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
+    }
+
     public void visit(BLangBinaryExpr binaryExpr) {
         genNode(binaryExpr.lhsExpr, this.env);
         genNode(binaryExpr.rhsExpr, this.env);
@@ -445,18 +547,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         binaryExpr.regIndex = exprIndex;
         emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
-    }
-
-    public void visit(BLangSimpleVarRef varRefExpr) {
-        // TODO 
-    }
-
-    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        /* ignore */
     }
 
     public void visit(BLangInvocation iExpr) {
@@ -662,7 +752,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // Clean up the var index data structures
             endWorkerInfoUnit(defaultWorker.codeAttributeInfo);
-            
+
             if (invokableNode.retParams.isEmpty()) {
                 /* for functions that has no return values, we must provide a default
                  * return statement to stop the execution and jump to the caller */
@@ -750,7 +840,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
-    
+
     private int emit(Instruction instr) {
         currentPkgInfo.instructionList.add(instr);
         return currentPkgInfo.instructionList.size();
@@ -1027,7 +1117,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         Instruction gotoTopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, this.nextIP());
         this.genNode(whileNode.expr, this.env);
-        Instruction whileCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, 
+        Instruction whileCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE,
                 whileNode.expr.regIndex, -1);
         Instruction exitLoopJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
         this.emit(whileCondJumpInstr);
