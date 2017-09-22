@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -61,5 +62,50 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     @Override
     public NodeKind getKind() {
         return NodeKind.SIMPLE_VARIABLE_REF;
+    }
+
+    /***
+     * @since 0.94
+     */
+    public static class BLangLocalVarRef extends BLangSimpleVarRef {
+
+        public BLangLocalVarRef(BVarSymbol varSymbol) {
+            this.symbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /***
+     * @since 0.94
+     */
+    public static class BLangFieldVarRef extends BLangSimpleVarRef {
+
+        public BLangFieldVarRef(BVarSymbol varSymbol) {
+            this.symbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /***
+     * @since 0.94
+     */
+    public static class BLangPackageVarRef extends BLangSimpleVarRef {
+
+        public BLangPackageVarRef(BVarSymbol varSymbol) {
+            this.symbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

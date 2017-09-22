@@ -42,11 +42,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -202,7 +204,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
-            if (varRefExpr.lhsVariable) {
+            if (varRefExpr.lhsVar) {
                 varRefExpr.type = this.symTable.noType;
             } else {
                 varRefExpr.type = this.symTable.errType;
@@ -527,21 +529,22 @@ public class TypeChecker extends BLangNodeVisitor {
         BType fieldType = symTable.errType;
         switch (recType.tag) {
             case TypeTags.STRUCT:
-                fieldType = checkStructLiteralKeyExpr(keyValuePair.keyExpr, recType, RecordKind.STRUCT);
+                fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
                 break;
             case TypeTags.MAP:
-                fieldType = checkMAPLiteralKeyExpr(keyValuePair.keyExpr, recType, RecordKind.STRUCT);
+                fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.keyExpr, recType, RecordKind.STRUCT);
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
         }
 
         BLangExpression valueExpr = keyValuePair.valueExpr;
         checkExpr(valueExpr, this.env, Lists.of(fieldType));
     }
 
-    private BType checkStructLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
+    private BType checkStructLiteralKeyExpr(BLangRecordKey key, BType recordType, RecordKind recKind) {
         Name fieldName;
+        BLangExpression keyExpr = key.expr;
 
         if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
             return symTable.errType;
@@ -561,7 +564,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check weather the struct field exists
-        return checkStructFieldAccess(keyExpr, fieldName, recordType);
+        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, fieldName, recordType.tsymbol);
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            return symTable.errType;
+        }
+
+        // Setting the struct field symbol for future use in Desugar and code generator.
+        key.fieldSymbol = (BVarSymbol) fieldSymbol;
+        return fieldSymbol.type;
     }
 
     private BType checkJSONLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
@@ -573,7 +583,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.jsonType;
     }
 
-    private BType checkMAPLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
+    private BType checkMapLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
         if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
             return symTable.errType;
         }
@@ -609,11 +619,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkExpr(indexExpr, this.env, Lists.of(symTable.stringType)).get(0);
     }
 
-    private BType checkStructFieldAccess(BLangExpression fieldAccessExpr, Name fieldName, BType structType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, fieldName, structType.tsymbol);
+    private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             return symTable.errType;
         }
+
+        // Setting the field symbol. This is used during the code generation phase
+        varReferExpr.symbol = (BVarSymbol) fieldSymbol;
         return fieldSymbol.type;
     }
 }

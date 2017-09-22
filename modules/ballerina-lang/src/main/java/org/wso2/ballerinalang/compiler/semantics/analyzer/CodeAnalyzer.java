@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -107,7 +106,6 @@ import java.util.Map;
  * 
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
- * (*) Dead code detection.
  * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
@@ -117,7 +115,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private int loopCount;
     private boolean statementReturns;
-    private boolean deadCode;
     private DiagnosticLog dlog;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -132,11 +129,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.dlog = DiagnosticLog.getInstance(context);
     }
-    
-    private void resetPackage() {
-        this.deadCode = false;
-    }
-    
+
     private void resetFunction() {
         this.resetStatementReturns();
     }
@@ -146,7 +139,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.resetPackage();
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -175,29 +167,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        this.checkUnreachableCode(forkJoin);
         forkJoin.workers.forEach(e -> e.accept(this));
+        forkJoin.joinedBody.accept(this);
+        if (forkJoin.timeoutBody != null) {
+            forkJoin.timeoutBody.accept(this);
+            this.resetStatementReturns();
+        }
     }
     
     @Override
     public void visit(BLangWorker worker) {
         worker.body.accept(this);
+        this.resetStatementReturns();
     }
     
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
-        }
-    }
-    
-    private void checkDeadCode(BLangStatement stmt) {
-        if (this.deadCode) {
-            this.dlog.warning(stmt.pos, DiagnosticCode.DEAD_CODE);
+            this.resetStatementReturns();
         }
     }
     
     private void checkStatementExecutionValidity(BLangStatement stmt) {
         this.checkUnreachableCode(stmt);
-        this.checkDeadCode(stmt);
     }
     
     @Override
@@ -215,47 +208,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifStmt) {
         this.checkStatementExecutionValidity(ifStmt);
-        if (this.statementReturns) {
-            /* if statement has already returned, 
-             * don't check dead code and all */
-            ifStmt.body.accept(this);
-            if (ifStmt.elseStmt != null) {
-                ifStmt.elseStmt.accept(this);
-            }
-        } else {
-            boolean currentDeadCode = this.deadCode;
-            if (isBooleanFalse(ifStmt.expr)) {
-                this.deadCode = true;
-            }
-            ifStmt.body.accept(this);
-            boolean ifStmtReturns = this.statementReturns;
-            if (ifStmtReturns && isBooleanTrue(ifStmt.expr)) {
-                currentDeadCode = true;
-            }
-            this.resetStatementReturns();
-            this.deadCode = currentDeadCode;
-            if (ifStmt.elseStmt != null) {
-                if (isBooleanTrue(ifStmt.expr)) {
-                    this.deadCode = true;
-                }
-                ifStmt.elseStmt.accept(this);
-                if (this.statementReturns && isBooleanFalse(ifStmt.expr)) {
-                    currentDeadCode = true;
-                }
-                this.statementReturns = ifStmtReturns && this.statementReturns;
-                this.deadCode = currentDeadCode;
-            }
+        ifStmt.body.accept(this);
+        boolean ifStmtReturns = this.statementReturns;
+        this.resetStatementReturns();
+        if (ifStmt.elseStmt != null) {
+            ifStmt.elseStmt.accept(this);
+            this.statementReturns = ifStmtReturns && this.statementReturns;
         }
     }
-    
-    private boolean isBooleanTrue(BLangExpression expr) {
-        return (expr instanceof LiteralNode) && ((LiteralNode) expr).getValue().equals(Boolean.TRUE);
-    }
-    
-    private boolean isBooleanFalse(BLangExpression expr) {
-        return (expr instanceof LiteralNode) && ((LiteralNode) expr).getValue().equals(Boolean.FALSE);
-    }
-        
+
     @Override
     public void visit(BLangWhile whileNode) {
         this.checkStatementExecutionValidity(whileNode);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -65,12 +66,12 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangRecordKeyValue extends BLangNode implements RecordKeyValueNode {
 
-        public BLangExpression keyExpr;
+        public BLangRecordKey key;
         public BLangExpression valueExpr;
 
         @Override
         public BLangExpression getKey() {
-            return keyExpr;
+            return key.expr;
         }
 
         @Override
@@ -86,6 +87,76 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public void accept(BLangNodeVisitor visitor) {
 
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangRecordKey extends BLangNode {
+
+        public BLangExpression expr;
+
+        // This field is set only if the record type is struct.
+        public BVarSymbol fieldSymbol;
+
+        public BLangRecordKey(BLangExpression expr) {
+            this.expr = expr;
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return null;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangStructLiteral extends BLangRecordLiteral {
+
+        public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs) {
+            this.keyValuePairs = keyValuePairs;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangMapLiteral extends BLangRecordLiteral {
+
+        public BLangMapLiteral(List<BLangRecordKeyValue> keyValuePairs) {
+            this.keyValuePairs = keyValuePairs;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangJSONLiteral extends BLangRecordLiteral {
+
+        public BLangJSONLiteral(List<BLangRecordKeyValue> keyValuePairs) {
+            this.keyValuePairs = keyValuePairs;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }

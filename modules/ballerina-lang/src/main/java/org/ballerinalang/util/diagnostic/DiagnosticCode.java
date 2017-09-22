@@ -46,7 +46,6 @@ public enum DiagnosticCode {
 
     FUNCTION_MUST_RETURN("function.must.return"),
     UNREACHABLE_CODE("unreachable.code"),
-    DEAD_CODE("dead.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
 
