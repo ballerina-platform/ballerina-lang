@@ -139,7 +139,7 @@ public class Util {
     /**
      * Prepare request message with Transfer-Encoding/Content-Length
      *
-     * @param cMsg CarbonMessage
+     * @param cMsg HTTPCarbonMessage
      */
     public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg) {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
