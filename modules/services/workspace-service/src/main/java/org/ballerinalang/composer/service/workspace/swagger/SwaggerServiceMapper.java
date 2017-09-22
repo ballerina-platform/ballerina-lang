@@ -57,7 +57,12 @@ public class SwaggerServiceMapper {
     private String httpAlias;
     private String swaggerAlias;
     private ObjectMapper objectMapper;
-
+    
+    /**
+     * Initializes a service parser for swagger.
+     * @param httpAlias The alias for ballerina.net.http package.
+     * @param swaggerAlias The alias for ballerina.net.http.swagger package.
+     */
     public SwaggerServiceMapper(String httpAlias, String swaggerAlias) {
         // Default object mapper is JSON mapper available in swagger utils.
         this.httpAlias = httpAlias;
@@ -104,7 +109,8 @@ public class SwaggerServiceMapper {
      * @param swagger The swagger definition to build up.
      */
     private void parseServiceConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
-        Optional<? extends AnnotationAttachmentNode> swaggerConfigAnnotation = service.getAnnotationAttachments().stream()
+        Optional<? extends AnnotationAttachmentNode> swaggerConfigAnnotation = service.getAnnotationAttachments()
+                .stream()
                 .filter(a -> (this.swaggerAlias + ":" + "ServiceConfig").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         
@@ -114,7 +120,8 @@ public class SwaggerServiceMapper {
             if (serviceConfigAttributes.containsKey("host")) {
                 swagger.setHost(this.getStringLiteralValue(serviceConfigAttributes.get("host")));
             }
-            if (serviceConfigAttributes.containsKey("schemes") && serviceConfigAttributes.get("schemes").getValueArray().size() > 0) {
+            if (serviceConfigAttributes.containsKey("schemes") &&
+                                                    serviceConfigAttributes.get("schemes").getValueArray().size() > 0) {
                 List<Scheme> schemes = new LinkedList<>();
                 for (AnnotationAttachmentAttributeValueNode schemesNodes : serviceConfigAttributes.get("schemes")
                         .getValueArray()) {
@@ -136,10 +143,12 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The annotation attribute value for security definitions.
      * @param swagger The swagger definition.
      */
-    private void createSecurityDefinitionsModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Swagger swagger) {
+    private void createSecurityDefinitionsModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
+                                                                                                    Swagger swagger) {
         if (null != annotationAttributeValue) {
             Map<String, SecuritySchemeDefinition> securitySchemeDefinitionMap = new HashMap<>();
-            for (AnnotationAttachmentAttributeValueNode authorizationValues : annotationAttributeValue.getValueArray()) {
+            for (AnnotationAttachmentAttributeValueNode authorizationValues :
+                                                                            annotationAttributeValue.getValueArray()) {
                 AnnotationAttachmentNode authAnnotationAttachment = (AnnotationAttachmentNode)authorizationValues;
                 Map<String, AnnotationAttachmentAttributeValueNode> authAttributes =
                         this.listToMap(authAnnotationAttachment);
@@ -164,10 +173,12 @@ public class SwaggerServiceMapper {
                     } else if ("oauth2".equals(type)) {
                         OAuth2Definition oAuth2Definition = new OAuth2Definition();
                         oAuth2Definition.setFlow(this.getStringLiteralValue(authAttributes.get("flow")));
-                        oAuth2Definition.setAuthorizationUrl(this.getStringLiteralValue(authAttributes.get("authorizationUrl")));
+                        oAuth2Definition.setAuthorizationUrl(
+                                                    this.getStringLiteralValue(authAttributes.get("authorizationUrl")));
                         oAuth2Definition.setTokenUrl(this.getStringLiteralValue(authAttributes.get("tokenUrl")));
     
-                        this.createSecurityDefinitionScopesModel(authAttributes.get("authorizationScopes"), oAuth2Definition);
+                        this.createSecurityDefinitionScopesModel(authAttributes.get("authorizationScopes"),
+                                                                                                    oAuth2Definition);
                         
                         oAuth2Definition.setDescription(description);
                         securitySchemeDefinitionMap.put(name, oAuth2Definition);
@@ -211,7 +222,8 @@ public class SwaggerServiceMapper {
                 .version("1.0.0")
                 .title(service.getName().getValue());
         if (swaggerInfoAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> attributes = this.listToMap(swaggerInfoAnnotation.get());
+            Map<String, AnnotationAttachmentAttributeValueNode> attributes =
+                                                                        this.listToMap(swaggerInfoAnnotation.get());
             if (attributes.containsKey("version")) {
                 info.version(this.getStringLiteralValue(attributes.get("version")));
             }
@@ -245,7 +257,8 @@ public class SwaggerServiceMapper {
             List<Developer> developers = new LinkedList<>();
             for (AnnotationAttachmentAttributeValueNode value : annotationAttributeValue.getValueArray()) {
                 AnnotationAttachmentNode developerAnnotation = (AnnotationAttachmentNode) value;
-                Map<String, AnnotationAttachmentAttributeValueNode> developerAttributes = this.listToMap(developerAnnotation);
+                Map<String, AnnotationAttachmentAttributeValueNode> developerAttributes =
+                                                                                    this.listToMap(developerAnnotation);
                 Developer developer = new Developer();
                 if (developerAttributes.containsKey("name")) {
                     developer.setName(this.getStringLiteralValue(developerAttributes.get("name")));
@@ -266,7 +279,8 @@ public class SwaggerServiceMapper {
      */
     private void createOrganizationModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachmentNode organizationAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue;
+            AnnotationAttachmentNode organizationAnnotationAttachment =
+                                                                    (AnnotationAttachmentNode)annotationAttributeValue;
             
             Map<String, AnnotationAttachmentAttributeValueNode> organizationAttributes =
                     this.listToMap(organizationAnnotationAttachment);
@@ -313,9 +327,11 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The ballerina annotation attribute value for external docs.
      * @param swagger The swagger definition which the external docs needs to be build on.
      */
-    private void createExternalDocModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Swagger swagger) {
+    private void createExternalDocModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
+                                                                                                    Swagger swagger) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachmentNode externalDocAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+            AnnotationAttachmentNode externalDocAnnotationAttachment =
+                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
             Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
                     this.listToMap(externalDocAnnotationAttachment);
             ExternalDocs externalDocs = new ExternalDocs();
@@ -337,7 +353,8 @@ public class SwaggerServiceMapper {
      */
     private void createContactModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachmentNode contactAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+            AnnotationAttachmentNode contactAnnotationAttachment =
+                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
             
             Map<String, AnnotationAttachmentAttributeValueNode> contactAttributes =
                     this.listToMap(contactAnnotationAttachment);
@@ -363,7 +380,8 @@ public class SwaggerServiceMapper {
      */
     private void createLicenseModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachmentNode licenseAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+            AnnotationAttachmentNode licenseAnnotationAttachment =
+                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
             Map<String, AnnotationAttachmentAttributeValueNode> licenseAttributes =
                     this.listToMap(licenseAnnotationAttachment);
             License license = new License();
@@ -385,7 +403,8 @@ public class SwaggerServiceMapper {
      * @param swagger The swagger to build up.
      */
     private void parseConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
-        Optional<? extends AnnotationAttachmentNode> httpConfigAnnotationAttachment = service.getAnnotationAttachments().stream()
+        Optional<? extends AnnotationAttachmentNode> httpConfigAnnotationAttachment = service.getAnnotationAttachments()
+                .stream()
                 .filter(a -> (this.httpAlias + ":" + "configuration").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (httpConfigAnnotationAttachment.isPresent()) {
@@ -400,28 +419,32 @@ public class SwaggerServiceMapper {
             }
         }
     
-        Optional<? extends AnnotationAttachmentNode> consumesAnnotationAttachment = service.getAnnotationAttachments().stream()
+        Optional<? extends AnnotationAttachmentNode> consumesAnnotationAttachment = service.getAnnotationAttachments()
+                .stream()
                 .filter(a -> (this.httpAlias + ":" + "Consumes").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (consumesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> consumesAttributes =
                     this.listToMap(consumesAnnotationAttachment.get());
             List<String> consumes = new LinkedList<>();
-            for (AnnotationAttachmentAttributeValueNode consumesValue : consumesAttributes.get("value").getValueArray()) {
+            for (AnnotationAttachmentAttributeValueNode consumesValue :
+                                                                    consumesAttributes.get("value").getValueArray()) {
                 consumes.add(this.getStringLiteralValue(consumesValue));
             }
     
             swagger.setConsumes(consumes);
         }
     
-        Optional<? extends AnnotationAttachmentNode> producesAnnotationAttachment = service.getAnnotationAttachments().stream()
+        Optional<? extends AnnotationAttachmentNode> producesAnnotationAttachment = service.getAnnotationAttachments()
+                .stream()
                 .filter(a -> (this.httpAlias + ":" + "Produces").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (producesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> consumesAttributes =
                     this.listToMap(producesAnnotationAttachment.get());
             List<String> produces = new LinkedList<>();
-            for (AnnotationAttachmentAttributeValueNode consumesValue : consumesAttributes.get("value").getValueArray()) {
+            for (AnnotationAttachmentAttributeValueNode consumesValue :
+                                                                    consumesAttributes.get("value").getValueArray()) {
                 produces.add(this.getStringLiteralValue(consumesValue));
             }
         
@@ -429,12 +452,23 @@ public class SwaggerServiceMapper {
         }
     }
     
+    /**
+     * Converts the attributes of an annotation to a map of key being attribute key and value being an annotation
+     * attachment value.
+     * @param annotation The annotation attachment node.
+     * @return A map of attributes.
+     */
     private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
         return annotation.geAttributes().stream().collect(
                 Collectors.toMap(AnnotationAttachmentAttributeNode::getName, AnnotationAttachmentAttributeNode
                         ::getValue));
     }
     
+    /**
+     * Coverts the string value of an annotation attachment to a string.
+     * @param valueNode The annotation attachment.
+     * @return The string value.
+     */
     private String getStringLiteralValue(AnnotationAttachmentAttributeValueNode valueNode) {
         return ((LiteralNode)valueNode.getValue()).getValue().toString();
     }

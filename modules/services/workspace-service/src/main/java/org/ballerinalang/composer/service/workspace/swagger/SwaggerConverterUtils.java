@@ -114,7 +114,8 @@ public class SwaggerConverterUtils {
         // Registering custom PackageRepository to provide ballerina content without a file in file-system
         context.put(PackageRepository.class, new InMemoryPackageRepository(
                 new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
-                ballerinaFile.getFilePath(), ballerinaFile.getFileName(), ballerinaFile.getContent().getBytes(StandardCharsets.UTF_8)));
+                ballerinaFile.getFilePath(), ballerinaFile.getFileName(),
+                ballerinaFile.getContent().getBytes(StandardCharsets.UTF_8)));
     
         Compiler compiler = Compiler.getInstance(context);
         org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(ballerinaFile.getFileName());
@@ -543,6 +544,12 @@ public class SwaggerConverterUtils {
         return swaggerSource;
     }
     
+    /**
+     * Gets the alias for a given package from a bLang file root node.
+     * @param topCompilationUnit The root node.
+     * @param packageName The package name.
+     * @return The alias.
+     */
     private static String getAlias(BLangCompilationUnit topCompilationUnit, String packageName) {
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
             if (topLevelNode instanceof BLangImportPackage) {
