@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS } from 'core/layout/constants';
@@ -25,7 +25,7 @@ import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import WelcomeTab from './views/welcome-tab';
-import { LABELS, VIEWS as WELCOME_TAB_VIEWS, WELCOME_TAB_PLUGIN_ID } from './constants';
+import { LABELS, VIEWS as WELCOME_TAB_VIEWS, WELCOME_TAB_PLUGIN_ID, COMMANDS as COMMAND_IDS } from './constants';
 
 /**
  * Plugin for Welcome tab.
@@ -63,6 +63,17 @@ class WelcomeTabPlugin extends Plugin {
     openDirectoryHandler() {
         const { command } = this.appContext;
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
+    }
+
+     /**
+     * @inheritdoc
+     */
+    onAfterInitialRender() {
+        const { editor, command: { dispatch } } = this.appContext;
+        const activeEditor = editor.getActiveEditor();
+        if (_.isNil(activeEditor)) {
+            dispatch(COMMAND_IDS.SHOW_WELCOME, {});
+        }
     }
 
     /**
