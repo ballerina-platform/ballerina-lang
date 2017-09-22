@@ -274,6 +274,167 @@ public class BLangFunctions {
         return returnValues;
     }
 
+    public static BValue[] invokeFunction(ProgramFile bLangProgram, FunctionInfo functionInfo, BValue[] args,
+                                          Context context) {
+        ControlStackNew controlStackNew = context.getControlStackNew();
+
+        PackageInfo packageInfo = functionInfo.getPackageInfo();
+
+        // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
+        // registers to hold function arguments as well as return values from the callee.
+        StackFrame callerSF = new StackFrame(packageInfo, -1, new int[0]);
+        controlStackNew.pushFrame(callerSF);
+
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+
+        // Calculate registers to store return values
+        BType[] retTypes = functionInfo.getRetParamTypes();
+        int[] retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    retRegs[i] = longRegCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    retRegs[i] = doubleRegCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    retRegs[i] = stringRegCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    retRegs[i] = intRegCount++;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    retRegs[i] = byteRegCount++;
+                    break;
+                default:
+                    retRegs[i] = refRegCount++;
+                    break;
+            }
+        }
+
+        callerSF.setLongRegs(new long[longRegCount]);
+        callerSF.setDoubleRegs(new double[doubleRegCount]);
+        callerSF.setStringRegs(new String[stringRegCount]);
+        callerSF.setIntRegs(new int[intRegCount]);
+        callerSF.setRefRegs(new BRefType[refRegCount]);
+        callerSF.setByteRegs(new byte[byteRegCount][]);
+
+        // Now create callee's stackframe
+        WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
+        org.ballerinalang.bre.bvm.StackFrame calleeSF =
+                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
+        controlStackNew.pushFrame(calleeSF);
+
+        int longParamCount = 0;
+        int doubleParamCount = 0;
+        int stringParamCount = 0;
+        int intParamCount = 0;
+        int refParamCount = 0;
+        int byteParamCount = 0;
+
+        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
+
+        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
+        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        // Setting the zero values for strings
+        Arrays.fill(stringLocalVars, "");
+
+        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
+        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+
+        for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
+            BType argType = functionInfo.getParamTypes()[i];
+            switch (argType.getTag()) {
+                case TypeTags.INT_TAG:
+                    longLocalVars[longParamCount] = ((BInteger) args[i]).intValue();
+                    longParamCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    doubleLocalVars[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    doubleParamCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringLocalVars[stringParamCount] = args[i].stringValue();
+                    stringParamCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    intParamCount++;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    byteLocalVars[byteParamCount] = ((BBlob) args[i]).blobValue();
+                    byteParamCount++;
+                    break;
+                default:
+                    refLocalVars[refParamCount] = (BRefType) args[i];
+                    refParamCount++;
+                    break;
+            }
+        }
+
+        calleeSF.setLongLocalVars(longLocalVars);
+        calleeSF.setDoubleLocalVars(doubleLocalVars);
+        calleeSF.setStringLocalVars(stringLocalVars);
+        calleeSF.setIntLocalVars(intLocalVars);
+        calleeSF.setByteLocalVars(byteLocalVars);
+        calleeSF.setRefLocalVars(refLocalVars);
+
+        // Execute workers
+        BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs);
+
+        BLangVM bLangVM = new BLangVM(bLangProgram);
+        context.setStartIP(codeAttribInfo.getCodeAddrs());
+        bLangVM.run(context);
+
+        if (context.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
+
+        longRegCount = 0;
+        doubleRegCount = 0;
+        stringRegCount = 0;
+        intRegCount = 0;
+        refRegCount = 0;
+        byteRegCount = 0;
+        BValue[] returnValues = new BValue[retTypes.length];
+        for (int i = 0; i < returnValues.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);
+                    break;
+                case TypeTags.STRING_TAG:
+                    returnValues[i] = new BString(callerSF.getStringRegs()[stringRegCount++]);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    boolean boolValue = callerSF.getIntRegs()[intRegCount++] == 1;
+                    returnValues[i] = new BBoolean(boolValue);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    returnValues[i] = new BBlob(callerSF.getByteRegs()[byteRegCount++]);
+                    break;
+                default:
+                    returnValues[i] = callerSF.getRefRegs()[refRegCount++];
+                    break;
+            }
+        }
+
+        return returnValues;
+    }
+
     public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
         StackFrame stackFrame = new StackFrame(initFuncInfo, defaultWorker, -1, new int[0]);
