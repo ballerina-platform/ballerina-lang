@@ -20,7 +20,6 @@ package org.ballerinalang.logging.handlers;
 
 import org.ballerinalang.logging.BLogRecord;
 import org.ballerinalang.logging.formatters.BLogFormatter;
-import org.ballerinalang.logging.formatters.ConsoleLogFormatter;
 
 /**
  * A handler implementation for logging to the console
@@ -29,7 +28,11 @@ import org.ballerinalang.logging.formatters.ConsoleLogFormatter;
  */
 public class BConsoleLogHandler extends BLogHandler {
 
-    private BLogFormatter logFormatter = new ConsoleLogFormatter();
+    private BLogFormatter logFormatter;
+
+    public BConsoleLogHandler(BLogFormatter logFormatter) {
+        this.logFormatter = logFormatter;
+    }
 
     @Override
     public void publish(BLogRecord logRecord) {

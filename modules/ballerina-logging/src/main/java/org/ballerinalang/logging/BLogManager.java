@@ -22,6 +22,7 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.logging.util.BLogLevelMapper;
 import org.ballerinalang.logging.util.ConfigMapper;
 import org.ballerinalang.logging.util.Constants;
+import org.ballerinalang.logging.util.FormatStringMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,7 +53,6 @@ public class BLogManager extends LogManager {
 //    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     private Logger httpTraceLogger;
-    private HashMap<String, BLogLevel> logLevelMap = new HashMap<>();
     private BLogLevel ballerinaRootLogLevel;
     private Properties logConfigs = new Properties();
 
@@ -60,6 +60,7 @@ public class BLogManager extends LogManager {
     public void readConfiguration() throws IOException {
         logConfigs = getDefaultConfiguration();
         Properties sysProps = System.getProperties();
+        FormatStringMapper mapper = FormatStringMapper.getInstance();
 
         sysProps.forEach((k, v) -> {
             String key = (String) k;
@@ -75,7 +76,7 @@ public class BLogManager extends LogManager {
                         logConfigs.setProperty(Constants.LEVEL, logConfigs.getProperty(property));
                     }
                 } else if (property.endsWith(".format")) {
-                    logConfigs.setProperty(property, val);
+                    logConfigs.setProperty(property, mapper.buildJDKLogFormat(key, val));
                 }
             }
         });

@@ -18,11 +18,18 @@
 
 package org.ballerinalang.logging.util;
 
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.formatters.ConsoleLogFormatter;
+import org.ballerinalang.logging.formatters.jul.BRELogFormatter;
+import org.ballerinalang.logging.formatters.jul.HTTPTraceLogFormatter;
+
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,35 +43,55 @@ import java.util.stream.Stream;
  */
 public class FormatStringMapper {
 
+    private static final FormatStringMapper formatStringMapper = new FormatStringMapper();
+    private static final String defaultTimestampFmt = "yyyy-MM-dd HH:mm:ss,SSS";
     private static final String logFormatRegex =
             "\\{\\{timestamp\\}\\}(\\[[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']+\\])?|\\{\\{\\w+\\}\\}";
     private static final Pattern logPattern = Pattern.compile(logFormatRegex);
-    private static final Set<String> validPlaceholders;
 
-    private SimpleDateFormat dateFormat;
-    private String[] tokens;
+    private final Map<String, Map<String, Integer>> placeholderMap;
+    private final Map<String, SimpleDateFormat> dateFormatMap = new HashMap<>();
 
-    static {
-        validPlaceholders = Collections.unmodifiableSet(Stream.of(
-                Constants.FMT_TIMESTAMP, Constants.FMT_LEVEL, Constants.FMT_LOGGER, Constants.FMT_PACKAGE,
-                Constants.FMT_UNIT, Constants.FMT_FILE, Constants.FMT_LINE, Constants.FMT_WORKER, Constants.FMT_MESSAGE,
-                Constants.FMT_ERROR).collect(Collectors.toSet()));
+    private FormatStringMapper() {
+        placeholderMap = Collections.unmodifiableMap(Stream.of(
+                new AbstractMap.SimpleEntry<>(Constants.BALLERINA_LOG_FORMAT, ConsoleLogFormatter.PLACEHOLDERS_MAP),
+                new AbstractMap.SimpleEntry<>(Constants.LOG_BRE_LOG_FORMAT, BRELogFormatter.PLACEHOLDERS_MAP),
+                new AbstractMap.SimpleEntry<>(Constants.LOG_TRACELOG_HTTP_FORMAT,
+                                              HTTPTraceLogFormatter.PLACEHOLDERS_MAP)
+        ).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
     }
 
-    public String buildJDKLogFormat(String logFormat) {
-        tokens = parseFormatString(logFormat);
+    public static FormatStringMapper getInstance() {
+        return formatStringMapper;
+    }
+
+    /**
+     * This method takes in a Ballerina log format string and converts it in to format strings used in String formatters
+     * in Java. This also makes use of the placeholder map to determine the positions of the log record items within the
+     * log message.
+     *
+     * @param logFormatKey The .format configuration key for a particular logger
+     * @param logFormatVal Ballerina log format to be mapped to the Java format string
+     * @return The Java format string equivalent of the provided Ballerina log format string
+     */
+    public String buildJDKLogFormat(String logFormatKey, String logFormatVal) {
+        String[] tokens = parseFormatString(logFormatVal);
         StringBuilder formatBuilder = new StringBuilder();
 
-        for (int i = 0, j = 0; i < tokens.length; i++) {
+        for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].startsWith(Constants.FMT_TIMESTAMP)) {
-                dateFormat =
-                        new SimpleDateFormat(
-                                tokens[i].substring(Constants.FMT_TIMESTAMP.length() + 1, tokens[i].length() - 1));
-                formatBuilder.append("%" + (j + 1) + "$s");
-                j++;
-            } else if (isAPlaceholderToken(tokens[i])) {
-                formatBuilder.append("%" + (j + 1) + "$s");
-                j++;
+                String format;
+                try {
+                    format = tokens[i].substring(Constants.FMT_TIMESTAMP.length() + 1, tokens[i].length() - 1);
+                } catch (Exception e) {
+                    BLogManager.STD_ERR.println(
+                            "Invalid timestamp format detected. Defaulting to: \"" + defaultTimestampFmt + "\"");
+                    format = defaultTimestampFmt;
+                }
+                dateFormatMap.put(logFormatKey, new SimpleDateFormat(format));
+                formatBuilder.append("%1$s");
+            } else if (placeholderMap.get(logFormatKey).containsKey(tokens[i])) {
+                formatBuilder.append("%" + placeholderMap.get(logFormatKey).get(tokens[i]) + "$s");
             } else {
                 formatBuilder.append(tokens[i]);
             }
@@ -74,12 +101,19 @@ public class FormatStringMapper {
         return formatBuilder.toString();
     }
 
-    public SimpleDateFormat getDateFormat() {
-        if (dateFormat != null) {
-            return dateFormat;
-        }
-
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS"); // default timestamp format if it is not set
+    /**
+     * This method can be used to retrieve the timestamp format to be used with a particular logger. The timestamp
+     * formats are added in the buildJDKLogFormat() method, when mapping the Ballerina log format string to a Java
+     * format string. Therefore, this relies on buildJDKLogFormat() being called beforehand to ensure the correct
+     * timestamp format is returned for a particular logger. In the event that it fails to find a timestamp format for a
+     * particular logger, the default timestamp format used in Ballerina is returned.
+     *
+     * @param key The .format configuration key for a particular logger
+     * @return The timestamp format corresponding to the 'key'
+     */
+    public SimpleDateFormat getDateFormat(String key) {
+        SimpleDateFormat sdf = dateFormatMap.get(key);
+        return sdf != null ? sdf : new SimpleDateFormat(defaultTimestampFmt);
     }
 
     private String[] parseFormatString(String formatString) {
@@ -97,11 +131,6 @@ public class FormatStringMapper {
         }
         tokens.add(formatString.substring(i));
 
-        // TODO: Validate the tokens
         return tokens.toArray(new String[tokens.size()]);
-    }
-
-    private boolean isAPlaceholderToken(String token) {
-        return validPlaceholders.contains(token);
     }
 }

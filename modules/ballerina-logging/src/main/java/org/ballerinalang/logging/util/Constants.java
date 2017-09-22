@@ -68,10 +68,15 @@ public class Constants {
     public static final String FMT_LEVEL = "{{level}}";
     public static final String FMT_LOGGER = "{{logger}}";
     public static final String FMT_PACKAGE = "{{package}}";
+    public static final String FMT_CLASS = "{{class}}";
     public static final String FMT_UNIT = "{{unit}}";
     public static final String FMT_FILE = "{{file}}";
     public static final String FMT_LINE = "{{line}}";
     public static final String FMT_WORKER = "{{worker}}";
     public static final String FMT_MESSAGE = "{{msg}}";
     public static final String FMT_ERROR = "{{err}}";
+
+    /* BALLERINA.CONF FILE RELATED CONSTANTS */
+    public static final String LOG_BRE_LOG_FORMAT = "log.ballerina.runtime.format";
+    public static final String LOG_TRACELOG_HTTP_FORMAT = "log.tracelog.http.format";
 }

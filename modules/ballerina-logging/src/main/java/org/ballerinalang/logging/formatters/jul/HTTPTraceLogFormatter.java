@@ -20,14 +20,20 @@ package org.ballerinalang.logging.formatters.jul;
 
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevelMapper;
+import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.logging.util.FormatStringMapper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A custom log formatter for formatting HTTP trace log files.
@@ -36,21 +42,33 @@ import java.util.logging.LogRecord;
  */
 public class HTTPTraceLogFormatter extends Formatter {
 
+    public static final Map<String, Integer> PLACEHOLDERS_MAP;
     private final String format;
-    private final String jdkLogFormat;
-    private final FormatStringMapper parser = new FormatStringMapper();
+//    private final String jdkLogFormat;
+//    private final FormatStringMapper parser;
 
     private SimpleDateFormat dateFormat;
 
+    static {
+        PLACEHOLDERS_MAP = Collections.unmodifiableMap(Stream.of(
+                new AbstractMap.SimpleEntry<>(Constants.FMT_TIMESTAMP, 1),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_LEVEL, 2),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_LOGGER, 3),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_WORKER, 4),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_MESSAGE, 5),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_ERROR, 6)
+        ).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
+    }
+
     public HTTPTraceLogFormatter() {
+//        parser = new FormatStringMapper();
         format = BLogManager.getLogManager().getProperty(HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
-        jdkLogFormat = parser.buildJDKLogFormat(format);
-        dateFormat = parser.getDateFormat();
+//        jdkLogFormat = parser.buildJDKLogFormat(, format);
+        dateFormat = FormatStringMapper.getInstance().getDateFormat(Constants.LOG_TRACELOG_HTTP_FORMAT);
     }
 
     @Override
     public String format(LogRecord record) {
-        String source = record.getLoggerName();
         String ex = "";
 
         if (record.getThrown() != null) {
@@ -60,10 +78,11 @@ public class HTTPTraceLogFormatter extends Formatter {
             ex = stringWriter.toString();
         }
 
-        return String.format(jdkLogFormat,
+        return String.format(format,
                              dateFormat.format(new Date(record.getMillis())),
                              BLogLevelMapper.getBallerinaLogLevel(record.getLevel()),
-                             source,
+                             record.getLoggerName(),
+                             record.getThreadID(),
                              record.getMessage(),
                              ex);
     }

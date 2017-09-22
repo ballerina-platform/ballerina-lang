@@ -18,13 +18,17 @@
 
 package org.ballerinalang.logging.formatters;
 
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.BLogRecord;
 import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.logging.util.FormatStringMapper;
 
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A formatter for formatting the messages logged to the console
@@ -33,22 +37,36 @@ import java.util.Date;
  */
 public class ConsoleLogFormatter implements BLogFormatter {
 
+    public static final Map<String, Integer> PLACEHOLDERS_MAP;
+
     private final String logFormat;
-    private final String jdkLogFormat;
-    private final FormatStringMapper parser = new FormatStringMapper();
 
     private SimpleDateFormat dateFormat;
 
-    public ConsoleLogFormatter() {
-        logFormat = BLogManager.getLogManager().getProperty(Constants.BALLERINA_LOG_FORMAT);
-        jdkLogFormat = parser.buildJDKLogFormat(logFormat);
-        dateFormat = parser.getDateFormat();
+    static {
+        PLACEHOLDERS_MAP = Collections.unmodifiableMap(Stream.of(
+                new AbstractMap.SimpleEntry<>(Constants.FMT_TIMESTAMP, 1),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_LEVEL, 2),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_LOGGER, 3),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_PACKAGE, 4),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_UNIT, 5),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_FILE, 6),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_LINE, 7),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_WORKER, 8),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_MESSAGE, 9),
+                new AbstractMap.SimpleEntry<>(Constants.FMT_ERROR, 10)
+        ).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
+    }
+
+    public ConsoleLogFormatter(String logFormat) {
+        this.logFormat = logFormat;
+        dateFormat = FormatStringMapper.getInstance().getDateFormat(Constants.BALLERINA_LOG_FORMAT);
     }
 
     @Override
     public String format(BLogRecord logRecord) {
         String error = logRecord.getError();
-        return String.format(jdkLogFormat,
+        return String.format(logFormat,
                              dateFormat.format(new Date(logRecord.getTimestamp())),
                              logRecord.getLevel().name(),
                              logRecord.getLoggerName(),

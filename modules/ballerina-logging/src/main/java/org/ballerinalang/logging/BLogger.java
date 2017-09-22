@@ -18,9 +18,11 @@
 
 package org.ballerinalang.logging;
 
+import org.ballerinalang.logging.formatters.ConsoleLogFormatter;
 import org.ballerinalang.logging.handlers.BConsoleLogHandler;
 import org.ballerinalang.logging.handlers.BLogHandler;
 import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.logging.util.Constants;
 
 /**
  * Logger for the Ballerina log API
@@ -36,7 +38,8 @@ public class BLogger {
 
     public BLogger(String name) {
         this.name = name;
-        this.logHandler = new BConsoleLogHandler();
+        this.logHandler = new BConsoleLogHandler(
+                new ConsoleLogFormatter(BLogManager.getLogManager().getProperty(Constants.BALLERINA_LOG_FORMAT)));
         this.logManager = (BLogManager) BLogManager.getLogManager();
     }
 
