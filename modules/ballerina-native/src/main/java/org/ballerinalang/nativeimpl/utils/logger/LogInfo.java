@@ -47,7 +47,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                                                                         value = "The message to be logged.")})
 public class LogInfo extends AbstractLogFunction {
 
-    private static final BLogger logger = new BLogger("ballerina.logger.info");
+    private static final BLogger logger = new BLogger("ballerina.logger.info", BLogLevel.INFO);
 
     public BValue[] execute(Context ctx) {
         BLogRecord logRecord = createLogRecord(ctx, BLogLevel.INFO);

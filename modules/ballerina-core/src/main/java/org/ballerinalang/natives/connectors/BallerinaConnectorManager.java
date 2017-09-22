@@ -88,7 +88,7 @@ public class BallerinaConnectorManager {
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
-        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty(Constants.HTTP_TRACELOG)))) {
+        if (Boolean.valueOf(System.getProperty(Constants.HTTP_TRACELOG))) {
             try {
                 ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
             } catch (IOException e) {
@@ -169,7 +169,7 @@ public class BallerinaConnectorManager {
             }
         }
 
-        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty(Constants.HTTP_TRACELOG)))) {
+        if (Boolean.valueOf(System.getProperty(Constants.HTTP_TRACELOG))) {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
@@ -331,7 +331,7 @@ public class BallerinaConnectorManager {
         SenderConfiguration senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
 
-        if (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty(Constants.HTTP_TRACELOG)))) {
+        if (Boolean.valueOf(System.getProperty(Constants.HTTP_TRACELOG))) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
 

@@ -77,6 +77,8 @@ public class FormatStringMapper {
     public String buildJDKLogFormat(String logFormatKey, String logFormatVal) {
         String[] tokens = parseFormatString(logFormatVal);
         StringBuilder formatBuilder = new StringBuilder();
+        Map<String, Integer> placeholders = placeholderMap.get(logFormatKey);
+        placeholders = placeholders != null ? placeholders : placeholderMap.get(Constants.BALLERINA_LOG_FORMAT);
 
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].startsWith(Constants.FMT_TIMESTAMP)) {
@@ -90,7 +92,7 @@ public class FormatStringMapper {
                 }
                 dateFormatMap.put(logFormatKey, new SimpleDateFormat(format));
                 formatBuilder.append("%1$s");
-            } else if (placeholderMap.get(logFormatKey).containsKey(tokens[i])) {
+            } else if (placeholders.containsKey(tokens[i])) {
                 formatBuilder.append("%" + placeholderMap.get(logFormatKey).get(tokens[i]) + "$s");
             } else {
                 formatBuilder.append(tokens[i]);

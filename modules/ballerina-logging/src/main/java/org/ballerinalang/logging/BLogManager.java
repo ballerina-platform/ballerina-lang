@@ -89,7 +89,7 @@ public class BLogManager extends LogManager {
         String traceLogLevel = logConfigs.getProperty(Constants.HTTP_TRACELOG_LEVEL);
         if (traceLogLevel != null &&
                 (BLogLevelMapper.getBallerinaLogLevel(traceLogLevel) == BLogLevel.DEBUG)) {
-            System.setProperty(Constants.HTTP_TRACELOG, Constants.LOG_DEST_CONSOLE);
+            System.setProperty(Constants.HTTP_TRACELOG, String.valueOf(true));
             setHttpTraceLogHandler();
         }
 

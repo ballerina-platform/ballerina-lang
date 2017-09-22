@@ -31,16 +31,17 @@ import org.ballerinalang.logging.util.Constants;
  */
 public class BLogger {
 
-    private BLogLevel level; // system log level
+    private BLogLevel level;
     private String name;
     private BLogHandler logHandler;
     private BLogManager logManager;
 
-    public BLogger(String name) {
+    public BLogger(String name, BLogLevel level) {
         this.name = name;
         this.logHandler = new BConsoleLogHandler(
                 new ConsoleLogFormatter(BLogManager.getLogManager().getProperty(Constants.BALLERINA_LOG_FORMAT)));
         this.logManager = (BLogManager) BLogManager.getLogManager();
+        this.level = level;
     }
 
     public void log(BLogRecord logRecord) {
@@ -53,10 +54,6 @@ public class BLogger {
 
     public BLogLevel getLevel() {
         return level;
-    }
-
-    public void setLevel(BLogLevel level) {
-        this.level = level;
     }
 
     public String getName() {
@@ -76,6 +73,7 @@ public class BLogger {
     }
 
     private boolean isLoggable(BLogLevel level, String pkg) {
-        return pkg != null && logManager.getPackageLogLevel(pkg).value() <= level.value();
+        return pkg != null &&
+                this.level.value() <= level.value() && logManager.getPackageLogLevel(pkg).value() <= level.value();
     }
 }

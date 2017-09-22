@@ -48,7 +48,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                              @Attribute(name = "err", value = "The error to be logged.")})
 public class LogErrorCause extends AbstractLogFunction {
 
-    private static final BLogger logger = new BLogger("ballerina.logger.errorCause");
+    private static final BLogger logger = new BLogger("ballerina.logger.errorCause", BLogLevel.ERROR);
 
     public BValue[] execute(Context ctx) {
         BLogRecord logRecord = createLogRecord(ctx, BLogLevel.ERROR);
