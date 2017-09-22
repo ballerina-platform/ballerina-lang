@@ -48,11 +48,11 @@ const subtractOpTool = {
     nodeFactoryMethod: operatorStatementCreator,
 };
 
-const devideOpTool = {
-    id: 'devide',
-    name: 'Devide',
-    cssClass: 'icon fw fw-error',
-    title: 'Devide',
+const divideOpTool = {
+    id: 'divide',
+    name: 'Divide',
+    cssClass: 'icon fw fw-divide',
+    title: 'Divide',
     meta: {
         defaultExpression: '0 / 1',
     },
@@ -62,7 +62,7 @@ const devideOpTool = {
 const multiplyOpTool = {
     id: 'multiply',
     name: 'Multiply',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-cancel',
     title: 'Multiply',
     meta: {
         defaultExpression: '0 * 0',
@@ -84,7 +84,7 @@ const powerOpTool = {
 const lessThanOpTool = {
     id: 'lessThan',
     name: 'Less Than',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-right',
     title: 'Less Than',
     meta: {
         defaultExpression: '0 < 0',
@@ -95,7 +95,7 @@ const lessThanOpTool = {
 const greaterThanOpTool = {
     id: 'greaterThan',
     name: 'Greater Than',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-left',
     title: 'Greater Than',
     meta: {
         defaultExpression: '0 > 0',
@@ -172,7 +172,7 @@ const orOpTool = {
 export const binaryOpTools = [
     addOpTool,
     subtractOpTool,
-    devideOpTool,
+    divideOpTool,
     multiplyOpTool,
     powerOpTool,
     getSeperator('sep-numeric'),
