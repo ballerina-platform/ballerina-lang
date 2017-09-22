@@ -87,6 +87,7 @@ class EditorPlugin extends Plugin {
         if (!_.isNil(editorDefinition)) {
             this.onOpenFileInEditor({ file, editorDefinition, activateEditor });
             file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
+            file.on(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
         } else {
             log.error(`No editor is found to open file type ${file.extension}`);
         }
@@ -152,6 +153,7 @@ class EditorPlugin extends Plugin {
         this.setActiveEditor(newActiveEditor);
         if (targetEditor instanceof Editor) {
             targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
+            targetEditor.file.off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
             workspace.closeFile(targetEditor.file);
         }
     }
