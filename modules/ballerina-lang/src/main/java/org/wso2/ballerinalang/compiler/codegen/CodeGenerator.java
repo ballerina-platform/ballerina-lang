@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
+import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
@@ -121,6 +122,7 @@ import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionCallCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
@@ -776,7 +778,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.emit(InstructionCodes.HALT);
         }
     }
-
+    
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
                                           LocalVariableAttributeInfo localVarAttrInfo) {
 
@@ -999,6 +1001,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tBoolean = -1;
         int tBlob = -1;
         int tRef = -1;
+        
+        public int[] toArray() {
+            int[] result = new int[6];
+            result[0] = this.tInt;
+            result[1] = this.tFloat;
+            result[2] = this.tString;
+            result[3] = this.tBoolean;
+            result[4] = this.tBlob;
+            result[5] = this.tRef;
+            return result;
+        }
+        
     }
 
     /**
@@ -1023,9 +1037,132 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangWorker workerNode) {
         this.genNode(workerNode.body, this.env);
     }
+    
+    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy) {
+        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
+        int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+        for (BLangWorker worker : forkJoin.workers) {
+            WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.name.value);
+            workerInfo.codeAttributeInfo.attributeNameIndex = codeAttribNameIndex;
+            workerInfo.codeAttributeInfo.codeAddrs = this.nextIP();
+            this.currentWorkerInfo = workerInfo;
+            this.lvIndexes = this.copyVarIndex(lvIndexesCopy);
+            this.genNode(worker.body, this.env);
+            this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
+            this.emit(InstructionCodes.HALT);
+        }
+    }
+    
+    private ForkjoinInfo processForkJoinTimeout(BLangForkJoin forkJoin) {
+        BLangExpression argExpr = forkJoin.timeoutExpression;
+        int[] retRegs;
+        if (argExpr != null) {
+            retRegs = new int[1];
+            this.genNode(argExpr, this.env);
+            retRegs[0] = argExpr.regIndex;
+        } else {
+            retRegs = new int[0];
+        }
+        VariableIndex argRegs = this.lvIndexes;
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs.toArray(), retRegs);
+        if (argExpr != null) {
+            forkjoinInfo.setTimeoutAvailable(true);
+        }
+        return forkjoinInfo;
+    }
+    
+    private void populatForkJoinWorkerInfo(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
+        for (BLangWorker worker : forkJoin.workers) {
+            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.name.value);
+            int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
+            WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.name.value);
+            forkjoinInfo.addWorkerInfo(worker.name.value, workerInfo);
+        }
+    }
+    
+    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
+        UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
+        int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
+        forkjoinInfo.setJoinType(forkJoin.joinType.name());
+        forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
+        forkjoinInfo.setJoinIp(nextIP());
+        if (forkJoin.joinResultVar != null) {
+            visitForkJoinParameterDefs(forkJoin.joinResultVar);
+        }
+        int joinMemOffset = forkJoin.joinResultVar.symbol.varIndex;
+        forkjoinInfo.setJoinMemOffset(joinMemOffset);
+        if (forkJoin.joinedBody != null) {
+            this.genNode(forkJoin.joinedBody, this.env);
+        }
+    }
+    
+    private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
+        /* emit a GOTO instruction to jump out of the timeout block */
+        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(gotoInstruction);
+        /* generate code for timeout block */
+        forkjoinInfo.setTimeoutIp(nextIP());
+        if (forkJoin.timeoutExpression != null) {
+            this.genNode(forkJoin.timeoutExpression, this.env);
+        }
+        if (forkJoin.timeoutVariable != null) {
+            visitForkJoinParameterDefs(forkJoin.timeoutVariable);
+        }
+        int timeoutMemOffset = forkJoin.joinResultVar.symbol.varIndex;
+        forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
+        if (forkJoin.timeoutBody != null) {
+            this.genNode(forkJoin.timeoutBody, this.env);
+        }
+        gotoInstruction.setOperand(0, nextIP());
+    }
 
     public void visit(BLangForkJoin forkJoin) {
-        /* ignore */
+        ForkjoinInfo forkjoinInfo = this.processForkJoinTimeout(forkJoin);
+        this.populatForkJoinWorkerInfo(forkJoin, forkjoinInfo);
+        int forkJoinIndex;
+        if (this.currentWorkerInfo != null) {
+            forkJoinIndex = this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
+        } else {
+            forkJoinIndex = this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
+        }
+        ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinIndex);
+        forkJoinIndexCPEntry.setForkjoinInfo(forkjoinInfo);
+        int forkJoinIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
+        forkjoinInfo.setIndexCPIndex(forkJoinIndexCPEntryIndex);
+        this.emit(InstructionCodes.FORKJOIN, forkJoinIndexCPEntryIndex);
+        /* visit the workers within fork-join block */
+        VariableIndex lvIndexesCopy = this.copyVarIndex(this.lvIndexes);
+        VariableIndex regIndexesCopy = this.copyVarIndex(this.regIndexes);
+        VariableIndex maxRegIndexesCopy = this.copyVarIndex(this.maxRegIndexes);
+        this.processJoinWorkers(forkJoin, forkjoinInfo, lvIndexesCopy);
+        this.lvIndexes = lvIndexesCopy;
+        this.regIndexes = regIndexesCopy;
+        this.maxRegIndexes = maxRegIndexesCopy;
+        int i = 0;
+        int[] joinWrkrNameCPIndexes = new int[forkJoin.joinedWorkers.size()];
+        String[] joinWrkrNames = new String[joinWrkrNameCPIndexes.length];
+        for (BLangIdentifier workerName : forkJoin.joinedWorkers) {
+            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName.value);
+            int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
+            joinWrkrNameCPIndexes[i] = workerNameCPIndex;
+            joinWrkrNames[i] = workerName.value;
+            i++;
+        }
+        forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
+        forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
+        /* generate code for Join block */
+        this.processJoinBlock(forkJoin, forkjoinInfo);
+        this.processTimeoutBlock(forkJoin, forkjoinInfo);
+    }
+    
+    private void visitForkJoinParameterDefs(BLangVariable parameterDef) {
+        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
+        int lvIndex = this.getNextIndex(parameterDef.type.tag, this.lvIndexes);
+        parameterDef.symbol.varIndex = lvIndex;
+        parameterDef.accept(this);
+        this.genNode(parameterDef, this.env);
+        LocalVariableInfo localVariableDetails = this.getLocalVarAttributeInfo(parameterDef.symbol);
+        localVariableAttributeInfo.localVars.add(localVariableDetails);
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
@@ -1039,7 +1176,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex);
         int workerInvocationIndex = this.getWorkerSendCPIndex(workerSendNode);
-        emit(InstructionCodes.WRKINVOKE, wrkrInvRefCPIndex, workerInvocationIndex);
+        this.emit(InstructionCodes.WRKINVOKE, wrkrInvRefCPIndex, workerInvocationIndex);
     }
     
     private void genNodeList(List<BLangExpression> exprs, SymbolEnv env) {

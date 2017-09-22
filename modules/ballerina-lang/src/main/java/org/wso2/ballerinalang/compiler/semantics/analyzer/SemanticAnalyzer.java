@@ -343,9 +343,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
-        String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        if (!workerSendNode.isForkJoinSend) {
+            String workerName = workerSendNode.workerIdentifier.getValue();
+            if (!this.workerExists(this.env, workerName)) {
+                this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            }
         }
     }
 
