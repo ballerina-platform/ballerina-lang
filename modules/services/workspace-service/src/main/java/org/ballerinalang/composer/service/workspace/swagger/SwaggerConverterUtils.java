@@ -32,8 +32,6 @@ import org.ballerinalang.composer.service.workspace.swagger.generators.Ballerina
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
@@ -51,6 +49,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -58,12 +58,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
@@ -486,7 +485,7 @@ public class SwaggerConverterUtils {
                 getServicesFromBallerinaDefinition(ballerinaDefinition);
         StringBuilder swaggerDefinitionsString = new StringBuilder();
         if (services.length > 0) {
-            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
+//            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
             swaggerDefinitionsString.append("[");
@@ -518,7 +517,9 @@ public class SwaggerConverterUtils {
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
         BLangCompilationUnit topCompilationUnit = SwaggerConverterUtils.getTopLevelNodeFromBallerinaFile(balFile);
-        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
+        String httpAlias = getAlias(topCompilationUnit, "ballerina.net.http");
+        String swaggerAlias = getAlias(topCompilationUnit, "ballerina.net.http.swagger");
+        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
         String swaggerSource = StringUtils.EMPTY;
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
             if (topLevelNode instanceof BLangService) {
@@ -541,7 +542,22 @@ public class SwaggerConverterUtils {
     
         return swaggerSource;
     }
-
+    
+    private static String getAlias(BLangCompilationUnit topCompilationUnit, String packageName) {
+        for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangImportPackage) {
+                BLangImportPackage importPackage = (BLangImportPackage) topLevelNode;
+                String packagePath = importPackage.getPackageName().stream().map(BLangIdentifier::getValue).collect
+                        (Collectors.joining("."));
+                if (packageName.equals(packagePath)) {
+                    return importPackage.getAlias().getValue();
+                }
+            }
+        }
+        
+        return null;
+    }
+    
     protected static AnnotationAttachment createSingleValuedAnnotationAttachment(String annotationName,
                                                                                  String annotationPkg, String value) {
         ConcurrentHashMap<String, AnnotationAttributeValue> attributes = new ConcurrentHashMap<>();

@@ -58,16 +58,15 @@ import javax.ws.rs.core.MediaType;
  */
 public class SwaggerResourceMapper {
 
-    private static final String SWAGGER_PACKAGE_PATH = "ballerina.net.http.swagger";
-    private static final String SWAGGER_PACKAGE = "swagger";
-    private static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-    private static final String HTTP_PACKAGE = "http";
     private static final String X_MULTI_OPERATIONS = "x-MULTI";
     private static final String X_HTTP_METHODS = "x-METHODS";
-    
+    private String httpAlias;
+    private String swaggerAlias;
     private final Swagger swaggerDefinition;
     
-    SwaggerResourceMapper(Swagger swagger) {
+    SwaggerResourceMapper(Swagger swagger, String httpAlias, String swaggerAlias) {
+        this.httpAlias = httpAlias;
+        this.swaggerAlias = swaggerAlias;
         this.swaggerDefinition = swagger;
     }
 
@@ -213,7 +212,7 @@ public class SwaggerResourceMapper {
      */
     private void parseHttpResourceConfig(ResourceNode resource, OperationAdaptor operationAdaptor) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.httpAlias + ":" + "resourceConfig").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (responsesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
@@ -259,7 +258,7 @@ public class SwaggerResourceMapper {
      */
     private void parseResponsesAnnotationAttachment(ResourceNode resource, Operation op) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "Responses".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.swaggerAlias + ":" + "Responses").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (responsesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
@@ -360,7 +359,7 @@ public class SwaggerResourceMapper {
             if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotationAttachments() != null) {
                 AnnotationAttachmentNode parameterAnnotation = parameterDef.getAnnotationAttachments().get(0);
                 // Add query parameter
-                if (this.checkIfHttpAnnotation(parameterAnnotation) &&
+                if (parameterAnnotation.getAnnotationName().getValue().startsWith(this.httpAlias + ":") &&
                                 parameterAnnotation.getAnnotationName().getValue().equalsIgnoreCase("QueryParam")) {
                     QueryParameter queryParameter = new QueryParameter();
                     // Set in value.
@@ -384,7 +383,7 @@ public class SwaggerResourceMapper {
                     // Note: 'format' to be added using annotations, hence skipped here.
                     operationAdaptor.getOperation().addParameter(queryParameter);
                 }
-                if (this.checkIfHttpAnnotation(parameterAnnotation) &&
+                if (parameterAnnotation.getAnnotationName().getValue().startsWith(this.httpAlias + ":") &&
                                     parameterAnnotation.getAnnotationName().getValue().equalsIgnoreCase("PathParam")) {
                     PathParameter pathParameter = new PathParameter();
                     // Set in value
@@ -417,7 +416,7 @@ public class SwaggerResourceMapper {
      */
     private void parseParametersInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
         Optional<? extends AnnotationAttachmentNode> parametersInfoAnnotationAttachment = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ParametersInfo".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.swaggerAlias + ":" + "ParametersInfo").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (parametersInfoAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
@@ -451,7 +450,7 @@ public class SwaggerResourceMapper {
      */
     private void parseResourceInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
         Optional<? extends AnnotationAttachmentNode> resourceConfigAnnotationAttachment = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ResourceInfo".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.swaggerAlias + ":" + "ResourceInfo").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (resourceConfigAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
@@ -515,7 +514,7 @@ public class SwaggerResourceMapper {
      */
     private void parseResourceConfigAnnotationAttachment(ResourceNode resource, Operation operation) {
         Optional<? extends AnnotationAttachmentNode> resourceConfigAnnotation = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ResourceConfig".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.swaggerAlias + ":" + "ResourceConfig").equals(a.getAnnotationName().getValue()))
                 .findFirst();
     
         if (resourceConfigAnnotation.isPresent()) {
@@ -537,35 +536,13 @@ public class SwaggerResourceMapper {
     }
     
     /**
-     * Checks if an annotation belongs to ballerina.net.http.swagger package.
-     * @param annotationAttachment The annotation.
-     * @return true if belongs to ballerina.net.http.swagger package, else false.
-     */
-    private boolean checkIfSwaggerAnnotation(AnnotationAttachmentNode annotationAttachment) {
-        return true;
-//        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
-//               SWAGGER_PACKAGE.equals(annotationAttachment.getPkgName());
-    }
-    
-    /**
-     * Checks if an annotation belongs to ballerina.net.http package.
-     * @param annotationAttachment The annotation.
-     * @return true if belongs to ballerina.net.http package, else false.
-     */
-    private boolean checkIfHttpAnnotation(AnnotationAttachmentNode annotationAttachment) {
-        return true;
-//        return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
-//               HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
-    }
-    
-    /**
      * Gets the http methods of a resource.
      * @param resource The ballerina resource.
      * @return A list of http methods.
      */
     private Set<String> getHttpMethods(ResourceNode resource) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.httpAlias + ":" + "resourceConfig").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         Set<String> httpMethods = new LinkedHashSet<>();
         if (responsesAnnotationAttachment.isPresent()) {
@@ -593,7 +570,7 @@ public class SwaggerResourceMapper {
     private String getPath(ResourceNode resource) {
         String path = "/" + resource.getName();
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment = resource.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.httpAlias + ":" + "resourceConfig").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (responsesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =

@@ -54,14 +54,14 @@ import java.util.stream.Collectors;
  */
 public class SwaggerServiceMapper {
     private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapper.class);
-    private static final String SWAGGER_PACKAGE_PATH = "ballerina.net.http.swagger";
-    private static final String SWAGGER_PACKAGE = "swagger";
-    private static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-    private static final String HTTP_PACKAGE = "http";
+    private String httpAlias;
+    private String swaggerAlias;
     private ObjectMapper objectMapper;
 
-    public SwaggerServiceMapper() {
+    public SwaggerServiceMapper(String httpAlias, String swaggerAlias) {
         // Default object mapper is JSON mapper available in swagger utils.
+        this.httpAlias = httpAlias;
+        this.swaggerAlias = swaggerAlias;
         this.objectMapper = Json.mapper();
     }
     /**
@@ -93,7 +93,7 @@ public class SwaggerServiceMapper {
         this.parseServiceConfigAnnotationAttachment(service, swagger);
         this.parseConfigAnnotationAttachment(service, swagger);
         
-        SwaggerResourceMapper resourceMapper = new SwaggerResourceMapper(swagger);
+        SwaggerResourceMapper resourceMapper = new SwaggerResourceMapper(swagger, this.httpAlias, this.swaggerAlias);
         swagger.setPaths(resourceMapper.convertResourceToPath(service.getResources()));
         return swagger;
     }
@@ -105,7 +105,7 @@ public class SwaggerServiceMapper {
      */
     private void parseServiceConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
         Optional<? extends AnnotationAttachmentNode> swaggerConfigAnnotation = service.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ServiceConfig".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.swaggerAlias + ":" + "ServiceConfig").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         
         if (swaggerConfigAnnotation.isPresent()) {
@@ -204,7 +204,7 @@ public class SwaggerServiceMapper {
      */
     private void parseServiceInfoAnnotationAttachment(ServiceNode service, Swagger swagger) {
         Optional<? extends AnnotationAttachmentNode> swaggerInfoAnnotation = service.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ServiceInfo".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.swaggerAlias + ":" + "ServiceInfo").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         
         Info info = new Info()
@@ -386,7 +386,7 @@ public class SwaggerServiceMapper {
      */
     private void parseConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
         Optional<? extends AnnotationAttachmentNode> httpConfigAnnotationAttachment = service.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfHttpAnnotation(a) && "configuration".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.httpAlias + ":" + "configuration").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (httpConfigAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
@@ -401,7 +401,7 @@ public class SwaggerServiceMapper {
         }
     
         Optional<? extends AnnotationAttachmentNode> consumesAnnotationAttachment = service.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfHttpAnnotation(a) && "Consumes".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.httpAlias + ":" + "Consumes").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (consumesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> consumesAttributes =
@@ -415,7 +415,7 @@ public class SwaggerServiceMapper {
         }
     
         Optional<? extends AnnotationAttachmentNode> producesAnnotationAttachment = service.getAnnotationAttachments().stream()
-                .filter(a -> this.checkIfHttpAnnotation(a) && "Produces".equals(a.getAnnotationName().getValue()))
+                .filter(a -> (this.httpAlias + ":" + "Produces").equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (producesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> consumesAttributes =
@@ -427,28 +427,6 @@ public class SwaggerServiceMapper {
         
             swagger.setProduces(produces);
         }
-    }
-    
-    /**
-     * Checks if an annotation belongs to ballerina.net.http.swagger package.
-     * @param annotationAttachment The annotation.
-     * @return true if belongs to ballerina.net.http.swagger package, else false.
-     */
-    private boolean checkIfSwaggerAnnotation(AnnotationAttachmentNode annotationAttachment) {
-        return true;
-//        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.) &&
-//               SWAGGER_PACKAGE.equals(annotationAttachment.getPkgName());
-    }
-    
-    /**
-     * Checks if an annotation belongs to ballerina.net.http package.
-     * @param annotationAttachment The annotation.
-     * @return true if belongs to ballerina.net.http package, else false.
-     */
-    private boolean checkIfHttpAnnotation(AnnotationAttachmentNode annotationAttachment) {
-        return true;
-//        return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
-//               HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
     }
     
     private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
