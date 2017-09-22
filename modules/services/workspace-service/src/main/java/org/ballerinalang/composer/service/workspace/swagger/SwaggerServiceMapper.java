@@ -36,8 +36,15 @@ import org.ballerinalang.composer.service.workspace.swagger.model.Organization;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,6 +52,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * SwaggerServiceMapper provides functionality for reading and writing Swagger, either to and from ballerina service, or
@@ -81,10 +89,10 @@ public class SwaggerServiceMapper {
      * @param service ballerina @Service object to be map to swagger definition
      * @return Swagger object which represent current service.
      */
-    public Swagger convertServiceToSwagger(Service service) {
+    public Swagger convertServiceToSwagger(ServiceNode service) {
         Swagger swagger = new Swagger();
         // Setting default values.
-        swagger.setBasePath('/' + service.getName());
+        swagger.setBasePath('/' + service.getName().getValue());
         
         this.parseServiceInfoAnnotationAttachment(service, swagger);
         // TODO: parseSwaggerAnnotationAttachment(service, swagger);
@@ -203,41 +211,35 @@ public class SwaggerServiceMapper {
      * @param service The ballerina service which has the 'ServiceInfo' annotation attachment.
      * @param swagger The swagger definition to be built up.
      */
-    private void parseServiceInfoAnnotationAttachment(Service service, Swagger swagger) {
-        Optional<AnnotationAttachment> swaggerInfoAnnotation = Arrays.stream(service.getAnnotations())
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ServiceInfo".equals(a.getName()))
+    private void parseServiceInfoAnnotationAttachment(ServiceNode service, Swagger swagger) {
+        Optional<? extends AnnotationAttachmentNode> swaggerInfoAnnotation = service.getAnnotationAttachments().stream()
+                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ServiceInfo".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         
         Info info = new Info()
                 .version("1.0.0")
-                .title(service.getName());
+                .title(service.getName().getValue());
         if (swaggerInfoAnnotation.isPresent()) {
-            if (null != swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("version")) {
-                info.version(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("version")
-                        .getLiteralValue().stringValue());
+            Map<String, AnnotationAttachmentAttributeValueNode> attributes = this.listToMap(swaggerInfoAnnotation.get());
+            if (attributes.containsKey("version")) {
+                info.version(this.getStringLiteralValue(attributes.get("version")));
             }
-            if (null != swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("title")) {
-                info.title(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("title")
-                        .getLiteralValue().stringValue());
+            if (attributes.containsKey("title")) {
+                info.title(this.getStringLiteralValue(attributes.get("title")));
             }
-            if (null != swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("description")) {
-                info.description(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("description")
-                        .getLiteralValue().stringValue());
+            if (attributes.containsKey("description")) {
+                info.description(this.getStringLiteralValue(attributes.get("description")));
             }
-            if (null != swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("termsOfService")) {
-                info.termsOfService(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("termsOfService")
-                        .getLiteralValue().stringValue());
+            if (attributes.containsKey("termsOfService")) {
+                info.termsOfService(this.getStringLiteralValue(attributes.get("termsOfService")));
             }
-            this.createContactModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("contact"), info);
-            this.createLicenseModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("license"), info);
+            this.createContactModel(attributes.get("contact"), info);
+            this.createLicenseModel(attributes.get("license"), info);
     
-            this.createExternalDocModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs()
-                    .get("externalDoc"), swagger);
-            this.createTagModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("tags"), swagger);
-            this.createOrganizationModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("organization"),
-                    info);
-            this.createDevelopersModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("developers"),
-                    info);
+            this.createExternalDocModel(attributes.get("externalDoc"), swagger);
+            this.createTagModel(attributes.get("tags"), swagger);
+            this.createOrganizationModel(attributes.get("organization"), info);
+            this.createDevelopersModel(attributes.get("developers"), info);
         }
         swagger.setInfo(info);
     }
@@ -247,26 +249,23 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The annotation attribute value for developer vendor extension.
      * @param info The info definition.
      */
-    private void createDevelopersModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
+    private void createDevelopersModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            if (annotationAttributeValue.getValueArray().length > 0) {
-                Developer[] developers = new Developer[annotationAttributeValue.getValueArray().length];
-                for (int i = 0; i < annotationAttributeValue.getValueArray().length; i++) {
-                    AnnotationAttachment developerAnnotation = annotationAttributeValue.getValueArray()[i]
-                            .getAnnotationValue();
-                    Developer developer = new Developer();
-                    if (null != developerAnnotation.getAttributeNameValuePairs().get("name")) {
-                        developer.setName(developerAnnotation.getAttributeNameValuePairs().get("name")
-                                .getLiteralValue().stringValue());
-                    }
-                    if (null != developerAnnotation.getAttributeNameValuePairs().get("email")) {
-                        developer.setEmail(developerAnnotation.getAttributeNameValuePairs().get("email")
-                                .getLiteralValue().stringValue());
-                    }
-                    developers[i] = developer;
+            BLangArrayLiteral valuesArray = (BLangArrayLiteral) annotationAttributeValue;
+            List<Developer> developers = new LinkedList<>();
+            for (ExpressionNode value : valuesArray.getExpressions()) {
+                AnnotationAttachmentNode developerAnnotation = (AnnotationAttachmentNode) value;
+                Map<String, AnnotationAttachmentAttributeValueNode> developerAttributes = this.listToMap(developerAnnotation);
+                Developer developer = new Developer();
+                if (developerAttributes.containsKey("name")) {
+                    developer.setName(this.getStringLiteralValue(developerAttributes.get("name")));
                 }
-                info.setVendorExtension("x-developers", developers);
+                if (developerAttributes.containsKey("email")) {
+                    developer.setEmail(this.getStringLiteralValue(developerAttributes.get("email")));
+                }
+                developers.add(developer);
             }
+            info.setVendorExtension("x-developers", developers);
         }
     }
     
@@ -275,17 +274,18 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The annotation attribute value for organization vendor extension.
      * @param info The info definition.
      */
-    private void createOrganizationModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
+    private void createOrganizationModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachment organizationAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
+            AnnotationAttachmentNode organizationAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue;
+            
+            Map<String, AnnotationAttachmentAttributeValueNode> organizationAttributes =
+                    this.listToMap(organizationAnnotationAttachment);
             Organization organization = new Organization();
-            if (null != organizationAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
-                organization.setName(organizationAnnotationAttachment.getAttributeNameValuePairs().get("name")
-                        .getLiteralValue().stringValue());
+            if (organizationAttributes.containsKey("name")) {
+                organization.setName(this.getStringLiteralValue(organizationAttributes.get("name")));
             }
-            if (null != organizationAnnotationAttachment.getAttributeNameValuePairs().get("url")) {
-                organization.setUrl(organizationAnnotationAttachment.getAttributeNameValuePairs().get("url")
-                        .getLiteralValue().stringValue());
+            if (organizationAttributes.containsKey("url")) {
+                organization.setUrl(this.getStringLiteralValue(organizationAttributes.get("url")));
             }
             info.setVendorExtension("x-organization", organization);
         }
@@ -296,23 +296,25 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The ballerina annotation attribute value for tag.
      * @param swagger The swagger definition which the tags needs to be build on.
      */
-    private void createTagModel(AnnotationAttributeValue annotationAttributeValue, Swagger swagger) {
-        if (null != annotationAttributeValue && annotationAttributeValue.getValueArray().length > 0) {
+    private void createTagModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Swagger swagger) {
+        if (null != annotationAttributeValue) {
+            BLangArrayLiteral valuesArray = (BLangArrayLiteral) annotationAttributeValue;
             List<Tag> tags = new LinkedList<>();
-            for (AnnotationAttributeValue tagAttributeValue : annotationAttributeValue.getValueArray()) {
-                AnnotationAttachment tagAnnotationAttachment = tagAttributeValue.getAnnotationValue();
+            for (ExpressionNode value : valuesArray.getExpressions()) {
+                AnnotationAttachmentNode tagAnnotation = (AnnotationAttachmentNode) value;
+                Map<String, AnnotationAttachmentAttributeValueNode> tagAttributes =
+                        this.listToMap(tagAnnotation);
                 Tag tag = new Tag();
-                if (null != tagAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
-                    tag.setName(tagAnnotationAttachment.getAttributeNameValuePairs().get("name")
-                            .getLiteralValue().stringValue());
+                if (tagAttributes.containsKey("name")) {
+                    tag.setName(this.getStringLiteralValue(tagAttributes.get("name")));
                 }
-                if (null != tagAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
-                    tag.setDescription(tagAnnotationAttachment.getAttributeNameValuePairs().get("description")
-                            .getLiteralValue().stringValue());
+                if (tagAttributes.containsKey("description")) {
+                    tag.setDescription(this.getStringLiteralValue(tagAttributes.get("description")));
                 }
     
                 tags.add(tag);
             }
+    
             swagger.setTags(tags);
         }
     }
@@ -322,17 +324,17 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The ballerina annotation attribute value for external docs.
      * @param swagger The swagger definition which the external docs needs to be build on.
      */
-    private void createExternalDocModel(AnnotationAttributeValue annotationAttributeValue, Swagger swagger) {
+    private void createExternalDocModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Swagger swagger) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachment externalDocAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
+            AnnotationAttachmentNode externalDocAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+            Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
+                    this.listToMap(externalDocAnnotationAttachment);
             ExternalDocs externalDocs = new ExternalDocs();
-            if (null != externalDocAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
-                externalDocs.setDescription(externalDocAnnotationAttachment.getAttributeNameValuePairs()
-                        .get("description").getLiteralValue().stringValue());
+            if (externalDocAttributes.containsKey("description")) {
+                externalDocs.setDescription(this.getStringLiteralValue(externalDocAttributes.get("description")));
             }
-            if (null != externalDocAnnotationAttachment.getAttributeNameValuePairs().get("url")) {
-                externalDocs.setUrl(externalDocAnnotationAttachment.getAttributeNameValuePairs().get("url")
-                        .getLiteralValue().stringValue());
+            if (externalDocAttributes.containsKey("url")) {
+                externalDocs.setUrl(this.getStringLiteralValue(externalDocAttributes.get("url")));
             }
     
             swagger.setExternalDocs(externalDocs);
@@ -344,21 +346,21 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The ballerina annotation attribute value for contact.
      * @param info The info definition which the contact needs to be build on.
      */
-    private void createContactModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
+    private void createContactModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachment contactAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
+            AnnotationAttachmentNode contactAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+            
+            Map<String, AnnotationAttachmentAttributeValueNode> contactAttributes =
+                    this.listToMap(contactAnnotationAttachment);
             Contact contact = new Contact();
-            if (null != contactAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
-                contact.setName(contactAnnotationAttachment.getAttributeNameValuePairs().get("name")
-                        .getLiteralValue().stringValue());
+            if (contactAttributes.containsKey("name")) {
+                contact.setName(this.getStringLiteralValue(contactAttributes.get("name")));
             }
-            if (null != contactAnnotationAttachment.getAttributeNameValuePairs().get("email")) {
-                contact.setEmail(contactAnnotationAttachment.getAttributeNameValuePairs().get("email")
-                        .getLiteralValue().stringValue());
+            if (contactAttributes.containsKey("email")) {
+                contact.setEmail(this.getStringLiteralValue(contactAttributes.get("email")));
             }
-            if (null != contactAnnotationAttachment.getAttributeNameValuePairs().get("url")) {
-                contact.setUrl(contactAnnotationAttachment.getAttributeNameValuePairs().get("url")
-                        .getLiteralValue().stringValue());
+            if (contactAttributes.containsKey("url")) {
+                contact.setUrl(this.getStringLiteralValue(contactAttributes.get("url")));
             }
     
             info.setContact(contact);
@@ -370,17 +372,17 @@ public class SwaggerServiceMapper {
      * @param annotationAttributeValue The ballerina annotation attribute value for license.
      * @param info The info definition which the license needs to be build on.
      */
-    private void createLicenseModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
+    private void createLicenseModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachment licenseAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
+            AnnotationAttachmentNode licenseAnnotationAttachment = (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+            Map<String, AnnotationAttachmentAttributeValueNode> licenseAttributes =
+                    this.listToMap(licenseAnnotationAttachment);
             License license = new License();
-            if (null != licenseAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
-                license.setName(licenseAnnotationAttachment.getAttributeNameValuePairs().get("name")
-                        .getLiteralValue().stringValue());
+            if (licenseAttributes.containsKey("name")) {
+                license.setName(this.getStringLiteralValue(licenseAttributes.get("name")));
             }
-            if (null != licenseAnnotationAttachment.getAttributeNameValuePairs().get("url")) {
-                license.setUrl(licenseAnnotationAttachment.getAttributeNameValuePairs().get("url")
-                        .getLiteralValue().stringValue());
+            if (licenseAttributes.containsKey("url")) {
+                license.setUrl(this.getStringLiteralValue(licenseAttributes.get("url")));
             }
             
             info.setLicense(license);
@@ -445,8 +447,8 @@ public class SwaggerServiceMapper {
      * @param annotationAttachment The annotation.
      * @return true if belongs to ballerina.net.http.swagger package, else false.
      */
-    private boolean checkIfSwaggerAnnotation(AnnotationAttachment annotationAttachment) {
-        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
+    private boolean checkIfSwaggerAnnotation(AnnotationAttachmentNode annotationAttachment) {
+        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.) &&
                SWAGGER_PACKAGE.equals(annotationAttachment.getPkgName());
     }
     
@@ -458,5 +460,15 @@ public class SwaggerServiceMapper {
     private boolean checkIfHttpAnnotation(AnnotationAttachment annotationAttachment) {
         return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
                HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
+    }
+    
+    private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
+        return annotation.geAttributes().stream().collect(
+                Collectors.toMap(AnnotationAttachmentAttributeNode::getName, AnnotationAttachmentAttributeNode
+                        ::getValue));
+    }
+    
+    private String getStringLiteralValue(AnnotationAttachmentAttributeValueNode valueNode) {
+        return ((LiteralNode)valueNode.getValue()).getValue().toString();
     }
 }
