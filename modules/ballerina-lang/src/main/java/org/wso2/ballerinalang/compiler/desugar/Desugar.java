@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -42,6 +43,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
@@ -49,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -342,7 +346,10 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
-        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
+                varRefExpr.type.tag == TypeTags.INVOKABLE) {
+            result = new BLangFunctionVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
             result = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ||
@@ -417,6 +424,14 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         invocationExpr.argExprs = rewrite(invocationExpr.argExprs);
         invocationExpr.expr = rewrite(invocationExpr.expr);
+        if (invocationExpr.functionPointerInvocation) {
+            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+            varRef.symbol = (BVarSymbol) invocationExpr.symbol;
+            varRef.type = invocationExpr.symbol.type;
+            varRef = rewrite(varRef);
+            result = new BFunctionPointerInvocation(invocationExpr, varRef);
+            return;
+        }
         result = invocationExpr;
     }
 
@@ -451,6 +466,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeConversionExpr conversionExpr) {
         conversionExpr.expr = rewrite(conversionExpr.expr);
         result = conversionExpr;
+    }
+
+    @Override
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        result = bLangLambdaFunction;
     }
 
     @Override

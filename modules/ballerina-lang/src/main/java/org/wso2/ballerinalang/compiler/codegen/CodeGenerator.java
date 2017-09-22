@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -61,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -538,11 +539,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLocalVarRef localVarRef) {
-        if (localVarRef.type.tag == TypeTags.INVOKABLE && localVarRef.symbol.tag == SymTag.FUNCTION) {
-            // function pointer load.
-            visitFunctionPointerLoad((BInvokableSymbol) localVarRef.symbol);
-            return;
-        }
         int lvIndex = localVarRef.symbol.varIndex;
         if (varAssignment) {
             int opcode = getOpcode(localVarRef.type.tag, InstructionCodes.ISTORE);
@@ -606,6 +602,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         int exprRegIndex = opcodeAndIndex.index;
         emit(opcode, gvIndex, exprRegIndex);
         packageVarRef.regIndex = exprRegIndex;
+    }
+
+    @Override
+    public void visit(BLangFunctionVarRef functionVarRef) {
+        visitFunctionPointerLoad((BInvokableSymbol) functionVarRef.symbol);
     }
 
     @Override
@@ -695,10 +696,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangInvocation iExpr) {
         if (iExpr.expr == null) {
-            if (iExpr.functionPointerInvocation) {
-                visitFunctionPointerInvocation(iExpr);
-                return;
-            }
             BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
             BPackageSymbol pkgSymbol = (BPackageSymbol) funcSymbol.owner;
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
@@ -714,6 +711,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
             }
         }
+    }
+
+    public void visit(BFunctionPointerInvocation iExpr) {
+        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        genNode(iExpr.expr, env);
+        emit(InstructionCodes.FPCALL, regIndexes.tRef, funcCallCPIndex);
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
@@ -784,8 +787,60 @@ public class CodeGenerator extends BLangNodeVisitor {
         conversionExpr.regIndex = conversionExpr.regIndexes[0];
     }
 
-    public void visit(BLangExpressionStmt exprStmtNode) {
-        genNode(exprStmtNode.expr, this.env);
+    public void visit(BLangRecordLiteral recordLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        this.genNode(ternaryExpr.expr, this.env);
+        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, -1);
+        this.emit(ifCondJumpInstr);
+        this.genNode(ternaryExpr.thenExpr, this.env);
+        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        this.emit(endJumpInstr);
+        ifCondJumpInstr.setOperand(1, this.nextIP());
+        this.genNode(ternaryExpr.elseExpr, this.env);
+        endJumpInstr.setOperand(0, this.nextIP());
+    }
+
+    public void visit(BLangUnaryExpr unaryExpr) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLQName xmlQName) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLAttribute xmlAttribute) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangXMLQuotedString xmlQuotedString) {
+        /* ignore */
+    }
+
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        visitFunctionPointerLoad(((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
     }
 
 
@@ -941,7 +996,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.emit(InstructionCodes.HALT);
         }
     }
-    
+
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
                                           LocalVariableAttributeInfo localVarAttrInfo) {
 
@@ -1248,7 +1303,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tBoolean = -1;
         int tBlob = -1;
         int tRef = -1;
-        
+
         public int[] toArray() {
             int[] result = new int[6];
             result[0] = this.tInt;
@@ -1259,7 +1314,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             result[5] = this.tRef;
             return result;
         }
-        
+
     }
 
     /**
@@ -1284,7 +1339,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangWorker workerNode) {
         this.genNode(workerNode.body, this.env);
     }
-    
+
     private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy) {
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
         int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
@@ -1299,7 +1354,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.emit(InstructionCodes.HALT);
         }
     }
-    
+
     private ForkjoinInfo processForkJoinTimeout(BLangForkJoin forkJoin) {
         BLangExpression argExpr = forkJoin.timeoutExpression;
         int[] retRegs;
@@ -1317,7 +1372,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         return forkjoinInfo;
     }
-    
+
     private void populatForkJoinWorkerInfo(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
         for (BLangWorker worker : forkJoin.workers) {
             UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.name.value);
@@ -1326,7 +1381,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             forkjoinInfo.addWorkerInfo(worker.name.value, workerInfo);
         }
     }
-    
+
     private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
         UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
         int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
@@ -1342,7 +1397,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(forkJoin.joinedBody, this.env);
         }
     }
-    
+
     private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
         /* emit a GOTO instruction to jump out of the timeout block */
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, -1);
@@ -1401,7 +1456,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.processJoinBlock(forkJoin, forkjoinInfo);
         this.processTimeoutBlock(forkJoin, forkjoinInfo);
     }
-    
+
     private void visitForkJoinParameterDefs(BLangVariable parameterDef) {
         LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
         int lvIndex = this.getNextIndex(parameterDef.type.tag, this.lvIndexes);
@@ -1651,90 +1706,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangRecordLiteral recordLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangTernaryExpr ternaryExpr) {
-        this.genNode(ternaryExpr.expr, this.env);
-        Instruction ifCondJumpInstr = InstructionFactory.get(InstructionCodes.BR_FALSE, ternaryExpr.expr.regIndex, -1);
-        this.emit(ifCondJumpInstr);
-        this.genNode(ternaryExpr.thenExpr, this.env);
-        Instruction endJumpInstr = InstructionFactory.get(InstructionCodes.GOTO, -1);
-        this.emit(endJumpInstr);
-        ifCondJumpInstr.setOperand(1, this.nextIP());
-        this.genNode(ternaryExpr.elseExpr, this.env);
-        endJumpInstr.setOperand(0, this.nextIP());
-    }
-
-    public void visit(BLangUnaryExpr unaryExpr) {
-        genNode(unaryExpr.expr, this.env);
-
-        int opcode;
-        int exprIndex;
-
-        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            if (unaryExpr.expr.type.tag == TypeTags.ANY) {
-                exprIndex = ++regIndexes.tRef;
-                opcode = unaryExpr.opSymbol.opcode;
-                emit(opcode, unaryExpr.expr.regIndex, exprIndex);
-            } else {
-                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, unaryExpr.expr.type.getDesc());
-                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-                int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-
-                exprIndex = ++regIndexes.tRef;
-                opcode = unaryExpr.opSymbol.opcode;
-                emit(opcode, typeCPIndex, exprIndex);
-            }
-            unaryExpr.regIndex = exprIndex;
-        } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-            unaryExpr.regIndex = unaryExpr.expr.regIndex;
-        } else {
-            opcode = unaryExpr.opSymbol.opcode;
-            exprIndex = getNextIndex(unaryExpr.type.tag, regIndexes);
-
-            unaryExpr.regIndex = exprIndex;
-            emit(opcode, unaryExpr.expr.regIndex, exprIndex);
-        }
-
-    }
-
-
-    public void visit(BLangXMLQName xmlQName) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLAttribute xmlAttribute) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangXMLQuotedString xmlQuotedString) {
-        /* ignore */
-    }
-
-    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        /* ignore */
-    }
-
-    public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        visitFunctionPointerLoad(((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        genNode(exprStmtNode.expr, this.env);
     }
 
     // private helper methods of visitors.
@@ -1748,23 +1721,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
-    }
-
-    private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
-        BVarSymbol varSymbol = (BVarSymbol) iExpr.symbol;
-        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
-        int ownerSymTag = env.scope.owner.tag;
-        OpcodeAndIndex opcodeAndIndex = null;
-        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            opcodeAndIndex = getOpcodeAndIndex(varSymbol.type.tag,
-                    InstructionCodes.ILOAD, regIndexes);
-        } else {
-            // TODO Support other variable nodes
-        }
-        int opcode = opcodeAndIndex.opcode;
-        int regIndex = opcodeAndIndex.index;
-        emit(opcode, varSymbol.varIndex, regIndex);
-        emit(InstructionCodes.FPCALL, regIndexes.tRef, funcCallCPIndex);
     }
 
 }

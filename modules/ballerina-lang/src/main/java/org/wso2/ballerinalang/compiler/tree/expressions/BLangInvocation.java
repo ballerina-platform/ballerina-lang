@@ -113,4 +113,26 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public int[] getRegIndexes() {
         return this.regIndexes;
     }
+
+
+    /**
+     * @since 0.94
+     */
+    public static class BFunctionPointerInvocation extends BLangInvocation {
+
+        public BFunctionPointerInvocation(BLangInvocation parent, BLangSimpleVarRef varRef) {
+            this.pos = parent.pos;
+            this.name = parent.name;
+            this.argExprs = parent.argExprs;
+            this.types = parent.types;
+            this.regIndexes = parent.regIndexes;
+            this.symbol = parent.symbol;
+            this.expr = varRef;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }
