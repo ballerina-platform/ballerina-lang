@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.natives.connectors;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.Constants;
 import org.ballerinalang.services.MessageProcessor;

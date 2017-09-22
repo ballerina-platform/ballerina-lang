@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -45,12 +44,8 @@ import java.util.logging.Logger;
  */
 public class BLogManager extends LogManager {
 
-    public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
-//    public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
     public static final PrintStream STD_OUT = System.out;
     public static final PrintStream STD_ERR = System.err;
-
-//    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     private Logger httpTraceLogger;
     private BLogLevel ballerinaRootLogLevel;
