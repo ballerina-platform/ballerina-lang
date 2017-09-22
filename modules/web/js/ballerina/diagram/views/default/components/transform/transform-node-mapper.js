@@ -791,7 +791,11 @@ class TransformNodeMapper {
             .filterChildren(ASTFactory.isAssignmentStatement || ASTFactory.isVariableDefinitionStatement)
             .forEach((stmt) => {
                 const rightExpression = stmt.getRightExpression();
-                this.removeInputVertices(rightExpression, type.name);
+                if (ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
+                    this._transformStmt.removeChild(stmt, true);
+                } else {
+                    this.removeInputVertices(rightExpression, type.name);
+                }
             });
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -836,9 +840,6 @@ class TransformNodeMapper {
             } else {
                 this.removeInputVertices(expression.getLeftExpression(), vertex);
             }
-        } else if (ASTFactory.isSimpleVariableReferenceExpression(expression)) {
-            const stmt = this.getParentAssignmentStmt(expression);
-            this._transformStmt.removeChild(stmt, true);
         }
     }
 
@@ -854,7 +855,7 @@ class TransformNodeMapper {
             .forEach((stmt) => {
                 stmt.getLeftExpression().getChildren().forEach((exp, index) => {
                     if (exp.getExpressionString().trim() === type.name) {
-                        if (ASTFactory.isSimpleVariableReferenceExpression(stmt.getLeftExpression())) {
+                        if (ASTFactory.isSimpleVariableReferenceExpression(stmt.getRightExpression())) {
                             this._transformStmt.removeChild(stmt, true);
                         } else {
                             stmt.getLeftExpression().removeChild(exp, true);
