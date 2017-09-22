@@ -86,14 +86,14 @@ public class SwaggerConverterUtils {
      * @throws IOException when input stream handling error.
      */
     public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
-        BallerinaFile bFile = getTopLevelNodeFromBallerinaFile(ballerinaDefinition);
+//        BallerinaFile bFile = getTopLevelNodeFromBallerinaFile(ballerinaDefinition);
         List<Service> services = new ArrayList<Service>();
-        for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
-            Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
-            if (service != null) {
-                services.add(service);
-            }
-        }
+//        for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
+//            Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
+//            if (service != null) {
+//                services.add(service);
+//            }
+//        }
         return services.toArray(new Service[services.size()]);
     }
     
@@ -492,11 +492,11 @@ public class SwaggerConverterUtils {
             swaggerDefinitionsString.append("[");
             for (int i = 0; i < services.length; i++) {
                 if (services[i].getResources().length > 0) {
-                    Swagger swaggerModel = swaggerServiceMapper.convertServiceToSwagger(services[i]);
-                    swaggerDefinitionsString.append(swaggerServiceMapper.generateSwaggerString(swaggerModel));
-                    if (i != services.length - 1) {
-                        swaggerDefinitionsString.append(",");
-                    }
+//                    Swagger swaggerModel = swaggerServiceMapper.convertServiceToSwagger(services[i]);
+//                    swaggerDefinitionsString.append(swaggerServiceMapper.generateSwaggerString(swaggerModel));
+//                    if (i != services.length - 1) {
+//                        swaggerDefinitionsString.append(",");
+//                    }
                 }
             }
             swaggerDefinitionsString.append("]");

@@ -146,7 +146,7 @@ public class SwaggerServiceMapper {
                 if (authAttributes.containsKey("name") &&
                     authAttributes.containsKey("authType")) {
                     String name = this.getStringLiteralValue(authAttributes.get("name"));
-                    String type = this.getStringLiteralValue(authAttributes.get("authType"));;
+                    String type = this.getStringLiteralValue(authAttributes.get("authType"));
                     String description = "";
                     if (authAttributes.containsKey("description")) {
                         description = this.getStringLiteralValue(authAttributes.get("description"));
@@ -435,8 +435,9 @@ public class SwaggerServiceMapper {
      * @return true if belongs to ballerina.net.http.swagger package, else false.
      */
     private boolean checkIfSwaggerAnnotation(AnnotationAttachmentNode annotationAttachment) {
-        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.) &&
-               SWAGGER_PACKAGE.equals(annotationAttachment.getPkgName());
+        return true;
+//        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.) &&
+//               SWAGGER_PACKAGE.equals(annotationAttachment.getPkgName());
     }
     
     /**
@@ -445,8 +446,9 @@ public class SwaggerServiceMapper {
      * @return true if belongs to ballerina.net.http package, else false.
      */
     private boolean checkIfHttpAnnotation(AnnotationAttachmentNode annotationAttachment) {
-        return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
-               HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
+        return true;
+//        return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
+//               HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
     }
     
     private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
