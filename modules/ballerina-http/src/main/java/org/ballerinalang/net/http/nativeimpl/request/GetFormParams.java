@@ -32,6 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Get the Form params from HTTP message and return a map.
@@ -59,7 +60,8 @@ public class GetFormParams extends AbstractNativeFunction {
                 if (httpCarbonMessage.isAlreadyRead()) {
                     payload = httpCarbonMessage.getMessageDataSource().getMessageAsString();
                 } else {
-                    payload = MessageUtils.getStringFromInputStream(httpCarbonMessage.getInputStream());
+                    payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
+                            .getInputStream());
                     StringDataSource stringDataSource = new StringDataSource(payload);
                     httpCarbonMessage.setMessageDataSource(stringDataSource);
                     httpCarbonMessage.setAlreadyRead(true);

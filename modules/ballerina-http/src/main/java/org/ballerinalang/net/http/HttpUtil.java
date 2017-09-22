@@ -49,6 +49,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//import org.ballerinalang.runtime.message.StringDataSource;
 
 /**
  * Utility class providing utility methods.
@@ -115,7 +115,7 @@ public class HttpUtil {
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BBlob((byte[]) httpCarbonMessage.getMessageDataSource().getDataObject());
             } else {
-                result = new BBlob(toByteArray(httpCarbonMessage.getInputStream()));
+                result = new BBlob(toByteArray(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream()));
             }
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
@@ -157,8 +157,9 @@ public class HttpUtil {
                     result = new BJSON(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                result = new BJSON(httpCarbonMessage.getInputStream());
+                result = new BJSON(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
+                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
                 httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
@@ -195,7 +196,8 @@ public class HttpUtil {
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
             } else {
-                String payload = MessageUtils.getStringFromInputStream(httpCarbonMessage.getInputStream());
+                String payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
+                        .getInputStream());
                 result = new BString(payload);
                 httpCarbonMessage.setMessageDataSource(new StringDataSource(payload));
                 httpCarbonMessage.setAlreadyRead(true);
@@ -227,21 +229,24 @@ public class HttpUtil {
         BXML result = null;
         try {
             // Accessing First Parameter Value.
-            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+//            BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+            BStruct struct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(struct, new HTTPCarbonMessage());
 
-            if (msg.isAlreadyRead()) {
-                MessageDataSource payload = msg.getMessageDataSource();
+            if (httpCarbonMessage.isAlreadyRead()) {
+                MessageDataSource payload = httpCarbonMessage.getMessageDataSource();
                 if (payload instanceof BXML) {
                     // if the payload is already xml, return it as it is.
                     result = (BXML) payload;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
+                    result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                result = XMLUtils.parse(msg.value().getInputStream());
-                msg.setMessageDataSource(result);
-                msg.setAlreadyRead(true);
+                result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
+                httpCarbonMessage.setMessageDataSource(result);
+//                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+                httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
             //            ErrorHandler.handleJsonException(OPERATION, e);
@@ -315,6 +320,7 @@ public class HttpUtil {
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
         httpCarbonMessage.setMessageDataSource(payload);
+        payload.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setAlreadyRead(true);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         return AbstractNativeFunction.VOID_RETURN;
@@ -337,7 +343,8 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         String payload = abstractNativeFunction.getStringArgument(context, 0);
-        StringDataSource stringDataSource = new StringDataSource(payload, httpCarbonMessage.getOutputStream());
+        StringDataSource stringDataSource = new StringDataSource(payload
+                , new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
         httpCarbonMessage.setMessageDataSource(stringDataSource);
         httpCarbonMessage.setAlreadyRead(true);
         httpCarbonMessage.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
@@ -441,7 +448,8 @@ public class HttpUtil {
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
 
         HTTPCarbonMessage response = new HTTPCarbonMessage();
-        StringDataSource stringDataSource = new StringDataSource(payload, response.getOutputStream());
+        StringDataSource stringDataSource = new StringDataSource(payload
+                , new HttpMessageDataStreamer(response).getOutputStream());
         response.setMessageDataSource(stringDataSource);
         response.setAlreadyRead(true);
         byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
