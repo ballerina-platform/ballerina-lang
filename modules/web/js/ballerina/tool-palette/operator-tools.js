@@ -62,7 +62,7 @@ const divideOpTool = {
 const multiplyOpTool = {
     id: 'multiply',
     name: 'Multiply',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-cancel',
     title: 'Multiply',
     meta: {
         defaultExpression: '0 * 0',
