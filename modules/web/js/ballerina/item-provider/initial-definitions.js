@@ -225,7 +225,7 @@ const mainToolDefArray = [/* createServiceDefTool, createResourceDefTool, */
 const createIfStatementTool = {
     id: 'if',
     name: 'If',
-    cssClass: 'icon fw fw-if-else',
+    cssClass: 'icon fw fw-dgm-if-else',
     title: 'If',
     nodeFactoryMethod: ASTFactory.createIfElseStatement,
     definition: 'Provide a way to perform conditional execution',
@@ -234,7 +234,7 @@ const createIfStatementTool = {
 const createWhileStatementTool = {
     id: 'while',
     name: 'While',
-    cssClass: 'icon fw fw-while',
+    cssClass: 'icon fw fw-dgm-while',
     title: 'While',
     nodeFactoryMethod: ASTFactory.createWhileStatement,
     definition: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
