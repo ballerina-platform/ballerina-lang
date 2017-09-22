@@ -44,6 +44,7 @@ class LayoutPlugin extends Plugin {
         this.views = [];
         this.layout = {
             [REGIONS.HEADER]: [],
+            [REGIONS.TOOL_AREA]: [],
             [REGIONS.ACTIVITY_BAR]: [],
             [REGIONS.LEFT_PANEL]: [],
             [REGIONS.RIGHT_PANEL]: [],

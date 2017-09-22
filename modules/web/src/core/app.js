@@ -25,6 +25,7 @@ import CommandPlugin from './command/plugin';
 import LayoutPlugin from './layout/plugin';
 import { COMMANDS as LAYOUT_COMMANDS } from './layout/constants';
 import MenuPlugin from './menu/plugin';
+import ToolBarPlugin from './toolbar/plugin';
 import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
 import PreferencesPlugin from './preferences/plugin';
@@ -62,6 +63,7 @@ class Application {
         this.commandPlugin = new CommandPlugin();
         this.layoutPlugin = new LayoutPlugin();
         this.menuPlugin = new MenuPlugin();
+        this.toolBarPlugin = new ToolBarPlugin();
         this.workspacePlugin = new WorkspacePlugin();
         this.editorPlugin = new EditorPlugin();
         this.preferencesPlugin = new PreferencesPlugin();
@@ -72,6 +74,7 @@ class Application {
         this.loadPlugin(this.commandPlugin);
         this.loadPlugin(this.layoutPlugin);
         this.loadPlugin(this.menuPlugin);
+        this.loadPlugin(this.toolBarPlugin);
         this.loadPlugin(this.workspacePlugin);
         this.loadPlugin(this.editorPlugin);
         this.loadPlugin(this.preferencesPlugin);
@@ -156,6 +159,7 @@ class Application {
         const views = _.get(contributions, CONTRIBUTIONS.VIEWS, []);
         const dialogs = _.get(contributions, CONTRIBUTIONS.DIALOGS, []);
         const menus = _.get(contributions, CONTRIBUTIONS.MENUS, []);
+        const tools = _.get(contributions, CONTRIBUTIONS.TOOLS, []);
         const editors = _.get(contributions, CONTRIBUTIONS.EDITORS, []);
 
         commands.forEach((commandDef) => {
@@ -178,6 +182,10 @@ class Application {
 
         menus.forEach((menuDef) => {
             this.menuPlugin.addMenu(menuDef);
+        });
+
+        tools.forEach((toolDef) => {
+            this.toolBarPlugin.addTool(toolDef);
         });
 
         editors.forEach((editorDef) => {

@@ -6,6 +6,7 @@ import LeftPanel from './LeftPanel';
 import EditorArea from './EditorArea';
 import BottomPanel from './BottomPanel';
 import Header from './Header';
+import ToolArea from './ToolArea';
 import { REGIONS, HISTORY, EVENTS } from './../constants';
 import { withReRenderSupport } from './utils';
 
@@ -58,6 +59,7 @@ class App extends React.Component {
             this.setBottomPanelState(!this.state.showBottomPanel);
         });
         this.headerViews = this.getViewsForRegion(REGIONS.HEADER);
+        this.toolAreaViews = this.getViewsForRegion(REGIONS.TOOL_AREA);
         this.leftPanelViews = this.getViewsForRegion(REGIONS.LEFT_PANEL);
         this.editorAreaViews = this.getViewsForRegion(REGIONS.EDITOR_AREA);
         this.bottomPanelViews = this.getViewsForRegion(REGIONS.BOTTOM_PANEL);
@@ -158,6 +160,9 @@ class App extends React.Component {
                 <Header>
                     {this.headerViews}
                 </Header>
+                <ToolArea>
+                    {this.toolAreaViews}
+                </ToolArea>
                 <SplitPane
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split="vertical"
