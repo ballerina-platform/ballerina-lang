@@ -48,11 +48,11 @@ const subtractOpTool = {
     nodeFactoryMethod: operatorStatementCreator,
 };
 
-const devideOpTool = {
-    id: 'devide',
-    name: 'Devide',
-    cssClass: 'icon fw fw-error',
-    title: 'Devide',
+const divideOpTool = {
+    id: 'divide',
+    name: 'Divide',
+    cssClass: 'icon fw fw-divide',
+    title: 'Divide',
     meta: {
         defaultExpression: '0 / 1',
     },
@@ -172,7 +172,7 @@ const orOpTool = {
 export const binaryOpTools = [
     addOpTool,
     subtractOpTool,
-    devideOpTool,
+    divideOpTool,
     multiplyOpTool,
     powerOpTool,
     getSeperator('sep-numeric'),
