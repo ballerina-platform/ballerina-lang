@@ -65,7 +65,7 @@ class Node extends EventChannel {
                 } else if (child instanceof Array) {
                     for (let i = 0; i < child.length; i++) {
                         const childItem = child[i];
-                        if (childItem instanceof Node && child.kind) {
+                        if (childItem instanceof Node && childItem.kind) {
                             childItem.accept(visitor);
                         }
                     }
@@ -151,6 +151,10 @@ class Node extends EventChannel {
             default:
                 return '';
         }
+    }
+
+    getID() {
+        return this.id;
     }
 }
 
