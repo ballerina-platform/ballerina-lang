@@ -78,7 +78,7 @@ class ToolBarPlugin extends Plugin {
                     component: ToolBar,
                     propsProvider: () => {
                         return {
-                            toolBtooarPlugin: this,
+                            toolBarPlugin: this,
                         };
                     },
                     region: REGIONS.TOOL_AREA,

@@ -25,7 +25,10 @@ import { REGIONS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOGS as DIALOG_IDS, HISTORY, COMMANDS, EVENTS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, HISTORY, COMMANDS as COMMMAND_IDS,
+    EVENTS, TOOLS as TOOL_IDS } from './constants';
+import { COMMANDS as TOOL_BAR_COMMANDS } from './../toolbar/constants';
+import { EVENTS as WORKSPACE_EVENTS } from './../workspace/constants';
 
 import EditorTabs from './views/EditorTabs';
 import CustomEditor from './model/CustomEditor';
@@ -50,6 +53,7 @@ class EditorPlugin extends Plugin {
         this.onOpenFileInEditor = this.onOpenFileInEditor.bind(this);
         this.onOpenCustomEditorTab = this.onOpenCustomEditorTab.bind(this);
         this.onTabClose = this.onTabClose.bind(this);
+        this.dispatchToolBarUpdate = this.dispatchToolBarUpdate.bind(this);
     }
 
     /**
@@ -82,9 +86,18 @@ class EditorPlugin extends Plugin {
         const editorDefinition = _.find(this.editorDefinitions, ['extension', file.extension]);
         if (!_.isNil(editorDefinition)) {
             this.onOpenFileInEditor({ file, editorDefinition, activateEditor });
+            file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
         } else {
             log.error(`No editor is found to open file type ${file.extension}`);
         }
+    }
+
+    /**
+     * Dispatch tool bar update
+     */
+    dispatchToolBarUpdate() {
+        const { command: { dispatch } } = this.appContext;
+        dispatch(TOOL_BAR_COMMANDS.UPDATE_TOOL_BAR, {});
     }
 
     /**
@@ -111,6 +124,7 @@ class EditorPlugin extends Plugin {
         const { pref: { history } } = this.appContext;
         history.put(HISTORY.ACTIVE_EDITOR, this.activeEditorID);
         this.reRender();
+        this.dispatchToolBarUpdate();
     }
 
     /**
@@ -137,6 +151,7 @@ class EditorPlugin extends Plugin {
         _.remove(openedEditors, searchByID);
         this.setActiveEditor(newActiveEditor);
         if (targetEditor instanceof Editor) {
+            targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
             workspace.closeFile(targetEditor.file);
         }
     }
@@ -177,7 +192,7 @@ class EditorPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, VIEWS, DIALOGS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, VIEWS, DIALOGS, TOOLS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
@@ -193,6 +208,38 @@ class EditorPlugin extends Plugin {
                     },
                     region: REGIONS.EDITOR_AREA,
                     displayOnLoad: true,
+                },
+            ],
+            [TOOLS]: [
+                {
+                    id: TOOL_IDS.UNDO,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'undo',
+                    commandID: COMMMAND_IDS.UNDO,
+                    commandArgs: {},
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        if (activeEditor && !_.isNil(activeEditor.undoManager)) {
+                            return activeEditor.undoManager.hasUndo();
+                        }
+                        return false;
+                    },
+                },
+                {
+                    id: TOOL_IDS.REDO,
+                    group: TOOL_IDS.GROUP,
+                    icon: 'redo',
+                    commandID: COMMMAND_IDS.REDO,
+                    commandArgs: {},
+                    isActive: () => {
+                        const { editor } = this.appContext;
+                        const activeEditor = editor.getActiveEditor();
+                        if (activeEditor && !_.isNil(activeEditor.undoManager)) {
+                            return activeEditor.undoManager.hasRedo();
+                        }
+                        return false;
+                    },
                 },
             ],
             [DIALOGS]: [],

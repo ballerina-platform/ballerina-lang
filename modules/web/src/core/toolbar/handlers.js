@@ -11,6 +11,7 @@ export function getHandlerDefinitions(plugin) {
         {
             cmdID: COMMANDS.UPDATE_TOOL_BAR,
             handler: () => {
+                plugin.reRender();
             },
         },
     ];

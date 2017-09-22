@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { COMMANDS } from './constants';
+
 /**
  * Provides command handler definitions of editor plugin.
  * @param {Plugin} editor plugin
@@ -28,6 +29,7 @@ export function getHandlerDefinitions(editorPlugin) {
                 if (activeEditor && !_.isNil(activeEditor.undoManager) && activeEditor.undoManager.hasUndo()) {
                     activeEditor.undoManager.undo();
                 }
+                editorPlugin.dispatchToolBarUpdate();
             },
         },
         {
@@ -38,6 +40,7 @@ export function getHandlerDefinitions(editorPlugin) {
                 if (activeEditor && !_.isNil(activeEditor.undoManager) && activeEditor.undoManager.hasRedo()) {
                     activeEditor.undoManager.redo();
                 }
+                editorPlugin.dispatchToolBarUpdate();
             },
         },
     ];
