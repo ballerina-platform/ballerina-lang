@@ -27,6 +27,9 @@
             width: $activity-bar-width;
             & > a {
                 @extend .activity-bar-nav-common;
+                &:focus{
+                    background-color: transparent;
+                }
             }
             & > a:hover {
                 @extend .activity-bar-nav-common;
@@ -40,6 +43,10 @@
                 border-left: 3px solid #f17b31 !important;
                 padding-left: 12px;
                 background-color: #333;
+                &:focus, &:hover{
+                    border: none;
+                    background-color: #333;
+                }
                 & > i {
                     opacity: 1;
                 }
