@@ -18,20 +18,20 @@
 
 import Node from '../node';
 
-class ConnectorNodeAbstract extends Node {
+class ForkJoinNodeAbstract extends Node {
 
 
-    setFilteredParameter(newValue, silent, title) {
-        let oldValue = this.filteredParameter;
+    setWorkers(newValue, silent, title) {
+        let oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.filteredParameter = newValue;
+        this.workers = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'filteredParameter',
+                    attributeName: 'workers',
                     newValue,
                     oldValue,
                 }
@@ -39,43 +39,19 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    getFilteredParameter() {
-        return this.filteredParameter;
+    getWorkers() {
+        return this.workers;
     }
 
 
-
-    setVariableDefs(newValue, silent, title) {
-        let oldValue = this.variableDefs;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variableDefs = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'variableDefs',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getVariableDefs() {
-        return this.variableDefs;
-    }
-
-
-    addVariableDefs(node, i = -1, silent){
+    addWorkers(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.variableDefs.push(node);
-            index = this.variableDefs.length;
+            this.workers.push(node);
+            index = this.workers.length;
         } else {
-            this.variableDefs.splice(i, 0, node);
+            this.workers.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -91,17 +67,17 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    setInitFunction(newValue, silent, title) {
-        let oldValue = this.initFunction;
+    setJoinedWorkerIdentifiers(newValue, silent, title) {
+        let oldValue = this.joinedWorkerIdentifiers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
+        this.joinedWorkerIdentifiers = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'initFunction',
+                    attributeName: 'joinedWorkerIdentifiers',
                     newValue,
                     oldValue,
                 }
@@ -109,91 +85,19 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    getInitFunction() {
-        return this.initFunction;
+    getJoinedWorkerIdentifiers() {
+        return this.joinedWorkerIdentifiers;
     }
 
 
-
-    setInitAction(newValue, silent, title) {
-        let oldValue = this.initAction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initAction = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initAction',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getInitAction() {
-        return this.initAction;
-    }
-
-
-
-    setName(newValue, silent, title) {
-        let oldValue = this.name;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'name',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getName() {
-        return this.name;
-    }
-
-
-
-    setActions(newValue, silent, title) {
-        let oldValue = this.actions;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.actions = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'actions',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getActions() {
-        return this.actions;
-    }
-
-
-    addActions(node, i = -1, silent){
+    addJoinedWorkerIdentifiers(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.actions.push(node);
-            index = this.actions.length;
+            this.joinedWorkerIdentifiers.push(node);
+            index = this.joinedWorkerIdentifiers.length;
         } else {
-            this.actions.splice(i, 0, node);
+            this.joinedWorkerIdentifiers.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -209,17 +113,17 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    setParameters(newValue, silent, title) {
-        let oldValue = this.parameters;
+    setJoinType(newValue, silent, title) {
+        let oldValue = this.joinType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.parameters = newValue;
+        this.joinType = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'parameters',
+                    attributeName: 'joinType',
                     newValue,
                     oldValue,
                 }
@@ -227,45 +131,23 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    getParameters() {
-        return this.parameters;
+    getJoinType() {
+        return this.joinType;
     }
 
 
-    addParameters(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.parameters.push(node);
-            index = this.parameters.length;
-        } else {
-            this.parameters.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
 
-
-    setFlags(newValue, silent, title) {
-        let oldValue = this.flags;
+    setJoinCount(newValue, silent, title) {
+        let oldValue = this.joinCount;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.joinCount = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'joinCount',
                     newValue,
                     oldValue,
                 }
@@ -273,23 +155,23 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getJoinCount() {
+        return this.joinCount;
     }
 
 
 
-    setAnnotationAttachments(newValue, silent, title) {
-        let oldValue = this.annotationAttachments;
+    setJoinBody(newValue, silent, title) {
+        let oldValue = this.joinBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationAttachments = newValue;
+        this.joinBody = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'annotationAttachments',
+                    attributeName: 'joinBody',
                     newValue,
                     oldValue,
                 }
@@ -297,32 +179,106 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    getAnnotationAttachments() {
-        return this.annotationAttachments;
+    getJoinBody() {
+        return this.joinBody;
     }
 
 
-    addAnnotationAttachments(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.annotationAttachments.push(node);
-            index = this.annotationAttachments.length;
-        } else {
-            this.annotationAttachments.splice(i, 0, node);
-        }
+
+    setTimeOutExpression(newValue, silent, title) {
+        let oldValue = this.timeOutExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeOutExpression = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
+                type: 'modify-node',
+                title,
                 data: {
-                    node,
-                    index,
-                },
+                    attributeName: 'timeOutExpression',
+                    newValue,
+                    oldValue,
+                }
             });
         }
     }
+
+    getTimeOutExpression() {
+        return this.timeOutExpression;
+    }
+
+
+
+    setTimeOutVariable(newValue, silent, title) {
+        let oldValue = this.timeOutVariable;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeOutVariable = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeOutVariable',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getTimeOutVariable() {
+        return this.timeOutVariable;
+    }
+
+
+
+    setTimeoutBody(newValue, silent, title) {
+        let oldValue = this.timeoutBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeoutBody = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeoutBody',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getTimeoutBody() {
+        return this.timeoutBody;
+    }
+
+
+
+    setJoinResultVar(newValue, silent, title) {
+        let oldValue = this.joinResultVar;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinResultVar = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinResultVar',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getJoinResultVar() {
+        return this.joinResultVar;
+    }
+
 
 
     setWS(newValue, silent, title) {
@@ -399,4 +355,4 @@ class ConnectorNodeAbstract extends Node {
 
 }
 
-export default ConnectorNodeAbstract;
+export default ForkJoinNodeAbstract;

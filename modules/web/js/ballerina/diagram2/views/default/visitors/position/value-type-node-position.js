@@ -17,18 +17,18 @@
  */
 
 /**
- * Dimension Calculater for CompilationUnit.
+ * Position Calculater for ValueType.
  *
- * @class ReturnStatementDimensionCalculatorVisitor
+ * @class ValueTypePositionVisitor
  * */
-class CompilationUnitDimensionVisitor {
+class ValueTypePositionVisitor {
 
     /**
      * begin visit.
      *
      * @param {Node} node.
      *
-     * @memberOf CompilationUnitDimensionVisitor
+     * @memberOf ValueTypePositionVisitor
      * */
     beginVisit(node) {
 
@@ -39,11 +39,11 @@ class CompilationUnitDimensionVisitor {
      *
      * @param {Node} node.
      *
-     * @memberOf CompilationUnitDimensionVisitor
+     * @memberOf ValueTypePositionVisitor
      * */
     endVisit(node) {
         
     }
 }
 
-export default CompilationUnitDimensionVisitor;
+export default ValueTypePositionVisitor;

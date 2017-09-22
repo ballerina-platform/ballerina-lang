@@ -16,34 +16,10 @@
  * under the License.
  */
 
-/**
- * Dimension Calculater for CompilationUnit.
- *
- * @class ReturnStatementDimensionCalculatorVisitor
- * */
-class CompilationUnitDimensionVisitor {
+import ConstrainedTypeNodeAbstract from './abstract-tree/constrained-type-node';
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitDimensionVisitor
-     * */
-    beginVisit(node) {
+class ConstrainedTypeNode extends ConstrainedTypeNodeAbstract {
 
-    }
-
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitDimensionVisitor
-     * */
-    endVisit(node) {
-        
-    }
 }
 
-export default CompilationUnitDimensionVisitor;
+export default ConstrainedTypeNode;

@@ -21,6 +21,76 @@ import Node from '../node';
 class PackageNodeAbstract extends Node {
 
 
+    setCompilationUnits(newValue, silent, title) {
+        let oldValue = this.compilationUnits;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.compilationUnits = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'compilationUnits',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getCompilationUnits() {
+        return this.compilationUnits;
+    }
+
+
+    addCompilationUnits(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.compilationUnits.push(node);
+            index = this.compilationUnits.length;
+        } else {
+            this.compilationUnits.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+
+    setPackageDeclaration(newValue, silent, title) {
+        let oldValue = this.packageDeclaration;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageDeclaration = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageDeclaration',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getPackageDeclaration() {
+        return this.packageDeclaration;
+    }
+
+
+
     setImports(newValue, silent, title) {
         let oldValue = this.imports;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -65,30 +135,6 @@ class PackageNodeAbstract extends Node {
             });
         }
     }
-
-
-    setPackageDeclaration(newValue, silent, title) {
-        let oldValue = this.packageDeclaration;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageDeclaration = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'packageDeclaration',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getPackageDeclaration() {
-        return this.packageDeclaration;
-    }
-
 
 
     setNamespaceDeclarations(newValue, silent, title) {
@@ -352,52 +398,6 @@ class PackageNodeAbstract extends Node {
             index = this.structs.length;
         } else {
             this.structs.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-
-    setCompilationUnits(newValue, silent, title) {
-        let oldValue = this.compilationUnits;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.compilationUnits = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'compilationUnits',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getCompilationUnits() {
-        return this.compilationUnits;
-    }
-
-
-    addCompilationUnits(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.compilationUnits.push(node);
-            index = this.compilationUnits.length;
-        } else {
-            this.compilationUnits.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {

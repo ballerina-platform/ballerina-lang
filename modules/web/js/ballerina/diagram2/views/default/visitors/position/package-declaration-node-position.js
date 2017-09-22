@@ -31,7 +31,7 @@ class PackageDeclarationPositionVisitor {
      * @memberOf PackageDeclarationPositionVisitor
      * */
     beginVisit(node) {
-
+        console.log(node);
     }
 
     /**
@@ -42,7 +42,7 @@ class PackageDeclarationPositionVisitor {
      * @memberOf PackageDeclarationPositionVisitor
      * */
     endVisit(node) {
-        
+
     }
 }
 

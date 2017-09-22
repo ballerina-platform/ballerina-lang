@@ -19,10 +19,6 @@
 class AbstractTreeUtil {
 
 
-    isAbort(node) {
-        return node.kind === 'Abort';
-    }
-
     isAction(node) {
         return node.kind === 'Action';
     }
@@ -31,32 +27,12 @@ class AbstractTreeUtil {
         return node.kind === 'Annotation';
     }
 
-    isAnnotationAttribute(node) {
-        return node.kind === 'AnnotationAttribute';
-    }
-
     isAnnotationAttachment(node) {
         return node.kind === 'AnnotationAttachment';
     }
 
-    isAnnotationAttachmentAttribute(node) {
-        return node.kind === 'AnnotationAttachmentAttribute';
-    }
-
-    isAnnotationAttachmentAttributeValue(node) {
-        return node.kind === 'AnnotationAttachmentAttributeValue';
-    }
-
-    isAssignment(node) {
-        return node.kind === 'Assignment';
-    }
-
-    isBreak(node) {
-        return node.kind === 'Break';
-    }
-
-    isBlock(node) {
-        return node.kind === 'Block';
+    isAnnotationAttribute(node) {
+        return node.kind === 'AnnotationAttribute';
     }
 
     isCatch(node) {
@@ -67,28 +43,12 @@ class AbstractTreeUtil {
         return node.kind === 'CompilationUnit';
     }
 
-    isComment(node) {
-        return node.kind === 'Comment';
-    }
-
     isConnector(node) {
         return node.kind === 'Connector';
     }
 
-    isContinue(node) {
-        return node.kind === 'Continue';
-    }
-
     isEnum(node) {
         return node.kind === 'Enum';
-    }
-
-    isExpressionStatement(node) {
-        return node.kind === 'ExpressionStatement';
-    }
-
-    isForkjoin(node) {
-        return node.kind === 'Forkjoin';
     }
 
     isFunction(node) {
@@ -99,16 +59,8 @@ class AbstractTreeUtil {
         return node.kind === 'Identifier';
     }
 
-    isIf(node) {
-        return node.kind === 'If';
-    }
-
     isImport(node) {
         return node.kind === 'Import';
-    }
-
-    isLiteral(node) {
-        return node.kind === 'Literal';
     }
 
     isPackage(node) {
@@ -119,24 +71,96 @@ class AbstractTreeUtil {
         return node.kind === 'PackageDeclaration';
     }
 
+    isResource(node) {
+        return node.kind === 'Resource';
+    }
+
     isService(node) {
         return node.kind === 'Service';
+    }
+
+    isStruct(node) {
+        return node.kind === 'Struct';
+    }
+
+    isVariable(node) {
+        return node.kind === 'Variable';
+    }
+
+    isWorker(node) {
+        return node.kind === 'Worker';
+    }
+
+    isAnnotationAttachmentAttributeValue(node) {
+        return node.kind === 'AnnotationAttachmentAttributeValue';
+    }
+
+    isArrayLiteralExpr(node) {
+        return node.kind === 'ArrayLiteralExpr';
+    }
+
+    isBinaryExpr(node) {
+        return node.kind === 'BinaryExpr';
+    }
+
+    isInvocation(node) {
+        return node.kind === 'Invocation';
+    }
+
+    isLiteral(node) {
+        return node.kind === 'Literal';
+    }
+
+    isStringTemplateLiteral(node) {
+        return node.kind === 'StringTemplateLiteral';
+    }
+
+    isUnaryExpr(node) {
+        return node.kind === 'UnaryExpr';
+    }
+
+    isAbort(node) {
+        return node.kind === 'Abort';
+    }
+
+    isAssignment(node) {
+        return node.kind === 'Assignment';
+    }
+
+    isBlock(node) {
+        return node.kind === 'Block';
+    }
+
+    isBreak(node) {
+        return node.kind === 'Break';
+    }
+
+    isContinue(node) {
+        return node.kind === 'Continue';
+    }
+
+    isExpressionStatement(node) {
+        return node.kind === 'ExpressionStatement';
+    }
+
+    isForkJoin(node) {
+        return node.kind === 'ForkJoin';
+    }
+
+    isIf(node) {
+        return node.kind === 'If';
     }
 
     isReply(node) {
         return node.kind === 'Reply';
     }
 
-    isResource(node) {
-        return node.kind === 'Resource';
-    }
-
     isReturn(node) {
         return node.kind === 'Return';
     }
 
-    isStruct(node) {
-        return node.kind === 'Struct';
+    isComment(node) {
+        return node.kind === 'Comment';
     }
 
     isThrow(node) {
@@ -151,48 +175,36 @@ class AbstractTreeUtil {
         return node.kind === 'Transform';
     }
 
-    isType(node) {
-        return node.kind === 'Type';
-    }
-
-    isVariable(node) {
-        return node.kind === 'Variable';
-    }
-
     isWhile(node) {
         return node.kind === 'While';
-    }
-
-    isWorker(node) {
-        return node.kind === 'Worker';
-    }
-
-    isWorkerSend(node) {
-        return node.kind === 'WorkerSend';
     }
 
     isWorkerReceive(node) {
         return node.kind === 'WorkerReceive';
     }
 
-    isInvocation(node) {
-        return node.kind === 'Invocation';
+    isWorkerSend(node) {
+        return node.kind === 'WorkerSend';
     }
 
-    isArrayLiteralExpr(node) {
-        return node.kind === 'ArrayLiteralExpr';
+    isArrayType(node) {
+        return node.kind === 'ArrayType';
     }
 
-    isBinaryExpr(node) {
-        return node.kind === 'BinaryExpr';
+    isConstrainedType(node) {
+        return node.kind === 'ConstrainedType';
     }
 
-    isUnaryExpr(node) {
-        return node.kind === 'UnaryExpr';
+    isFunctionType(node) {
+        return node.kind === 'FunctionType';
     }
 
-    isStringTemplateLiteral(node) {
-        return node.kind === 'StringTemplateLiteral';
+    isUserDefinedType(node) {
+        return node.kind === 'UserDefinedType';
+    }
+
+    isValueType(node) {
+        return node.kind === 'ValueType';
     }
 
 

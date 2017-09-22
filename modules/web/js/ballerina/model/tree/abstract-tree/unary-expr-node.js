@@ -21,30 +21,6 @@ import Node from '../node';
 class UnaryExprNodeAbstract extends Node {
 
 
-    setOperatorKind(newValue, silent, title) {
-        let oldValue = this.operatorKind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.operatorKind = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'operatorKind',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getOperatorKind() {
-        return this.operatorKind;
-    }
-
-
-
     setExpression(newValue, silent, title) {
         let oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -65,6 +41,30 @@ class UnaryExprNodeAbstract extends Node {
 
     getExpression() {
         return this.expression;
+    }
+
+
+
+    setOperatorKind(newValue, silent, title) {
+        let oldValue = this.operatorKind;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.operatorKind = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'operatorKind',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getOperatorKind() {
+        return this.operatorKind;
     }
 
 

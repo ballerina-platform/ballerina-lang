@@ -21,6 +21,30 @@ import Node from '../node';
 class InvocationNodeAbstract extends Node {
 
 
+    setExpression(newValue, silent, title) {
+        let oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
+
+
     setPackageAlias(newValue, silent, title) {
         let oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -89,30 +113,6 @@ class InvocationNodeAbstract extends Node {
             });
         }
     }
-
-
-    setExpression(newValue, silent, title) {
-        let oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
     setName(newValue, silent, title) {

@@ -45,6 +45,98 @@ class TransformNodeAbstract extends Node {
 
 
 
+    setInputExpressions(newValue, silent, title) {
+        let oldValue = this.inputExpressions;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.inputExpressions = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'inputExpressions',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getInputExpressions() {
+        return this.inputExpressions;
+    }
+
+
+    addInputExpressions(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.inputExpressions.push(node);
+            index = this.inputExpressions.length;
+        } else {
+            this.inputExpressions.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+
+    setOutputExpressions(newValue, silent, title) {
+        let oldValue = this.outputExpressions;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.outputExpressions = newValue;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'outputExpressions',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getOutputExpressions() {
+        return this.outputExpressions;
+    }
+
+
+    addOutputExpressions(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.outputExpressions.push(node);
+            index = this.outputExpressions.length;
+        } else {
+            this.outputExpressions.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+
     setWS(newValue, silent, title) {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

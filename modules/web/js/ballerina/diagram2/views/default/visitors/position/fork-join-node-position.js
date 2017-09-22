@@ -17,18 +17,18 @@
  */
 
 /**
- * Dimension Calculater for CompilationUnit.
+ * Position Calculater for ForkJoin.
  *
- * @class ReturnStatementDimensionCalculatorVisitor
+ * @class ForkJoinPositionVisitor
  * */
-class CompilationUnitDimensionVisitor {
+class ForkJoinPositionVisitor {
 
     /**
      * begin visit.
      *
      * @param {Node} node.
      *
-     * @memberOf CompilationUnitDimensionVisitor
+     * @memberOf ForkJoinPositionVisitor
      * */
     beginVisit(node) {
 
@@ -39,11 +39,11 @@ class CompilationUnitDimensionVisitor {
      *
      * @param {Node} node.
      *
-     * @memberOf CompilationUnitDimensionVisitor
+     * @memberOf ForkJoinPositionVisitor
      * */
     endVisit(node) {
         
     }
 }
 
-export default CompilationUnitDimensionVisitor;
+export default ForkJoinPositionVisitor;

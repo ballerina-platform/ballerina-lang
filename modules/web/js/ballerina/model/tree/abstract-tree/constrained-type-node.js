@@ -18,20 +18,20 @@
 
 import Node from '../node';
 
-class AssignmentNodeAbstract extends Node {
+class ConstrainedTypeNodeAbstract extends Node {
 
 
-    setExpression(newValue, silent, title) {
-        let oldValue = this.expression;
+    setConstraint(newValue, silent, title) {
+        let oldValue = this.constraint;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.constraint = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'constraint',
                     newValue,
                     oldValue,
                 }
@@ -39,23 +39,23 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getConstraint() {
+        return this.constraint;
     }
 
 
 
-    setVariables(newValue, silent, title) {
-        let oldValue = this.variables;
+    setType(newValue, silent, title) {
+        let oldValue = this.type;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variables = newValue;
+        this.type = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'variables',
+                    attributeName: 'type',
                     newValue,
                     oldValue,
                 }
@@ -63,32 +63,10 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getVariables() {
-        return this.variables;
+    getType() {
+        return this.type;
     }
 
-
-    addVariables(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.variables.push(node);
-            index = this.variables.length;
-        } else {
-            this.variables.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
 
 
     setWS(newValue, silent, title) {
@@ -165,4 +143,4 @@ class AssignmentNodeAbstract extends Node {
 
 }
 
-export default AssignmentNodeAbstract;
+export default ConstrainedTypeNodeAbstract;

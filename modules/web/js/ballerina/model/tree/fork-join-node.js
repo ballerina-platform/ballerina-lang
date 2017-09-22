@@ -16,34 +16,10 @@
  * under the License.
  */
 
-/**
- * Dimension Calculater for CompilationUnit.
- *
- * @class ReturnStatementDimensionCalculatorVisitor
- * */
-class CompilationUnitDimensionVisitor {
+import ForkJoinNodeAbstract from './abstract-tree/fork-join-node';
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitDimensionVisitor
-     * */
-    beginVisit(node) {
+class ForkJoinNode extends ForkJoinNodeAbstract {
 
-    }
-
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitDimensionVisitor
-     * */
-    endVisit(node) {
-        
-    }
 }
 
-export default CompilationUnitDimensionVisitor;
+export default ForkJoinNode;

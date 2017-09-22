@@ -18,20 +18,20 @@
 
 import Node from '../node';
 
-class AssignmentNodeAbstract extends Node {
+class ValueTypeNodeAbstract extends Node {
 
 
-    setExpression(newValue, silent, title) {
-        let oldValue = this.expression;
+    setTypeKind(newValue, silent, title) {
+        let oldValue = this.typeKind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.typeKind = newValue;
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'typeKind',
                     newValue,
                     oldValue,
                 }
@@ -39,56 +39,10 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getTypeKind() {
+        return this.typeKind;
     }
 
-
-
-    setVariables(newValue, silent, title) {
-        let oldValue = this.variables;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variables = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'variables',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getVariables() {
-        return this.variables;
-    }
-
-
-    addVariables(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.variables.push(node);
-            index = this.variables.length;
-        } else {
-            this.variables.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
 
 
     setWS(newValue, silent, title) {
@@ -165,4 +119,4 @@ class AssignmentNodeAbstract extends Node {
 
 }
 
-export default AssignmentNodeAbstract;
+export default ValueTypeNodeAbstract;

@@ -16,34 +16,10 @@
  * under the License.
  */
 
-/**
- * Dimension Calculater for CompilationUnit.
- *
- * @class ReturnStatementDimensionCalculatorVisitor
- * */
-class CompilationUnitDimensionVisitor {
+import FunctionTypeNodeAbstract from './abstract-tree/function-type-node';
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitDimensionVisitor
-     * */
-    beginVisit(node) {
+class FunctionTypeNode extends FunctionTypeNodeAbstract {
 
-    }
-
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf CompilationUnitDimensionVisitor
-     * */
-    endVisit(node) {
-        
-    }
 }
 
-export default CompilationUnitDimensionVisitor;
+export default FunctionTypeNode;

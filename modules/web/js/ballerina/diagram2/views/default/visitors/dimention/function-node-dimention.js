@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { util } from './../../sizing-util';
 
 /**
  * Dimension Calculater for Function.
@@ -42,7 +43,7 @@ class FunctionDimensionVisitor {
      * @memberOf FunctionDimensionVisitor
      * */
     endVisit(node) {
-        
+        util.populatePanelDecoratorBBox(node, node.getName().value);
     }
 }
 
