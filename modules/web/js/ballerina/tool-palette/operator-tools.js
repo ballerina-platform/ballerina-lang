@@ -73,7 +73,7 @@ const multiplyOpTool = {
 const powerOpTool = {
     id: 'power',
     name: 'Power',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-power',
     title: 'Power',
     meta: {
         defaultExpression: '1 ^ 1',
@@ -106,7 +106,7 @@ const greaterThanOpTool = {
 const lessThanOrEqualOpTool = {
     id: 'lessThanOrEqual',
     name: 'LT Or Equal To',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-less-than-equals',
     title: 'LT Or Equal To',
     meta: {
         defaultExpression: '0 <= 0',
@@ -117,7 +117,7 @@ const lessThanOrEqualOpTool = {
 const greaterThanOrEqualOpTool = {
     id: 'greaterThanOrEqual',
     name: 'GT Or Equal To',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-greater-than-equals',
     title: 'GT Or Equal To',
     meta: {
         defaultExpression: '0 >= 0',
@@ -128,7 +128,7 @@ const greaterThanOrEqualOpTool = {
 const equalOpTool = {
     id: 'equal',
     name: 'Equal To',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-equals',
     title: 'Equal To',
     meta: {
         defaultExpression: '0 == 0',
@@ -139,7 +139,7 @@ const equalOpTool = {
 const notEqualOpTool = {
     id: 'notEqual',
     name: 'Not Equal To',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-not-equal',
     title: 'Not Equal To',
     meta: {
         defaultExpression: '0 != 0',
@@ -150,7 +150,7 @@ const notEqualOpTool = {
 const andOpTool = {
     id: 'and',
     name: 'And',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-and',
     title: 'And',
     meta: {
         defaultExpression: 'true && true',
@@ -161,7 +161,7 @@ const andOpTool = {
 const orOpTool = {
     id: 'or',
     name: 'Or',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-or',
     title: 'Or',
     meta: {
         defaultExpression: 'true || true',
@@ -223,7 +223,7 @@ const notOpTool = {
 const lengthOfOpTool = {
     id: 'lengthof',
     name: 'Length Of',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-lengthof',
     title: 'Length Of',
     meta: {
         defaultExpression: 'lengthof a',
@@ -234,7 +234,7 @@ const lengthOfOpTool = {
 const typeOfOpTool = {
     id: 'typeof',
     name: 'Type Of',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-typeof',
     title: 'Type Of',
     meta: {
         defaultExpression: 'typeof a',
