@@ -145,3 +145,8 @@
 .transform-endpoint-icon {
     font-size: 13px;
 }
+
+.variable-endpoint.drop-valid {
+    font-size: 12px;
+    color: #f17b31;
+}

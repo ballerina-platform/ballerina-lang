@@ -12,6 +12,10 @@
     padding: 0px 20px 0px 20px;
 }
 
+.transformOverlay .btn {
+    border: none;
+}
+
 .transformOverlay .react-autosuggest__input {
     padding-left: 10px;
     height: 30px;
@@ -160,6 +164,4 @@
 
 .drop-valid {
     cursor: auto;
-    font-size: 12px;
-    color: #f17b31;
 }
