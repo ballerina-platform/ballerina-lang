@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -52,8 +54,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -248,6 +252,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        BSymbol serviceSymbol = serviceNode.symbol;
+        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
+        serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
+        serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
+        serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
+    }
+
+    public void visit(BLangResource resourceNode) {
+        BSymbol resourceSymbol = resourceNode.symbol;
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
+        resourceNode.annAttachments.forEach(a -> this.analyzeDef(a, resourceEnv));
+        resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
+        resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
+        analyzeStmt(resourceNode.body, resourceEnv);
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
@@ -263,6 +281,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeNode(bLangCatch.param, catchBlockEnv);
         this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        analyzeStmt(transactionNode.transactionBody, env);
+        if (transactionNode.failedBody != null) {
+            analyzeStmt(transactionNode.failedBody, env);
+        }
+        if (transactionNode.committedBody != null) {
+            analyzeStmt(transactionNode.committedBody, env);
+        }
+        if (transactionNode.abortedBody != null) {
+            analyzeStmt(transactionNode.abortedBody, env);
+        }
+        if (transactionNode.retryCount != null) {
+            typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
     }
 
     private boolean isJoinResultType(BLangVariable var) {

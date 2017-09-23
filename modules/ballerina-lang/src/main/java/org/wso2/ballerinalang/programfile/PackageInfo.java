@@ -54,7 +54,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
 
-    private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
+    public Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 

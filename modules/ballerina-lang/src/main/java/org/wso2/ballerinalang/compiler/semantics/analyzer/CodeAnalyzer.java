@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -114,6 +115,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     
     private int loopCount;
+    private int transactionCount;
+    private int failedBlockCount;
     private boolean statementReturns;
     private DiagnosticLog dlog;
 
@@ -181,7 +184,40 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         worker.body.accept(this);
         this.resetStatementReturns();
     }
-    
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        this.checkStatementExecutionValidity(transactionNode);
+        this.transactionCount++;
+        transactionNode.transactionBody.accept(this);
+        this.transactionCount--;
+        if (transactionNode.failedBody != null) {
+            this.failedBlockCount++;
+            transactionNode.failedBody.accept(this);
+            this.failedBlockCount--;
+        }
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
+        }
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+        if (this.transactionCount == 0) {
+            this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+        }
+    }
+
+    @Override
+    public void visit(BLangRetry abortNode) {
+        if (this.failedBlockCount == 0) {
+            this.dlog.error(abortNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+        }
+    }
+
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
@@ -314,10 +350,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(assignNode);
     }
 
-    public void visit(BLangAbort abortNode) {
-        /* ignore */
-    }
-
     public void visit(BLangBreak breakNode) {
         /* ignore */
     }
@@ -340,10 +372,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangComment commentNode) {
         /* ignore */
-    }
-
-    public void visit(BLangTransaction transactionNode) {
-        this.checkStatementExecutionValidity(transactionNode);
     }
 
     public void visit(BLangTryCatchFinally tryNode) {

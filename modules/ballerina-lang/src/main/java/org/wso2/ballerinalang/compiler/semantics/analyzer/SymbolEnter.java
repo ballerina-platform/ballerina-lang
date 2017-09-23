@@ -148,9 +148,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
-        // Define service nodes.
-
-        // Define resource nodes.
+        // Define service and resource nodes.
+        defineServices(pkgNode.services, pkgEnv);
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
@@ -344,6 +343,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .peek(field -> defineNode(field, structEnv))
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
                     .collect(Collectors.toList());
+        });
+    }
+
+    private void defineServices(List<BLangService> serviceNodes, SymbolEnv pkgEnv) {
+        serviceNodes.forEach(service -> {
+            defineNode(service, pkgEnv);
+            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
+            service.resources.forEach(resource -> defineNode(resource, serviceEnv));
         });
     }
 
