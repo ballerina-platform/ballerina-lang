@@ -82,7 +82,7 @@ public class AnnotationAttachment {
      * @return Converted model.
      */
     public static AnnotationAttachment convertToPackageModel(
-            BLangAnnotationAttachment annotationAttachment) {
+            AnnotationAttachmentPoint annotationAttachment) {
         if (null != annotationAttachment) {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
 //            tempAnnotationAttachment.setName(annotationAttachment.getName());
@@ -100,6 +100,16 @@ public class AnnotationAttachment {
 //                            AnnotationAttributeValue.convertToPackageModel(annotationAttributeValueEntry.getValue()));
 //            }
         
+            return tempAnnotationAttachment;
+        } else {
+            return null;
+        }
+    }
+
+    public static AnnotationAttachment convertToPackageModel(
+            BLangAnnotationAttachment annotationAttachment) {
+        if (null != annotationAttachment) {
+            AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
             return tempAnnotationAttachment;
         } else {
             return null;

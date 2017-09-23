@@ -20,6 +20,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.filters.StatementTemplateFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
@@ -43,15 +44,9 @@ class DefaultResolver extends AbstractItemResolver {
 
         populateCompletionItemList(symbols, completionItems);
 
-        // Add the basic constructs
-        ItemResolverConstants.getBasicConstructs().forEach((bConstruct) -> {
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(bConstruct);
-            completionItem.setInsertText(bConstruct);
-            completionItem.setDetail("");
-            completionItem.setSortText(ItemResolverConstants.PRIORITY_3);
-            completionItems.add(completionItem);
-        });
+        // Add the statement templates
+        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
+        completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
 
         return completionItems;
     }
