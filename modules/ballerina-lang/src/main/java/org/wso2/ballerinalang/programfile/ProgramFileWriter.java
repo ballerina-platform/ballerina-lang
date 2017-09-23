@@ -48,6 +48,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -60,11 +61,15 @@ import java.util.Map;
 public class ProgramFileWriter {
 
     public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
+        writeProgram(programFile, bos);
+    }
+
+    public static void writeProgram(ProgramFile programFile, OutputStream programOutStream) throws IOException {
         DataOutputStream dataOutStream = null;
         try {
             // TODO improve this with Java 7 File API.
-            BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
-            dataOutStream = new DataOutputStream(bos);
+            dataOutStream = new DataOutputStream(programOutStream);
 
             dataOutStream.writeInt(programFile.getMagicValue());
             dataOutStream.writeShort(programFile.getVersion());

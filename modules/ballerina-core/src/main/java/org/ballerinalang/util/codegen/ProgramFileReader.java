@@ -103,6 +103,19 @@ public class ProgramFileReader {
         }
     }
 
+    public ProgramFile readProgram(InputStream programFileInStream) throws IOException {
+        InputStream fileIS = null;
+        try {
+            programFile = new ProgramFile();
+            DataInputStream dataInStream = new DataInputStream(programFileInStream);
+            return readProgramInternal(dataInStream);
+        } finally {
+            if (fileIS != null) {
+                fileIS.close();
+            }
+        }
+    }
+
     private ProgramFile readProgramInternal(DataInputStream dataInStream) throws IOException {
         int magicNumber = dataInStream.readInt();
         if (magicNumber != MAGIC_NUMBER) {

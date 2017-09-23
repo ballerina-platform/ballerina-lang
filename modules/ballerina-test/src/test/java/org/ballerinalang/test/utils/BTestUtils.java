@@ -17,19 +17,25 @@
 package org.ballerinalang.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.program.BLangPrograms;
+import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -50,8 +56,8 @@ public class BTestUtils {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static String[] compile(String sourceFilePath) {
-        return compile(sourceFilePath, CompilerPhase.CODE_ANALYZE);
+    public static CompileResult compile(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
     /**
@@ -61,7 +67,7 @@ public class BTestUtils {
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
-    public static String[] compile(String sourceFilePath, CompilerPhase compilerPhase) {
+    public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFile = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
@@ -72,29 +78,104 @@ public class BTestUtils {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
+        CompileResult comResult = new CompileResult();
+
         // catch errors
-        List<String> errors = new ArrayList<>();
-        DiagnosticListener listener = diagnostic -> errors.add(getErrorMessage(diagnostic));
+        DiagnosticListener listener = diagnostic -> comResult.addDiagnostic(diagnostic);
         context.put(DiagnosticListener.class, listener);
 
+        // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(sourceFile);
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getProgramFile();
 
-        return errors.toArray(new String[errors.size()]);
+        if (programFile != null) {
+            comResult.setProgFile(getExecutableProgram(programFile));
+        }
+
+        return comResult;
     }
 
-    private static String getErrorMessage(Diagnostic diagnostic) {
-        BDiagnostic diag = (BDiagnostic) diagnostic;
-        DiagnosticPos pos = ((BDiagnostic) diagnostic).pos;
-        Kind kind = diag.kind;
-        switch (kind) {
-            case ERROR:
-                return "error: " + pos + " " + diag.msg;
-            case WARNING:
-                return "warning: " + pos + " " + diag.msg;
-            case NOTE:
-                break;
+    /**
+     * Invoke a ballerina function.
+     * 
+     * @param programFile Executable program file
+     * @param functionName Name of the function to invoke
+     * @param args Input parameters for the function
+     * @return return values of the function
+     */
+    public static BValue[] invoke(ProgramFile programFile, String functionName, BValue[] args) {
+        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
+    }
+
+    /**
+     * Compile and run a ballerina file.
+     * 
+     * @param sourceFilePath Path to the ballerina file.
+     */
+    public static void run(String sourceFilePath) {
+        // TODO: improve. How to get the output
+        CompileResult result = compile(sourceFilePath);
+        ProgramFile programFile = result.getProgFile();
+
+        // If there is no main or service entry point, throw an error
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
-        return "";
+
+        if (programFile.isMainEPAvailable()) {
+            LauncherUtils.runMain(programFile, new String[0]);
+        } else {
+            LauncherUtils.runServices(programFile);
+        }
+    }
+
+    /**
+     * Assert an error.
+     * 
+     * @param result Result from compilation
+     * @param errorIndex Index of the error in the result
+     * @param expectedErrMsg Expected error message
+     * @param expectedErrLine Expected line number of the error
+     * @param expectedErrCol Expected column number of the error
+     */
+    public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, int expectedErrLine,
+                                   int expectedErrCol) {
+        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
+        Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
+        Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
+    }
+
+    private static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+        ByteArrayInputStream byteIS = null;
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        try {
+            ProgramFileWriter.writeProgram(programFile, byteOutStream);
+
+            // Populate the global scope
+            BLangPrograms.loadBuiltinTypes();
+
+            // Populate the native function/actions
+            BLangPrograms.populateNativeScope();
+
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
+            return reader.readProgram(byteIS);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+
+            try {
+                byteOutStream.close();
+            } catch (IOException ignore) {
+            }
+        }
     }
 }
