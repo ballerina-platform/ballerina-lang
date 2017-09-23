@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -38,7 +37,7 @@ import org.ballerinalang.net.http.HttpUtil;
         args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "propertyName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},// TODO: Ballerina only supports string properties ATM
+        returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM
         isPublic = true
 )
 public class GetProperty extends AbstractNativeFunction {

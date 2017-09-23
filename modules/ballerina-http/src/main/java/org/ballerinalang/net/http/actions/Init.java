@@ -2,7 +2,6 @@ package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;

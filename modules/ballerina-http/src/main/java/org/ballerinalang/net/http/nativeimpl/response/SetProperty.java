@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -37,7 +36,7 @@ import org.ballerinalang.net.http.HttpUtil;
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
                 @Argument(name = "propertyName", type = TypeKind.STRING),
-                @Argument(name = "propertyValue", type = TypeKind.STRING)},//TODO: property value could be of any type
+                @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type
         isPublic = true
 )
 public class SetProperty extends AbstractNativeFunction {
