@@ -88,7 +88,7 @@ class SuggestionsText extends React.Component {
      * @override
      */
     componentWillUnmount() {
-        ReactDOM.render(<noscript />, this.context.getOverlayContainer());
+        //FIXME ReactDOM.render(<noscript />, this.context.getOverlayContainer());
     }
 
     /**

@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import ExamplePreview from './service-preview';
 
 /**
  * React component for welcome page.
@@ -38,14 +39,48 @@ class WelcomeView extends React.Component {
     }
 
     /**
+     * Rending the view of the samples.
+     * @returns {ReactView} The samples view.
+     * @memberof WelcomeView
+     */
+    renderSamples() {
+        const pathSeperator = this._options.application.getPathSeperator();
+        const ballerinaHome = _.get(this._options, 'balHome');
+        let sampleConfigs = [];
+        sampleConfigs = this.props.samples.map(sample => ({
+            sampleName: sample.name,
+            isFile: sample.isFile,
+            clickEventCallback: () => {
+                // convert paths to platform specific paths
+                const sampleFile = sample.path.split('/').join(pathSeperator);
+                const sampleFolder = (sample.folder) ? sample.folder.split('/').join(pathSeperator) : '';
+                if (sample.isFile) {
+                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                } else {
+                    commandManager.dispatch('open-folder', ballerinaHome + sampleFolder);
+                    if (!workspaceExplorer.isActive()) {
+                        commandManager.dispatch('toggle-file-explorer');
+                    }
+                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
+                }
+            },
+            image: sample.image,
+        }));
+
+        return (
+            <ExamplePreview sampleConfigs={sampleConfigs} />
+        );
+    }
+
+    /**
      * Renders view for welcome view.
      *
      * @returns {ReactElement} The view.
      * @memberof WelcomeView
      */
     render() {
-        const userGuideURL = this.props.application.config.menu_bar.help_urls.user_guide_url;
-        return (<div className="initial-background-container">
+        const samplesView = this.renderSamples();
+        return (<div className="initial-background-container welcome-page">
             <div className="container-fluid welcome-wrapper">
                 <div className="media media-welcome-container">
                     <div className="media-left">
@@ -53,7 +88,7 @@ class WelcomeView extends React.Component {
                             <a href={undefined}>
                                 <img
                                     className="img-responsive"
-                                    src="images/ballerina_logo.png"
+                                    src="images/BallerinaLogoWelcome.svg"
                                     alt="logo"
                                     onLoad={() => this.setState({ logoLoaded: true })}
                                 />
@@ -63,17 +98,34 @@ class WelcomeView extends React.Component {
                             </a>
                         </div>
 
-                        <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
-                        <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
-                        <button id="btn-welcome-open-dir" className="btn btn-secondary"> Open Directory</button>
-
+                        <button
+                            id="btn-welcome-new"
+                            className="btn btn-primary" 
+                            onClick={this.props.createNew}
+                        >
+                            Create New
+                        </button>
+                        <button
+                            id="btn-welcome-open"
+                            className="btn btn-secondary"
+                            onClick={this.props.openFile}
+                        >
+                            Open File
+                        </button>
+                        <button
+                            id="btn-welcome-open-dir"
+                            className="btn btn-secondary"
+                            onClick={this.props.openDirectory}
+                        >
+                            Open Directory
+                        </button>
                         <ul className="nav nav-pills">
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
                             {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
                             <li >
-                                <a href={userGuideURL} target="_blank" rel="noopener noreferrer">
-                                    <i className="fw fw-document" /> User Guide </a></li>
+                                <a href={this.props.referenceUrl} target="_blank" rel="noopener noreferrer">
+                                    <i className="fw fw-document" /> Ballerina by Example </a></li>
                         </ul>
                     </div>
                     <div className="media-body">
@@ -82,7 +134,9 @@ class WelcomeView extends React.Component {
                                 Try out our samples / templates
                             </div>
                             <div className="details-container">
-                                <div id="inner-samples" className="row" />
+                                <div id="inner-samples" className="row">
+                                    {samplesView}
+                                </div>
                             </div>
                         </div>
 
@@ -94,7 +148,16 @@ class WelcomeView extends React.Component {
 }
 
 WelcomeView.propTypes = {
-    application: PropTypes.instanceOf(Object).isRequired,
+    createNew: PropTypes.func.isRequired,
+    openFile: PropTypes.func.isRequired,
+    openDirectory: PropTypes.func.isRequired,
+    referenceUrl: PropTypes.string.isRequired,
+    samples: PropTypes.arrayOf(PropTypes.shape({
+        clickEventCallback: PropTypes.func.isRequired,
+        sampleName: PropTypes.string.isRequired,
+        isFile: PropTypes.bool.isRequired,
+        image: PropTypes.string.isRequired,
+    })).isRequired,
 };
 
 export default WelcomeView;

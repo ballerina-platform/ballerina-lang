@@ -1,0 +1,40 @@
+.left-panel {
+    color:white;
+    background-color: #333;
+    width: 100%;
+    & .tab-content {
+      left: $activity-bar-width !important;
+      position: fixed;
+      & .tab-pane {
+          text-align: center;
+      }
+    }
+    & .panel-title {
+        @extend .unseletable-content;
+        float: left;
+        padding: 8.5px 0 8.5px 5px;
+        text-transform: uppercase;
+        color: #c7c7c7;
+        font-size: 14px;
+        text-align: left;
+    }
+    .panel-actions {
+        float: right;
+        margin: 8.5px 10px 0 0;
+        & i.fw {
+            margin-left: 10px;
+            opacity: 0.3;
+            &.active {
+                opacity: 0.6;
+                &:hover {
+                    opacity: 1;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+    & .panel-content {
+        margin-top: 1px;
+        text-align: left;
+    }
+  }

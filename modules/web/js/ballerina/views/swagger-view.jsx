@@ -21,6 +21,8 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
+import cn from 'classnames';
+import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import ASTFactory from '../ast/ast-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 import SwaggerParser from './../../swagger-parser/swagger-parser';
@@ -28,8 +30,8 @@ import { getSwaggerDefinition } from '../../api-client/api-client';
 import ServiceDefinition from '../ast/service-definition';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 
+
 const ace = global.ace;
-const SwaggerEditorBundle = global.SwaggerEditorBundle;
 const AceUndoManager = ace.acequire('ace/undomanager').UndoManager;
 
 /**
@@ -85,11 +87,11 @@ class SwaggerView extends React.Component {
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
         this.tryItUrl = undefined;
-        props.commandManager.registerHandler('try-it-url-received', (url) => {
+        props.commandProxy.on('try-it-url-received', (url) => {
             this.tryItUrl = url;
         }, this);
 
-        props.commandManager.registerHandler('save', () => {
+        props.commandProxy.on('save', () => {
             this.updateService();
         }, this);
     }
@@ -198,7 +200,6 @@ class SwaggerView extends React.Component {
                     // Update host url if try it url is available.
                     const swaggerJson = JSON.parse(swaggerDefinition);
                     if (_.isNil(swaggerJson.host) && this.tryItUrl && _.split(this.tryItUrl, '//', 2).length === 2) {
-                        
                         swaggerJson.host = _.split(this.tryItUrl, '//', 2)[1];
                         swaggerDefinition = JSON.stringify(swaggerJson);
                     }
@@ -271,7 +272,7 @@ class SwaggerView extends React.Component {
             }
 
             // bind app keyboard shortcuts to ace editor
-            this.props.commandManager.getCommands().forEach((command) => {
+            this.props.commandProxy.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
         }
@@ -321,7 +322,7 @@ class SwaggerView extends React.Component {
                                 Design View
                         </div>
                     </div>
-                    <div className="view-source-btn btn-icon">
+                    <div className={cn('view-source-btn btn-icon', { hide: this.context.isPreviewViewEnabled })}>
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
@@ -357,7 +358,11 @@ class SwaggerView extends React.Component {
 
 SwaggerView.propTypes = {
     targetService: PropTypes.instanceOf(ServiceDefinition),
-    commandManager: PropTypes.instanceOf(Object).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
     hideSwaggerAceEditor: PropTypes.bool,
     resetSwaggerViewFun: PropTypes.func.isRequired,
 };
@@ -370,6 +375,7 @@ SwaggerView.defaultProps = {
 SwaggerView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     astRoot: PropTypes.instanceOf(Object).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
 export default SwaggerView;

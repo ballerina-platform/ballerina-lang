@@ -18,16 +18,29 @@
 
 import React from 'react';
 import './variable-endpoint.css';
+import VariableTypeDropdown from './variable-type-dropdown.jsx'
 
 export default class VariableEndpoint extends React.Component {
     constructor(props, context) {
         super(props, context);
+        let type = '';
+        let name = '';
+        let val = '';
+        if (this.props.variable.varDeclarationString) {
+            type = this.props.variable.varDeclarationString.split('=')[0].split(' ')[0].trim();
+            name = this.props.variable.varDeclarationString.split('=')[0].split(' ')[1].trim();
+            val = this.props.variable.varDeclarationString.split('=')[1].replace(/"/g, '').trim();
+        }
         this.state = {
             onEdit: false,
-            statement: this.props.variable.varDeclarationString,
+            varType: type,
+            varName: name,
+            varVal: val
         };
 
-        this.handleChange = this.handleChange.bind(this);
+        this.typeChange = this.typeChange.bind(this);
+        this.nameChange = this.nameChange.bind(this);
+        this.valChange = this.valChange.bind(this);
         this.onEdit = this.onEdit.bind(this);
         this.onComplete = this.onComplete.bind(this);
     }
@@ -88,44 +101,71 @@ export default class VariableEndpoint extends React.Component {
                                 <i className='btn fw fw-edit' onClick={this.onEdit} />
                             </span>
                         }
-                        { this.state.onEdit &&
-                        <input
-                            type='text'
-                            className='variable-edit-text'
-                            value={this.state.statement}
-                            onChange={this.handleChange}
-                        />
-                        }
-                        { this.state.onEdit &&
-                        <span>
-                            <i className='btn fw fw-check' onClick={this.onComplete} />
-                        </span>
-                        }
+
                     </span>
                 </span>
+                { this.state.onEdit &&
+                <div className='transform-edit-panel'>
+                    <VariableTypeDropdown
+                        value={this.state.varType}
+                        onChange={this.typeChange}
+                    />
+                    <input
+                        type='text'
+                        className='variable-edit-name'
+                        value={this.state.varName}
+                        onChange={this.nameChange}
+                    />
+                    <input
+                        type='text'
+                        className='variable-edit-val'
+                        value={this.state.varVal}
+                        onChange={this.valChange}
+                    />
+                    <span>
+                        <i className='btn fw fw-check' onClick={this.onComplete} />
+                    </span>
+                </div>
+                }
                 <span
                     id={variable.id + '-button'}
                     className='btn connect-point'
-                    onMouseEnter={(e) => { onConnectPointMouseEnter(variable, e); }}
                 >
                     <i
                         id={id}
                         ref={icon => makeConnectPoint(icon, id, variable)}
                         className='variable-endpoint fw fw-circle-outline fw-stack-1x'
+                        onMouseEnter={(e) => { onConnectPointMouseEnter(variable, e); }}
                     />
                 </span>
             </div>
         );
     }
-    handleChange(e) {
-        this.setState({ statement: e.target.value });
+
+    typeChange(val) {
+        this.setState({ varType: val });
+    }
+
+    nameChange(e) {
+        this.setState({ varName: e.target.value });
+    }
+
+    valChange(e) {
+        this.setState({ varVal: e.target.value });
     }
 
     onEdit() {
         this.setState({ onEdit: true });
     }
     onComplete() {
-        this.setState({ onEdit: false });
-        this.props.updateVariable(this.props.variable.name, this.state.statement, this.props.type);
+        let qoutes = '';
+        if (this.state.varType === 'string') {
+            qoutes = '"';
+        }
+        const statement = this.state.varType + ' ' + this.state.varName + ' = ' + qoutes + this.state.varVal + qoutes;
+        const isUpdated = this.props.updateVariable(this.props.variable.name, statement, this.props.type);
+        if (isUpdated) {
+            this.setState({ onEdit: false });
+        }
     }
 }

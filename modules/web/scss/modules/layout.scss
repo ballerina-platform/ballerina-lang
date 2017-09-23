@@ -1,182 +1,87 @@
-.grid-background {
-    background-color: $tab-content-wrapper-bgcolor !important;
-    background:  linear-gradient(-90deg, $tab-content-wrapper-grid-color 1px, transparent 1px),
-                 linear-gradient($tab-content-wrapper-grid-color 1px, transparent 1px),
-                 linear-gradient(-90deg, $tab-content-wrapper-grid-color 1px, transparent 1px),
-                 linear-gradient($tab-content-wrapper-grid-color 1px, transparent 1px),
-                 linear-gradient(transparent 3px, transparent 3px, transparent 78px, transparent 78px),
-                 linear-gradient(-90deg, transparent 1px, transparent 1px),
-                 linear-gradient(-90deg, transparent 3px, transparent 3px, transparent 78px, transparent 78px),
-                 linear-gradient(transparent 1px, transparent 1px), transparent;
-    background-size: 10px 10px,
-                     10px 10px,
-                     10px 10px,
-                     10px 10px,
-                     10px 10px,
-                     10px 10px,
-                     10px 10px,
-                     10px 10px;
+.left-right-split-pane {
+  background-color: #333;
+  height: calc(100% - 37px) !important;
 }
 
-.docerina-page {
+.top-bottom-split-pane {
+  background-color: #3c3c3c;
+}
+
+.bottom-panel {
+  color:white;
+  background-color: #333;
   width: 100%;
   height: 100%;
-  overflow: hidden;
 }
 
-.initial-doc-background-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+.right-panel {
+  display: none;
+  color:white;
 }
 
-.media-welcome-container {
-  width: 100%;
-  padding: 20px;
+.editor-area {
+  color:white;
+}
 
-  & > .media-left {
-    width: 300px;
-    padding: 20px 40px 20px 20px;
-    border-right: 1px solid #ccc;
-    height: auto;
+@mixin box-sizing($box-sizing) {
+  -moz-box-sizing:$box-sizing;
+  -webkit-box-sizing: $box-sizing;
+  box-sizing: $box-sizing;
+}
 
-    & > .logo {
-      width: 200px;
-      padding: 10px;
-      margin-bottom: 30px;
-      height: 50px;
+.Resizer {
+  background: #000;
+  opacity: .2;
+  z-index: 2;
+  @include box-sizing('border-box');
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
 
-      & > a {
-        position: relative;
+  :hover {
+    -webkit-transition: all 2s ease;
+    transition: all 2s ease;
+  }
 
-        & >.loader-center{
-          position:absolute;
-          top: calc(50% - 10px);
-          opacity: 0.3;
-        }
-      }
-    }
+  &.vertical {
+    width: 11px;
+    margin: 0 -5px;
+    border-left: 5px solid rgba(255, 255, 255, 0);
+    border-right: 5px solid rgba(255, 255, 255, 0);
+    cursor: col-resize;
 
-    & .btn {
-      width: 200px;
-      height: 37px;
-      border: 0;
-      margin: 15px 0 0 0;
-      color: #fff;
-      font-size: 16px;
-
-      &.btn-primary{
-        background-color: $btn-primary-bgcolor;
-      }
-
-      &.btn-secondary {
-        background-color: $btn-secondary-bgcolor;
-      }
-    }
-
-    & > .nav-pills{
-      margin-top: 20px;
-
-      & > li{
-        display: block;
-        width: 100%;
-        padding:5px;
-        margin: 0;
-
-        & a{
-          padding: 0;
-          font-weight: 400;
-
-          &:hover, &:focus {
-            background-color: #fff;
-            color: #f17b31;
-          }
-        }
-      }
+    :hover {
+      border-left: 5px solid rgba(0, 0, 0, 0.5);
+      border-right: 5px solid rgba(0, 0, 0, 0.5);
     }
   }
 
-  & > .media-body {
+  &.horizontal {
+    height: 11px;
+    margin: -5px 0;
+    border-top: 5px solid rgba(255, 255, 255, 0);
+    border-bottom: 5px solid rgba(255, 255, 255, 0);
+    cursor: row-resize;
     width: 100%;
-    padding: 20px 20px 0 20px;
-
-    & > .welcome-details-wrapper {
-
-      & > .header-title {
-        font-size: 18px;
-        font-weight: 400;
-        margin-left: 20px;
-      }
-
-      & > .details-container {
-        margin-top: 10px;
-        background-color: $welcome-details-content-wrapper-bgcolor;
-        padding: 10px;
-        margin-bottom: 25px;
-        margin-left: 20px;
-
-        & .thumbnail-wrapper {
-          padding: 0;
-          min-height: 205px;
-
-          & > .thumbnail {
-            background-color: $welcome-tile-view-wrapper-bgcolor;
-            min-height: 100px;
-            margin: 15px;
-            cursor: pointer;
-            width: 90%;
-            height: 0;
-            padding-bottom: 66.67%;
-            position: relative;
-
-            &.multiple {
-              box-shadow: 0 0.0625em 0.1875em 0 rgba(0, 0, 0, 0.1),
-                          0 0.5em 0 -0.25em #fff,
-                          0 0.5em 0.1875em -0.25em rgba(0, 0, 0, 0.1),
-                          0 1em 0 -0.5em #fff,
-                          0 1em 0.1875em -0.5em rgba(0, 0, 0, 0.1);
-              position: relative;
-
-              &:before {
-                @include font-wso2('ballerina-service');
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-              }
-            }
-
-            & > img{
-              max-width: 90%;
-              position: absolute;
-            }
-
-            & > .loader-center{
-              position:absolute;
-              top: calc(50% - 10px);
-              opacity: 0.3;
-            }
-
-            & > .caption {
-              padding: 10px 10px 0 10px;
-              position: absolute;
-              bottom: 0;
-
-              & > h4 {
-                font-size: 12pt;
-                color: #4a4a4a;
-                font-weight: 400;
-                margin: 5px 0;
-              }
-
-              & > p {
-                font-size: 12px;
-                color: #7b7b7b;
-                margin: 0;
-              }
-            }
-          }
-        }
-      }
+    :hover {
+      border-top: 5px solid rgba(0, 0, 0, 0.5);
+      border-bottom: 5px solid rgba(0, 0, 0, 0.5);
     }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    :hover {
+      border-color: transparent;
+    }
+  }
+}
+
+.Pane{
+  &1{
+    z-index: 2;
+  }
+  &2{
+    z-index: 1;
   }
 }

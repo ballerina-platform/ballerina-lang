@@ -24,46 +24,18 @@ import ASTFactory from '../../../../../ast/ast-factory';
 export default class FunctionInv extends React.Component {
     render() {
         const {
-            func, enclosingAssignmentStatement, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter, isCollapsed,
-            foldedEndpoints, foldEndpoint,
+            func, statement, recordSourceElement, recordTargetElement, viewId,
+            parentNode, funcInv, onEndpointRemove, onConnectPointMouseEnter, isCollapsed,
+            foldedEndpoints, foldEndpoint, onFunctionRemove
         } = this.props;
 
-        func.parameters.forEach((param, index) => {
+        func.parameters.forEach((param) => {
             param.endpointKind = 'param';
         });
 
-        func.returnParams.forEach((returnsObj, index) => {
+        func.returnParams.forEach((returnsObj) => {
             returnsObj.endpointKind = 'return';
         });
-
-        const onRemove = () => {
-            // add children function invocations to the transform model so that only this function invocation
-            // is removed from the view
-            funcInv.getChildren().forEach(childFuncInv => {
-                if(!ASTFactory.isFunctionInvocationExpression(childFuncInv)){
-                    return;
-                }
-
-                const assignmentStmt = ASTFactory.createAssignmentStatement();
-                const varRefList = ASTFactory.createVariableReferenceList();
-                const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
-                simpleVarRefExpression.setExpressionFromString('_temp');
-                varRefList.addChild(simpleVarRefExpression);
-                assignmentStmt.addChild(varRefList, 0);
-                assignmentStmt.addChild(childFuncInv, 1);
-                assignmentStmt.setIsDeclaredWithVar(true);
-                const transformModel = enclosingAssignmentStatement.getParent();
-                transformModel.addChild(assignmentStmt,
-                    transformModel.getIndexOfChild(enclosingAssignmentStatement), true);
-            });
-
-            if(!parentFunc) {
-                enclosingAssignmentStatement.getParent().removeChild(enclosingAssignmentStatement);
-            } else {
-                parentFunc.removeChild(funcInv);
-            }
-        }
 
         const functionBody = (
             <div className='function-param-body'>
@@ -97,7 +69,7 @@ export default class FunctionInv extends React.Component {
         const funcInvID = funcInv.getID();
         const foldIndicator = isCollapsed ? 'fw-down' : 'fw-up';
         return (
-            <div className='transform-expanded-func func'>
+            <div className='transform-expanded-func'>
                 <div
                     id={`${funcInvID}:${viewId}`}
                     className='function-header'
@@ -106,7 +78,13 @@ export default class FunctionInv extends React.Component {
                     <i className={`fw ${foldIndicator} fold-indicator`} />
                     <i className='fw fw-function fw-inverse' />
                     <span className='func-name'>{funcInv.getFunctionName()}</span>
-                    <span onClick={onRemove} className='fw-stack fw-lg btn btn-remove-func'>
+                    <span
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onFunctionRemove(funcInv, parentNode, statement);
+                        }}
+                        className='fw-stack fw-lg btn btn-remove-func'
+                    >
                         <i className='fw-delete fw-stack-1x fw-inverse' />
                     </span>
                 </div>

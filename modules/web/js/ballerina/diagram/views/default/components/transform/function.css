@@ -1,8 +1,12 @@
 .transform-expanded-func {
     width: 300px;
-    position: relative;
+    height: auto;
     margin: 0 auto;
     margin-bottom: 20px;
+    font-size: 13px;
+    color: #fff;
+    background: #f6f6f6;;
+    position: absolute;
 }
 
 .transform-expanded-func .func-input {

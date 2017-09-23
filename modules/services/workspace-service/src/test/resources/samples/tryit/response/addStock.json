@@ -1,0 +1,17 @@
+{
+  "responseBody": "",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Content-Length": "0"
+  },
+  "requestUrl": "http://localhost:9595/stockquote",
+  "returnedRequestHeaders": {
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Host": "localhost:9595",
+    "Accept-Encoding": "gzip,deflate",
+    "Content-Length": "108",
+    "Content-Type": "application/json"
+  },
+  "responseCode": "204"
+}

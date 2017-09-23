@@ -1,0 +1,19 @@
+.dropdown-content {
+    display: block;
+    position: absolute;
+    background-color: #c6cecc;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 6px 10px;
+    text-decoration: none;
+    display: block;
+    border-radius: 5px;
+}
+

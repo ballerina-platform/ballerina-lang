@@ -2243,6 +2243,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(simpleTypeNameObj, simpleTypeName.getWhiteSpaceDescriptor());
         simpleTypeNameObj.addProperty(BLangJSONModelConstants.TYPE_NAME, simpleTypeName.getName());
         simpleTypeNameObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, simpleTypeName.getPackageName());
+        simpleTypeNameObj.addProperty(BLangJSONModelConstants.PACKAGE_PATH, simpleTypeName.getPackagePath());
         return simpleTypeNameObj;
     }
 

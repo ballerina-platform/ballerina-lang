@@ -24,10 +24,14 @@ import DimensionVisitor from './dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import ClearOffset from '../visitors/clear-offset';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
+import OverlayComponentsRenderingVisitor from '../visitors/overlay-components-rendering-visitor';
 import { getComponentForNodeArray, getDesigner } from './diagram-util';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
+import ServerConnectorPropertiesForm from './views/default/components/server-connector-properties-form';
+import ConnectorPropertiesForm from './views/default/components/connector-properties';
+import DropdownMenu from './views/default/components/drop-down-menu';
 
 /**
  * React component for diagram.
@@ -97,14 +101,14 @@ class Diagram extends React.Component {
         const otherNodes = [];
         this.props.model.children.forEach((child) => {
             switch (child.constructor.name) {
-            case 'ImportDeclaration':
-                break;
-            case 'ConstantDefinition':
-                break;
-            case 'GlobalVariableDefinition':
-                break;
-            default:
-                otherNodes.push(child);
+                case 'ImportDeclaration':
+                    break;
+                case 'ConstantDefinition':
+                    break;
+                case 'GlobalVariableDefinition':
+                    break;
+                default:
+                    otherNodes.push(child);
             }
         });
         others = getComponentForNodeArray(otherNodes, this.props.mode);
@@ -116,7 +120,56 @@ class Diagram extends React.Component {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
         }
 
-        // 4. Ok we are all set, now lets render the diagram with React. We will create
+        // 4.1 lets filter out the server connector property views so we can overlay html on top of svg.
+        const serverConnectorPropRender = new OverlayComponentsRenderingVisitor();
+        this.props.model.accept(serverConnectorPropRender);
+        const serverConnectorPropsViews = [];
+        if (serverConnectorPropRender.getServerConnectorProperties()) {
+            (serverConnectorPropRender.getServerConnectorProperties()).map((serviceDef) => {
+                serverConnectorPropsViews.push(<ServerConnectorPropertiesForm
+                    key={serviceDef.node.getID()}
+                    model={serviceDef.node}
+                    bBox={serviceDef.bBox}
+                    visibility={serviceDef.node.getViewState().showPropertyForm}
+                    environment={this.context.environment}
+                    editor={this.context.editor}
+                />);
+            });
+        }
+
+        // 5.1 lets filter out the connector property views so we can overlay html on top of svg.
+        const connectorPropRender = new OverlayComponentsRenderingVisitor();
+        this.props.model.accept(connectorPropRender);
+        const connectorPropsViews = [];
+        if (connectorPropRender.getConnectorProperties()) {
+            (connectorPropRender.getConnectorProperties()).map((connectorDec) => {
+                connectorPropsViews.push(<ConnectorPropertiesForm
+                    key={connectorDec.node.getID()}
+                    model={connectorDec.node}
+                    bBox={connectorDec.bBox}
+                    visibility={connectorDec.node.getViewState().showPropertyForm}
+                    environment={this.context.environment}
+                    editor={this.context.editor}
+                />);
+            });
+        }
+
+        // 6 Get overlay component
+        const dropDownResourcesforWS = new OverlayComponentsRenderingVisitor();
+        this.props.model.accept(dropDownResourcesforWS);
+        const wsResourceViews = [];
+        if (dropDownResourcesforWS.getResourcesForWS()) {
+            (dropDownResourcesforWS.getResourcesForWS()).map((overlayComp) => {
+                wsResourceViews.push(<DropdownMenu
+                    key={overlayComp.node.getID()}
+                    model={overlayComp.node}
+                    bBox={overlayComp.bBox}
+                    environment={this.context.environment}
+                    editor={this.context.editor}
+                />);
+            });
+        }
+        // 7. Ok we are all set, now lets render the diagram with React. We will create
         //    a CsnvasDecorator and pass child components for that.
 
         return (<CanvasDecorator
@@ -124,6 +177,9 @@ class Diagram extends React.Component {
             title="StatementContainer"
             bBox={viewState.bBox}
             annotations={annotations}
+            serverConnectorPropsViews={serverConnectorPropsViews}
+            connectorPropsViews={connectorPropsViews}
+            wsResourceViews={wsResourceViews}
         >
             {others}
         </CanvasDecorator>);
@@ -138,6 +194,7 @@ Diagram.propTypes = {
 Diagram.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.childContextTypes = {

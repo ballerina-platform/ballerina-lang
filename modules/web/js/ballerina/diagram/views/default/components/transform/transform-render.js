@@ -94,8 +94,9 @@ class TransformRender {
             this.setConnectionMenu(params.connection);
         });
 
-        this.jsPlumbInstanceNewConnections.bind('connectionDrag', () => {
+        this.jsPlumbInstanceNewConnections.bind('connectionDrag', conn => {
             this.jsPlumbInstanceNewConnections.repaintEverything();
+            this._draggingConnection = conn;
         });
     }
 
@@ -183,6 +184,10 @@ class TransformRender {
 
     onConnectionAborted(callback) {
         this.jsPlumbInstanceNewConnections.bind('connectionAborted', callback)
+    }
+
+    getDraggingConnection() {
+        return this._draggingConnection;
     }
 
     setConnectionMenu(connection) {
@@ -277,7 +282,8 @@ class TransformRender {
  */
     reposition(viewId) {
         this.viewId = viewId;
-        const funcs = this.container.find('.middle-content  > .func');
+        const funcs = this.container
+          .find('.middle-content > .transform-expanded-func, .middle-content > .operator-expanded-func');
         let yFunctionPointer = 20;
         const functionGap = 20;
         const svgLines = $('#' + this.placeHolderName + '-' + viewId + ' > svg');

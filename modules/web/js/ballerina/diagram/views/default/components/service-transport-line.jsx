@@ -17,7 +17,8 @@
  */
 
 import React from 'react';
-
+import './service-definition.css';
+import AddResourceDefinition from './add-resource-definition';
 /**
  * Link to the server connector from resource.
  *
@@ -33,14 +34,69 @@ class ServiceTransportLine extends React.Component {
      * @memberof ServiceTransportLine
      */
     render() {
+        const yPosition = this.props.model.viewState.bBox.y + this.props.model.viewState.bBox.h - 40;
         const bBox = this.props.bBox;
-        let x = bBox.x;
-        let y = bBox.y + 50;
         return (
             <g>
-                <line x1={bBox.x} y1={bBox.y + 50} x2={bBox.x} y2={bBox.y2} stroke="black" strokeWidth="3" className="protocol-line" />
-                <line x1={bBox.x - 1} y1={bBox.y + 50 + 2} x2={bBox.x + 60} y2={bBox.y + 15} stroke="black" strokeWidth="3" className="protocol-line" />
-                <line x1={bBox.x + 60} y1={bBox.y} x2={bBox.x + 60} y2={bBox.y + 16} stroke="black" strokeWidth="3" className="protocol-line" />
+                {this.props.resources.length &&
+                <g id="resourceProtocolLine" className={this.props.style}>
+                    <AddResourceDefinition
+                        model={this.props.model}
+                        bBox={this.props.bBox}
+                    />
+                    <line
+                        x1={bBox.x}
+                        y1={bBox.y2}
+                        x2={bBox.x}
+                        y2={yPosition}
+                        strokeDasharray="5, 5"
+                        strokeWidth="3"
+                        className="add-resources-protocol-line"
+                    />
+                </g> }
+                {this.props.resources.length && <line
+                    x1={bBox.x}
+                    y1={bBox.y + 50}
+                    x2={bBox.x}
+                    y2={bBox.y2}
+                    stroke="black"
+                    strokeWidth="3"
+                    className="protocol-line"
+                />}
+                {!this.props.resources.length &&
+                <g>
+                    <AddResourceDefinition
+                        model={this.props.model}
+                        bBox={this.props.bBox}
+                    />
+                    <line
+                        x1={bBox.x}
+                        y1={bBox.y + 50}
+                        x2={bBox.x}
+                        y2={bBox.y + this.props.model.viewState.components.body.h - 30}
+                        stroke="black"
+                        strokeWidth="3"
+                        className="protocol-line"
+                    />
+                </g> }
+                <line
+                    x1={bBox.x - 1}
+                    y1={bBox.y + 50 + 2}
+                    x2={bBox.x + 60}
+                    y2={bBox.y + 15}
+                    stroke="black"
+                    strokeWidth="3"
+                    className="protocol-line"
+                />
+                <line
+                    x1={bBox.x + 60}
+                    y1={bBox.y}
+                    x2={bBox.x + 60}
+                    y2={bBox.y + 16}
+                    stroke="black"
+                    strokeWidth="3"
+                    className="protocol-line"
+                />
             </g>
         );
     }

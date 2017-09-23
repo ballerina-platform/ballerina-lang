@@ -4,7 +4,7 @@
 
 @font-face {
     font-family: 'Droid Sans Mono';
-     src: url('./../../../lib/google-fonts/DroidSansMono.ttf'); 
+     src: url('./../../../public/lib/google-fonts/DroidSansMono.ttf'); 
 }
 
 .text-editor.ace_editor {

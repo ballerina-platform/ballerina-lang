@@ -22,31 +22,108 @@ import DefaultASTFactory from '../ast/default-ast-factory';
 
 const ToolPalette = [];
 
-const createResourceDefTool = {
-    id: 'resource',
-    name: 'Resource',
-    cssClass: 'icon fw fw-resource',
-    title: 'Resource',
-    nodeFactoryMethod: DefaultASTFactory.createResourceDefinition,
-    definition: 'Construct that handles one request within a service',
-};
-
-const createServiceDefTool = {
+const createhttpServiceDefTool = {
     id: 'service',
-    name: 'Service',
-    cssClass: 'icon fw fw-service',
-    title: 'Service',
+    name: 'http',
+    meta: {
+        protocolPkgName: 'http',
+        protocolPkgPath: 'ballerina.net.http',
+        resources: [
+            {
+                parameters: [
+                    {
+                        type: 'http:Request',
+                        value: 'req',
+                    },
+                    {
+                        type: 'http:Response',
+                        value: 'resp',
+                    },
+                ],
+            },
+        ],
+    },
+    cssClass: 'icon fw fw-http',
+    title: 'HTTP Service',
     nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
-    definition: 'Container of resources, each of which defines the logic for handling one type of request',
+    definition: 'Http container of resources, each of which defines the logic for handling one type of request',
 };
 
-const createFunctionDefTool = {
-    id: 'function',
-    name: 'Function',
-    cssClass: 'icon fw fw-function',
-    title: 'Function',
-    nodeFactoryMethod: ASTFactory.createFunctionDefinition,
-    definition: 'Single operation that is intended to be a unit of reusable functionality',
+const createwsServiceDefTool = {
+    id: 'service',
+    name: 'ws',
+    meta: {
+        protocolPkgName: 'ws',
+        protocolPkgPath: 'ballerina.net.ws',
+        resources: [
+            {
+                resourceName: 'onOpen',
+                parameters: [
+                    {
+                        type: 'ws:Connection',
+                        value: 'conn',
+                    },
+                ],
+            },
+            {
+                resourceName: 'onTextMessage',
+                parameters: [
+                    {
+                        type: 'ws:Connection',
+                        value: 'conn',
+                    },
+                    {
+                        type: 'ws:TextFrame',
+                        value: 'frame',
+                    },
+                ],
+            },
+            {
+                resourceName: 'onClose',
+                parameters: [
+                    {
+                        type: 'ws:Connection',
+                        value: 'conn',
+                    },
+                    {
+                        type: 'ws:CloseFrame',
+                        value: 'frame',
+                    },
+                ],
+            },
+        ],
+    },
+    cssClass: 'icon fw fw-web-service',
+    title: 'WS Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'Web Socket container of resources, each of which defines the logic for handling one type of request',
+};
+
+const createjmsServiceDefTool = {
+    id: 'service',
+    name: 'jms',
+    meta: {
+        protocolPkgName: 'jms',
+        protocolPkgPath: 'ballerina.net.jms',
+        resources: [
+            {
+                parameters: [
+                    {
+                        type: 'jms:request',
+                        value: 'req',
+                    },
+                    {
+                        type: 'jms:response',
+                        value: 'resp',
+                    },
+                ],
+            },
+        ],
+    },
+    cssClass: 'icon fw fw-jaxws',
+    title: 'JMS Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'JMS container of resources, each of which defines the logic for handling one type of request',
 };
 
 const createMainFunctionDefTool = {
@@ -65,6 +142,35 @@ const createMainFunctionDefTool = {
     title: 'Main Function',
     nodeFactoryMethod: DefaultASTFactory.createMainFunctionDefinition,
     definition: 'Potential entry point for command line execution',
+};
+
+const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool, createMainFunctionDefTool];
+
+/* const createResourceDefTool = {
+    id: 'resource',
+    name: 'Resource',
+    cssClass: 'icon fw fw-resource',
+    title: 'Resource',
+    nodeFactoryMethod: DefaultASTFactory.createResourceDefinition,
+    definition: 'Construct that handles one request within a service',
+};
+
+const createServiceDefTool = {
+    id: 'service',
+    name: 'Service',
+    cssClass: 'icon fw fw-service',
+    title: 'Service',
+    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    definition: 'Container of resources, each of which defines the logic for handling one type of request',
+};*/
+
+const createFunctionDefTool = {
+    id: 'function',
+    name: 'Function',
+    cssClass: 'icon fw fw-function',
+    title: 'Function',
+    nodeFactoryMethod: ASTFactory.createFunctionDefinition,
+    definition: 'Single operation that is intended to be a unit of reusable functionality',
 };
 
 const createConnectorDefTool = {
@@ -112,14 +218,14 @@ const createAnnotationDefTool = {
     definition: 'Hold meta data related to the attached code',
 };
 
-const mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
-    createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
+const mainToolDefArray = [/* createServiceDefTool, createResourceDefTool, */
+    createFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
     createWorkerDecTool, createAnnotationDefTool];
 
 const createIfStatementTool = {
     id: 'if',
     name: 'If',
-    cssClass: 'icon fw fw-if-else',
+    cssClass: 'icon fw fw-dgm-if-else',
     title: 'If',
     nodeFactoryMethod: ASTFactory.createIfElseStatement,
     definition: 'Provide a way to perform conditional execution',
@@ -128,7 +234,7 @@ const createIfStatementTool = {
 const createWhileStatementTool = {
     id: 'while',
     name: 'While',
-    cssClass: 'icon fw fw-while',
+    cssClass: 'icon fw fw-dgm-while',
     title: 'While',
     nodeFactoryMethod: ASTFactory.createWhileStatement,
     definition: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
@@ -325,7 +431,8 @@ const seperator = {
 };
 
 // creating a one gourp for constructs
-const constructsToolDefArray = _.union(mainToolDefArray, [seperator], statementToolDefArray);
+const constructsToolDefArray = _.union(serviceToolDefArray, [seperator], mainToolDefArray,
+    [seperator], statementToolDefArray);
 
 const constructs = new ToolGroup({
     toolGroupName: 'Constructs',

@@ -1,0 +1,11 @@
+{
+  "httpMethod": "GET",
+  "appendUrl": "/stockquote/IBM",
+  "contentType": "text/xml",
+  "requestUrl": "http://localhost:9090",
+  "requestBody": "",
+  "requestHeaders": [{
+    "key": "Accept",
+    "value": "text/xml"
+  }]
+}

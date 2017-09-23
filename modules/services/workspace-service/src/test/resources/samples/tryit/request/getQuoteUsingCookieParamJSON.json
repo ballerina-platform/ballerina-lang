@@ -1,0 +1,11 @@
+{
+  "httpMethod": "GET",
+  "appendUrl": "/stockquote",
+  "contentType": "application/json",
+  "requestUrl": "http://localhost:9090",
+  "requestBody": "",
+  "requestHeaders": [{
+    "key": "Cookie",
+    "value": "symbol=GOOG"
+  }]
+}

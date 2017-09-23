@@ -1,0 +1,85 @@
+.editor-area {
+    height: 100%;
+    .rc-tabs {
+        height: 100%;
+        overflow: hidden;
+        border-bottom: none;
+        .rc-tabs-content {
+            height: 100%;
+        }
+        .rc-tabs-bar {
+            border-bottom: none;
+            & .rc-tabs-nav-container {
+                background-color: #282828;
+            }
+            & .rc-tabs-nav-container-scrolling {
+                & .rc-tabs-tab-next, .rc-tabs-tab-prev {
+                    @extend .unseletable-content;
+
+                    background-color: #565656;
+                    color: #999999;
+                    height: 20px;
+                    padding: 2px 0 2px 0;
+                    border-left: 1px solid #3c3c3c;
+                    border-right: 1px solid #3c3c3c;
+                    line-height: 1;
+                    &.rc-tabs-tab-btn-disabled {
+                        color: #686868;
+                    }
+                }
+            }
+            & .rc-tabs-ink-bar {
+                display: none !important;
+            }
+        }
+        .rc-tabs-tab {
+            @extend .unseletable-content;
+            background-color: #565656;
+            color: #999999;
+            height: 20px;
+            min-width: 120px;
+            padding: 1px 0 1px 0;
+            margin-right: 0;
+            border-right: 1px solid #16191d;
+            .tab-title-wrapper {
+                padding: 0 5px 0 5px;
+                .dirty-indicator {
+                    margin-left: 5px;
+                }
+            }
+            .tab-icon {
+                margin-right: 10px;
+                font-size: 10px;
+                position: relative;
+                bottom: 1px;
+            }
+            &:hover{
+                color: #bebebe;
+                background-color: #3c3c3c;
+            }
+            &.rc-tabs-tab-active {
+                &.inverse {
+                    color: #333;
+                    background: white;
+                }
+                color: #bebebe;
+                background-color: #3c3c3c;
+                border-left: 3px solid #f17b31;
+            }
+            .close-tab {
+                color: #999999;
+                margin: 2px 2px 0 5px;
+                line-height: 15px;
+                text-shadow: none;
+                &:hover{
+                    color: #bebebe;
+                }
+            }
+        }
+        .rc-tabs-tabpane {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+  "responseCode": "200",
+  "responseBody": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<stock>\n    <high>149.18</high>\n    <last>149.62</last>\n    <low>150.78</low>\n    <name>International Business Machines</name>\n    <symbol>IBM</symbol>\n</stock>\n",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Content-Type": "text/xml",
+    "transfer-encoding": "chunked",
+    "Set-Cookie":"symbol=IBM"
+  },
+  "returnedRequestHeaders": {
+    "Content-Type": "text/xml",
+    "Host": "localhost:9595",
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Accept-Encoding": "gzip,deflate",
+    "Accept": "text/xml"
+  },
+  "requestUrl": "http://localhost:9595/stockquote/IBM"
+}
