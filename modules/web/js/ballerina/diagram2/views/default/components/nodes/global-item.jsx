@@ -22,7 +22,7 @@ import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 import { util } from '../../sizing-util';
 import * as DesignerDefaults from '../../designer-defaults';
-import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.

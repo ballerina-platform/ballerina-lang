@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import log from 'log';
 import CompilationUnitNodeAbstract from './abstract-tree/compilation-unit-node';
-import AbstractTreeUtils from '../abstract-tree-util';
+import TreeUtils from '../tree-util';
 
 
 class CompilationUnitNode extends CompilationUnitNodeAbstract {
@@ -29,10 +29,9 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
      * @returns {*}
      */
     getPackageDeclaration() {
-        console.log(this.getTopLevelNodes());
         let pkgNode = null;
         this.getTopLevelNodes().forEach((node) => {
-            if (AbstractTreeUtils.isPackageDeclaration(node)) {
+            if (TreeUtils.isPackageDeclaration(node)) {
                 pkgNode = node;
             }
         });
@@ -46,7 +45,7 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
     getImports() {
         const imports = [];
         this.getTopLevelNodes().forEach((node) => {
-            if (AbstractTreeUtils.isImport(node)) {
+            if (TreeUtils.isImport(node)) {
                 imports.push(node);
             }
         });
@@ -60,7 +59,7 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
     getConstantDefinitions() {
         const constantDefs = [];
         this.getTopLevelNodes().forEach((node) => {
-            if (AbstractTreeUtils.isVariable(node)) {
+            if (TreeUtils.isVariable(node)) {
                 if (node.const) {
                     constantDefs.push(node);
                 }
@@ -76,7 +75,7 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
     getGlobalVariableDefinitions() {
         const globalVariableDefs = [];
         this.getTopLevelNodes().forEach((node) => {
-            if (AbstractTreeUtils.isVariable(node)) {
+            if (TreeUtils.isVariable(node)) {
                 if (!node.const) {
                     globalVariableDefs.push(node);
                 }
@@ -101,19 +100,15 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
         if (index === -1) {
             index = 0;
         }
-        index = index + 1;
-        this.setTopLevelNodes(importDeclaration, index, /**silent**/);
-
+        index += 1;
+        this.setTopLevelNodes(importDeclaration, index);
     }
 
     /**
      * Deletes an import with given package name.
      */
-    deleteImport(packageName) {
-
-        _.remove(this.getImports(), (child) => {
-            return child.package == packageName;
-        });
+    deleteImport(node) {
+        this.removeTopLevelNodes(node);
     }
 
     /**
@@ -122,7 +117,7 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
      */
     addGlobal(jsonNode, position) {
         let index = -1;
-        if (AbstractTreeUtils.isVariable(jsonNode)) {
+        if (TreeUtils.isVariable(jsonNode)) {
             // only constants and global variables can be added at global level
             return;
         }
@@ -144,24 +139,14 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
 
             index += 1;
         }
-        this.setTopLevelNodes(jsonNode, index, /**silent**/);
+        this.setTopLevelNodes(jsonNode, index);
     }
 
     /**
      * Delete global definitions
      */
     deleteGlobal(node) {
-        // Remove the global definition node from the tree
-        const nodeID = node.id;
-        if (node.const) {
-            _.remove(this.getConstantDefinitions(), (child) => {
-                return child.id == nodeID;
-            });
-        } else {
-            _.remove(this.getGlobalVariableDefinitions(), (child) => {
-                return child.id == nodeID;
-            });
-        }
+        this.removeTopLevelNodes(node);
     }
 
     /**
@@ -173,6 +158,23 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
         return !!_.find(this.getImports(), (child) => {
             return _.isEqual(child.package, packageName);
         });
+    }
+
+    /**
+     * Get package name
+     */
+    getPackageName(node) {
+        let pkgName = '';
+        if (node.getPackageName()) {
+            node.getPackageName().forEach((identifier) => {
+                pkgName = pkgName.concat(identifier.value);
+                const index = node.getPackageName().indexOf(identifier);
+                if (index !== node.getPackageName().length - 1) {
+                    pkgName = pkgName.concat('.');
+                }
+            });
+        }
+        return pkgName;
     }
 
 }

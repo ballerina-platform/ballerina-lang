@@ -26,15 +26,15 @@ import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
-import PackageDeclarationModel from '../../../../model/tree/abstract-tree/package-declaration-node';
-import { parseContent } from './../../../../../api-client/api-client';
+import PackageDeclarationModel from '../../../../../model/tree/abstract-tree/package-declaration-node';
+import { parseContent } from './../../../../../../api-client/api-client';
 
 /**
  * Class representing the package definition and other top level views.
  * This class is responsible for views regarding imports and global variables and constants
  * @extends React.Component
  */
-class PackageDefinition extends React.Component {
+class PackageDeclarationNode extends React.Component {
 
     /**
      * Called by the global expanded view to get the value displayed for each global constant or variable node
@@ -43,11 +43,11 @@ class PackageDefinition extends React.Component {
      */
     static getDisplayValue(globalDef) {
         if (globalDef.parent.getGlobalVariableDefinitions().includes(globalDef)) {
-            return globalDef.getTypeNode().typeKind.toLowerCase() + ' ' + globalDef.getSource();
+            return globalDef.getSource();
         }
 
         if (globalDef.parent.getConstantDefinitions().includes(globalDef)) {
-            return 'const ' + globalDef.getTypeNode().typeKind.toLowerCase() + ' ' + globalDef.getSource();
+            return 'const ' + globalDef.getSource();
         }
 
         return 'invalid value';
@@ -61,7 +61,7 @@ class PackageDefinition extends React.Component {
         super(props);
         this.state = {
             packageDefExpanded: false,
-            packageDefValue: this.props.model.package,
+            packageDefValue: this.props.model.parent.getPackageName(this.props.model),
             packageNameEditing: false,
         };
 
@@ -159,7 +159,7 @@ class PackageDefinition extends React.Component {
      * @param {object} deletedGlobal - global constant or variable node deleted
      */
     handleDeleteGlobal(deletedGlobal) {
-        this.props.model.parent.removeChild(deletedGlobal);
+        this.props.model.parent.deleteGlobal(deletedGlobal);
     }
 
     /**
@@ -348,7 +348,7 @@ class PackageDefinition extends React.Component {
                             onAddNewValue={this.handleAddGlobal}
                             newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}
-                            getValue={PackageDefinition.getDisplayValue}
+                            getValue={PackageDeclarationNode.getDisplayValue}
                         /> :
                         <GlobalDefinitions
                             bBox={globalsBbox}
@@ -362,13 +362,13 @@ class PackageDefinition extends React.Component {
     }
 }
 
-PackageDefinition.propTypes = {
+PackageDeclarationNode.propTypes = {
     model: PropTypes.instanceOf(PackageDeclarationModel).isRequired,
 };
 
-PackageDefinition.contextTypes = {
+PackageDeclarationNode.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default PackageDefinition;
+export default PackageDeclarationNode;

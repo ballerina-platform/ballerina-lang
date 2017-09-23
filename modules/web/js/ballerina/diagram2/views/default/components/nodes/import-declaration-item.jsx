@@ -33,7 +33,7 @@ export default class importDeclarationItem extends React.Component {
     }
 
     handleDeleteClick() {
-        this.props.onDeleteClick(this.props.importDec.package);
+        this.props.onDeleteClick(this.props.importDec);
     }
 
     handleMouseEnter() {

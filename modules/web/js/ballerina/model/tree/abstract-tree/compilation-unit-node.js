@@ -23,11 +23,11 @@ class CompilationUnitNodeAbstract extends Node {
 
 
     setTopLevelNodes(newValue, silent, title) {
-        let oldValue = this.topLevelNodes;
+        const oldValue = this.topLevelNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.topLevelNodes = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -36,7 +36,7 @@ class CompilationUnitNodeAbstract extends Node {
                     attributeName: 'topLevelNodes',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -46,7 +46,7 @@ class CompilationUnitNodeAbstract extends Node {
     }
 
 
-    addTopLevelNodes(node, i = -1, silent){
+    addTopLevelNodes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +55,7 @@ class CompilationUnitNodeAbstract extends Node {
         } else {
             this.topLevelNodes.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,25 +68,10 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
-    removeTopLevelNodes(node, silent){
+    removeTopLevelNodes(node, silent) {
         const index = this.getIndexOfTopLevelNodes(node);
-        this.removeTopLevelNodesByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeTopLevelNodesByIndex(index, silent){
-        this.topLevelNodes.splice(index, 1);
-        if(!silent) {
+        this.removeTopLevelNodesByIndex(node, index);
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -99,26 +84,41 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
-    replaceTopLevelNodes(oldChild, newChild, silent){
+    removeTopLevelNodesByIndex(node, index, silent) {
+        this.topLevelNodes.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTopLevelNodes(oldChild, newChild, silent) {
         const index = this.getIndexOfTopLevelNodes(oldChild);
         this.topLevelNodes[index] = newChild;
     }
 
-    getIndexOfTopLevelNodes(child){
+    getIndexOfTopLevelNodes(child) {
         return _.findIndex(this.topLevelNodes, ['id', child.id]);
     }
 
-    filterTopLevelNodes(predicateFunction){
+    filterTopLevelNodes(predicateFunction) {
         return _.filter(this.topLevelNodes, predicateFunction);
     }
 
 
     setName(newValue, silent, title) {
-        let oldValue = this.name;
+        const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -127,7 +127,7 @@ class CompilationUnitNodeAbstract extends Node {
                     attributeName: 'name',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -137,13 +137,12 @@ class CompilationUnitNodeAbstract extends Node {
     }
 
 
-
     setWS(newValue, silent, title) {
-        let oldValue = this.wS;
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -152,7 +151,7 @@ class CompilationUnitNodeAbstract extends Node {
                     attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -162,13 +161,12 @@ class CompilationUnitNodeAbstract extends Node {
     }
 
 
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -177,7 +175,7 @@ class CompilationUnitNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -187,13 +185,12 @@ class CompilationUnitNodeAbstract extends Node {
     }
 
 
-
     setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+        const oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -202,7 +199,7 @@ class CompilationUnitNodeAbstract extends Node {
                     attributeName: 'position',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -210,7 +207,6 @@ class CompilationUnitNodeAbstract extends Node {
     getPosition() {
         return this.position;
     }
-
 
 
 }
