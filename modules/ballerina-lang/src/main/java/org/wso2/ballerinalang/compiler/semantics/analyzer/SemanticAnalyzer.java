@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -347,12 +348,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
          * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
-        
+
         if (forkJoin.timeoutExpression != null) {
             /* create code black and environment for timeout section */
             BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
             SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
-            this.typeChecker.checkExpr(forkJoin.timeoutExpression, 
+            this.typeChecker.checkExpr(forkJoin.timeoutExpression,
                     timeoutVarEnv, Arrays.asList(symTable.intType));
             this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
             /* create an environment for the timeout body, making the enclosing environment the earlier 
@@ -413,32 +414,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(returnNode.pos, DiagnosticCode.SINGLE_VALUE_RETURN_EXPECTED);
         } else if (expRetCount == 0 && actualRetCount >= 1) {
             this.dlog.error(returnNode.pos, DiagnosticCode.RETURN_VALUE_NOT_EXPECTED);
-        } else if (actualRetCount > 1 && expRetCount > actualRetCount) {
+        } else if (expRetCount > actualRetCount) {
             this.dlog.error(returnNode.pos, DiagnosticCode.NOT_ENOUGH_RETURN_VALUES);
-        } else if (actualRetCount > 1 && expRetCount < actualRetCount) {
+        } else if (expRetCount < actualRetCount) {
             this.dlog.error(returnNode.pos, DiagnosticCode.TOO_MANY_RETURN_VALUES);
         } else {
             success = true;
         }
         return success;
     }
-    
+
     private boolean isInvocationExpr(BLangExpression expr) {
         return expr.getKind() == NodeKind.INVOCATION;
     }
-    
+
     @Override
     public void visit(BLangReturn returnNode) {
         if (returnNode.exprs.size() == 1 && this.isInvocationExpr(returnNode.exprs.get(0))) {
             /* a single return expression can be expanded to match a multi-value return */
-            this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env, 
+            this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env,
                     this.env.enclInvokable.getReturnParameters().stream()
-                    .map(e -> e.getTypeNode().type)
-                    .collect(Collectors.toList()));
+                            .map(e -> e.getTypeNode().type)
+                            .collect(Collectors.toList()));
         } else {
+            if (returnNode.exprs.size() == 0 && this.env.enclInvokable.getReturnParameters().size() > 0) {
+                // Return stmt has no expressions, but function/action has returns. Check whether they are named returns
+                for (BLangVariable variable : this.env.enclInvokable.getReturnParameters()) {
+                    BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                    varRef.variableName = variable.name;
+                    varRef.symbol = variable.symbol;
+                    varRef.type = variable.type;
+                    varRef.pos = returnNode.pos;
+                    returnNode.exprs.add(varRef);
+                }
+            }
             if (this.checkReturnValueCounts(returnNode)) {
                 for (int i = 0; i < returnNode.exprs.size(); i++) {
-                    this.typeChecker.checkExpr(returnNode.exprs.get(i), this.env, 
+                    this.typeChecker.checkExpr(returnNode.exprs.get(i), this.env,
                             Arrays.asList(this.env.enclInvokable.getReturnParameters().get(i).getTypeNode().type));
                 }
             }
@@ -460,7 +472,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangContinue continueNode) {
         /* ignore */
     }
-    
+
     public void visit(BLangBreak breakNode) {
         /* ignore */
     }

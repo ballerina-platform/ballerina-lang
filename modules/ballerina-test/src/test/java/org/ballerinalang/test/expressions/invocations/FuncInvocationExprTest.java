@@ -18,6 +18,7 @@
 package org.ballerinalang.test.expressions.invocations;
 
 
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
@@ -88,6 +89,18 @@ public class FuncInvocationExprTest {
 
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 322;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void testNativeInvocation() {
+        BValue[] args = {new BFloat(2), new BFloat(2)};
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(),
+                "getPowerOfN", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 4;
         Assert.assertEquals(actual, expected);
     }
 }
