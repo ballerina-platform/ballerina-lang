@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -220,8 +221,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int rhsExprRegIndex = -1;
     private boolean varAssignment = false;
 
+    private int transactionIndex = 0;
+
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
+    private Stack<Instruction> abortInstructions = new Stack<>();
 
     private int workerChannelCount = 0;
 
@@ -1751,10 +1755,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangAbort abortNode) {
-        /* ignore */
-    }
-
     public void visit(BLangContinue continueNode) {
         this.emit(this.loopResetInstructionStack.peek());
     }
@@ -1812,6 +1812,82 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTransaction transactionNode) {
+        ++transactionIndex;
+        int retryCountAvailable = 0;
+        if (transactionNode.retryCount != null) {
+            this.genNode(transactionNode.retryCount, this.env);
+            retryCountAvailable = 1;
+        }
+        //TODO:Add below error handling code
+        //ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+        Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        Instruction gotoStartOfAbortedBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        abortInstructions.push(gotoStartOfAbortedBlock);
+
+        //start transaction
+        this.emit(InstructionFactory.get(InstructionCodes.TR_BEGIN, transactionIndex, retryCountAvailable));
+        int startIP = nextIP();
+        Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, startIP);
+
+        //retry transaction;
+        Instruction retryInstruction = InstructionFactory.get(InstructionCodes.TR_RETRY, transactionIndex, -1);
+        this.emit(retryInstruction);
+
+        //process transaction statements
+        this.genNode(transactionNode.transactionBody, this.env);
+
+        //end the transaction
+        int endIP = nextIP();
+        this.emit(InstructionFactory.get(InstructionCodes.TR_END, 0));
+
+        //process committed block
+        if (transactionNode.committedBody != null) {
+            this.genNode(transactionNode.committedBody, this.env);
+        }
+        if (transactionNode.abortedBody != null) {
+            this.emit(gotoEndOfTransactionBlock);
+        }
+        abortInstructions.pop();
+        int startOfAbortedIP = nextIP();
+        gotoStartOfAbortedBlock.setOperand(0, startOfAbortedIP);
+        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+
+        //process aborted block
+        if (transactionNode.abortedBody != null) {
+            this.genNode(transactionNode.abortedBody, this.env);
+        }
+        emit(gotoEndOfTransactionBlock);
+
+        // CodeGen for error handling.
+        int errorTargetIP = nextIP();
+        emit(InstructionFactory.get(InstructionCodes.TR_END, -1));
+        if (transactionNode.failedBody != null) {
+            this.genNode(transactionNode.failedBody, this.env);
+
+        }
+        emit(gotoInstruction);
+        int ifIP = nextIP();
+        retryInstruction.setOperand(1, ifIP);
+        if (transactionNode.abortedBody != null) {
+            this.genNode(transactionNode.abortedBody, this.env);
+        }
+
+
+        emit(InstructionFactory.get(InstructionCodes.THROW, -1));
+        gotoEndOfTransactionBlock.setOperand(0, nextIP());
+        //TODO:Add below error handling code
+        //ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        //errorTable.addErrorTableEntry(errorTableEntry);
+        emit(InstructionFactory.get(InstructionCodes.TR_END, 1));
+    }
+
+    public void visit(BLangAbort abortNode) {
+        //TODO:Add below error handling code
+        //generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
+        this.emit(abortInstructions.peek());
+    }
+
+    public void visit(BLangRetry retryNode) {
         /* ignore */
     }
 

@@ -37,6 +37,7 @@ public enum NodeKind {
     PACKAGE_DECLARATION,
     RECORD_LITERAL_KEY_VALUE,
     RESOURCE,
+    RETRY,
     SERVICE,
     STRUCT,
     VARIABLE,
