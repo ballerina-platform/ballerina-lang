@@ -29,8 +29,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
@@ -360,36 +358,11 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> getWorkerInteractionKeywords() {
+    static List<LookupElement> getWorkerInteractionKeywords() {
         List<LookupElement> keywords = new LinkedList<>();
         keywords.add(createLookupElement("fork", null));
         keywords.add(createLookupElement("default", null));
         return keywords;
-    }
-
-    @NotNull
-    public static List<String> getAllLambdaFunctions() {
-        List<String> lambdaFunctions = new LinkedList<>();
-        lambdaFunctions.add("foreach");
-        lambdaFunctions.add("apply");
-        lambdaFunctions.add("filter");
-        lambdaFunctions.add("count");
-        lambdaFunctions.add("sum");
-        lambdaFunctions.add("average");
-        lambdaFunctions.add("min");
-        lambdaFunctions.add("max");
-        return lambdaFunctions;
-    }
-
-    /**
-     * Adds a keyword as a lookup.
-     *
-     * @param resultSet     result list which is used to add lookups
-     * @param lookupElement lookup element which needs to be added to the result list
-     */
-    private static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement
-            lookupElement) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY));
     }
 
     private static LookupElement createKeywordAsLookup(@NotNull LookupElement lookupElement) {
@@ -397,7 +370,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> getCommonKeywords() {
+    static List<LookupElement> getCommonKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(IF));
         lookupElements.add(createKeywordAsLookup(ELSE));
@@ -432,79 +405,72 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Adds keywords related to join conditions.
-     *
-     * @param resultSet result list which is used to add lookups
+     * Returns keywords used in join conditions.
      */
-    static List<LookupElement> addJoinConditionKeywords(@NotNull CompletionResultSet resultSet) {
+    static List<LookupElement> getJoinConditionKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(ALL));
         lookupElements.add(createKeywordAsLookup(SOME));
         return lookupElements;
     }
 
-    static void addCreateKeyword(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, CREATE);
+    @NotNull
+    static LookupElement getCreateKeyword() {
+        return createKeywordAsLookup(CREATE);
     }
 
-    static void addTypeOfKeyword(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, TYPE_OF);
+    @NotNull
+    static LookupElement getTypeOfKeyword() {
+        return createKeywordAsLookup(TYPE_OF);
     }
 
-    static void addLengthOfKeyword(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, LENGTH_OF);
+    @NotNull
+    static LookupElement getLengthOfKeyword() {
+        return createKeywordAsLookup(LENGTH_OF);
     }
 
-    static void addAttachKeyword(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, ATTACH);
+    @NotNull
+    static LookupElement getAttachKeyword() {
+        return createKeywordAsLookup(ATTACH);
     }
 
-    public static List<LookupElement> getFunctionSpecificKeywords() {
+    @NotNull
+    static List<LookupElement> getFunctionSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(RETURN));
         return lookupElements;
     }
 
+    @NotNull
     static List<LookupElement> getResourceSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(REPLY));
         return lookupElements;
     }
 
+    @NotNull
     static List<LookupElement> getServiceSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(RESOURCE));
         return lookupElements;
     }
 
+    @NotNull
     static List<LookupElement> getConnectorSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(ACTION));
         return lookupElements;
     }
 
-    static void addConnectorSpecificKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, ACTION);
-    }
-
-    /**
-     * Helper method to add packages as lookup elements which will be used in package declaration nodes and import
-     * declaration nodes.
-     *
-     * @param resultSet     result list which is used to add lookups
-     * @param directory     directory which needs to be added as a lookup element
-     * @param insertHandler insert handler of the lookup element
-     */
-    static void addPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiDirectory directory,
-                                     InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.create(directory.getName())
-                .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
-        resultSet.addElement(builder);
+    static LookupElement getPackageAsLookups(@NotNull PsiDirectory directory,
+                                             @Nullable InsertHandler<LookupElement> insertHandler) {
+        return LookupElementBuilder.create(directory.getName()).withTypeText("Package")
+                .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
     }
 
     @NotNull
-    public static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory,
-                                                                  @NotNull String name) {
+    private static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory,
+                                                                   @NotNull String name) {
         String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
         return LookupElementBuilder.createWithSmartPointer(name, directory)
                 .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
@@ -514,13 +480,23 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createPackageLookupElement(@NotNull PsiDirectory directory, @NotNull String name,
-                                                           @Nullable InsertHandler<LookupElement> handler) {
-        return createPackageLookupElement(directory, name).withInsertHandler(handler);
+    public static LookupElement createImportedPackageLookupElement(@NotNull PsiDirectory directory,
+                                                                   @NotNull String name,
+                                                                   @Nullable InsertHandler<LookupElement> handler) {
+        LookupElementBuilder builder = createPackageLookupElement(directory, name).withInsertHandler(handler);
+        return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
     @NotNull
-    public static LookupElement createAnnotationLookupElement(@NotNull PsiElement element) {
+    public static LookupElement createUnimportedPackageLookupElement(@NotNull PsiDirectory directory,
+                                                             @NotNull String name,
+                                                           @Nullable InsertHandler<LookupElement> handler) {
+        LookupElementBuilder builder = createPackageLookupElement(directory, name).withInsertHandler(handler);
+        return PrioritizedLookupElement.withPriority(builder, UNIMPORTED_PACKAGE_PRIORITY);
+    }
+
+    @NotNull
+    private static LookupElement createAnnotationLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
                 .withInsertHandler(BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -538,7 +514,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createFunctionsLookupElement(@NotNull PsiElement element,
+    private static LookupElement createFunctionLookupElement(@NotNull PsiElement element,
                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
@@ -548,31 +524,30 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<IdentifierPSINode> functions) {
+    public static List<LookupElement> createFunctionLookupElements(@NotNull List<IdentifierPSINode> functions) {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (IdentifierPSINode function : functions) {
-            LookupElement lookupElement = createFunctionsLookupElement(function, ParenthesisInsertHandler.INSTANCE);
+            LookupElement lookupElement = createFunctionLookupElement(function, ParenthesisInsertHandler.INSTANCE);
             lookupElements.add(lookupElement);
         }
         return lookupElements;
     }
 
     @NotNull
-    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<IdentifierPSINode> functions,
-                                                                    @Nullable InsertHandler<LookupElement>
-                                                                            insertHandler) {
+    public static List<LookupElement> createFunctionLookupElements(@NotNull List<IdentifierPSINode> functions,
+                                                                   @Nullable InsertHandler<LookupElement>
+                                                                           insertHandler) {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (IdentifierPSINode function : functions) {
-            LookupElement lookupElement = createFunctionsLookupElement(function, insertHandler);
-            lookupElements.add(lookupElement);
+            lookupElements.add(createFunctionLookupElement(function, insertHandler));
         }
         return lookupElements;
     }
 
     @NotNull
-    public static LookupElement createAttachedFunctionsLookupElement(@NotNull PsiElement element,
-                                                                     @Nullable InsertHandler<LookupElement>
-                                                                             insertHandler) {
+    private static LookupElement createAttachedFunctionsLookupElement(@NotNull PsiElement element,
+                                                                      @Nullable InsertHandler<LookupElement>
+                                                                              insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
                 .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
@@ -593,30 +568,8 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createLambdaFunctionLookupElements(@Nullable InsertHandler<LookupElement>
-                                                                                 insertHandler) {
-        @NotNull List<String> lambdaFunctions = getAllLambdaFunctions();
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (String function : lambdaFunctions) {
-            LookupElement lookupElement = createLambdaFunctionLookupElement(function, insertHandler);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    public static LookupElement createLambdaFunctionLookupElement(@NotNull String element,
-                                                                  @Nullable InsertHandler<LookupElement>
-                                                                          insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.create(element)
-                .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
-                .withInsertHandler(insertHandler);
-        return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
-    }
-
-    @NotNull
-    public static LookupElement createConnectorLookupElement(@NotNull PsiElement element,
-                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
+    private static LookupElement createConnectorLookupElement(@NotNull IdentifierPSINode element,
+                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR).bold()
                 .withTailText(BallerinaDocumentationProvider.getParameterString(element.getParent(), true))
@@ -637,20 +590,25 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static List<LookupElement> createActionLookupElements(@NotNull List<PsiElement> actions) {
+    private static LookupElement createActionLookupElement(@NotNull IdentifierPSINode identifier) {
+        LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText())
+                .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
+                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(identifier.getParent()))
+                .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
+        return PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createActionLookupElements(@NotNull List<IdentifierPSINode> actions) {
         List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement action : actions) {
-            LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
-                    .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
-                    .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(action.getParent()))
-                    .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
-            lookupElements.add(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
+        for (IdentifierPSINode action : actions) {
+            lookupElements.add(createActionLookupElement(action));
         }
         return lookupElements;
     }
 
     @NotNull
-    public static LookupElement createStructLookupElement(@NotNull PsiElement element) {
+    private static LookupElement createStructLookupElement(@NotNull IdentifierPSINode element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT)
                 .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
@@ -667,7 +625,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createVariableLookupElement(@NotNull PsiElement element) {
+    private static LookupElement createVariableLookupElement(@NotNull IdentifierPSINode element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -684,7 +642,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createParameterLookupElement(@NotNull PsiElement element) {
+    private static LookupElement createParameterLookupElement(@NotNull IdentifierPSINode element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -701,7 +659,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createConstantLookupElement(@NotNull PsiElement element) {
+    private static LookupElement createConstantLookupElement(@NotNull IdentifierPSINode element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Constant").withIcon(BallerinaIcons.CONSTANT);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -718,7 +676,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
+    private static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -735,7 +693,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createNamespaceLookupElement(@NotNull PsiElement element) {
+    private static LookupElement createNamespaceLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Namespace").withIcon(BallerinaIcons.NAMESPACE);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -752,19 +710,19 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                                @NotNull TypeNameNode fieldType,
-                                                                @NotNull IdentifierPSINode ownerName) {
+    private static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                                 @NotNull TypeNameNode fieldType,
+                                                                 @NotNull IdentifierPSINode ownerName) {
         return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
                 .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD)
                 .withTailText(" -> " + ownerName.getText(), true);
     }
 
     @NotNull
-    public static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                         @NotNull TypeNameNode fieldType,
-                                                         @NotNull IdentifierPSINode ownerName,
-                                                         @Nullable InsertHandler<LookupElement> insertHandler) {
+    private static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                          @NotNull TypeNameNode fieldType,
+                                                          @NotNull IdentifierPSINode ownerName,
+                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = createFieldLookupElement(fieldName, fieldType, ownerName)
                 .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -790,7 +748,7 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createWorkerLookupElement(@NotNull IdentifierPSINode workerName) {
+    private static LookupElement createWorkerLookupElement(@NotNull IdentifierPSINode workerName) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(workerName.getText(), workerName)
                 .withTypeText("Worker").withIcon(BallerinaIcons.WORKER);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
@@ -809,22 +767,5 @@ public class BallerinaCompletionUtils {
             lookupElements.add(lookupElement);
         }
         return lookupElements;
-    }
-
-    /**
-     * Returns the non empty element which is a previous sibling of the current node.
-     *
-     * @param originalFile file which contains the current element
-     * @param offset       offset of the current node
-     * @return {@code null} if there is no previous non empty node. Otherwise returns the corresponding
-     * {@link PsiElement} node.
-     */
-    public static PsiElement getPreviousNonEmptyElement(PsiFile originalFile, int offset) {
-        int count = 1;
-        PsiElement prevElement = originalFile.findElementAt(offset - count++);
-        while (prevElement instanceof PsiWhiteSpace && prevElement.getTextOffset() > 0) {
-            prevElement = originalFile.findElementAt(offset - count++);
-        }
-        return prevElement;
     }
 }

@@ -158,7 +158,7 @@ public class ActionInvocationReference extends BallerinaElementReference {
             return new Object[0];
         }
 
-        List<PsiElement> actions = BallerinaPsiImplUtil.getAllActionsFromAConnector(connectorNode);
+        List<IdentifierPSINode> actions = BallerinaPsiImplUtil.getAllActionsFromAConnector(connectorNode);
         List<LookupElement> results = BallerinaCompletionUtils.createActionLookupElements(actions);
 
         return results.toArray(new LookupElement[results.size()]);

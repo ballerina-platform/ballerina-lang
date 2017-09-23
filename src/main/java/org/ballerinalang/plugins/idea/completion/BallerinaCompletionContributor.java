@@ -110,7 +110,7 @@ public class BallerinaCompletionContributor extends CompletionContributor {
                 insertHandler = StatementCompletionInsertHandler.INSTANCE;
             }
             // Add directories as lookup elements.
-            addPackagesAsLookups(resultSet, directory, insertHandler);
+            resultSet.addElement(getPackageAsLookups(directory, insertHandler));
         }
     }
 
@@ -145,7 +145,7 @@ public class BallerinaCompletionContributor extends CompletionContributor {
                     insertHandler = StatementCompletionInsertHandler.INSTANCE;
                 }
             }
-            addPackagesAsLookups(resultSet, directory, insertHandler);
+            resultSet.addElement(getPackageAsLookups(directory, insertHandler));
         }
     }
 

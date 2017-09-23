@@ -26,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
+/**
+ * Injects XML language to valid XML strings.
+ */
 public class XmlLanguageInjector implements LanguageInjector {
 
     private static final Set<String> XML_PACKAGE_NAMES = ContainerUtil.newHashSet("xmls");

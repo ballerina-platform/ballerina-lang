@@ -26,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
+/**
+ * Injects JSON language to valid JSON strings.
+ */
 public class JsonLanguageInjector implements LanguageInjector {
 
     private static final Set<String> JSON_PACKAGE_NAMES = ContainerUtil.newHashSet("jsons");

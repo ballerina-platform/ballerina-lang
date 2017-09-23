@@ -170,7 +170,7 @@ public class NameReference extends BallerinaElementReference {
                             prevVisibleLeaf.getText().matches("[{}]"))) {
 
                 List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, true);
-                results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+                results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
                 // Todo - use a util method
                 ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
@@ -226,7 +226,7 @@ public class NameReference extends BallerinaElementReference {
         } else {
             // Todo - use a util method
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, false);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
             List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage, false);
             results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,

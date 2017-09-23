@@ -137,8 +137,8 @@ annotationBody
     ;
 
 typeMapperDefinition
-    :   NATIVE TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS typeName SEMICOLON
-    |   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS typeName LEFT_BRACE typeMapperBody RIGHT_BRACE
+    :   NATIVE TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS SEMICOLON
+    |   TYPEMAPPER Identifier LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS LEFT_BRACE typeMapperBody RIGHT_BRACE
     ;
 
 typeMapperBody
@@ -330,14 +330,6 @@ elseIfClause
 
 elseClause
     :   RIGHT_BRACE ELSE LEFT_BRACE codeBlockBody
-    ;
-
-codeBlockBody
-    :   statement*
-    ;
-
-codeBlockParameter
-    :   typeName Identifier
     ;
 
 //todo replace with 'foreach'
@@ -555,6 +547,14 @@ structReference
 
 workerReference
     :   Identifier
+    ;
+
+codeBlockBody
+    :   statement*
+    ;
+
+codeBlockParameter
+    :   typeName Identifier
     ;
 
 returnParameters

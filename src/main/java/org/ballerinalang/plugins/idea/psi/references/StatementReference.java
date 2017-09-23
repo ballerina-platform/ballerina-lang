@@ -164,7 +164,7 @@ public class StatementReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
         if (containingPackage != null) {
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, true);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
         }
         return results;
     }
@@ -181,7 +181,7 @@ public class StatementReference extends BallerinaElementReference {
 
         // Todo - add util method
         List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, false);
-        results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+        results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
         List<IdentifierPSINode> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage, false);
         results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,

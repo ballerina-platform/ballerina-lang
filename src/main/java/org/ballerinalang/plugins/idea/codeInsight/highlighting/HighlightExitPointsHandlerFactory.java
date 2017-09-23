@@ -31,12 +31,13 @@ public class HighlightExitPointsHandlerFactory extends HighlightUsagesHandlerFac
     @Override
     public HighlightUsagesHandlerBase createHighlightUsagesHandler(@NotNull Editor editor, @NotNull PsiFile file,
                                                                    @NotNull PsiElement target) {
-        if (target instanceof LeafPsiElement) {
-            IElementType elementType = ((LeafPsiElement) target).getElementType();
-            if (elementType == BallerinaTypes.RETURN || elementType == BallerinaTypes.REPLY
-                    || elementType == BallerinaTypes.THROW) {
-                return new HighlightExitPointsHandler(editor, file, target);
-            }
+        if (!(target instanceof LeafPsiElement)) {
+            return null;
+        }
+        IElementType elementType = ((LeafPsiElement) target).getElementType();
+        if (elementType == BallerinaTypes.RETURN || elementType == BallerinaTypes.REPLY
+                || elementType == BallerinaTypes.THROW) {
+            return new HighlightExitPointsHandler(editor, file, target);
         }
         return null;
     }

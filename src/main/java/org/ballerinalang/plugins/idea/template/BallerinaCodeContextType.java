@@ -56,10 +56,7 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
     public boolean isInContext(@NotNull PsiFile file, int offset) {
         if (PsiUtilCore.getLanguageAtOffset(file, offset).isKindOf(BallerinaLanguage.INSTANCE)) {
             PsiElement element = file.findElementAt(offset);
-            if (element instanceof PsiWhiteSpace) {
-                return false;
-            }
-            return element != null && isInContext(element);
+            return !(element instanceof PsiWhiteSpace) && element != null && isInContext(element);
         }
         return false;
     }
@@ -136,20 +133,28 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
             if (element.getParent() instanceof PsiErrorElement || element.getParent() instanceof NameReferenceNode) {
                 PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
-                if (prevVisibleLeaf != null && prevVisibleLeaf.getParent() instanceof ResourceDefinitionNode) {
-                    return true;
-                }
-                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
-                if (nextVisibleLeaf != null && nextVisibleLeaf instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
-                    if (elementType == BallerinaTypes.RESOURCE) {
+                if (prevVisibleLeaf instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevVisibleLeaf).getElementType();
+                    if (elementType == BallerinaTypes.LBRACE &&
+                            prevVisibleLeaf.getParent() instanceof ServiceDefinitionNode) {
                         return true;
-                    } else if (elementType == BallerinaTypes.RBRACE) {
-                        ServiceDefinitionNode serviceDefinitionNode = PsiTreeUtil.getParentOfType(originalElement,
-                                ServiceDefinitionNode.class);
-                        if (serviceDefinitionNode != null) {
-                            return true;
-                        }
+                    }
+                }
+                resourceDefinitionNode = PsiTreeUtil.getParentOfType(prevVisibleLeaf, ResourceDefinitionNode.class);
+                if (resourceDefinitionNode != null) {
+                    return false;
+                }                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
+                if (nextVisibleLeaf == null || !(nextVisibleLeaf instanceof LeafPsiElement)) {
+                    return false;
+                }
+                IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
+                if (elementType == BallerinaTypes.RESOURCE) {
+                    return true;
+                } else if (elementType == BallerinaTypes.RBRACE) {
+                    ServiceDefinitionNode serviceDefinitionNode = PsiTreeUtil.getParentOfType(originalElement,
+                            ServiceDefinitionNode.class);
+                    if (serviceDefinitionNode != null) {
+                        return true;
                     }
                 }
             }
@@ -196,7 +201,7 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
             if (element.getParent() instanceof PsiErrorElement || element.getParent() instanceof NameReferenceNode) {
                 PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
-                if (prevVisibleLeaf != null && prevVisibleLeaf.getParent() instanceof ActionDefinitionNode) {
+                if (prevVisibleLeaf != null && prevVisibleLeaf.getParent() instanceof ResourceDefinitionNode) {
                     return true;
                 }
                 PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
@@ -211,7 +216,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                     }
                 }
             }
-
             return false;
         }
     }
@@ -359,12 +363,10 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                 } else if (originalElement.getNextSibling() instanceof CallableUnitBodyNode) {
                     callableUnitBodyNode = (CallableUnitBodyNode) originalElement.getNextSibling();
                 } else {
-                    callableUnitBodyNode = PsiTreeUtil.getParentOfType(originalElement,
-                            CallableUnitBodyNode.class);
+                    callableUnitBodyNode = PsiTreeUtil.getParentOfType(originalElement, CallableUnitBodyNode.class);
                 }
             } else {
-                callableUnitBodyNode = PsiTreeUtil.getParentOfType(originalElement,
-                        CallableUnitBodyNode.class);
+                callableUnitBodyNode = PsiTreeUtil.getParentOfType(originalElement, CallableUnitBodyNode.class);
             }
 
             FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(originalElement,
@@ -375,22 +377,24 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
             if (element.getParent() instanceof PsiErrorElement || element.getParent() instanceof NameReferenceNode) {
                 PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
-                if (prevVisibleLeaf != null && prevVisibleLeaf.getParent() instanceof ActionDefinitionNode) {
+                functionDefinitionNode = PsiTreeUtil.getParentOfType(prevVisibleLeaf, FunctionDefinitionNode.class);
+                if (functionDefinitionNode != null) {
                     return true;
                 }
                 PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
-                if (nextVisibleLeaf != null && nextVisibleLeaf instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
-                    if (elementType == BallerinaTypes.RBRACE) {
-                        functionDefinitionNode = PsiTreeUtil.getParentOfType(originalElement,
-                                FunctionDefinitionNode.class);
-                        if (functionDefinitionNode != null) {
-                            return true;
-                        }
-                    }
+                if (nextVisibleLeaf == null || !(nextVisibleLeaf instanceof LeafPsiElement)) {
+                    return false;
+                }
+                IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
+                if (elementType != BallerinaTypes.RBRACE) {
+                    return false;
+                }
+                functionDefinitionNode = PsiTreeUtil.getParentOfType(originalElement,
+                        FunctionDefinitionNode.class);
+                if (functionDefinitionNode != null) {
+                    return true;
                 }
             }
-
             return false;
         }
     }
@@ -405,10 +409,7 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
         protected boolean isInContext(@NotNull PsiElement element) {
             ForkJoinStatementNode forkJoinStatementNode = PsiTreeUtil.getParentOfType(element,
                     ForkJoinStatementNode.class);
-            if (forkJoinStatementNode == null) {
-                return false;
-            }
-            return true;
+            return forkJoinStatementNode != null;
         }
     }
 }

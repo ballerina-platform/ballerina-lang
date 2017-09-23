@@ -106,7 +106,7 @@ public class StructValueReference extends BallerinaElementReference {
 
                         List<IdentifierPSINode> functions =
                                 BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
-                        results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+                        results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
                         List<IdentifierPSINode> globalVariables =
                                 BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage, false);
@@ -123,7 +123,7 @@ public class StructValueReference extends BallerinaElementReference {
         PsiDirectory currentPackage = originalFile.getParent();
         if (currentPackage != null) {
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage, true);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
             List<IdentifierPSINode> globalVariables =
                     BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true);
