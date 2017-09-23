@@ -30,6 +30,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
     public List<BType> retTypes;
+    public String typeDescriptor;
 
     public BInvokableType(List<BType> paramTypes,
                           List<BType> retTypes, BTypeSymbol tsymbol) {
@@ -46,5 +47,10 @@ public class BInvokableType extends BType implements InvokableType {
     @Override
     public List<BType> getReturnTypes() {
         return retTypes;
+    }
+
+    @Override
+    public String getDesc() {
+        return typeDescriptor;
     }
 }
