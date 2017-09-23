@@ -224,17 +224,17 @@
 }
 
 /* Form Progress */
-.progress {
+.paginationProgress {
     text-align: center;
-    height: 32px;
+    height: 50px;
     background-color: #d3d3d3;
     box-shadow: none;
     position:absolute;
     bottom:0;
     width:100%;
 }
-.progress .circle,
-.progress .bar {
+.paginationProgress .circle,
+.paginationProgress .bar {
     display: inline-block;
     background: #fff;
     width: 26px;
@@ -243,7 +243,7 @@
     border: 1px solid #d5d5da;
     margin-right: 30px;
 }
-.progress .bar {
+.paginationProgress .bar {
     position: relative;
     width: 80px;
     height: 6px;
@@ -254,7 +254,7 @@
     border-right: none;
     border-radius: 0;
 }
-.progress .circle .label {
+.paginationProgress .circle .label {
     display: inline-block;
     width: 21px;
     height: 21px;
@@ -265,31 +265,31 @@
     font-size: 12px;
 }
 /* Done / Active */
-.progress .bar.done,
-.progress .circle.done {
+.paginationProgress .bar.done,
+.paginationProgress .circle.done {
     background: #eee;
 }
-.progress .bar.active {
+.paginationProgress .bar.active {
     background: linear-gradient(to right, #EEE 40%, #FFF 60%);
 }
-.progress .circle.done .label {
+.paginationProgress .circle.done .label {
     color: #FFF;
     background: rgba(140, 140, 140, 0.46);
     box-shadow: inset 0 0 63px rgba(0,0,0,.2);
 }
-.progress .circle.done .title {
+.paginationProgress .circle.done .title {
     color: #444;
 }
-.progress .circle.active .label {
+.paginationProgress .circle.active .label {
     color: #FFF;
     background: #0c95be;
     box-shadow: inset 0 0 63px rgba(0,0,0,.2);
 }
-.progress .circle.active .title {
+.paginationProgress .circle.active .title {
     color: #0c95be;
 }
 
-.progress .prevNext {
+.paginationProgress .prevNext {
     display: inline-block;
     background: #fff;
     width: 78px;
@@ -298,13 +298,13 @@
     margin-right: 30px;
 }
 
-.progress .prevNext.done .label {
+.paginationProgress .prevNext.done .label {
     color: #FFF;
     background: #8c8c8c;
     box-shadow: inset 0 0 63px rgba(0,0,0,.2);
 }
 
-.progress .prevNext .label {
+.paginationProgress .prevNext .label {
     display: inline-block;
     width: 70px;
     height: 24px;
@@ -366,4 +366,8 @@ span { cursor: pointer; }
 .propWindow-appear.propWindow-appear-active {
     will-change: transform;
     animation: slideDown 1s ease;
+}
+
+.protocol-rect-clicked{
+    fill: #6f7b96;
 }

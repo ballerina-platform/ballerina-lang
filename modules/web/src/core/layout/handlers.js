@@ -4,7 +4,7 @@ import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, EVENTS, REGIONS } from './constants';
 import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
-import { withReRenderSupport } from './components/utils';
+import { withViewFeatures } from './components/utils';
 
 /**
  * Provides command handler definitions of layout manager plugin.
@@ -30,7 +30,7 @@ export function getHandlerDefinitions(layoutManager) {
                                 title: tabTitle,
                                 icon: tabIcon,
                                 customTitleClass,
-                                component: withReRenderSupport(component, pluginID),
+                                component: withViewFeatures(component, pluginID),
                                 propsProvider,
                             });
                         }

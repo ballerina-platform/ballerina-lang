@@ -56,6 +56,15 @@ class SourceView extends React.Component {
         });
     }
 
+
+    /**
+     * React Lifecycle hook for shouldComponentUpdate
+     * Prevents Rerendering of sourceview when typing
+     */
+    shouldComponentUpdate() {
+        return false;
+    }
+
     /**
      * When source editor finds errors
      * @param {array} lintErrors List of errors received by validations

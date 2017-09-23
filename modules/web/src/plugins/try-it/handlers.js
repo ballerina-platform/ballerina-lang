@@ -16,20 +16,23 @@
  * under the License.
  */
 
-export const COMMANDS = {
-    SHOW_TRY_IT: 'show-try-it-view',
-};
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { COMMANDS, VIEWS } from './constants';
 
-export const MENUS = {
-    TRY_IT_MENU: 'composer.menu.debugger.tryit',
-};
-
-export const VIEWS = {
-    TRY_IT_VIEW_ID: 'try-it-view-id',
-};
-
-export const LABELS = {
-    TRY_IT_HEADING: 'Try-It',
-};
-
-export const TRY_IT_PLUGIN_ID = 'composer.tryit.ballerina';
+/**
+ * Provides command handler definitions of try-it plugin.
+ * @param {debugger} try-it plugin instance
+ * @returns {Object[]} command handler definitions.
+ *
+ */
+export function getHandlerDefinitions(plugin) {
+    return [
+        {
+            cmdID: COMMANDS.SHOW_TRY_IT,
+            handler: () => {
+                const { command } = plugin.appContext;
+                command.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, VIEWS.TRY_IT_VIEW_ID);
+            },
+        },
+    ];
+}

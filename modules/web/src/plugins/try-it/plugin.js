@@ -20,8 +20,11 @@ import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { REGIONS } from 'core/layout/constants';
 /** Plugin imports */
+import { getCommandDefinitions } from './commands';
+import { getHandlerDefinitions } from './handlers';
+import { getMenuDefinitions } from './menus';
 import TryIt from './views/try-it-container';
-import { VIEWS as TRY_IT_VIEW, TRY_IT_PLUGIN_ID } from './constants';
+import { VIEWS as TRY_IT_VIEW, TRY_IT_PLUGIN_ID, LABELS } from './constants';
 
 /**
  * Plugin for Ballerina Lang
@@ -39,8 +42,11 @@ class TryItPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { VIEWS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
         return {
+            [COMMANDS]: getCommandDefinitions(this),
+            [HANDLERS]: getHandlerDefinitions(this),
+            [MENUS]: getMenuDefinitions(this),
             [VIEWS]: [
                 {
                     id: TRY_IT_VIEW.TRY_IT_VIEW_ID,
@@ -49,11 +55,12 @@ class TryItPlugin extends Plugin {
                         return {
                         };
                     },
-                    region: REGIONS.BOTTOM_PANEL,
+                    region: REGIONS.EDITOR_TABS,
+                    // region specific options for editor-tabs views
                     regionOptions: {
-                        panelTitle: 'Try It',
+                        tabTitle: LABELS.TRY_IT_HEADING,
+                        customTitleClass: 'try-it-title',
                     },
-                    displayOnLoad: true,
                 },
             ],
         };

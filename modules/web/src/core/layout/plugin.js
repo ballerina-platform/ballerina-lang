@@ -28,6 +28,8 @@ import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { REGIONS, PLUGIN_ID, LABELS, MENUS as MENU_IDS, COMMANDS as CMD_IDS } from './constants';
 
+import { withViewFeatures } from './components/utils';
+
 /**
  * LayoutPlugin is responsible for loading view components in to the layout.
  *
@@ -75,6 +77,7 @@ class LayoutPlugin extends Plugin {
      * @param {Object} view definition
      */
     addViewToLayout(view) {
+        view.View = withViewFeatures(view.component, view.pluginID);
         this.views.push(view);
         this.layout[view.region].push(view);
     }

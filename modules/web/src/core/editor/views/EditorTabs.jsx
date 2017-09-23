@@ -23,17 +23,18 @@ import Tabs, { TabPane } from 'rc-tabs';
 import SplitPane from 'react-split-pane';
 import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
-import TabBar from 'rc-tabs/lib/TabBar';
 import 'rc-tabs/assets/index.css';
 import View from './../../view/view';
 import { VIEWS, HISTORY } from './../constants';
 import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
-import { withUndoRedoSupport } from './utils';
 
-const DEFAULT_PREVIEW_VIEW_SIZE = 500;
+const DEFAULT_PREVIEW_VIEW_SIZE = document.body.clientWidth - (((document.body.clientWidth / 2) - 250));
 const MINIMUM_PREVIEW_VIEW_SIZE = 250;
+
+const tabTitleHeight = 21;
+
 /**
  * Editor Tabs
  */
@@ -99,8 +100,9 @@ class EditorTabs extends View {
      */
     getPreviewViewSize(previewViewEnabled) {
         const { history } = this.props.editorPlugin.appContext.pref;
+        const activeEditor = this.props.editorPlugin.appContext.editor.getActiveEditor();
         let previewViewSize;
-        if (previewViewEnabled) {
+        if (previewViewEnabled && !(activeEditor instanceof CustomEditor)) {
             if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
                 previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
             } else {
@@ -152,6 +154,10 @@ class EditorTabs extends View {
      */
     makeTabPane(editor) {
         const { activeEditorID } = this.props.editorPlugin;
+        const dimensions = {
+            width: this.props.width - this.state.previewViewSize,
+            height: this.props.height - tabTitleHeight,
+        };
         if (editor instanceof Editor) {
             const { file, definition, definition: { customPropsProvider } } = editor;
             return (
@@ -173,6 +179,7 @@ class EditorTabs extends View {
                         commandProxy={this.props.editorPlugin.appContext.command}
                         {...customPropsProvider()}
                         isPreviewViewEnabled={this.state.previewViewEnabled}
+                        {...dimensions}
                     />
                 </TabPane>
             );
@@ -199,6 +206,7 @@ class EditorTabs extends View {
                     <editor.component
                         isActive={activeEditorID === id}
                         {...propsProvider()}
+                        {...dimensions}
                     />
                 </TabPane>
             );
@@ -214,6 +222,10 @@ class EditorTabs extends View {
      */
     renderPreviewTab() {
         const editor = this.props.editorPlugin.appContext.editor.getActiveEditor();
+        const dimensions = {
+            width: this.state.previewViewSize,
+            height: this.props.height - tabTitleHeight,
+        };
         if (!_.isNil(editor) && !(editor instanceof CustomEditor)) {
             const { file, definition } = editor;
             const previewDefinition = definition.previewView;
@@ -230,6 +242,7 @@ class EditorTabs extends View {
                             file={file}
                             commandProxy={this.props.editorPlugin.appContext.command}
                             {...previewDefinition.customPropsProvider()}
+                            {...dimensions}
                         />
                     </div>
                 </TabPane>
@@ -304,6 +317,8 @@ class EditorTabs extends View {
 
 EditorTabs.propTypes = {
     editorPlugin: PropTypes.objectOf(Object).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 EditorTabs.contextTypes = {

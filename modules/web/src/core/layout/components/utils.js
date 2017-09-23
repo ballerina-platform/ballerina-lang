@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { COMMANDS } from './../constants';
 
-export function withReRenderSupport(View, pluginID) {
+/**
+ * Enable implicit features of views including reRender upon plugin re-render.
+ * @param {Reac.Component} View 
+ * @param {String} pluginID 
+ */
+export function withViewFeatures(View, pluginID) {
     class ViewWrapper extends React.Component {
          /**
          * @inheritdoc
@@ -42,9 +47,9 @@ export function withReRenderSupport(View, pluginID) {
          * @inheritdoc
          */
         render() {
-            return <View {...this.props} />;
+            return (<View {...this.props} />);
         }
-    };
+    }
 
     ViewWrapper.contextTypes = {
         command: PropTypes.shape({
@@ -55,3 +60,16 @@ export function withReRenderSupport(View, pluginID) {
 
     return ViewWrapper;
 }
+
+/**
+ * Creates View from view Def
+ * @param {Object} viewDef View Definition
+ * @param {Object} additionalProps additional props for view
+ */
+export function createViewFromViewDef(viewDef, additionalProps) {
+    const { View, propsProvider } = viewDef;
+    return (
+        <View {...propsProvider()} key={viewDef.id} definition={viewDef} {...additionalProps} />
+    );
+}
+
