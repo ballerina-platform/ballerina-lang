@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class CompilationUnitNodeAbstract extends Node {
 
@@ -25,6 +26,7 @@ class CompilationUnitNodeAbstract extends Node {
         let oldValue = this.topLevelNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.topLevelNodes = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -66,11 +68,56 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
+    removeTopLevelNodes(node, silent){
+        const index = this.getIndexOfTopLevelNodes(node);
+        this.removeTopLevelNodesByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeTopLevelNodesByIndex(index, silent){
+        this.topLevelNodes.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTopLevelNodes(oldChild, newChild, silent){
+        const index = this.getIndexOfTopLevelNodes(oldChild);
+        this.topLevelNodes[index] = newChild;
+    }
+
+    getIndexOfTopLevelNodes(child){
+        return _.findIndex(this.topLevelNodes, ['id', child.id]);
+    }
+
+    filterTopLevelNodes(predicateFunction){
+        return _.filter(this.topLevelNodes, predicateFunction);
+    }
+
 
     setName(newValue, silent, title) {
         let oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -95,6 +142,7 @@ class CompilationUnitNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -119,6 +167,7 @@ class CompilationUnitNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -143,6 +192,7 @@ class CompilationUnitNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

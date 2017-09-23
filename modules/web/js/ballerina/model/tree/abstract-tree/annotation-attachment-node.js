@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class AnnotationAttachmentNodeAbstract extends Node {
 
@@ -25,6 +26,9 @@ class AnnotationAttachmentNodeAbstract extends Node {
         let oldValue = this.annotationName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.annotationName = newValue;
+
+        this.annotationName.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -49,6 +53,7 @@ class AnnotationAttachmentNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -73,6 +78,7 @@ class AnnotationAttachmentNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -97,6 +103,7 @@ class AnnotationAttachmentNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

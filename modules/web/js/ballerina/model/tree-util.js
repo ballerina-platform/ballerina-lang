@@ -22,4 +22,4 @@ class TreeUtil extends AbstractTreeUtil {
 
 }
 
-export default TreeUtil;
+export default new TreeUtil();

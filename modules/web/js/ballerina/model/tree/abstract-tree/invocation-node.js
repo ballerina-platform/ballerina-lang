@@ -17,38 +17,18 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class InvocationNodeAbstract extends Node {
-
-
-    setExpression(newValue, silent, title) {
-        let oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
     setPackageAlias(newValue, silent, title) {
         let oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -69,10 +49,38 @@ class InvocationNodeAbstract extends Node {
 
 
 
+    setExpression(newValue, silent, title) {
+        let oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
+
+
     setArgumentExpressions(newValue, silent, title) {
         let oldValue = this.argumentExpressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.argumentExpressions = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -114,11 +122,58 @@ class InvocationNodeAbstract extends Node {
         }
     }
 
+    removeArgumentExpressions(node, silent){
+        const index = this.getIndexOfArgumentExpressions(node);
+        this.removeArgumentExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeArgumentExpressionsByIndex(index, silent){
+        this.argumentExpressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceArgumentExpressions(oldChild, newChild, silent){
+        const index = this.getIndexOfArgumentExpressions(oldChild);
+        this.argumentExpressions[index] = newChild;
+    }
+
+    getIndexOfArgumentExpressions(child){
+        return _.findIndex(this.argumentExpressions, ['id', child.id]);
+    }
+
+    filterArgumentExpressions(predicateFunction){
+        return _.filter(this.argumentExpressions, predicateFunction);
+    }
+
 
     setName(newValue, silent, title) {
         let oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
+
+        this.name.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -143,6 +198,7 @@ class InvocationNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -167,6 +223,7 @@ class InvocationNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -191,6 +248,7 @@ class InvocationNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class VariableNodeAbstract extends Node {
 
@@ -25,6 +26,9 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.typeNode = newValue;
+
+        this.typeNode.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -49,6 +53,9 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.initialExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.initialExpression = newValue;
+
+        this.initialExpression.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -73,6 +80,9 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
+
+        this.name.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -97,6 +107,7 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.flags = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -121,6 +132,7 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.annotationAttachments = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -162,11 +174,56 @@ class VariableNodeAbstract extends Node {
         }
     }
 
+    removeAnnotationAttachments(node, silent){
+        const index = this.getIndexOfAnnotationAttachments(node);
+        this.removeAnnotationAttachmentsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeAnnotationAttachmentsByIndex(index, silent){
+        this.annotationAttachments.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceAnnotationAttachments(oldChild, newChild, silent){
+        const index = this.getIndexOfAnnotationAttachments(oldChild);
+        this.annotationAttachments[index] = newChild;
+    }
+
+    getIndexOfAnnotationAttachments(child){
+        return _.findIndex(this.annotationAttachments, ['id', child.id]);
+    }
+
+    filterAnnotationAttachments(predicateFunction){
+        return _.filter(this.annotationAttachments, predicateFunction);
+    }
+
 
     setWS(newValue, silent, title) {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -191,6 +248,7 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -215,6 +273,7 @@ class VariableNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

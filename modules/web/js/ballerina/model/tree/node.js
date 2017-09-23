@@ -156,6 +156,22 @@ class Node extends EventChannel {
     getID() {
         return this.id;
     }
+
+    /**
+     * Get the current file
+     * @returns {object} - current file
+     */
+    getFile() {
+        return this.file;
+    }
+
+    /**
+     * Set the current file
+     * @param {object} file - current file
+     */
+    setFile(file) {
+        this.file = file;
+    }    
 }
 
 

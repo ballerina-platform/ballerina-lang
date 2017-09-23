@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class ForkJoinNodeAbstract extends Node {
 
@@ -25,6 +26,7 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.workers = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -66,11 +68,56 @@ class ForkJoinNodeAbstract extends Node {
         }
     }
 
+    removeWorkers(node, silent){
+        const index = this.getIndexOfWorkers(node);
+        this.removeWorkersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeWorkersByIndex(index, silent){
+        this.workers.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceWorkers(oldChild, newChild, silent){
+        const index = this.getIndexOfWorkers(oldChild);
+        this.workers[index] = newChild;
+    }
+
+    getIndexOfWorkers(child){
+        return _.findIndex(this.workers, ['id', child.id]);
+    }
+
+    filterWorkers(predicateFunction){
+        return _.filter(this.workers, predicateFunction);
+    }
+
 
     setJoinedWorkerIdentifiers(newValue, silent, title) {
         let oldValue = this.joinedWorkerIdentifiers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.joinedWorkerIdentifiers = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -112,59 +159,58 @@ class ForkJoinNodeAbstract extends Node {
         }
     }
 
-
-    setJoinType(newValue, silent, title) {
-        let oldValue = this.joinType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinType = newValue;
+    removeJoinedWorkerIdentifiers(node, silent){
+        const index = this.getIndexOfJoinedWorkerIdentifiers(node);
+        this.removeJoinedWorkerIdentifiersByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'modify-node',
-                title,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
                 data: {
-                    attributeName: 'joinType',
-                    newValue,
-                    oldValue,
-                }
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeJoinedWorkerIdentifiersByIndex(index, silent){
+        this.joinedWorkerIdentifiers.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
             });
         }
     }
 
-    getJoinType() {
-        return this.joinType;
+    replaceJoinedWorkerIdentifiers(oldChild, newChild, silent){
+        const index = this.getIndexOfJoinedWorkerIdentifiers(oldChild);
+        this.joinedWorkerIdentifiers[index] = newChild;
     }
 
-
-
-    setJoinCount(newValue, silent, title) {
-        let oldValue = this.joinCount;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinCount = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinCount',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
+    getIndexOfJoinedWorkerIdentifiers(child){
+        return _.findIndex(this.joinedWorkerIdentifiers, ['id', child.id]);
     }
 
-    getJoinCount() {
-        return this.joinCount;
+    filterJoinedWorkerIdentifiers(predicateFunction){
+        return _.filter(this.joinedWorkerIdentifiers, predicateFunction);
     }
-
 
 
     setJoinBody(newValue, silent, title) {
         let oldValue = this.joinBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.joinBody = newValue;
+
+        this.joinBody.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -189,6 +235,9 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.timeOutExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.timeOutExpression = newValue;
+
+        this.timeOutExpression.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -213,6 +262,9 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.timeOutVariable;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.timeOutVariable = newValue;
+
+        this.timeOutVariable.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -237,6 +289,9 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.timeoutBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.timeoutBody = newValue;
+
+        this.timeoutBody.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -257,10 +312,63 @@ class ForkJoinNodeAbstract extends Node {
 
 
 
+    setJoinType(newValue, silent, title) {
+        let oldValue = this.joinType;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinType = newValue;
+
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinType',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getJoinType() {
+        return this.joinType;
+    }
+
+
+
+    setJoinCount(newValue, silent, title) {
+        let oldValue = this.joinCount;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinCount = newValue;
+
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinCount',
+                    newValue,
+                    oldValue,
+                }
+            });
+        }
+    }
+
+    getJoinCount() {
+        return this.joinCount;
+    }
+
+
+
     setJoinResultVar(newValue, silent, title) {
         let oldValue = this.joinResultVar;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.joinResultVar = newValue;
+
+        this.joinResultVar.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -285,6 +393,7 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -309,6 +418,7 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -333,6 +443,7 @@ class ForkJoinNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

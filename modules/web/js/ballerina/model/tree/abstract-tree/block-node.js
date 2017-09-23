@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class BlockNodeAbstract extends Node {
 
@@ -25,6 +26,7 @@ class BlockNodeAbstract extends Node {
         let oldValue = this.statements;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.statements = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -66,11 +68,56 @@ class BlockNodeAbstract extends Node {
         }
     }
 
+    removeStatements(node, silent){
+        const index = this.getIndexOfStatements(node);
+        this.removeStatementsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeStatementsByIndex(index, silent){
+        this.statements.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceStatements(oldChild, newChild, silent){
+        const index = this.getIndexOfStatements(oldChild);
+        this.statements[index] = newChild;
+    }
+
+    getIndexOfStatements(child){
+        return _.findIndex(this.statements, ['id', child.id]);
+    }
+
+    filterStatements(predicateFunction){
+        return _.filter(this.statements, predicateFunction);
+    }
+
 
     setWS(newValue, silent, title) {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -95,6 +142,7 @@ class BlockNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -119,6 +167,7 @@ class BlockNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

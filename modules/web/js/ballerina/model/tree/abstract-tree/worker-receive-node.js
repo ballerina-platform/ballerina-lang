@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class WorkerReceiveNodeAbstract extends Node {
 
@@ -25,6 +26,7 @@ class WorkerReceiveNodeAbstract extends Node {
         let oldValue = this.expressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.expressions = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -66,11 +68,58 @@ class WorkerReceiveNodeAbstract extends Node {
         }
     }
 
+    removeExpressions(node, silent){
+        const index = this.getIndexOfExpressions(node);
+        this.removeExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeExpressionsByIndex(index, silent){
+        this.expressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceExpressions(oldChild, newChild, silent){
+        const index = this.getIndexOfExpressions(oldChild);
+        this.expressions[index] = newChild;
+    }
+
+    getIndexOfExpressions(child){
+        return _.findIndex(this.expressions, ['id', child.id]);
+    }
+
+    filterExpressions(predicateFunction){
+        return _.filter(this.expressions, predicateFunction);
+    }
+
 
     setWorkerName(newValue, silent, title) {
         let oldValue = this.workerName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.workerName = newValue;
+
+        this.workerName.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -95,6 +144,7 @@ class WorkerReceiveNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -119,6 +169,7 @@ class WorkerReceiveNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -143,6 +194,7 @@ class WorkerReceiveNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
