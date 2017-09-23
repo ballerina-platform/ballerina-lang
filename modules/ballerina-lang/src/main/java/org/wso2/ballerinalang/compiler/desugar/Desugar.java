@@ -17,6 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -30,17 +35,27 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -70,6 +85,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -80,6 +97,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
+
+    private SymbolTable symTable;
 
     private BLangNode result;
 
@@ -95,6 +114,7 @@ public class Desugar extends BLangNodeVisitor {
     private Desugar(CompilerContext context) {
         context.put(DESUGAR_KEY, this);
 
+        this.symTable = SymbolTable.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -301,28 +321,96 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         recordLiteral.keyValuePairs.forEach(keyValue -> {
-            keyValue.keyExpr = rewrite(keyValue.keyExpr);
+            BLangExpression keyExpr = keyValue.key.expr;
+            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
+                keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
+            }
+
             keyValue.valueExpr = rewrite(keyValue.valueExpr);
         });
-        result = recordLiteral;
+
+        if (recordLiteral.type.tag == TypeTags.STRUCT) {
+            result = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+        } else if (recordLiteral.type.tag == TypeTags.MAP) {
+            result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+        } else {
+            result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+        }
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        result = varRefExpr;
+        BSymbol ownerSymbol = varRefExpr.symbol.owner;
+        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            // Local variable in a function/resource/action/worker
+            result = new BLangLocalVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ||
+                (ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            // Field variable in a struct or a connector
+            result = new BLangFieldVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
+                (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
+            // Package variable | service variable
+            // We consider both of them as package level variables
+            result = new BLangFieldVarRef(varRefExpr.symbol);
+        }
+
+        result.type = varRefExpr.type;
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangVariableReference targetVarRef;
         fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
-        result = fieldAccessExpr;
+        BType varRefType = fieldAccessExpr.expr.type;
+        if (varRefType.tag == TypeTags.STRUCT) {
+            targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
+                    fieldAccessExpr.expr, fieldAccessExpr.symbol);
+        } else if (varRefType.tag == TypeTags.MAP) {
+            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+        } else if (varRefType.tag == TypeTags.JSON) {
+            //TODO
+            targetVarRef = fieldAccessExpr;
+        } else {
+            // This branch should never get executed.
+            // Should we throw a RuntimeException here?
+            targetVarRef = fieldAccessExpr;
+        }
+
+        targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
+        targetVarRef.type = fieldAccessExpr.type;
+        result = targetVarRef;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        BLangVariableReference targetVarRef;
         indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
         indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
-        result = indexAccessExpr;
+        BType varRefType = indexAccessExpr.expr.type;
+        if (varRefType.tag == TypeTags.STRUCT) {
+            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.symbol);
+        } else if (varRefType.tag == TypeTags.MAP) {
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
+        } else if (varRefType.tag == TypeTags.JSON) {
+            // TODO
+            targetVarRef = indexAccessExpr;
+        } else if (varRefType.tag == TypeTags.ARRAY) {
+            targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
+        } else {
+            // This branch should never get executed.
+            // Should we throw a RuntimeException here?
+            targetVarRef = indexAccessExpr;
+        }
+
+        targetVarRef.lhsVar = indexAccessExpr.lhsVar;
+        targetVarRef.type = indexAccessExpr.type;
+        result = targetVarRef;
     }
 
     @Override
@@ -438,5 +526,13 @@ public class Desugar extends BLangNodeVisitor {
             nodeList.set(i, rewrite(nodeList.get(i)));
         }
         return nodeList;
+    }
+
+    private BLangLiteral createStringLiteral(DiagnosticPos pos, String value) {
+        BLangLiteral stringLit = new BLangLiteral();
+        stringLit.pos = pos;
+        stringLit.value = value;
+        stringLit.type = symTable.stringType;
+        return stringLit;
     }
 }

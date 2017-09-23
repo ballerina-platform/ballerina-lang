@@ -212,7 +212,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVariable = true;
+            ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
@@ -331,17 +331,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.exprs.forEach(e -> this.analyzeNode(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
-        String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        if (!workerSendNode.isForkJoinSend) {
+            String workerName = workerSendNode.workerIdentifier.getValue();
+            if (!this.workerExists(this.env, workerName)) {
+                this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            }
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        workerReceiveNode.exprs.forEach(e -> this.analyzeNode(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
@@ -448,7 +452,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVariable = true;
+            ((BLangVariableReference) varRef).lhsVar = true;
             // Check variable symbol if exists.
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
             Name varName = names.fromIdNode(simpleVarRef.variableName);

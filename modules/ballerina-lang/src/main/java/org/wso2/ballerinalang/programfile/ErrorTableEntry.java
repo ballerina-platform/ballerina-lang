@@ -77,7 +77,7 @@ public class ErrorTableEntry {
         }
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
                 packageInfo.getCPEntry(errorStructCPIndex);
-        this.error = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
+//        this.error = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
     }
 
     public StructInfo getError() {
@@ -93,12 +93,6 @@ public class ErrorTableEntry {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return "\t\t" + ipFrom + "\t\t" + ipTo + "\t" + ipTarget + "\t\t" + (error != null ? error.getName() : "any");
-
     }
 
     private static class MatchedEntry {

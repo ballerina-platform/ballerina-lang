@@ -31,12 +31,11 @@ import java.util.Objects;
 public class ConnectorInfo extends StructureTypeInfo {
 
     // Connector constructor signature
-    private int signatureCPIndex;
-    private String signature;
+    public int signatureCPIndex;
 
-    private BConnectorType connectorType;
+    public BConnectorType connectorType;
 
-    private Map<String, ActionInfo> actionInfoMap = new HashMap<>();
+    public Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
     private boolean isFilterConnector = false;
 
@@ -44,11 +43,9 @@ public class ConnectorInfo extends StructureTypeInfo {
     protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
     protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
 
-    public ConnectorInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name,
-                         int signatureCPIndex, String signature) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
+    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex, int signatureCPIndex) {
+        super(pkgPathCPIndex, nameCPIndex);
         this.signatureCPIndex = signatureCPIndex;
-        this.signature = signature;
     }
 
     public Map<Integer, Integer> getMethodTableIndex() {
@@ -87,42 +84,14 @@ public class ConnectorInfo extends StructureTypeInfo {
         isFilterConnector = filterConnector;
     }
 
-    public int getSignatureCPIndex() {
-        return signatureCPIndex;
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public BConnectorType getType() {
-        return connectorType;
-    }
-
-    public void setType(BConnectorType connectorType) {
-        this.connectorType = connectorType;
-    }
-
-    public void addActionInfo(String actionName, ActionInfo actionInfo) {
-        actionInfoMap.put(actionName, actionInfo);
-    }
-
-    public ActionInfo getActionInfo(String actionName) {
-        return actionInfoMap.get(actionName);
-    }
-
-    public ActionInfo[] getActionInfoEntries() {
-        return actionInfoMap.values().toArray(new ActionInfo[0]);
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(pkgPathCPIndex, nameCPIndex);
+        return Objects.hash(pkgNameCPIndex, nameCPIndex);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof ConnectorInfo && pkgPathCPIndex == (((ConnectorInfo) obj).pkgPathCPIndex)
+        return obj instanceof ConnectorInfo && pkgNameCPIndex == (((ConnectorInfo) obj).pkgNameCPIndex)
                 && nameCPIndex == (((ConnectorInfo) obj).nameCPIndex);
     }
 }

@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -491,7 +492,7 @@ public class BLangPackageBuilder {
     public void addKeyValueRecord() {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
-        keyValue.keyExpr = (BLangExpression) exprNodeStack.pop();
+        keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 
@@ -602,7 +603,7 @@ public class BLangPackageBuilder {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
-        typeConversionNode.typeName = (BLangType) typeNodeStack.pop();
+        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
 
@@ -1155,7 +1156,7 @@ public class BLangPackageBuilder {
 
     public void addWorkerSendStmt(DiagnosticPos pos, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
-        workerSendNode.workerIdentifier = createIdentifier(workerName);
+        workerSendNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
@@ -1164,7 +1165,7 @@ public class BLangPackageBuilder {
 
     public void addWorkerReceiveStmt(DiagnosticPos pos, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.workerIdentifier = createIdentifier(workerName);
+        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
         workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);

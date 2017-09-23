@@ -46,11 +46,11 @@ public enum DiagnosticCode {
 
     FUNCTION_MUST_RETURN("function.must.return"),
     UNREACHABLE_CODE("unreachable.code"),
-    DEAD_CODE("dead.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
+    INCOMPATIBLE_TYPES_CONVERSION("incompatible.types.conversion"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 

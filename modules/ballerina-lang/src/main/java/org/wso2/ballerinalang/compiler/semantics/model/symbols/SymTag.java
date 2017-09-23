@@ -24,20 +24,20 @@ public class SymTag {
 
     public static final int NIL = 0;
     public static final int PACKAGE = 1;
-    public static final int TYPE = 2;
-    public static final int STRUCT = 6;
-    public static final int CONNECTOR = 10;
-    public static final int SERVICE = 16;
-    public static final int VARIABLE = 32;
-    public static final int VALUE = 64;
-    public static final int INVOKABLE = 128;
-    public static final int FUNCTION = 384;
-    public static final int ACTION = 630;
-    public static final int RESOURCE = 1152;
-    public static final int ANNOTATION = 2048;
-    public static final int ANNOTATION_ATTRIBUTE = 4096;
-    public static final int ERROR = 8192;
-    public static final int ENUM = 16384;
-    public static final int WORKER = 32768;
-    
+    public static final int TYPE = 1 << 1;
+    public static final int STRUCT = 1 << 2 | TYPE;
+    public static final int CONNECTOR = 1 << 3 | TYPE;
+    public static final int SERVICE = 1 << 4 | TYPE;
+    public static final int ENUM = 1 << 5 | TYPE;
+    public static final int VARIABLE = 1 << 6;
+    public static final int VALUE = 1 << 7;
+    public static final int INVOKABLE = 1 << 8;
+    public static final int FUNCTION = 1 << 9 | INVOKABLE;
+    public static final int ACTION = 1 << 10 | INVOKABLE;
+    public static final int RESOURCE = 1 << 11 | INVOKABLE;
+    public static final int WORKER = 1 << 12 | INVOKABLE;
+    public static final int ANNOTATION = 1 << 13;
+    public static final int ANNOTATION_ATTRIBUTE = 1 << 14;
+    public static final int ERROR = 1 << 15;
+
 }

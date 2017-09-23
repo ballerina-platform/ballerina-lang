@@ -15,24 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.programfile.cpentries;
 
-import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import java.util.Map;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
- * {@code WorkerInfoPool} represents a table of worker data channels which workers use to pass data around.
- *
- * @since 0.90
+ * @since 0.94
  */
-public interface WorkerInfoPool {
+public class BConversionOperatorSymbol extends BOperatorSymbol {
 
-    void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo);
+  public boolean safe;
 
-    WorkerDataChannelInfo getWorkerDataChannelInfo(String name);
-
-    WorkerDataChannelInfo[] getWorkerDataChannelInfo();
-    
-    Map<String, WorkerDataChannelInfo> getWorkerDataChannelMap();
+  public BConversionOperatorSymbol(BType type,
+                             BSymbol owner,
+                             boolean safe,
+                             int opcode) {
+    super(Names.CONVERSION_OP, type, owner, opcode);
+    this.safe = safe;
+  }
 }
