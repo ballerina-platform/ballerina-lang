@@ -168,7 +168,7 @@ class ResourceDefinition extends React.Component {
                         y2={bBox.y + bBox.h + 25}
                         strokeDasharray="5, 5"
                         strokeWidth="3"
-                        className="add-resources-protocol-line"
+                        className="protocol-line"
                     />
                     <AddResourceDefinition
                         model={this.props.model}

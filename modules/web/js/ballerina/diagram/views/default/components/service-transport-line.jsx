@@ -51,7 +51,7 @@ class ServiceTransportLine extends React.Component {
                         y2={yPosition}
                         strokeDasharray="5, 5"
                         strokeWidth="3"
-                        className="add-resources-protocol-line"
+                        className="protocol-line"
                     />
                 </g> }
                 {this.props.resources.length && <line
