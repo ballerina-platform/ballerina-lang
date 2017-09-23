@@ -15,23 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.List;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.RetryNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * transform {
- *
- * }
  * @since 0.94
  */
-public interface TransformNode extends StatementNode {
-    BlockNode getBody();
-    void setBody(BlockNode body);
-    List<? extends ExpressionNode> getInputExpressions();
-    List<? extends ExpressionNode> getOutputExpressions();
-    void addInputExpression(ExpressionNode expressionNode);
-    void addOutputExpression(ExpressionNode expressionNode);
+public class BLangRetry extends BLangStatement implements RetryNode {
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.RETRY;
+    }
+
+    @Override
+    public String toString() {
+        return "Retry";
+    }
 }

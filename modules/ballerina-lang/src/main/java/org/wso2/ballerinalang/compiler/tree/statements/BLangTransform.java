@@ -18,22 +18,56 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.TransformNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BLangTransform extends BLangStatement implements TransformNode {
     public BLangBlockStmt body;
+    public List<BLangExpression> inputExprs;
+    public List<BLangExpression> outputExprs;
 
-    public BLangTransform(BLangBlockStmt body) {
-        this.body = body;
+    public BLangTransform() {
+        this.inputExprs = new ArrayList<>();
+        this.outputExprs = new ArrayList<>();
     }
 
     @Override
     public BLangBlockStmt getBody() {
         return body;
+    }
+
+    @Override
+    public void setBody(BlockNode body) {
+        this.body = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public List<BLangExpression> getInputExpressions() {
+        return inputExprs;
+    }
+
+    @Override
+    public void addInputExpression(ExpressionNode expressionNode) {
+        this.inputExprs.add((BLangExpression) expressionNode);
+    }
+
+    @Override
+    public List<BLangExpression> getOutputExpressions() {
+        return outputExprs;
+    }
+
+    @Override
+    public void addOutputExpression(ExpressionNode expressionNode) {
+        this.outputExprs.add((BLangExpression) expressionNode);
     }
 
     @Override

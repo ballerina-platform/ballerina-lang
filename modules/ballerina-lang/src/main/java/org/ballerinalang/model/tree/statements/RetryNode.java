@@ -17,21 +17,8 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.List;
-
 /**
- * transform {
- *
- * }
  * @since 0.94
  */
-public interface TransformNode extends StatementNode {
-    BlockNode getBody();
-    void setBody(BlockNode body);
-    List<? extends ExpressionNode> getInputExpressions();
-    List<? extends ExpressionNode> getOutputExpressions();
-    void addInputExpression(ExpressionNode expressionNode);
-    void addOutputExpression(ExpressionNode expressionNode);
+public interface RetryNode extends StatementNode {
 }
