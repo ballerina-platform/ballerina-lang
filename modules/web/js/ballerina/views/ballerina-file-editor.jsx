@@ -416,12 +416,12 @@ class BallerinaFileEditor extends React.Component {
                             newState.parseFailed = false;
                             newState.isASTInvalid = false;
                             newState.model = ast;
-
+                            resolve(newState);// TODOX need to remove this.
                             // TODOX const pkgName = ast.getPackageDefinition().getPackageName();
                             // update package name of the file
                             // TODOX file.packageName = pkgName || '.';
                             // init bal env in background
-                            BallerinaEnvironment.initialize()
+                            /*BallerinaEnvironment.initialize()
                                 .then(() => {
                                     this.environment.init();
 
@@ -446,7 +446,7 @@ class BallerinaFileEditor extends React.Component {
                                         })
                                         .catch(error => log.error(error));
                                 })
-                                .catch(reject);
+                                .catch(reject);*/
                         })
                         .catch(reject);
                 })

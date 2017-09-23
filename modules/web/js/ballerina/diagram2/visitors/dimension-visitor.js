@@ -56,7 +56,7 @@ class DimensionVisitor {
     }
 
     beginVisit(node) {
-        if (getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
+        if (_.isFunction(node.getKind) && getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
             const nodeVisitor = new (getDimentionVisitor(`${node.getKind()}DimensionVisitor`,
                 this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.beginVisit(node);
@@ -65,7 +65,7 @@ class DimensionVisitor {
     }
 
     endVisit(node) {
-        if (getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
+        if (_.isFunction(node.getKind) && getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
             const nodeVisitor = new (getDimentionVisitor(`${node.getKind()}DimensionVisitor`,
                 this.mode))({ designer: this.getDesigner() });
             return nodeVisitor.endVisit(node);

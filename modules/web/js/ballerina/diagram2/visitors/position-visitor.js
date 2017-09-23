@@ -22,7 +22,7 @@ import { getPositionVisitor, getDesigner } from '../diagram-util.js';
 class PositionVisitor {
 
     beginVisit(node) {
-        if (getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
+        if (_.isFunction(node.getKind) && getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
             const nodeVisitor = new (getPositionVisitor(`${node.getKind()}PositionVisitor`))();
             return nodeVisitor.beginVisit(node);
         }
@@ -30,7 +30,7 @@ class PositionVisitor {
     }
 
     endVisit(node) {
-        if (getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
+        if (_.isFunction(node.getKind) && getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
             const nodeVisitor = new (getPositionVisitor(`${node.getKind()}PositionVisitor`))();
             return nodeVisitor.endVisit(node);
         }
