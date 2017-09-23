@@ -35,9 +35,7 @@ public class IfStmtSemanticTest {
     @Test
     public void ifStmtTest() {
         Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertEquals(result.getWarnCount(), 1);
         BTestUtils.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 6);
-        BTestUtils.validateError(result, 1, "dead code", 7, 4);
     }
     
     @Test
