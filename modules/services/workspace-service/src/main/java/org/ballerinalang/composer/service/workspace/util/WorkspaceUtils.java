@@ -24,30 +24,30 @@ import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackag
 import org.ballerinalang.composer.service.workspace.langserver.model.Parameter;
 import org.ballerinalang.composer.service.workspace.langserver.model.Struct;
 import org.ballerinalang.composer.service.workspace.langserver.model.StructField;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BallerinaAction;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeScope;
-import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.statements.VariableDefStmt;
-import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativeConstructLoader;
+import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.NativeException;
-import org.ballerinalang.util.program.BLangPackages;
-import org.ballerinalang.util.program.BLangPrograms;
-import org.ballerinalang.util.repository.ProgramDirRepository;
+import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,7 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.stream.Stream;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for workspace service
@@ -67,18 +68,51 @@ public class WorkspaceUtils {
      * @return {@link Map} Package name, package functions and connectors
      */
     public static Map<String, ModelPackage> getAllPackages() {
-        // Getting full list of builtin package names
-        String[] packagesArray = BLangPackages.getBuiltinPackageNames();
+        final Map<String, ModelPackage> modelPackage = new HashMap<>();
 
-        // Load all natives to globalscope
-        GlobalScope globalScope = GlobalScope.getInstance();
-        NativeScope nativeScope = NativeScope.getInstance();
-        loadConstructs(globalScope, nativeScope);
+        CompilerContext context = new CompilerContext();
 
-        // create program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope);
-        return getResolvedPackagesMap(bLangProgram, packagesArray);
+        List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
+        names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+        // Registering custom PackageRepository to provide ballerina content without a file in file-system
+        context.put(PackageRepository.class, new InMemoryPackageRepository(
+                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
+                "", "", "".getBytes(StandardCharsets.UTF_8)));
+
+        PackageLoader packageLoader = PackageLoader.getInstance(context);
+        Set<PackageID> packages = packageLoader.listPackages();
+        packages.stream().forEach(pkg -> {
+            Name version = pkg.getPackageVersion();
+            BLangIdentifier bLangIdentifier = new BLangIdentifier();
+            bLangIdentifier.setValue(version.getValue());
+
+            List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
+                    .collect(Collectors.<BLangIdentifier>toList());
+
+            //TODO Remove this if check once other packages are available to load.
+            if ("[ballerina, utils, logger]".equals(pkgNameComps.toString())
+                    || "[ballerina, utils]".equals(pkgNameComps.toString())) {
+                org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
+                        .loadPackage(pkgNameComps, bLangIdentifier);
+                loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
+            }
+        });
+        return modelPackage;
     }
+
+    /**
+     * Function to convert org.wso2.ballerinalang.compiler.util.Name instance to
+     * org.wso2.ballerinalang.compiler.tree.BLangIdentifier instance.
+     */
+    static java.util.function.Function<Name, BLangIdentifier> nameToBLangIdentifier =
+            new java.util.function.Function<Name, BLangIdentifier>() {
+
+        public BLangIdentifier apply(Name name) {
+            BLangIdentifier bLangIdentifier = new BLangIdentifier();
+            bLangIdentifier.setValue(name.getValue());
+            return bLangIdentifier;
+        }
+    };
 
     /**
      * Get a resolved package map for a given package names array
@@ -86,49 +120,70 @@ public class WorkspaceUtils {
      * @param packagesArray packages array
      * @return packages map
      */
-    public static Map<String, ModelPackage> getResolvedPackagesMap(BLangProgram bLangProgram, String[] packagesArray) {
-        final Map<String, ModelPackage> packages = new HashMap<>();
-        ProgramDirRepository fileRepo = BLangPrograms.initProgramDirRepository(Paths.get("."));
-        // this is just a dummy FileSystemPackageRepository instance. Paths.get(".") has no meaning here
-        // turn off skipping native function parsing
-        System.setProperty("skipNatives", "false");
+//    public static Map<String, ModelPackage> getResolvedPackagesMap(BLangProgram bLangProgram, String[] packagesArray) {
+//        final Map<String, ModelPackage> packages = new HashMap<>();
+//        ProgramDirRepository fileRepo = BLangPrograms.initProgramDirRepository(Paths.get("."));
+//        // this is just a dummy FileSystemPackageRepository instance. Paths.get(".") has no meaning here
+//        // turn off skipping native function parsing
+//        System.setProperty("skipNatives", "false");
+//
+//        // process each package separately
+//        for (String builtInPkg : packagesArray) {
+//            Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
+//            org.wso2.ballerinalang.compiler.tree.BLangPackage pkg = null;
+//            BLangSymbol bLangSymbol = bLangProgram.resolve(new SymbolName(builtInPkg));
+//            if (bLangSymbol == null) {
+//                // load package
+//                pkg = BLangPackages.loadPackage(packagePath, fileRepo, bLangProgram);
+//                loadPackageMap(pkg, packages);
+//            } else {
+//                if (bLangSymbol instanceof BLangPackage) {
+//                    pkg = (BLangPackage) bLangSymbol;
+//                    loadPackageMap(pkg, packages);
+//                }
+//            }
+//        }
+//        return packages;
+//    }
 
-        // process each package separately
-        for (String builtInPkg : packagesArray) {
-            Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
-            BLangPackage pkg = null;
-            BLangSymbol bLangSymbol = bLangProgram.resolve(new SymbolName(builtInPkg));
-            if (bLangSymbol == null) {
-                // load package
-                pkg = BLangPackages.loadPackage(packagePath, fileRepo, bLangProgram);
-                loadPackageMap(pkg, packages);
-            } else {
-                if (bLangSymbol instanceof BLangPackage) {
-                    pkg = (BLangPackage) bLangSymbol;
-                    loadPackageMap(pkg, packages);
-                }
-            }
-        }
-        return packages;
-    }
 
     /**
      * Add connectors, functions, annotations etc. to packages.
+     * @param packageName package name
      * @param pkg BLangPackage instance
      * @param packages packages map
      */
-    private static void loadPackageMap(final BLangPackage pkg, Map<String, ModelPackage> packages) {
+    private static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
+                                       Map<String, ModelPackage> packages) {
         if (pkg != null) {
-            Stream.of(pkg.getAnnotationDefs()).forEach((annotationDef) -> extractAnnotationDefs(packages,
-                    pkg.getPackagePath(), annotationDef));
-            Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, pkg.getPackagePath(),
-                    connector));
-            Stream.of(pkg.getFunctions()).forEach((function) -> extractFunction(packages, pkg.getPackagePath(),
-                    function));
-            Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
-                    structDef));
+           // Stream.of(pkg.getAnnotations()).forEach((annotationDef) -> extractAnnotationDefs(packages,
+           //         "", annotationDef));
+           // Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, "",
+           //         connector));
+            pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
+           // Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
+           //         structDef));
         }
     }
+
+//    /**
+//     * Add connectors, functions, annotations etc. to packages.
+//     * @param pkg BLangPackage instance
+//     * @param packages packages map
+//     */
+//    private static void loadPackageMap(final BLangPackage pkg, Map<String, ModelPackage> packages) {
+//        if (pkg != null) {
+//            Stream.of(pkg.getAnnotationDefs()).forEach((annotationDef) -> extractAnnotationDefs(packages,
+//                    pkg.getPackagePath(), annotationDef));
+//            Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, pkg.getPackagePath(),
+//                    connector));
+//            pkg.getFunctions()
+//            Stream.of(pkg.getFunctions()).forEach((function) -> extractFunction(packages, pkg.getPackagePath(),
+//                    function));
+//            Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
+//                    structDef));
+//        }
+//    }
 
     /**
      * Extract annotations from ballerina lang
@@ -155,73 +210,74 @@ public class WorkspaceUtils {
      * @param packages packages to send
      * @param connector connector
      * */
-    private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
-                                  org.ballerinalang.model.BallerinaConnectorDef connector) {
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, connector.getParameterDefs());
-
-            List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, connector.getAnnotations());
-
-            List<Action> actions = new ArrayList<>();
-            addActions(actions, connector.getActions());
-
-            modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
-                    annotations, actions, parameters, null));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-
-            List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, connector.getParameterDefs());
-
-            List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, connector.getAnnotations());
-
-            List<Action> actions = new ArrayList<>();
-            addActions(actions, connector.getActions());
-
-            modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
-                    annotations, actions, parameters, null));
-            packages.put(packagePath, modelPackage);
-        }
-    }
+//    private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
+//                                  org.ballerinalang.model.BallerinaConnectorDef connector) {
+//        if (packages.containsKey(packagePath)) {
+//            ModelPackage modelPackage = packages.get(packagePath);
+//            List<Parameter> parameters = new ArrayList<>();
+//            addParameters(parameters, connector.getParameterDefs());
+//
+//            List<AnnotationAttachment> annotations = new ArrayList<>();
+//            addAnnotations(annotations, connector.getAnnotations());
+//
+//            List<Action> actions = new ArrayList<>();
+//            addActions(actions, connector.getActions());
+//
+//            modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
+//                    annotations, actions, parameters, null));
+//        } else {
+//            ModelPackage modelPackage = new ModelPackage();
+//            modelPackage.setName(packagePath);
+//
+//            List<Parameter> parameters = new ArrayList<>();
+//            addParameters(parameters, connector.getParameterDefs());
+//
+//            List<AnnotationAttachment> annotations = new ArrayList<>();
+//            addAnnotations(annotations, connector.getAnnotations());
+//
+//            List<Action> actions = new ArrayList<>();
+//            addActions(actions, connector.getActions());
+//
+//            modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
+//                    annotations, actions, parameters, null));
+//            packages.put(packagePath, modelPackage);
+//        }
+//    }
 
     /**
      * Extract Functions from ballerina lang.
      * @param packages packages to send.
+     * @param packagePath package path
      * @param function function.
      * */
     private static void extractFunction(Map<String, ModelPackage> packages, String packagePath,
-                                 org.ballerinalang.model.Function function) {
+                                        BLangFunction function) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
             List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, function.getParameterDefs());
+            addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
             addParameters(returnParameters, function.getReturnParameters());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, function.getAnnotations());
+            addAnnotations(annotations, function.getAnnotationAttachments());
 
-            modelPackage.addFunctionsItem(createNewFunction(function.getName(),
+            modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
                     annotations, parameters, returnParameters));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
             List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, function.getParameterDefs());
+            addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
             addParameters(returnParameters, function.getReturnParameters());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, function.getAnnotations());
+            addAnnotations(annotations, function.getAnnotationAttachments());
 
-            modelPackage.addFunctionsItem(createNewFunction(function.getName(),
+            modelPackage.addFunctionsItem(createNewFunction(function.getName().getValue(),
                     annotations, parameters, returnParameters));
             packages.put(packagePath, modelPackage);
         }
@@ -251,22 +307,22 @@ public class WorkspaceUtils {
      * @param params params to send.
      * @param argumentTypeNames argument types
      * */
-    private static void addParameters(List<Parameter> params, ParameterDef[] argumentTypeNames) {
+    private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
-            Stream.of(argumentTypeNames)
-                    .forEach(item -> params.add(createNewParameter(item.getName(), item.getTypeName())));
+            argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
+                    item.getTypeNode().getKind())));
         }
     }
 
     /**
      * Add annotations to a list from ballerina lang annotation list
      * @param annotations annotations list to be sent
-     * @param annotationsFromModel annotations
+     * @param bLangAnnotationAttachment annotations
      * */
     private static void addAnnotations(List<AnnotationAttachment> annotations,
-                                org.ballerinalang.model.AnnotationAttachment[] annotationsFromModel) {
-        Stream.of(annotationsFromModel)
-                .forEach(annotation -> annotations.add(AnnotationAttachment.convertToPackageModel(annotation)));
+                                       List<BLangAnnotationAttachment> bLangAnnotationAttachment) {
+        bLangAnnotationAttachment.forEach(annotation -> annotations.add(AnnotationAttachment.
+                convertToPackageModel(annotation)));
     }
 
     /**
@@ -274,27 +330,27 @@ public class WorkspaceUtils {
      * @param actionsList action list to be sent
      * @param actions native actions retrieve from the connector
      * */
-    private static void addActions(List<Action> actionsList, BallerinaAction[] actions) {
-        Stream.of(actions)
-                .forEach(action -> actionsList.add(extractAction(action)));
-    }
+//    private static void addActions(List<Action> actionsList, BallerinaAction[] actions) {
+//        Stream.of(actions)
+//                .forEach(action -> actionsList.add(extractAction(action)));
+//    }
 
     /**
      * Extract action details from a connector.
      * @param action action.
      * @return {Action} action
      * */
-    private static Action extractAction(BallerinaAction action) {
-        List<Parameter> parameters = new ArrayList<>();
-        addParameters(parameters, action.getParameterDefs());
-    
-        List<AnnotationAttachment> annotations = new ArrayList<>();
-        addAnnotations(annotations, action.getAnnotations());
-    
-        List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
-        return createNewAction(action.getName(), parameters, returnParameters, annotations);
-    }
+//    private static Action extractAction(BallerinaAction action) {
+//        List<Parameter> parameters = new ArrayList<>();
+//        addParameters(parameters, action.getParameterDefs());
+//
+//        List<AnnotationAttachment> annotations = new ArrayList<>();
+//        addAnnotations(annotations, action.getAnnotations());
+//
+//        List<Parameter> returnParameters = new ArrayList<>();
+//        addParameters(returnParameters, action.getReturnParameters());
+//        return createNewAction(action.getName(), parameters, returnParameters, annotations);
+//    }
 
     /**
      * Create new action
@@ -316,13 +372,13 @@ public class WorkspaceUtils {
 
     /**
      * Create new parameter
-     * @param type parameter type
      * @param name parameter name
+     * @param nodeKind parameter node kind
      * @return {Parameter} parameter
      * */
-    private static Parameter createNewParameter(String name, SimpleTypeName type) {
+    private static Parameter createNewParameter(String name, NodeKind nodeKind) {
         Parameter parameter = new Parameter();
-        parameter.setType(type.getName());
+        parameter.setType(nodeKind.name());
         parameter.setName(name);
         return parameter;
     }
