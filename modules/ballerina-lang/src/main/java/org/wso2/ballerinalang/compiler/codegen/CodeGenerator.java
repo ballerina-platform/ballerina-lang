@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1649,7 +1650,36 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        /* ignore */
+        genNode(unaryExpr.expr, this.env);
+
+        int opcode;
+        int exprIndex;
+
+        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
+            if (unaryExpr.expr.type.tag == TypeTags.ANY) {
+                exprIndex = ++regIndexes.tRef;
+                opcode = unaryExpr.opSymbol.opcode;
+                emit(opcode, unaryExpr.expr.regIndex, exprIndex);
+            } else {
+                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, unaryExpr.expr.type.getDesc());
+                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+                int typeCPIndex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+
+                exprIndex = ++regIndexes.tRef;
+                opcode = unaryExpr.opSymbol.opcode;
+                emit(opcode, typeCPIndex, exprIndex);
+            }
+            unaryExpr.regIndex = exprIndex;
+        } else if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            unaryExpr.regIndex = unaryExpr.expr.regIndex;
+        } else {
+            opcode = unaryExpr.opSymbol.opcode;
+            exprIndex = getNextIndex(unaryExpr.type.tag, regIndexes);
+
+            unaryExpr.regIndex = exprIndex;
+            emit(opcode, unaryExpr.expr.regIndex, exprIndex);
+        }
+
     }
 
 
