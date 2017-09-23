@@ -15,14 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.test.expressions.invocations;
 
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,17 +33,27 @@ import org.testng.annotations.Test;
  */
 public class FuncInvocationExprTest {
 
-    private ProgramFile bLangProgram;
+    CompileResult funcInvocationExpResult;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/expressions/funcInvocation-expr.bal");
+        funcInvocationExpResult =
+                BTestUtils.compile("org/ballerinalang/test/expressions/invocations/function-Invocation-expr.bal");
+    }
+
+    @Test
+    public void invokeFunctionWithParams() {
+        BValue[] args = new BValue[]{new BInteger(1), new BInteger(2)};
+        BValue[] values = BTestUtils.invoke(funcInvocationExpResult.getProgFile(), "add", args);
+        Assert.assertEquals(values.length, 1);
+        Assert.assertTrue(values[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) values[0]).intValue(), 3);
     }
 
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFuncInvocation", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(), "testFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -57,7 +66,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
         BValue[] args = {new BInteger(7)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "sum", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(), "sum", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -71,7 +80,8 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "funcInvocationWithinFuncInvocation", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(),
+                "funcInvocationWithinFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

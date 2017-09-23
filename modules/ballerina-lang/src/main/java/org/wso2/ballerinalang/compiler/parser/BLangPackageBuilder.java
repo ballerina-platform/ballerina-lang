@@ -103,9 +103,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -1120,7 +1122,10 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addRetrytmt() {
+    public void addRetrytmt(DiagnosticPos pos) {
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        addStmtToCurrentBlock(retryNode);
         TransactionNode transactionNode = transactionNodeStack.peek();
         transactionNode.setRetryCount(exprNodeStack.pop());
     }
@@ -1319,6 +1324,19 @@ public class BLangPackageBuilder {
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         stringTemplateLiteral.pos = pos;
         addExpressionNode(stringTemplateLiteral);
+    }
+
+    public void startTransformStmt() {
+        startBlock();
+    }
+
+    public void createTransformStatement(DiagnosticPos pos) {
+        BLangTransform transformNode = (BLangTransform) TreeBuilder.createTransformNode();
+        transformNode.pos = pos;
+        BLangBlockStmt transformBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        transformBlock.pos = pos;
+        transformNode.setBody(transformBlock);
+        addStmtToCurrentBlock(transformNode);
     }
 
     private List<BLangExpression> getExpressionsInTemplate(DiagnosticPos pos, Stack<String> precedingTextFragments,

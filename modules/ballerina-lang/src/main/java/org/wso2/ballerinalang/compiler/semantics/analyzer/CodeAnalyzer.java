@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -72,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -89,6 +92,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This represents the code analyzing pass of semantic analysis. 
@@ -105,6 +115,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     
     private int loopCount;
+    private int transactionCount;
+    private int failedBlockCount;
     private boolean statementReturns;
     private DiagnosticLog dlog;
 
@@ -120,7 +132,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.dlog = DiagnosticLog.getInstance(context);
     }
-    
+
     private void resetFunction() {
         this.resetStatementReturns();
     }
@@ -182,7 +194,40 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorker worker) {
         worker.body.accept(this);
     }
-    
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        this.checkStatementExecutionValidity(transactionNode);
+        this.transactionCount++;
+        transactionNode.transactionBody.accept(this);
+        this.transactionCount--;
+        if (transactionNode.failedBody != null) {
+            this.failedBlockCount++;
+            transactionNode.failedBody.accept(this);
+            this.failedBlockCount--;
+        }
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
+        }
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+        if (this.transactionCount == 0) {
+            this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+        }
+    }
+
+    @Override
+    public void visit(BLangRetry abortNode) {
+        if (this.failedBlockCount == 0) {
+            this.dlog.error(abortNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+        }
+    }
+
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
@@ -217,7 +262,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
     }
-    
+
     @Override
     public void visit(BLangWhile whileNode) {
         this.checkStatementExecutionValidity(whileNode);
@@ -232,7 +277,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
         }
     }
-    
+
+    @Override
+    public void visit(BLangTransform transformNode) {
+        this.checkStatementExecutionValidity(transformNode);
+        Map<String, BLangExpression> inputs = new HashMap<>(); // right hand expressions by variable
+        Map<String, BLangExpression> outputs = new HashMap<>(); //left hand expressions by variable
+        validateTransformStatementBody(transformNode.pos, transformNode.body, inputs, outputs);
+        inputs.forEach((k, v) -> transformNode.addInputExpression(v));
+        outputs.forEach((k, v) -> transformNode.addOutputExpression(v));
+    }
+
     public void visit(BLangPackageDeclaration pkgDclNode) {
         /* ignore */
     }
@@ -305,10 +360,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(assignNode);
     }
 
-    public void visit(BLangAbort abortNode) {
-        /* ignore */
-    }
-
     public void visit(BLangBreak breakNode) {
         /* ignore */
     }
@@ -331,14 +382,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangComment commentNode) {
         /* ignore */
-    }
-
-    public void visit(BLangTransaction transactionNode) {
-        this.checkStatementExecutionValidity(transactionNode);
-    }
-
-    public void visit(BLangTransform transformNode) {
-        this.checkStatementExecutionValidity(transformNode);
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
@@ -457,5 +500,95 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangUserDefinedType userDefinedType) {
         /* ignore */
     }
-    
+
+    /**
+     * Validates the statements in the transform statement body as explained below :
+     * - Left expression of Assignment Statement becomes output of transform statement
+     * - Right expressions of Assignment Statement becomes input of transform statement
+     * - Variables in each of left and right expressions of all statements are extracted as input and output
+     * - A variable that is used as an input cannot be used as an output in another statement
+     * - If inputs and outputs are used interchangeably, a semantic error is thrown.
+     *
+     * @param blockStmt transform statement block statement
+     * @param inputs    input variable reference expressions map
+     * @param outputs   output variable reference expressions map
+     */
+    private void validateTransformStatementBody(DiagnosticPos pos, BLangBlockStmt blockStmt,
+            Map<String, BLangExpression> inputs, Map<String, BLangExpression> outputs) {
+        for (BLangStatement statement : blockStmt.getStatements()) {
+            if (statement.getKind() == NodeKind.VARIABLE) {
+                BLangVariableDef variableDefStmt = (BLangVariableDef) statement;
+                BLangVariable variable = variableDefStmt.var;
+                String varName = variable.getName().getValue();
+                //variables defined in transform scope, cannot be used as output
+                if (outputs.get(varName) != null) {
+                    this.dlog.error(pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                    continue;
+                }
+                //if variable has not been used as an output before
+                inputs.putIfAbsent(varName, variable.expr);
+                continue;
+            }
+            if (statement.getKind() == NodeKind.ASSIGNMENT) {
+                BLangAssignment assignStmt = (BLangAssignment) statement;
+                for (BLangExpression lExpr : assignStmt.varRefs) {
+                    BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
+                    for (BLangExpression exp : varRefExpressions) {
+                        String varName = ((BLangSimpleVarRef) exp).variableName.getValue();
+                        if (!assignStmt.isDeclaredWithVar()) {
+                            // if lhs is declared with var, they not considered as output variables since they are
+                            // only available in transform statement scope
+                            if (inputs.get(varName) != null) {
+                                this.dlog.error(pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                                continue;
+                            }
+                            //if variable has not been used as an input before
+                            outputs.putIfAbsent(varName, exp);
+                        }
+                    }
+                }
+                BLangExpression rExpr = assignStmt.expr;
+                BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
+                for (BLangExpression exp : varRefExpressions) {
+                    String varName = ((BLangSimpleVarRef) exp).variableName.getValue();
+                    if (outputs.get(varName) != null) {
+                        this.dlog.error(pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                        continue;
+                    }
+                    //if variable has not been used as an output before
+                    inputs.putIfAbsent(varName, exp);
+                }
+            }
+        }
+    }
+
+    private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
+        if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            while (!(expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF)) {
+                if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                    expression = ((BLangFieldBasedAccess) expression).expr;
+                } else if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+                    expression = ((BLangIndexBasedAccess) expression).expr;
+                }
+            }
+            return new BLangExpression[] { expression };
+        } else if (expression.getKind() == NodeKind.INVOCATION) {
+            List<BLangExpression> argExprs = ((BLangInvocation) expression).argExprs;
+            List<BLangExpression> expList = new ArrayList<>();
+            for (BLangExpression arg : argExprs) {
+                BLangExpression[] varRefExps = getVariableReferencesFromExpression(arg);
+                expList.addAll(Arrays.asList(varRefExps));
+            }
+            return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
+        } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {
+            return getVariableReferencesFromExpression(((BLangTypeCastExpr) expression).expr);
+        } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return new BLangExpression[] { expression };
+        }
+        return new BLangExpression[] {};
+    }
+
+
 }
