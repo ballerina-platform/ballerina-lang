@@ -32,7 +32,7 @@ public class SymTag {
     public static final int VARIABLE = 1 << 6;
     public static final int VALUE = 1 << 7;
     public static final int INVOKABLE = 1 << 8;
-    public static final int FUNCTION = 1 << 9 | INVOKABLE;
+    public static final int FUNCTION = 1 << 9 | INVOKABLE | VARIABLE;
     public static final int ACTION = 1 << 10 | INVOKABLE;
     public static final int RESOURCE = 1 << 11 | INVOKABLE;
     public static final int WORKER = 1 << 12 | INVOKABLE;

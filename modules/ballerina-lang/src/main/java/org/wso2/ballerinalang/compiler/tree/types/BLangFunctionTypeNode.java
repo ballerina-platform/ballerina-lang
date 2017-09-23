@@ -39,13 +39,13 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     public boolean returnsKeywordExists = false;
 
     @Override
-    public TypeNode[] getParamTypeNode() {
-        return this.paramTypeNodes.toArray(new TypeNode[0]);
+    public List<TypeNode> getParamTypeNode() {
+        return this.paramTypeNodes;
     }
 
     @Override
-    public TypeNode[] getReturnParamTypeNode() {
-        return this.returnParamTypeNodes.toArray(new TypeNode[0]);
+    public List<TypeNode> getReturnParamTypeNode() {
+        return this.returnParamTypeNodes;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-
+        visitor.visit(this);
     }
 
     @Override

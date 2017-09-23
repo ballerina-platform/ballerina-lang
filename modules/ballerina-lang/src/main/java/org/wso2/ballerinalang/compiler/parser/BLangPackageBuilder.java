@@ -621,6 +621,7 @@ public class BLangPackageBuilder {
         ternaryExpr.elseExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.thenExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(ternaryExpr);
     }
 
 
