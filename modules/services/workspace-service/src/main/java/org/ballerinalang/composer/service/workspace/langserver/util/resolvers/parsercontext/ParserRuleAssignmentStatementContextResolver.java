@@ -16,41 +16,32 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
+package org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Parameter context resolver for resolving the items of the parameter context
+ * assignment statement context resolver for the completion items
  */
-public class ParameterContextResolver extends AbstractItemResolver {
+public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver{
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
+
+        // TODO: left hand side of the assignment statement should analyze when suggesting the completions
+        // TODO: at the moment we are using the same completion resolving criteria as the variable definition
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> filteredSymbols = symbols.stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
-                .collect(Collectors.toList());
 
-        filteredSymbols.forEach(symbolInfo -> {
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(symbolInfo.getSymbolName());
-            completionItem.setInsertText(symbolInfo.getSymbolName());
-            completionItem.setDetail(ItemResolverConstants.B_TYPE);
-            completionItem.setKind(ItemResolverConstants.PARAMETER_KIND);
-            completionItems.add(completionItem);
-        });
-
-        this.populateBasicTypes(completionItems, dataModel.getSymbolTable());
+        completionItems.addAll(resolvers.get(BallerinaParser.VariableDefinitionStatementContext.class)
+                .resolveItems(dataModel, symbols, resolvers));
 
         return completionItems;
     }

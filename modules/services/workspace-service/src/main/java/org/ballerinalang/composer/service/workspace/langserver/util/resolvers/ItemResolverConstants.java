@@ -55,9 +55,6 @@ public class ItemResolverConstants {
     public static final String WORKER_REPLY = "<-";
     public static final String ATTACH = "attach";
     public static final String RETRY = "retry";
-    private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
-            TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
-            BREAK, THROW, RETRY};
 
     public static final String FUNCTION = "function";
     public static final String SERVICE = "service";
@@ -99,12 +96,6 @@ public class ItemResolverConstants {
     public static final String RETRY_TEMPLATE = "retry ${1};";
 
     // End of Basic Constructs
-
-    public static ArrayList<String> getBasicConstructs () {
-        ArrayList<String> constructs = new ArrayList<>();
-        constructs.addAll(Arrays.asList(constructsArr));
-        return constructs;
-    }
 
     // Package Name Context Constants
     public static final String PACKAGE = "package";

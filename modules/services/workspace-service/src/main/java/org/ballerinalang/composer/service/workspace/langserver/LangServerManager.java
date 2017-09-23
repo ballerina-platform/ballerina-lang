@@ -46,24 +46,20 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentP
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
 import java.io.IOException;
@@ -533,27 +529,36 @@ public class LangServerManager {
 
             Position position = posParams.getPosition();
             String textContent = posParams.getText();
-
-            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
-            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
+            String fileName = posParams.getFileName();
+            String filePath = posParams.getFilePath();
+            String pkgName = posParams.getPackageName();
 
             CompilerContext compilerContext = new CompilerContext();
-            compilerContext.put(DefaultErrorStrategy.class, errStrategy);
+
+            HashMap<String, byte[]> contentMap = new HashMap<>();
+            contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
 
             options = CompilerOptions.getInstance(compilerContext);
             options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
             options.put(COMPILER_PHASE, "typeCheck");
 
+                LangServerPackageRepository pkgRepo =
+                    new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
+            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
+
+            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
+            compilerContext.put(PackageRepository.class, pkgRepo);
+            compilerContext.put(DefaultErrorStrategy.class, errStrategy);
+
             Compiler compiler = Compiler.getInstance(compilerContext);
             // here we need to compile the whole package
             BLangPackage bLangPackage = compiler.compile("test.bal");
-            String fileName = "test.bal";
-
-            this.parseContent(bLangPackage, fileName, textContent);
 
             // Visit the package to resolve the symbols
             TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
             bLangPackage.accept(treeVisitor);
+            // Set the symbol table
+            filterDataModel.setSymbolTable(treeVisitor.getSymTable());
 
             // Filter the suggestions
             SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
@@ -568,43 +573,6 @@ public class LangServerManager {
         } else {
             logger.warn("Invalid Message type found");
         }
-    }
-
-    /**
-     * Parse the file content and replace the compilation unit
-     * @param bLangPackage - BLangPackage consisting the content
-     * @param fileName - file name to be parsed
-     * @param content - file content
-     */
-    private void parseContent(BLangPackage bLangPackage, String fileName, String content) {
-        List<Name> names = new ArrayList<>();
-        byte[] code = content.getBytes(StandardCharsets.UTF_8);
-        names.add(new Name("."));
-        String tempFileName = "temp.bal";
-        PackageID tempPkgID = new PackageID(names, new Name("0.0.0"));
-
-        CompilerContext context = new CompilerContext();
-        InMemoryPackageRepository pkgRepo = new InMemoryPackageRepository(tempPkgID, "tempBPath", tempFileName, code);
-        context.put(PackageRepository.class, pkgRepo);
-        Compiler compiler = Compiler.getInstance(context);
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, "tempSourceRoot");
-
-        BLangPackage inMemoryPkg = compiler.getModel(tempFileName);
-        BLangCompilationUnit tempCompilationUnit = inMemoryPkg.getCompilationUnits().stream()
-                .filter(compUnit -> tempFileName.equals(compUnit.getName()))
-                .findFirst()
-                .get();
-
-        BLangCompilationUnit originalCompilationUnit = bLangPackage.getCompilationUnits().stream()
-                .filter(compUnit -> fileName.equals(compUnit.getName()))
-                .findFirst()
-                .get();
-
-        int originalIndex = bLangPackage.getCompilationUnits().indexOf(originalCompilationUnit);
-        tempCompilationUnit.setName(fileName);
-
-        bLangPackage.getCompilationUnits().set(originalIndex, tempCompilationUnit);
     }
 
     /**

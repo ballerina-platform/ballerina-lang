@@ -25,6 +25,7 @@ import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.SymbolScope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class SuggestionsFilterDataModel {
     private BallerinaFile ballerinaFile;
     private BLangNode symbolEnvNode;
     private Set<Map.Entry<String, ModelPackage>> packages;
+    private SymbolTable symbolTable;
 
     /**
      * Constructor for SuggestionsFilterDataModel
@@ -140,5 +142,13 @@ public class SuggestionsFilterDataModel {
 
     public void setSymbolEnvNode(BLangNode symbolEnvNode) {
         this.symbolEnvNode = symbolEnvNode;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public void setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
     }
 }
