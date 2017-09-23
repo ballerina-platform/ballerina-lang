@@ -1,0 +1,48 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+export const COMMANDS = {
+    RUN: 'run',
+    RUN_WITH_DEBUG: 'debug',
+    TOGGLE_DEBUGGER: 'toggle-debugger',
+    TOGGLE_LAUNCHER: 'toggle-launcher',
+    STEP_OVER: 'step-over',
+    RESUME: 'resume',
+    STEP_IN: 'step-in',
+    STEP_OUT: 'step-out',
+    STOP: 'stop',
+};
+
+export const VIEWS = {
+    DEBUGGER_PANEL: 'composer.view.debugger.left-panel',
+    DEBUGGER_CONSOLE: 'composer.view.debugger.console',
+};
+
+export const MENUS = {
+    DEBUG_MENU: 'composer.menu.debugger.debug',
+    DEBUG_START_MENU: 'composer.menu.debugger.debug.start',
+    DEBUG_STOP_MENU: 'composer.menu.debugger.debug.stop',
+};
+
+export const LABELS = {
+    DEBUG: 'Debug',
+    DEBUG_START: 'Start Debugging',
+    DEBUG_STOP: 'Stop Debugging',
+};
+
+export const PLUGIN_ID = 'composer.plugin.debugger';

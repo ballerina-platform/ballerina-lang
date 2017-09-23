@@ -1,0 +1,56 @@
+.activity-bar-nav-common {
+    color: $left-toolbar-link-color;
+    border-radius: 0;
+    background-color: transparent;
+    border: none;
+    margin-right: 0;
+    padding-left: 15px;
+    & > i {
+        opacity: 0.4;
+    }
+    outline-color: transparent;
+}
+.activity-bar {
+    height: calc(100% - 27px);
+    padding: 0;
+    width: $activity-bar-width;
+    position: fixed;
+    font-size: 12px;
+    text-align: center;
+    z-index: 2;
+    background: $left-toolbar-bgcolor;
+    
+    & .nav-tabs {
+        border-bottom: none;
+        & > li  {
+            margin-bottom: 0;
+            width: $activity-bar-width;
+            & > a {
+                @extend .activity-bar-nav-common;
+                &:focus{
+                    background-color: transparent;
+                }
+            }
+            & > a:hover {
+                @extend .activity-bar-nav-common;
+                & > i {
+                    opacity: 0.8;
+                }
+            }
+            &.active > a {
+                @extend .activity-bar-nav-common;
+                cursor: pointer;
+                border-left: 3px solid #f17b31 !important;
+                padding-left: 12px;
+                background-color: #333;
+                &:focus, &:hover{
+                    border: none;
+                    background-color: #333;
+                }
+                & > i {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}

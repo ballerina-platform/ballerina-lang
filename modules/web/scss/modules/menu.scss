@@ -1,0 +1,64 @@
+.menu-item-common {
+    @extend .unseletable-content;
+    color: #c7c7c7;
+    cursor: default;
+}
+
+.sub-menu-item-common {
+    .rc-menu-submenu-title {
+        @extend .menu-item-common;
+        padding: 7px 7px 7px 7px;
+    }
+    border-bottom: none;
+    &.rc-menu-submenu-active {
+        border-bottom: none;
+        > .rc-menu-submenu-title {
+            @extend .menu-active-common;
+            line-height: 21px;
+        }
+    }
+}
+
+.menu-active-common {
+    background-color: #d4d4d4;
+    color: #565656;
+}
+
+.application-menu {
+    .rc-menu {
+        margin-top: 0;
+        background-color: #565656;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        &.rc-menu-root {
+            background: none;
+        }
+        .rc-menu-submenu.root-item {
+            @extend .sub-menu-item-common;
+            &.rc-menu-submenu-active {
+                & > .rc-menu-submenu-title {
+                    background-color: #f17b31;
+                    color: white;
+                }
+            }
+        }
+        .rc-menu-item-divider {
+            background-color: #4c4c4c;
+        }
+        .rc-menu-submenu {
+            @extend .sub-menu-item-common;
+        }
+        .rc-menu-item {
+            padding: 7px 7px 7px 7px;
+            border-bottom: none;
+            @extend .menu-item-common;
+            &.rc-menu-item-disabled {
+                color: #999;
+            }
+            &.rc-menu-item-active {
+                @extend .menu-active-common;
+            }
+        }
+    }
+}

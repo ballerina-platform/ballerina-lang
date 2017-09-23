@@ -23,11 +23,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
+import org.ballerinalang.composer.service.workspace.fileserver.FileContentProvider;
 import org.ballerinalang.composer.service.workspace.langserver.LangServerManager;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
+import org.ballerinalang.composer.service.workspace.rest.TryItService;
 import org.ballerinalang.composer.service.workspace.rest.WorkspaceService;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
 import org.ballerinalang.composer.service.workspace.rest.exception.DefaultExceptionMapper;
@@ -173,6 +175,14 @@ public class WorkspaceServiceRunner {
             workspaceService.setRootPaths(rootDirs);
         }
 
+        String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
+                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB,
+                 Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB_PUBLIC)
+                .toString();
+
+        FileContentProvider fileContentProvider = new FileContentProvider();
+        fileContentProvider.setContextRoot(contextRoot);
+
         new MicroservicesRunner(apiPort)
                 .addExceptionMapper(new SemanticExceptionMapper())
                 .addExceptionMapper(new ParseCancellationExceptionMapper())
@@ -182,13 +192,10 @@ public class WorkspaceServiceRunner {
                 .deploy(new BLangFileRestService())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
                 .deploy(new TypeLatticeService())
+                .deploy(new TryItService())
+                .deploy(fileContentProvider)
                 .start();
 
-
-
-        String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB)
-                .toString();
         FileServer fileServer = new FileServer();
 
         ConfigServiceImpl configService = new ConfigServiceImpl();

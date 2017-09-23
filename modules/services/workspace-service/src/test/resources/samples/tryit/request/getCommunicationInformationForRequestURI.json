@@ -1,0 +1,8 @@
+{
+  "httpMethod": "OPTIONS",
+  "appendUrl": "/stockquote/all",
+  "contentType": "",
+  "requestUrl": "http://localhost:9090",
+  "requestBody": "",
+  "requestHeaders": []
+}

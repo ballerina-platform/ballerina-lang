@@ -128,6 +128,30 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Replace the child at the given index
+     * @param {any} child child
+     * @param {any} index index
+     * @param {any} ignoreTreeModifiedEvent ignore tree modified event
+     * @memberof ASTNode
+     */
+    replaceChildByIndex(child, index, ignoreTreeModifiedEvent) {
+        this.removeChildByIndex(index, ignoreTreeModifiedEvent);
+        this.addChild(child, index, ignoreTreeModifiedEvent);
+    }
+
+    /**
+     * Replace child with new child
+     * @param {any} child child
+     * @param {any} newChild new child
+     * @param {any} ignoreTreeModifiedEvent ignore tree modified
+     * @memberof ASTNode
+     */
+    replaceChild(child, newChild, ignoreTreeModifiedEvent) {
+        const index = this.getIndexOfChild(child);
+        this.replaceChildByIndex(newChild, index, ignoreTreeModifiedEvent);
+    }
+
+    /**
      * Insert a given child to the children array for a given index or otherwise to the array normally
      * @param child
      * @param index
@@ -231,6 +255,15 @@ class ASTNode extends EventChannel {
     removeChildById(id, ignoreTreeModifiedEvent) {
         const child = this.getChildById(id);
         this.removeChild(child, ignoreTreeModifiedEvent);
+    }
+
+    /**
+     * remove the child from the AST tree by ID
+     * @param index
+     * @param ignoreTreeModifiedEvent {boolean}
+     */
+    removeChildByIndex(index, ignoreTreeModifiedEvent) {
+        this.removeChild(this.children[index], ignoreTreeModifiedEvent);
     }
 
     /**

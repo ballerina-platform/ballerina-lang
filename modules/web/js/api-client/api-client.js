@@ -15,12 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import axios from 'axios';
 import $ from 'jquery';
 import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
 
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
+let pathSeparator = '/'; // Setting default value as '/'. This value will get overriden at fetchConfigs().
 
 /**
  * Gives the endpoint for a paticular backend service
@@ -49,6 +51,7 @@ export function fetchConfigs() {
         axios(configUrl)
             .then((response) => {
                 endpoints = response.data.services;
+                pathSeparator = response.data.pathSeparator;
                 resolve(response.data);
             }).catch(error => reject(error));
     });
@@ -61,10 +64,10 @@ export function fetchConfigs() {
  */
 export function validateFile(file) {
     const payload = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
+        fileName: file.name,
+        filePath: file.path,
+        packageName: file.packageName,
+        content: file.content,
     };
     const endpoint = getServiceEndpoint('validator');
     const headers = {
@@ -86,10 +89,10 @@ export function validateFile(file) {
  */
 export function parseFile(file) {
     const payload = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
+        fileName: file.name,
+        filePath: file.path,
+        packageName: file.packageName,
+        content: file.content,
     };
     const endpoint = getServiceEndpoint('parser');
     const headers = {
@@ -136,11 +139,11 @@ export function parseContent(content) {
  */
 export function getProgramPackages(file) {
     const fileOptions = {
-        fileName: file.getName(),
-        filePath: file.getPath(),
-        packageName: file.getPackageName(),
-        content: file.getContent(),
-        isDirty: file.isDirty(),
+        fileName: file.name,
+        filePath: file.path,
+        packageName: file.packageName,
+        content: file.content,
+        isDirty: file.isDirty,
     };
 
     return new Promise((resolve, reject) => {
@@ -191,6 +194,45 @@ export function getPackages() {
             }).catch(error => reject(error));
     });
 }
+
+/**
+ * Get FS Roots
+ */
+export function getFSRoots() {
+    const endpoint = `${getServiceEndpoint('workspace')}/root`;
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+/**
+ * Get File List
+ */
+export function listFiles(path, extensions) {
+    const endpoint = `${getServiceEndpoint('workspace')}/listFiles`;
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+    const params = {
+        path: btoa(path),
+        extensions: _.join(extensions, ','),
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers, params })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
 
 export function getSwaggerDefinition(ballerinaSource, serviceName) {
     const endpoint = `${getServiceEndpoint('swagger')}/ballerina-to-swagger?serviceName=${serviceName}`;
@@ -254,4 +296,31 @@ export function parseFragment(fragment) {
         },
     });
     return data;
+}
+
+/**
+ * Returns native path seperator of backend
+ */
+export function getPathSeperator() {
+    return pathSeparator;
+}
+
+/**
+ * Invokes the try-it proxy.
+ * @export
+ * @param {Object} tryItPayload The request body.
+ * @returns {Object} The response.
+ */
+export function invokeTryIt(tryItPayload, protocol) {
+    const endpoint = getServiceEndpoint('tryItService') + '/' + protocol;
+    const headers = {
+        'Content-Type': 'text/plain; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, tryItPayload, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
 }

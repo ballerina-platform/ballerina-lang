@@ -71,10 +71,11 @@ public class WorkspaceService {
     @GET
     @Path("/root")
     @Produces("application/json")
-    public Response root() {
+    public Response root(@DefaultValue(".bal") @QueryParam("extensions") String extensions) {
         try {
-            JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? workspace.listRoots() :
-                    workspace.getRoots(rootPaths);
+            List<String> extensionList = Arrays.asList(extensions.split(","));
+            JsonArray roots = (rootPaths == null || rootPaths.isEmpty()) ? workspace.listRoots(extensionList) :
+                    workspace.getJsonForRoots(rootPaths, extensionList);
             return Response.status(Response.Status.OK)
                     .entity(roots)
                     .header("Access-Control-Allow-Origin", '*')
@@ -82,23 +83,6 @@ public class WorkspaceService {
                     .build();
         } catch (Throwable throwable) {
             logger.error("/root service error", throwable.getMessage());
-            return getErrorResponse(throwable);
-        }
-    }
-
-    @GET
-    @Path("/list")
-    @Produces("application/json")
-    public Response directoriesInPath(@QueryParam("path") String path) {
-        try {
-            return Response.status(Response.Status.OK)
-                    .entity(workspace.listDirectoriesInPath(new String(Base64.getDecoder().decode(path),
-                            Charset.defaultCharset())))
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        } catch (Throwable throwable) {
-            logger.error("/list service error", throwable.getMessage());
             return getErrorResponse(throwable);
         }
     }

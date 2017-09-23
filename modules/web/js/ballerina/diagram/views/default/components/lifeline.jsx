@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import ASTFactory from '../../../../ast/ast-factory';
 import SimpleBBox from '../../../../ast/simple-bounding-box';
 import { lifeLine } from '../../../../configs/designer-defaults.js';
 import ExpressionEditor from 'expression_editor_utils';
@@ -36,6 +37,7 @@ class LifeLine extends React.Component {
         const bBox = this.props.bBox;
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, lifeLine.head.height);
         this.state = { active: 'hidden' };
+        this.handlePropertyForm = this.handlePropertyForm.bind(this);
     }
 
     onDelete() {
@@ -86,6 +88,13 @@ class LifeLine extends React.Component {
         }
     }
 
+    handlePropertyForm() {
+        // Check if the model is a connector declaration
+        if (ASTFactory.isConnectorDeclaration(this.props.model)) {
+            this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
+            this.context.editor.update();
+        }
+    }
     render() {
         const bBox = this.props.bBox;
         const iconSize = 13;
@@ -117,6 +126,13 @@ class LifeLine extends React.Component {
         const imageYBottom = y2 - titleBoxH + (DesignerDefaults.iconForTool.height / 4);
         if (this.props.icon) {
             modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width + DesignerDefaults.iconForTool.padding.left;
+        }
+
+        let iconColor = this.props.iconColor;
+        if (ASTFactory.isConnectorDeclaration(this.props.model)) {
+            if (this.props.model.getViewState().showPropertyForm) {
+                iconColor = '#6f7b96';
+            }
         }
         return (<g
             className="life-line-group"
@@ -153,7 +169,7 @@ class LifeLine extends React.Component {
             />
 
             {this.props.icon &&
-            <g>
+            <g onClick={this.handlePropertyForm}>
                 <rect
                     x={bBox.x}
                     y={bBox.y}
@@ -161,7 +177,7 @@ class LifeLine extends React.Component {
                     height={DesignerDefaults.iconForTool.height}
                     rx="0"
                     ry="0"
-                    fill={this.props.iconColor}
+                    fill={iconColor}
                 />
                 <image
                     x={imageX}

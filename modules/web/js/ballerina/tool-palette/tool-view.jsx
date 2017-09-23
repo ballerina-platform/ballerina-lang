@@ -19,12 +19,15 @@ import React from 'react';
 import log from 'log';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/themes/base/draggable.css';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tool from './tool';
 import ToolGroup from './tool-group';
+import ImageUtils from './../diagram/views/default/components/image-util';
 
 /**
  * Tool Component which render a tool in tool palette.
@@ -226,6 +229,14 @@ class ToolView extends React.Component {
 
             toolTip += ')';
         }
+        let imageIcon;
+        if (tool.id === 'ClientConnector') {
+            const iconBytes = ImageUtils.getConnectorIcon(tool.get('meta').pkgName);
+            imageIcon = <img alt="client connector icon" src={iconBytes} />;
+        } else {
+            imageIcon = <i className={tool.get('cssClass')} />;
+        }
+
         return (
             <div
                 id={`${tool.id}-tool`}
@@ -238,7 +249,7 @@ class ToolView extends React.Component {
                     data-toggle="tooltip"
                     title={toolTip + '\n' + toolDef}
                 >
-                    <i className={tool.get('cssClass')} />
+                    {imageIcon}
                 </div>
                 <div
                     className="tool-container-vertical-title"

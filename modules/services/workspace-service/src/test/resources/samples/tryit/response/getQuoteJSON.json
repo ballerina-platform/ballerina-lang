@@ -1,0 +1,18 @@
+{
+  "responseCode": "200",
+  "responseBody": "{\"symbol\":\"BAR\",\"name\":\"Bar Inc.\",\"last\":149.62,\"low\":150.78,\"high\":149.18}",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Content-Type": "application/json",
+    "transfer-encoding": "chunked",
+    "Set-Cookie":"symbol=BAR"
+  },
+  "returnedRequestHeaders": {
+    "Content-Type": "application/json",
+    "Host": "localhost:9595",
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Accept-Encoding": "gzip,deflate"
+  },
+  "requestUrl": "http://localhost:9595/stockquote/BAR"
+}

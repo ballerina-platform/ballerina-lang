@@ -90,6 +90,12 @@
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.msf4j.example</groupId>
+                <artifactId>stockquote-fatjar</artifactId>
+                <version>${msf4j.examples.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -181,6 +187,7 @@
 
     <properties>
         <ballerina.version>${project.version}</ballerina.version>
+        <msf4j.examples.version>2.1.0</msf4j.examples.version>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>

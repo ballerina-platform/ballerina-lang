@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { panel } from './../../designer-defaults';
+import TreeUtil from './../../../../../model/tree-util';
 
 /**
  * Position Calculater for CompilationUnit.
@@ -31,8 +33,32 @@ class CompilationUnitPositionVisitor {
      * @memberOf CompilationUnitPositionVisitor
      * */
     beginVisit(node) {
-        node.viewState.bBox.h = node.viewState.container.height;
-        node.viewState.bBox.w = node.viewState.container.width;
+        let width = 0;
+        let height = 0;
+        const viewState = node.viewState;
+
+        const children = node.filterTopLevelNodes((child) => {
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
+        });
+
+        children.forEach((child) => {
+            if (width <= child.viewState.bBox.w) {
+                width = child.viewState.bBox.w;
+            }
+            child.viewState.bBox.x = panel.wrapper.gutter.v;
+            child.viewState.bBox.y = height + panel.wrapper.gutter.h;
+            height = panel.wrapper.gutter.h + child.viewState.bBox.h + height;
+        });
+
+        height = (height > node.viewState.container.height) ? height : node.viewState.container.height;
+        width = (width > node.viewState.container.width) ? width : node.viewState.container.width;
+
+        children.forEach((child) => {
+            child.viewState.bBox.w = width - (panel.wrapper.gutter.h * 2);
+        });
+
+        node.viewState.bBox.h = height;
+        node.viewState.bBox.w = width;
     }
 
     /**

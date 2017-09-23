@@ -1,0 +1,118 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+ .http-client-action-wrapper {
+     .react-autosuggest__container {
+        padding-top: 2px;
+        float: left;
+        color: black;
+        position: relative;
+    }
+    .react-autosuggest__input {
+        padding: 1px 10px;
+        border: 1px solid black;
+        height: 26px;
+        border-radius: 5px;
+    }
+    .react-autosuggest__suggestions-container {
+        z-index: 10000;
+        overflow: visible;
+        background: #E2E2E5;
+        border-radius: 5px;
+        width: 187px;
+        position: absolute
+    }
+}
+
+.http-client-request {
+    float: left;
+    padding-right: 20px;
+    border-right: 1px solid #565656;
+
+    input[type=text]{
+        color: black;
+        height: 27px;
+        border-radius: 5px;
+        border: 1px solid black;
+        padding: 6px;
+    }
+}
+
+.http-client-path {
+    width: 450px;
+    margin-left: 10px;
+}
+
+.http-client-content-type {
+    margin-left: 5px;
+}
+
+.http-client-action-wrapper {
+    padding-top: 5px;
+    .btn {
+        margin-left: 10px;
+        border-radius: 5px;
+    }
+    .btn-success {
+        width: 95px;
+    }
+    .btn i {
+        margin-right: 7px;
+    }
+}
+
+.http-client-content-type-wrapper {
+    padding-top: 6px;
+}
+
+.http-client-response {
+    padding-left: 20px;
+    float: left;
+    width: 700px;
+}
+
+.http-client-headers-wrapper, .http-client-body-wrapper {
+    padding-top: 10px;
+}
+
+.http-client-headers-wrapper .fw {
+    margin-left: 5px;
+    .fw:hover {
+        cursor: pointer;
+        opacity: 0.5;
+    }
+    .current-headers input[type=text] {
+        width: 340px;
+    }
+}
+
+.http-client-response-content {
+    padding-top: 10px;
+    .header-content {
+        white-space: pre-wrap;
+    }
+    .response-headers, .http-client-response-content .request-headers {
+        border: 1px solid #6b6b6b;
+        padding: 5px;
+        background: #565656;
+    }
+}
+
+.http-client-response-attributes {
+    padding-top: 5px;
+}

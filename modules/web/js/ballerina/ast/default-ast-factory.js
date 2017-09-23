@@ -33,11 +33,17 @@ const DefaultASTFactory = {};
  */
 DefaultASTFactory.createServiceDefinition = function (args) {
     const serviceDef = ASTFactory.createServiceDefinition(args);
-    serviceDef.setProtocolPkgName('http');
-    serviceDef.setProtocolPkgPath('ballerina.net.http');
-    const resourceDef = DefaultASTFactory.createResourceDefinition(args);
-    serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
-    serviceDef.accept(new EnableDefaultWSVisitor());
+    serviceDef.setProtocolPkgName(args.protocolPkgName);
+    serviceDef.setProtocolPkgPath(args.protocolPkgPath);
+    args.resources.map((resource) => {
+        const resourceDef = DefaultASTFactory.createResourceDefinition(args, resource);
+        serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
+        serviceDef.accept(new EnableDefaultWSVisitor());
+    });
+    serviceDef.getViewState().showPropertyForm = true;
+    if (args.protocolPkgName === 'ws') {
+        serviceDef.getViewState().showWebSocketMethods = false;
+    }
     return serviceDef;
 };
 
@@ -77,42 +83,47 @@ DefaultASTFactory.createForkJoinStatement = function (args) {
  * @param {object} args - argument to be passed in to factory methods.
  * @return {ASTNode} resourceDef
  */
-DefaultASTFactory.createResourceDefinition = function (args) {
-    const resourceDef = ASTFactory.createResourceDefinition(args);
+DefaultASTFactory.createResourceDefinition = function (args, resource) {
+    const resourceDef = ASTFactory.createResourceDefinition(resource);
 
-    // Creating GET http method annotation.
-    const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
-        fullPackageName: 'ballerina.net.http',
-        packageName: 'http',
-        name: 'resourceConfig',
-    });
-    const httpMethodAttribute = ASTFactory.createAnnotationAttribute({
-        key: 'methods',
-    });
+    // Creating GET http method annotation for only http services
+    if (args.protocolPkgName === 'http') {
+        const resourceConfigAnnotation = ASTFactory.createAnnotationAttachment({
+            fullPackageName: args.protocolPkgPath,
+            packageName: args.protocolPkgName,
+            name: 'resourceConfig',
+        });
+        const httpMethodAttribute = ASTFactory.createAnnotationAttribute({
+            key: 'methods',
+        });
 
-    const httpMethodsValue = ASTFactory.createAnnotationAttributeValue();
-    const httpMethodsArray = ASTFactory.createAnnotationAttributeValue();
-    const getHttpValue = ASTFactory.createBValue({
-        stringValue: 'GET',
-    });
+        const httpMethodsValue = ASTFactory.createAnnotationAttributeValue();
+        const httpMethodsArray = ASTFactory.createAnnotationAttributeValue();
+        const getHttpValue = ASTFactory.createBValue({
+            stringValue: 'GET',
+        });
 
-    httpMethodsArray.addChild(getHttpValue);
-    httpMethodsValue.addChild(httpMethodsArray);
-    httpMethodAttribute.addChild(httpMethodsValue);
-    resourceConfigAnnotation.addChild(httpMethodAttribute);
-    resourceDef.addChild(resourceConfigAnnotation, 0);
-
-    const parameterDef = ASTFactory.createParameterDefinition(args);
-    parameterDef.setTypeName('message');
-    parameterDef.setName('m');
-
-    const argumentParameterDefinitionHolder = ASTFactory.createArgumentParameterDefinitionHolder();
-    argumentParameterDefinitionHolder.addChild(parameterDef);
-    resourceDef.addChild(argumentParameterDefinitionHolder);
-
-    const replyStatement = DefaultASTFactory.createReplyStatement(args);
-    resourceDef.addChild(replyStatement);
-
+        httpMethodsArray.addChild(getHttpValue);
+        httpMethodsValue.addChild(httpMethodsArray);
+        httpMethodAttribute.addChild(httpMethodsValue);
+        resourceConfigAnnotation.addChild(httpMethodAttribute);
+        resourceDef.addChild(resourceConfigAnnotation, 0);
+    }
+    // Special case for web sockets
+    if (args.protocolPkgName === 'ws') {
+        resourceDef.getViewState().showWebSocketMethods = false;
+    }
+    if (resource.parameters.length > 0) {
+        // Define the argument param definition holder
+        const argumentParameterDefinitionHolder = ASTFactory.createArgumentParameterDefinitionHolder();
+        resource.parameters.map((parameter) => {
+            const parameterDef = ASTFactory.createParameterDefinition(args);
+            parameterDef.setTypeName(parameter.type);
+            parameterDef.setName(parameter.value);
+            argumentParameterDefinitionHolder.addChild(parameterDef);
+        });
+        resourceDef.addChild(argumentParameterDefinitionHolder);
+    }
     return resourceDef;
 };
 
@@ -263,11 +274,23 @@ DefaultASTFactory.createAggregatedAssignmentStatement = function (args) {
     return ASTFactory.createAssignmentStatement(args);
 };
 
-DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args={}) {
+DefaultASTFactory.createTransformAssignmentOperatorStatement = function (args = {}) {
     const assignmentStmt = ASTFactory.createAssignmentStatement();
     assignmentStmt.setStatementFromString(`var __output1 = ${args.defaultExpression}`);
     return assignmentStmt;
-}
+};
+
+DefaultASTFactory.createTransformAssignmentRightExpStatement = function (args) {
+    const assignmentStmt = ASTFactory.createAssignmentStatement();
+    if (_.has(args, 'rightExp')) {
+        assignmentStmt.setIsDeclaredWithVar(true);
+        const variableRefList = ASTFactory.createVariableReferenceList(args);
+        variableRefList.setExpressionFromString('var __output1');
+        assignmentStmt.addChild(variableRefList, 0);
+        assignmentStmt.addChild(args.rightExp, 1);
+    }
+    return assignmentStmt;
+};
 
 DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = function (args) {
     const assignmentStmt = ASTFactory.createAssignmentStatement();
@@ -314,15 +337,6 @@ DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement = functio
         variableRefList.setExpressionFromString(varRefListString);
         assignmentStmt.addChild(variableRefList, 0);
         assignmentStmt.addChild(funcInvocationExpression, 1);
-        return assignmentStmt;
-    }
-
-    if (_.has(args, 'funcInv')) {
-        assignmentStmt.setIsDeclaredWithVar(true);
-        const variableRefList = ASTFactory.createVariableReferenceList(args);
-        variableRefList.setExpressionFromString('var __output1');
-        assignmentStmt.addChild(variableRefList, 0);
-        assignmentStmt.addChild(args.funcInv, 1);
         return assignmentStmt;
     }
     return assignmentStmt;
@@ -465,10 +479,14 @@ DefaultASTFactory.createConnectorDeclaration = function (args) {
     const declarationStatement = (packageName !== 'Current Package' ? args.pkgName + ':' : '') + args.connectorName
         + ' endpoint = create ' + (packageName !== 'Current Package' ? args.pkgName + ':' : '')
         + args.connectorName + '()';
-    const connectorDeclaration = ASTFactory.createConnectorDeclaration();
+
+    // Currently we are setting the package name
+    // TODO: later will enforce the url
+    const connectorDeclaration = ASTFactory.createConnectorDeclaration({ icon: packageName });
     connectorDeclaration.setStatementFromString(declarationStatement);
     connectorDeclaration.setFullPackageName(args.fullPackageName);
     connectorDeclaration.accept(new EnableDefaultWSVisitor());
+    connectorDeclaration.getViewState().showPropertyForm = true;
     return connectorDeclaration;
 };
 

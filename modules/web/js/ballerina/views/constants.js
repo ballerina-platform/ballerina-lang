@@ -4,5 +4,11 @@ export const SWAGGER_VIEW = 'SWAGGER_VIEW';
 
 export const CHANGE_EVT_TYPES = {
     TREE_MODIFIED: 'tree-modified',
-    SOURCE_MODIFIED: 'source-modified'
-}
+    SOURCE_MODIFIED: 'source-modified',
+};
+
+export const CLASSES = {
+    TAB_TITLE: {
+        DESIGN_VIEW: 'ballerina-design-view',
+    },
+};

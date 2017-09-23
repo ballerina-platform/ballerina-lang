@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class ActionNodeAbstract extends Node {
 
@@ -25,6 +26,7 @@ class ActionNodeAbstract extends Node {
         let oldValue = this.returnParameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.returnParameters = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -66,11 +68,58 @@ class ActionNodeAbstract extends Node {
         }
     }
 
+    removeReturnParameters(node, silent){
+        const index = this.getIndexOfReturnParameters(node);
+        this.removeReturnParametersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeReturnParametersByIndex(index, silent){
+        this.returnParameters.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceReturnParameters(oldChild, newChild, silent){
+        const index = this.getIndexOfReturnParameters(oldChild);
+        this.returnParameters[index] = newChild;
+    }
+
+    getIndexOfReturnParameters(child){
+        return _.findIndex(this.returnParameters, ['id', child.id]);
+    }
+
+    filterReturnParameters(predicateFunction){
+        return _.filter(this.returnParameters, predicateFunction);
+    }
+
 
     setBody(newValue, silent, title) {
         let oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.body = newValue;
+
+        this.body.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -95,6 +144,7 @@ class ActionNodeAbstract extends Node {
         let oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.workers = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -136,11 +186,58 @@ class ActionNodeAbstract extends Node {
         }
     }
 
+    removeWorkers(node, silent){
+        const index = this.getIndexOfWorkers(node);
+        this.removeWorkersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeWorkersByIndex(index, silent){
+        this.workers.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceWorkers(oldChild, newChild, silent){
+        const index = this.getIndexOfWorkers(oldChild);
+        this.workers[index] = newChild;
+    }
+
+    getIndexOfWorkers(child){
+        return _.findIndex(this.workers, ['id', child.id]);
+    }
+
+    filterWorkers(predicateFunction){
+        return _.filter(this.workers, predicateFunction);
+    }
+
 
     setName(newValue, silent, title) {
         let oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
+
+        this.name.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -165,6 +262,7 @@ class ActionNodeAbstract extends Node {
         let oldValue = this.parameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.parameters = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -206,11 +304,56 @@ class ActionNodeAbstract extends Node {
         }
     }
 
+    removeParameters(node, silent){
+        const index = this.getIndexOfParameters(node);
+        this.removeParametersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeParametersByIndex(index, silent){
+        this.parameters.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceParameters(oldChild, newChild, silent){
+        const index = this.getIndexOfParameters(oldChild);
+        this.parameters[index] = newChild;
+    }
+
+    getIndexOfParameters(child){
+        return _.findIndex(this.parameters, ['id', child.id]);
+    }
+
+    filterParameters(predicateFunction){
+        return _.filter(this.parameters, predicateFunction);
+    }
+
 
     setFlags(newValue, silent, title) {
         let oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.flags = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -235,6 +378,7 @@ class ActionNodeAbstract extends Node {
         let oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.annotationAttachments = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -276,11 +420,56 @@ class ActionNodeAbstract extends Node {
         }
     }
 
+    removeAnnotationAttachments(node, silent){
+        const index = this.getIndexOfAnnotationAttachments(node);
+        this.removeAnnotationAttachmentsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeAnnotationAttachmentsByIndex(index, silent){
+        this.annotationAttachments.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceAnnotationAttachments(oldChild, newChild, silent){
+        const index = this.getIndexOfAnnotationAttachments(oldChild);
+        this.annotationAttachments[index] = newChild;
+    }
+
+    getIndexOfAnnotationAttachments(child){
+        return _.findIndex(this.annotationAttachments, ['id', child.id]);
+    }
+
+    filterAnnotationAttachments(predicateFunction){
+        return _.filter(this.annotationAttachments, predicateFunction);
+    }
+
 
     setWS(newValue, silent, title) {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -305,6 +494,7 @@ class ActionNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -329,6 +519,7 @@ class ActionNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

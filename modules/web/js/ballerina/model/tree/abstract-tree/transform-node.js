@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class TransformNodeAbstract extends Node {
 
@@ -25,6 +26,9 @@ class TransformNodeAbstract extends Node {
         let oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.body = newValue;
+
+        this.body.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -49,6 +53,7 @@ class TransformNodeAbstract extends Node {
         let oldValue = this.inputExpressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.inputExpressions = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -90,11 +95,56 @@ class TransformNodeAbstract extends Node {
         }
     }
 
+    removeInputExpressions(node, silent){
+        const index = this.getIndexOfInputExpressions(node);
+        this.removeInputExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeInputExpressionsByIndex(index, silent){
+        this.inputExpressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceInputExpressions(oldChild, newChild, silent){
+        const index = this.getIndexOfInputExpressions(oldChild);
+        this.inputExpressions[index] = newChild;
+    }
+
+    getIndexOfInputExpressions(child){
+        return _.findIndex(this.inputExpressions, ['id', child.id]);
+    }
+
+    filterInputExpressions(predicateFunction){
+        return _.filter(this.inputExpressions, predicateFunction);
+    }
+
 
     setOutputExpressions(newValue, silent, title) {
         let oldValue = this.outputExpressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.outputExpressions = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -136,11 +186,56 @@ class TransformNodeAbstract extends Node {
         }
     }
 
+    removeOutputExpressions(node, silent){
+        const index = this.getIndexOfOutputExpressions(node);
+        this.removeOutputExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeOutputExpressionsByIndex(index, silent){
+        this.outputExpressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceOutputExpressions(oldChild, newChild, silent){
+        const index = this.getIndexOfOutputExpressions(oldChild);
+        this.outputExpressions[index] = newChild;
+    }
+
+    getIndexOfOutputExpressions(child){
+        return _.findIndex(this.outputExpressions, ['id', child.id]);
+    }
+
+    filterOutputExpressions(predicateFunction){
+        return _.filter(this.outputExpressions, predicateFunction);
+    }
+
 
     setWS(newValue, silent, title) {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -165,6 +260,7 @@ class TransformNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -189,6 +285,7 @@ class TransformNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

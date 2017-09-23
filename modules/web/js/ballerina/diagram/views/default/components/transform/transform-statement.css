@@ -358,11 +358,42 @@ svg.plumbConnect path {
     background-color: #ffffff;
 }
 
-.jtk-droppable {
-  font-size: 8px;
+div.operator-header {
+    float: left;
+    text-align: center;
+    background-color: #3397db;
+    width: 60px;
+    height: auto;
 }
 
-.jtk-droppable:hover {
-  font-size: 12px;
-  color: #f17b31;
+div.operator-cell {
+      width: 30px;
+     height: 30px;
+     color: #3d3d3d;
+}
+div.operator-col {
+  background-color: #dedede;
+  float: left;
+  border-style: solid;
+  border-width: 1px;
+}
+
+div.operator-expanded-func {
+    width: 64px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.operator-name {
+    font-size: 25px;
+    display: block;
+    text-align: center;
+}
+
+.operator-remove {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+    color: #bababb;
 }

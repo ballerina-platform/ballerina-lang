@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class UserDefinedTypeNodeAbstract extends Node {
 
@@ -25,6 +26,9 @@ class UserDefinedTypeNodeAbstract extends Node {
         let oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -49,6 +53,9 @@ class UserDefinedTypeNodeAbstract extends Node {
         let oldValue = this.typeName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.typeName = newValue;
+
+        this.typeName.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -73,6 +80,7 @@ class UserDefinedTypeNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -97,6 +105,7 @@ class UserDefinedTypeNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -121,6 +130,7 @@ class UserDefinedTypeNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

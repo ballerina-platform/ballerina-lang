@@ -23,52 +23,78 @@ import ASTFactory from '../../../../../ast/ast-factory';
 
 export default class Operator extends React.Component {
     render() {
+        let targetPoint01 = [];
+        let targetPoint02 = [];
+
         const {
-            key, operator, opStmt, recordSourceElement, recordTargetElement, viewId,
-            parentFunc, funcInv, onEndpointRemove, onConnectPointMouseEnter,
+            operator, opExp, recordSourceElement, recordTargetElement, viewId,
+            parentNode, statement, onEndpointRemove, onConnectPointMouseEnter, onOperatorRemove
         } = this.props;
 
-        operator.parameters.forEach((param, index) => {
+        operator.parameters.forEach((param) => {
             param.endpointKind = 'param';
         });
 
-        operator.returnParams.forEach((returnsObj, index) => {
+        operator.returnParams.forEach((returnsObj) => {
             returnsObj.endpointKind = 'return';
         });
 
-        const onRemove = () => {
-
-        };
+        if (operator.parameters.length === 1) {
+            targetPoint02 = operator.parameters.slice(0, 1);
+        } else {
+            targetPoint01 = operator.parameters.slice(0, 1);
+            targetPoint02 = operator.parameters.slice(1, 2);
+        }
 
         return (
-            <div className='transform-expanded-func func'>
-                <div className='function-header'>
-                    <i className='fw fw-function fw-inverse' />
-                    <span className='func-name'>{operator.name}</span>
-                    <span onClick={onRemove} className='fw-stack fw-lg btn btn-remove-func'>
-                        <i className='fw-delete fw-stack-1x fw-inverse' />
-                    </span>
-                </div>
+            <div className='operator-expanded-func func'>
                 <div className='function-param-body'>
-                    <div className='func-input'>
-                        <Tree
-                            type='param'
-                            makeConnectPoint={recordTargetElement}
-                            endpoints={operator.parameters}
-                            viewId={viewId}
-                            onEndpointRemove={onEndpointRemove}
-                            onConnectPointMouseEnter={onConnectPointMouseEnter}
-                        />
+                    <div className='operator-col'>
+                        <div className='operator-cell'>
+                            <Tree
+                                type='param'
+                                makeConnectPoint={recordTargetElement}
+                                endpoints={targetPoint01}
+                                viewId={viewId}
+                                onEndpointRemove={onEndpointRemove}
+                                onConnectPointMouseEnter={onConnectPointMouseEnter}
+                            />
+                        </div>
+                        <div className='operator-cell'><span className='operator-name'>{opExp.getOperator()}</span></div>
+                        <div className='operator-cell'>
+                            <Tree
+                                type='param'
+                                makeConnectPoint={recordTargetElement}
+                                endpoints={targetPoint02}
+                                viewId={viewId}
+                                onEndpointRemove={onEndpointRemove}
+                                onConnectPointMouseEnter={onConnectPointMouseEnter}
+                            />
+                        </div>
                     </div>
-                    <div className='func-output'>
-                        <Tree
-                            type='return'
-                            makeConnectPoint={recordSourceElement}
-                            endpoints={operator.returnParams}
-                            viewId={viewId}
-                            onEndpointRemove={onEndpointRemove}
-                            onConnectPointMouseEnter={onConnectPointMouseEnter}
-                        />
+                    <div className='operator-col'>
+                        <div className='operator-cell'>
+                            <span
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOperatorRemove(opExp, parentNode, statement);
+                                }}
+                                className='fw-stack fw-lg btn operator-remove'
+                            >
+                                <i className='fw-delete fw-stack-1x' />
+                            </span>
+                        </div>
+                        <div className='operator-cell'>
+                            <Tree
+                                type='return'
+                                makeConnectPoint={recordSourceElement}
+                                endpoints={operator.returnParams}
+                                viewId={viewId}
+                                onEndpointRemove={onEndpointRemove}
+                                onConnectPointMouseEnter={onConnectPointMouseEnter}
+                            />
+                        </div>
+                        <div className='operator-cell' />
                     </div>
                 </div>
             </div>

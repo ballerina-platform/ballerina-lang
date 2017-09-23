@@ -1,0 +1,26 @@
+.add-resource-button {
+    cursor: pointer;
+}
+
+.add-resource-button-label{
+    cursor: pointer;
+    fill: #fff;
+    dominant-baseline: central;
+    cursor: pointer;
+    font-size: medium;
+}
+
+.showResourceGroup {
+    fill-opacity: 1;
+    stroke-opacity:1;
+}
+
+.hideResourceGroup {
+    fill-opacity: 0;
+    stroke-opacity:0;
+}
+
+.add-resource-label{
+    fill: #fff2ef;
+    cursor: pointer;
+}

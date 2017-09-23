@@ -1,0 +1,30 @@
+#console{
+    height: calc(100% - 25px );
+    padding: 10px;
+    overflow: auto;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+#console pre{
+    padding: inherit;
+    color: inherit;
+    background-color: inherit;
+    font-family: inherit;
+    line-height: 1.8;
+    margin: 0;
+    font-size: inherit;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Firefox */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+#console .INFO { color: #03a9f4 !important; }
+#console .ERROR { color: #f44336 !important; }
+
+/* ------------ console ------*/
+.DATA a {
+    color: #fff;
+    text-decoration: underline;
+}

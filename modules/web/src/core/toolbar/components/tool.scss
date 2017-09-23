@@ -1,0 +1,16 @@
+.tool-bar {
+    .tool-bar-group {
+        .tool-bar-tool {
+            opacity: 0.3;
+            &.active {
+                cursor: pointer;
+                opacity: 0.6;
+                &:hover {
+                    background: #232323;
+                    transition: all 250ms ease 0s;
+                    opacity: 1;
+                }
+            } 
+        }
+    }
+}

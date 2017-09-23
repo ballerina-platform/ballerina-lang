@@ -1,15 +1,26 @@
 @import 'vendor/font-wso2/_mixin.scss';
+@import 'modules/common.scss';
 @import 'modules/header.scss';
+@import 'modules/tool-area.scss';
 @import 'modules/footer.scss';
 @import 'modules/breadcrumb.scss';
-@import 'modules/left-toolbar.scss';
-@import 'modules/tabs.scss';
-@import 'modules/source-editor.scss';
-@import 'modules/tools.scss';
-@import 'modules/diagram.scss';
 @import 'modules/layout.scss';
-@import 'modules/modals.scss';
+@import 'modules/activity-bar.scss';
+@import 'modules/left-panel.scss';
+@import 'modules/bottom-panel.scss';
+@import 'modules/editor-tabs.scss';
+@import 'modules/source-editor.scss';
+@import 'modules/menu.scss';
+@import 'modules/file-tree.scss';
+@import 'modules/dialog.scss';
+@import 'modules/ballerina-editor.scss';
+@import 'modules/ballerina-editor-tools.scss';
+@import 'modules/explorer.scss';
+@import 'modules/help-plugin.scss';
 
 body{
   font-size: 13px;
+  margin: 0;
+  overflow: hidden;
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
 }

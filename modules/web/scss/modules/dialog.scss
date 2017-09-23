@@ -1,0 +1,58 @@
+.composer-dialog {
+    &.modal-dialog{
+        width: 700px;
+        .modal-content {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border-radius: 0;
+            color: #fefefe;
+            background-color: #222222;
+            .modal-header {
+                border-bottom: none;
+                .close {
+                    color: #fefefe;
+                    outline: none;
+                }
+                .modal-body-seperator {
+                    border-top: 1px solid #2C2C2C;
+                    width: 92%;
+                }
+            }
+            .modal-body {
+                margin: 30px;
+            }
+            .modal-footer {
+                border-top: none;
+            }
+            & .btn {
+                text-transform: capitalize;
+                text-shadow: none;
+                box-shadow: none;
+                border: none;
+                outline: none;
+                border-radius: 0;
+                &.btn-default {
+                    background: $modal-btn-default-bgcolor;
+                    color: $modal-btn-default-color;
+                    &:hover {
+                        background: $modal-btn-default-hover-bgcolor;
+                        color: $modal-btn-default-hover-color;
+                    }
+                }
+                &.btn-primary {
+                    background: $modal-btn-primary-bgcolor;
+                    border-color: $modal-btn-primary-bgcolor;
+                    color: $modal-btn-primary-color;
+                    &:hover {
+                        background-color: $modal-btn-primary-hover-bgcolor;
+                        border-color: $modal-btn-primary-hover-bgcolor;
+                        color: $modal-btn-primary-hover-color;
+                    }
+                }
+            }
+            & a {
+                color: $modal-btn-primary-bgcolor;
+                outline: none;
+            }
+        }
+    }
+}

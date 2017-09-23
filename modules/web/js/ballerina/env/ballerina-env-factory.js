@@ -27,6 +27,7 @@ import StructDefinition from './struct';
 import StructField from './struct-field';
 import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
+import AnnotationAttachment from './annotation-attachment';
 
 /**
  * @class BallerinaEnvFactory
@@ -104,6 +105,16 @@ BallerinaEnvFactory.createAnnotationAttributeDefinition = function (args) {
     const annotationAttributeDefinition = new AnnotationAttributeDefinition(args);
     return annotationAttributeDefinition;
 };
+
+/**
+ * Creates AnnotationAttachment.
+ * @param args
+ */
+BallerinaEnvFactory.createAnnotationAttachment = function (args) {
+    const annotationAttachment = new AnnotationAttachment(args);
+    return annotationAttachment;
+};
+
 
 BallerinaEnvFactory.isPackage = function (pkg) {
     return (pkg instanceof Package);

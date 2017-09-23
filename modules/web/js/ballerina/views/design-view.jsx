@@ -1,5 +1,24 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
 import BallerinaDiagram from './../diagram2/diagram';
 import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
 import DragDropManager from '../tool-palette/drag-drop-manager';
@@ -26,8 +45,7 @@ class DesignView extends React.Component {
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.dragDropManager = new DragDropManager();
         this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
-
-        this.props.commandManager.registerHandler('diagram-mode-change', (mode) => {
+        this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
             this.setMode(mode);
         });
     }
@@ -155,7 +173,7 @@ class DesignView extends React.Component {
                         </div>
                     </div>
                 </div> */}
-                <div className="bottom-right-controls-container">
+                <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div className="view-source-btn btn-icon">
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
@@ -169,6 +187,19 @@ class DesignView extends React.Component {
                             Source View
                         </div>
                     </div>
+                    <div className="view-split-view-btn btn-icon">
+                        <div className="bottom-label-icon-wrapper">
+                            <i className="fw fw-code fw-inverse" />
+                        </div>
+                        <div
+                            className="bottom-view-label"
+                            onClick={() => {
+                                this.props.commandProxy.dispatch('show-split-view', true);
+                            }}
+                        >
+                            Split View
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -177,10 +208,16 @@ class DesignView extends React.Component {
 
 DesignView.propTypes = {
     model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 DesignView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    isPreviewViewEnabled: PropTypes.bool.isRequired,
 };
 
 DesignView.childContextTypes = {

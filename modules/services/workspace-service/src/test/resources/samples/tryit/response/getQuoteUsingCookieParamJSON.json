@@ -1,0 +1,18 @@
+{
+  "responseCode": "200",
+  "responseBody": "{\"symbol\":\"GOOG\",\"name\":\"Alphabet Inc.\",\"last\":652.3,\"low\":657.81,\"high\":643.15}",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Content-Type": "application/json",
+    "transfer-encoding": "chunked"
+  },
+  "returnedRequestHeaders": {
+    "Cookie": "symbol=GOOG",
+    "Content-Type": "application/json",
+    "Host": "localhost:9595",
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Accept-Encoding": "gzip,deflate"
+  },
+  "requestUrl": "http://localhost:9595/stockquote"
+}

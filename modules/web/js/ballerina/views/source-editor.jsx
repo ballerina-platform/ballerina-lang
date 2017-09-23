@@ -22,8 +22,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
-import commandManager from 'command';
-import File from './../../workspace/file';
+import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
+import File from './../../../src/core/workspace/model/file';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
@@ -33,7 +33,7 @@ import { CONTENT_MODIFIED } from './../../constants/events';
 import { FORMAT, GO_TO_POSITION } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import debuggerHOC from '../../debugger/debugger-hoc';
+
 
 const ace = global.ace;
 const Range = ace.acequire('ace/range').Range;
@@ -77,7 +77,7 @@ class NotifyingUndoManager extends AceUndoManager {
     }
 }
 
-class SourceView extends React.Component {
+class SourceEditor extends React.Component {
 
     constructor(props) {
         super(props);
@@ -87,6 +87,7 @@ class SourceView extends React.Component {
         this.format = this.format.bind(this);
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
+        this.onFileContentChanged = this.onFileContentChanged.bind(this);
     }
 
     /**
@@ -98,7 +99,7 @@ class SourceView extends React.Component {
             const editor = ace.edit(this.container);
             editor.getSession().setMode(ballerinaMode);
             editor.getSession().setUndoManager(new NotifyingUndoManager(this));
-            editor.getSession().setValue(this.props.file.getContent());
+            editor.getSession().setValue(this.props.file.content);
             editor.setShowPrintMargin(false);
             // Avoiding ace warning
             editor.$blockScrolling = Infinity;
@@ -123,23 +124,17 @@ class SourceView extends React.Component {
             editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
-            this.props.commandManager.getCommands().forEach((command) => {
+            this.props.commandProxy.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
             // register handler for source format command
-            this.props.commandManager.registerHandler(FORMAT, this.format, this);
+            this.props.commandProxy.on(FORMAT, this.format, this);
              // register handler for go to position command
-            this.props.commandManager.registerHandler(GO_TO_POSITION, this.handleGoToPosition, this);
+            this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition, this);
             // listen to changes done to file content
             // by other means (eg: design-view changes or redo/undo actions)
             // and update ace content accordingly
-            this.props.file.on(CONTENT_MODIFIED, (evt) => {
-                if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                    // no need to update the file again, hence
-                    // the second arg to skip update event
-                    this.replaceContent(evt.newContent, true);
-                }
-            });
+            this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
 
             editor.on('guttermousedown', (e) => {
                 const target = e.domEvent.target;
@@ -172,6 +167,19 @@ class SourceView extends React.Component {
                 });
                 this.props.onLintErrors(errors);
             });
+        }
+    }
+
+    /**
+     * Event handler when the content of the file object is changed.
+     * @param {Object} evt The event object.
+     * @memberof SourceEditor
+     */
+    onFileContentChanged(evt) {
+        if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+            // no need to update the file again, hence
+            // the second arg to skip update event
+            this.replaceContent(evt.newContent, true);
         }
     }
 
@@ -286,9 +294,9 @@ class SourceView extends React.Component {
                 .then((langserverClient) => {
                     // Set source view completer
                     const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    const fileData = { fileName: nextProps.file.getName(),
-                        filePath: nextProps.file.getPath(),
-                        packageName: nextProps.file.getPackageName() };
+                    const fileData = { fileName: nextProps.file.name,
+                        filePath: nextProps.file.path,
+                        packageName: nextProps.file.packageName };
                     const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
                     langTools.setCompleters(completer);
                 })
@@ -296,24 +304,31 @@ class SourceView extends React.Component {
         }
 
         const { debugHit, sourceViewBreakpoints } = nextProps;
+        if (this.debugPointMarker) {
+            this.editor.getSession().removeMarker(this.debugPointMarker);
+        }
         if (debugHit > 0) {
-            if (this.debugPointMarker) {
-                this.editor.getSession().removeMarker(this.debugPointMarker);
-            }
             this.debugPointMarker = this.editor.getSession().addMarker(
                 new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
         }
-        if (!debugHit && this.debugPointMarker) {
-            this.editor.getSession().removeMarker(this.debugPointMarker);
-        }
+
+        // Removing the file content changed event of the previous file.
+        this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
+        // Adding the file content changed event to the new file.
+        nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
+        this.replaceContent(nextProps.file.content, true);
 
         this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
 
-SourceView.propTypes = {
+SourceEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired,
+    commandProxy: PropTypes.shape({
+        on: PropTypes.func.isRequired,
+        dispatch: PropTypes.func.isRequired,
+        getCommands: PropTypes.func.isRequired,
+    }).isRequired,
     parseFailed: PropTypes.bool.isRequired,
     onLintErrors: PropTypes.func,
     sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,
@@ -322,13 +337,9 @@ SourceView.propTypes = {
     debugHit: PropTypes.number,
 };
 
-SourceView.defaultProps = {
+SourceEditor.defaultProps = {
     debugHit: null,
     onLintErrors: () => {},
 };
 
-SourceView.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
-};
-
-export default debuggerHOC(SourceView);
+export default debuggerHoc(SourceEditor);

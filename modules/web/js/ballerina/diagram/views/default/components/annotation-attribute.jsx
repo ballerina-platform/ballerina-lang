@@ -51,7 +51,7 @@ class AnnotationAttribute extends React.Component {
         if (attributeValue.isBValue()) {
             const bValueAST = attributeValue.getChildren()[0];
             bValue = bValueAST.getStringValue();
-            hasError = bValue === undefined || bValue.trim() === '';
+            hasError = bValue === undefined /*|| bValue.trim() === ''*/;
         }
 
         if (props.model.getKey() === undefined || props.model.getKey() === '') {

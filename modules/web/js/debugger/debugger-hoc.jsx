@@ -25,8 +25,8 @@ import DebugManager from './debug-manager';
  * @param {React.Component} WrappedComponent - React component to be wrapped
  * @returns {React.Component} - WrappedComponent with props addBreakpoints, showDebugHit
  */
-function debuggerHOC(WrappedComponent) {
-    const newComponent = class DebuggerHOC extends React.Component {
+function debuggerHoc(WrappedComponent) {
+    const newComponent = class DebuggerHoc extends React.Component {
         constructor() {
             super();
             this.state = {
@@ -61,7 +61,7 @@ function debuggerHOC(WrappedComponent) {
          * update breakpoints
          */
         updateBreakpoints() {
-            const fileName = this.props.file.getName();
+            const fileName = this.props.file.name;
             const breakpoints = DebugManager.getDebugPoints(fileName);
             const sourceViewBreakpoints = breakpoints.map(breakpoint => breakpoint - 1);
             this.setState({
@@ -75,9 +75,9 @@ function debuggerHOC(WrappedComponent) {
          * @param {object} message - parsed message from backend
          */
         debugHit(message) {
-            const fileName = this.props.file.getName();
+            const fileName = this.props.file.name;
             const position = message.location;
-            const packagePath = this.props.file.getPackageName() || '.';
+            const packagePath = this.props.file.packageName || '.';
 
             // remove package path from file name
             let fileIdentifier;
@@ -106,16 +106,16 @@ function debuggerHOC(WrappedComponent) {
          * add breakpoint
          */
         addBreakpoint(lineNumber) {
-            const fileName = this.props.file.getName();
-            const packagePath = this.props.file.getPackageName() || '.';
+            const fileName = this.props.file.name;
+            const packagePath = this.props.file.packageName || '.';
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         }
         /**
          * remove breakpoint
          */
         removeBreakpoint(lineNumber) {
-            const fileName = this.props.file.getName();
-            const packagePath = this.props.file.getPackageName() || '.';
+            const fileName = this.props.file.name;
+            const packagePath = this.props.file.packageName || '.';
             DebugManager.removeBreakPoint(lineNumber, fileName, packagePath);
         }
 
@@ -142,4 +142,4 @@ function debuggerHOC(WrappedComponent) {
 }
 
 
-export default debuggerHOC;
+export default debuggerHoc;

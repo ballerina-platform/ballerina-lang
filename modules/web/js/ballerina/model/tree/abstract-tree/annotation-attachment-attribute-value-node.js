@@ -17,6 +17,7 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
@@ -25,6 +26,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         let oldValue = this.valueArray;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.valueArray = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -66,11 +68,58 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         }
     }
 
+    removeValueArray(node, silent){
+        const index = this.getIndexOfValueArray(node);
+        this.removeValueArrayByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeValueArrayByIndex(index, silent){
+        this.valueArray.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceValueArray(oldChild, newChild, silent){
+        const index = this.getIndexOfValueArray(oldChild);
+        this.valueArray[index] = newChild;
+    }
+
+    getIndexOfValueArray(child){
+        return _.findIndex(this.valueArray, ['id', child.id]);
+    }
+
+    filterValueArray(predicateFunction){
+        return _.filter(this.valueArray, predicateFunction);
+    }
+
 
     setValue(newValue, silent, title) {
         let oldValue = this.value;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.value = newValue;
+
+        this.value.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -95,6 +144,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -119,6 +169,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -143,6 +194,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

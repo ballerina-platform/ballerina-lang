@@ -17,21 +17,25 @@
  */
 
 import Node from '../node';
+import _ from 'lodash';
 
 class ServiceNodeAbstract extends Node {
 
 
-    setInitFunction(newValue, silent, title) {
-        let oldValue = this.initFunction;
+    setProtocolPackageIdentifier(newValue, silent, title) {
+        let oldValue = this.protocolPackageIdentifier;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
+        this.protocolPackageIdentifier = newValue;
+
+        this.protocolPackageIdentifier.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'initFunction',
+                    attributeName: 'protocolPackageIdentifier',
                     newValue,
                     oldValue,
                 }
@@ -39,8 +43,8 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getInitFunction() {
-        return this.initFunction;
+    getProtocolPackageIdentifier() {
+        return this.protocolPackageIdentifier;
     }
 
 
@@ -49,6 +53,7 @@ class ServiceNodeAbstract extends Node {
         let oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.variables = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -90,18 +95,65 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
+    removeVariables(node, silent){
+        const index = this.getIndexOfVariables(node);
+        this.removeVariablesByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
 
-    setProtocolPackageIdentifier(newValue, silent, title) {
-        let oldValue = this.protocolPackageIdentifier;
+    removeVariablesByIndex(index, silent){
+        this.variables.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceVariables(oldChild, newChild, silent){
+        const index = this.getIndexOfVariables(oldChild);
+        this.variables[index] = newChild;
+    }
+
+    getIndexOfVariables(child){
+        return _.findIndex(this.variables, ['id', child.id]);
+    }
+
+    filterVariables(predicateFunction){
+        return _.filter(this.variables, predicateFunction);
+    }
+
+
+    setInitFunction(newValue, silent, title) {
+        let oldValue = this.initFunction;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.protocolPackageIdentifier = newValue;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'protocolPackageIdentifier',
+                    attributeName: 'initFunction',
                     newValue,
                     oldValue,
                 }
@@ -109,8 +161,8 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getProtocolPackageIdentifier() {
-        return this.protocolPackageIdentifier;
+    getInitFunction() {
+        return this.initFunction;
     }
 
 
@@ -119,6 +171,9 @@ class ServiceNodeAbstract extends Node {
         let oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
+
+        this.name.parent = this;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -143,6 +198,7 @@ class ServiceNodeAbstract extends Node {
         let oldValue = this.resources;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.resources = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -184,11 +240,56 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
+    removeResources(node, silent){
+        const index = this.getIndexOfResources(node);
+        this.removeResourcesByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeResourcesByIndex(index, silent){
+        this.resources.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceResources(oldChild, newChild, silent){
+        const index = this.getIndexOfResources(oldChild);
+        this.resources[index] = newChild;
+    }
+
+    getIndexOfResources(child){
+        return _.findIndex(this.resources, ['id', child.id]);
+    }
+
+    filterResources(predicateFunction){
+        return _.filter(this.resources, predicateFunction);
+    }
+
 
     setFlags(newValue, silent, title) {
         let oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.flags = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -213,6 +314,7 @@ class ServiceNodeAbstract extends Node {
         let oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.annotationAttachments = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -254,11 +356,56 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
+    removeAnnotationAttachments(node, silent){
+        const index = this.getIndexOfAnnotationAttachments(node);
+        this.removeAnnotationAttachmentsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeAnnotationAttachmentsByIndex(index, silent){
+        this.annotationAttachments.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceAnnotationAttachments(oldChild, newChild, silent){
+        const index = this.getIndexOfAnnotationAttachments(oldChild);
+        this.annotationAttachments[index] = newChild;
+    }
+
+    getIndexOfAnnotationAttachments(child){
+        return _.findIndex(this.annotationAttachments, ['id', child.id]);
+    }
+
+    filterAnnotationAttachments(predicateFunction){
+        return _.filter(this.annotationAttachments, predicateFunction);
+    }
+
 
     setWS(newValue, silent, title) {
         let oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -283,6 +430,7 @@ class ServiceNodeAbstract extends Node {
         let oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -307,6 +455,7 @@ class ServiceNodeAbstract extends Node {
         let oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
+
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,

@@ -98,10 +98,10 @@ class ExpressionEditor {
             .then((langserverClient) => {
                 // Set design view completer
                 const designViewCompleterFactory = this.designViewCompleterFactory;
-                const fileData = { fileName: this.file.getName(),
-                    filePath: this.file.getPath(),
-                    packageName: this.file.getPackageName(),
-                    content: this.file.getContent(),
+                const fileData = { fileName: this.file.name,
+                    filePath: this.file.path,
+                    packageName: this.file.packageName,
+                    content: this.file.content,
                 };
                 const completer = designViewCompleterFactory.getDesignViewCompleter(langserverClient,
                     fileData, props.model);

@@ -1,0 +1,19 @@
+{
+  "responseCode": "200",
+  "responseBody": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<stock>\n    <high>543.1</high>\n    <last>548.9</last>\n    <low>553.2</low>\n    <name>Amazon.com</name>\n    <symbol>AMZN</symbol>\n</stock>\n",
+  "responseHeaders": {
+    "Connection": "keep-alive",
+    "Content-Type": "text/xml",
+    "transfer-encoding": "chunked"
+  },
+  "returnedRequestHeaders": {
+    "Cookie": "symbol=AMZN",
+    "Accept": "text/xml",
+    "Content-Type": "text/xml",
+    "Host": "localhost:9595",
+    "Connection": "Keep-Alive",
+    "User-Agent": "Ballerina Composer",
+    "Accept-Encoding": "gzip,deflate"
+  },
+  "requestUrl": "http://localhost:9595/stockquote"
+}
