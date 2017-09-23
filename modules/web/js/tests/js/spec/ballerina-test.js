@@ -17,12 +17,11 @@
  */
 /* eslint-env es6 */
 
-import {fetchConfigs, parseContent} from 'api-client/api-client';
-import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
-import BallerinaASTRootVisitor from 'ballerina/visitors/source-gen/ballerina-ast-root-visitor';
-import fs from 'fs';
-import {expect} from 'chai';
-import path from 'path';
+import { fetchConfigs, parseContent } from "api-client/api-client";
+import fs from "fs";
+import { expect } from "chai";
+import path from "path";
+import TreeBuilder from "../../../ballerina/model/tree-builder";
 
 const directory = process.env.DIRECTORY ? process.env.DIRECTORY : '';
 
@@ -31,10 +30,8 @@ function ballerinaASTDeserializer(fileContent) {
     return new Promise((resolve, reject) => {
         parseContent(fileContent)
             .then((parsedJson) => {
-                const ASTModel = BallerinaASTDeserializer.getASTModel(parsedJson);
-                const sourceGenVisitor = new BallerinaASTRootVisitor();
-                ASTModel.accept(sourceGenVisitor);
-                resolve(sourceGenVisitor.getGeneratedSource());
+                const tree = TreeBuilder.build(parsedJson);
+                resolve(tree);
             })
             .catch(reject);
     });
@@ -75,8 +72,8 @@ describe('Ballerina Composer Test Suite', () => {
         it(`${testFile.replace(testResDir, '')} file serialize/deserialize test`, () => {
             const expectedSource = readFile(testFile);
             return ballerinaASTDeserializer(expectedSource)
-                .then((generatedSource) => {
-                    expect(generatedSource).to.equal(expectedSource);
+                .then((tree) => {
+                    expect(tree.getSource()).to.equal(expectedSource);
                 });
         });
     });
