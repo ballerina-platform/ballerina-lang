@@ -331,14 +331,12 @@ public class Desugar extends BLangNodeVisitor {
         });
 
         if (recordLiteral.type.tag == TypeTags.STRUCT) {
-            result = new BLangStructLiteral(recordLiteral.keyValuePairs);
+            result = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            result = new BLangMapLiteral(recordLiteral.keyValuePairs);
+            result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else {
-            result = new BLangJSONLiteral(recordLiteral.keyValuePairs);
+            result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
-
-        result.type = recordLiteral.type;
     }
 
     @Override

@@ -23,65 +23,17 @@ package org.wso2.ballerinalang.programfile;
  * @since 0.92
  */
 public class StructFieldDefaultValue {
-    private int typeDescCPIndex;
-    private String typeDesc;
+    public int typeDescCPIndex;
+    public String desc;
 
-    private int valueCPIndex = -1;
-    private long intValue;
-    private double floatValue;
-    private String stringValue;
-    private boolean booleanValue;
+    public int valueCPIndex = -1;
+    public long intValue;
+    public double floatValue;
+    public String stringValue;
+    public boolean booleanValue;
 
-    public StructFieldDefaultValue(int typeDescCPIndex, String typeDesc) {
+    public StructFieldDefaultValue(int typeDescCPIndex, String desc) {
         this.typeDescCPIndex = typeDescCPIndex;
-        this.typeDesc = typeDesc;
-    }
-
-    public int getTypeDescCPIndex() {
-        return typeDescCPIndex;
-    }
-
-    public String getTypeDesc() {
-        return typeDesc;
-    }
-
-    public int getValueCPIndex() {
-        return valueCPIndex;
-    }
-
-    public void setValueCPIndex(int valueCPIndex) {
-        this.valueCPIndex = valueCPIndex;
-    }
-
-    public long getIntValue() {
-        return intValue;
-    }
-
-    public void setIntValue(long intValue) {
-        this.intValue = intValue;
-    }
-
-    public double getFloatValue() {
-        return floatValue;
-    }
-
-    public void setFloatValue(double floatValue) {
-        this.floatValue = floatValue;
-    }
-
-    public String getStringValue() {
-        return stringValue;
-    }
-
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
-
-    public boolean getBooleanValue() {
-        return booleanValue;
-    }
-
-    public void setBooleanValue(boolean booleanValue) {
-        this.booleanValue = booleanValue;
+        this.desc = desc;
     }
 }

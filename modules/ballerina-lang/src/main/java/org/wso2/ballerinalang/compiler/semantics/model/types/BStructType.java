@@ -54,7 +54,7 @@ public class BStructType extends BType implements StructType {
 
     @Override
     public String toString() {
-        return this.tsymbol.name.value;
+        return this.tsymbol.pkgName.value + ":" + this.tsymbol.name.value;
     }
 
     /**

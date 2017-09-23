@@ -248,7 +248,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
         BPackageSymbol pSymbol;
         if (pkgNode.pkgDecl == null) {
-            pSymbol = new BPackageSymbol(Names.EMPTY, Names.EMPTY, symTable.rootPkgSymbol);
+            pSymbol = new BPackageSymbol(Names.DEFAULT_PACKAGE, Names.EMPTY, symTable.rootPkgSymbol);
         } else {
             Name pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
             Name pkgVersion = names.fromIdNode(pkgNode.pkgDecl.version);
