@@ -19,11 +19,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './global-item.css';
-import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
-import { util } from './../../../../visitors/sizing-utils';
-import * as DesignerDefaults from './../../../../configs/designer-defaults';
+import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
+import { util } from '../../sizing-util';
+import * as DesignerDefaults from '../../designer-defaults';
 import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
-import ASTFactory from './../../../../ast/ast-factory';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.

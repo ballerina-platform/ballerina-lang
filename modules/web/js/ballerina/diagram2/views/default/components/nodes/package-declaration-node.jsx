@@ -18,7 +18,7 @@
 import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { packageDefinition } from '../../../../configs/designer-defaults';
+import { packageDefinition } from '../../designer-defaults';
 import './package-definition.css';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';

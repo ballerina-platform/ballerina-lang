@@ -21,7 +21,7 @@ import './globals-expanded.css';
 import ImageUtil from './image-util';
 import GlobalItem from './global-item';
 import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
-import { variablesPane as variablesPaneDefaults } from '../../../../configs/designer-defaults';
+import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 
 export default class GlobalExpanded extends React.Component {
     constructor() {

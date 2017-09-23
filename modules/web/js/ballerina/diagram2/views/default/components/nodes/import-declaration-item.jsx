@@ -18,8 +18,8 @@
 
 import React from 'react';
 import './import-declaration-item.css';
-import * as DesignerDefaults from './../../../../configs/designer-defaults';
-import { util } from './../../../../visitors/sizing-utils';
+import * as DesignerDefaults from '../../designer-defaults';
+import { util } from '../../sizing-util';
 
 export default class importDeclarationItem extends React.Component {
     constructor() {
