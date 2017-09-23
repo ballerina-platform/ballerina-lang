@@ -30,7 +30,7 @@ import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
 
-const DEFAULT_PREVIEW_VIEW_SIZE = 500;
+const DEFAULT_PREVIEW_VIEW_SIZE = document.body.clientWidth - (((document.body.clientWidth / 2) - 250));
 const MINIMUM_PREVIEW_VIEW_SIZE = 250;
 
 const tabTitleHeight = 21;
@@ -100,8 +100,9 @@ class EditorTabs extends View {
      */
     getPreviewViewSize(previewViewEnabled) {
         const { history } = this.props.editorPlugin.appContext.pref;
+        const activeEditor = this.props.editorPlugin.appContext.editor.getActiveEditor();
         let previewViewSize;
-        if (previewViewEnabled) {
+        if (previewViewEnabled && !(activeEditor instanceof CustomEditor)) {
             if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
                 previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
             } else {
