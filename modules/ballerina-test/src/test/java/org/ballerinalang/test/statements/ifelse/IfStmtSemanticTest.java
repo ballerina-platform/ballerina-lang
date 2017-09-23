@@ -16,25 +16,31 @@
  */
 package org.ballerinalang.test.statements.ifelse;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class IfStmtSemanticTest {
 
+    CompileResult result;
+
     @BeforeClass
     public void setup() {
+        result = BTestUtils.compile("org/ballerinalang/test/statements/ifelse/invalidIfStmt.bal");
     }
 
     @Test
     public void ifStmtTest() {
-        String[] errors = BTestUtils.compile("org/ballerinalang/test/statements/ifelse/invalidIfStmt.bal");
-
-        Assert.assertEquals(errors.length, 2);
-        Assert.assertEquals(errors[0],
-                "error: invalidIfStmt.bal:2:6: incompatible types: expected 'boolean', found 'int'");
-
-        Assert.assertEquals(errors[1], "warning: invalidIfStmt.bal:7:4: dead code");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BTestUtils.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 6);
+    }
+    
+    @Test
+    public void invokeFunctionTest() {
+        BValue[] values = BTestUtils.invoke(result.getProgFile(), "foo", new BValue[0]);
+        Assert.assertEquals(values[0].stringValue(), "returning from if");
     }
 }

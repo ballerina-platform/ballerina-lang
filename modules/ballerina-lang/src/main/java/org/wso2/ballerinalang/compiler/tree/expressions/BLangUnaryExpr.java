@@ -19,8 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,12 +30,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNode {
 
-    public ExpressionNode expressionNode;
+    public BLangExpression expr;
     public OperatorKind operator;
+    public BOperatorSymbol opSymbol;
 
     @Override
-    public ExpressionNode getExpression() {
-        return expressionNode;
+    public BLangExpression getExpression() {
+        return expr;
     }
 
     @Override
@@ -55,6 +56,6 @@ public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNo
 
     @Override
     public String toString() {
-        return String.valueOf(operator) + String.valueOf(expressionNode);
+        return String.valueOf(operator) + String.valueOf(expr);
     }
 }

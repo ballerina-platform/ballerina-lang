@@ -15,24 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.programfile.cpentries;
-
-import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
-
-import java.util.Map;
+package org.ballerinalang.model.types;
 
 /**
- * {@code WorkerInfoPool} represents a table of worker data channels which workers use to pass data around.
- *
- * @since 0.90
+ * @since 0.94
  */
-public interface WorkerInfoPool {
+public interface ConstrainedType extends ReferenceType {
 
-    void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo);
-
-    WorkerDataChannelInfo getWorkerDataChannelInfo(String name);
-
-    WorkerDataChannelInfo[] getWorkerDataChannelInfo();
-    
-    Map<String, WorkerDataChannelInfo> getWorkerDataChannelMap();
+    Type getConstraint();
 }

@@ -48,10 +48,10 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
     public NodeKind getKind() {
         return NodeKind.LITERAL;
     }
-    
+
     @Override
     public String toString() {
         return value.toString();
     }
-    
+
 }

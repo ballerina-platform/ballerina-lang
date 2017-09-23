@@ -19,6 +19,9 @@ package org.ballerinalang.repository;
 
 import org.ballerinalang.model.elements.PackageID;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Hierarchical package repository class, which contains the most common
  * used features of a package repository as a hierarchical lookup structure,
@@ -33,6 +36,8 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
     private PackageRepository systemRepo;
 
     private PackageRepository parentRepo;
+    
+    private Set<PackageID> cachedPackageIds;
 
     public HierarchicalPackageRepository(PackageRepository systemRepo, PackageRepository parentRepo) {
         this.systemRepo = systemRepo;
@@ -42,6 +47,8 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
     public abstract PackageEntity lookupPackage(PackageID pkgId);
 
     public abstract PackageEntity lookupPackage(PackageID pkgId, String entryName);
+    
+    public abstract Set<PackageID> lookupPackageIDs();
 
     @Override
     public PackageEntity loadPackage(PackageID pkgId) {
@@ -73,6 +80,18 @@ public abstract class HierarchicalPackageRepository implements PackageRepository
 
     private boolean isSystemPackage(PackageID pkgID) {
         return pkgID.getNameComp(0).getValue().equals(BALLERINA_SYSTEM_PKG_PREFIX);
+    }
+    
+    @Override
+    public Set<PackageID> listPackages() {
+        if (this.cachedPackageIds == null) {
+            this.cachedPackageIds = new LinkedHashSet<>(this.systemRepo.listPackages());
+            if (this.parentRepo != null) {
+                this.cachedPackageIds.addAll(this.parentRepo.listPackages());
+            }
+            this.cachedPackageIds.addAll(this.lookupPackageIDs());
+        }
+        return this.cachedPackageIds;
     }
 
 }

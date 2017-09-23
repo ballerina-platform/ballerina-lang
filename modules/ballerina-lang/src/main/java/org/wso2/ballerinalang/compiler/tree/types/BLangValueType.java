@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -46,5 +47,10 @@ public class BLangValueType extends BLangType implements ValueTypeNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.VALUE_TYPE;
     }
 }

@@ -17,9 +17,6 @@
 */
 package org.wso2.ballerinalang.programfile.cpentries;
 
-
-import org.wso2.ballerinalang.programfile.StructureTypeInfo;
-
 import java.util.Objects;
 
 /**
@@ -28,44 +25,14 @@ import java.util.Objects;
 public class StructureRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
-    private int packageCPIndex;
-    private String packagePath;
+    public int packageCPIndex;
 
     // Index to a valid name index in the constant pool
-    private int nameCPIndex;
-    private String structureName;
+    public int nameCPIndex;
 
-    private StructureTypeInfo structureTypeInfo;
-
-    public StructureRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String structureName) {
+    public StructureRefCPEntry(int packageCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
-        this.packagePath = packagePath;
         this.nameCPIndex = nameCPIndex;
-        this.structureName = structureName;
-    }
-
-    public int getPackageCPIndex() {
-        return packageCPIndex;
-    }
-
-    public String getPackagePath() {
-        return packagePath;
-    }
-
-    public int getNameCPIndex() {
-        return nameCPIndex;
-    }
-
-    public String getStructureName() {
-        return structureName;
-    }
-
-    public StructureTypeInfo getStructureTypeInfo() {
-        return structureTypeInfo;
-    }
-
-    public void setStructureTypeInfo(StructureTypeInfo structureTypeInfo) {
-        this.structureTypeInfo = structureTypeInfo;
     }
 
     @Override
@@ -89,9 +56,7 @@ public class StructureRefCPEntry implements ConstantPoolEntry {
     public String toString() {
         return "StructureRefCPEntry{" +
                 "packageCPIndex=" + packageCPIndex +
-                ", packagePath='" + packagePath + '\'' +
                 ", nameCPIndex=" + nameCPIndex +
-                ", structureName='" + structureName + '\'' +
                 '}';
     }
 }

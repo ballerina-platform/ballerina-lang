@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -38,13 +39,13 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     public boolean returnsKeywordExists = false;
 
     @Override
-    public TypeNode[] getParamTypeNode() {
-        return this.paramTypeNodes.toArray(new TypeNode[0]);
+    public List<TypeNode> getParamTypeNode() {
+        return this.paramTypeNodes;
     }
 
     @Override
-    public TypeNode[] getReturnParamTypeNode() {
-        return this.returnParamTypeNodes.toArray(new TypeNode[0]);
+    public List<TypeNode> getReturnParamTypeNode() {
+        return this.returnParamTypeNodes;
     }
 
     @Override
@@ -54,7 +55,12 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.FUNCTION_TYPE;
     }
 
     @Override

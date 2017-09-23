@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -69,8 +71,8 @@ public class SymbolTable {
     public final BType jsonType = new BBuiltInRefType(TypeTags.JSON, null);
     public final BType xmlType = new BBuiltInRefType(TypeTags.XML, null);
     public final BType datatableType = new BBuiltInRefType(TypeTags.DATATABLE, null);
-    public final BType mapType = new BBuiltInRefType(TypeTags.MAP, null);
     public final BType anyType = new BBuiltInRefType(TypeTags.ANY, null);
+    public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nullType = new BNullType();
     public final BType voidType = new BNoType(TypeTags.VOID);
@@ -221,12 +223,16 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
         defineUnaryOperator(OperatorKind.ADD, intType, intType, -1);
 
-        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, -1);
-        defineUnaryOperator(OperatorKind.SUB, intType, intType, -1);
+        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, InstructionCodes.INEG);
+        defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
-        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, -1);
+        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
+
+        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOFJSON);
+        defineUnaryOperator(OperatorKind.LENGTHOF, new BArrayType(noType), intType, InstructionCodes.LENGTHOF);
 
         defineCastOperators();
+        defineConversionOperators();
     }
 
     private void defineCastOperators() {
@@ -259,6 +265,26 @@ public class SymbolTable {
         defineExplicitCastOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
         defineExplicitCastOperator(jsonType, stringType, false, InstructionCodes.JSON2S);
         defineExplicitCastOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
+    }
+
+    private void defineConversionOperators() {
+        // Define conversion operators
+        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
+        defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
+        defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
+        defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);
+        defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
+        defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
+        defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
+        defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
+        defineConversionOperator(stringType, booleanType, false, InstructionCodes.S2B);
+        defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
+        defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
+        defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
+        defineConversionOperator(jsonType, xmlType, false, InstructionCodes.JSON2XML);
+        defineConversionOperator(xmlType, jsonType, false, InstructionCodes.XML2JSON);
+        defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
+        defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
     }
 
     private void defineBinaryOperator(OperatorKind kind,
@@ -305,6 +331,17 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(opType, rootPkgSymbol,
                 implicit, explicit, safe, opcode);
+        rootScope.define(symbol.name, symbol);
+    }
+
+    private void defineConversionOperator(BType sourceType,
+                                          BType targetType,
+                                          boolean safe,
+                                          int opcode) {
+        List<BType> paramTypes = Lists.of(sourceType, targetType);
+        List<BType> retTypes = Lists.of(targetType, this.errStructType);
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(opType, rootPkgSymbol, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 

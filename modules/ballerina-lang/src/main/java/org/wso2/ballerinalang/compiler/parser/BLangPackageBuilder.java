@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -492,7 +493,7 @@ public class BLangPackageBuilder {
     public void addKeyValueRecord() {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
-        keyValue.keyExpr = (BLangExpression) exprNodeStack.pop();
+        keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 
@@ -602,15 +603,15 @@ public class BLangPackageBuilder {
     public void createTypeConversionExpr(DiagnosticPos pos) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
-        typeConversionNode.expr = exprNodeStack.pop();
-        typeConversionNode.typeName = typeNodeStack.pop();
+        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
+        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
 
     public void createUnaryExpr(DiagnosticPos pos, String operator) {
         BLangUnaryExpr unaryExpressionNode = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         unaryExpressionNode.pos = pos;
-        unaryExpressionNode.expressionNode = exprNodeStack.pop();
+        unaryExpressionNode.expr = (BLangExpression) exprNodeStack.pop();
         unaryExpressionNode.operator = OperatorKind.valueFrom(operator);
         addExpressionNode(unaryExpressionNode);
     }
@@ -621,6 +622,7 @@ public class BLangPackageBuilder {
         ternaryExpr.elseExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.thenExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(ternaryExpr);
     }
 
 
@@ -1159,8 +1161,8 @@ public class BLangPackageBuilder {
 
     public void addWorkerSendStmt(DiagnosticPos pos, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
-        workerSendNode.workerIdentifier = createIdentifier(workerName);
-        workerSendNode.expressions = exprNodeListStack.pop();
+        workerSendNode.setWorkerName(this.createIdentifier(workerName));
+        exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         addStmtToCurrentBlock(workerSendNode);
@@ -1168,8 +1170,8 @@ public class BLangPackageBuilder {
 
     public void addWorkerReceiveStmt(DiagnosticPos pos, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.workerIdentifier = createIdentifier(workerName);
-        workerReceiveNode.expressions = exprNodeListStack.pop();
+        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
+        exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
         workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);
     }
@@ -1250,7 +1252,7 @@ public class BLangPackageBuilder {
 
     public void createXMLQuotedLiteral(DiagnosticPos pos, Stack<String> precedingTextFragments, String endingText,
                                        QuoteType quoteType) {
-        List<ExpressionNode> templateExprs =
+        List<BLangExpression> templateExprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         BLangXMLQuotedString quotedString = (BLangXMLQuotedString) TreeBuilder.createXMLQuotedStringNode();
         quotedString.pos = pos;
@@ -1283,7 +1285,7 @@ public class BLangPackageBuilder {
     }
 
     public void addXMLTextToElement(DiagnosticPos pos, Stack<String> precedingTextFragments, String endingText) {
-        List<ExpressionNode> templateExprs =
+        List<BLangExpression> templateExprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.XML_TEXT_LITERAL);
         BLangXMLElementLiteral parentElement = (BLangXMLElementLiteral) exprNodeStack.peek();
         templateExprs.forEach(expr -> parentElement.addChild(expr));
@@ -1299,7 +1301,7 @@ public class BLangPackageBuilder {
 
     public void createXMLPILiteral(DiagnosticPos pos, String targetQName, Stack<String> precedingTextFragments,
                                    String endingText) {
-        List<ExpressionNode> dataExprs =
+        List<BLangExpression> dataExprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         addLiteralValue(pos, TypeTags.STRING, targetQName);
         LiteralNode target = (LiteralNode) exprNodeStack.pop();
@@ -1307,7 +1309,7 @@ public class BLangPackageBuilder {
         BLangXMLProcInsLiteral xmlProcInsLiteral =
                 (BLangXMLProcInsLiteral) TreeBuilder.createXMLProcessingIntsructionLiteralNode();
         xmlProcInsLiteral.pos = pos;
-        xmlProcInsLiteral.dataFragments = dataExprs;
+        dataExprs.forEach(dataExpr -> xmlProcInsLiteral.dataFragments.add(dataExpr));
         xmlProcInsLiteral.target = target;
 
         addExpressionNode(xmlProcInsLiteral);
@@ -1317,30 +1319,30 @@ public class BLangPackageBuilder {
                                             String endingText) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
-        stringTemplateLiteral.expressions =
+        stringTemplateLiteral.exprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         stringTemplateLiteral.pos = pos;
         addExpressionNode(stringTemplateLiteral);
     }
 
-    private List<ExpressionNode> getExpressionsInTemplate(DiagnosticPos pos, Stack<String> precedingTextFragments,
-                                                          String endingText, NodeKind targetStrExprKind) {
-        List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+    private List<BLangExpression> getExpressionsInTemplate(DiagnosticPos pos, Stack<String> precedingTextFragments,
+                                                           String endingText, NodeKind targetStrExprKind) {
+        List<BLangExpression> expressions = new ArrayList<>();
 
         if (endingText != null && !endingText.isEmpty()) {
             endingText = StringEscapeUtils.unescapeJava(endingText);
             createXMLStringExpr(pos, targetStrExprKind, endingText);
-            expressions.add(exprNodeStack.pop());
+            expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
         while (!precedingTextFragments.isEmpty()) {
-            expressions.add(exprNodeStack.pop());
+            expressions.add((BLangExpression) exprNodeStack.pop());
             String textFragment = precedingTextFragments.pop();
 
             if (textFragment != null && !textFragment.isEmpty()) {
                 textFragment = StringEscapeUtils.unescapeJava(textFragment);
                 createXMLStringExpr(pos, targetStrExprKind, textFragment);
-                expressions.add(exprNodeStack.pop());
+                expressions.add((BLangExpression) exprNodeStack.pop());
             }
         }
 

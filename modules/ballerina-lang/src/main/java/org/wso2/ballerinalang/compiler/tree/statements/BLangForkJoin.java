@@ -98,7 +98,7 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.FORKJOIN;
+        return NodeKind.FORK_JOIN;
     }
 
     @Override

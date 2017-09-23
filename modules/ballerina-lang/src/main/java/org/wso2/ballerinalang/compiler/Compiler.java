@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -44,10 +45,12 @@ public class Compiler {
     private PackageLoader pkgLoader;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private Desugar desugar;
     private CodeGenerator codeGenerator;
 
     private CompilerPhase compilerPhase;
-
+    private ProgramFile programFile;
+    
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
         if (compiler == null) {
@@ -63,6 +66,7 @@ public class Compiler {
         this.pkgLoader = PackageLoader.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
         this.compilerPhase = getCompilerPhase();
@@ -79,10 +83,17 @@ public class Compiler {
             case CODE_ANALYZE:
                 codeAnalyze(typeCheck(define(sourcePkg)));
                 break;
+            case DESUGAR:
+                desugar(codeAnalyze(typeCheck(define(sourcePkg))));
+                break;
             case CODE_GEN:
-                gen(codeAnalyze(typeCheck(define(sourcePkg))));
+                gen(desugar(codeAnalyze(typeCheck(define(sourcePkg)))));
                 break;
         }
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
     }
 
     private BLangPackage define(String sourcePkg) {
@@ -97,8 +108,12 @@ public class Compiler {
         return codeAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage desugar(BLangPackage pkgNode) {
+        return desugar.perform(pkgNode);
+    }
+
     private void gen(BLangPackage pkgNode) {
-        ProgramFile programFile = this.codeGenerator.generate(pkgNode);
+        programFile = this.codeGenerator.generate(pkgNode);
 
         try {
             ProgramFileWriter.writeProgram(programFile, Paths.get("temp.balx"));

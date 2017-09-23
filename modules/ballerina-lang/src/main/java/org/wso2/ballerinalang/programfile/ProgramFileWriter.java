@@ -48,6 +48,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -60,11 +61,15 @@ import java.util.Map;
 public class ProgramFileWriter {
 
     public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
+        writeProgram(programFile, bos);
+    }
+
+    public static void writeProgram(ProgramFile programFile, OutputStream programOutStream) throws IOException {
         DataOutputStream dataOutStream = null;
         try {
             // TODO improve this with Java 7 File API.
-            BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
-            dataOutStream = new DataOutputStream(bos);
+            dataOutStream = new DataOutputStream(programOutStream);
 
             dataOutStream.writeInt(programFile.getMagicValue());
             dataOutStream.writeShort(programFile.getVersion());
@@ -148,8 +153,8 @@ public class ProgramFileWriter {
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
                     StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) cpEntry;
-                    dataOutStream.writeInt(structureRefCPEntry.getPackageCPIndex());
-                    dataOutStream.writeInt(structureRefCPEntry.getNameCPIndex());
+                    dataOutStream.writeInt(structureRefCPEntry.packageCPIndex);
+                    dataOutStream.writeInt(structureRefCPEntry.nameCPIndex);
                     break;
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
@@ -282,8 +287,8 @@ public class ProgramFileWriter {
 
     private static void writeStructInfo(DataOutputStream dataOutStream,
                                         StructInfo structInfo) throws IOException {
-        dataOutStream.writeInt(structInfo.getNameCPIndex());
-        StructFieldInfo[] structFieldInfoEntries = structInfo.getFieldInfoEntries();
+        dataOutStream.writeInt(structInfo.nameCPIndex);
+        StructFieldInfo[] structFieldInfoEntries = structInfo.fieldInfoEntries.toArray(new StructFieldInfo[0]);
         dataOutStream.writeShort(structFieldInfoEntries.length);
         for (StructFieldInfo structFieldInfoEntry : structFieldInfoEntries) {
             writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
@@ -295,9 +300,9 @@ public class ProgramFileWriter {
 
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {
-        dataOutStream.writeInt(connectorInfo.getNameCPIndex());
+        dataOutStream.writeInt(connectorInfo.nameCPIndex);
         // TODO write property flags  e.g. public
-        dataOutStream.writeInt(connectorInfo.getSignatureCPIndex());
+        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
 
         Map<Integer, Integer> methodTable = connectorInfo.getMethodTableIndex();
         dataOutStream.writeInt(methodTable.size());
@@ -308,7 +313,7 @@ public class ProgramFileWriter {
 
         dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
 
-        ActionInfo[] actionInfoEntries = connectorInfo.getActionInfoEntries();
+        ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);
         for (ActionInfo actionInfo : actionInfoEntries) {
             writeActionInfo(dataOutStream, actionInfo);
@@ -320,10 +325,10 @@ public class ProgramFileWriter {
 
     private static void writeServiceInfo(DataOutputStream dataOutStream,
                                          ServiceInfo serviceInfo) throws IOException {
-        dataOutStream.writeInt(serviceInfo.getNameCPIndex());
-        dataOutStream.writeInt(serviceInfo.getProtocolPkgPathCPIndex());
+        dataOutStream.writeInt(serviceInfo.nameCPIndex);
+        dataOutStream.writeInt(serviceInfo.protocolPkgPathCPIndex);
 
-        ResourceInfo[] resourceInfoEntries = serviceInfo.getResourceInfoEntries();
+        ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
         dataOutStream.writeShort(resourceInfoEntries.length);
         for (ResourceInfo resourceInfo : resourceInfoEntries) {
             writeResourceInfo(dataOutStream, resourceInfo);
@@ -552,8 +557,8 @@ public class ProgramFileWriter {
 
     private static void writeStructFieldInfo(DataOutputStream dataOutStream,
                                              StructFieldInfo structFieldInfo) throws IOException {
-        dataOutStream.writeInt(structFieldInfo.getNameCPIndex());
-        dataOutStream.writeInt(structFieldInfo.getSignatureCPIndex());
+        dataOutStream.writeInt(structFieldInfo.nameCPIndex);
+        dataOutStream.writeInt(structFieldInfo.signatureCPIndex);
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
@@ -637,12 +642,12 @@ public class ProgramFileWriter {
 
     private static void writeDefaultValue(DataOutputStream dataOutStream, StructFieldDefaultValue defaultValueInfo)
             throws IOException {
-        dataOutStream.writeInt(defaultValueInfo.getTypeDescCPIndex());
-        String typeDesc = defaultValueInfo.getTypeDesc();
+        dataOutStream.writeInt(defaultValueInfo.typeDescCPIndex);
+        String typeDesc = defaultValueInfo.desc;
         if (TypeDescriptor.SIG_BOOLEAN.equals(typeDesc)) {
-            dataOutStream.writeBoolean(defaultValueInfo.getBooleanValue());
+            dataOutStream.writeBoolean(defaultValueInfo.booleanValue);
         } else {
-            dataOutStream.writeInt(defaultValueInfo.getValueCPIndex());
+            dataOutStream.writeInt(defaultValueInfo.valueCPIndex);
         }
     }
 }

@@ -15,34 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.TransformNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.ballerinalang.model.types.ConstrainedType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
  * @since 0.94
  */
-public class BlangTransform extends BLangStatement implements TransformNode {
-    public BLangBlockStmt body;
+public class BMapType extends BBuiltInRefType implements ConstrainedType {
 
-    public BlangTransform(BLangBlockStmt body) {
-        this.body = body;
+    public BType constraint;
+
+    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
+        super(tag, tsymbol);
+        this.constraint = constraint;
     }
 
     @Override
-    public BLangBlockStmt getBody() {
-        return body;
-    }
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.TRANSFORM;
+    public BType getConstraint() {
+        return constraint;
     }
 }

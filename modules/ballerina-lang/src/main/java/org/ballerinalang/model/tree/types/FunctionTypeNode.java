@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.types;
 
+import java.util.List;
+
 /**
  * Represents function type nodes.
  *
@@ -24,9 +26,9 @@ package org.ballerinalang.model.tree.types;
  */
 public interface FunctionTypeNode extends ReferenceTypeNode {
 
-    TypeNode[] getParamTypeNode();
+    List<TypeNode> getParamTypeNode();
 
-    TypeNode[] getReturnParamTypeNode();
+    List<TypeNode> getReturnParamTypeNode();
 
     boolean isReturnKeywordExists();
 

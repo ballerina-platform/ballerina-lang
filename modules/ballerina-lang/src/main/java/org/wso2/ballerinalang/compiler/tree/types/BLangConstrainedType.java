@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -53,5 +54,10 @@ public class BLangConstrainedType extends BLangType implements ConstrainedTypeNo
     @Override
     public String toString() {
         return this.type.toString() + "<" + this.constraint.toString() + ">";
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.CONSTRAINED_TYPE;
     }
 }

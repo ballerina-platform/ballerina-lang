@@ -122,7 +122,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public List<? extends WorkerNode> getWorkers() {
+    public List<BLangWorker> getWorkers() {
         return workers;
     }
 
