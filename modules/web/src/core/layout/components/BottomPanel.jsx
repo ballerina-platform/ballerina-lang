@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tabs, { TabPane } from 'rc-tabs';
@@ -6,6 +5,9 @@ import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 import 'rc-tabs/assets/index.css';
 import { HISTORY } from './../constants';
+import { createViewFromViewDef } from './utils';
+
+const panelTitleHeight = 37;
 
 /**
  * React component for BottomPanel Region.
@@ -30,7 +32,7 @@ class BottomPanel extends React.Component {
      * @inheritdoc
      */
     componentWillReceiveProps(newProps) {
-        if(this.state.maximized !== newProps.maximize) {
+        if (this.state.maximized !== newProps.maximize) {
             this.setState({
                 maximized: newProps.maximize,
             });
@@ -60,17 +62,14 @@ class BottomPanel extends React.Component {
      */
     render() {
         const tabs = [];
-        this.props.children.forEach((view) => {
+        this.props.views.forEach((viewDef) => {
             const {
-                    props: {
-                        definition: {
-                            id,
-                            regionOptions: {
-                                panelTitle,
-                            },
-                        },
+                    id,
+                    regionOptions: {
+                        panelTitle,
                     },
-                  } = view;
+                  } = viewDef;
+            const { width, height } = this.props;
             tabs.push((
                 <TabPane
                     tab={
@@ -81,7 +80,7 @@ class BottomPanel extends React.Component {
                     data-extra="tabpane"
                     key={`${id}`}
                 >
-                    {view}
+                    {createViewFromViewDef(viewDef, { width, height: height - panelTitleHeight })}
                 </TabPane>
             ));
         });
@@ -90,7 +89,7 @@ class BottomPanel extends React.Component {
             <div className="bottom-panel" >
                 <Tabs
                     activeKey={this.state.activeView}
-                    defaultActiveKey={this.props.children[0] ? this.props.children[0].props.definition.id : undefined}
+                    defaultActiveKey={this.props.views[0] ? this.props.views[0].id : undefined}
                     onChange={(activeView) => {
                         this.context.history.put(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW, activeView);
                         this.setState({
@@ -132,7 +131,9 @@ BottomPanel.propTypes = {
     onClose: PropTypes.func.isRequired,
     onToggleMaximizedState: PropTypes.func.isRequired,
     onActiveViewChange: PropTypes.func.isRequired,
-    children: PropTypes.arrayOf(PropTypes.element).isRequired,
+    views: PropTypes.arrayOf(Object).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 BottomPanel.contextTypes = {
