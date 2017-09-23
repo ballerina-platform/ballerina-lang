@@ -21,20 +21,6 @@
     height: 100px;
 }
 
-.property-name {
-    line-height: 30px;
-    font-size: 13px;
-    color: #666769;
-    font-weight: bold;
-}
-
-.property-type {
-    line-height: 30px;
-    padding: 5px;
-    color: #3d3d3d;
-    font-size: 13px;
-}
-
 .type-mapper-icon {
     padding: 10px;
 }

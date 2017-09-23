@@ -85,14 +85,14 @@ export default class VariableEndpoint extends React.Component {
                     <span className='variable-icon'>
                         <i className={`transform-endpoint-icon fw ${iconType}`} />
                     </span>
-                    <span className='variable-content' onClick={(e) => { onClick && onClick(variable.name); }}>
+                    <span className='endpoint-content' onClick={(e) => { onClick && onClick(variable.name); }}>
                         {!this.state.onEdit && variable.displayName &&
-                            <span className='property-name'>
+                            <span className='endpoint-name'>
                                 {variable.displayName}:
                             </span>
                         }
                         {!this.state.onEdit &&
-                        <span className='property-type'>
+                        <span className='endpoint-type'>
                             {variable.typeName || variable.type}
                         </span>
                         }
