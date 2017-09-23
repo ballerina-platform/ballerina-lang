@@ -42,7 +42,7 @@ class ServiceTransportLine extends React.Component {
         }
         return (
             <g>
-                {showAddResourceBtn &&
+                {(showAddResourceBtn && this.props.resources.length) &&
                 <g id="resourceProtocolLine" className={this.props.style}>
                     <AddResourceDefinition
                         model={this.props.model}
