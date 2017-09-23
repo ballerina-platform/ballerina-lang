@@ -17,5 +17,7 @@
   -->
 
 <FindBugsFilter>
-
+    <Match>
+        <Class name="org.ballerinalang.logging.BLogManager" />
+    </Match>
 </FindBugsFilter>

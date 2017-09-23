@@ -23,5 +23,8 @@
 <suite name="ballerina-logging-test-suite">
     <test name="ballerina-logging-test-tests" preserve-order="true" parallel="false">
         <!--Included this empty test tag to avoid a file not found exception during Maven test phase-->
+        <packages>
+            <package name="org.ballerinalang.logging.test" />
+        </packages>
     </test>
 </suite>

@@ -44,8 +44,8 @@ import java.util.logging.Logger;
  */
 public class BLogManager extends LogManager {
 
-    public static final PrintStream STD_OUT = System.out;
-    public static final PrintStream STD_ERR = System.err;
+    public static PrintStream stdOut = System.out;
+    public static PrintStream stdErr = System.err;
 
     private Logger httpTraceLogger;
     private BLogLevel ballerinaRootLogLevel;
@@ -53,7 +53,7 @@ public class BLogManager extends LogManager {
 
     @Override
     public void readConfiguration() throws IOException {
-        logConfigs = getDefaultConfiguration();
+        setDefaultConfiguration(logConfigs);
         Properties sysProps = System.getProperties();
         FormatStringMapper mapper = FormatStringMapper.getInstance();
 
@@ -80,8 +80,8 @@ public class BLogManager extends LogManager {
             ballerinaRootLogLevel =
                     BLogLevelMapper.getBallerinaLogLevel(logConfigs.getProperty(Constants.BALLERINA_LEVEL));
         } catch (IllegalArgumentException e) {
-            STD_ERR.println("Invalid log level value given for 'log.level'");
-            STD_ERR.println("Setting 'log.level=INFO'");
+            stdErr.println("Invalid log level value given for 'log.level'");
+            stdErr.println("Setting 'log.level=INFO'");
             logConfigs.setProperty(Constants.BALLERINA_LEVEL, BLogLevel.INFO.name());
             ballerinaRootLogLevel = BLogLevel.INFO;
         }
@@ -89,7 +89,7 @@ public class BLogManager extends LogManager {
         String traceLogLevel = logConfigs.getProperty(Constants.HTTP_TRACELOG_LEVEL);
         if (traceLogLevel != null &&
                 (BLogLevelMapper.getBallerinaLogLevel(traceLogLevel) == BLogLevel.DEBUG)) {
-            System.setProperty(Constants.HTTP_TRACELOG, String.valueOf(true));
+            System.setProperty(Constants.HTTP_TRACELOG, "true");
             setHttpTraceLogHandler();
         }
 
@@ -167,22 +167,20 @@ public class BLogManager extends LogManager {
         }
     }
 
-    private Properties getDefaultConfiguration() {
+    private void setDefaultConfiguration(Properties properties) {
         // Configurations for BRE log
-        logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_LEVEL, Level.WARNING.getName());
-        logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_PATTERN,
+        properties.setProperty(Constants.BRE_LOG_FILE_HANDLER_LEVEL, Level.WARNING.getName());
+        properties.setProperty(Constants.BRE_LOG_FILE_HANDLER_PATTERN,
                                System.getProperty(Constants.BALLERINA_RUNTIME_LOG_FILE));
-        logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_LIMIT, String.valueOf(1000000));
-        logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_APPEND, "true");
-        logConfigs.setProperty(Constants.BRE_LOG_FILE_HANDLER_FORMATTER, Constants.BRE_LOG_FORMATTER);
+        properties.setProperty(Constants.BRE_LOG_FILE_HANDLER_LIMIT, "1000000");
+        properties.setProperty(Constants.BRE_LOG_FILE_HANDLER_APPEND, "true");
+        properties.setProperty(Constants.BRE_LOG_FILE_HANDLER_FORMATTER, Constants.BRE_LOG_FORMATTER);
 
         // Configurations for HTTP trace log
-        logConfigs.setProperty(Constants.HTTP_TRACELOG_USE_PARENT_HANDLERS, "false");
+        properties.setProperty(Constants.HTTP_TRACELOG_USE_PARENT_HANDLERS, "false");
 
         // Root logger configurations
-        logConfigs.setProperty(Constants.HANDLERS, Constants.BRE_LOG_FILE_HANDLER);
-        logConfigs.setProperty(Constants.LEVEL, Level.WARNING.getName());
-
-        return logConfigs;
+        properties.setProperty(Constants.HANDLERS, Constants.BRE_LOG_FILE_HANDLER);
+        properties.setProperty(Constants.LEVEL, Level.WARNING.getName());
     }
 }
