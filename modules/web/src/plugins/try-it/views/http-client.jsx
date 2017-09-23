@@ -337,7 +337,7 @@ class HttpClient extends React.Component {
         const sendOrCancelButton = this.renderSendOrCancelButton();
         return (<div className='http-client-wrapper'>
             <div className='http-client-request'>
-                Request
+                <h3>Request</h3>
                 <hr />
                 <div className='http-client-action-wrapper'>
                     <AutoSuggest
@@ -399,7 +399,7 @@ class HttpClient extends React.Component {
                 </div>
             </div>
             <div className='http-client-response'>
-                Response
+                <h3>Response</h3>
                 <hr />
                 <div className='http-client-response-attributes'>
                     Reponse Code: {this.state.responseCode}
