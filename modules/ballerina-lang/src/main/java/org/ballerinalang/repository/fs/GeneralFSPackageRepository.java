@@ -82,7 +82,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         PackageEntity result = this.lookupPackageSource(pkgID, entryName);
         return result;
     }
-    
+
     private String sanatize(String name, String separator) {
         if (name.startsWith(separator)) {
             name = name.substring(separator.length());
@@ -123,8 +123,8 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
         return result;
     }
-    
-    private Path generatePath(PackageID pkgID) {
+
+    protected Path generatePath(PackageID pkgID) {
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
             pkgDirPath = pkgDirPath.resolve(comp.value);
@@ -139,13 +139,13 @@ public class GeneralFSPackageRepository implements PackageRepository {
      */
     public class FSPackageSource implements PackageSource {
 
-        private static final String BAL_SOURCE_EXT = ".bal";
+        protected static final String BAL_SOURCE_EXT = ".bal";
 
-        private PackageID pkgID;
+        protected PackageID pkgID;
 
-        private Path pkgPath;
+        protected Path pkgPath;
 
-        private List<String> cachedEntryNames;
+        protected List<String> cachedEntryNames;
 
         public FSPackageSource(PackageID pkgID, Path pkgPath) {
             this.pkgID = pkgID;
