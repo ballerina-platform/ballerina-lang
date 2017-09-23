@@ -59,6 +59,7 @@ public class BallerinaCompletionUtils {
     private static final int KEYWORDS_PRIORITY = VALUE_TYPES_PRIORITY - 2;
 
     // File level keywords
+    private static final LookupElementBuilder PUBLIC;
     private static final LookupElementBuilder PACKAGE;
     private static final LookupElementBuilder IMPORT;
     private static final LookupElementBuilder CONST;
@@ -128,6 +129,7 @@ public class BallerinaCompletionUtils {
 
 
     static {
+        PUBLIC = createKeywordLookupElement("public");
         PACKAGE = createKeywordLookupElement("package");
         IMPORT = createKeywordLookupElement("import");
         CONST = createKeywordLookupElement("const");
@@ -317,29 +319,28 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
     }
 
-    /**
-     * Adds file level keywords as lookup elements.
-     *
-     * @param resultSet   result list which is used to add lookups
-     * @param withPackage indicates whether to add 'package' keyword
-     * @param withImport  indicates whether to add 'import' keyword
-     */
-    static void addFileLevelKeywordsAsLookups(@NotNull CompletionResultSet resultSet, boolean withPackage,
-                                              boolean withImport) {
+    @NotNull
+    static List<LookupElement> getFileLevelKeywordsAsLookups(boolean withPublic, boolean withPackage,
+                                                             boolean withImport) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        if (withPublic) {
+            lookupElements.add(PrioritizedLookupElement.withPriority(PUBLIC, KEYWORDS_PRIORITY));
+        }
         if (withPackage) {
-            resultSet.addElement(PrioritizedLookupElement.withPriority(PACKAGE, KEYWORDS_PRIORITY));
+            lookupElements.add(PrioritizedLookupElement.withPriority(PACKAGE, KEYWORDS_PRIORITY));
         }
         if (withImport) {
-            resultSet.addElement(PrioritizedLookupElement.withPriority(IMPORT, KEYWORDS_PRIORITY));
+            lookupElements.add(PrioritizedLookupElement.withPriority(IMPORT, KEYWORDS_PRIORITY));
         }
-        resultSet.addElement(PrioritizedLookupElement.withPriority(CONST, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(CONST, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(SERVICE, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(FUNCTION, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(CONNECTOR, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
+        return lookupElements;
     }
 
     public static List<LookupElement> createAttachmentPointsAsLookups() {
@@ -489,8 +490,8 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createUnimportedPackageLookupElement(@NotNull PsiDirectory directory,
-                                                             @NotNull String name,
-                                                           @Nullable InsertHandler<LookupElement> handler) {
+                                                                     @NotNull String name,
+                                                                     @Nullable InsertHandler<LookupElement> handler) {
         LookupElementBuilder builder = createPackageLookupElement(directory, name).withInsertHandler(handler);
         return PrioritizedLookupElement.withPriority(builder, UNIMPORTED_PACKAGE_PRIORITY);
     }

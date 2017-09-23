@@ -70,6 +70,9 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
         if (parent instanceof NameReferenceNode) {
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleLeaf != null && "public".equals(prevVisibleLeaf.getText())) {
+                result.addAllElements(getFileLevelKeywordsAsLookups(false, true, true));
+            }
             if (prevVisibleLeaf instanceof IdentifierPSINode) {
                 result.addElement(getAttachKeyword());
                 return;
@@ -229,6 +232,8 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     if (connectorBodyNode != null) {
                         result.addAllElements(getConnectorSpecificKeywords());
                     }
+                } else if (prevVisibleSibling != null && "}".equals(prevVisibleSibling.getText())) {
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, false, false));
                 }
             }
         }
@@ -276,12 +281,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                 if (prevPackageDeclarationNode == null && prevImportDeclarationNode == null
                         && prevConstantDefinitionNode == null && prevGlobalVariableDefinition == null) {
-                    addFileLevelKeywordsAsLookups(result, true, true);
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, true, true));
                 } else if ((prevPackageDeclarationNode != null || prevImportDeclarationNode != null)
                         && prevConstantDefinitionNode == null && prevGlobalVariableDefinition == null) {
-                    addFileLevelKeywordsAsLookups(result, false, true);
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, false, true));
                 } else {
-                    addFileLevelKeywordsAsLookups(result, false, false);
+                    result.addAllElements(getFileLevelKeywordsAsLookups(true, false, false));
                 }
 
                 addTypeNamesAsLookups(result);
