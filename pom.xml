@@ -177,7 +177,8 @@
                                 <excludes>**org/wso2/ballerinalang/compiler/parser/antlr4/*,
                                     **/util/parser/*,
                                     **/${native.constructs.provider.class}.java,
-                                    **/${ballerina.package.repository.provider.class}.java
+                                    **/${ballerina.package.repository.provider.class}.java,
+                                    **/generated/**
                                 </excludes>
                             </configuration>
                             <goals>
