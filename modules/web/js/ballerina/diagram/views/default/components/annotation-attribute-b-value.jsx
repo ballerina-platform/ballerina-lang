@@ -53,6 +53,7 @@ class AnnotationAttributeBValue extends React.Component {
         this.onBValueChange = this.onBValueChange.bind(this);
         this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
         this.onEdit = this.onEdit.bind(this);
+        this.onBValueKeyPress = this.onBValueKeyPress.bind(this);
     }
 
     /**
@@ -101,6 +102,17 @@ class AnnotationAttributeBValue extends React.Component {
     }
 
     /**
+     * Event when enter key is pressed.
+     * @param {Object} e The event.
+     * @memberof AnnotationAttributeBValue
+     */
+    onBValueKeyPress(e) {
+        if (e.charCode === 13 || e.key === 'Enter') {
+            this.onBValueEditFinished();
+        }
+    }
+
+    /**
      * Event when b-value starts editing.
      * @memberof AnnotationAttributeBValue
      */
@@ -126,6 +138,7 @@ class AnnotationAttributeBValue extends React.Component {
                 value={this.state.bValueText}
                 onChange={this.onBValueChange}
                 onBlur={this.onBValueEditFinished}
+                onKeyPress={this.onBValueKeyPress}
             />);
         }
 

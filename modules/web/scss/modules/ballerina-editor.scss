@@ -811,9 +811,12 @@
     
     .annotation-container {
         background: #f4f4f4;
-        overflow: auto;
         padding: 7px;
         overflow: visible;
+
+        .action-menu-icon-wrapper .fw {
+            font-size: 0.8em;
+        }
     }
     
     .annotation-attachment-package-name {
@@ -3698,7 +3701,6 @@
     
     .annotation-container {
         background: #EFEFEF;
-        overflow: auto;
         padding-left: 5px;
     }
     
