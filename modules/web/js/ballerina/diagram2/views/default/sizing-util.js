@@ -358,7 +358,7 @@ class SizingUtil {
     }
 
     populateOuterPanelDecoratorBBox(node, name) {
-        const viewState = node.getViewState();
+        const viewState = node.viewState;
         const components = {};
         let totalResourceHeight = 0;
         let connectorStatementContainerHeight = 0;
@@ -382,9 +382,9 @@ class SizingUtil {
          * If there are service level connectors, their height depends on the heights of the resources
          */
         _.forEach(resources, (resource) => {
-            totalResourceHeight += resource.getViewState().bBox.h;
-            if (maxResourceWidth < resource.getViewState().bBox.w) {
-                maxResourceWidth = resource.getViewState().bBox.w;
+            totalResourceHeight += resource.viewState.bBox.h;
+            if (maxResourceWidth < resource.viewState.bBox.w) {
+                maxResourceWidth = resource.viewState.bBox.w;
             }
         });
 

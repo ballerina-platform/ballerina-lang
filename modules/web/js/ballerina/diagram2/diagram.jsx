@@ -123,6 +123,7 @@ class Diagram extends React.Component {
         //    a CsnvasDecorator and pass child components for that.
 
         */
+        console.log(this.props.model);
         let tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         let children = getComponentForNodeArray(tln, this.props.mode);
         console.log(children);

@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import log from 'log';
+import * as PositioningUtils from '../../positioning-util';
 /**
  * Position Calculater for Struct.
  *
@@ -31,7 +32,8 @@ class StructPositionVisitor {
      * @memberOf StructPositionVisitor
      * */
     beginVisit(node) {
-
+        log.debug('begin visit StructDefinitionPositionCalcVisitor');
+        PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
     }
 
     /**
@@ -42,7 +44,7 @@ class StructPositionVisitor {
      * @memberOf StructPositionVisitor
      * */
     endVisit(node) {
-        
+        log.debug('end visit StructDefinitionPositionCalcVisitor');
     }
 }
 
