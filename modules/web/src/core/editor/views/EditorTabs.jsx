@@ -30,7 +30,7 @@ import Editor from './../model/Editor';
 import CustomEditor from './../model/CustomEditor';
 import EditorTabTitle from './EditorTabTitle';
 
-const DEFAULT_PREVIEW_VIEW_SIZE = 500;
+const DEFAULT_PREVIEW_VIEW_SIZE = document.body.clientWidth - (((document.body.clientWidth / 2) - 250));
 const MINIMUM_PREVIEW_VIEW_SIZE = 250;
 
 const tabTitleHeight = 21;
