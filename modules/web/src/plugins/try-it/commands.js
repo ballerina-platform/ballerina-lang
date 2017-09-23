@@ -15,21 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { COMMANDS } from './constants';
 
-export const COMMANDS = {
-    SHOW_TRY_IT: 'show-try-it-view',
-};
-
-export const MENUS = {
-    TRY_IT_MENU: 'composer.menu.debugger.tryit',
-};
-
-export const VIEWS = {
-    TRY_IT_VIEW_ID: 'try-it-view-id',
-};
-
-export const LABELS = {
-    TRY_IT_HEADING: 'Try-It',
-};
-
-export const TRY_IT_PLUGIN_ID = 'composer.tryit.ballerina';
+/**
+ * Provides command definitions of try-it plugin.
+ * @returns {Object[]} command definitions.
+ */
+export function getCommandDefinitions(plugin) {
+    return [
+        {
+            id: COMMANDS.SHOW_TRY_IT,
+        },
+    ];
+}

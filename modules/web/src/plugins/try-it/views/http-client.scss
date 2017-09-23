@@ -16,6 +16,10 @@
  * under the License.
  */
  
+.http-client-wrapper {
+    overflow: auto;
+}
+
  .http-client-action-wrapper {
      .react-autosuggest__container {
         padding-top: 2px;
