@@ -1275,6 +1275,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNode(workerNode.body, this.env);
     }
     
+    /* visit the workers within fork-join block */
     private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy) {
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
         int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
@@ -1317,6 +1318,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
     
+    /* generate code for Join block */
     private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
         UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
         int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
@@ -1333,11 +1335,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
     
+    /* generate code for timeout block */
     private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
         /* emit a GOTO instruction to jump out of the timeout block */
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, -1);
         this.emit(gotoInstruction);
-        /* generate code for timeout block */
         forkjoinInfo.setTimeoutIp(nextIP());
         if (forkJoin.timeoutExpression != null) {
             this.genNode(forkJoin.timeoutExpression, this.env);
@@ -1367,7 +1369,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int forkJoinIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
         forkjoinInfo.setIndexCPIndex(forkJoinIndexCPEntryIndex);
         this.emit(InstructionCodes.FORKJOIN, forkJoinIndexCPEntryIndex);
-        /* visit the workers within fork-join block */
         VariableIndex lvIndexesCopy = this.copyVarIndex(this.lvIndexes);
         VariableIndex regIndexesCopy = this.copyVarIndex(this.regIndexes);
         VariableIndex maxRegIndexesCopy = this.copyVarIndex(this.maxRegIndexes);
@@ -1387,7 +1388,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
-        /* generate code for Join block */
         this.processJoinBlock(forkJoin, forkjoinInfo);
         this.processTimeoutBlock(forkJoin, forkjoinInfo);
     }
