@@ -1,11 +1,12 @@
 import React from 'react';
-import classnames from 'classnames'
+import classnames from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Tab, Nav, NavItem } from 'react-bootstrap';
 import ActivityBar from './ActivityBar';
 import { HISTORY } from './../constants';
+import { createViewFromViewDef } from './utils';
 
 
 const activityBarWidth = 42;
@@ -35,19 +36,15 @@ class LeftPanel extends React.Component {
     render() {
         const tabs = [];
         const panes = [];
-        this.props.children.forEach((view) => {
+        this.props.views.forEach((viewDef) => {
             const {
-                    props: {
-                        definition: {
-                            id,
-                            regionOptions: {
-                                activityBarIcon,
-                                panelTitle,
-                                panelActions,
-                            },
-                        },
+                    id,
+                    regionOptions: {
+                        activityBarIcon,
+                        panelTitle,
+                        panelActions,
                     },
-                  } = view;
+                  } = viewDef;
             const actions = [];
             tabs.push((
                 <NavItem key={id} eventKey={id}>
@@ -71,7 +68,10 @@ class LeftPanel extends React.Component {
                     ));
                 });
             }
-
+            const dimensions = {
+                width: this.props.width - activityBarWidth,
+                height: this.props.height - panelTitleHeight,
+            };
             panes.push((
                 <Tab.Pane key={id} eventKey={id}>
                     <div>
@@ -82,12 +82,13 @@ class LeftPanel extends React.Component {
                             <div className="panel-actions">{actions}</div>
                         </div>
                         <Scrollbars
-                            style={{
-                                width: this.props.width - activityBarWidth,
-                                height: this.props.height - panelTitleHeight,
-                            }}
+                            style={dimensions}
                         >
-                            <div className="panel-content">{view}</div>
+                            <div className="panel-content">
+                                {
+                                    createViewFromViewDef(viewDef, dimensions)
+                                }
+                            </div>
                         </Scrollbars>
                     </div>
                 </Tab.Pane>
@@ -128,7 +129,9 @@ class LeftPanel extends React.Component {
 
 LeftPanel.propTypes = {
     onActiveViewChange: PropTypes.func.isRequired,
-    children: PropTypes.arrayOf(PropTypes.element),
+    views: PropTypes.arrayOf(Object).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 LeftPanel.contextTypes = {
