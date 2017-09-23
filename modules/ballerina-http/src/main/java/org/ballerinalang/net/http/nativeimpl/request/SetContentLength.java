@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,9 +33,9 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http.request",
         functionName = "setContentLength",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http"),
-                @Argument(name = "contentLength", type = TypeEnum.INT)},
+                @Argument(name = "contentLength", type = TypeKind.INT)},
         isPublic = true
 )
 public class SetContentLength extends AbstractNativeFunction {

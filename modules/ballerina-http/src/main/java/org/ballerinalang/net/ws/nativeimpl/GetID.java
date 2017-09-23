@@ -20,6 +20,7 @@ package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -40,9 +41,9 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "getID",
-        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection",
                           structPackage = "ballerina.net.ws")},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class GetID extends AbstractNativeFunction {

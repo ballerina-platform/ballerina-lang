@@ -20,6 +20,7 @@ package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -38,9 +39,9 @@ import org.ballerinalang.net.ws.WebSocketConnectionManager;
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "getParentConnection",
-        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection",
                           structPackage = "ballerina.net.ws")},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Connection",
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")},
         isPublic = true
 )

@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -42,9 +43,9 @@ import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 @BallerinaFunction(
         packageName = "ballerina.net.http.request",
         functionName = "getFormParams",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.MAP, elementType = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
 public class GetFormParams extends AbstractNativeFunction {

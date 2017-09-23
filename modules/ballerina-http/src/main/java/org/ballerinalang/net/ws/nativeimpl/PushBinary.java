@@ -20,6 +20,7 @@ package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -40,9 +41,9 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "pushBinary",
-        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "Connection",
+        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "Connection",
                           structPackage = "ballerina.net.ws"),
-                @Argument(name = "binaryData", type = TypeEnum.BLOB)},
+                @Argument(name = "binaryData", type = TypeKind.BLOB)},
         isPublic = true
 )
 public class PushBinary extends AbstractNativeFunction {

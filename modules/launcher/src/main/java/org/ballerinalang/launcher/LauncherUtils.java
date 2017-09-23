@@ -77,7 +77,7 @@ public class LauncherUtils {
         }
     }
 
-    private static void runMain(ProgramFile programFile, String[] args) {
+    public static void runMain(ProgramFile programFile, String[] args) {
         // Load Client Connectors
         BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
@@ -91,7 +91,7 @@ public class LauncherUtils {
         Runtime.getRuntime().exit(0);
     }
 
-    private static void runServices(ProgramFile programFile) {
+    public static void runServices(ProgramFile programFile) {
         PrintStream outStream = System.out;
 
         // TODO : Fix this properly.

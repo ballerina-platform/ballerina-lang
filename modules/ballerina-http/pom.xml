@@ -52,10 +52,16 @@
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-native</artifactId>
+            <artifactId>ballerina-builtin</artifactId>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.ballerinalang</groupId>-->
+            <!--<artifactId>ballerina-native</artifactId>-->
+            <!--<version>0.93.1-SNAPSHOT</version>-->
+        <!--</dependency>-->
     </dependencies>
     
     <build>
@@ -75,42 +81,63 @@
     	</resources>
         <plugins>
              <!--For ballerina natives processing/validation-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${mvn.exec.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>
-                            <arguments>
-                                <argument>${generated.ballerina.source.directory}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>exec-maven-plugin</artifactId>-->
+                <!--<version>${mvn.exec.plugin.version}</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>process-classes</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>java</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<mainClass>org.ballerinalang.natives.annotation.processor.BuiltinPackageValidator</mainClass>-->
+                            <!--<arguments>-->
+                                <!--<argument>${generated.ballerina.source.directory}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
       
             <!-- For ballerina annotation processing -->
             <plugin>
+                <!--<groupId>org.bsc.maven</groupId>-->
+                <!--<artifactId>maven-processor-plugin</artifactId>-->
+                <!--<version>${mvn.processor.plugin.version}</version>-->
+                <!--<configuration>-->
+                    <!--<processors>-->
+                        <!--<processor>org.ballerinalang.natives.annotation.processor.BallerinaAnnotationProcessor</processor>-->
+                    <!--</processors>-->
+                    <!--<options>-->
+                        <!--<packageName>${native.constructs.provider.package}</packageName>-->
+                        <!--<className>${native.constructs.provider.class}</className>-->
+                        <!--<srcDir>${ballerina.source.directory}</srcDir>-->
+                        <!--<targetDir>${generated.ballerina.source.directory}</targetDir>-->
+                        <!--<pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>-->
+                        <!--<isSystemPkgRepository>false</isSystemPkgRepository>-->
+                    <!--</options>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>process</id>-->
+                        <!--<goals>-->
+                            <!--<goal>process</goal>-->
+                        <!--</goals>-->
+                        <!--<phase>generate-sources</phase>-->
+                    <!--</execution>-->
+                <!--</executions>-->
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
                 <version>${mvn.processor.plugin.version}</version>
                 <configuration>
                     <processors>
-                        <processor>org.ballerinalang.natives.annotation.processor.BallerinaAnnotationProcessor</processor>
+                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <packageName>${native.constructs.provider.package}</packageName>
-                        <className>${native.constructs.provider.class}</className>
-                        <srcDir>${ballerina.source.directory}</srcDir>
-                        <targetDir>${generated.ballerina.source.directory}</targetDir>
-                        <pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>
-                        <isSystemPkgRepository>false</isSystemPkgRepository>
+                        <nativeEntityProviderPackage>org.ballerinalang.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
                 <executions>

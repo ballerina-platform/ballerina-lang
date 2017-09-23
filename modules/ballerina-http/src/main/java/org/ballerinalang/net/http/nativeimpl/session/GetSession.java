@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -46,10 +47,10 @@ import java.util.NoSuchElementException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getSession",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                 structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
+                                  structPackage = "ballerina.net.http")},
         isPublic = true
 )
 public class GetSession extends AbstractNativeFunction {
