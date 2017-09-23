@@ -51,6 +51,7 @@ public enum DiagnosticCode {
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
+    INCOMPATIBLE_TYPES_CONVERSION("incompatible.types.conversion"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
@@ -76,7 +77,8 @@ public enum DiagnosticCode {
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
-    INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access")
+    INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+
     ;
 
     private String value;

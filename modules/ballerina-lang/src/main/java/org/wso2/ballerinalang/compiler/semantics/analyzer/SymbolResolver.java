@@ -34,12 +34,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -99,6 +101,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(entry, types);
     }
 
+    public BSymbol resolveConversionOperator(BType sourceType,
+                                             BType targetType) {
+        ScopeEntry entry = symTable.rootScope.lookup(Names.CONVERSION_OP);
+        List<BType> types = Lists.of(sourceType, targetType);
+
+        return resolveOperator(entry, types);
+    }
+
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
@@ -136,6 +146,15 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         return pkgSymbol;
     }
+
+    public BSymbol resolveFunction(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name invokableName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+        return lookupMemberSymbol(pkgSymbol.scope, invokableName, SymTag.FUNCTION);
+    }
+
 
     public BSymbol resolveInvokable(DiagnosticPos pos,
                                     DiagnosticCode code,
@@ -283,6 +302,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = symbol.type;
     }
 
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        List<BType> paramTypes = new ArrayList<>();
+        List<BType> retParamTypes = new ArrayList<>();
+        functionTypeNode.getParamTypeNode().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t, env)));
+        functionTypeNode.getReturnParamTypeNode().forEach(t -> retParamTypes.add(resolveTypeNode((BLangType) t, env)));
+        BInvokableType bInvokableType = new BInvokableType(paramTypes, retParamTypes, null);
+        bInvokableType.typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+        resultType = bInvokableType;
+    }
 
     // private methods
 

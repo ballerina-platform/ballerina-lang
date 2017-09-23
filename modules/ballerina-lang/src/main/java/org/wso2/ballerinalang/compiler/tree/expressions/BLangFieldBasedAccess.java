@@ -66,12 +66,10 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
      */
     public static class BLangStructFieldAccessExpr extends BLangFieldBasedAccess {
 
-        public BVarSymbol fieldSymbol;
-
         public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BVarSymbol fieldSymbol) {
             this.pos = pos;
             this.expr = varRef;
-            this.fieldSymbol = fieldSymbol;
+            this.symbol = fieldSymbol;
         }
 
         @Override

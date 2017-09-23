@@ -37,7 +37,8 @@ public class BSymbol implements Symbol {
     public int tag;
     public int flags;
     public Name name;
-    public Name pkgName = Names.EMPTY;
+    public Name pkgName = Names.DEFAULT_PACKAGE;
+    public Name pkgVersion = Names.DEFAULT_VERSION;
     public SymbolKind kind;
     public BType type;
     public BSymbol owner;

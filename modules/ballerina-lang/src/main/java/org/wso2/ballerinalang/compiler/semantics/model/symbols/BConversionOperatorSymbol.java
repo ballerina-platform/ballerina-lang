@@ -15,23 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.types.TypeNode;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
- * <string>i
- *
  * @since 0.94
  */
-public interface TypeConversionNode extends ExpressionNode {
+public class BConversionOperatorSymbol extends BOperatorSymbol {
 
-    ExpressionNode getExpression();
+  public boolean safe;
 
-    void setExpression(ExpressionNode expressionNode);
-
-    TypeNode  getTypeNode();
-
-    void setTypeNode(TypeNode typeNode);
-
+  public BConversionOperatorSymbol(BType type,
+                             BSymbol owner,
+                             boolean safe,
+                             int opcode) {
+    super(Names.CONVERSION_OP, type, owner, opcode);
+    this.safe = safe;
+  }
 }

@@ -31,59 +31,29 @@ import java.util.Objects;
  */
 public class ServiceInfo extends StructureTypeInfo {
 
-    private int protocolPkgPathCPIndex;
-    private String protocolPkgPath;
+    public int protocolPkgPathCPIndex;
 
-    private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    public Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
 
-    private FunctionInfo initFuncInfo;
+    public FunctionInfo initFuncInfo;
 
-    public ServiceInfo(int pkgPathCPIndex, String packageName,
-                       int nameCPIndex, String serviceName,
-                       int protocolPkgPathCPIndex, String protocolPkgPath) {
+    public ServiceInfo(int pkgPathCPIndex,
+                       int nameCPIndex,
+                       int protocolPkgPathCPIndex) {
 
-        super(pkgPathCPIndex, packageName, nameCPIndex, serviceName);
+        super(pkgPathCPIndex, nameCPIndex);
         this.protocolPkgPathCPIndex = protocolPkgPathCPIndex;
-        this.protocolPkgPath = protocolPkgPath;
-    }
-
-    public int getProtocolPkgPathCPIndex() {
-        return protocolPkgPathCPIndex;
-    }
-
-    public String getProtocolPkgPath() {
-        return protocolPkgPath;
-    }
-
-    public ResourceInfo[] getResourceInfoEntries() {
-        return resourceInfoMap.values().toArray(new ResourceInfo[0]);
-    }
-
-    public void addResourceInfo(String resourceName, ResourceInfo resourceInfo) {
-        resourceInfoMap.put(resourceName, resourceInfo);
-    }
-
-    public ResourceInfo getResourceInfo(String resourceName) {
-        return resourceInfoMap.get(resourceName);
-    }
-
-    public FunctionInfo getInitFunctionInfo() {
-        return initFuncInfo;
-    }
-
-    public void setInitFunctionInfo(FunctionInfo initFuncInfo) {
-        this.initFuncInfo = initFuncInfo;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pkgPathCPIndex, nameCPIndex);
+        return Objects.hash(pkgNameCPIndex, nameCPIndex);
     }
 
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ServiceInfo
-                && pkgPathCPIndex == (((ServiceInfo) obj).pkgPathCPIndex)
+                && pkgNameCPIndex == (((ServiceInfo) obj).pkgNameCPIndex)
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
 

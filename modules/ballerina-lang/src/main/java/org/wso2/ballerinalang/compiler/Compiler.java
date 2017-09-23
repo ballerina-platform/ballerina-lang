@@ -49,7 +49,8 @@ public class Compiler {
     private CodeGenerator codeGenerator;
 
     private CompilerPhase compilerPhase;
-
+    private ProgramFile programFile;
+    
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
         if (compiler == null) {
@@ -91,6 +92,10 @@ public class Compiler {
         }
     }
 
+    public ProgramFile getProgramFile() {
+        return programFile;
+    }
+
     private BLangPackage define(String sourcePkg) {
         return pkgLoader.loadEntryPackage(sourcePkg);
     }
@@ -108,7 +113,7 @@ public class Compiler {
     }
 
     private void gen(BLangPackage pkgNode) {
-        ProgramFile programFile = this.codeGenerator.generate(pkgNode);
+        programFile = this.codeGenerator.generate(pkgNode);
 
         try {
             ProgramFileWriter.writeProgram(programFile, Paths.get("temp.balx"));

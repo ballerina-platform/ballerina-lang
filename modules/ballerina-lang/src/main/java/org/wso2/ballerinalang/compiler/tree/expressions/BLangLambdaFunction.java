@@ -49,6 +49,7 @@ public class BLangLambdaFunction extends BLangExpression implements LambdaFuncti
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

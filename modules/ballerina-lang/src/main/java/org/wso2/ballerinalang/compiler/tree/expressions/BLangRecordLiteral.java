@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -120,8 +121,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
 
-        public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs) {
+        public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
+            this.type = structType;
         }
 
         @Override
@@ -135,8 +137,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangMapLiteral extends BLangRecordLiteral {
 
-        public BLangMapLiteral(List<BLangRecordKeyValue> keyValuePairs) {
+        public BLangMapLiteral(List<BLangRecordKeyValue> keyValuePairs, BType mapType) {
             this.keyValuePairs = keyValuePairs;
+            this.type = mapType;
         }
 
         @Override
@@ -150,8 +153,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangJSONLiteral extends BLangRecordLiteral {
 
-        public BLangJSONLiteral(List<BLangRecordKeyValue> keyValuePairs) {
+        public BLangJSONLiteral(List<BLangRecordKeyValue> keyValuePairs, BType jsonType) {
             this.keyValuePairs = keyValuePairs;
+            this.type = jsonType;
         }
 
         @Override

@@ -108,4 +108,19 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
             visitor.visit(this);
         }
     }
+
+    /***
+     * @since 0.94
+     */
+    public static class BLangFunctionVarRef extends BLangSimpleVarRef {
+
+        public BLangFunctionVarRef(BVarSymbol varSymbol) {
+            this.symbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

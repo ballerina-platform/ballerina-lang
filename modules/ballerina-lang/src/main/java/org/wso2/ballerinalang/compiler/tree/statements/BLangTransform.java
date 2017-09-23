@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.statements.TransformNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,10 +36,8 @@ public class BLangTransform extends BLangStatement implements TransformNode {
     public List<BLangExpression> outputExprs;
 
     public BLangTransform() {
-    }
-
-    public BLangTransform(BLangBlockStmt body) {
-        this.body = body;
+        this.inputExprs = new ArrayList<>();
+        this.outputExprs = new ArrayList<>();
     }
 
     @Override
