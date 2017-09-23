@@ -170,7 +170,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
                 try {
-                    List<Path> files = Files.walk(this.pkgPath).filter(
+                    List<Path> files = Files.walk(this.pkgPath, 1).filter(
                             Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
                             collect(Collectors.toList());
                     this.cachedEntryNames = new ArrayList<>(files.size());

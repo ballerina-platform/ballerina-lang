@@ -45,6 +45,7 @@ public enum DiagnosticCode {
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
 
     FUNCTION_MUST_RETURN("function.must.return"),
+    ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     UNREACHABLE_CODE("unreachable.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
 
