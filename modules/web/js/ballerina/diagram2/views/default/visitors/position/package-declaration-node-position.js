@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import log from 'log';
 /**
  * Position Calculater for PackageDeclaration.
  *
@@ -31,7 +31,11 @@ class PackageDeclarationPositionVisitor {
      * @memberOf PackageDeclarationPositionVisitor
      * */
     beginVisit(node) {
-        console.log(node);
+        log.debug('begin visit PackageDeclarationPositionCalcVisitor');
+        const viewSate = node.viewState;
+        const bBox = viewSate.bBox;
+        bBox.x = 50;
+        bBox.y = 20;
     }
 
     /**
@@ -42,7 +46,7 @@ class PackageDeclarationPositionVisitor {
      * @memberOf PackageDeclarationPositionVisitor
      * */
     endVisit(node) {
-
+        log.debug('end visit PackageDeclarationPositionCalcVisitor');
     }
 }
 
