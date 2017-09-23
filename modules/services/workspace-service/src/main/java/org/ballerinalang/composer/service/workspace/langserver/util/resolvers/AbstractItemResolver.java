@@ -304,10 +304,9 @@ public abstract class AbstractItemResolver {
      * @param dataModel - Suggestions filter data model
      * @return {@link Boolean}
      */
-    public boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
+    protected boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
         TokenStream tokenStream = dataModel.getTokenStream();
-        int currentTokenIndex = dataModel.getTokenIndex();
-        int searchTokenIndex = currentTokenIndex + 1;
+        int searchTokenIndex = dataModel.getTokenIndex();
 
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
         while (true) {
@@ -315,10 +314,10 @@ public abstract class AbstractItemResolver {
                 return false;
             }
             String tokenString = tokenStream.get(searchTokenIndex).getText();
-            if (tokenString.equals(".") || tokenString.equals(":")) {
-                return true;
-            } else if (terminalTokens.contains(tokenString)) {
+            if (terminalTokens.contains(tokenString)) {
                 return false;
+            } else if (tokenString.equals(".") || tokenString.equals(":")) {
+                return true;
             } else {
                 searchTokenIndex++;
             }
