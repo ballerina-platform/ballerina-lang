@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -51,5 +52,10 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     @Override
     public String toString() {
         return this.elemtype.toString() + String.join("", Collections.nCopies(dimensions, "[]"));
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.ARRAY_TYPE;
     }
 }

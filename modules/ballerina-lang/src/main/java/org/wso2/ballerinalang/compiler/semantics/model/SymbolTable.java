@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -69,8 +71,8 @@ public class SymbolTable {
     public final BType jsonType = new BBuiltInRefType(TypeTags.JSON, null);
     public final BType xmlType = new BBuiltInRefType(TypeTags.XML, null);
     public final BType datatableType = new BBuiltInRefType(TypeTags.DATATABLE, null);
-    public final BType mapType = new BBuiltInRefType(TypeTags.MAP, null);
     public final BType anyType = new BBuiltInRefType(TypeTags.ANY, null);
+    public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nullType = new BNullType();
     public final BType voidType = new BNoType(TypeTags.VOID);
@@ -191,7 +193,7 @@ public class SymbolTable {
     }
 
     private void defineOperators() {
-        // Binary operator symbols
+        // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
@@ -200,58 +202,89 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
-
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, -1);
-
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.DIV, intType, intType, intType, -1);
-
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType, -1);
         defineBinaryOperator(OperatorKind.MUL, intType, intType, intType, -1);
+
+        // Binary equality operators ==, !=
+        defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+
+        // Binary comparison operators <=, <, >=, >
+        defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType, InstructionCodes.ILE);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType, InstructionCodes.IGT);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType, InstructionCodes.IGE);
 
         // Unary operator symbols
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
         defineUnaryOperator(OperatorKind.ADD, intType, intType, -1);
 
-        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, -1);
-        defineUnaryOperator(OperatorKind.SUB, intType, intType, -1);
+        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, InstructionCodes.INEG);
+        defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
-        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, -1);
+        defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
+
+        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOFJSON);
+        defineUnaryOperator(OperatorKind.LENGTHOF, new BArrayType(noType), intType, InstructionCodes.LENGTHOF);
 
         defineCastOperators();
+        defineConversionOperators();
     }
 
     private void defineCastOperators() {
         // Define both implicit and explicit cast operators
-        defineCastOperator(intType, jsonType, true, -1);
-        defineCastOperator(intType, anyType, true, -1);
-        defineCastOperator(floatType, jsonType, true, -1);
-        defineCastOperator(floatType, anyType, true, -1);
-        defineCastOperator(stringType, jsonType, true, -1);
-        defineCastOperator(stringType, anyType, true, -1);
-        defineCastOperator(booleanType, jsonType, true, -1);
-        defineCastOperator(booleanType, anyType, true, -1);
-        defineCastOperator(blobType, anyType, true, -1);
+        defineCastOperator(intType, jsonType, true, InstructionCodes.I2JSON);
+        defineCastOperator(intType, anyType, true, InstructionCodes.I2ANY);
+        defineCastOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
+        defineCastOperator(floatType, anyType, true, InstructionCodes.F2ANY);
+        defineCastOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
+        defineCastOperator(stringType, anyType, true, InstructionCodes.S2ANY);
+        defineCastOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
+        defineCastOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
+        defineCastOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineCastOperator(typeType, anyType, true, -1);
         defineCastOperator(nullType, jsonType, true, -1);
 
         // Define explicit cast operators
-        defineExplicitCastOperator(anyType, intType, false, -1);
-        defineExplicitCastOperator(anyType, floatType, false, -1);
-        defineExplicitCastOperator(anyType, stringType, false, -1);
-        defineExplicitCastOperator(anyType, booleanType, false, -1);
-        defineExplicitCastOperator(anyType, blobType, false, -1);
-        defineExplicitCastOperator(anyType, typeType, false, -1);
-        defineExplicitCastOperator(anyType, jsonType, false, -1);
-        defineExplicitCastOperator(anyType, xmlType, false, -1);
-        defineExplicitCastOperator(anyType, mapType, false, -1);
-        defineExplicitCastOperator(anyType, datatableType, false, -1);
+        defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);
+        defineExplicitCastOperator(anyType, floatType, false, InstructionCodes.ANY2F);
+        defineExplicitCastOperator(anyType, stringType, false, InstructionCodes.ANY2S);
+        defineExplicitCastOperator(anyType, booleanType, false, InstructionCodes.ANY2B);
+        defineExplicitCastOperator(anyType, blobType, false, InstructionCodes.ANY2L);
+        defineExplicitCastOperator(anyType, typeType, false, InstructionCodes.ANY2TYPE);
+        defineExplicitCastOperator(anyType, jsonType, false, InstructionCodes.ANY2JSON);
+        defineExplicitCastOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
+        defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
+        defineExplicitCastOperator(anyType, datatableType, false, InstructionCodes.ANY2DT);
 
-        defineExplicitCastOperator(jsonType, intType, false, -1);
-        defineExplicitCastOperator(jsonType, floatType, false, -1);
-        defineExplicitCastOperator(jsonType, stringType, false, -1);
-        defineExplicitCastOperator(jsonType, booleanType, false, -1);
+        defineExplicitCastOperator(jsonType, intType, false, InstructionCodes.JSON2I);
+        defineExplicitCastOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
+        defineExplicitCastOperator(jsonType, stringType, false, InstructionCodes.JSON2S);
+        defineExplicitCastOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
+    }
+
+    private void defineConversionOperators() {
+        // Define conversion operators
+        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
+        defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
+        defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
+        defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);
+        defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
+        defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
+        defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
+        defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
+        defineConversionOperator(stringType, booleanType, false, InstructionCodes.S2B);
+        defineConversionOperator(booleanType, stringType, true, InstructionCodes.B2S);
+        defineConversionOperator(booleanType, intType, true, InstructionCodes.B2I);
+        defineConversionOperator(booleanType, floatType, true, InstructionCodes.B2F);
+        defineConversionOperator(jsonType, xmlType, false, InstructionCodes.JSON2XML);
+        defineConversionOperator(xmlType, jsonType, false, InstructionCodes.XML2JSON);
+        defineConversionOperator(datatableType, xmlType, false, InstructionCodes.DT2XML);
+        defineConversionOperator(datatableType, jsonType, false, InstructionCodes.DT2JSON);
     }
 
     private void defineBinaryOperator(OperatorKind kind,
@@ -298,6 +331,17 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(opType, rootPkgSymbol,
                 implicit, explicit, safe, opcode);
+        rootScope.define(symbol.name, symbol);
+    }
+
+    private void defineConversionOperator(BType sourceType,
+                                          BType targetType,
+                                          boolean safe,
+                                          int opcode) {
+        List<BType> paramTypes = Lists.of(sourceType, targetType);
+        List<BType> retTypes = Lists.of(targetType, this.errStructType);
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(opType, rootPkgSymbol, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 

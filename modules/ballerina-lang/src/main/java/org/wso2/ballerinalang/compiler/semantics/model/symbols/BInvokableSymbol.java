@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public class BInvokableSymbol extends BSymbol implements InvokableSymbol {
+public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public List<BVarSymbol> params;
     public List<BVarSymbol> retParams;
@@ -37,7 +37,8 @@ public class BInvokableSymbol extends BSymbol implements InvokableSymbol {
                             Name name,
                             BType type,
                             BSymbol owner) {
-        super(tag, flags, name, type, owner);
+        super(flags, name, type, owner);
+        this.tag = tag;
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();
     }

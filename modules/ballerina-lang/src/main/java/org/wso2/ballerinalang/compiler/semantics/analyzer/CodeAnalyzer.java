@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -43,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -78,12 +76,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.statements.BlangTransform;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -99,7 +97,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
  * 
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
- * (*) Dead code detection.
  * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
@@ -109,8 +106,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     private int loopCount;
     private boolean statementReturns;
-    private boolean deadCode;
-    private boolean unreachableCodeCheckDone;
     private DiagnosticLog dlog;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -126,12 +121,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.dlog = DiagnosticLog.getInstance(context);
     }
     
-    private void resetPackage() {
-        this.deadCode = false;
-    }
-    
     private void resetFunction() {
-        this.unreachableCodeCheckDone = false;
         this.resetStatementReturns();
     }
     
@@ -140,7 +130,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.resetPackage();
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -169,36 +158,35 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        this.checkUnreachableCode(forkJoin);
         forkJoin.workers.forEach(e -> e.accept(this));
+        forkJoin.joinedBody.accept(this);
+        if (forkJoin.timeoutBody != null) {
+            forkJoin.timeoutBody.accept(this);
+            this.resetStatementReturns();
+        }
     }
     
     @Override
     public void visit(BLangWorker worker) {
         worker.body.accept(this);
+        this.resetStatementReturns();
     }
     
     private void checkUnreachableCode(BLangStatement stmt) {
-        if (this.statementReturns && !this.unreachableCodeCheckDone) {
+        if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
-            /* to make sure we don't give the same error again to following statements */
-            this.unreachableCodeCheckDone = true;
-        }
-    }
-    
-    private void checkDeadCode(BLangStatement stmt) {
-        if (this.deadCode) {
-            this.dlog.warning(stmt.pos, DiagnosticCode.DEAD_CODE);
+            this.resetStatementReturns();
         }
     }
     
     private void checkStatementExecutionValidity(BLangStatement stmt) {
         this.checkUnreachableCode(stmt);
-        this.checkDeadCode(stmt);
     }
     
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.statements.forEach(e -> {
+        blockNode.stmts.forEach(e -> {
             e.accept(this);
         });
     }
@@ -210,57 +198,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangIf ifStmt) {
-        boolean originalDeadCode = this.deadCode;
         this.checkStatementExecutionValidity(ifStmt);
-        boolean ifTrue = this.isBooleanTrue(ifStmt.expr);
-        boolean ifFalse = this.isBooleanFalse(ifStmt.expr);
-        boolean extendedDeadCode = false;
-        if (ifFalse) {
-            this.deadCode = true;
-        }
         ifStmt.body.accept(this);
-        if (ifTrue && this.statementReturns) {
-            extendedDeadCode = true;
-        }
+        boolean ifStmtReturns = this.statementReturns;
+        this.resetStatementReturns();
         if (ifStmt.elseStmt != null) {
-            if (ifTrue) {
-                this.deadCode = true;
-            }
-            boolean ifStatementReturns = this.statementReturns;
-            this.resetStatementReturns();
             ifStmt.elseStmt.accept(this);
-            if (ifFalse && this.statementReturns) {
-                extendedDeadCode = true;
-            }
-            this.statementReturns = ifStatementReturns && this.statementReturns;
-            /* if the whole if/else returns for sure, the following is not dead code,
-             * but rather unreachable code */
-            if (this.statementReturns) {
-                extendedDeadCode = false;
-            }
-        }
-        /* this is the case where if (true) return or if (false) else return,
-         * where after the if/else, the following statements are also dead code */
-        if (extendedDeadCode) {
-            this.deadCode = true;
-        } else {
-            this.deadCode = originalDeadCode;
+            this.statementReturns = ifStmtReturns && this.statementReturns;
         }
     }
     
-    private boolean isBooleanTrue(BLangExpression expr) {
-        return (expr instanceof LiteralNode) && ((LiteralNode) expr).getValue().equals(Boolean.TRUE);
-    }
-    
-    private boolean isBooleanFalse(BLangExpression expr) {
-        return (expr instanceof LiteralNode) && ((LiteralNode) expr).getValue().equals(Boolean.FALSE);
-    }
-        
     @Override
     public void visit(BLangWhile whileNode) {
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
-        whileNode.body.statements.forEach(e -> e.accept(this));
+        whileNode.body.stmts.forEach(e -> e.accept(this));
         this.loopCount--;
     }
     
@@ -375,7 +327,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(transactionNode);
     }
 
-    public void visit(BlangTransform transformNode) {
+    public void visit(BLangTransform transformNode) {
         this.checkStatementExecutionValidity(transformNode);
     }
 

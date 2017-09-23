@@ -31,45 +31,17 @@ import java.util.Map;
  * @since 0.90
  */
 public class StructFieldInfo implements AttributeInfoPool {
-    private int nameCPIndex;
-    private String name;
 
-    private int signatureCPIndex;
-    private String typeSignature;
+    public int nameCPIndex;
+    public int signatureCPIndex;
 
-    private BType fieldType;
+    public BType fieldType;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructFieldInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature) {
+    public StructFieldInfo(int nameCPIndex, int signatureCPIndex) {
         this.nameCPIndex = nameCPIndex;
-        this.name = name;
         this.signatureCPIndex = signatureCPIndex;
-        this.typeSignature = typeSignature;
-    }
-
-    public int getNameCPIndex() {
-        return nameCPIndex;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getSignatureCPIndex() {
-        return signatureCPIndex;
-    }
-
-    public String getTypeDescriptor() {
-        return typeSignature;
-    }
-
-    public BType getFieldType() {
-        return fieldType;
-    }
-
-    public void setFieldType(BType fieldType) {
-        this.fieldType = fieldType;
     }
 
     @Override

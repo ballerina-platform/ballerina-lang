@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Implementation of {@link IndexBasedAccessNode}.
@@ -54,5 +55,39 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
     @Override
     public NodeKind getKind() {
         return NodeKind.INDEX_BASED_ACCESS_EXPR;
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangArrayAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangArrayAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.indexExpr = indexExpr;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangMapAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangMapAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr) {
+            this.pos = pos;
+            this.expr = varExpr;
+            this.indexExpr = keyExpr;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

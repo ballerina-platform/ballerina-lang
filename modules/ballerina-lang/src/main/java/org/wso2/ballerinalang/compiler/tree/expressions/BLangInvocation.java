@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -41,7 +42,9 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public List<BLangExpression> argExprs = new ArrayList<>();
     public BLangVariableReference expr;
     public List<BType> types = new ArrayList<>(0);
-
+    public int[] regIndexes;
+    public BSymbol symbol;
+    public boolean functionPointerInvocation;
 
     public boolean isMultiReturnExpr() {
         return true;
@@ -79,7 +82,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             // Action invocation or lambda invocation.
             br.append(String.valueOf(expr)).append(".");
         } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-                br.append(String.valueOf(pkgAlias)).append(":");
+            br.append(String.valueOf(pkgAlias)).append(":");
         }
         br.append(String.valueOf(name));
         br.append("(");
@@ -104,5 +107,32 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public void setTypes(List<BType> types) {
         this.types = types;
+    }
+
+    @Override
+    public int[] getRegIndexes() {
+        return this.regIndexes;
+    }
+
+
+    /**
+     * @since 0.94
+     */
+    public static class BFunctionPointerInvocation extends BLangInvocation {
+
+        public BFunctionPointerInvocation(BLangInvocation parent, BLangSimpleVarRef varRef) {
+            this.pos = parent.pos;
+            this.name = parent.name;
+            this.argExprs = parent.argExprs;
+            this.types = parent.types;
+            this.regIndexes = parent.regIndexes;
+            this.symbol = parent.symbol;
+            this.expr = varRef;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

@@ -49,7 +49,7 @@ public class BLangVariableDef extends BLangStatement implements VariableDefiniti
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.VARIABLE;
+        return NodeKind.VARIABLE_DEF;
     }
     
     @Override

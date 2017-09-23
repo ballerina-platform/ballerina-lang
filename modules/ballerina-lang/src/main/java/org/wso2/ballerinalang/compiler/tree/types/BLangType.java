@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -26,8 +25,4 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
  */
 public abstract class BLangType extends BLangNode implements TypeNode {
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.TYPE;
-    }
 }

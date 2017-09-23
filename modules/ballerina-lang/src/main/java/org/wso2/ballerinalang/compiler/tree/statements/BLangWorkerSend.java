@@ -19,9 +19,10 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.WorkerSendNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,27 +35,27 @@ import java.util.List;
  */
 public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
-    public List<ExpressionNode> expressions;
-    public IdentifierNode workerIdentifier;
+    public List<BLangExpression> exprs;
+    public BLangIdentifier workerIdentifier;
     public boolean isForkJoinSend;
 
     public BLangWorkerSend() {
-        this.expressions = new ArrayList<>();
+        this.exprs = new ArrayList<>();
     }
 
     @Override
-    public List<ExpressionNode> getExpressions() {
-        return expressions;
+    public List<BLangExpression> getExpressions() {
+        return exprs;
     }
 
     @Override
-    public IdentifierNode getWorkerName() {
+    public BLangIdentifier getWorkerName() {
         return workerIdentifier;
     }
 
     @Override
     public void setWorkerName(IdentifierNode identifierNode) {
-        this.workerIdentifier = identifierNode;
+        this.workerIdentifier = (BLangIdentifier) identifierNode;
     }
 
     @Override
@@ -74,6 +75,6 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
     @Override
     public String toString() {
-        return "BLangWorkerSend: " + Arrays.toString(this.expressions.toArray()) + " -> " + workerIdentifier;
+        return "BLangWorkerSend: " + Arrays.toString(this.exprs.toArray()) + " -> " + workerIdentifier;
     }
 }
