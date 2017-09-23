@@ -30,9 +30,6 @@ public class Constants {
     public static final String BALLERINA_RUNTIME = BALLERINA + ".runtime";
     public static final String BALLERINA_RUNTIME_LOG_FILE = BALLERINA_RUNTIME + ".log";
 
-    /* LOG DESTINATIONS */
-    public static final String LOG_DEST_CONSOLE = "__console";
-
     /* HANDLERS */
     public static final String BRE_LOG_FILE_HANDLER = "org.ballerinalang.logging.handlers.BRELogFileHandler";
     public static final String BRE_LOG_FILE_HANDLER_LEVEL = BRE_LOG_FILE_HANDLER + ".level";

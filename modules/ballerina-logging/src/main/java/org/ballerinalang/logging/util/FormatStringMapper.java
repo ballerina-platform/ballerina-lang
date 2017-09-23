@@ -46,7 +46,7 @@ public class FormatStringMapper {
     private static final FormatStringMapper formatStringMapper = new FormatStringMapper();
     private static final String defaultTimestampFmt = "yyyy-MM-dd HH:mm:ss,SSS";
     private static final String logFormatRegex =
-            "\\{\\{timestamp\\}\\}(\\[[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']+\\])?|\\{\\{\\w+\\}\\}";
+            "\\{\\{timestamp\\}\\}(\\[[a-zA-Z0-9_+\\-.\\ \\t:,!@#$%^&*();\\\\/|<>\"']*\\])?|\\{\\{\\w+\\}\\}";
     private static final Pattern logPattern = Pattern.compile(logFormatRegex);
 
     private final Map<String, Map<String, Integer>> placeholderMap;
@@ -86,7 +86,7 @@ public class FormatStringMapper {
                 try {
                     format = tokens[i].substring(Constants.FMT_TIMESTAMP.length() + 1, tokens[i].length() - 1);
                 } catch (Exception e) {
-                    BLogManager.STD_ERR.println(
+                    BLogManager.stdErr.println(
                             "Invalid timestamp format detected. Defaulting to: \"" + defaultTimestampFmt + "\"");
                     format = defaultTimestampFmt;
                 }
@@ -98,7 +98,7 @@ public class FormatStringMapper {
                 formatBuilder.append(tokens[i]);
             }
         }
-        formatBuilder.append('\n');
+//        formatBuilder.append('\n');
 
         return formatBuilder.toString();
     }

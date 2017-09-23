@@ -50,7 +50,7 @@ public class BLogLevelMapper {
             case "OFF":
                 return BLogLevel.OFF;
             default:
-                BLogManager.STD_ERR.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
+                BLogManager.stdErr.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
                 return BLogLevel.INFO;
         }
     }
@@ -76,7 +76,7 @@ public class BLogLevelMapper {
             case "OFF":
                 return "OFF";
             default:
-                BLogManager.STD_ERR.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
+                BLogManager.stdErr.println("Invalid log level: " + level + ", defaulting to 'INFO'.");
                 return "INFO";
         }
     }
