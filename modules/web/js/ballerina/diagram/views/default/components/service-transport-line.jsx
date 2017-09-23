@@ -36,9 +36,13 @@ class ServiceTransportLine extends React.Component {
     render() {
         const yPosition = this.props.model.viewState.bBox.y + this.props.model.viewState.bBox.h - 40;
         const bBox = this.props.bBox;
+        let showAddResourceBtn = true;
+        if (this.props.model.getProtocolPkgName() === 'ws' && this.props.resources.length >= 6) {
+            showAddResourceBtn = false;
+        }
         return (
             <g>
-                {this.props.resources.length &&
+                {showAddResourceBtn &&
                 <g id="resourceProtocolLine" className={this.props.style}>
                     <AddResourceDefinition
                         model={this.props.model}

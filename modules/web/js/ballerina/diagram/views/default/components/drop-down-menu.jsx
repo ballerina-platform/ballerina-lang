@@ -258,8 +258,6 @@ class DropdownMenu extends React.Component {
                         onClick={e => this.addResource(resource)}
                     >{resource}</a>);
                 })}
-                {(this.resourcesNotAdded.length === 0) &&
-                <a>All Resources Added</a>}
             </div>);
     }
 }

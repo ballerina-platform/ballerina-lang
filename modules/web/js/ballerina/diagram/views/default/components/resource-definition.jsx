@@ -105,6 +105,11 @@ class ResourceDefinition extends React.Component {
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
         const thisNodeIndex = parentNode.getIndexOfChild(this.props.model);
+        const resourceSiblings = parentNode.filterChildren(child => ASTFactory.isResourceDefinition(child));
+        let showAddResourceBtn = true;
+        if (parentNode.getProtocolPkgName() === 'ws' && resourceSiblings.length >= 6) {
+            showAddResourceBtn = false;
+        }
         return (
             <g>
                 <ResourceTransportLink bBox={tLinkBox} />
@@ -147,7 +152,7 @@ class ResourceDefinition extends React.Component {
                         </StatementContainer>
                     </g>
                 </PanelDecorator>
-                {(thisNodeIndex !== parentNode.getChildren().length - 1) &&
+                {(thisNodeIndex !== parentNode.getChildren().length - 1 && showAddResourceBtn) &&
                 <g
                     className={this.state.style}
                     onMouseOver={this.onMouseOver}
