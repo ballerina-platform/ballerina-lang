@@ -110,7 +110,7 @@ class Pagination extends React.Component {
             return null;
         }
 
-        return (<div className="progress">
+        return (<div className="paginationProgress">
             {pager.currentPage !== 1 &&
             <div className="prevNext done">
                 <span className='label'
