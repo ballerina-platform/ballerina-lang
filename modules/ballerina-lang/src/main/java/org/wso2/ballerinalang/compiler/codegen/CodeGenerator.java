@@ -433,6 +433,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.RET);
     }
 
+
+    public void visit(BLangTransform transformNode) {
+        this.genNode(transformNode.body, this.env);
+    }
+
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
             case TypeTags.INT:
@@ -1888,10 +1893,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangRetry retryNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangTransform transformNode) {
         /* ignore */
     }
 

@@ -1001,6 +1001,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void enterTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startTransformStmt();
     }
 
     /**
@@ -1010,6 +1014,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransformStatement(BallerinaParser.TransformStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createTransformStatement(getCurrentPos(ctx));
     }
 
     /**
@@ -1028,6 +1036,37 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx) {
+    }
+
+    @Override
+    public void enterExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), isVarDeclaration);
+    }
+
+    @Override
+    public void enterExpressionVariableDefinitionStatement(
+            BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitExpressionVariableDefinitionStatement(
+            BallerinaParser.ExpressionVariableDefinitionStatementContext ctx) {
+        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx),
+                ctx.Identifier().getText(), ctx.ASSIGN() != null);
+
     }
 
     @Override
