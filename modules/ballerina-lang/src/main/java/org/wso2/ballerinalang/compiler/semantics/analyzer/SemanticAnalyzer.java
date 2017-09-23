@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -243,6 +244,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        BSymbol serviceSymbol = serviceNode.symbol;
+        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
+        serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
+        serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
+        serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
+    }
+
+    public void visit(BLangResource resourceNode) {
+        BSymbol resourceSymbol = resourceNode.symbol;
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
+        resourceNode.annAttachments.forEach(a -> this.analyzeDef(a, resourceEnv));
+        resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
+        resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
+        analyzeStmt(resourceNode.body, resourceEnv);
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
