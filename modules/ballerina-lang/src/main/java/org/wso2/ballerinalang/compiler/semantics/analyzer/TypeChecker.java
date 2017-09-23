@@ -22,6 +22,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -361,7 +362,23 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        throw new AssertionError();
+        // Set error type as the actual type.
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+
+        BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
+        BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
+
+        // Lookup type conversion operator symbol
+        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        } else {
+            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+            conversionExpr.conversionSymbol = conversionSym;
+            actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
+        }
+
+        resultTypes = checkTypes(conversionExpr, actualTypes, expTypes);
     }
 
 
@@ -462,6 +479,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
         } else if (expected == 2) {
             actualTypes = castSymbol.type.getReturnTypes();
+
+        } else if (expected == 0 || expected > 2) {
+            dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);
+        }
+
+        return actualTypes;
+    }
+
+    private List<BType> getActualTypesOfConversionExpr(BLangTypeConversionExpr castExpr,
+                                                       BType targetType,
+                                                       BType sourceType,
+                                                       BConversionOperatorSymbol conversionSymbol) {
+        // If this cast is an unsafe conversion, then there MUST to be two expected types/variables
+        // If this is an safe cast, then the error variable is optional
+        int expected = expTypes.size();
+        List<BType> actualTypes = getListWithErrorTypes(expected);
+        if (conversionSymbol.safe && expected == 1) {
+            actualTypes = Lists.of(conversionSymbol.type.getReturnTypes().get(0));
+        } else if (!conversionSymbol.safe && expected == 1) {
+            dlog.error(castExpr.pos, DiagnosticCode.UNSAFE_CONVERSION_ATTEMPT, sourceType, targetType);
+
+        } else if (expected == 2) {
+            actualTypes = conversionSymbol.type.getReturnTypes();
 
         } else if (expected == 0 || expected > 2) {
             dlog.error(castExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, 2);

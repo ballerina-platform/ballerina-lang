@@ -99,6 +99,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(entry, types);
     }
 
+    public BSymbol resolveConversionOperator(BType sourceType,
+                                             BType targetType) {
+        ScopeEntry entry = symTable.rootScope.lookup(Names.CONVERSION_OP);
+        List<BType> types = Lists.of(sourceType, targetType);
+
+        return resolveOperator(entry, types);
+    }
+
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {

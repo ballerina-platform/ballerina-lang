@@ -50,6 +50,7 @@ public enum DiagnosticCode {
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
+    INCOMPATIBLE_TYPES_CONVERSION("incompatible.types.conversion"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
