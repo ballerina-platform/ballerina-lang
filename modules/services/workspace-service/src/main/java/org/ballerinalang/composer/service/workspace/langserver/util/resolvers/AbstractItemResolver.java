@@ -238,21 +238,22 @@ public abstract class AbstractItemResolver {
     private String getSignature(SymbolInfo symbolInfo, NativeUnit nativeUnit) {
         StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
         int i = 0;
+        // TODO: Finalize
         String initString = "";
-        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
-            signature.append(initString).append(simpleTypeName.getName()).append(" ").
-                    append(nativeUnit.getArgumentNames()[i]);
-            ++i;
-            initString = ", ";
-        }
+//        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
+//            signature.append(initString).append(simpleTypeName.getName()).append(" ").
+//                    append(nativeUnit.getArgumentNames()[i]);
+//            ++i;
+//            initString = ", ";
+//        }
         signature.append(")");
         initString = "(";
         String endString = "";
-        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
-            signature.append(initString).append(simpleTypeName.getName());
-            initString = ", ";
-            endString = ")";
-        }
+//        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
+//            signature.append(initString).append(simpleTypeName.getName());
+//            initString = ", ";
+//            endString = ")";
+//        }
         signature.append(endString);
         return signature.toString();
     }

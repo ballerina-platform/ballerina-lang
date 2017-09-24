@@ -20,6 +20,7 @@ package org.ballerinalang.composer.service.workspace.langserver;
 
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -211,10 +212,16 @@ public class TreeVisitor extends BLangNodeVisitor {
             this.acceptNode(tryCatchFinally.tryBody, symbolEnv);
             this.blockOwnerStack.pop();
 
-            tryCatchFinally.catchBlocks.forEach(c -> this.acceptNode(c, symbolEnv));
+            tryCatchFinally.catchBlocks.forEach(c -> {
+                this.blockOwnerStack.push(c);
+                this.acceptNode(c, symbolEnv);
+                this.blockOwnerStack.pop();
+            });
             if (tryCatchFinally.finallyBody != null) {
                 // Check how we can add the blang node to stack
+                this.blockOwnerStack.push(tryCatchFinally);
                 this.acceptNode(tryCatchFinally.finallyBody, symbolEnv);
+                this.blockOwnerStack.pop();
             }
         }
     }
@@ -361,10 +368,19 @@ public class TreeVisitor extends BLangNodeVisitor {
         int nodeSCol = nodePosition.sCol;
         int nodeELine = nodePosition.eLine;
         int nodeECol = nodePosition.eCol;
+        int blockOwnerELine;
+        int blockOwnerECol;
+
         BLangBlockStmt bLangBlockStmt = this.blockStmtStack.peek();
         Node blockOwner = this.blockOwnerStack.peek();
-        int blockOwnerELine = blockOwner.getPosition().getEndLine();
-        int blockOwnerECol = blockOwner.getPosition().endColumn();
+
+        if (blockOwner instanceof BLangTryCatchFinally) {
+            blockOwnerELine = getTryBlockEndLine((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
+            blockOwnerECol = getTryBlockEndCol((BLangTryCatchFinally) blockOwner, bLangBlockStmt);;
+        } else {
+            blockOwnerELine = blockOwner.getPosition().getEndLine();
+            blockOwnerECol = blockOwner.getPosition().endColumn();
+        }
 
         boolean isLastStatement = (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
 
@@ -379,5 +395,74 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private int getTryBlockEndLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+
+        if (blockStmt == tryCatchFinally.tryBody) {
+            // We are inside the try block
+            if (tryCatchFinally.catchBlocks.size() > 0) {
+                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(0);
+                return bLangCatch.getPosition().sLine;
+            } else if (tryCatchFinally.finallyBody != null) {
+                return tryCatchFinally.finallyBody.getPosition().sLine;
+            } else {
+                return tryCatchFinally.getPosition().eLine;
+            }
+        } else {
+            // We are inside the finally block
+            return tryCatchFinally.getPosition().eLine;
+        }
+    }
+
+    private int getTryBlockStartLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+
+        if (blockStmt == tryCatchFinally.tryBody) {
+            // We are inside the try block
+            return tryCatchFinally.getPosition().sLine;
+        } else {
+            // We are inside the finally statement
+            if (tryCatchFinally.catchBlocks.size() > 0) {
+                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(tryCatchFinally.catchBlocks.size() - 1);
+                return bLangCatch.getPosition().sLine;
+            } else {
+                return tryCatchFinally.finallyBody.getPosition().sLine;
+            }
+        }
+    }
+
+    private int getTryBlockEndCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+
+
+        if (blockStmt == tryCatchFinally.tryBody) {
+            // We are inside the try block
+            if (tryCatchFinally.catchBlocks.size() > 0) {
+                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(0);
+                return bLangCatch.getPosition().sCol;
+            } else if (tryCatchFinally.finallyBody != null) {
+                return tryCatchFinally.finallyBody.getPosition().sCol;
+            } else {
+                return tryCatchFinally.getPosition().eCol;
+            }
+        } else {
+            // We are inside the finally block
+            return tryCatchFinally.getPosition().eCol;
+        }
+    }
+
+    private int getTryBlockStartCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+
+        if (blockStmt == tryCatchFinally.tryBody) {
+            // We are inside the try block
+            return tryCatchFinally.getPosition().sCol;
+        } else {
+            // We are inside the finally block
+            if (tryCatchFinally.catchBlocks.size() > 0) {
+                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(tryCatchFinally.catchBlocks.size() - 1);
+                return bLangCatch.getPosition().eCol;
+            } else {
+                return tryCatchFinally.getFinallyBody().getPosition().sCol;
+            }
+        }
     }
 }
