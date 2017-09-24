@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -40,9 +39,7 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
-import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -96,7 +93,6 @@ public class HttpUtil {
         if (log.isDebugEnabled()) {
             log.debug("Invoke message clone.");
         }
-        //        BMessage msg = (BMessage) getRefArgument(context, 0);
         BStruct requestStruct  = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
@@ -120,7 +116,7 @@ public class HttpUtil {
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
             }
-        } catch (Throwable e) {
+         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
         return abstractNativeFunction.getBValues(result);
@@ -144,7 +140,6 @@ public class HttpUtil {
         BJSON result = null;
         try {
             // Accessing First Parameter Value.
-            //            BMessage msg = (BMessage) getRefArgument(ctx, 0);
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
@@ -163,18 +158,18 @@ public class HttpUtil {
                 httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
-            //            ErrorHandler.handleJsonException(OPERATION, e);
+            throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
         }
-
         // Setting output value.
         return abstractNativeFunction.getBValues(result);
     }
 
     public static BValue[] getProperty(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
         String propertyName = abstractNativeFunction.getStringArgument(context, 0);
 
-        Object propertyValue = msg.getProperty(propertyName);
+        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
 
         if (propertyValue == null) {
             return AbstractNativeFunction.VOID_RETURN;
@@ -191,11 +186,13 @@ public class HttpUtil {
         BString result;
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
             } else {
+                if (httpCarbonMessage.isEmpty()) {
+                    return abstractNativeFunction.getBValues(new BString(""));
+                }
                 String payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
                         .getInputStream());
                 result = new BString(payload);
@@ -209,20 +206,6 @@ public class HttpUtil {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
         return abstractNativeFunction.getBValues(result);
-    }
-
-    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
-        CarbonMessage carbonMessage = msg.value();
-        String mapKey = abstractNativeFunction.getStringArgument(context, 0);
-        String mapValue = null;
-        if (carbonMessage instanceof MapCarbonMessage) {
-            mapValue = ((MapCarbonMessage) carbonMessage).getValue(mapKey);
-        }
-        if (mapValue == null) {
-            throw new BallerinaException("Given property " + mapKey + " is not found in the Map message");
-        }
-        return abstractNativeFunction.getBValues(new BString(mapValue));
     }
 
     public static BValue[] getXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -243,13 +226,16 @@ public class HttpUtil {
                     result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
+                if (httpCarbonMessage.isEmpty()) {
+                    throw new BallerinaException("empty content");
+                }
                 result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
-//                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
                 httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
-            //            ErrorHandler.handleJsonException(OPERATION, e);
+            throw new BallerinaException("Error while retrieving XML payload from message: " + e.getMessage());
         }
         // Setting output value.
         return abstractNativeFunction.getBValues(result);
@@ -370,7 +356,6 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
-
         try {
             contentLength = Integer.parseInt(lengthStr);
         } catch (NumberFormatException e) {

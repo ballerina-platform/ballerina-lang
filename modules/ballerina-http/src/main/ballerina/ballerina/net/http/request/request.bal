@@ -107,10 +107,10 @@ native function removeAllHeaders (http:Request req);
 @doc:Param { value:"payload: The XML payload object" }
 native function setXmlPayload (http:Request req, xml payload);
 
-@doc:Description { value:"Clones and creates a new instance of a message object"}
+@doc:Description { value:"Clones and creates a new instance of a request message"}
 @doc:Param { value:"req: A request message" }
-@doc:Return { value:"message: The new instance of the message object " }
-native function clone (http:Request req) (message);
+@doc:Return { value:"request: The new instance of the request message" }
+native function clone (http:Request req) (http:Request);
 
 @doc:Description { value:"Sets the value of a transport header"}
 @doc:Param { value:"req: A request message" }
@@ -118,8 +118,3 @@ native function clone (http:Request req) (message);
 @doc:Param { value:"value: The header value" }
 native function setHeader (http:Request req, string key, string value);
 
-@doc:Description { value:"To get the value for a string property in a map type message"}
-@doc:Param { value:"req: A request message" }
-@doc:Param { value:"propertyName: Name of the property" }
-@doc:Return { value:"string: The value of the map property" }
-native function getStringValue (http:Request req, string propertyName) (string);
