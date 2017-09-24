@@ -1,10 +1,3 @@
-
-import log from 'log';
-import _ from 'lodash';
-import { fetchConfigs } from 'api-client/api-client';
-import Application from './core/app';
-import defaultConfig from './config';
-
 // importing for side effects only
 import 'bootstrap';
 import 'theme_wso2';
@@ -12,6 +5,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import 'font-ballerina/css/font-ballerina.css';
 
+import log from 'log';
+import _ from 'lodash';
+import { fetchConfigs } from 'api-client/api-client';
+import Application from './core/app';
+import defaultConfig from './config';
 
 // Before start rendering, fetch api endpoint information & other configs from config service
 fetchConfigs()
