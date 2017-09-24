@@ -47,7 +47,7 @@ class Dialog extends React.Component {
                 <Modal.Footer>
                     {this.props.actions}
                     {this.props.closeAction &&
-                        <Button onClick={this.close}>Close</Button>
+                        <Button onClick={this.close}>Cancel</Button>
                     }
                 </Modal.Footer>
             </Modal>

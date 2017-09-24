@@ -32,6 +32,7 @@ export function getHandlerDefinitions(layoutManager) {
                                 customTitleClass,
                                 component: withViewFeatures(component, pluginID),
                                 propsProvider,
+                                activate: true,
                             });
                         }
                             break;
@@ -58,12 +59,12 @@ export function getHandlerDefinitions(layoutManager) {
         {
             cmdID: COMMANDS.POPUP_DIALOG,
             handler: (args) => {
-                const { id } = args;
+                const { id, additionalProps = {} } = args;
                 const dialogDef = _.find(layoutManager.dialogs, ['id', id]);
                 if (dialogDef) {
                     const container = document.getElementById(layoutManager.config.dialogContainer);
                     const { component, propsProvider } = dialogDef;
-                    const root = React.createElement(component, propsProvider(), null);
+                    const root = React.createElement(component, Object.assign(additionalProps, propsProvider()), null);
                     ReactDOM.unmountComponentAtNode(container);
                     ReactDOM.render(root, container);
                 } else {

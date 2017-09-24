@@ -49,6 +49,7 @@ export const DIALOGS = {
     SAVE_FILE: 'composer.dialog.save-file',
     OPEN_FILE: 'composer.dialog.open-file',
     OPEN_FOLDER: 'composer.dialog.open-folder',
+    REPLACE_FILE_CONFIRM: 'composer.dialog.replace-file-confirm',
 };
 
 export const HISTORY = {
