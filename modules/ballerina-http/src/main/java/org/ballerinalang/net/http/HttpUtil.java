@@ -65,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Utility class providing utility methods.
  */
@@ -536,8 +535,11 @@ public class HttpUtil {
         }
 
         AnnAttrValue keyStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttrValue keyStorePassAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttrValue certPassAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
+        AnnAttrValue keyStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
+        AnnAttrValue certPasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
+        AnnAttrValue trustStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
+        AnnAttrValue trustStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
+        AnnAttrValue sslVerifyClientAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
@@ -564,18 +566,39 @@ public class HttpUtil {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
             }
-            if (keyStorePassAttrVal == null || keyStorePassAttrVal.getStringValue() == null) {
+            if (keyStorePasswordAttrVal == null || keyStorePasswordAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
             }
-            if (certPassAttrVal == null || certPassAttrVal.getStringValue() == null) {
+            if (certPasswordAttrVal == null || certPasswordAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException(
                         "Certificate password value must be provided for secure connection");
             }
+            if ((trustStoreFileAttrVal == null || trustStoreFileAttrVal.getStringValue() == null)
+                    && sslVerifyClientAttrVal != null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
+            }
+            if ((trustStorePasswordAttrVal == null || trustStorePasswordAttrVal.getStringValue() == null)
+                    && sslVerifyClientAttrVal != null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
+            }
+
             httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePasswordAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPasswordAttrVal.getStringValue());
+            if (sslVerifyClientAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT, sslVerifyClientAttrVal.getStringValue());
+            }
+            if (trustStoreFileAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE, trustStoreFileAttrVal.getStringValue());
+            }
+            if (trustStorePasswordAttrVal != null) {
+                httpsPropMap
+                        .put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS, trustStorePasswordAttrVal.getStringValue());
+            }
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
         return listenerConfMap;
