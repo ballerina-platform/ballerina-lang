@@ -28,6 +28,13 @@ class Editor extends React.Component {
     }
 
     /**
+     * @inheritdoc
+     */
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.isActive;
+    }
+
+    /**
      * On File Modifications
      */
     onFileContentModified(changeEvent) {
