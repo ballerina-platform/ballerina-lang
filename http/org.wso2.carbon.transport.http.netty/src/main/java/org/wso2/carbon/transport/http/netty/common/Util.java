@@ -225,12 +225,12 @@ public class Util {
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList) {
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String verifyClient) {
         if (certPass == null) {
             certPass = keyStorePass;
         }
         if (keyStoreFilePath == null || keyStorePass == null) {
-            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for HTTPS scheme");
+            throw new IllegalArgumentException("keyStoreFile or keyStorePassword not defined for HTTPS scheme");
         }
         File keyStore = new File(substituteVariables(keyStoreFilePath));
         if (!keyStore.exists()) {
@@ -254,10 +254,10 @@ public class Util {
             } else if (parameter.getName()
                     .equals(Constants.SERVER_ENABLE_SESSION_CREATION)) {
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
-            } else if (parameter.getName()
-                    .equals(Constants.SSL_VERIFY_CLIENT)) {
-                sslConfig.setNeedClientAuth(Boolean.parseBoolean(parameter.getValue()));
             }
+        }
+        if (verifyClient != null && verifyClient.equals("require")) {
+            sslConfig.setNeedClientAuth(true);
         }
         if (trustStoreFilePath != null) {
 
@@ -281,7 +281,7 @@ public class Util {
             certPass = keyStorePass;
         }
         if (trustStoreFilePath == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrusStoreFile or trustStorePass not defined for HTTPS scheme");
+            throw new IllegalArgumentException("TrusStoreFile or trustStorePassword not defined for HTTPS scheme");
         }
         SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
 

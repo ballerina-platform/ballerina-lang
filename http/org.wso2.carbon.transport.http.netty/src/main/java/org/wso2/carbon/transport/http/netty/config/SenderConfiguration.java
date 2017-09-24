@@ -54,7 +54,7 @@ public class SenderConfiguration {
     private String keyStoreFile;
 
     @XmlAttribute
-    private String keyStorePass;
+    private String keyStorePassword;
 
     @XmlAttribute
     private String trustStoreFile;
@@ -107,12 +107,12 @@ public class SenderConfiguration {
         this.keyStoreFile = keyStoreFile;
     }
 
-    public String getKeyStorePass() {
-        return keyStorePass;
+    public String getKeyStorePassword() {
+        return keyStorePassword;
     }
 
-    public void setKeyStorePass(String keyStorePass) {
-        this.keyStorePass = keyStorePass;
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
     }
 
     public String getScheme() {
@@ -151,7 +151,7 @@ public class SenderConfiguration {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }
-        return Util.getSSLConfigForSender(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
+        return Util.getSSLConfigForSender(certPass, keyStorePassword, keyStoreFile, trustStoreFile, trustStorePass,
                 parameters);
     }
 

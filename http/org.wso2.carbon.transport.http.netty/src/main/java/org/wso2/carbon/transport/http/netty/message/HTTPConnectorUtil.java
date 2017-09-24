@@ -92,7 +92,15 @@ public class HTTPConnectorUtil {
             config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
             config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
             config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
-            //todo fill truststore stuff
+            if (properties.get(Constants.HTTP_TRUST_STORE_FILE) != null) {
+                config.setTrustStoreFile(properties.get(Constants.HTTP_TRUST_STORE_FILE));
+            }
+            if (properties.get(Constants.HTTP_TRUST_STORE_PASS) != null) {
+                config.setTrustStorePass(properties.get(Constants.HTTP_TRUST_STORE_PASS));
+            }
+            if (properties.get(Constants.SSL_VERIFY_CLIENT) != null) {
+                config.setVerifyClient(properties.get(Constants.SSL_VERIFY_CLIENT));
+            }
         }
         return config;
     }
