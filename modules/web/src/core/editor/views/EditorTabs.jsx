@@ -155,7 +155,9 @@ class EditorTabs extends View {
     makeTabPane(editor) {
         const { activeEditorID } = this.props.editorPlugin;
         const dimensions = {
-            width: this.props.width - this.state.previewViewSize,
+            width: this.props.width -
+                (_.isNumber(this.state.previewViewSize)
+                    ? this.state.previewViewSize : 0),
             height: this.props.height - tabTitleHeight,
         };
         if (editor instanceof Editor) {
