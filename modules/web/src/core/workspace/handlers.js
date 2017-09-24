@@ -2,7 +2,7 @@ import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, DIALOGS } from './constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
-import { update } from './fs-util';
+import { createOrUpdate } from './fs-util';
 
 /**
  * Provides command handler definitions of workspace plugin.
@@ -38,26 +38,35 @@ export function getHandlerDefinitions(workspaceManager) {
         },
         {
             cmdID: COMMANDS.SAVE_FILE,
-            handler: () => {
+            handler: ({ file, onSaveSuccess = () => {}, onSaveFail = () => {} }) => {
                 const { command: { dispatch }, editor } = workspaceManager.appContext;
-                const { file } = editor.getActiveEditor();
+                const targetFile = file || editor.getActiveEditor().file;
                 // File is not yet persisted - show save as dialog
-                if (!file.isPersisted) {
+                if (!targetFile.isPersisted) {
                     const id = DIALOGS.SAVE_FILE;
-                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                        id,
+                        additionalProps: {
+                            file: targetFile,
+                            onSaveSuccess,
+                            onSaveFail,
+                        },
+                    });
                 } else {
                     // File is already persisted
-                    update(file.path, file.name, file.content)
+                    createOrUpdate(targetFile.path, targetFile.name + '.' + targetFile.extension, targetFile.content)
                         .then((success) => {
                             if (success) {
-                                file.isDirty = false;
-                                file.lastPersisted = _.now();
+                                targetFile.isDirty = false;
+                                targetFile.lastPersisted = _.now();
+                                onSaveSuccess();
                             } else {
-                                throw new Error('Error while saving file ' + file.fullPath);
+                                throw new Error('Error while saving file ' + targetFile.fullPath);
                             }
                         })
                         .catch((error) => {
                             log.error(error);
+                            onSaveFail(error);
                         });
                 }
             },
@@ -65,9 +74,17 @@ export function getHandlerDefinitions(workspaceManager) {
         {
             cmdID: COMMANDS.SAVE_FILE_AS,
             handler: () => {
-                const { command: { dispatch } } = workspaceManager.appContext;
+                const { command: { dispatch }, editor } = workspaceManager.appContext;
                 const id = DIALOGS.SAVE_FILE;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                const activeEditor = editor.getActiveEditor();
+                if (activeEditor && activeEditor.file) {
+                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                        id,
+                        additionalProps: {
+                            file: activeEditor.file,
+                        },
+                    });
+                }
             },
         },
         {

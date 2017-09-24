@@ -103,10 +103,10 @@ public class WorkspaceService {
         }
     }
 
-    @GET
+    @POST
     @Path("/create")
     @Produces("application/json")
-    public Response create(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
+    public Response create(@FormParam("path") String pathParam, @FormParam("type") String typeParam) {
         try {
             String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
                     type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
@@ -121,10 +121,10 @@ public class WorkspaceService {
         }
     }
 
-    @GET
+    @POST
     @Path("/delete")
     @Produces("application/json")
-    public Response delete(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
+    public Response delete(@FormParam("path") String pathParam, @FormParam("type") String typeParam) {
         try {
             String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
                     type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());

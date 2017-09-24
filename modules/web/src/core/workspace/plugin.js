@@ -31,6 +31,7 @@ import WorkspaceExplorer from './views/WorkspaceExplorer';
 import FileOpenDialog from './dialogs/FileOpenDialog';
 import FolderOpenDialog from './dialogs/FolderOpenDialog';
 import FileSaveDialog from './dialogs/FileSaveDialog';
+import FileReplaceConfirmDialog from './dialogs/FileReplaceConfirmDialog';
 import { read } from './fs-util';
 import File from './model/file';
 
@@ -300,6 +301,15 @@ class WorkspacePlugin extends Plugin {
                 {
                     id: DIALOG_IDS.SAVE_FILE,
                     component: FileSaveDialog,
+                    propsProvider: () => {
+                        return {
+                            workspaceManager: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.REPLACE_FILE_CONFIRM,
+                    component: FileReplaceConfirmDialog,
                     propsProvider: () => {
                         return {
                             workspaceManager: this,

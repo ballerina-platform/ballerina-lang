@@ -20,19 +20,21 @@ import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
-import { REGIONS } from './../layout/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import { PLUGIN_ID, VIEWS as VIEW_IDS, HISTORY, COMMANDS as COMMMAND_IDS,
-    EVENTS, TOOLS as TOOL_IDS } from './constants';
+    EVENTS, TOOLS as TOOL_IDS, DIALOGS as DIALOG_IDS } from './constants';
 import { COMMANDS as TOOL_BAR_COMMANDS } from './../toolbar/constants';
-import { EVENTS as WORKSPACE_EVENTS } from './../workspace/constants';
+import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_COMMANDS } from './../workspace/constants';
 
 import EditorTabs from './views/EditorTabs';
 import CustomEditor from './model/CustomEditor';
 import Editor from './model/Editor';
+
+import DirtyFileCloseConfirmDialog from './dialogs/DirtyFileCloseConfirmDialog';
 
 /**
  * Editor Plugin is responsible for providing editors to opening files.
@@ -138,10 +140,10 @@ class EditorPlugin extends Plugin {
     }
 
     /**
-     * On Tab Close
+     * Closes a tab
      * @param {Editor} targetEditor Editor instance
      */
-    onTabClose(targetEditor) {
+    closeTab(targetEditor) {
         const { openedEditors, appContext: { workspace } } = this;
         const searchByID = editor => editor.id === targetEditor.id;
         const editorIndex = _.findIndex(openedEditors, searchByID);
@@ -155,6 +157,35 @@ class EditorPlugin extends Plugin {
             targetEditor.file.off(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.dispatchToolBarUpdate);
             targetEditor.file.off(WORKSPACE_EVENTS.DIRTY_STATE_CHANGE, this.dispatchToolBarUpdate);
             workspace.closeFile(targetEditor.file);
+        }
+    }
+
+    /**
+     * On Tab Close
+     * @param {Editor} targetEditor Editor instance
+     */
+    onTabClose(targetEditor) {
+        const { appContext: { command: { dispatch } } } = this;
+        if (targetEditor.isDirty) {
+            dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
+                additionalProps: {
+                    file: targetEditor.file,
+                    onConfirm: () => {
+                        this.closeTab(targetEditor);
+                    },
+                    onSave: () => {
+                        dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                            file: targetEditor.file,
+                            onSaveSuccess: () => {
+                                this.closeTab(targetEditor);
+                            },
+                        });
+                    },
+                },
+            });
+        } else {
+            this.closeTab(targetEditor);
         }
     }
 
@@ -244,7 +275,17 @@ class EditorPlugin extends Plugin {
                     },
                 },
             ],
-            [DIALOGS]: [],
+            [DIALOGS]: [
+                {
+                    id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
+                    component: DirtyFileCloseConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            editorPlugin: this,
+                        };
+                    },
+                },
+            ],
         };
     }
 }
