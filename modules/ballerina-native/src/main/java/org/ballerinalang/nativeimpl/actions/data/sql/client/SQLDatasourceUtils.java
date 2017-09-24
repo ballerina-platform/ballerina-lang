@@ -17,10 +17,19 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -284,7 +293,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set TinyInt value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set tinyint value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -320,7 +329,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("Invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Small Int value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set smallint value to statement." + e.getMessage(), e);
         }
     }
 
@@ -356,7 +365,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set Big Int value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set bigint value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -389,20 +398,25 @@ public class SQLDatasourceUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set float value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set float value to statement." + e.getMessage(), e);
         }
     }
 
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            if (value instanceof BInteger) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
+                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+                val = new Date(((BStruct) value).getIntField(0));
+            } else if (value instanceof BInteger) {
                 val = new Date(((BInteger) value).intValue());
             } else if (value instanceof BString) {
                 val = SQLDatasourceUtils.convertToDate(value.stringValue());
+            } else {
+                throw new BallerinaException("invalid input type for date parameter with index: " + index);
             }
         }
         try {
@@ -433,10 +447,15 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
-            if (value instanceof BInteger) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
+                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+                val = new Timestamp(((BStruct) value).getIntField(0));
+            } else if (value instanceof BInteger) {
                 val = new Timestamp(((BInteger) value).intValue());
             } else if (value instanceof BString) {
                 val = SQLDatasourceUtils.convertToTimeStamp(value.stringValue());
+            } else {
+                throw new BallerinaException("invalid input type for timestamp parameter with index: " + index);
             }
         }
         try {
@@ -459,7 +478,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -467,7 +486,10 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
-            if (value instanceof BInteger) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
+                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+                val = new Time(((BStruct) value).getIntField(0));
+            } else if (value instanceof BInteger) {
                 val = new Time(((BInteger) value).intValue());
             } else if (value instanceof BString) {
                 val = SQLDatasourceUtils.convertToTime(value.stringValue());
@@ -493,7 +515,7 @@ public class SQLDatasourceUtils {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
+            throw new BallerinaException("error in set timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -622,25 +644,23 @@ public class SQLDatasourceUtils {
     }
 
     public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
-            int sqlType, String structuredSQLType) {
-        Object[] val = null;
-        if (value != null) {
-            val = value.stringValue().split(",");
-        }
-
+            int sqlType) {
+        Object[] arrayData = getArrayData(value);
+        Object[] arrayValue = (Object[]) arrayData[0];
+        String structuredSQLType = (String) arrayData[1];
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (arrayValue == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Array array = conn.createArrayOf(structuredSQLType, val);
+                    Array array = conn.createArrayOf(structuredSQLType, arrayValue);
                     stmt.setArray(index + 1, array);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (arrayValue == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Array array = conn.createArrayOf(structuredSQLType, val);
+                    Array array = conn.createArrayOf(structuredSQLType, arrayValue);
                     stmt.setArray(index + 1, array);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
@@ -654,27 +674,80 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
-            int direction, int sqlType, String structuredSQLType) {
-        structuredSQLType = structuredSQLType.toUpperCase(Locale.getDefault());
-        Object[] val = null;
-        if (value != null) {
-            val = value.stringValue().split(",");
+    public static void setNullObject(PreparedStatement stmt, int index) {
+        try {
+            stmt.setObject(index + 1, null);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set null to parameter with index: " + index);
         }
+    }
 
+    private static Object[] getArrayData(BValue value) {
+        if (value == null || value.getType().getTag() != TypeTags.ARRAY_TAG) {
+            return new Object[] { null, null };
+        }
+        int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+        Object[] arrayData;
+        int arrayLength;
+        switch (typeTag) {
+        case TypeTags.INT_TAG:
+            arrayLength = (int) ((BIntArray) value).size();
+            arrayData = new Long[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BIntArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.BIGINT };
+        case TypeTags.FLOAT_TAG:
+            arrayLength = (int) ((BFloatArray) value).size();
+            arrayData = new Double[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BFloatArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.DOUBLE };
+        case TypeTags.STRING_TAG:
+            arrayLength = (int) ((BStringArray) value).size();
+            arrayData = new String[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BStringArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.VARCHAR };
+        case TypeTags.BOOLEAN_TAG:
+            arrayLength = (int) ((BBooleanArray) value).size();
+            arrayData = new Boolean[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.BOOLEAN };
+        case TypeTags.BLOB_TAG:
+            arrayLength = (int) ((BBlobArray) value).size();
+            arrayData = new Blob[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BBlobArray) value).get(i);
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
+        default:
+            throw new BallerinaException("unsupported data type for array parameter");
+        }
+    }
+
+    public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
+            int direction, int sqlType) {
+        Object[] structData = getStructData(value);
+        Object[] dataArray = (Object[]) structData[0];
+        String structuredSQLType = (String) structData[1];
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (dataArray == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    Struct struct = conn.createStruct(structuredSQLType, dataArray);
                     stmt.setObject(index + 1, struct);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (dataArray == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    Struct struct = conn.createStruct(structuredSQLType, dataArray);
                     stmt.setObject(index + 1, struct);
                 }
                 ((CallableStatement) stmt)
@@ -688,6 +761,51 @@ public class SQLDatasourceUtils {
             throw new BallerinaException("error in set struct value to statement: " + e.getMessage(), e);
         }
     }
+
+    private static Object[] getStructData(BValue value) {
+        if (value == null || value.getType().getTag() != TypeTags.STRUCT_TAG) {
+            return new Object[] { null, null };
+        }
+        String structuredSQLType = value.getType().getName().toUpperCase(Locale.getDefault());
+        BStructType.StructField[] structFields = ((BStructType) value.getType()).getStructFields();
+        int fieldCount = structFields.length;
+        Object[] structData = new Object[fieldCount];
+        int intFieldIndex = 0;
+        int floatFieldIndex = 0;
+        int stringFieldIndex = 0;
+        int booleanFieldIndex = 0;
+        int blobFieldIndex = 0;
+        for (int i = 0; i < fieldCount; ++i) {
+            BStructType.StructField field = structFields[i];
+            int typeTag = field.getFieldType().getTag();
+            switch (typeTag) {
+            case TypeTags.INT_TAG:
+                structData[i] = ((BStruct) value).getIntField(intFieldIndex);
+                ++intFieldIndex;
+                break;
+            case TypeTags.FLOAT_TAG:
+                structData[i] = ((BStruct) value).getFloatField(floatFieldIndex);
+                ++floatFieldIndex;
+                break;
+            case TypeTags.STRING_TAG:
+                structData[i] = ((BStruct) value).getStringField(stringFieldIndex);
+                ++stringFieldIndex;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                structData[i] = ((BStruct) value).getBooleanField(booleanFieldIndex) > 0;
+                ++booleanFieldIndex;
+                break;
+            case TypeTags.BLOB_TAG:
+                structData[i] = ((BStruct) value).getBlobField(blobFieldIndex);
+                ++blobFieldIndex;
+                break;
+            default:
+                throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
+            }
+        }
+        return new Object[] { structData, structuredSQLType };
+    }
+
 
     /**
      * This will close Database connection, statement and the resultset.
@@ -779,7 +897,7 @@ public class SQLDatasourceUtils {
             }
             return sb.toString();
         } catch (IOException | SQLException e) {
-            throw new BallerinaException("error occurred while reading CLOB value: " + e.getMessage(), e);
+            throw new BallerinaException("error occurred while reading clob value: " + e.getMessage(), e);
         }
     }
 
@@ -803,7 +921,7 @@ public class SQLDatasourceUtils {
                     new String(data.getBytes(1L, (int) data.length()), Charset.defaultCharset()));
             return new String(encode, Charset.defaultCharset());
         } catch (SQLException e) {
-            throw new BallerinaException("error occurred while reading BLOB value", e);
+            throw new BallerinaException("error occurred while reading blob value", e);
         }
     }
 

@@ -37,7 +37,6 @@ import java.io.File;
  * @since 0.92
  */
 public class SQLTransactionTest {
-    private static final double DELTA = 0.01;
     private ProgramFile bLangProgram;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 

@@ -3,15 +3,13 @@ package ballerina.data.sql;
 import ballerina.doc;
 
 @doc:Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
-@doc:Field {value:"sqlType : The data type of the corresponding SQL parameter"}
+@doc:Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @doc:Field {value:"value: Value of paramter pass into the SQL query"}
 @doc:Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
-@doc:Field {value:"structuredType: Underline SQL type to be used for parameter of SQL array type or custom structure type to be used with struct type"}
 struct Parameter {
 	string sqlType;
 	any value;
 	int direction;
-	string structuredType;
 }
 
 @doc:Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -27,6 +25,7 @@ struct Parameter {
 @doc:Field {value:"isolateInternalQueries: Determines whether HikariCP isolates internal pool queries, such as the connection alive test, in their own transaction"}
 @doc:Field {value:"allowPoolSuspension: Whether the pool can be suspended and resumed through JMX"}
 @doc:Field {value:"readOnly:  Whether Connections obtained from the pool are in read-only mode by default"}
+@doc:Field {value:"isXA:  Whether Connections are used for a distributed transaction"}
 @doc:Field {value:"maximumPoolSize: Maximum size that the pool is allowed to reach, including both idle and in-use connections"}
 @doc:Field {value:"connectionTimeout: Maximum number of milliseconds that a client will wait for a connection from the pool"}
 @doc:Field {value:"idleTimeout: Maximum amount of time that a connection is allowed to sit idle in the pool"}
@@ -48,6 +47,7 @@ struct ConnectionProperties {
 	boolean isolateInternalQueries;
 	boolean allowPoolSuspension;
 	boolean readOnly;
+	boolean isXA;
 	int maximumPoolSize = -1;
 	int connectionTimeout = -1;
 	int idleTimeout = -1;

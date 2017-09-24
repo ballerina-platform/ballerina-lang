@@ -37,7 +37,7 @@ import java.io.File;
 import java.util.Calendar;
 
 /**
- * Test class for SQL Connector test.
+ * Test class for SQL Connector actions test.
  *
  * @since 0.8.0
  */
@@ -48,7 +48,7 @@ public class SQLActionsTest {
 
     @BeforeClass()
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("samples/sqlConnectorTest.bal");
+        bLangProgram = BTestUtils.getProgramFile("samples/sql-actions-test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
@@ -135,24 +135,16 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
-    public void testConnectorWithDataSource() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testConnectorWithDataSource");
-        BString retValue = (BString) returns[0];
-        final String expected = "Peter";
-        Assert.assertEquals(retValue.stringValue(), expected);
-    }
-
-    @Test(groups = "ConnectorTest")
-    public void testConnectionPoolProperties() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testConnectionPoolProperties");
-        BString retValue = (BString) returns[0];
-        final String expected = "Peter";
-        Assert.assertEquals(retValue.stringValue(), expected);
-    }
-
-    @Test(groups = "ConnectorTest")
     public void testQueryParameters() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testQueryParameters");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testArrayofQueryParameters() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testArrayofQueryParameters");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -208,6 +200,13 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testINParameters() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testINParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testNullINParameterValues() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testNullINParameterValues");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -278,15 +277,15 @@ public class SQLActionsTest {
 
         Assert.assertTrue(returns[2] instanceof BMap);
         BMap<BString, BInteger> longArray = (BMap) returns[2];
-        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 10000000);
-        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 20000000);
-        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 30000000);
+        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 1503383034226L);
+        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 1503383034224L);
+        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 1503383034225L);
 
         Assert.assertTrue(returns[3] instanceof BMap);
         BMap<BString, BFloat> doubleArray = (BMap) returns[3];
-        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 245.23);
-        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 5559.49);
-        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 8796.123);
+        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 1503383034226.23D);
+        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 1503383034224.43D);
+        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 1503383034225.123D);
 
         Assert.assertTrue(returns[4] instanceof BMap);
         BMap<BString, BString> stringArray = (BMap) returns[4];
@@ -344,6 +343,7 @@ public class SQLActionsTest {
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals((int) retValue.get(0), 1);
         Assert.assertEquals((int) retValue.get(1), 1);
+        Assert.assertEquals((int) retValue.get(2), 1);
     }
 
     @Test(dependsOnGroups = "ConnectorTest")
@@ -386,10 +386,12 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error in sql connector configuration.*")
-    public void testInvalidDBType() {
-        BLangFunctions.invokeNew(bLangProgram, "testInvalidDBType");
+    @Test(groups = "ConnectorTest")
+    public void testStructOutParameters() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStructOutParameters");
+        BString retValue = (BString) returns[0];
+        String expected = "10";
+        Assert.assertEquals(retValue.stringValue(), expected);
     }
 
     @AfterSuite
