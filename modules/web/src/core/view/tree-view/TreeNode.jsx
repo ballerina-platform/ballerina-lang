@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
 import { getContextMenuItems } from './menu';
+import { exists } from './../../workspace/fs-util';
 
 export const EDIT_TYPES = {
     NEW: 'new',
@@ -21,6 +22,7 @@ class TreeNode extends React.Component {
     constructor(...args) {
         super(...args);
         this.state = {
+            editError: '',
             inputValue: this.props.node.label,
         };
         this.nameInput = undefined;
@@ -138,24 +140,44 @@ class TreeNode extends React.Component {
                 />
                 {enableEdit && <div className="tree-node-focus-highlighter" onClick={this.onEditComplete} />}
                 {enableEdit &&
-                    <input
-                        type="text"
-                        className="tree-node-name-input"
-                        spellCheck={false}
-                        value={this.state.inputValue}
-                        onChange={this.onEditName}
-                        onBlur={this.onEditComplete}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                this.onEditComplete();
-                            } else if (e.key === 'Escape') {
-                                this.onEditEscape();
-                            }
-                        }}
-                        ref={(nameInput) => {
-                            this.nameInput = nameInput;
-                        }}
-                    />
+                    <div className={classnames('tree-node-name-input-wrapper', { error: !_.isEmpty(this.state.editError) })} >
+                        <input
+                            type="text"
+                            className={classnames('tree-node-name-input')}
+                            spellCheck={false}
+                            value={this.state.inputValue}
+                            onChange={this.onEditName}
+                            onBlur={this.onEditComplete}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    this.onEditComplete();
+                                } else if (e.key === 'Escape') {
+                                    this.onEditEscape();
+                                }
+                            }}
+                            ref={(nameInput) => {
+                                this.nameInput = nameInput;
+                            }}
+                        />
+                        {!_.isEmpty(this.state.editError) && this.nameInput &&
+                            <div
+                                className="tree-node-name-input-error"
+                                style={{
+                                    top: this.nameInput.offsetTop + this.nameInput.clientHeight,
+                                    left: this.nameInput.offsetLeft,
+                                    width: this.nameInput.offsetWidth,
+                                }}
+                            >
+                                <p
+                                    style={{
+                                        width: this.nameInput.offsetWidth,
+                                    }}
+                                >
+                                    {this.state.editError}
+                                </p>
+                            </div>
+                        }
+                    </div>
                 }
                 {!enableEdit &&
                     <span className="tree-node-label" >
