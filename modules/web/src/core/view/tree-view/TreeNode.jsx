@@ -41,7 +41,7 @@ class TreeNode extends React.Component {
      * @inheritdoc
      */
     componentDidUpdate(prevProps, prevState) {
-        if (!_.isNil(this.nameInput)) {
+        if (!_.isNil(this.nameInput) && this.state.inputValue === this.props.node.label) {
             this.nameInput.focus();
             if (this.props.node.fileName) {
                 this.nameInput.setSelectionRange(0, this.props.node.fileName.length);
@@ -64,9 +64,14 @@ class TreeNode extends React.Component {
      * Upon escaping edit mode
      */
     onEditEscape() {
-        const { node, node: { editType }, onNodeDelete } = this.props;
+        const { node, node: { editType, label }, onNodeDelete } = this.props;
         if (editType === EDIT_TYPES.NEW) {
             onNodeDelete(node);
+        } else if (editType === EDIT_TYPES.RENAME) {
+            node.enableEdit = false;
+            this.setState({
+                inputValue: label,
+            });
         }
     }
 
