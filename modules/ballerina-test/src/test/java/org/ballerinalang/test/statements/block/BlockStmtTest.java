@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.statements.ifelse;
 
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
@@ -30,8 +29,8 @@ public class BlockStmtTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("org/ballerinalang/test/statements/block/block-stmt.bal");
-        resultNegative = BTestUtils.compile("org/ballerinalang/test/statements/block/block-stmt-negative.bal");
+        result = BTestUtils.compile("test-src/statements/block/block-stmt.bal");
+        resultNegative = BTestUtils.compile("test-src/statements/block/block-stmt-negative.bal");
     }
 
     @Test

@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,14 +35,14 @@ public class AssignStmtTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("org/ballerinalang/test/statements/assign/assign-stmt.bal");
-        resultNegative = BTestUtils.compile("org/ballerinalang/test/statements/assign/assign-stmt-negative.bal");
+        result = BTestUtils.compile("test-src/statements/assign/assign-stmt.bal");
+        resultNegative = BTestUtils.compile("test-src/statements/assign/assign-stmt-negative.bal");
     }
 
     @Test
     public void invokeAssignmentTest() {
         BValue[] args = { new BInteger(100) };
-        BValue[] returns = BTestUtils.invoke(result.getProgFile(), "testIntAssignStmt", args);
+        BValue[] returns = BTestUtils.invoke(result, "testIntAssignStmt", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
@@ -53,7 +52,7 @@ public class AssignStmtTest {
 
         // Float assignment test
         args = new BValue[] { new BFloat(2.3f) };
-        returns = BLangFunctions.invokeNew(result.getProgFile(), "testFloatAssignStmt", args);
+        returns = BTestUtils.invoke(result, "testFloatAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -64,7 +63,7 @@ public class AssignStmtTest {
 
         // Boolean assignment test
         args = new BValue[] { new BBoolean(true) };
-        returns = BLangFunctions.invokeNew(result.getProgFile(), "testBooleanAssignStmt", args);
+        returns = BTestUtils.invoke(result, "testBooleanAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -74,7 +73,7 @@ public class AssignStmtTest {
 
         // String assignment test
         args = new BValue[] { new BString("Test Value") };
-        returns = BLangFunctions.invokeNew(result.getProgFile(), "testStringAssignStmt", args);
+        returns = BTestUtils.invoke(result, "testStringAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -87,7 +86,7 @@ public class AssignStmtTest {
         BIntArray arrayValue = new BIntArray();
         arrayValue.add(0, 150);
         args = new BValue[] { arrayValue };
-        returns = BLangFunctions.invokeNew(result.getProgFile(), "testArrayIndexToIntAssignStmt", args);
+        returns = BTestUtils.invoke(result, "testArrayIndexToIntAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -98,7 +97,7 @@ public class AssignStmtTest {
 
         // Int to array index assignment test
         args = new BValue[] { new BInteger(250) };
-        returns = BLangFunctions.invokeNew(result.getProgFile(), "testIntToArrayAssignStmt", args);
+        returns = BTestUtils.invoke(result, "testIntToArrayAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -112,7 +111,7 @@ public class AssignStmtTest {
     public void testAssignmentStmtWithMultiReturnFunc() {
         // Int assignment test
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(result.getProgFile(), "testMultiReturn", args);
+        BValue[] returns = BTestUtils.invoke(result, "testMultiReturn", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
