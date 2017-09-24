@@ -33,18 +33,18 @@ import org.testng.annotations.Test;
  */
 public class MathTest {
 
-    private CompileResult programFile;
+    private CompileResult compileResult;
     private static final double DELTA = 0.01;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.compile("test-src/nativeimpl/functions/math.bal");
+        compileResult = BTestUtils.compile("test-src/nativeimpl/functions/math.bal");
     }
 
     @Test(description = "Test 'exp' function in ballerina.lang.math package")
     public void testMathExp() {
         BValue[] args = {new BFloat(5.0)};
-        BValue[] returns = BTestUtils.invoke(programFile, "expTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "expTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 148.4131591025766, DELTA);
@@ -53,7 +53,7 @@ public class MathTest {
     @Test(description = "Test 'pow' function in ballerina.lang.math package")
     public void testMathPow() {
         BValue[] args = {new BFloat(5.0), new BFloat(5.0)};
-        BValue[] returns = BTestUtils.invoke(programFile, "powTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "powTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 3125.0, DELTA);
@@ -62,7 +62,7 @@ public class MathTest {
     @Test(description = "Test 'random' function in ballerina.lang.math package")
     public void testMathRandom() {
         BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(programFile, "randomTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "randomTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BFloat) returns[0]).floatValue() > 0 && ((BFloat) returns[0]).floatValue() < 1);
@@ -71,7 +71,7 @@ public class MathTest {
     @Test(description = "Test 'sqrt' function in ballerina.lang.math package")
     public void testMathSqrt() {
         BValue[] args = {new BFloat(25.0)};
-        BValue[] returns = BTestUtils.invoke(programFile, "sqrtTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "sqrtTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, DELTA);
@@ -80,7 +80,7 @@ public class MathTest {
     @Test(description = "Test 'randomRange' function in ballerina.lang.math package")
     public void testRandomRange() {
         BValue[] args = {new BInteger(5), new BInteger(10)};
-        BValue[] returns = BTestUtils.invoke(programFile, "randomInRangeTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "randomInRangeTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BInteger) returns[0]).floatValue() >= 5 && ((BInteger) returns[0]).floatValue() < 10);
