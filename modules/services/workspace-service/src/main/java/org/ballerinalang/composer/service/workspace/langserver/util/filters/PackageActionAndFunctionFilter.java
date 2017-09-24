@@ -175,42 +175,43 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder signatureInsertText = new StringBuilder(functionName + "(");
 
+        // TODO: Finalize
         // Create the parameter list
-        SimpleTypeName[] argumentTypeNames = nativeUnit.getArgumentTypeNames();
-        String[] argumentNames = nativeUnit.getArgumentNames();
-        for (int itr = 0; itr < argumentTypeNames.length; itr++) {
-            // ignore "ClientConnector" argument from connector action argument list
-            if ("ClientConnector".equals(argumentTypeNames[itr].getName())) {
-                continue;
-            }
-            signature.append(argumentTypeNames[itr])
-                    .append(" ")
-                    .append(argumentNames[itr]);
-
-            signatureInsertText.append("${")
-                    .append(itr + 1)
-                    .append(":")
-                    .append(argumentNames[itr])
-                    .append("}");
-            if (itr < argumentTypeNames.length - 1) {
-                signature.append(", ");
-                signatureInsertText.append(", ");
-            }
-        }
+//        SimpleTypeName[] argumentTypeNames = nativeUnit.getArgumentTypeNames();
+//        String[] argumentNames = nativeUnit.getArgumentNames();
+//        for (int itr = 0; itr < argumentTypeNames.length; itr++) {
+//            // ignore "ClientConnector" argument from connector action argument list
+//            if ("ClientConnector".equals(argumentTypeNames[itr].getName())) {
+//                continue;
+//            }
+//            signature.append(argumentTypeNames[itr])
+//                    .append(" ")
+//                    .append(argumentNames[itr]);
+//
+//            signatureInsertText.append("${")
+//                    .append(itr + 1)
+//                    .append(":")
+//                    .append(argumentNames[itr])
+//                    .append("}");
+//            if (itr < argumentTypeNames.length - 1) {
+//                signature.append(", ");
+//                signatureInsertText.append(", ");
+//            }
+//        }
         signature.append(")");
         signatureInsertText.append(");");
 
-        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
-        StringBuilder returnParams = new StringBuilder("(");
+//        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+//        StringBuilder returnParams = new StringBuilder("(");
 
-        for (int itr = 0; itr < returnParamTypeNames.length; itr++) {
-            returnParams.append(returnParamTypeNames[itr].getName());
-            if (itr != returnParamTypeNames.length - 1) {
-                returnParams.append(", ");
-            }
-        }
-        returnParams.append(")");
-        signature.append(returnParams.toString());
+//        for (int itr = 0; itr < returnParamTypeNames.length; itr++) {
+//            returnParams.append(returnParamTypeNames[itr].getName());
+//            if (itr != returnParamTypeNames.length - 1) {
+//                returnParams.append(", ");
+//            }
+//        }
+//        returnParams.append(")");
+//        signature.append(returnParams.toString());
         return new FunctionSignature(signatureInsertText.toString(), signature.toString());
     }
 
