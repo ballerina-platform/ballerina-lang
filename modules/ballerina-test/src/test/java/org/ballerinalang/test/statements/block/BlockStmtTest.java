@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.statements.ifelse;
+package org.ballerinalang.test.statements.block;
 
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
@@ -40,8 +40,16 @@ public class BlockStmtTest {
 
     @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        //testUnreachableStmtInIfFunction
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        //testUnreachableStmtInIfFunction1
         BTestUtils.validateError(resultNegative, 0, "unreachable code", 9, 4);
+        //testUnreachableStmtInIfFunction2
+        BTestUtils.validateError(resultNegative, 1, "unreachable code", 25, 4);
+        //testUnreachableStmtInIfBlock
+        BTestUtils.validateError(resultNegative, 2, "unreachable code", 33, 8);
+        //testUnreachableStmtInWhileBlock
+        BTestUtils.validateError(resultNegative, 3, "unreachable code", 46, 12);
+        //testCommentAfterReturnStmt
+        BTestUtils.validateError(resultNegative, 4, "unreachable code", 62, 4);
     }
 }

@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.statements.ifelse;
+package org.ballerinalang.test.statements.assign;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
