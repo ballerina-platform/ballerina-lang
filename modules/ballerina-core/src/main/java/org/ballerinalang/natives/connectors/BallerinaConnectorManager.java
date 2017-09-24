@@ -41,7 +41,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class BallerinaConnectorManager {
                 "conf" + File.separator + "transports" +
                         File.separator + "netty-transports.yml");
         trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
-        serverBootstrapConfiguration = HTTPMessageUtil
+        serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
@@ -172,7 +172,7 @@ public class BallerinaConnectorManager {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
-        serverBootstrapConfiguration = HTTPMessageUtil
+        serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         org.wso2.carbon.transport.http.netty.contract.ServerConnector serverConnector =
                 httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
@@ -325,10 +325,10 @@ public class BallerinaConnectorManager {
         this.connectorManager.registerClientConnector(clientConnector);
     }
 
-    public HttpClientConnector getHTTPHttpClientConnector() {
-        Map<String, Object> properties = HTTPMessageUtil.getTransportProperties(trpConfig);
+    public HttpClientConnector getHttpClientConnector(String scheme) {
+        Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
-                HTTPMessageUtil.getSenderConfiguration(trpConfig);
+                HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);

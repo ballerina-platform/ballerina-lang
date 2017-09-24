@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.message.HTTPMessageUtil;
+import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -41,7 +41,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         ThreadPoolFactory.getInstance().getExecutor().
                 execute(new RequestWorkerThread(httpCarbonMessage, (cMsg) -> {
-                    HTTPCarbonMessage carbonMessage = HTTPMessageUtil.convertCarbonMessage(cMsg);
+                    HTTPCarbonMessage carbonMessage = HTTPConnectorUtil.convertCarbonMessage(cMsg);
                     try {
                         httpCarbonMessage.respond(carbonMessage);
                     } catch (ServerConnectorException e) {
