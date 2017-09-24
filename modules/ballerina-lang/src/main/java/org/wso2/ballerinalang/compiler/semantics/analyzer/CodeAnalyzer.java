@@ -160,12 +160,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         this.resetFunction();
         boolean functionReturns = funcNode.retParams.size() > 0;
-        funcNode.body.accept(this);
-        /* the function returns, but none of the statements surely returns */
-        if (functionReturns && !this.statementReturns) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN);
+        if (funcNode.workers.isEmpty()) {
+            funcNode.body.accept(this);
+            /* the function returns, but none of the statements surely returns */
+            if (functionReturns && !this.statementReturns) {
+                this.dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_MUST_RETURN);
+            }
+        } else {
+            boolean workerReturns = false;
+            for (BLangWorker worker : funcNode.workers) {
+                worker.accept(this);
+                workerReturns = workerReturns || this.statementReturns;
+                this.resetStatementReturns();
+            }
+            if (functionReturns && !workerReturns) {
+                this.dlog.error(funcNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN);
+            }
         }
-        funcNode.workers.forEach(e -> e.accept(this));
     }
     
     @Override
@@ -182,7 +193,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         worker.body.accept(this);
-        this.resetStatementReturns();
     }
 
     @Override

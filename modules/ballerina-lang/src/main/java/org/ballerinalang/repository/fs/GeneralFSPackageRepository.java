@@ -104,7 +104,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
                     if (e == null) {
                         List<Name> nameComps = new ArrayList<>();
-                        if (Files.list(dir).filter(f -> Files.isRegularFile(f)).count() > 0) {
+                        if (Files.list(dir).filter(f -> !Files.isDirectory(f)).count() > 0) {
                             int dirNameCount = dir.getNameCount();
                             if (dirNameCount > baseNameCount) {
                                 dir.subpath(baseNameCount, dirNameCount).forEach(
@@ -170,7 +170,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
                 try {
-                    List<Path> files = Files.walk(this.pkgPath).filter(
+                    List<Path> files = Files.walk(this.pkgPath, 1).filter(
                             Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
                             collect(Collectors.toList());
                     this.cachedEntryNames = new ArrayList<>(files.size());
