@@ -17,6 +17,31 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
         divider: true,
     };
 
+    const renameMenu = {
+        icon: '',
+        label: 'Rename',
+        handler: () => {
+            node.enableEdit = true;
+            node.editType = EDIT_TYPES.RENAME;
+            onNodeUpdate(node);
+        },
+        isActive: () => {
+            return true;
+        },
+        children: [],
+    };
+
+    const deleteMenu = {
+        icon: 'delete',
+        label: 'Delete',
+        handler: () => {
+        },
+        isActive: () => {
+            return true;
+        },
+        children: [],
+    };
+
     const newFileMenu = {
         icon: '',
         label: 'New File',
@@ -124,6 +149,10 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
         case 'folder': {
             menu.push(newFileMenu);
             menu.push(newFolderMenu);
+            menu.push(menuDivider);
+            menu.push(renameMenu);
+            menu.push(menuDivider);
+            menu.push(deleteMenu);
             break;
         }
         case 'file': {
@@ -137,34 +166,13 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
                 },
                 children: [],
             });
+            menu.push(menuDivider);
+            menu.push(renameMenu);
+            menu.push(menuDivider);
+            menu.push(deleteMenu);
             break;
         }
         default:
     }
-    menu.push(menuDivider);
-    menu.push({
-        icon: '',
-        label: 'Rename',
-        handler: () => {
-            node.enableEdit = true;
-            node.editType = EDIT_TYPES.RENAME;
-            onNodeUpdate(node);
-        },
-        isActive: () => {
-            return true;
-        },
-        children: [],
-    });
-    menu.push(menuDivider);
-    menu.push({
-        icon: 'delete',
-        label: 'Delete',
-        handler: () => {
-        },
-        isActive: () => {
-            return true;
-        },
-        children: [],
-    });
     return menu;
 }

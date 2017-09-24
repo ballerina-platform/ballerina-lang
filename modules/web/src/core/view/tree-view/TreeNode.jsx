@@ -38,12 +38,36 @@ class TreeNode extends React.Component {
     }
 
     /**
+     * @inheritdoc
+     */
+    componentDidUpdate(prevProps, prevState) {
+        if (!_.isNil(this.nameInput)) {
+            this.nameInput.focus();
+            if (this.props.node.fileName) {
+                this.nameInput.setSelectionRange(0, this.props.node.fileName.length);
+            } else {
+                this.nameInput.select();
+            }
+        }
+    }
+
+    /**
      * Upon name modifications
      */
     onEditName(e) {
         this.setState({
             inputValue: e.target.value,
         });
+    }
+
+     /**
+     * Upon escaping edit mode
+     */
+    onEditEscape() {
+        const { node, node: { editType }, onNodeDelete } = this.props;
+        if (editType === EDIT_TYPES.NEW) {
+            onNodeDelete(node);
+        }
     }
 
     /**
@@ -112,9 +136,17 @@ class TreeNode extends React.Component {
                     <input
                         type="text"
                         className="tree-node-name-input"
-                        value={this.state.value}
+                        spellCheck={false}
+                        value={this.state.inputValue}
                         onChange={this.onEditName}
                         onBlur={this.onEditComplete}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                this.onEditComplete();
+                            } else if (e.key === 'Escape') {
+                                this.onEditEscape();
+                            }
+                        }}
                         ref={(nameInput) => {
                             this.nameInput = nameInput;
                         }}
