@@ -72,7 +72,7 @@ public class HttpUtil {
     private static final String TRANSPORT_MESSAGE = "transport_message";
 
     public static BValue[] addHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BStruct requestStruct  = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
+        BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
@@ -93,7 +93,7 @@ public class HttpUtil {
         if (log.isDebugEnabled()) {
             log.debug("Invoke message clone.");
         }
-        BStruct requestStruct  = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
+        BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         BStruct clonedRequestStruct = new BStruct(requestStruct.getType());
@@ -116,7 +116,7 @@ public class HttpUtil {
             if (log.isDebugEnabled()) {
                 log.debug("Payload in String:" + result.stringValue());
             }
-         } catch (Throwable e) {
+        } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
         return abstractNativeFunction.getBValues(result);
@@ -259,7 +259,7 @@ public class HttpUtil {
         byte[] buffer = new byte[4096];
         int n1;
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        for (; -1 != (n1 = input.read(buffer));) {
+        for (; -1 != (n1 = input.read(buffer)); ) {
             output.write(buffer, 0, n1);
         }
         byte[] bytes = output.toByteArray();
@@ -501,7 +501,7 @@ public class HttpUtil {
      * This will first look for the port property and if present then it will get other properties,
      * and create the property map.
      *
-     * @param configInfo            In which listener configurations are specified.
+     * @param configInfo In which listener configurations are specified.
      * @return listenerConfMap      With required properties
      */
     private static Map<String, Map<String, String>> buildListerProperties(Annotation configInfo) {
