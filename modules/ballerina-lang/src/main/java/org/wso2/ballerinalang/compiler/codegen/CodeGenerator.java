@@ -1479,7 +1479,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     /* visit the workers within fork-join block */
-    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy) {
+    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy,
+            SymbolEnv forkJoinEnv) {
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
         int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         for (BLangWorker worker : forkJoin.workers) {
@@ -1488,7 +1489,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             workerInfo.codeAttributeInfo.codeAddrs = this.nextIP();
             this.currentWorkerInfo = workerInfo;
             this.lvIndexes = this.copyVarIndex(lvIndexesCopy);
-            this.genNode(worker.body, this.env);
+            this.genNode(worker.body, forkJoinEnv);
             this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
             this.emit(InstructionCodes.HALT);
         }
@@ -1522,7 +1523,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     /* generate code for Join block */
-    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
+    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv) {
         UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
         int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
         forkjoinInfo.setJoinType(forkJoin.joinType.name());
@@ -1534,18 +1535,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         int joinMemOffset = forkJoin.joinResultVar.symbol.varIndex;
         forkjoinInfo.setJoinMemOffset(joinMemOffset);
         if (forkJoin.joinedBody != null) {
-            this.genNode(forkJoin.joinedBody, this.env);
+            this.genNode(forkJoin.joinedBody, forkJoinEnv);
         }
     }
 
     /* generate code for timeout block */
-    private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
+    private void processTimeoutBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv) {
         /* emit a GOTO instruction to jump out of the timeout block */
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, -1);
         this.emit(gotoInstruction);
         forkjoinInfo.setTimeoutIp(nextIP());
         if (forkJoin.timeoutExpression != null) {
-            this.genNode(forkJoin.timeoutExpression, this.env);
+            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
         }
         if (forkJoin.timeoutVariable != null) {
             visitForkJoinParameterDefs(forkJoin.timeoutVariable);
@@ -1553,16 +1554,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         int timeoutMemOffset = forkJoin.joinResultVar.symbol.varIndex;
         forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
         if (forkJoin.timeoutBody != null) {
-            this.genNode(forkJoin.timeoutBody, this.env);
+            this.genNode(forkJoin.timeoutBody, forkJoinEnv);
         }
         gotoInstruction.setOperand(0, nextIP());
     }
 
     public void visit(BLangForkJoin forkJoin) {
+        SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
         ForkjoinInfo forkjoinInfo = this.processForkJoinTimeout(forkJoin);
         this.populatForkJoinWorkerInfo(forkJoin, forkjoinInfo);
         int forkJoinIndex;
-        if (this.currentWorkerInfo != null) {
+        /* was I already inside a fork/join */
+        if (this.env.forkJoin != null) {
             forkJoinIndex = this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
         } else {
             forkJoinIndex = this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
@@ -1575,7 +1578,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         VariableIndex lvIndexesCopy = this.copyVarIndex(this.lvIndexes);
         VariableIndex regIndexesCopy = this.copyVarIndex(this.regIndexes);
         VariableIndex maxRegIndexesCopy = this.copyVarIndex(this.maxRegIndexes);
-        this.processJoinWorkers(forkJoin, forkjoinInfo, lvIndexesCopy);
+        this.processJoinWorkers(forkJoin, forkjoinInfo, lvIndexesCopy, forkJoinEnv);
         this.lvIndexes = lvIndexesCopy;
         this.regIndexes = regIndexesCopy;
         this.maxRegIndexes = maxRegIndexesCopy;
@@ -1591,8 +1594,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
-        this.processJoinBlock(forkJoin, forkjoinInfo);
-        this.processTimeoutBlock(forkJoin, forkjoinInfo);
+        this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
+        this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
     }
 
     private void visitForkJoinParameterDefs(BLangVariable parameterDef) {
@@ -1612,8 +1615,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
         wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
         int wrkrInvRefCPIndex = currentPkgInfo.addCPEntry(wrkrInvRefCPEntry);
-        this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex);
-        this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
+        if (this.env.forkJoin != null) {
+            this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex);
+            this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
+        }
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex);
         int workerInvocationIndex = this.getWorkerSendCPIndex(workerSendNode);
         this.emit(InstructionCodes.WRKINVOKE, wrkrInvRefCPIndex, workerInvocationIndex);
