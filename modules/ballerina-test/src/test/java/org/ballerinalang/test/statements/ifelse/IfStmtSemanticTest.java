@@ -28,7 +28,7 @@ public class IfStmtSemanticTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("org/ballerinalang/test/statements/ifelse/if-stmt-negative.bal");
+        result = BTestUtils.compile("test-src/statements/ifelse/if-stmt-negative.bal");
     }
 
     @Test

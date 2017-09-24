@@ -38,8 +38,7 @@ public class FuncInvocationExprTest {
 
     @BeforeClass
     public void setup() {
-        funcInvocationExpResult =
-                BTestUtils.compile("org/ballerinalang/test/expressions/invocations/function-Invocation-expr.bal");
+        funcInvocationExpResult = BTestUtils.compile("test-src/expressions/invocations/function-Invocation-expr.bal");
     }
 
     @Test
