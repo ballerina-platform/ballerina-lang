@@ -16,7 +16,8 @@
  * under the License.
  */
 
-import { COMMANDS } from './constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { COMMANDS, DIALOG_IDS } from './constants';
 import LaunchManager from './LaunchManager';
 
 /**
@@ -44,8 +45,16 @@ export function getHandlerDefinitions(debuggerPlugin) {
             handler: (debug = false) => {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
                 if (activeEditor && activeEditor.file) {
-                    LaunchManager.run(activeEditor.file, debug);
+                    LaunchManager.run(activeEditor.file, debug, debuggerPlugin.getArgumentConfigs(activeEditor.file));
                 }
+            },
+        },
+        {
+            cmdID: COMMANDS.SHOW_LAUNCHER_CONFIG_DIALOG,
+            handler: () => {
+                const id = DIALOG_IDS.LAUNCHER_CONFIG;
+                const { command: { dispatch } } = debuggerPlugin.appContext;
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
             },
         },
     ];
