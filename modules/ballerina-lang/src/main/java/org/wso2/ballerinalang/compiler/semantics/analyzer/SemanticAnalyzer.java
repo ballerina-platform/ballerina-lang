@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -437,16 +436,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             .map(e -> e.getTypeNode().type)
                             .collect(Collectors.toList()));
         } else {
-            if (returnNode.exprs.size() == 0 && this.env.enclInvokable.getReturnParameters().size() > 0) {
-                // Return stmt has no expressions, but function/action has returns. Check whether they are named returns
-                for (BLangVariable variable : this.env.enclInvokable.getReturnParameters()) {
-                    BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                    varRef.variableName = variable.name;
-                    varRef.symbol = variable.symbol;
-                    varRef.type = variable.type;
-                    varRef.pos = returnNode.pos;
-                    returnNode.exprs.add(varRef);
-                }
+            if (returnNode.exprs.size() == 0 && this.env.enclInvokable.getReturnParameters().size() > 0
+                    && !this.env.enclInvokable.getReturnParameters().get(0).name.value.isEmpty()) {
+                // Return stmt has no expressions, but function/action has returns and they are named returns.
+                // Rewrite tree at desuger phase.
+                returnNode.namedReturnVariables = this.env.enclInvokable.getReturnParameters();
+                return;
             }
             if (this.checkReturnValueCounts(returnNode)) {
                 for (int i = 0; i < returnNode.exprs.size(); i++) {

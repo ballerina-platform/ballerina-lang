@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -227,6 +228,17 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
+        if (returnNode.namedReturnVariables != null) {
+            // Handled named returns.
+            for (BLangVariable variable : returnNode.namedReturnVariables) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                varRef.variableName = variable.name;
+                varRef.symbol = variable.symbol;
+                varRef.type = variable.type;
+                varRef.pos = returnNode.pos;
+                returnNode.exprs.add(varRef);
+            }
+        }
         returnNode.exprs = rewrite(returnNode.exprs);
         result = returnNode;
     }
