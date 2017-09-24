@@ -45,7 +45,7 @@ public class FuncInvocationExprTest {
     @Test
     public void invokeFunctionWithParams() {
         BValue[] args = new BValue[]{new BInteger(1), new BInteger(2)};
-        BValue[] values = BTestUtils.invoke(funcInvocationExpResult.getProgFile(), "add", args);
+        BValue[] values = BTestUtils.invoke(funcInvocationExpResult, "add", args);
         Assert.assertEquals(values.length, 1);
         Assert.assertTrue(values[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) values[0]).intValue(), 3);
@@ -54,7 +54,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(), "testFuncInvocation", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "testFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -67,7 +67,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
         BValue[] args = {new BInteger(7)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(), "sum", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "sum", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -81,8 +81,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(),
-                "funcInvocationWithinFuncInvocation", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -95,8 +94,7 @@ public class FuncInvocationExprTest {
     @Test
     public void testNativeInvocation() {
         BValue[] args = {new BFloat(2), new BFloat(2)};
-        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult.getProgFile(),
-                "getPowerOfN", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "getPowerOfN", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
