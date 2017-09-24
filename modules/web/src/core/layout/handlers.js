@@ -32,6 +32,7 @@ export function getHandlerDefinitions(layoutManager) {
                                 customTitleClass,
                                 component: withViewFeatures(component, pluginID),
                                 propsProvider,
+                                activate: true,
                             });
                         }
                             break;
