@@ -33,7 +33,6 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
-import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
@@ -72,11 +71,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     private BType[] returnParamTypes;
     private BType[] parameterTypes;
-    private SimpleTypeName[] returnParamTypeNames;
-    private SimpleTypeName[] argTypeNames;
-    private String[] argNames;
     private int tempStackFrameSize;
-    private BType bType;
 
     /**
      * Initialize a native function.
@@ -88,7 +83,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     public BValue getRefArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
+        if (index > -1) {
             BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
@@ -100,7 +95,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     public byte[] getBlobArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
+        if (index > -1) {
             byte[] result = context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
@@ -120,14 +115,14 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @return Long value.
      */
     public long getIntArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
+        if (index > -1) {
             return context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public String getStringArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
+        if (index > -1) {
             return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
@@ -142,7 +137,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @return Double value.
      */
     public double getFloatArgument(Context context, int index) {
-        if (index > -1 && index < this.argTypeNames.length) {
+        if (index > -1) {
             return context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
         } else {
             throw new ArgumentOutOfRangeException(index);
@@ -150,7 +145,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     public boolean getBooleanArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
+        if (index > -1) {
             return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
@@ -158,12 +153,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public BType getType() {
-        if (bType == null) {
-            BFunctionType functionType = new BFunctionType(this.getSymbolScope().getEnclosingScope(), parameterTypes,
-                    returnParamTypes);
-            bType = functionType;
-        }
-        return bType;
+        return null;
     }
 
     @Override
@@ -389,36 +379,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public SymbolScope getSymbolScope() {
         return null;
-    }
-
-    @Override
-    public void setArgTypeNames(SimpleTypeName[] argTypes) {
-        this.argTypeNames = argTypes;
-    }
-
-    @Override
-    public void setArgNames(String[] argNames) {
-        this.argNames = argNames;
-    }
-
-    @Override
-    public SimpleTypeName[] getArgumentTypeNames() {
-        return argTypeNames;
-    }
-
-    @Override
-    public String[] getArgumentNames() {
-        return argNames;
-    }
-
-    @Override
-    public SimpleTypeName[] getReturnParamTypeNames() {
-        return returnParamTypeNames;
-    }
-
-    @Override
-    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
-        this.returnParamTypeNames = returnParamTypes;
     }
 
     /**

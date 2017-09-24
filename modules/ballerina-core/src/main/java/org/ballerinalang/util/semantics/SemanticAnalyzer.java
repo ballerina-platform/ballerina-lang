@@ -2514,7 +2514,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             for (int i = 1; i < items.length; i++) {
                 Expression currentItem = items[i];
                 concatExpr = new AddExpression(currentItem.getNodeLocation(), currentItem.getWhiteSpaceDescriptor(),
-                                               concatExpr, currentItem);
+                        concatExpr, currentItem);
             }
         }
         concatExpr.accept(this);
@@ -3069,7 +3069,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionSymbol = ((BallerinaFunction) functionSymbol).getNativeFunction();
             NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
             // Loading return parameter types of this native function
-            SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+            SimpleTypeName[] returnParamTypeNames = null;
             BType[] returnTypes = new BType[returnParamTypeNames.length];
             for (int i = 0; i < returnParamTypeNames.length; i++) {
                 SimpleTypeName typeName = returnParamTypeNames[i];
@@ -3148,7 +3148,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (actionSymbol instanceof NativeUnitProxy) {
             // Loading return parameter types of this native function
             NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
-            SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+            SimpleTypeName[] returnParamTypeNames = null;
             BType[] returnTypes = new BType[returnParamTypeNames.length];
             for (int i = 0; i < returnParamTypeNames.length; i++) {
                 SimpleTypeName typeName = returnParamTypeNames[i];
@@ -3203,7 +3203,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             for (int i = 0; i < argExprs.length; i++) {
                 Expression argExpr = argExprs[i];
                 updatedArgExprs[i] = argExpr;
-                SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                SimpleTypeName simpleTypeName = null;
                 BType lhsType = BTypes.resolveType(simpleTypeName, currentScope, callableIExpr.getNodeLocation());
 
                 AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
@@ -3421,9 +3421,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                     ballerinaActionBuilder.setNative(nativeUnit.isNative());
                     ballerinaActionBuilder.setSymbolName(nativeUnit.getSymbolName());
                     ParameterDef paramDef = new ParameterDef(connectorDef.getNodeLocation(), null,
-                            new Identifier(nativeUnit.getArgumentNames()[0]),
-                            nativeUnit.getArgumentTypeNames()[0],
-                            new SymbolName(nativeUnit.getArgumentNames()[0], connectorDef.getPackagePath()),
+                            new Identifier(null),
+                            null,
+                            new SymbolName(null, connectorDef.getPackagePath()),
                             ballerinaActionBuilder.getCurrentScope());
                     paramDef.setType(connectorDef);
                     ballerinaActionBuilder.addParameter(paramDef);

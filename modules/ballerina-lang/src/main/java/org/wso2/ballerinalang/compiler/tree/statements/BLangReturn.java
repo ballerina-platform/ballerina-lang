@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
@@ -31,6 +32,9 @@ import java.util.List;
  */
 public class BLangReturn extends BLangStatement implements ReturnNode {
     public List<BLangExpression> exprs;
+
+    // Hold variable for Desuger phase, if this a named return.
+    public List<BLangVariable> namedReturnVariables;
 
     public BLangReturn() {
         this.exprs = new ArrayList<>();
