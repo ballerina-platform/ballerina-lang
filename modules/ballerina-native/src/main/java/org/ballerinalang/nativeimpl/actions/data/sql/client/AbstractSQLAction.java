@@ -109,7 +109,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
                     getColumnDefinitions(rs));
             context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
         }
@@ -193,7 +193,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             }
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
