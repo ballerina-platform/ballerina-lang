@@ -138,6 +138,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.phase != Phase.DESUGER) {
+            result = pkgNode;
             return;
         }
         pkgNode.imports = rewrite(pkgNode.imports);

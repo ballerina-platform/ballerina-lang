@@ -69,6 +69,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.annotations = new ArrayList<>();
 
         this.topLevelNodes = new ArrayList<>();
+        this.phase = Phase.DEFINE;
     }
 
     @Override
