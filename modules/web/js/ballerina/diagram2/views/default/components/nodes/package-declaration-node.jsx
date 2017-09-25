@@ -47,7 +47,7 @@ class PackageDeclarationNode extends React.Component {
         }
 
         if (globalDef.parent.getConstantDefinitions().includes(globalDef)) {
-            return 'const ' + globalDef.getSource();
+            return globalDef.getSource();
         }
 
         return 'invalid value';
