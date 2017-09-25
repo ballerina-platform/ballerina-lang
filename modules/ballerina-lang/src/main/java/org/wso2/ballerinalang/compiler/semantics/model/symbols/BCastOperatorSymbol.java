@@ -26,18 +26,15 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BCastOperatorSymbol extends BOperatorSymbol {
 
     public boolean implicit;
-    public boolean explicit;
     public boolean safe;
 
     public BCastOperatorSymbol(BType type,
                                BSymbol owner,
                                boolean implicit,
-                               boolean explicit,
                                boolean safe,
                                int opcode) {
         super(Names.CAST_OP, type, owner, opcode);
         this.implicit = implicit;
-        this.explicit = explicit;
         this.safe = safe;
     }
 }

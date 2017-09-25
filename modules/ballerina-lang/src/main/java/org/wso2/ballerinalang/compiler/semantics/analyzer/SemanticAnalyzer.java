@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.Types;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -92,6 +93,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
+    private Types types;
     private DiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -116,6 +118,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
@@ -279,7 +282,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCatch bLangCatch) {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
         analyzeNode(bLangCatch.param, catchBlockEnv);
-        this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        this.types.checkType(bLangCatch.param.pos, bLangCatch.param.type, symTable.errStructType,
+                DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
 

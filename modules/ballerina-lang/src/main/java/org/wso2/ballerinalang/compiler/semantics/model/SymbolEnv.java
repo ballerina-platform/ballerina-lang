@@ -45,6 +45,8 @@ public class SymbolEnv {
     public BLangService enclService;
 
     public BLangInvokableNode enclInvokable;
+    
+    public BLangForkJoin forkJoin;
 
     public BVarSymbol enclVarSym;
 
@@ -57,6 +59,7 @@ public class SymbolEnv {
         this.enclConnector = null;
         this.enclService = null;
         this.enclInvokable = null;
+        this.forkJoin = null;
         this.enclEnv = null;
         this.enclVarSym = null;
     }
@@ -66,6 +69,7 @@ public class SymbolEnv {
         target.enclConnector = this.enclConnector;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
+        target.forkJoin = this.forkJoin;
         target.enclVarSym = this.enclVarSym;
         target.enclEnv = this;
     }
@@ -106,6 +110,13 @@ public class SymbolEnv {
     public static SymbolEnv createResourceActionSymbolEnv(BLangInvokableNode node, Scope scope, SymbolEnv env) {
         SymbolEnv symbolEnv = duplicate(node, scope, env);
         symbolEnv.enclInvokable = node;
+        return symbolEnv;
+    }
+    
+    public static SymbolEnv createForkJoinSymbolEnv(BLangForkJoin node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.forkJoin = node;
         return symbolEnv;
     }
 
