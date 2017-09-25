@@ -138,7 +138,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
         SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
-        structNode.fields.forEach(field -> this.acceptNode(field, structEnv));
+        this.symbolEnv = structEnv;
+        Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
+        System.out.println(Collections.singletonList(visibleSymbolEntries));
+        this.populateSymbols(visibleSymbolEntries);
+        this.terminateVisitor = true;
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -180,14 +184,20 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangIf ifNode) {
         if (!isCursorBeforeStatement(ifNode.getPosition(), ifNode)) {
+            this.blockOwnerStack.push(ifNode);
             this.acceptNode(ifNode.body, symbolEnv);
+            this.blockOwnerStack.pop();
 
             if (ifNode.elseStmt != null) {
-                // TODO: Finalize
+                if (!(ifNode.elseStmt instanceof BLangIf)) {
+                    this.blockOwnerStack.push(null);
+                }
                 acceptNode(ifNode.elseStmt, symbolEnv);
+                if (!(ifNode.elseStmt instanceof BLangIf)) {
+                    this.blockOwnerStack.pop();
+                }
             }
         }
-
     }
 
     public void visit(BLangWhile whileNode) {
@@ -361,26 +371,26 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.symbolEnv = prevEnv;
     }
 
+    /**
+     * Check whether the cursor position is located before the evaluating statement node
+     * @param nodePosition position of the node
+     * @param node statement being evaluated
+     * @return true|false
+     */
     private boolean isCursorBeforeStatement(DiagnosticPos nodePosition, Node node) {
         int line = position.getLine();
         int col = position.getCharacter();
         int nodeSLine = nodePosition.sLine;
         int nodeSCol = nodePosition.sCol;
-        int nodeELine = nodePosition.eLine;
+        // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
+        // node is the endLine of the else node.
+        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : nodePosition.eLine;
         int nodeECol = nodePosition.eCol;
-        int blockOwnerELine;
-        int blockOwnerECol;
 
         BLangBlockStmt bLangBlockStmt = this.blockStmtStack.peek();
         Node blockOwner = this.blockOwnerStack.peek();
-
-        if (blockOwner instanceof BLangTryCatchFinally) {
-            blockOwnerELine = getTryBlockEndLine((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
-            blockOwnerECol = getTryBlockEndCol((BLangTryCatchFinally) blockOwner, bLangBlockStmt);;
-        } else {
-            blockOwnerELine = blockOwner.getPosition().getEndLine();
-            blockOwnerECol = blockOwner.getPosition().endColumn();
-        }
+        int blockOwnerELine = this.getBlockOwnerELine(blockOwner, bLangBlockStmt);
+        int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
 
         boolean isLastStatement = (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
 
@@ -397,8 +407,31 @@ public class TreeVisitor extends BLangNodeVisitor {
         return false;
     }
 
-    private int getTryBlockEndLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+    private int getBlockOwnerELine(Node blockOwner, BLangBlockStmt bLangBlockStmt) {
+        if (blockOwner instanceof BLangTryCatchFinally) {
+            return getTryBlockEndLine((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
+        } else if (blockOwner == null) {
+            // When the else node is evaluating, block owner is null and the block statement only present
+            // This is because, else node is represented with a blocks statement only
+            return bLangBlockStmt.getPosition().getEndLine();
+        } else {
+            return blockOwner.getPosition().getEndLine();
+        }
+    }
 
+    private int getBlockOwnerECol(Node blockOwner, BLangBlockStmt bLangBlockStmt) {
+        if (blockOwner instanceof BLangTryCatchFinally) {
+            return getTryBlockEndCol((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
+        } else if (blockOwner == null) {
+            // When the else node is evaluating, block owner is null and the block statement only present
+            // This is because, else node is represented with a blocks statement only
+            return bLangBlockStmt.getPosition().endColumn();
+        } else {
+            return blockOwner.getPosition().endColumn();
+        }
+    }
+
+    private int getTryBlockEndLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
         if (blockStmt == tryCatchFinally.tryBody) {
             // We are inside the try block
             if (tryCatchFinally.catchBlocks.size() > 0) {
@@ -415,25 +448,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
     }
 
-    private int getTryBlockStartLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
-
-        if (blockStmt == tryCatchFinally.tryBody) {
-            // We are inside the try block
-            return tryCatchFinally.getPosition().sLine;
-        } else {
-            // We are inside the finally statement
-            if (tryCatchFinally.catchBlocks.size() > 0) {
-                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(tryCatchFinally.catchBlocks.size() - 1);
-                return bLangCatch.getPosition().sLine;
-            } else {
-                return tryCatchFinally.finallyBody.getPosition().sLine;
-            }
-        }
-    }
-
     private int getTryBlockEndCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
-
-
         if (blockStmt == tryCatchFinally.tryBody) {
             // We are inside the try block
             if (tryCatchFinally.catchBlocks.size() > 0) {
@@ -450,18 +465,20 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
     }
 
-    private int getTryBlockStartCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
-
-        if (blockStmt == tryCatchFinally.tryBody) {
-            // We are inside the try block
-            return tryCatchFinally.getPosition().sCol;
-        } else {
-            // We are inside the finally block
-            if (tryCatchFinally.catchBlocks.size() > 0) {
-                BLangCatch bLangCatch = tryCatchFinally.catchBlocks.get(tryCatchFinally.catchBlocks.size() - 1);
-                return bLangCatch.getPosition().eCol;
+    /**
+     * Calculate the end line of the BLangIf node
+     * @param bLangIf {@link BLangIf}
+     * @return end line of the if node
+     */
+    private int getIfElseNodeEndLine(BLangIf bLangIf) {
+        BLangIf ifNode = bLangIf;
+        while (true) {
+            if (ifNode.elseStmt == null) {
+                return bLangIf.getPosition().eLine;
+            } else if (ifNode.elseStmt instanceof BLangIf) {
+                ifNode = (BLangIf) ifNode.elseStmt;
             } else {
-                return tryCatchFinally.getFinallyBody().getPosition().sCol;
+                return ifNode.elseStmt.getPosition().getEndLine();
             }
         }
     }
