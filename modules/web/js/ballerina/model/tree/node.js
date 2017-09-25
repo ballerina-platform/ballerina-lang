@@ -193,27 +193,71 @@ class Node extends EventChannel {
                     return '';
                 }
             case 'Assignment':
-                return Node.join(node.variables, w, '') + '=' + w() +
-                    node.expression.getSource() + ';' + w();
+                if (node.declaredWithVar && node.variables && node.variables.length &&
+                    node.expression) {
+                    return 'var' + w() + Node.join(node.variables, w, ',') + '=' + w() +
+                        node.expression.getSource() + ';' + w();
+                } else {
+                    return Node.join(node.variables, w, ',') + '=' + w() +
+                        node.expression.getSource() + ';' + w();
+                }
             case 'BinaryExpr':
                 return node.leftExpression.getSource() + node.operatorKind +
                     w() + node.rightExpression.getSource();
             case 'SimpleVariableRef':
-                return node.variableName.value + w();
+                if (node.packageIdentifier && node.packageIdentifier.value && node.variableName.value) {
+                    return node.packageIdentifier.value + w() + ':' + w() +
+                        node.variableName.value + w();
+                } else {
+                    return node.variableName.value + w();
+                }
+            case 'ExpressionStatement':
+                return node.expression.getSource() + ';' + w();
+            case 'Comment':
+                return node.comment + w();
+            case 'Invocation':
+                if (node.packageAlias && node.packageAlias.value && node.name.value &&
+                    node.argumentExpressions && node.argumentExpressions.length) {
+                    return node.packageAlias.value + w() + ':' + w() +
+                        node.name.value + w() + '(' + w() + Node.join(node.argumentExpressions, w, ',') +
+                        ')' + w();
+                } else if (node.name.value && node.argumentExpressions && node.argumentExpressions.length) {
+                    return node.name.value + w() + '(' + w() + Node.join(node.argumentExpressions, w, ',') +
+                        ')' + w();
+                } else {
+                    return node.name.value + w() + '(' + w() + ')' + w();
+                }
             case 'VariableDef':
                 return node.variable.getSource() + ';' + w();
             case 'Return':
                 if (node.expressions && node.expressions.length) {
-                    return 'return' + w() + Node.join(node.expressions, w, ';', true);
+                    return 'return' + w() + Node.join(node.expressions, w, ',') + ';' + w();
                 } else {
                     return 'return' + w() + ';' + w();
                 }
             case 'UserDefinedType':
-                return node.typeName.value + w();
+                if (node.packageAlias && node.packageAlias.value && node.typeName.value) {
+                    return node.packageAlias.value + w() + ':' + w() +
+                        node.typeName.value + w();
+                }
+                if (node.typeName.value) {
+                    return node.typeName.value + w();
+                } else {
+                    return '';
+                }
             case 'RecordLiteralExpr':
-                return '{' + w() + '}' + w();
+                if (node.keyValuePairs && node.keyValuePairs.length) {
+                    return '{' + w() + Node.join(node.keyValuePairs, w, ',') +
+                        '}' + w();
+                } else {
+                    return '{' + w() + '}' + w();
+                }
             case 'BuiltInRefType':
-                return node.typeKind + w();
+                if (node.typeKind) {
+                    return node.typeKind + w();
+                } else {
+                    return 'message' + w();
+                }
             case 'TypeCastExpr':
                 return '(' + w() + node.typeNode.getSource() + ')' +
                     w() + node.expression.getSource();
@@ -223,6 +267,8 @@ class Node extends EventChannel {
             case 'ArrayType':
                 return node.elementType.getSource() + '[' + w() + ']' +
                     w();
+            case 'RecordLiteralKeyValue':
+                return node.key.getSource() + ':' + w() + node.value.getSource();
             case 'Struct':
                 return 'struct' + w() + node.name.value + w() + '{' +
                     w() + Node.join(node.fields, w, ';', true) +
@@ -238,36 +284,148 @@ class Node extends EventChannel {
                     ')' + w() + '{' + w() + node.body.getSource() +
                     '}' + w();
             case 'If':
-                return 'if' + w() + '(' + w() + node.condition.getSource() +
-                    ')' + w() + '{' + w() + node.body.getSource() +
-                    '}' + w();
-            case 'ExpressionStatement':
-                return node.expression.getSource() + ';' + w();
-            case 'Invocation':
-                if (node.packageAlias) {
-                    return node.packageAlias.value + w() + ':' + w() +
-                        node.name.value + w() + '(' + w() + Node.join(node.argumentExpressions, w, '') +
-                        ')' + w();
+                if (node.condition && node.body && node.elseStatement) {
+                    return 'if' + w() + '(' + w() + node.condition.getSource() +
+                        ')' + w() + '{' + w() + node.body.getSource() +
+                        '}' + w() + 'else' + w() + node.elseStatement.getSource();
                 } else {
-                    return node.name.value + w() + '(' + w() + Node.join(node.argumentExpressions, w, '') +
-                        ')' + w();
+                    return 'if' + w() + '(' + w() + node.condition.getSource() +
+                        ')' + w() + '{' + w() + node.body.getSource() +
+                        '}' + w();
                 }
             case 'UnaryExpr':
                 return node.operatorKind + w() + node.expression.getSource();
             case 'Connector':
-                return 'connector' + w() + node.name.value + w() +
-                    '(' + w() + ')' + w() + Node.join(node.actions, w, '');
+                if (node.name.value && node.variableDefs && node.variableDefs.length &&
+                    node.actions && node.actions.length) {
+                    return 'connector' + w() + node.name.value + w() +
+                        '(' + w() + ')' + w() + '{' + w() + Node.join(node.variableDefs, w, '') +
+                        Node.join(node.actions, w, '') + '}' + w();
+                } else {
+                    return 'connector' + w() + node.name.value + w() +
+                        '(' + w() + ')' + w() + '{' + w() + Node.join(node.actions, w, '') +
+                        '}' + w();
+                }
             case 'Action':
-                return node.name.value + w() + '(' + w() + Node.join(node.parameters, w, ',') +
-                    ')' + w() + '(' + w() + Node.join(node.returnParameters, w, '') +
-                    ')' + w() + '{' + w() + node.body.getSource() +
-                    '}' + w();
+                if (node.name.value && node.parameters && node.parameters.length &&
+                    node.returnParameters && node.returnParameters.length &&
+                    node.body) {
+                    return 'action' + w() + node.name.value + w() + '(' +
+                        w() + Node.join(node.parameters, w, ',') +
+                        ')' + w() + '(' + w() + Node.join(node.returnParameters, w, ',') +
+                        ')' + w() + '{' + w() + node.body.getSource() +
+                        '}' + w();
+                } else {
+                    return 'action' + w() + node.name.value + w() + '(' +
+                        w() + Node.join(node.parameters, w, ',') +
+                        ')' + w() + '{' + w() + node.body.getSource() +
+                        '}' + w();
+                }
+            case 'Resource':
+                if (node.parameters && node.parameters.length &&
+                    node.body) {
+                    return Node.join(node.parameters, w, ',') + '{' + w() +
+                        node.body.getSource() + '}' + w();
+                } else {
+                    return Node.join(node.parameters, w, ',') + '{' + w() +
+                        '}' + w();
+                }
+            case 'ConnectorInitExpr':
+                if (node.connectorType && node.expressions && node.expressions.length) {
+                    return 'create' + w() + node.connectorType.getSource() +
+                        '(' + w() + Node.join(node.expressions, w, ',') +
+                        ')' + w();
+                } else {
+                    return 'create' + w() + node.connectorType.getSource() +
+                        '(' + w() + ')' + w();
+                }
+            case 'AnnotationAttachment':
+                return;
+            case 'ConstrainedType':
+                return;
+            case 'Break':
+                return 'break' + w() + ';' + w();
+            case 'ForkJoin':
+                return 'fork' + w() + '{' + w() + Node.join(node.workers, w, '') +
+                    '}' + w() + node.joinResultVar.getSource();
+            case 'Worker':
+                return '{' + w() + node.body.getSource() + '}' + w();
+            case 'Continue':
+                return 'continue' + w() + ';' + w();
+            case 'Transform':
+                if (node.body) {
+                    return node.body.getSource();
+                } else {
+                    return '';
+                }
+            case 'WorkerSend':
+                return Node.join(node.expressions, w, '') + '->' +
+                    w() + node.workerName.value + w() + ';' +
+                    w();
+            case 'WorkerReceive':
+                return Node.join(node.expressions, w, '') + '<-' +
+                    w() + node.workerName.value + w() + ';' +
+                    w();
+            case 'Throw':
+                return 'throw' + w() + node.expressions.getSource() +
+                    ';' + w();
+            case 'TypeConversionExpr':
+                return node.typeNode.getSource() + '<' + w() + '>' +
+                    w() + node.expression.getSource();
+            case 'XmlQname':
+                if (node.localname) {
+                    return '</' + w() + node.localname + w() + '>' + w();
+                } else {
+                    return '';
+                }
+            case 'XmlTextLiteral':
+                return Node.join(node.textFragments, w, '');
+            case 'XmlElementLiteral':
+                if (node.attributes && node.attributes.length &&
+                    node.content && node.content.length && node.endTagName) {
+                    return '<' + w() + Node.join(node.attributes, w, '') +
+                        '>' + w() + Node.join(node.content, w, '') +
+                        node.endTagName.getSource();
+                } else {
+                    return '<' + w() + Node.join(node.attributes, w, '') +
+                        '/>' + w();
+                }
+            case 'XmlAttribute':
+                if (node.name && node.value) {
+                    return node.name.getSource() + node.value.getSource() +
+                        '=' + w();
+                }
+                if (node.value) {
+                    return node.value.getSource() + '=' + w();
+                } else {
+                    return '=' + w();
+                }
+            case 'XmlQuotedString':
+                if (node.textFragments && node.textFragments.length) {
+                    return Node.join(node.textFragments, w, '');
+                } else {
+                    return '';
+                }
+            case 'XmlPiLiteral':
+                if (node.target && node.dataTextFragments && node.dataTextFragments.length) {
+                    return node.target.getSource() + Node.join(node.dataTextFragments, w, '');
+                }
+                if (node.dataTextFragments && node.dataTextFragments.length) {
+                    return Node.join(node.dataTextFragments, w, '');
+                } else {
+                    return node.target.getSource();
+                }
+            case 'XmlCommentLiteral':
+                if (node.textFragments && node.textFragments.length) {
+                    return Node.join(node.textFragments, w, '');
+                } else {
+                    return '';
+                }
             // auto gen code - end
-
             case 'Identifier':
                 return node.value;
             case 'CompilationUnit':
-                return node.topLevelNodes.map(Node.getSourceOf).join('');
+                return w() + node.topLevelNodes.map(Node.getSourceOf).join('');
             case 'PackageDeclaration':
                 return 'package' + w() + Node.join(node.packageName, w, '.') + ';' + w();
             case 'Import':
