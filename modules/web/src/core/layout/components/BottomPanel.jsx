@@ -22,9 +22,10 @@ class BottomPanel extends React.Component {
      */
     constructor(props, context) {
         super(props, context);
+        const defaultActiveView = (this.props.views[0] && this.props.views[0].id) || undefined;
         this.state = {
             maximized: this.props.maximize,
-            activeView: context.history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW) || undefined,
+            activeView: context.history.get(HISTORY.ACTIVE_BOTTOM_PANEL_VIEW) || defaultActiveView,
         };
     }
 
