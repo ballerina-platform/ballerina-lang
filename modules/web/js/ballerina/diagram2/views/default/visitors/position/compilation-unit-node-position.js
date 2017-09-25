@@ -38,7 +38,8 @@ class CompilationUnitPositionVisitor {
         const viewState = node.viewState;
 
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
+            return TreeUtil.isPackageDeclaration(child) || TreeUtil.isFunction(child) || TreeUtil.isService(child)
+                || TreeUtil.isStruct(child);
         });
 
         children.forEach((child) => {
@@ -69,7 +70,7 @@ class CompilationUnitPositionVisitor {
      * @memberOf CompilationUnitPositionVisitor
      * */
     endVisit(node) {
-        
+
     }
 }
 

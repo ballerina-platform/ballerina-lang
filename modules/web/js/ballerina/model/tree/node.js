@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import EventChannel from 'event_channel';
 import SimpleBBox from '../view/simple-bounding-box';
 
@@ -336,6 +336,34 @@ class Node extends EventChannel {
      */
     setFile(file) {
         this.file = file;
+    }
+
+    /**
+     * Checks if an string is valid as an identifier.
+     * @param {string} identifier - The string value.
+     * @return {boolean} - True if valid, else false.
+     */
+    static isValidIdentifier(identifier) {
+        if (_.isUndefined(identifier)) {
+            return false;
+        } else if (/^[a-zA-Z_$][a-zA-Z0-9_]*$/.test(identifier)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a string is valid as a type.
+     * @param {string} type - The string value.
+     * @return {boolean} - True if valid, else false.
+     */
+    static isValidType(type) {
+        if (_.isUndefined(type)) {
+            return false;
+        } else if (/^[a-zA-Z0-9:_]*\s*[[*\s\]<*\s*>a-zA-Z0-9_]*$/.test(type)) {
+            return true;
+        }
+        return false;
     }
 }
 

@@ -211,7 +211,6 @@ class SizingUtil {
         const viewState = node.viewState;
         viewState.bBox.w = 300;
         viewState.bBox.h = 300;
-        console.log(viewState);
         /*
         const viewState = node.getViewState();
         const components = viewState.components;
@@ -360,28 +359,29 @@ class SizingUtil {
     populateOuterPanelDecoratorBBox(node, name) {
         const viewState = node.viewState;
         const components = {};
-        let totalResourceHeight = 0;
-        let connectorStatementContainerHeight = 0;
-        const resources = node.filterChildren(child => TreeUtil.isResourceDefinition(child) ||
+        const totalResourceHeight = 0;
+        const connectorStatementContainerHeight = 0;
+        /* const resources = node.filterChildren(child => TreeUtil.isResourceDefinition(child) ||
                 TreeUtil.isConnectorAction(child));
         const connectors = node.filterChildren(child => TreeUtil.isConnectorDeclaration(child));
-        let maxResourceWidth = 0;
+        let maxResourceWidth = 0;*/
         // Initial statement height include panel heading and panel padding.
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width initial value to the padding left and right
-        let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+        const bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
         const textWidth = this.getTextWidth(name);
         viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
+        const variableDefinitionsHeight = 0; // Remove when refactoring
 
-        const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
+        // const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
 
         /**
          * If there are service level connectors, their height depends on the heights of the resources
          */
-        _.forEach(resources, (resource) => {
+        /* _.forEach(resources, (resource) => {
             totalResourceHeight += resource.viewState.bBox.h;
             if (maxResourceWidth < resource.viewState.bBox.w) {
                 maxResourceWidth = resource.viewState.bBox.w;
@@ -390,9 +390,9 @@ class SizingUtil {
 
         totalResourceHeight += DesignerDefaults.panel.body.padding.top;
 
-        /**
+        /!**
          * Set the max resource width to the resources
-         */
+         *!/
         _.forEach(resources, (resource) => {
             resource.getViewState().bBox.w = maxResourceWidth;
             resource.getViewState().components.body.w = maxResourceWidth;
@@ -401,10 +401,10 @@ class SizingUtil {
         // Add the max resource width to the body width
         bodyWidth += maxResourceWidth;
 
-        /**
+        /!**
          * Set the connector statement container height and the connectors' height accordingly only if there are service
          * level connectors
-         */
+         *!/
         if (connectors.length > 0) {
             if (totalResourceHeight <= 0) {
                 // There are no resources in the service
@@ -413,9 +413,9 @@ class SizingUtil {
                 // Here we add additional gutter height to balance the gaps from top and bottom
                 connectorStatementContainerHeight = totalResourceHeight + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 2);
             }
-            /**
+            /!**
              * Adjust the height of the connectors and adjust the service's body width with the connector widths
-             */
+             *!/
             _.forEach(connectors, (connector) => {
                 connector.getViewState().bBox.h = connectorStatementContainerHeight +
                     DesignerDefaults.lifeLine.head.height * 2;
@@ -430,15 +430,15 @@ class SizingUtil {
                 DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 2);
         } else if (TreeUtil.isStructDefinition(node)) {
             bodyHeight = DesignerDefaults.structDefinition.body.height;
-        } else {
+        } else {*/
             // There are no connectors as well as resources, since we set the default height
-            bodyHeight = DesignerDefaults.innerPanel.body.height;
-        }
+        bodyHeight = DesignerDefaults.innerPanel.body.height;
+        // }
 
         /**
          * Add the total variable definitions height to the total height
          */
-        bodyHeight += variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top;
+        // bodyHeight += variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top;
 
         components.heading = new SimpleBBox();
         components.body = new SimpleBBox();
@@ -698,8 +698,8 @@ class SizingUtil {
      * @memberof SizingUtil
      */
     getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 18.75) {
-        let height = defaultHeight;
-        if (TreeUtil.isServiceDefinition(node) || TreeUtil.isResourceDefinition(node) ||
+        const height = defaultHeight;
+        /* if (TreeUtil.isServiceDefinition(node) || TreeUtil.isResourceDefinition(node) ||
             TreeUtil.isFunctionDefinition(node) || TreeUtil.isConnectorDefinition(node) ||
             TreeUtil.isConnectorAction(node) || TreeUtil.isAnnotationDefinition(node) ||
             TreeUtil.isStructDefinition(node)) {
@@ -744,7 +744,7 @@ class SizingUtil {
             }
         } else if (!_.isNil(node) && TreeUtil.isBValue(node)) {
             height += annotationLineHeight;
-        }
+        }*/
 
         return height;
     }
@@ -767,7 +767,7 @@ class SizingUtil {
     }
 
     populateHeadingWidth(node) {
-        const viewState = node.getViewState();
+        const viewState = node.viewState;
         const isLambda = (node.isLambda && node.isLambda());
         // // Creating components for parameters
         if (node.getArguments) {
@@ -824,8 +824,11 @@ class SizingUtil {
         // Get the largest among component heading width and component body width.
         const componentWidth = viewState.components.heading.w > viewState.components.body.w
             ? viewState.components.heading.w : viewState.components.body.w;
-
-        viewState.bBox.w = componentWidth + (isLambda ? 0 : (DesignerDefaults.panel.wrapper.gutter.h * 2));
+        if (TreeUtil.isStruct(node)) {
+            viewState.bBox.w = 600 + (DesignerDefaults.panel.wrapper.gutter.h * 2);
+        } else {
+            viewState.bBox.w = componentWidth + (isLambda ? 0 : (DesignerDefaults.panel.wrapper.gutter.h * 2));
+        }
     }
 
     /**

@@ -63,8 +63,9 @@ class StructDimensionVisitor {
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node);
         const viewState = node.viewState;
-
-        const textWidth = util.getTextWidth(node.getStructName());
+        // ToDo remove after removing the hard coded height
+        viewState.bBox.h -= 190;
+        const textWidth = util.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
 
@@ -72,7 +73,7 @@ class StructDimensionVisitor {
         if (!node.viewState.collapsed) {
             viewState.bBox.h += DesignerDefaults.panel.body.padding.top;
         }
-        this._calculateChildrenDimensions(node.getChildren(), components, viewState.bBox, node.viewState.collapsed);
+        this._calculateChildrenDimensions(node.getFields(), components, viewState.bBox, node.viewState.collapsed);
     }
 }
 

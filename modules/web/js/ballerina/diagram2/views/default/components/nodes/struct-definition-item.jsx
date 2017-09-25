@@ -39,8 +39,8 @@ class StructDefinitionItem extends React.Component {
     constructor(props) {
         super();
         this.state = {
-            newIdentifier: props.model.getIdentifier(),
-            newDefaultValue: props.model.getValue(),
+            newIdentifier: props.model.getName().value,
+            newDefaultValue: (props.model.getInitialExpression() ? props.model.getInitialExpression().value : undefined),
             newIdentifierEditing: false,
             newDefaultValueEditing: false,
         };
@@ -50,21 +50,23 @@ class StructDefinitionItem extends React.Component {
      * @param {Object} node
      */
     deleteStatement(model) {
-        model.remove();
+      //  model.parent.parent.removeTopLevelNodes(model);
+        // Remove the variable node
+        model.parent.removeFields(model);
     }
     render() {
         const { model } = this.props;
 
-        const {x, y, w, h, validateIdentifierName, validateDefaultValue} = this.props;
+        const { x, y, w, h, validateIdentifierName, validateDefaultValue } = this.props;
         const columnSize = (w - closeButtonWidth) / 3;
 
-        const typePkgName = model.getBTypePkgName();
-        let type = model.getVariableType();
-        if (typePkgName !== undefined) {
+        // const typePkgName = model.getBTypePkgName();
+        const type = model.getTypeNode().typeKind;
+        /* if (typePkgName !== undefined) {
             type = typePkgName + ':' + type;
-        }
-        const identifier = model.getIdentifier();
-        const value = model.getValue();
+        }*/
+        const identifier = model.getName().value;
+        const value = (model.getInitialExpression() ? model.getInitialExpression().value : undefined);
 
         const typeCellbox = {
             x,
@@ -88,7 +90,7 @@ class StructDefinitionItem extends React.Component {
         };
 
         return (
-            <g key={model.getIdentifier()} className="struct-definition-statement">
+            <g key={identifier} className="struct-definition-statement">
 
                 <g className="struct-variable-definition-type" >
                     <rect {...typeCellbox} className="struct-added-value-wrapper" />
@@ -123,18 +125,19 @@ class StructDefinitionItem extends React.Component {
                         if (this.state.newIdentifier === identifier) {
                             return;
                         }
-                        const identifierAlreadyExists = _.findIndex(model.getParent().getVariableDefinitionStatements(), (variableDefinitionStatement) => {
-                            return variableDefinitionStatement.getIdentifier() === this.state.newIdentifier;
+                        const identifierAlreadyExists = _.findIndex(model.parent.getFields(), (field) => {
+                            return field.getName().value === this.state.newIdentifier;
                         }) !== -1;
                         if (identifierAlreadyExists) {
                             const errorString = `A variable with identifier ${this.state.newIdentifier} already exists.`;
                             Alerts.error(errorString);
                             throw errorString;
                         }
-                        model.setIdentifier(this.state.newIdentifier || identifier);
+                        //model.setIdentifier(this.state.newIdentifier || identifier);
+                        model.getName().setValue(this.state.newIdentifier || identifier);
                     }}
                     editing={this.state.newIdentifierEditing}
-                    onChange={ (e) => {
+                    onChange={(e) => {
                         if (validateIdentifierName(e.target.value)) {
                             this.setState({
                                 newIdentifier: e.target.value,
@@ -165,13 +168,23 @@ class StructDefinitionItem extends React.Component {
                         });
                         validateDefaultValue(type, this.state.newDefaultValue);
                         if (!this.state.newDefaultValue) {
-                            const valueArrayId = model.getRightExpression() && model.getRightExpression().id;
+                            // Get id of the literal node
+                            // const valueArrayId = model.getRightExpression() && model.getRightExpression().id;
+                            const valueArrayId = model.getInitialExpression() && model.getInitialExpression().id;
                             if (valueArrayId) {
-                                model.removeChildById(valueArrayId);
+                                // model.removeChildById(valueArrayId);
+                                // Remove the literal node
+                                model.removeInitialExpressions(model.getInitialExpression());
+                                console.log("Value removed");
                             }
                         } else {
                             const newDefaultValue = this.props.addQuotesToString(type, this.state.newDefaultValue);
-                            model.setValue(newDefaultValue);
+                            // model.setValue(newDefaultValue);
+                            if (model.getInitialExpression()) {
+                                model.getInitialExpression().setValue(newDefaultValue);
+                            } else {
+                                // Create a literal node and then add to the variable node
+                            }
                         }
                     }}
                     editing={this.state.newDefaultValueEditing}

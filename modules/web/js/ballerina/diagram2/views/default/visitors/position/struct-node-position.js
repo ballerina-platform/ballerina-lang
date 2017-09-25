@@ -16,7 +16,6 @@
  * under the License.
  */
 import log from 'log';
-import * as PositioningUtils from '../../positioning-util';
 /**
  * Position Calculater for Struct.
  *
@@ -33,7 +32,6 @@ class StructPositionVisitor {
      * */
     beginVisit(node) {
         log.debug('begin visit StructDefinitionPositionCalcVisitor');
-        PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
     }
 
     /**

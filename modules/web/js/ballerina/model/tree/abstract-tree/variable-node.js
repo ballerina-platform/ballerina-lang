@@ -23,13 +23,13 @@ class VariableNodeAbstract extends Node {
 
 
     setTypeNode(newValue, silent, title) {
-        let oldValue = this.typeNode;
+        const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.typeNode = newValue;
 
         this.typeNode.parent = this;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -38,7 +38,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'typeNode',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -48,15 +48,14 @@ class VariableNodeAbstract extends Node {
     }
 
 
-
     setInitialExpression(newValue, silent, title) {
-        let oldValue = this.initialExpression;
+        const oldValue = this.initialExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.initialExpression = newValue;
 
         this.initialExpression.parent = this;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -65,7 +64,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'initialExpression',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -75,15 +74,14 @@ class VariableNodeAbstract extends Node {
     }
 
 
-
     setName(newValue, silent, title) {
-        let oldValue = this.name;
+        const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.name = newValue;
 
         this.name.parent = this;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -92,7 +90,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'name',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -102,13 +100,12 @@ class VariableNodeAbstract extends Node {
     }
 
 
-
     setFlags(newValue, silent, title) {
-        let oldValue = this.flags;
+        const oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.flags = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -117,7 +114,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'flags',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -127,13 +124,12 @@ class VariableNodeAbstract extends Node {
     }
 
 
-
     setAnnotationAttachments(newValue, silent, title) {
-        let oldValue = this.annotationAttachments;
+        const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.annotationAttachments = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -142,7 +138,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'annotationAttachments',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -152,7 +148,7 @@ class VariableNodeAbstract extends Node {
     }
 
 
-    addAnnotationAttachments(node, i = -1, silent){
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -161,7 +157,7 @@ class VariableNodeAbstract extends Node {
         } else {
             this.annotationAttachments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -177,22 +173,7 @@ class VariableNodeAbstract extends Node {
     removeAnnotationAttachments(node, silent){
         const index = this.getIndexOfAnnotationAttachments(node);
         this.removeAnnotationAttachmentsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeAnnotationAttachmentsByIndex(index, silent){
-        this.annotationAttachments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -205,26 +186,45 @@ class VariableNodeAbstract extends Node {
         }
     }
 
-    replaceAnnotationAttachments(oldChild, newChild, silent){
+    removeAnnotationAttachmentsByIndex(index, silent) {
+        this.annotationAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
     }
 
-    getIndexOfAnnotationAttachments(child){
+    getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
     }
 
-    filterAnnotationAttachments(predicateFunction){
+    getIndexOfInitialExpressions(child) {
+        return _.findIndex(this.initialExpression, ['id', child.id]);
+    }
+
+    filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
 
 
     setWS(newValue, silent, title) {
-        let oldValue = this.wS;
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -233,7 +233,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -243,13 +243,12 @@ class VariableNodeAbstract extends Node {
     }
 
 
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -258,7 +257,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -268,13 +267,12 @@ class VariableNodeAbstract extends Node {
     }
 
 
-
     setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+        const oldValue = this.position;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.position = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -283,7 +281,7 @@ class VariableNodeAbstract extends Node {
                     attributeName: 'position',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -291,7 +289,6 @@ class VariableNodeAbstract extends Node {
     getPosition() {
         return this.position;
     }
-
 
 
 }

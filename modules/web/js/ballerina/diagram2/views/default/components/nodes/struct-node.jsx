@@ -23,13 +23,13 @@ import PropTypes from 'prop-types';
 import PanelDecorator from './../decorators/panel-decorator';
 import './struct-definition.css';
 import Renderer from './renderer';
-//import ASTNode from './../../../../ast/node';
 import * as DesignerDefaults from './../../designer-defaults';
 import SuggestionsText from './suggestions-text2';
 import ImageUtil from './image-util';
-//import ASTFactory from '../../../../ast/ast-factory';
 import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
+import TreeUtils from './../../../../../model/tree-util';
+import Node from './../../../../../../ballerina/model/tree/node';
 
 /**
  * @class StructDefinition
@@ -171,7 +171,10 @@ class StructNode extends React.Component {
      * @param {string} identifier - identifier name
      */
     validateIdentifierName(identifier) {
-        if (ASTNode.isValidIdentifier(identifier)) {
+        console.log('VIN');
+        console.log(identifier);
+
+        if (Node.isValidIdentifier(identifier)) {
             return true;
         }
         const errorString = `Invalid identifier for a variable: ${identifier}`;
@@ -189,7 +192,7 @@ class StructNode extends React.Component {
             throw errorString;
         }
 
-        if (!ASTNode.isValidType(structType)) {
+        if (!Node.isValidType(structType)) {
             const errorString = `Invalid Struct Type : ${structType}`;
             Alerts.error(errorString);
             throw errorString;
@@ -226,7 +229,8 @@ class StructNode extends React.Component {
             height: h - DesignerDefaults.structDefinition.panelPadding * 2,
         };
         const { environment } = this.context;
-        const structSuggestions = environment.getTypes().map(name => ({ name }));
+        // Environment does not load the types
+        // const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
@@ -237,7 +241,7 @@ class StructNode extends React.Component {
                         y={y + DesignerDefaults.contentOperations.height / 2 + 2}
                     > {this.state.newType || 'Select Type'}
                     </text>
-                    <SuggestionsText
+                    {/* <SuggestionsText
                         {...typeCellbox}
                         suggestionsPool={structSuggestions}
                         show={this.state.canShowAddType}
@@ -245,7 +249,7 @@ class StructNode extends React.Component {
                         onEnter={() => this.hideAddSuggestions()}
                         onChange={value => this.onAddStructTypeChange(value)}
                         value={this.state.newType}
-                    />
+                    />*/}
                 </g>
                 <g onClick={e => this.setState({ newIdentifierEditing: true })} >
                     <rect {...identifierCellBox} className="struct-input-value-wrapper" />
@@ -267,7 +271,7 @@ class StructNode extends React.Component {
                         });
                     }}
                     editing={this.state.newIdentifierEditing}
-                    onChange={ (e) => {
+                    onChange={(e) => {
                         if (!e.target.value.length || this.validateIdentifierName(e.target.value)) {
                             this.setState({
                                 newIdentifier: e.target.value,
@@ -347,35 +351,33 @@ class StructNode extends React.Component {
      */
     render() {
         const { model } = this.props;
-        const { bBox, components: { body } } = model.getViewState();
-        const children = model.getChildren() || [];
-        const title = model.getStructName();
+        const { bBox, components: { body } } = model.viewState;
+        const children = model.getFields() || [];
+        const title = model.getName().value;
 
         const coDimensions = {
-            x: body.x + DesignerDefaults.panel.body.padding.left,
-            y: body.y + DesignerDefaults.panel.body.padding.top,
+            x: bBox.x + DesignerDefaults.panel.body.padding.left,
+            y: bBox.y + (DesignerDefaults.panel.body.padding.top * 2),
             w: DesignerDefaults.contentOperations.width,
             h: DesignerDefaults.contentOperations.height,
         };
         const columnSize = (coDimensions.w - DesignerDefaults.structDefinition.submitButtonWidth) / 3;
-
         return (
             <PanelDecorator icon="tool-icons/struct" title={title} bBox={bBox} model={model}>
                 {this.renderContentOperations(coDimensions, columnSize)}
                 <g>
                     {
                         children.map((child, i) => {
-                            if (ASTFactory.isVariableDefinitionStatement(child)) {
-                                
+                            if (TreeUtils.isVariable(child)) {
                                 return (
                                     <StructDefinitionItem
                                         x={coDimensions.x}
                                         y={coDimensions.y + DesignerDefaults.contentOperations.height +
-                                            DesignerDefaults.structDefinitionStatement.height * i + 10}
+                                        DesignerDefaults.structDefinitionStatement.height * i + 10}
                                         w={coDimensions.w}
                                         h={DesignerDefaults.structDefinitionStatement.height}
                                         model={child}
-                                        key={child.getIdentifier()}
+                                        key={child.getName().value}
                                         validateIdentifierName={this.validateIdentifierName}
                                         validateDefaultValue={this.validateDefaultValue}
                                         addQuotesToString={this.addQuotesToString}

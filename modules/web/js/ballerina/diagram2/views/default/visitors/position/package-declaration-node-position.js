@@ -32,10 +32,6 @@ class PackageDeclarationPositionVisitor {
      * */
     beginVisit(node) {
         log.debug('begin visit PackageDeclarationPositionCalcVisitor');
-        const viewSate = node.viewState;
-        const bBox = viewSate.bBox;
-        bBox.x = 50;
-        bBox.y = 20;
     }
 
     /**
