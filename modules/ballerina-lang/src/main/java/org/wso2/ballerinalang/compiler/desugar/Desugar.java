@@ -131,6 +131,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
+        pkgNode.globalVars = rewrite(pkgNode.globalVars);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
