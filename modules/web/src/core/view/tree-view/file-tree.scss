@@ -1,3 +1,9 @@
+.tree-node-tool-tip {
+    background-color: black;
+    border-radius: 0;
+    font-size: 14px;
+}
+
 .file-tree {
     .tree-node {
         color: #c7c7c7;
@@ -15,6 +21,9 @@
             white-space: nowrap;
             overflow-x: hidden;
             line-height: 24px;
+            .tooltip {
+                background-color: white;
+            }
             &.active, &.active:hover  {
                 .tree-node-highlight-row {
                     background: #232323;
@@ -58,7 +67,7 @@
                         border: 1px red solid;
                     }
                     .tree-node-name-input-error {
-                        position: absolute;;
+                        position: absolute;
                         word-wrap: normal;
                         white-space: normal;
                         padding: 5px;
