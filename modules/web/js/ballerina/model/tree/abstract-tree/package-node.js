@@ -22,6 +22,124 @@ import _ from 'lodash';
 class PackageNodeAbstract extends Node {
 
 
+    setCompilationUnits(newValue, silent, title) {
+        const oldValue = this.compilationUnits;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.compilationUnits = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'compilationUnits',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getCompilationUnits() {
+        return this.compilationUnits;
+    }
+
+
+    addCompilationUnits(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.compilationUnits.push(node);
+            index = this.compilationUnits.length;
+        } else {
+            this.compilationUnits.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeCompilationUnits(node, silent){
+        const index = this.getIndexOfCompilationUnits(node);
+        this.removeCompilationUnitsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeCompilationUnitsByIndex(index, silent){
+        this.compilationUnits.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceCompilationUnits(oldChild, newChild, silent) {
+        const index = this.getIndexOfCompilationUnits(oldChild);
+        this.compilationUnits[index] = newChild;
+    }
+
+    getIndexOfCompilationUnits(child) {
+        return _.findIndex(this.compilationUnits, ['id', child.id]);
+    }
+
+    filterCompilationUnits(predicateFunction) {
+        return _.filter(this.compilationUnits, predicateFunction);
+    }
+
+
+    setPackageDeclaration(newValue, silent, title) {
+        const oldValue = this.packageDeclaration;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageDeclaration = newValue;
+
+        this.packageDeclaration.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageDeclaration',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPackageDeclaration() {
+        return this.packageDeclaration;
+    }
+
+
+
     setImports(newValue, silent, title) {
         const oldValue = this.imports;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -92,7 +210,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -111,33 +229,6 @@ class PackageNodeAbstract extends Node {
     filterImports(predicateFunction) {
         return _.filter(this.imports, predicateFunction);
     }
-
-
-    setPackageDeclaration(newValue, silent, title) {
-        const oldValue = this.packageDeclaration;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageDeclaration = newValue;
-
-        this.packageDeclaration.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'packageDeclaration',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPackageDeclaration() {
-        return this.packageDeclaration;
-    }
-
 
 
     setNamespaceDeclarations(newValue, silent, title) {
@@ -210,7 +301,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -301,7 +392,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -392,7 +483,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -483,7 +574,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -574,7 +665,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -665,7 +756,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -683,97 +774,6 @@ class PackageNodeAbstract extends Node {
 
     filterStructs(predicateFunction) {
         return _.filter(this.structs, predicateFunction);
-    }
-
-
-    setCompilationUnits(newValue, silent, title) {
-        const oldValue = this.compilationUnits;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.compilationUnits = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'compilationUnits',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCompilationUnits() {
-        return this.compilationUnits;
-    }
-
-
-    addCompilationUnits(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.compilationUnits.push(node);
-            index = this.compilationUnits.length;
-        } else {
-            this.compilationUnits.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeCompilationUnits(node, silent){
-        const index = this.getIndexOfCompilationUnits(node);
-        this.removeCompilationUnitsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeCompilationUnitsByIndex(index, silent){
-        this.compilationUnits.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceCompilationUnits(oldChild, newChild, silent) {
-        const index = this.getIndexOfCompilationUnits(oldChild);
-        this.compilationUnits[index] = newChild;
-    }
-
-    getIndexOfCompilationUnits(child) {
-        return _.findIndex(this.compilationUnits, ['id', child.id]);
-    }
-
-    filterCompilationUnits(predicateFunction) {
-        return _.filter(this.compilationUnits, predicateFunction);
     }
 
 
@@ -847,7 +847,7 @@ class PackageNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });

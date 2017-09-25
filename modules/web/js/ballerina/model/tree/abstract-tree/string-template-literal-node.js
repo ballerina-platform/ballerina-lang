@@ -92,7 +92,7 @@ class StringTemplateLiteralNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });

@@ -92,7 +92,7 @@ class WorkerNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -210,7 +210,7 @@ class WorkerNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -328,7 +328,7 @@ class WorkerNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -347,31 +347,6 @@ class WorkerNodeAbstract extends Node {
     filterParameters(predicateFunction) {
         return _.filter(this.parameters, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -444,7 +419,7 @@ class WorkerNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -463,6 +438,31 @@ class WorkerNodeAbstract extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }

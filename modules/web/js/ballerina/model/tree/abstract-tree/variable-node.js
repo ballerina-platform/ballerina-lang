@@ -22,33 +22,6 @@ import _ from 'lodash';
 class VariableNodeAbstract extends Node {
 
 
-    setInitialExpression(newValue, silent, title) {
-        const oldValue = this.initialExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initialExpression = newValue;
-
-        this.initialExpression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initialExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitialExpression() {
-        return this.initialExpression;
-    }
-
-
-
     setTypeNode(newValue, silent, title) {
         const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -76,6 +49,33 @@ class VariableNodeAbstract extends Node {
 
 
 
+    setInitialExpression(newValue, silent, title) {
+        const oldValue = this.initialExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initialExpression = newValue;
+
+        this.initialExpression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initialExpression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitialExpression() {
+        return this.initialExpression;
+    }
+
+
+
     setName(newValue, silent, title) {
         const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -99,31 +99,6 @@ class VariableNodeAbstract extends Node {
 
     getName() {
         return this.name;
-    }
-
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
     }
 
 
@@ -198,7 +173,7 @@ class VariableNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -217,6 +192,31 @@ class VariableNodeAbstract extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }

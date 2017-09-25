@@ -92,7 +92,7 @@ class EnumNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -136,31 +136,6 @@ class EnumNodeAbstract extends Node {
 
     getName() {
         return this.name;
-    }
-
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
     }
 
 
@@ -235,7 +210,7 @@ class EnumNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -254,6 +229,31 @@ class EnumNodeAbstract extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }

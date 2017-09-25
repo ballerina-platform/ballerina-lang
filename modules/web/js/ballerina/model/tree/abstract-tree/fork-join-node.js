@@ -92,7 +92,7 @@ class ForkJoinNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -111,6 +111,58 @@ class ForkJoinNodeAbstract extends Node {
     filterWorkers(predicateFunction) {
         return _.filter(this.workers, predicateFunction);
     }
+
+
+    setJoinCount(newValue, silent, title) {
+        const oldValue = this.joinCount;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinCount = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinCount',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinCount() {
+        return this.joinCount;
+    }
+
+
+
+    setJoinBody(newValue, silent, title) {
+        const oldValue = this.joinBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinBody = newValue;
+
+        this.joinBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinBody() {
+        return this.joinBody;
+    }
+
 
 
     setJoinedWorkerIdentifiers(newValue, silent, title) {
@@ -183,7 +235,7 @@ class ForkJoinNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -225,58 +277,6 @@ class ForkJoinNodeAbstract extends Node {
 
     getJoinType() {
         return this.joinType;
-    }
-
-
-
-    setJoinCount(newValue, silent, title) {
-        const oldValue = this.joinCount;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinCount = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinCount',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinCount() {
-        return this.joinCount;
-    }
-
-
-
-    setJoinBody(newValue, silent, title) {
-        const oldValue = this.joinBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinBody = newValue;
-
-        this.joinBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinBody() {
-        return this.joinBody;
     }
 
 

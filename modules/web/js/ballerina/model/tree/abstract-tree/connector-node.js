@@ -22,60 +22,6 @@ import _ from 'lodash';
 class ConnectorNodeAbstract extends Node {
 
 
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
-
-
-    setInitAction(newValue, silent, title) {
-        const oldValue = this.initAction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initAction = newValue;
-
-        this.initAction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initAction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitAction() {
-        return this.initAction;
-    }
-
-
-
     setFilteredParameter(newValue, silent, title) {
         const oldValue = this.filteredParameter;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -173,7 +119,7 @@ class ConnectorNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -192,6 +138,60 @@ class ConnectorNodeAbstract extends Node {
     filterVariableDefs(predicateFunction) {
         return _.filter(this.variableDefs, predicateFunction);
     }
+
+
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
+    setInitAction(newValue, silent, title) {
+        const oldValue = this.initAction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initAction = newValue;
+
+        this.initAction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initAction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitAction() {
+        return this.initAction;
+    }
+
 
 
     setName(newValue, silent, title) {
@@ -291,7 +291,7 @@ class ConnectorNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -382,7 +382,7 @@ class ConnectorNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -401,31 +401,6 @@ class ConnectorNodeAbstract extends Node {
     filterParameters(predicateFunction) {
         return _.filter(this.parameters, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -498,7 +473,7 @@ class ConnectorNodeAbstract extends Node {
                 type: 'child-removed',
                 title: `Removed ${this.kind}`,
                 data: {
-                    this,
+                    node: this,
                     index,
                 },
             });
@@ -517,6 +492,31 @@ class ConnectorNodeAbstract extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }
