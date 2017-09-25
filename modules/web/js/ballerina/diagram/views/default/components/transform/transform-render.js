@@ -317,9 +317,7 @@ class TransformRender {
     getConnectorConfig(midPoint) {
         return ['Flowchart', {
             midpoint: midPoint,
-            stub: [30, 40],
             cornerRadius: 5,
-            alwaysRespectStubs: true,
         }];
     }
 
