@@ -21,10 +21,14 @@ import org.ballerinalang.model.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.List;
+
 /**
  * @since 0.94
  */
 public class BTypeSymbol extends BSymbol implements TypeSymbol {
+
+    public List<BVarSymbol> params;
 
     public BTypeSymbol(int kind, int flags, Name name, BType type, BSymbol owner) {
         super(kind, flags, name, type, owner);
