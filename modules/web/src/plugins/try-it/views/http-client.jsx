@@ -291,6 +291,7 @@ class HttpClient extends React.Component {
             return (<div key={`${header.id}`}>
                 <input
                     key={`key-${header.id}`}
+                    placeholder='Field'
                     type='text'
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.value, e)}
@@ -299,6 +300,7 @@ class HttpClient extends React.Component {
                 :
                 <input
                     key={`value-${header.id}`}
+                    placeholder='Value'
                     type='text'
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.key, e)}
@@ -335,7 +337,7 @@ class HttpClient extends React.Component {
         const sendOrCancelButton = this.renderSendOrCancelButton();
         return (<div className='http-client-wrapper'>
             <div className='http-client-request'>
-                Request
+                <h3>Request</h3>
                 <hr />
                 <div className='http-client-action-wrapper'>
                     <AutoSuggest
@@ -366,7 +368,9 @@ class HttpClient extends React.Component {
                 </div>
                 <div className='http-client-headers-wrapper'>
                     Headers
-                    <i className='fw fw-add' onClick={this.onAddNewHeader} />
+                    <span className='add-header-button'>
+                        <i className='fw fw-add' onClick={this.onAddNewHeader} />
+                    </span>
                     <hr />
                     <div className='current-headers'>
                         {headers}
@@ -395,7 +399,7 @@ class HttpClient extends React.Component {
                 </div>
             </div>
             <div className='http-client-response'>
-                Response
+                <h3>Response</h3>
                 <hr />
                 <div className='http-client-response-attributes'>
                     Reponse Code: {this.state.responseCode}

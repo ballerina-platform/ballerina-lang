@@ -1,3 +1,7 @@
+.transformOverlay {
+    font-size: 13px
+}
+
 .left-content {
     float: left;
 }
@@ -10,6 +14,10 @@
     width: 340px;
     min-height: 100%;
     padding: 0px 20px 0px 20px;
+}
+
+.transformOverlay .btn {
+    border: none;
 }
 
 .transformOverlay .react-autosuggest__input {
@@ -160,6 +168,4 @@
 
 .drop-valid {
     cursor: auto;
-    font-size: 12px;
-    color: #f17b31;
 }

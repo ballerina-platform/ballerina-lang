@@ -57,7 +57,7 @@ export function read(targetFilePath) {
  *
  * @returns {Promise} Resolves file path or reject with error.
  */
-export function update(path, name, content) {
+export function createOrUpdate(path, name, content) {
     const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/write`;
     // FIXME: Refactor backend params
     const data = `location=${btoa(path)}&configName=${btoa(name)}&config=${
@@ -84,9 +84,36 @@ export function remove(filePath) {
 /**
  * Creates given file/folder in file system.
  *
- * @param {String} filePath Path of the file/folder
+ * @param {String} path Path of the file/folder
+ * @param {String} type file or folder
+ *
  * @returns {Promise} Resolves created file path or reject with error.
  */
-export function create(filePath) {
-    return new Promise();
+export function create(path, type) {
+    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/create`;
+    // FIXME: Refactor backend params
+    const data = `path=${btoa(path)}&type=${btoa(type)}`;
+    return new Promise((resolve, reject) => {
+        axios.post(serviceEP, data, { headers: {
+            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+        } })
+            .then((response) => {
+                resolve(true);
+            }).catch(error => reject(error));
+    });
+}
+
+/**
+ * Check whether the file/folder exists
+ *
+ * @returns {Promise} Resolves boolean file exists
+ */
+export function exists(path) {
+    const endpoint = `${getServiceEndpoint(WORKSPACE_SERVICE)}/exists?path=${btoa(path)}`;
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers: COMMON_HEADERS })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
 }

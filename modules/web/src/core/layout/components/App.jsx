@@ -8,13 +8,14 @@ import BottomPanel from './BottomPanel';
 import Header from './Header';
 import ToolArea from './ToolArea';
 import { REGIONS, HISTORY, EVENTS } from './../constants';
-import { withReRenderSupport } from './utils';
+import { withReRenderEnabled } from './utils';
 
 const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
 const headerHeight = 35;
+const toolAreaHeight = 30;
 /**
  * React component for App.
  *
@@ -58,11 +59,6 @@ class App extends React.Component {
         this.props.layoutPlugin.on(EVENTS.TOGGLE_BOTTOM_PANLEL, () => {
             this.setBottomPanelState(!this.state.showBottomPanel);
         });
-        this.headerViews = this.getViewsForRegion(REGIONS.HEADER);
-        this.toolAreaViews = this.getViewsForRegion(REGIONS.TOOL_AREA);
-        this.leftPanelViews = this.getViewsForRegion(REGIONS.LEFT_PANEL);
-        this.editorAreaViews = this.getViewsForRegion(REGIONS.EDITOR_AREA);
-        this.bottomPanelViews = this.getViewsForRegion(REGIONS.BOTTOM_PANEL);
     }
 
     /**
@@ -81,9 +77,7 @@ class App extends React.Component {
      * @returns {Array<React.Component>}
      */
     getViewsForRegion(region) {
-        return this.props.layout[region].map((viewDef) => {
-            return this.createViewFromViewDef(viewDef);
-        });
+        return this.props.layout[region];
     }
 
     /**
@@ -97,18 +91,6 @@ class App extends React.Component {
             documentHeight: window.innerHeight,
             documentWidth: window.innerWidth,
         });
-    }
-
-    /**
-     * Creates View from view Def
-     * @param {Object} viewDef View Definition
-     */
-    createViewFromViewDef(viewDef) {
-        const { component, propsProvider, pluginID } = viewDef;
-        const View = withReRenderSupport(component, pluginID);
-        return (
-            <View {...propsProvider()} key={viewDef.id} definition={viewDef} />
-        );
     }
 
      /**
@@ -157,12 +139,16 @@ class App extends React.Component {
     render() {
         return (
             <div className="" onContextMenu={() => false}>
-                <Header>
-                    {this.headerViews}
-                </Header>
-                <ToolArea>
-                    {this.toolAreaViews}
-                </ToolArea>
+                <Header
+                    views={this.getViewsForRegion(REGIONS.HEADER)}
+                    width={this.state.documentWidth}
+                    height={headerHeight}
+                />
+                <ToolArea
+                    views={this.getViewsForRegion(REGIONS.TOOL_AREA)}
+                    width={this.state.documentWidth}
+                    height={toolAreaHeight}
+                />
                 <SplitPane
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split="vertical"
@@ -186,7 +172,7 @@ class App extends React.Component {
                 >
                     <LeftPanel
                         width={this.state.leftPanelSize}
-                        height={this.state.documentHeight - (headerHeight)}
+                        height={this.state.documentHeight - (headerHeight + toolAreaHeight)}
                         onActiveViewChange={
                             (newView) => {
                                 if (!_.isNil(this.leftRightSplitPane)) {
@@ -198,9 +184,8 @@ class App extends React.Component {
                                 this.setLeftPanelState(!_.isNil(newView));
                             }
                         }
-                    >
-                        {this.leftPanelViews}
-                    </LeftPanel>
+                        views={this.getViewsForRegion(REGIONS.LEFT_PANEL)}
+                    />
                     <SplitPane
                         ref={(ref) => { this.topBottomSplitPane = ref; }}
                         className="top-bottom-split-pane"
@@ -220,12 +205,16 @@ class App extends React.Component {
                         }
                         }
                         pane1Style={{
-                            height: this.state.documentHeight - (headerHeight + this.state.bottomPanelSize),
+                            height: this.state.documentHeight - (headerHeight + toolAreaHeight
+                                + this.state.bottomPanelSize),
                         }}
                     >
-                        <EditorArea>
-                            {this.editorAreaViews}
-                        </EditorArea>
+                        <EditorArea
+                            width={this.state.documentWidth - this.state.leftPanelSize}
+                            height={this.state.documentHeight - (headerHeight + toolAreaHeight
+                                    + this.state.bottomPanelSize)}
+                            views={this.getViewsForRegion(REGIONS.EDITOR_AREA)}
+                        />
                         <BottomPanel
                             maximize={this.state.showBottomPanel && this.state.bottomPanelSize === bottomPanelMaxSize}
                             onClose={
@@ -250,9 +239,10 @@ class App extends React.Component {
                                     }
                                 }
                             }
-                        >
-                            {this.bottomPanelViews}
-                        </BottomPanel>
+                            views={this.getViewsForRegion(REGIONS.BOTTOM_PANEL)}
+                            width={this.state.documentWidth - this.state.leftPanelSize}
+                            height={this.state.bottomPanelSize}
+                        />
                     </SplitPane>
                 </SplitPane>
             </div>

@@ -15,6 +15,11 @@ export const VIEWS = {
     EDITOR_TABS: 'composer.view.editor.tabs',
 };
 
+
+export const DIALOGS = {
+    DIRTY_CLOSE_CONFIRM: 'composer.dialog.editor.dirty-file-close-confirm',
+};
+
 export const MENUS = {
     EDIT: 'composer.menu.editor.edit',
     UNDO: 'composer.menu.editor.undo',
@@ -32,8 +37,6 @@ export const LABELS = {
     UNDO: 'Undo',
     REDO: 'Redo',
 };
-
-export const DIALOGS = {};
 
 export const HISTORY = {
     ACTIVE_EDITOR: 'composer.plugin.editor.active-editor',

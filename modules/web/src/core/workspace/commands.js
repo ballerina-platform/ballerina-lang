@@ -39,6 +39,9 @@ export function getCommandDefinitions() {
             shortcut: {
                 default: 'ctrl+s',
             },
+            argTypes: {
+                onSave: PropTypes.func,
+            },
         },
         {
             id: COMMANDS.SAVE_FILE_AS,

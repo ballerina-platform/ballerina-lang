@@ -22,7 +22,9 @@ class RightPanel extends React.Component {
 }
 
 RightPanel.propTypes = {
-    children: PropTypes.arrayOf(PropTypes.element),
+    views: PropTypes.arrayOf(Object).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 export default RightPanel;

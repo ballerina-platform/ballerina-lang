@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { createViewFromViewDef } from './utils';
 
 /**
  * React component for Header Region.
@@ -13,6 +14,7 @@ class Header extends React.Component {
      * @inheritdoc
      */
     render() {
+        const { width, height } = this.props;
         return (
             <header className="header header-default">
                 <div id="header-container" className="container-fluid">
@@ -20,7 +22,9 @@ class Header extends React.Component {
                         <span>Ballerina</span><span className="appname">Composer </span>
                     </div>
                     <div className="pull-left">
-                        { this.props.children }
+                        {this.props.views.map((viewDef) => {
+                            return createViewFromViewDef(viewDef, { width, height });
+                        })}
                     </div>
                 </div>
             </header>
@@ -29,7 +33,9 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
-    children: PropTypes.arrayOf(PropTypes.element),
+    views: PropTypes.arrayOf(Object).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 export default Header;

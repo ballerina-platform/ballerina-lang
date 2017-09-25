@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
 const CircularDependencyPlugin = require('circular-dependency-plugin');
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const WebfontPlugin = require('webpack-webfont').default;
 
 const extractThemes = new ExtractTextPlugin('./[name].css');
@@ -72,6 +73,7 @@ const config = [{
         ],
     },
     plugins: [
+        new ProgressBarPlugin(),
         extractCSSBundle,
         //new UnusedFilesWebpackPlugin({
         //    pattern: 'js/**/*.*',
