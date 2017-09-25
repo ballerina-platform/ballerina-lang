@@ -16,10 +16,41 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import AbstractLiteralNode from './abstract-tree/literal-node';
 
+/**
+ * A node to represent a literal value such as strings, boolean values, integers.
+ * @class LiteralNode
+ * @extends {AbstractLiteralNode}
+ */
 class LiteralNode extends AbstractLiteralNode {
 
+    /**
+     * Sets the value as a string. Mean wrapped with double quotes.
+     * @param {string} newValue The new value.
+     * @param {boolean} silent Whether to trigger events or not.
+     * @param {string} title The title of the event.
+     * @memberof LiteralNode
+     */
+    setValueAsString(newValue, silent, title) {
+        const oldValue = this.value;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.value = `"${newValue}"`;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'value',
+                    newValue: `"${newValue}"`,
+                    oldValue,
+                },
+            });
+        }
+    }
 }
 
 export default LiteralNode;
