@@ -24,7 +24,7 @@ class File extends EventChannel {
         this._isPersisted = !_.isNil(isPersisted) ? isPersisted : false;
         this._lastPersisted = lastPersisted || _.now();
         this._isDirty = !_.isNil(isDirty) ? isDirty : true;
-        this._lastUpdate = _.now();
+        this._lastUpdated = _.now();
     }
 
     /**
