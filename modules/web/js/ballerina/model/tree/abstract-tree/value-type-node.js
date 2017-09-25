@@ -22,10 +22,10 @@ import _ from 'lodash';
 class ValueTypeNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setTypeKind(newValue, silent, title) {
+        const oldValue = this.typeKind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.typeKind = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class ValueTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'typeKind',
                     newValue,
                     oldValue,
                 },
@@ -41,33 +41,8 @@ class ValueTypeNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
+    getTypeKind() {
+        return this.typeKind;
     }
 
 

@@ -22,10 +22,12 @@ import _ from 'lodash';
 class UserDefinedTypeNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class UserDefinedTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'packageAlias',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class UserDefinedTypeNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getPackageAlias() {
+        return this.packageAlias;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setTypeName(newValue, silent, title) {
+        const oldValue = this.typeName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.typeName = newValue;
+
+        this.typeName.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class UserDefinedTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'typeName',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +70,8 @@ class UserDefinedTypeNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getTypeName() {
+        return this.typeName;
     }
 
 

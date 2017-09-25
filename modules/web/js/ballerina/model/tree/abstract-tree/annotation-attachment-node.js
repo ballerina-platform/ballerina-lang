@@ -22,10 +22,12 @@ import _ from 'lodash';
 class AnnotationAttachmentNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setAnnotationName(newValue, silent, title) {
+        const oldValue = this.annotationName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.annotationName = newValue;
+
+        this.annotationName.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AnnotationAttachmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'annotationName',
                     newValue,
                     oldValue,
                 },
@@ -41,33 +43,8 @@ class AnnotationAttachmentNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
+    getAnnotationName() {
+        return this.annotationName;
     }
 
 

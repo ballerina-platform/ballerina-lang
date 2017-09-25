@@ -22,10 +22,10 @@ import _ from 'lodash';
 class BlockNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setStatements(newValue, silent, title) {
+        const oldValue = this.statements;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.statements = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class BlockNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'statements',
                     newValue,
                     oldValue,
                 },
@@ -41,35 +41,76 @@ class BlockNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getStatements() {
+        return this.statements;
     }
 
 
-
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if (!silent) {
+    addStatements(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.statements.push(node);
+            index = this.statements.length;
+        } else {
+            this.statements.splice(i, 0, node);
+        }
+        if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'modify-node',
-                title,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
                 data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
+                    node,
+                    index,
                 },
             });
         }
     }
 
-    getWS() {
-        return this.wS;
+    removeStatements(node, silent){
+        const index = this.getIndexOfStatements(node);
+        this.removeStatementsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
     }
 
+    removeStatementsByIndex(index, silent){
+        this.statements.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceStatements(oldChild, newChild, silent) {
+        const index = this.getIndexOfStatements(oldChild);
+        this.statements[index] = newChild;
+    }
+
+    getIndexOfStatements(child) {
+        return _.findIndex(this.statements, ['id', child.id]);
+    }
+
+    filterStatements(predicateFunction) {
+        return _.filter(this.statements, predicateFunction);
+    }
 
 
 }

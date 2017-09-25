@@ -22,10 +22,10 @@ import _ from 'lodash';
 class FunctionTypeNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setParamTypeNode(newValue, silent, title) {
+        const oldValue = this.paramTypeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.paramTypeNode = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class FunctionTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'paramTypeNode',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +41,82 @@ class FunctionTypeNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getParamTypeNode() {
+        return this.paramTypeNode;
     }
 
 
+    addParamTypeNode(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.paramTypeNode.push(node);
+            index = this.paramTypeNode.length;
+        } else {
+            this.paramTypeNode.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    removeParamTypeNode(node, silent){
+        const index = this.getIndexOfParamTypeNode(node);
+        this.removeParamTypeNodeByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeParamTypeNodeByIndex(index, silent){
+        this.paramTypeNode.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceParamTypeNode(oldChild, newChild, silent) {
+        const index = this.getIndexOfParamTypeNode(oldChild);
+        this.paramTypeNode[index] = newChild;
+    }
+
+    getIndexOfParamTypeNode(child) {
+        return _.findIndex(this.paramTypeNode, ['id', child.id]);
+    }
+
+    filterParamTypeNode(predicateFunction) {
+        return _.filter(this.paramTypeNode, predicateFunction);
+    }
+
+
+    setReturnParamTypeNode(newValue, silent, title) {
+        const oldValue = this.returnParamTypeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.returnParamTypeNode = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +124,7 @@ class FunctionTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'returnParamTypeNode',
                     newValue,
                     oldValue,
                 },
@@ -66,10 +132,76 @@ class FunctionTypeNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getReturnParamTypeNode() {
+        return this.returnParamTypeNode;
     }
 
+
+    addReturnParamTypeNode(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.returnParamTypeNode.push(node);
+            index = this.returnParamTypeNode.length;
+        } else {
+            this.returnParamTypeNode.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeReturnParamTypeNode(node, silent){
+        const index = this.getIndexOfReturnParamTypeNode(node);
+        this.removeReturnParamTypeNodeByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeReturnParamTypeNodeByIndex(index, silent){
+        this.returnParamTypeNode.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceReturnParamTypeNode(oldChild, newChild, silent) {
+        const index = this.getIndexOfReturnParamTypeNode(oldChild);
+        this.returnParamTypeNode[index] = newChild;
+    }
+
+    getIndexOfReturnParamTypeNode(child) {
+        return _.findIndex(this.returnParamTypeNode, ['id', child.id]);
+    }
+
+    filterReturnParamTypeNode(predicateFunction) {
+        return _.filter(this.returnParamTypeNode, predicateFunction);
+    }
 
 
 }

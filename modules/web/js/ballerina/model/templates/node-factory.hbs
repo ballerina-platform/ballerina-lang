@@ -16,34 +16,21 @@
  * under the License.
  */
 
-/**
- * Dimension Calculater for AnnotationAttachmentAttribute.
- *
- * @class ReturnStatementDimensionCalculatorVisitor
- * */
-class AnnotationAttachmentAttributeDimensionVisitor {
+{{#each this}}
+import {{ kind }}Node from './tree/{{ fileName }}';{{/each}}
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf AnnotationAttachmentAttributeDimensionVisitor
-     * */
-    beginVisit(node) {
+class NodeFactory {
 
+{{#each this}}
+    create{{kind}}(json){
+        json.kind = '{{kind}}';
+        let node = new {{ kind }}Node();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
     }
+{{/each}}
 
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf AnnotationAttachmentAttributeDimensionVisitor
-     * */
-    endVisit(node) {
-        
-    }
 }
 
-export default AnnotationAttachmentAttributeDimensionVisitor;
+export default NodeFactory;

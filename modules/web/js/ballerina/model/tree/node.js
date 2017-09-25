@@ -75,6 +75,18 @@ class Node extends EventChannel {
         visitor.endVisit(this);
     }
 
+    getKind() {
+        return this.kind;
+    }
+
+    getWS() {
+        return this.wS;
+    }
+
+    getPosition() {
+        return this.position;
+    }
+
     /**
      * Get the source of the current Node.
      * @return {string} source.

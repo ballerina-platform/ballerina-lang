@@ -22,10 +22,10 @@ import _ from 'lodash';
 class ResourceNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setReturnParameters(newValue, silent, title) {
+        const oldValue = this.returnParameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.returnParameters = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class ResourceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'returnParameters',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +41,84 @@ class ResourceNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getReturnParameters() {
+        return this.returnParameters;
     }
 
 
+    addReturnParameters(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.returnParameters.push(node);
+            index = this.returnParameters.length;
+        } else {
+            this.returnParameters.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    removeReturnParameters(node, silent){
+        const index = this.getIndexOfReturnParameters(node);
+        this.removeReturnParametersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeReturnParametersByIndex(index, silent){
+        this.returnParameters.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceReturnParameters(oldChild, newChild, silent) {
+        const index = this.getIndexOfReturnParameters(oldChild);
+        this.returnParameters[index] = newChild;
+    }
+
+    getIndexOfReturnParameters(child) {
+        return _.findIndex(this.returnParameters, ['id', child.id]);
+    }
+
+    filterReturnParameters(predicateFunction) {
+        return _.filter(this.returnParameters, predicateFunction);
+    }
+
+
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.body = newValue;
+
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +126,7 @@ class ResourceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -66,10 +134,335 @@ class ResourceNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getBody() {
+        return this.body;
     }
 
+
+
+    setWorkers(newValue, silent, title) {
+        const oldValue = this.workers;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.workers = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'workers',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getWorkers() {
+        return this.workers;
+    }
+
+
+    addWorkers(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.workers.push(node);
+            index = this.workers.length;
+        } else {
+            this.workers.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeWorkers(node, silent){
+        const index = this.getIndexOfWorkers(node);
+        this.removeWorkersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeWorkersByIndex(index, silent){
+        this.workers.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceWorkers(oldChild, newChild, silent) {
+        const index = this.getIndexOfWorkers(oldChild);
+        this.workers[index] = newChild;
+    }
+
+    getIndexOfWorkers(child) {
+        return _.findIndex(this.workers, ['id', child.id]);
+    }
+
+    filterWorkers(predicateFunction) {
+        return _.filter(this.workers, predicateFunction);
+    }
+
+
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.name = newValue;
+
+        this.name.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'name',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getName() {
+        return this.name;
+    }
+
+
+
+    setParameters(newValue, silent, title) {
+        const oldValue = this.parameters;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.parameters = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'parameters',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getParameters() {
+        return this.parameters;
+    }
+
+
+    addParameters(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.parameters.push(node);
+            index = this.parameters.length;
+        } else {
+            this.parameters.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeParameters(node, silent){
+        const index = this.getIndexOfParameters(node);
+        this.removeParametersByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeParametersByIndex(index, silent){
+        this.parameters.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceParameters(oldChild, newChild, silent) {
+        const index = this.getIndexOfParameters(oldChild);
+        this.parameters[index] = newChild;
+    }
+
+    getIndexOfParameters(child) {
+        return _.findIndex(this.parameters, ['id', child.id]);
+    }
+
+    filterParameters(predicateFunction) {
+        return _.filter(this.parameters, predicateFunction);
+    }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
+
+
+    setAnnotationAttachments(newValue, silent, title) {
+        const oldValue = this.annotationAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.annotationAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'annotationAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAnnotationAttachments() {
+        return this.annotationAttachments;
+    }
+
+
+    addAnnotationAttachments(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.annotationAttachments.push(node);
+            index = this.annotationAttachments.length;
+        } else {
+            this.annotationAttachments.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeAnnotationAttachments(node, silent){
+        const index = this.getIndexOfAnnotationAttachments(node);
+        this.removeAnnotationAttachmentsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeAnnotationAttachmentsByIndex(index, silent){
+        this.annotationAttachments.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceAnnotationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfAnnotationAttachments(oldChild);
+        this.annotationAttachments[index] = newChild;
+    }
+
+    getIndexOfAnnotationAttachments(child) {
+        return _.findIndex(this.annotationAttachments, ['id', child.id]);
+    }
+
+    filterAnnotationAttachments(predicateFunction) {
+        return _.filter(this.annotationAttachments, predicateFunction);
+    }
 
 
 }

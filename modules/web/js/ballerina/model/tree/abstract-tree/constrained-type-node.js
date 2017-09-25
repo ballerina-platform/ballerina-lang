@@ -22,10 +22,12 @@ import _ from 'lodash';
 class ConstrainedTypeNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setConstraint(newValue, silent, title) {
+        const oldValue = this.constraint;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.constraint = newValue;
+
+        this.constraint.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class ConstrainedTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'constraint',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class ConstrainedTypeNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getConstraint() {
+        return this.constraint;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setType(newValue, silent, title) {
+        const oldValue = this.type;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.type = newValue;
+
+        this.type.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class ConstrainedTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'type',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +70,8 @@ class ConstrainedTypeNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getType() {
+        return this.type;
     }
 
 

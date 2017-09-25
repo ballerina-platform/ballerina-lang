@@ -22,10 +22,10 @@ import _ from 'lodash';
 class CommentNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setComment(newValue, silent, title) {
+        const oldValue = this.comment;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.comment = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class CommentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'comment',
                     newValue,
                     oldValue,
                 },
@@ -41,33 +41,8 @@ class CommentNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
+    getComment() {
+        return this.comment;
     }
 
 

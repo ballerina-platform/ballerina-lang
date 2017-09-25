@@ -22,10 +22,12 @@ import _ from 'lodash';
 class TransactionNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setCondition(newValue, silent, title) {
+        const oldValue = this.condition;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.condition = newValue;
+
+        this.condition.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class TransactionNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'condition',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class TransactionNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getCondition() {
+        return this.condition;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setFailedBody(newValue, silent, title) {
+        const oldValue = this.failedBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.failedBody = newValue;
+
+        this.failedBody.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class TransactionNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'failedBody',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +70,89 @@ class TransactionNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getFailedBody() {
+        return this.failedBody;
+    }
+
+
+
+    setTransactionBody(newValue, silent, title) {
+        const oldValue = this.transactionBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.transactionBody = newValue;
+
+        this.transactionBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'transactionBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTransactionBody() {
+        return this.transactionBody;
+    }
+
+
+
+    setCommittedBody(newValue, silent, title) {
+        const oldValue = this.committedBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.committedBody = newValue;
+
+        this.committedBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'committedBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getCommittedBody() {
+        return this.committedBody;
+    }
+
+
+
+    setAbortedBody(newValue, silent, title) {
+        const oldValue = this.abortedBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.abortedBody = newValue;
+
+        this.abortedBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'abortedBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAbortedBody() {
+        return this.abortedBody;
     }
 
 

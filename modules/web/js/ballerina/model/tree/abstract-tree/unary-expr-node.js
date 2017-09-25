@@ -22,10 +22,12 @@ import _ from 'lodash';
 class UnaryExprNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class UnaryExprNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,16 @@ class UnaryExprNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getExpression() {
+        return this.expression;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setOperatorKind(newValue, silent, title) {
+        const oldValue = this.operatorKind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.operatorKind = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +60,7 @@ class UnaryExprNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'operatorKind',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +68,8 @@ class UnaryExprNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getOperatorKind() {
+        return this.operatorKind;
     }
 
 

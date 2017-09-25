@@ -22,10 +22,12 @@ import _ from 'lodash';
 class InvocationNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class InvocationNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'packageAlias',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class InvocationNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getPackageAlias() {
+        return this.packageAlias;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class InvocationNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +70,126 @@ class InvocationNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getExpression() {
+        return this.expression;
+    }
+
+
+
+    setArgumentExpressions(newValue, silent, title) {
+        const oldValue = this.argumentExpressions;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.argumentExpressions = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'argumentExpressions',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getArgumentExpressions() {
+        return this.argumentExpressions;
+    }
+
+
+    addArgumentExpressions(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.argumentExpressions.push(node);
+            index = this.argumentExpressions.length;
+        } else {
+            this.argumentExpressions.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeArgumentExpressions(node, silent){
+        const index = this.getIndexOfArgumentExpressions(node);
+        this.removeArgumentExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeArgumentExpressionsByIndex(index, silent){
+        this.argumentExpressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceArgumentExpressions(oldChild, newChild, silent) {
+        const index = this.getIndexOfArgumentExpressions(oldChild);
+        this.argumentExpressions[index] = newChild;
+    }
+
+    getIndexOfArgumentExpressions(child) {
+        return _.findIndex(this.argumentExpressions, ['id', child.id]);
+    }
+
+    filterArgumentExpressions(predicateFunction) {
+        return _.filter(this.argumentExpressions, predicateFunction);
+    }
+
+
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.name = newValue;
+
+        this.name.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'name',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getName() {
+        return this.name;
     }
 
 

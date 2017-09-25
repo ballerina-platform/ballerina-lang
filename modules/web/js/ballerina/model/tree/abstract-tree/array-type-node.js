@@ -22,10 +22,12 @@ import _ from 'lodash';
 class ArrayTypeNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setElementType(newValue, silent, title) {
+        const oldValue = this.elementType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.elementType = newValue;
+
+        this.elementType.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class ArrayTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'elementType',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,16 @@ class ArrayTypeNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getElementType() {
+        return this.elementType;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setDimensions(newValue, silent, title) {
+        const oldValue = this.dimensions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.dimensions = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +60,7 @@ class ArrayTypeNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'dimensions',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +68,8 @@ class ArrayTypeNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getDimensions() {
+        return this.dimensions;
     }
 
 

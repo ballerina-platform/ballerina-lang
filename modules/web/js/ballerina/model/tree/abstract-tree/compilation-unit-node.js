@@ -22,10 +22,10 @@ import _ from 'lodash';
 class CompilationUnitNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setTopLevelNodes(newValue, silent, title) {
+        const oldValue = this.topLevelNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.topLevelNodes = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class CompilationUnitNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'topLevelNodes',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +41,82 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getTopLevelNodes() {
+        return this.topLevelNodes;
     }
 
 
+    addTopLevelNodes(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.topLevelNodes.push(node);
+            index = this.topLevelNodes.length;
+        } else {
+            this.topLevelNodes.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    removeTopLevelNodes(node, silent){
+        const index = this.getIndexOfTopLevelNodes(node);
+        this.removeTopLevelNodesByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeTopLevelNodesByIndex(index, silent){
+        this.topLevelNodes.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTopLevelNodes(oldChild, newChild, silent) {
+        const index = this.getIndexOfTopLevelNodes(oldChild);
+        this.topLevelNodes[index] = newChild;
+    }
+
+    getIndexOfTopLevelNodes(child) {
+        return _.findIndex(this.topLevelNodes, ['id', child.id]);
+    }
+
+    filterTopLevelNodes(predicateFunction) {
+        return _.filter(this.topLevelNodes, predicateFunction);
+    }
+
+
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.name = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +124,7 @@ class CompilationUnitNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'name',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +132,8 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getName() {
+        return this.name;
     }
 
 

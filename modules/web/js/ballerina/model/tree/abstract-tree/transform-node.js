@@ -22,10 +22,12 @@ import _ from 'lodash';
 class TransformNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.body = newValue;
+
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class TransformNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,16 @@ class TransformNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getBody() {
+        return this.body;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setInputExpressions(newValue, silent, title) {
+        const oldValue = this.inputExpressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.inputExpressions = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +60,7 @@ class TransformNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'inputExpressions',
                     newValue,
                     oldValue,
                 },
@@ -66,10 +68,167 @@ class TransformNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getInputExpressions() {
+        return this.inputExpressions;
     }
 
+
+    addInputExpressions(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.inputExpressions.push(node);
+            index = this.inputExpressions.length;
+        } else {
+            this.inputExpressions.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeInputExpressions(node, silent){
+        const index = this.getIndexOfInputExpressions(node);
+        this.removeInputExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeInputExpressionsByIndex(index, silent){
+        this.inputExpressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceInputExpressions(oldChild, newChild, silent) {
+        const index = this.getIndexOfInputExpressions(oldChild);
+        this.inputExpressions[index] = newChild;
+    }
+
+    getIndexOfInputExpressions(child) {
+        return _.findIndex(this.inputExpressions, ['id', child.id]);
+    }
+
+    filterInputExpressions(predicateFunction) {
+        return _.filter(this.inputExpressions, predicateFunction);
+    }
+
+
+    setOutputExpressions(newValue, silent, title) {
+        const oldValue = this.outputExpressions;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.outputExpressions = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'outputExpressions',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOutputExpressions() {
+        return this.outputExpressions;
+    }
+
+
+    addOutputExpressions(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.outputExpressions.push(node);
+            index = this.outputExpressions.length;
+        } else {
+            this.outputExpressions.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeOutputExpressions(node, silent){
+        const index = this.getIndexOfOutputExpressions(node);
+        this.removeOutputExpressionsByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeOutputExpressionsByIndex(index, silent){
+        this.outputExpressions.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceOutputExpressions(oldChild, newChild, silent) {
+        const index = this.getIndexOfOutputExpressions(oldChild);
+        this.outputExpressions[index] = newChild;
+    }
+
+    getIndexOfOutputExpressions(child) {
+        return _.findIndex(this.outputExpressions, ['id', child.id]);
+    }
+
+    filterOutputExpressions(predicateFunction) {
+        return _.filter(this.outputExpressions, predicateFunction);
+    }
 
 
 }

@@ -22,10 +22,10 @@ import _ from 'lodash';
 class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setValueArray(newValue, silent, title) {
+        const oldValue = this.valueArray;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.valueArray = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'valueArray',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +41,84 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getValueArray() {
+        return this.valueArray;
     }
 
 
+    addValueArray(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.valueArray.push(node);
+            index = this.valueArray.length;
+        } else {
+            this.valueArray.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    removeValueArray(node, silent){
+        const index = this.getIndexOfValueArray(node);
+        this.removeValueArrayByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeValueArrayByIndex(index, silent){
+        this.valueArray.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceValueArray(oldChild, newChild, silent) {
+        const index = this.getIndexOfValueArray(oldChild);
+        this.valueArray[index] = newChild;
+    }
+
+    getIndexOfValueArray(child) {
+        return _.findIndex(this.valueArray, ['id', child.id]);
+    }
+
+    filterValueArray(predicateFunction) {
+        return _.filter(this.valueArray, predicateFunction);
+    }
+
+
+    setValue(newValue, silent, title) {
+        const oldValue = this.value;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.value = newValue;
+
+        this.value.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +126,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'value',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +134,8 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getValue() {
+        return this.value;
     }
 
 

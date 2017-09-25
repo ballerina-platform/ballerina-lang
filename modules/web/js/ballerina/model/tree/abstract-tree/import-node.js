@@ -22,10 +22,12 @@ import _ from 'lodash';
 class ImportNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setPackageVersion(newValue, silent, title) {
+        const oldValue = this.packageVersion;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.packageVersion = newValue;
+
+        this.packageVersion.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class ImportNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'packageVersion',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class ImportNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getPackageVersion() {
+        return this.packageVersion;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setAlias(newValue, silent, title) {
+        const oldValue = this.alias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.alias = newValue;
+
+        this.alias.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class ImportNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'alias',
                     newValue,
                     oldValue,
                 },
@@ -66,10 +70,101 @@ class ImportNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getAlias() {
+        return this.alias;
     }
 
+
+
+    setPackageName(newValue, silent, title) {
+        const oldValue = this.packageName;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageName = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageName',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPackageName() {
+        return this.packageName;
+    }
+
+
+    addPackageName(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.packageName.push(node);
+            index = this.packageName.length;
+        } else {
+            this.packageName.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removePackageName(node, silent){
+        const index = this.getIndexOfPackageName(node);
+        this.removePackageNameByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removePackageNameByIndex(index, silent){
+        this.packageName.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replacePackageName(oldChild, newChild, silent) {
+        const index = this.getIndexOfPackageName(oldChild);
+        this.packageName[index] = newChild;
+    }
+
+    getIndexOfPackageName(child) {
+        return _.findIndex(this.packageName, ['id', child.id]);
+    }
+
+    filterPackageName(predicateFunction) {
+        return _.filter(this.packageName, predicateFunction);
+    }
 
 
 }

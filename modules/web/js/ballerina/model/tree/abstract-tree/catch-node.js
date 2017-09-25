@@ -22,10 +22,12 @@ import _ from 'lodash';
 class CatchNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.body = newValue;
+
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class CatchNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class CatchNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getBody() {
+        return this.body;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setParameter(newValue, silent, title) {
+        const oldValue = this.parameter;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.parameter = newValue;
+
+        this.parameter.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class CatchNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'parameter',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +70,8 @@ class CatchNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getParameter() {
+        return this.parameter;
     }
 
 

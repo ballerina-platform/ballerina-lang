@@ -22,10 +22,12 @@ import _ from 'lodash';
 class ThrowNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setExpressions(newValue, silent, title) {
+        const oldValue = this.expressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.expressions = newValue;
+
+        this.expressions.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class ThrowNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'expressions',
                     newValue,
                     oldValue,
                 },
@@ -41,33 +43,8 @@ class ThrowNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
+    getExpressions() {
+        return this.expressions;
     }
 
 

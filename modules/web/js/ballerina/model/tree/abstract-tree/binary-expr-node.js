@@ -22,10 +22,10 @@ import _ from 'lodash';
 class BinaryExprNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setOperatorKind(newValue, silent, title) {
+        const oldValue = this.operatorKind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.operatorKind = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class BinaryExprNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'operatorKind',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +41,18 @@ class BinaryExprNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getOperatorKind() {
+        return this.operatorKind;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setLeftExpression(newValue, silent, title) {
+        const oldValue = this.leftExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.leftExpression = newValue;
+
+        this.leftExpression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +60,7 @@ class BinaryExprNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'leftExpression',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +68,35 @@ class BinaryExprNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getLeftExpression() {
+        return this.leftExpression;
+    }
+
+
+
+    setRightExpression(newValue, silent, title) {
+        const oldValue = this.rightExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.rightExpression = newValue;
+
+        this.rightExpression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'rightExpression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getRightExpression() {
+        return this.rightExpression;
     }
 
 

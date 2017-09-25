@@ -97,7 +97,9 @@ public class ModelGenerator {
                 Method[] methods = clazz.getMethods();
                 for (Method m : methods) {
                     String methodName = m.getName();
-                    if (methodName == "getKind" || methodName == "getWS")
+                    if (methodName == "getKind" || methodName == "getWS" || methodName == "getPosition"){
+                        continue;
+                    }
                     if (methodName.startsWith("get")) {
                         JsonObject attribute = new JsonObject();
                         attribute.addProperty("property", toJsonName(m.getName(), 3));

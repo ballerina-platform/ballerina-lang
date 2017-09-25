@@ -22,10 +22,12 @@ import _ from 'lodash';
 class IfNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.body = newValue;
+
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class IfNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +43,18 @@ class IfNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getBody() {
+        return this.body;
     }
 
 
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    setCondition(newValue, silent, title) {
+        const oldValue = this.condition;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.condition = newValue;
+
+        this.condition.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +62,7 @@ class IfNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'condition',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +70,35 @@ class IfNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getCondition() {
+        return this.condition;
+    }
+
+
+
+    setElseStatement(newValue, silent, title) {
+        const oldValue = this.elseStatement;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.elseStatement = newValue;
+
+        this.elseStatement.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'elseStatement',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getElseStatement() {
+        return this.elseStatement;
     }
 
 

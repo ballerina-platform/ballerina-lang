@@ -22,10 +22,10 @@ import _ from 'lodash';
 class AssignmentNodeAbstract extends Node {
 
 
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
+    setVariables(newValue, silent, title) {
+        const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
+        this.variables = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'kind',
+                    attributeName: 'variables',
                     newValue,
                     oldValue,
                 },
@@ -41,16 +41,84 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getKind() {
-        return this.kind;
+    getVariables() {
+        return this.variables;
     }
 
 
+    addVariables(node, i = -1, silent){
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.variables.push(node);
+            index = this.variables.length;
+        } else {
+            this.variables.splice(i, 0, node);
+        }
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
 
-    setWS(newValue, silent, title) {
-        const oldValue = this.wS;
+    removeVariables(node, silent){
+        const index = this.getIndexOfVariables(node);
+        this.removeVariablesByIndex(index);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }        
+    }
+
+    removeVariablesByIndex(index, silent){
+        this.variables.splice(index, 1);
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceVariables(oldChild, newChild, silent) {
+        const index = this.getIndexOfVariables(oldChild);
+        this.variables[index] = newChild;
+    }
+
+    getIndexOfVariables(child) {
+        return _.findIndex(this.variables, ['id', child.id]);
+    }
+
+    filterVariables(predicateFunction) {
+        return _.filter(this.variables, predicateFunction);
+    }
+
+
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -58,7 +126,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'wS',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -66,8 +134,8 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getWS() {
-        return this.wS;
+    getExpression() {
+        return this.expression;
     }
 
 
