@@ -21,9 +21,19 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 /**
+ * {@code BLangExpression} represents an expression node in Ballerina AST.
+ *
  * @since 0.94
  */
 public abstract class BLangExpression extends BLangNode implements ExpressionNode {
+
+    /**
+     * Implicit cast expression. If the type of this expression is assignable
+     * to the expected type and an implicit cast is required, this field is
+     * populated with the generated cast expression. The tree rewrite will happen
+     * in the 'Desugar' phase.
+     */
+    public BLangExpression impCastExpr;
 
     /**
      * This result of this expression is saved in this virtual register index. This field is used

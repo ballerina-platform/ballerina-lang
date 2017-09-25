@@ -247,7 +247,7 @@ public class SymbolTable {
         defineCastOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
         defineCastOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineCastOperator(typeType, anyType, true, -1);
-        defineCastOperator(nullType, jsonType, true, -1);
+        defineCastOperator(nullType, jsonType, true, InstructionCodes.NULL2JSON);
 
         // Define explicit cast operators
         defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);
@@ -310,27 +310,26 @@ public class SymbolTable {
                                             BType targetType,
                                             boolean safe,
                                             int opcode) {
-        defineCastOperator(sourceType, targetType, false, true, safe, opcode);
+        defineCastOperator(sourceType, targetType, false, safe, opcode);
     }
 
     private void defineCastOperator(BType sourceType,
                                     BType targetType,
                                     boolean safe,
                                     int opcode) {
-        defineCastOperator(sourceType, targetType, true, true, safe, opcode);
+        defineCastOperator(sourceType, targetType, true, safe, opcode);
     }
 
     private void defineCastOperator(BType sourceType,
                                     BType targetType,
                                     boolean implicit,
-                                    boolean explicit,
                                     boolean safe,
                                     int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(opType, rootPkgSymbol,
-                implicit, explicit, safe, opcode);
+                implicit, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 
