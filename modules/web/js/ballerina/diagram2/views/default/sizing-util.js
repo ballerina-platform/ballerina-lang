@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from './designer-defaults';
+import { panel as defaultPanel} from './designer-defaults';
 import TreeUtil from './../../../model/tree-util';
 
 class SizingUtil {
@@ -52,165 +53,192 @@ class SizingUtil {
             // do nothing
         } else {
             // We need to truncate displayText and show an ellipses at the end.
-            const ellipses = '...';
-            let possibleCharactersCount = 0;
-            for (let i = (text.length - 1); i > 1; i--) {
-                if ((DesignerDefaults.statement.padding.left + this.textElement.getSubStringLength(0, i) + DesignerDefaults.statement.padding.right) < maxWidth) {
-                    possibleCharactersCount = i;
-                    break;
-                }
-            }
-            // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
-            text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
+			const ellipses = '...';
+			let possibleCharactersCount = 0;
+			for (let i = (text.length - 1); i > 1; i--) {
+				if ((DesignerDefaults.statement.padding.left + this.textElement.getSubStringLength(0, i) + DesignerDefaults.statement.padding.right) < maxWidth) {
+					possibleCharactersCount = i;
+					break;
+				}
+			}
+			// We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
+			text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
 
-            width = maxWidth;
-        }
-        return {
-            w: width,
-            text,
-        };
-    }
+			width = maxWidth;
+		}
+		return {
+			w: width,
+			text,
+		};
+	}
 
-    /**
-     * Returns the width of a given string when rendered as svg text according to given options
-     * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
-     * @param {string} text - The string of which the length is measured
-     * @param {Object} options - Options to be used for the rendering
-     * @param {number} options.fontSize - Font size the text should be rendered for measuring width
-     * @return {number} Width of the text in pixels
-     * */
-    getOnlyTextWidth(text, options = {}) {
-        const { fontSize } = options;
-        this.textElement.innerHTML = _.escape(text);
-        const currentFZ = this.textElement.style.fontSize;
-        this.textElement.style.fontSize = fontSize;
-        const tl = this.textElement.getComputedTextLength();
-        this.textElement.style.fontSize = currentFZ;
-        return tl;
-    }
+	/**
+	 * Returns the width of a given string when rendered as svg text according to given options
+	 * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
+	 * @param {string} text - The string of which the length is measured
+	 * @param {Object} options - Options to be used for the rendering
+	 * @param {number} options.fontSize - Font size the text should be rendered for measuring width
+	 * @return {number} Width of the text in pixels
+	 * */
+	getOnlyTextWidth(text, options = {}) {
+		const { fontSize } = options;
+		this.textElement.innerHTML = _.escape(text);
+		const currentFZ = this.textElement.style.fontSize;
+		this.textElement.style.fontSize = fontSize;
+		const tl = this.textElement.getComputedTextLength();
+		this.textElement.style.fontSize = currentFZ;
+		return tl;
+	}
 
-    populateSimpleStatementBBox(expression, viewState) {
-        const textViewState = util.getTextWidth(expression);
-        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
-        viewState.components['drop-zone'] = new SimpleBBox();
-        // Set statement box as an opaque element to prevent conflicts with arrows.
-        viewState.components['statement-box'] = new SimpleBBox();
-        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
-        viewState.components['drop-zone'].w = textViewState.w;
-        viewState.components['statement-box'].h = DesignerDefaults.statement.height;
-        viewState.components['statement-box'].w = textViewState.w;
-        // set the component as a vertical block.
-        // the following value will be used by arrow conflict resolver.
-        viewState.components['statement-box'].setOpaque(true);
+	populateSimpleStatementBBox(expression, viewState) {
+		const textViewState = util.getTextWidth(expression);
+		const dropZoneHeight = DesignerDefaults.statement.gutter.v;
+		viewState.components['drop-zone'] = new SimpleBBox();
+		// Set statement box as an opaque element to prevent conflicts with arrows.
+		viewState.components['statement-box'] = new SimpleBBox();
+		viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+		viewState.components['drop-zone'].w = textViewState.w;
+		viewState.components['statement-box'].h = DesignerDefaults.statement.height;
+		viewState.components['statement-box'].w = textViewState.w;
+		// set the component as a vertical block.
+		// the following value will be used by arrow conflict resolver.
+		viewState.components['statement-box'].setOpaque(true);
 
-        viewState.bBox.w = textViewState.w;
-        viewState.bBox.h = DesignerDefaults.statement.height + viewState.components['drop-zone'].h;
+		viewState.bBox.w = textViewState.w;
+		viewState.bBox.h = DesignerDefaults.statement.height + viewState.components['drop-zone'].h;
 
-        viewState.expression = textViewState.text;
-        viewState.fullExpression = expression;
-        return viewState;
-    }
+		viewState.expression = textViewState.text;
+		viewState.fullExpression = expression;
+		return viewState;
+	}
 
-    getHighestStatementContainer(workers) {
-        const sortedWorkers = _.sortBy(workers, worker => worker.viewState.components.statementContainer.h);
-        return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
-    }
+	getHighestStatementContainer(workers) {
+		const sortedWorkers = _.sortBy(workers, worker => worker.viewState.components.statementContainer.h);
+		return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
+	}
 
-    populateCompoundStatementChild(node, expression = undefined) {
-        const viewState = node.getViewState();
-        const components = viewState.components;
-        components.statementContainer = new SimpleBBox();
-        const statementChildren = node.filterChildren(TreeUtil.isStatement);
-        const connectorDeclarationChildren = node.filterChildren(TreeUtil.isConnectorDeclaration);
-        let statementContainerWidth = 0;
-        let statementContainerHeight = 0;
-        let widthExpansion = 0;
-        let statementContainerWidthExpansion = 0;
-        // Iterate over statement children
-        _.forEach(statementChildren, (child) => {
-            statementContainerHeight += child.viewState.bBox.h;
-            if (child.viewState.bBox.w > statementContainerWidth) {
-                statementContainerWidth = child.viewState.bBox.w;
-            }
-            if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
-                statementContainerWidthExpansion = child.viewState.bBox.expansionW;
-                widthExpansion = child.viewState.bBox.expansionW;
-            }
-        });
-        // Iterate over connector declaration children
-        _.forEach(connectorDeclarationChildren, (child) => {
-            statementContainerHeight += DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
-            widthExpansion += (child.viewState.bBox.w + DesignerDefaults.blockStatement.heading.width);
-            if (child.viewState.components.statementViewState.bBox.w > statementContainerWidth) {
-                statementContainerWidth = child.viewState.components.statementViewState.bBox.w;
-            }
-        });
-        // Iterating to set the height of the connector
-        if (connectorDeclarationChildren.length > 0) {
-            if (statementContainerHeight > (DesignerDefaults.statementContainer.height)) {
-                _.forEach(connectorDeclarationChildren, (child) => {
-                    child.viewState.components.statementContainer.h = statementContainerHeight - (
-                        DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
-                        (DesignerDefaults.variablesPane.leftRightPadding * 2)) - DesignerDefaults.statement.padding.bottom
-                        + DesignerDefaults.statement.height;
-                });
-            } else {
-                statementContainerHeight = DesignerDefaults.statementContainer.height + (
-                    DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
-                    (DesignerDefaults.variablesPane.leftRightPadding * 2)) + DesignerDefaults.statement.padding.bottom;
-            }
-        }
+	populateCompoundStatementChild(node, expression = undefined) {
+		const viewState = node.getViewState();
+		const components = viewState.components;
+		components.statementContainer = new SimpleBBox();
+		const statementChildren = node.filterChildren(TreeUtil.isStatement);
+		const connectorDeclarationChildren = node.filterChildren(TreeUtil.isConnectorDeclaration);
+		let statementContainerWidth = 0;
+		let statementContainerHeight = 0;
+		let widthExpansion = 0;
+		let statementContainerWidthExpansion = 0;
+		// Iterate over statement children
+		_.forEach(statementChildren, (child) => {
+			statementContainerHeight += child.viewState.bBox.h;
+			if (child.viewState.bBox.w > statementContainerWidth) {
+				statementContainerWidth = child.viewState.bBox.w;
+			}
+			if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
+				statementContainerWidthExpansion = child.viewState.bBox.expansionW;
+				widthExpansion = child.viewState.bBox.expansionW;
+			}
+		});
+		// Iterate over connector declaration children
+		_.forEach(connectorDeclarationChildren, (child) => {
+			statementContainerHeight += DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
+			widthExpansion += (child.viewState.bBox.w + DesignerDefaults.blockStatement.heading.width);
+			if (child.viewState.components.statementViewState.bBox.w > statementContainerWidth) {
+				statementContainerWidth = child.viewState.components.statementViewState.bBox.w;
+			}
+		});
+		// Iterating to set the height of the connector
+		if (connectorDeclarationChildren.length > 0) {
+			if (statementContainerHeight > (DesignerDefaults.statementContainer.height)) {
+				_.forEach(connectorDeclarationChildren, (child) => {
+					child.viewState.components.statementContainer.h = statementContainerHeight - (
+						DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+						(DesignerDefaults.variablesPane.leftRightPadding * 2)) - DesignerDefaults.statement.padding.bottom
+						+ DesignerDefaults.statement.height;
+				});
+			} else {
+				statementContainerHeight = DesignerDefaults.statementContainer.height + (
+					DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
+					(DesignerDefaults.variablesPane.leftRightPadding * 2)) + DesignerDefaults.statement.padding.bottom;
+			}
+		}
 
-        /**
-         * Add the left padding and right padding for the statement container and
-         * add the additional gutter height to the statement container height, in order to keep the gap between the
-         * last statement and the block statement bottom margin
-         */
-        statementContainerHeight += (statementContainerHeight > 0 ? DesignerDefaults.statement.gutter.v :
-        DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
+		/**
+		 * Add the left padding and right padding for the statement container and
+		 * add the additional gutter height to the statement container height, in order to keep the gap between the
+		 * last statement and the block statement bottom margin
+		 */
+		statementContainerHeight += (statementContainerHeight > 0 ? DesignerDefaults.statement.gutter.v :
+			DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
 
-        statementContainerWidth += (statementContainerWidth > 0 ?
-            (DesignerDefaults.blockStatement.body.padding.left + DesignerDefaults.blockStatement.body.padding.right) : DesignerDefaults.blockStatement.width);
+		statementContainerWidth += (statementContainerWidth > 0 ?
+			(DesignerDefaults.blockStatement.body.padding.left + DesignerDefaults.blockStatement.body.padding.right) : DesignerDefaults.blockStatement.width);
 
-        // for compound statement like if , while we need to render condition expression
-        // we will calculate the width of the expression and adjest the block statement
-        if (expression !== undefined) {
-            // see how much space we have to draw the condition
-            const available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression, 0, available);
-        }
+		// for compound statement like if , while we need to render condition expression
+		// we will calculate the width of the expression and adjest the block statement
+		if (expression !== undefined) {
+			// see how much space we have to draw the condition
+			const available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
+			components.expression = this.getTextWidth(expression, 0, available);
+		}
 
-        components.statementContainer.h = statementContainerHeight + DesignerDefaults.statement.height;
-        components.statementContainer.w = statementContainerWidth;
-        viewState.bBox.h = statementContainerHeight + DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.height;
-        viewState.bBox.expansionW = widthExpansion;
-        viewState.bBox.expansionH = statementContainerHeight + DesignerDefaults.statement.height;
-        // Set the block headder as an opaque box to prevent conflicts with arrows.
-        components['block-header'] = new SimpleBBox();
-        components['block-header'].setOpaque(true);
-        components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
+		components.statementContainer.h = statementContainerHeight + DesignerDefaults.statement.height;
+		components.statementContainer.w = statementContainerWidth;
+		viewState.bBox.h = statementContainerHeight + DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.height;
+		viewState.bBox.expansionW = widthExpansion;
+		viewState.bBox.expansionH = statementContainerHeight + DesignerDefaults.statement.height;
+		// Set the block headder as an opaque box to prevent conflicts with arrows.
+		components['block-header'] = new SimpleBBox();
+		components['block-header'].setOpaque(true);
+		components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
 
-        viewState.bBox.w = statementContainerWidth;
-        components.statementContainer.expansionW = statementContainerWidthExpansion;
-    }
+		viewState.bBox.w = statementContainerWidth;
+		components.statementContainer.expansionW = statementContainerWidthExpansion;
+	}
 
-    addParamDimenstion(viewState, expression, param, offset) {
-        const components = viewState.components;
-        const paramW = util.getTextWidth(param, 3);
-        components.param = new SimpleBBox(0, 0, paramW.w, 0);
-        components.param.text = paramW.text;
-        const joinTypeW = util.getTextWidth(expression, 3);
-        const widthOfText = paramW.w + joinTypeW.w + offset +
-            DesignerDefaults.blockStatement.heading.paramSeparatorOffsetX + DesignerDefaults.blockStatement.heading.paramSeparatorOffsetX +
-            DesignerDefaults.blockStatement.heading.paramEndOffsetX;
-        viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
-    }
+	addParamDimenstion(viewState, expression, param, offset) {
+		const components = viewState.components;
+		const paramW = util.getTextWidth(param, 3);
+		components.param = new SimpleBBox(0, 0, paramW.w, 0);
+		components.param.text = paramW.text;
+		const joinTypeW = util.getTextWidth(expression, 3);
+		const widthOfText = paramW.w + joinTypeW.w + offset +
+			DesignerDefaults.blockStatement.heading.paramSeparatorOffsetX + DesignerDefaults.blockStatement.heading.paramSeparatorOffsetX +
+			DesignerDefaults.blockStatement.heading.paramEndOffsetX;
+		viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
+	}
 
-    // Populate functions
-    populatePanelDecoratorBBox(node, name) {
-        const viewState = node.viewState;
-        viewState.bBox.w = 300;
-        viewState.bBox.h = 300;
+
+	sizeFunctionNode(node, name) {
+		const viewState = node.viewState;
+		const cmp = viewState.components;
+
+		/* Define the sub components */
+		cmp.heading = new SimpleBBox();
+		cmp.statementContainer = new SimpleBBox();
+		cmp.defaultWorker = new SimpleBBox();
+		cmp.body = new SimpleBBox();
+		cmp.parameters = new SimpleBBox();
+		cmp.annotation = new SimpleBBox();
+
+		// calculate statement container
+		cmp.statementContainer.w = DesignerDefaults.statement.width;
+		cmp.statementContainer.h = DesignerDefaults.statementContainer.height;
+		// calculate defult worker
+		cmp.defaultWorker.w = DesignerDefaults.lifeLine.width;
+		cmp.defaultWorker.h = cmp.statementContainer.h + (DesignerDefaults.lifeLine.head.height * 2);
+		// calculate body
+		cmp.body.h = cmp.defaultWorker.h + defaultPanel.body.padding.top + defaultPanel.body.padding.bottom;
+		// calculate parameters
+		cmp.heading.h = DesignerDefaults.panel.heading.height;
+		// calculate annotations
+
+		viewState.bBox.h = cmp.heading.h + cmp.body.h + cmp.annotation.h;
+
+		const textWidth = util.getTextWidth(name);
+	}
+
+	// Populate functions
+	populatePanelDecoratorBBox(node, name) {
         /*
         const viewState = node.getViewState();
         const components = viewState.components;
@@ -236,7 +264,6 @@ class SizingUtil {
         }
 
         components.statementContainer = new SimpleBBox();
-        components.workerScopeContainer = new SimpleBBox();
 
         let connectorOffset = 0;
         const statementChildren = node.filterChildren(
@@ -297,14 +324,7 @@ class SizingUtil {
         components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
 
         const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
-        // If more than one worker is present, then draw the worker scope container boundary around the workers
-        if ((node.filterChildren(TreeUtil.isWorkerDeclaration)).length >= 1) {
-            components.workerScopeContainer.w = statementWidth;
-            components.workerScopeContainer.expansionW = connectorOffset + connectorsForWorker;
-            components.workerScopeContainer.h = components.statementContainer.h + DesignerDefaults.canvas.padding.top +
-                DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
-                + DesignerDefaults.statement.padding.bottom;
-        }
+
 
         let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), (child) => {
@@ -337,6 +357,9 @@ class SizingUtil {
                 });
             }
         });
+
+
+
         if (node.viewState.collapsed) {
             components.body.h = 0;
         } else {

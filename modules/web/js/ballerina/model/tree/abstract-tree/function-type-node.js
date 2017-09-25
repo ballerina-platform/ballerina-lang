@@ -22,87 +22,12 @@ import _ from 'lodash';
 class FunctionTypeNodeAbstract extends Node {
 
 
-    setParamTypeNode(newValue, silent, title) {
-        let oldValue = this.paramTypeNode;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.paramTypeNode = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'paramTypeNode',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getParamTypeNode() {
-        return this.paramTypeNode;
-    }
-
-
-
-    setReturnParamTypeNode(newValue, silent, title) {
-        let oldValue = this.returnParamTypeNode;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.returnParamTypeNode = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'returnParamTypeNode',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getReturnParamTypeNode() {
-        return this.returnParamTypeNode;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -111,7 +36,7 @@ class FunctionTypeNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -122,27 +47,27 @@ class FunctionTypeNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
 
-    getPosition() {
-        return this.position;
+    getWS() {
+        return this.wS;
     }
 
 

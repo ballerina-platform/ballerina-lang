@@ -22,172 +22,12 @@ import _ from 'lodash';
 class TransactionNodeAbstract extends Node {
 
 
-    setCondition(newValue, silent, title) {
-        let oldValue = this.condition;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.condition = newValue;
-
-        this.condition.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'condition',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getCondition() {
-        return this.condition;
-    }
-
-
-
-    setTransactionBody(newValue, silent, title) {
-        let oldValue = this.transactionBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.transactionBody = newValue;
-
-        this.transactionBody.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'transactionBody',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getTransactionBody() {
-        return this.transactionBody;
-    }
-
-
-
-    setFailedBody(newValue, silent, title) {
-        let oldValue = this.failedBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.failedBody = newValue;
-
-        this.failedBody.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'failedBody',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getFailedBody() {
-        return this.failedBody;
-    }
-
-
-
-    setCommittedBody(newValue, silent, title) {
-        let oldValue = this.committedBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.committedBody = newValue;
-
-        this.committedBody.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'committedBody',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getCommittedBody() {
-        return this.committedBody;
-    }
-
-
-
-    setAbortedBody(newValue, silent, title) {
-        let oldValue = this.abortedBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.abortedBody = newValue;
-
-        this.abortedBody.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'abortedBody',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getAbortedBody() {
-        return this.abortedBody;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -196,7 +36,7 @@ class TransactionNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -207,27 +47,27 @@ class TransactionNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
 
-    getPosition() {
-        return this.position;
+    getWS() {
+        return this.wS;
     }
 
 

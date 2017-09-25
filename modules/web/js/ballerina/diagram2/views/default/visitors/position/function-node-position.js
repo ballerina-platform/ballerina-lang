@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import PositionUtil from './../../positioning-util';
 
 /**
  * Position Calculater for Function.
@@ -42,7 +43,7 @@ class FunctionPositionVisitor {
      * @memberOf FunctionPositionVisitor
      * */
     endVisit(node) {
-        
+        PositionUtil.positionFunctionNode(node);
     }
 }
 

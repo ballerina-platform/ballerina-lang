@@ -22,12 +22,10 @@ import _ from 'lodash';
 class VariableNodeAbstract extends Node {
 
 
-    setTypeNode(newValue, silent, title) {
-        const oldValue = this.typeNode;
+    setKind(newValue, silent, title) {
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.typeNode = newValue;
-
-        this.typeNode.parent = this;
+        this.kind = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class VariableNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'typeNode',
+                    attributeName: 'kind',
                     newValue,
                     oldValue,
                 },
@@ -43,176 +41,10 @@ class VariableNodeAbstract extends Node {
         }
     }
 
-    getTypeNode() {
-        return this.typeNode;
+    getKind() {
+        return this.kind;
     }
 
-
-    setInitialExpression(newValue, silent, title) {
-        const oldValue = this.initialExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initialExpression = newValue;
-
-        this.initialExpression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initialExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitialExpression() {
-        return this.initialExpression;
-    }
-
-
-    setName(newValue, silent, title) {
-        const oldValue = this.name;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-
-        this.name.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'name',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getName() {
-        return this.name;
-    }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-    setAnnotationAttachments(newValue, silent, title) {
-        const oldValue = this.annotationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'annotationAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getAnnotationAttachments() {
-        return this.annotationAttachments;
-    }
-
-
-    addAnnotationAttachments(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.annotationAttachments.push(node);
-            index = this.annotationAttachments.length;
-        } else {
-            this.annotationAttachments.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeAnnotationAttachments(node, silent) {
-        const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeAnnotationAttachmentsByIndex(index, silent) {
-        this.annotationAttachments.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceAnnotationAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfAnnotationAttachments(oldChild);
-        this.annotationAttachments[index] = newChild;
-    }
-
-    getIndexOfAnnotationAttachments(child) {
-        return _.findIndex(this.annotationAttachments, ['id', child.id]);
-    }
-
-    filterAnnotationAttachments(predicateFunction) {
-        return _.filter(this.annotationAttachments, predicateFunction);
-    }
 
 
     setWS(newValue, silent, title) {
@@ -238,53 +70,6 @@ class VariableNodeAbstract extends Node {
         return this.wS;
     }
 
-
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'kind',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getKind() {
-        return this.kind;
-    }
-
-
-    setPosition(newValue, silent, title) {
-        const oldValue = this.position;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'position',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPosition() {
-        return this.position;
-    }
 
 
 }

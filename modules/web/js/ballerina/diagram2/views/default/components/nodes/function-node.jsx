@@ -22,11 +22,11 @@ import _ from 'lodash';
 import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
 import { lifeLine } from './../../designer-defaults';
-/* TODOX
-import LifeLine from './lifeline.jsx';
-import StatementContainer from './statement-container';
-import { getComponentForNodeArray } from './../../../diagram-util';
+import LifeLine from '../decorators/lifeline';
 
+import { getComponentForNodeArray } from './../../../../diagram-util';
+/* TODOX
+import StatementContainer from '../decorators/statement-container';
 import ASTFactory from '../../../../ast/ast-factory.js';
 */
 class FunctionNode extends React.Component {
@@ -56,32 +56,27 @@ class FunctionNode extends React.Component {
             icons = 'tool-icons/main-function';
         }
                 
-        /*
-        const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
-        const statementContainerBBoxClone = Object.assign({}, this.props.model.getViewState()
-            .components.statementContainer);
-        const connectorOffset = this.props.model.getViewState().components.statementContainer.expansionW;
-        statementContainerBBoxClone.w += connectorOffset;
-        const workerScopeContainerBBox = this.props.model.getViewState().components.workerScopeContainer;
         
+        const statementContainerBBox = this.props.model.viewState.components.statementContainer;
+        const statementContainerBBoxClone = Object.assign({}, this.props.model.viewState
+            .components.statementContainer);
+        /*const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
+        statementContainerBBoxClone.w += connectorOffset;*/
+
         // lets calculate function worker lifeline bounding box.
-        const function_worker_bBox = {};
+        /*const function_worker_bBox = {};
         function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
         function_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
         function_worker_bBox.w = lifeLine.width;
-        function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
+        function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;*/ 
 
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
         };
 
-        // filter children nodes and create components
-        const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
-        const nodeFactory = ASTFactory;
-        // Check for connector declaration children
-        const connectorChildren = (this.props.model.filterChildren(nodeFactory.isConnectorDeclaration));
 
+        /*
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
@@ -123,31 +118,15 @@ class FunctionNode extends React.Component {
                     dropTarget={this.props.model}
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     titleComponentData={titleComponentData}*/
-                >{ /*TODOX
+                >
                     <LifeLine
                         title="default"
-                        bBox={function_worker_bBox}
+                        bBox={this.props.model.viewState.components.defaultWorker}
                         classes={classes}
                         icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                         iconColor='#025482'
                     />
-                    { connectorChildren.length > 0 &&
-                    <g>
-                        <rect
-                            x={workerScopeContainerBBox.x}
-                            y={workerScopeContainerBBox.y}
-                            width={workerScopeContainerBBox.w + workerScopeContainerBBox.expansionW}
-                            height={workerScopeContainerBBox.h}
-                            style={{ fill: 'none',
-                                stroke: '#67696d',
-                                strokeWidth: 2,
-                                strokeLinecap: 'round',
-                                strokeLinejoin: 'miter',
-                                strokeMiterlimit: 4,
-                                strokeOpacity: 1,
-                                strokeDasharray: 5 }}
-                        /> </g>
-                    }
+                    {/*
                     <StatementContainer
                         dropTarget={this.props.model}
                         title="StatementContainer"

@@ -22,128 +22,12 @@ import _ from 'lodash';
 class BlockNodeAbstract extends Node {
 
 
-    setStatements(newValue, silent, title) {
-        let oldValue = this.statements;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.statements = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'statements',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getStatements() {
-        return this.statements;
-    }
-
-
-    addStatements(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.statements.push(node);
-            index = this.statements.length;
-        } else {
-            this.statements.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeStatements(node, silent){
-        const index = this.getIndexOfStatements(node);
-        this.removeStatementsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeStatementsByIndex(index, silent){
-        this.statements.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceStatements(oldChild, newChild, silent){
-        const index = this.getIndexOfStatements(oldChild);
-        this.statements[index] = newChild;
-    }
-
-    getIndexOfStatements(child){
-        return _.findIndex(this.statements, ['id', child.id]);
-    }
-
-    filterStatements(predicateFunction){
-        return _.filter(this.statements, predicateFunction);
-    }
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -152,7 +36,7 @@ class BlockNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -163,27 +47,27 @@ class BlockNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
 
-    getPosition() {
-        return this.position;
+    getWS() {
+        return this.wS;
     }
 
 

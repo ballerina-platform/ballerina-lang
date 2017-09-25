@@ -22,89 +22,12 @@ import _ from 'lodash';
 class ArrayTypeNodeAbstract extends Node {
 
 
-    setElementType(newValue, silent, title) {
-        let oldValue = this.elementType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.elementType = newValue;
-
-        this.elementType.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'elementType',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getElementType() {
-        return this.elementType;
-    }
-
-
-
-    setDimensions(newValue, silent, title) {
-        let oldValue = this.dimensions;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.dimensions = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'dimensions',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getDimensions() {
-        return this.dimensions;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -113,7 +36,7 @@ class ArrayTypeNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -124,27 +47,27 @@ class ArrayTypeNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
 
-    getPosition() {
-        return this.position;
+    getWS() {
+        return this.wS;
     }
 
 

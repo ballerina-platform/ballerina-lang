@@ -22,10 +22,10 @@ import _ from 'lodash';
 class CompilationUnitNodeAbstract extends Node {
 
 
-    setTopLevelNodes(newValue, silent, title) {
-        const oldValue = this.topLevelNodes;
+    setKind(newValue, silent, title) {
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.topLevelNodes = newValue;
+        this.kind = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class CompilationUnitNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'topLevelNodes',
+                    attributeName: 'kind',
                     newValue,
                     oldValue,
                 },
@@ -41,100 +41,10 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
-    getTopLevelNodes() {
-        return this.topLevelNodes;
+    getKind() {
+        return this.kind;
     }
 
-
-    addTopLevelNodes(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.topLevelNodes.push(node);
-            index = this.topLevelNodes.length;
-        } else {
-            this.topLevelNodes.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeTopLevelNodes(node, silent) {
-        const index = this.getIndexOfTopLevelNodes(node);
-        this.removeTopLevelNodesByIndex(node, index);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeTopLevelNodesByIndex(node, index, silent) {
-        this.topLevelNodes.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceTopLevelNodes(oldChild, newChild, silent) {
-        const index = this.getIndexOfTopLevelNodes(oldChild);
-        this.topLevelNodes[index] = newChild;
-    }
-
-    getIndexOfTopLevelNodes(child) {
-        return _.findIndex(this.topLevelNodes, ['id', child.id]);
-    }
-
-    filterTopLevelNodes(predicateFunction) {
-        return _.filter(this.topLevelNodes, predicateFunction);
-    }
-
-
-    setName(newValue, silent, title) {
-        const oldValue = this.name;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'name',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getName() {
-        return this.name;
-    }
 
 
     setWS(newValue, silent, title) {
@@ -160,53 +70,6 @@ class CompilationUnitNodeAbstract extends Node {
         return this.wS;
     }
 
-
-    setKind(newValue, silent, title) {
-        const oldValue = this.kind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'kind',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getKind() {
-        return this.kind;
-    }
-
-
-    setPosition(newValue, silent, title) {
-        const oldValue = this.position;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'position',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPosition() {
-        return this.position;
-    }
 
 
 }

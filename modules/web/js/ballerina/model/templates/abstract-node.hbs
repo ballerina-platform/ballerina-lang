@@ -23,13 +23,13 @@ class {{name}}Abstract extends Node {
 
 {{#each attributes}}
     set{{methodSuffix}}(newValue, silent, title) {
-        let oldValue = this.{{property}};
+        const oldValue = this.{{property}};
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.{{property}} = newValue;
 {{#if isNode}}
         this.{{property}}.parent = this;
 {{/if}}
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -38,7 +38,7 @@ class {{name}}Abstract extends Node {
                     attributeName: '{{property}}',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -92,25 +92,25 @@ class {{name}}Abstract extends Node {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
-                title: `Removed ${node.kind}`,
+                title: `Removed ${this.kind}`,
                 data: {
-                    node,
+                    this,
                     index,
                 },
             });
         }
     }
 
-    replace{{methodSuffix}}(oldChild, newChild, silent){
+    replace{{methodSuffix}}(oldChild, newChild, silent) {
         const index = this.getIndexOf{{methodSuffix}}(oldChild);
         this.{{property}}[index] = newChild;
     }
 
-    getIndexOf{{methodSuffix}}(child){
+    getIndexOf{{methodSuffix}}(child) {
         return _.findIndex(this.{{property}}, ['id', child.id]);
     }
 
-    filter{{methodSuffix}}(predicateFunction){
+    filter{{methodSuffix}}(predicateFunction) {
         return _.filter(this.{{property}}, predicateFunction);
     }
 {{/if}}

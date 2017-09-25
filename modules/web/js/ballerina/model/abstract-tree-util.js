@@ -75,6 +75,10 @@ class AbstractTreeUtil {
         return node.kind === 'Resource';
     }
 
+    isRetry(node) {
+        return node.kind === 'Retry';
+    }
+
     isService(node) {
         return node.kind === 'Service';
     }

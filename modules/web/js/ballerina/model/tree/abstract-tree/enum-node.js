@@ -22,155 +22,12 @@ import _ from 'lodash';
 class EnumNodeAbstract extends Node {
 
 
-    setEnumFields(newValue, silent, title) {
-        let oldValue = this.enumFields;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.enumFields = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'enumFields',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getEnumFields() {
-        return this.enumFields;
-    }
-
-
-    addEnumFields(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.enumFields.push(node);
-            index = this.enumFields.length;
-        } else {
-            this.enumFields.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeEnumFields(node, silent){
-        const index = this.getIndexOfEnumFields(node);
-        this.removeEnumFieldsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeEnumFieldsByIndex(index, silent){
-        this.enumFields.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceEnumFields(oldChild, newChild, silent){
-        const index = this.getIndexOfEnumFields(oldChild);
-        this.enumFields[index] = newChild;
-    }
-
-    getIndexOfEnumFields(child){
-        return _.findIndex(this.enumFields, ['id', child.id]);
-    }
-
-    filterEnumFields(predicateFunction){
-        return _.filter(this.enumFields, predicateFunction);
-    }
-
-
-    setName(newValue, silent, title) {
-        let oldValue = this.name;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-
-        this.name.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'name',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getName() {
-        return this.name;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -179,7 +36,7 @@ class EnumNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -190,145 +47,29 @@ class EnumNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
-            });
-        }
-    }
-
-    getPosition() {
-        return this.position;
-    }
-
-
-
-    setFlags(newValue, silent, title) {
-        let oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
-    setAnnotationAttachments(newValue, silent, title) {
-        let oldValue = this.annotationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationAttachments = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'annotationAttachments',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getAnnotationAttachments() {
-        return this.annotationAttachments;
-    }
-
-
-    addAnnotationAttachments(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.annotationAttachments.push(node);
-            index = this.annotationAttachments.length;
-        } else {
-            this.annotationAttachments.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
                 },
             });
         }
     }
 
-    removeAnnotationAttachments(node, silent){
-        const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
+    getWS() {
+        return this.wS;
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
-        this.annotationAttachments.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceAnnotationAttachments(oldChild, newChild, silent){
-        const index = this.getIndexOfAnnotationAttachments(oldChild);
-        this.annotationAttachments[index] = newChild;
-    }
-
-    getIndexOfAnnotationAttachments(child){
-        return _.findIndex(this.annotationAttachments, ['id', child.id]);
-    }
-
-    filterAnnotationAttachments(predicateFunction){
-        return _.filter(this.annotationAttachments, predicateFunction);
-    }
 
 
 }

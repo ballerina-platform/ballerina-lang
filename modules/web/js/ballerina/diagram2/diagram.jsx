@@ -28,7 +28,6 @@ import { getComponentForNodeArray, getDesigner } from './diagram-util';
 import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
-
 /**
  * React component for diagram.
  *

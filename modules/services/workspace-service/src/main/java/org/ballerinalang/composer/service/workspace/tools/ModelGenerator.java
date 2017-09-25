@@ -51,6 +51,7 @@ public class ModelGenerator {
             kinds.add(node.get("kind"));
         }
         generateSourceFiles(nodes, "abstract-tree-util.hbs" , "abstract-tree-util.js");
+        generateSourceFiles(nodes, "node-factory.hbs" , "node-factory.js");
     }
 
     public static JsonObject getContext() {
@@ -96,6 +97,7 @@ public class ModelGenerator {
                 Method[] methods = clazz.getMethods();
                 for (Method m : methods) {
                     String methodName = m.getName();
+                    if (methodName == "getKind" || methodName == "getWS")
                     if (methodName.startsWith("get")) {
                         JsonObject attribute = new JsonObject();
                         attribute.addProperty("property", toJsonName(m.getName(), 3));

@@ -43,7 +43,7 @@ class FunctionDimensionVisitor {
      * @memberOf FunctionDimensionVisitor
      * */
     endVisit(node) {
-        util.populatePanelDecoratorBBox(node, node.getName().value);
+        util.sizeFunctionNode(node, node.getName().value);
     }
 }
 

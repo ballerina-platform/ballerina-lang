@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AnnotationAttachmentAttributeNodeAbstract from './abstract-tree/annotation-attachment-attribute-node';
+import RetryNodeAbstract from './abstract-tree/retry-node';
 
-class AnnotationAttachmentAttributeNode extends AnnotationAttachmentAttributeNodeAbstract {
+class RetryNode extends RetryNodeAbstract {
 
 }
 
-export default AnnotationAttachmentAttributeNode;
+export default RetryNode;

@@ -22,116 +22,12 @@ import _ from 'lodash';
 class BinaryExprNodeAbstract extends Node {
 
 
-    setOperatorKind(newValue, silent, title) {
-        let oldValue = this.operatorKind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.operatorKind = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'operatorKind',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getOperatorKind() {
-        return this.operatorKind;
-    }
-
-
-
-    setLeftExpression(newValue, silent, title) {
-        let oldValue = this.leftExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.leftExpression = newValue;
-
-        this.leftExpression.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'leftExpression',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getLeftExpression() {
-        return this.leftExpression;
-    }
-
-
-
-    setRightExpression(newValue, silent, title) {
-        let oldValue = this.rightExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.rightExpression = newValue;
-
-        this.rightExpression.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'rightExpression',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getRightExpression() {
-        return this.rightExpression;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -140,7 +36,7 @@ class BinaryExprNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -151,27 +47,27 @@ class BinaryExprNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
 
-    getPosition() {
-        return this.position;
+    getWS() {
+        return this.wS;
     }
 
 

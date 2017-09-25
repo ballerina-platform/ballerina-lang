@@ -19,7 +19,9 @@
 import _ from 'lodash';
 import ASTFactory from '../../../ast/ast-factory';
 import * as DesignerDefaults from './designer-defaults';
+import { panel as defaultPanel} from './designer-defaults';
 import { util } from './sizing-util';
+import { lifeLine } from './designer-defaults';
 
 /**
  * get simple statement position.
@@ -360,3 +362,27 @@ export {
     populateInnerPanelDecoratorBBoxPosition,
     populatePanelHeadingPositioning,
 };
+
+
+class PositioningUtil {
+
+    positionFunctionNode(node) {
+        console.log(node);
+        const viewState = node.viewState;
+        const cmp = viewState.components;
+
+        // position the components.
+        cmp.statementContainer.x = viewState.bBox.x + defaultPanel.body.padding.left;
+        cmp.statementContainer.y = viewState.bBox.y + cmp.heading.h + defaultPanel.body.padding.top + lifeLine.head.height;
+
+        cmp.defaultWorker.x = cmp.statementContainer.x + ((cmp.statementContainer.w - lifeLine.width) / 2);
+        cmp.defaultWorker.y = cmp.statementContainer.y - lifeLine.head.height;
+
+        // position the children
+    }
+}
+
+const positioningUtil = new PositioningUtil();
+
+export default positioningUtil;
+

@@ -53,7 +53,7 @@
     "node-sass": "^4.5.2",
     "progress-bar-webpack-plugin": "^1.10.0",
     "react-test-renderer": "^15.6.1",
-    "rimraf": "^2.6.1",
+    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.3",
     "shelljs": "^0.7.6",
     "style-loader": "^0.13.2",

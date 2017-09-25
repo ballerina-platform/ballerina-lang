@@ -22,155 +22,12 @@ import _ from 'lodash';
 class WorkerSendNodeAbstract extends Node {
 
 
-    setExpressions(newValue, silent, title) {
-        let oldValue = this.expressions;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expressions = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expressions',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getExpressions() {
-        return this.expressions;
-    }
-
-
-    addExpressions(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.expressions.push(node);
-            index = this.expressions.length;
-        } else {
-            this.expressions.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeExpressions(node, silent){
-        const index = this.getIndexOfExpressions(node);
-        this.removeExpressionsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeExpressionsByIndex(index, silent){
-        this.expressions.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceExpressions(oldChild, newChild, silent){
-        const index = this.getIndexOfExpressions(oldChild);
-        this.expressions[index] = newChild;
-    }
-
-    getIndexOfExpressions(child){
-        return _.findIndex(this.expressions, ['id', child.id]);
-    }
-
-    filterExpressions(predicateFunction){
-        return _.filter(this.expressions, predicateFunction);
-    }
-
-
-    setWorkerName(newValue, silent, title) {
-        let oldValue = this.workerName;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.workerName = newValue;
-
-        this.workerName.parent = this;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'workerName',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWorkerName() {
-        return this.workerName;
-    }
-
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
     setKind(newValue, silent, title) {
-        let oldValue = this.kind;
+        const oldValue = this.kind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.kind = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
@@ -179,7 +36,7 @@ class WorkerSendNodeAbstract extends Node {
                     attributeName: 'kind',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
@@ -190,27 +47,27 @@ class WorkerSendNodeAbstract extends Node {
 
 
 
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
+    setWS(newValue, silent, title) {
+        const oldValue = this.wS;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
+        this.wS = newValue;
 
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'position',
+                    attributeName: 'wS',
                     newValue,
                     oldValue,
-                }
+                },
             });
         }
     }
 
-    getPosition() {
-        return this.position;
+    getWS() {
+        return this.wS;
     }
 
 

@@ -19,7 +19,7 @@
 import Node from '../node';
 import _ from 'lodash';
 
-class InvocationNodeAbstract extends Node {
+class RetryNodeAbstract extends Node {
 
 
     setKind(newValue, silent, title) {
@@ -74,4 +74,4 @@ class InvocationNodeAbstract extends Node {
 
 }
 
-export default InvocationNodeAbstract;
+export default RetryNodeAbstract;
