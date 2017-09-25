@@ -84,7 +84,7 @@ const powerOpTool = {
 const lessThanOpTool = {
     id: 'lessThan',
     name: 'Less Than',
-    cssClass: 'icon fw fw-right',
+    cssClass: 'icon fw fw-less-than',
     title: 'Less Than',
     meta: {
         defaultExpression: '0 < 0',
@@ -95,7 +95,7 @@ const lessThanOpTool = {
 const greaterThanOpTool = {
     id: 'greaterThan',
     name: 'Greater Than',
-    cssClass: 'icon fw fw-left',
+    cssClass: 'icon fw fw-greater-than',
     title: 'Greater Than',
     meta: {
         defaultExpression: '0 > 0',
@@ -212,7 +212,7 @@ const minusOpTool = {
 const notOpTool = {
     id: 'not',
     name: 'Not',
-    cssClass: 'icon fw fw-error',
+    cssClass: 'icon fw fw-not',
     title: 'Not',
     meta: {
         defaultExpression: '! false',

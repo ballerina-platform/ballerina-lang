@@ -16,7 +16,9 @@
  ~   limitations under the License.
 -->
 
-<svg version="1.1" id="or" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-<path d="M5.7602801-0.0000146v14H4.2760363v-14H5.7602801z M9.7239637-0.0000146v14H8.2397203v-14H9.7239637z"/>
+<svg version="1.1" id="greater_than" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M10.0499878,7.0999756l-1.289978,0.5300293l1.3099976-0.5300293H10.0499878z M1.6300049,3.5299683
+	L2.460022,3.8699951L1.6300049,3.5199585V3.5299683z M12.3699951,6.4500122V7.789978L1.6300049,12.1199951v-1.5700073
+	l8.4400024-3.4500122h-0.0200195L1.6300049,3.5199585V1.8800049L12.3699951,6.4500122z"/>
 </svg>

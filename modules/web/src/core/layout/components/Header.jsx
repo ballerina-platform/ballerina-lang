@@ -17,7 +17,7 @@ class Header extends React.Component {
         const { width, height } = this.props;
         return (
             <header className="header header-default">
-                <div id="header-container" className="container-fluid">
+                <div id="header-container">
                     <div className="pull-left brand">
                         <span>Ballerina</span><span className="appname">Composer </span>
                     </div>
