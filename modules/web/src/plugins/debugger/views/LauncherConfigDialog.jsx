@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl } from 'react-bootstrap';
+import { Button, Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
 import Dialog from 'core/view/Dialog';
+import './LauncherConfigDialog.scss';
 /**
  *
  * @extends React.Component
@@ -22,6 +23,7 @@ class LauncherConfigDialog extends React.Component {
         this.onAddArgument = this.onAddArgument.bind(this);
         this.onChangeArgument = this.onChangeArgument.bind(this);
         this.saveConfigs = this.saveConfigs.bind(this);
+        this.onDeleteArgument = this.onDeleteArgument.bind(this);
     }
     /**
      * Called when user hides the dialog
@@ -32,22 +34,48 @@ class LauncherConfigDialog extends React.Component {
         });
     }
 
+    /**
+     * Add command argument text field
+     * @memberof LauncherConfigDialog
+     */
     onAddArgument() {
         this.setState({
-            configArguments: ['', ...this.state.configArguments],
+            configArguments: [...this.state.configArguments, ''],
         });
     }
-
+    /**
+     * on change argument text field
+     * @param {int} idx - Array Index
+     * @param {Object} evt - Text field change event
+     * @memberof LauncherConfigDialog
+     */
     onChangeArgument(idx, evt) {
         const newConfigArguments = [...this.state.configArguments];
         newConfigArguments[idx] = evt.target.value;
         this.setState({ configArguments: newConfigArguments });
     }
 
+    /**
+     * Save launcher configs
+     * @memberof LauncherConfigDialog
+     */
     saveConfigs() {
         this.props.onSaveConfigs(this.state.configArguments);
         this.setState({
             showDialog: false,
+        });
+    }
+    /**
+     * Remove command argument text field
+     * @param {int} deleteIndex - Array index
+     * @memberof LauncherConfigDialog
+     */
+    onDeleteArgument(deleteIndex) {
+        const newConfigArguments = this.state.configArguments.filter((config, index) => {
+            return index !== deleteIndex;
+        });
+        this.setState({
+            configArguments: newConfigArguments,
         });
     }
 
@@ -77,11 +105,23 @@ class LauncherConfigDialog extends React.Component {
                     {this.state.configArguments.map((config, idx) => {
                         return (
                             <FormGroup key={idx}>
-                                <FormControl
-                                    value={config}
-                                    onChange={event => this.onChangeArgument(idx, event)}
-                                    type="text"
-                                />
+                                <InputGroup>
+                                    <FormControl
+                                        value={config}
+                                        onChange={event => this.onChangeArgument(idx, event)}
+                                        type="text"
+                                    />
+                                    <InputGroup.Button>
+                                        <Button
+                                            bsStyle="primary"
+                                            onClick={() => this.onDeleteArgument(idx)}
+                                            className="launcher-config-delete"
+                                            disabled={this.state.filePath === '' && this.state.fileName === ''}
+                                        >
+                                            <i className="fw fw-delete" />
+                                        </Button>
+                                    </InputGroup.Button>
+                                </InputGroup>
                             </FormGroup>
                         );
                     })}

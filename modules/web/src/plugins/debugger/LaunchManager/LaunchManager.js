@@ -60,7 +60,7 @@ class LaunchManager extends EventChannel {
             command,
             fileName: `${file.name}.${file.extension}`,
             filePath: file.path,
-            commandArgs: ' ' + configs,
+            commandArgs: configs,
         };
         this.channel.sendMessage(message);
     }
