@@ -351,12 +351,12 @@ class PanelDecorator extends React.Component {
     onDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager,
             dropTarget = this.props.model;
-        if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
+        /* if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 dragDropManager.clearActivatedDropTarget();
                 this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
             }
-        }
+        } */
         e.stopPropagation();
     }
 

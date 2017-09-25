@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import * as DesignerDefaults from '../../designer-defaults';
+import { util } from '../../sizing-util';
 /**
  * Dimension Calculater for Struct.
  *
@@ -35,6 +36,24 @@ class StructDimensionVisitor {
     }
 
     /**
+     * calculate the dimension of children.
+     *
+     * @param {array} children - collection of children.
+     * @param {object} components - components.
+     * @param {object} bBox - bounding box.
+     * @param {boolean} collapsed - true or false.
+     *
+     * @memberOf StructDefinitionDimensionCalculatorVisitor
+     * */
+    _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
+        children.forEach(() => {
+            if (!collapsed) {
+                bBox.h += DesignerDefaults.structDefinitionStatement.height;
+            }
+        });
+    }
+
+    /**
      * visit the visitor at the end.
      *
      * @param {Node} node.
@@ -42,7 +61,19 @@ class StructDimensionVisitor {
      * @memberOf StructDimensionVisitor
      * */
     endVisit(node) {
-        
+        util.populateOuterPanelDecoratorBBox(node);
+        const viewState = node.viewState;
+        // ToDo remove after removing the hard coded height
+        viewState.bBox.h -= 190;
+        const textWidth = util.getTextWidth(node.getName().value);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
+
+        const { components } = viewState;
+        if (!node.viewState.collapsed) {
+            viewState.bBox.h += DesignerDefaults.panel.body.padding.top;
+        }
+        this._calculateChildrenDimensions(node.getFields(), components, viewState.bBox, node.viewState.collapsed);
     }
 }
 

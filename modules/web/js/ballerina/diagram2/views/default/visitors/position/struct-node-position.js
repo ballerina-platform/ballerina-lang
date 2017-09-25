@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import log from 'log';
 /**
  * Position Calculater for Struct.
  *
@@ -31,7 +31,7 @@ class StructPositionVisitor {
      * @memberOf StructPositionVisitor
      * */
     beginVisit(node) {
-
+        log.debug('begin visit StructDefinitionPositionCalcVisitor');
     }
 
     /**
@@ -42,7 +42,7 @@ class StructPositionVisitor {
      * @memberOf StructPositionVisitor
      * */
     endVisit(node) {
-        
+        log.debug('end visit StructDefinitionPositionCalcVisitor');
     }
 }
 

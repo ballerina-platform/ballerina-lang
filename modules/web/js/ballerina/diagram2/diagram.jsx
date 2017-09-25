@@ -125,7 +125,6 @@ class Diagram extends React.Component {
         */
         let tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         let children = getComponentForNodeArray(tln, this.props.mode);
-        console.log(children);
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}

@@ -97,7 +97,7 @@ class StructNodeAbstract extends Node {
 
     removeFields(node, silent){
         const index = this.getIndexOfFields(node);
-        this.removeFieldsByIndex(index);
+        this.removeFieldsByIndex(node, index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -111,7 +111,7 @@ class StructNodeAbstract extends Node {
         }        
     }
 
-    removeFieldsByIndex(index, silent){
+    removeFieldsByIndex(node, index, silent){
         this.fields.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
