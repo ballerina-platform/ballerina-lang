@@ -1,6 +1,8 @@
 import React from 'react';
+import log from 'log';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { getPathSeperator } from 'api-client/api-client';
 import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
 import { getContextMenuItems } from './menu';
@@ -9,6 +11,11 @@ import { exists } from './../../workspace/fs-util';
 export const EDIT_TYPES = {
     NEW: 'new',
     RENAME: 'rename',
+};
+
+export const NODE_TYPES = {
+    FILE: 'file',
+    FOLDER: 'folder',
 };
 
 /**
@@ -57,9 +64,35 @@ class TreeNode extends React.Component {
      * Upon name modifications
      */
     onEditName(e) {
+        const inputValue = e.target.value;
         this.setState({
-            inputValue: e.target.value,
+            inputValue,
         });
+        const { parent, id } = this.props.node;
+        const newFullPath = parent + getPathSeperator() + inputValue;
+        if (newFullPath !== id) {
+            exists(newFullPath)
+            .then((resp) => {
+                let editError = '';
+                if (resp.exists) {
+                    editError = `A file or folder "${inputValue}" already exists at this location.
+                    Please choose a differrent name`;
+                }
+                this.setState({
+                    editError,
+                });
+            })
+            .catch((error) => {
+                log.error(error.message);
+                this.setState({
+                    editError: error.message,
+                });
+            });
+        } else {
+            this.setState({
+                editError: '',
+            });
+        }
     }
 
      /**
@@ -133,8 +166,8 @@ class TreeNode extends React.Component {
                         classnames(
                             'tree-node-icon',
                             'fw',
-                            { 'fw-folder': type === 'folder' },
-                            { 'fw-document': type === 'file' }
+                            { 'fw-folder': type === NODE_TYPES.FOLDER },
+                            { 'fw-document': type === NODE_TYPES.FILE }
                         )
                     }
                 />
@@ -214,6 +247,8 @@ class TreeNode extends React.Component {
 
 TreeNode.propTypes = {
     node: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        parent: PropTypes.string.isRequired,
         collapsed: PropTypes.bool.isRequired,
         type: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,

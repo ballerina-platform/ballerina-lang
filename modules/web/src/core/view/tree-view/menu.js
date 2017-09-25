@@ -53,6 +53,7 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
                     enableEdit: true,
                     editType: EDIT_TYPES.NEW,
                     label: '',
+                    parent: targetNode.id,
                 };
                 targetNode.children.splice(0, 0, tempNode);
                 targetNode.collapsed = false;
@@ -96,6 +97,7 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
                     enableEdit: true,
                     editType: EDIT_TYPES.NEW,
                     label: '',
+                    parent: targetNode.id,
                 };
                 targetNode.children.splice(0, 0, tempNode);
                 targetNode.collapsed = false;
