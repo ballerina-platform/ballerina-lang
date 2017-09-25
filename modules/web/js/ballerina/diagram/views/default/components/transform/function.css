@@ -46,4 +46,5 @@
     padding: 0;
     color: #bababb;
     background: #666769;
+    z-index: 0 !important;
 }

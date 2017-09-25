@@ -11,7 +11,7 @@
 }
 
 .left-content, .right-content {
-    width: 340px;
+    width: calc(100% /3.7);
     min-height: 100%;
     padding: 0px 20px 0px 20px;
 }
@@ -29,7 +29,7 @@
 }
 
 .transformOverlay .react-autosuggest__container {
-    width: 300px;
+    width: 99%;
     float: left;
 }
 
@@ -44,7 +44,7 @@
     margin: 0;
     list-style-type: none;
     border: 1px solid #e4e4e4;
-    width: 270px;
+    width: calc(100% - 2px);
 }
 
 .transformOverlay .btn-add-source {
@@ -90,7 +90,7 @@
 }
 
 .transform-edit-panel {
-    width: 300px;
+    width: calc(100% / 3.7);
     position: absolute;
     z-index: 40;
 }
@@ -130,6 +130,7 @@
     left: 20px;
     top: 20px;
     position: relative;
+    width: calc(100%/3.7 - 37px);
 }
 
 .select-target {
@@ -137,6 +138,7 @@
     right: 20px;
     top: 20px;
     position: relative;
+    width: calc(100%/3.7 - 37px);
 }
 
 .transform-connections {
@@ -154,11 +156,11 @@
 }
 
 .middle-content-frame {
-    width: calc(100% - 680px);
+    width: calc(100%/2.2);
     height: 100%;
     position: absolute;
     border: 1px dashed #ccc;
-    left: 340px;
+    left: calc(100%/3.7);
     background: #fff;
 }
 
