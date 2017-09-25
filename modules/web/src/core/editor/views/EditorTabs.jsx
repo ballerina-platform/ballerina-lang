@@ -102,7 +102,7 @@ class EditorTabs extends View {
         const { history } = this.props.editorPlugin.appContext.pref;
         const activeEditor = this.props.editorPlugin.appContext.editor.getActiveEditor();
         let previewViewSize;
-        if (previewViewEnabled && !(activeEditor instanceof CustomEditor)) {
+        if (!_.isNil(activeEditor) && previewViewEnabled && !(activeEditor instanceof CustomEditor)) {
             if (history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE)) {
                 previewViewSize = parseInt(history.get(HISTORY.PREVIEW_VIEW_ENABLED_SIZE), 10);
             } else {
