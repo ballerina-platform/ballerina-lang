@@ -37,6 +37,15 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     public BXMLNSSymbol nsSymbol;
     public boolean isUsedInXML = true;
 
+    public BLangXMLQName() {    
+    }
+
+    public BLangXMLQName(String localname) {
+        this.localname = new BLangIdentifier();
+        this.prefix = new BLangIdentifier();
+        this.localname.value = localname;
+    }
+
     @Override
     public BLangIdentifier getLocalname() {
         return localname;

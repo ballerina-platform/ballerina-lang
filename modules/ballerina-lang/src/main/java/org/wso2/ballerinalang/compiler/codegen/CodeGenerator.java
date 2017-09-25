@@ -316,13 +316,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create function info for the package function
         BLangFunction pkgInitFunc = pkgNode.initFunction;
         createFunctionInfoEntry(pkgInitFunc);
-
-        for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
-            genNode((BLangNode) pkgLevelNode, this.env);
-        }
-
+        
         // Visit package init function
         genNode(pkgInitFunc, this.env);
+
+        for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
+            if (pkgLevelNode.getKind() == NodeKind.VARIABLE || pkgLevelNode.getKind() == NodeKind.XMLNS) {
+                continue;
+            }
+            genNode((BLangNode) pkgLevelNode, this.env);
+        }
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
@@ -1881,18 +1884,19 @@ public class CodeGenerator extends BLangNodeVisitor {
             rhsExprRegIndex = nsURIExpr.regIndex;
         }
 
-        int ownerSymTag = env.scope.owner.tag;
+        int ownerSymTag = nsSymbol.owner.tag;
+        OpcodeAndIndex opcodeAndIndex;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(xmlnsNode.type.tag, InstructionCodes.ISTORE, lvIndexes);
-            opcode = opcodeAndIndex.opcode;
-            lvIndex = opcodeAndIndex.index;
-            nsSymbol.nsURIIndex = lvIndex;
-            if (nsURIExpr != null) {
-                emit(opcode, rhsExprRegIndex, lvIndex);
-            }
+            opcodeAndIndex = getOpcodeAndIndex(xmlnsNode.type.tag, InstructionCodes.ISTORE, lvIndexes);
         } else {
-            // TODO Support global xmlns declr
-            throw new AssertionError();
+            opcodeAndIndex = getOpcodeAndIndex(xmlnsNode.type.tag, InstructionCodes.IGSTORE, pvIndexes);
+        }
+
+        opcode = opcodeAndIndex.opcode;
+        lvIndex = opcodeAndIndex.index;
+        nsSymbol.nsURIIndex = lvIndex;
+        if (nsURIExpr != null) {
+            emit(opcode, rhsExprRegIndex, lvIndex);
         }
     }
 
@@ -1942,7 +1946,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(xmlElementLiteral, env);
         xmlElementLiteral.regIndex = ++regIndexes.tRef;
 
-        // Visit attributes. Attributes are visited first as the namespaces are also
+        // Visit attributes. Attributes are visited first as the in-line declared namespaces are also
         // treated as attributes. Namespaces needs to be visited first before visiting
         // the start and end tag names of the element.
         xmlElementLiteral.attributes.forEach(attribute -> {
@@ -1972,8 +1976,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         int defaultNsURIIndex = getNamespaceURIIndex(xmlElementLiteral.defaultNsSymbol);
         emit(InstructionCodes.NEWXMLELEMENT, xmlElementLiteral.regIndex, startTagNameRegIndex, endTagNameRegIndex,
                 defaultNsURIIndex);
-
-        // Add attributes
+        
+        // Add namespaces decelerations visible to this element.
+        xmlElementLiteral.namespaces.forEach((name, symbol) -> {
+            BLangXMLQName nsQName = new BLangXMLQName(name.value);
+            genNode(nsQName, xmlElementEnv);
+            int uriIndex = getNamespaceURIIndex(symbol);
+            emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, nsQName.regIndex, uriIndex);
+        });
+        
+        // Add attributes and in-line declared namespaces
         xmlElementLiteral.attributes.forEach(attribute -> {
             emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, attribute.name.regIndex,
                     attribute.value.regIndex);
@@ -2016,20 +2028,25 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol) {
+        if (namespaceSymbol == null) {
+            return createStringLiteral(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, env);
+        }
         // If the namespace is declared in-line within the XML, get the URI index in the registry.
-        if (namespaceSymbol != null && namespaceSymbol.definedInline) {
+        if (namespaceSymbol.definedInline) {
             return namespaceSymbol.nsURIIndex;
         }
 
-        // If the namespace is defined at top, get the URI index in the local var registry.
-        if (namespaceSymbol != null && !namespaceSymbol.definedInline) {
-            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(TypeTags.STRING, InstructionCodes.ILOAD, regIndexes);
-            emit(opcodeAndIndex.opcode, namespaceSymbol.nsURIIndex, opcodeAndIndex.index);
-            return opcodeAndIndex.index;
-        }
+        OpcodeAndIndex opcodeAndIndex;
 
-        // create the prefix literal, and return its index
-        return createStringLiteral(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, env);
+        // If the namespace is defined within a callable unit, get the URI index in the local var registry.
+        // Otherwise get the URI index in the global var registry.
+        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            opcodeAndIndex = getOpcodeAndIndex(TypeTags.STRING, InstructionCodes.ILOAD, regIndexes);
+        } else {
+            opcodeAndIndex = getOpcodeAndIndex(TypeTags.STRING, InstructionCodes.IGLOAD, regIndexes);
+        }
+        emit(opcodeAndIndex.opcode, namespaceSymbol.nsURIIndex, opcodeAndIndex.index);
+        return opcodeAndIndex.index;
     }
 
     private void generateURILookupInstructions(Map<Name, BXMLNSSymbol> namespaces, int localNameRegIndex,

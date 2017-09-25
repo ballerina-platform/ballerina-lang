@@ -516,11 +516,11 @@ public class TypeChecker extends BLangNodeVisitor {
         });
 
         Map<Name, BXMLNSSymbol> namespaces = symResolver.resolveAllNamespaces(xmlElementEnv);
-        bLangXMLElementLiteral.namespaces.putAll(namespaces);
         Name defaultNs = names.fromString(XMLConstants.DEFAULT_NS_PREFIX);
         if (namespaces.containsKey(defaultNs)) {
-            bLangXMLElementLiteral.defaultNsSymbol = namespaces.get(defaultNs);
+            bLangXMLElementLiteral.defaultNsSymbol = namespaces.remove(defaultNs);
         }
+        bLangXMLElementLiteral.namespaces.putAll(namespaces);
 
         validateTags(bLangXMLElementLiteral, xmlElementEnv);
         bLangXMLElementLiteral.modifiedChildren = concatSimilarKindXMLNodes(bLangXMLElementLiteral.children);

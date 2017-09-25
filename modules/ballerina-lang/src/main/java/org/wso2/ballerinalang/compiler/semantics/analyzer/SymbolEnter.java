@@ -524,10 +524,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
+
+        // Add namespace declarations to the init function
+        for (BLangXMLNS xmlns : pkgNode.xmlnsList) {
+            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
+        }
+
         //Add global variables to the init function
         for (BLangVariable variable : pkgNode.getGlobalVariables()) {
             initFunction.body.addStatement(createVariableDefStatement(variable.pos, variable));
         }
+        
         addInitReturnStatement(initFunction.body);
         pkgNode.initFunction = initFunction;
         defineNode(pkgNode.initFunction, env);
@@ -564,5 +571,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = bLangBlockStmt.pos;
         bLangBlockStmt.addStatement(returnStmt);
+    }
+
+    private BLangXMLNSStatement createNamespaceDeclrStatement(BLangXMLNS xmlns) {
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = xmlns.pos;
+        return xmlnsStmt;
     }
 }
