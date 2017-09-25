@@ -8,8 +8,8 @@ annotation configuration attach service {
     int wssPort;
     int idleTimeOutSeconds;
     string keyStoreFile;
-    string keyStorePass;
-    string certPass;
+    string keyStorePassword;
+    string certPassword;
 }
 
 annotation ClientService attach service {
