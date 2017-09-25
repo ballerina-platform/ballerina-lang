@@ -7,14 +7,13 @@
 .sub-menu-item-common {
     .rc-menu-submenu-title {
         @extend .menu-item-common;
-        padding: 7px 7px 7px 7px;
+        padding: 0 7px;
     }
     border-bottom: none;
     &.rc-menu-submenu-active {
         border-bottom: none;
         > .rc-menu-submenu-title {
             @extend .menu-active-common;
-            line-height: 21px;
         }
     }
 }
@@ -31,6 +30,7 @@
         border: none;
         box-shadow: none;
         border-radius: 0;
+        line-height: 24px;
         &.rc-menu-root {
             background: none;
         }
@@ -50,8 +50,11 @@
             @extend .sub-menu-item-common;
         }
         .rc-menu-item {
-            padding: 7px 7px 7px 7px;
+            padding: 0 7px;
             border-bottom: none;
+            & div>div:not(.menu-label){
+                top:2px;
+            }
             @extend .menu-item-common;
             &.rc-menu-item-disabled {
                 color: #999;

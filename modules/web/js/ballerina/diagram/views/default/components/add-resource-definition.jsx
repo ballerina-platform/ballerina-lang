@@ -103,8 +103,9 @@ class AddResourceDefinition extends React.Component {
         let yPositionOfResourceBtnLbl = 15;
         let xPositionOfResourceBtn = -12;
         let xPositionOfResourceBtnLbl = -4;
-        let xPositionOfAddResourceRect = 5;
+        let xPositionOfAddResourceRect = 0;
         let xPositionOfAddResourceLbl = 55;
+        let serviceDef = this.props.model;
         const bBox = this.props.bBox;
         if (ASTFactory.isResourceDefinition(this.props.model)) {
             yPosition = bBox.y + bBox.h;
@@ -114,6 +115,8 @@ class AddResourceDefinition extends React.Component {
             xPositionOfResourceBtnLbl = 46;
             xPositionOfAddResourceRect = 55;
             xPositionOfAddResourceLbl = 105;
+            const resourceDef = this.props.model;
+            serviceDef = resourceDef.getParent();
         }
         return (
             <g onClick={this.onAddResourceClick}>
@@ -122,8 +125,6 @@ class AddResourceDefinition extends React.Component {
                     y={yPosition + yPositionOfResourceBtn}
                     width="100"
                     height="25"
-                    rx="15"
-                    ry="15"
                     fill="#a09c9b"
                 />
                 <text
@@ -140,7 +141,7 @@ class AddResourceDefinition extends React.Component {
                     height={25}
                     rx={12.5}
                     ry={12.5}
-                    className="add-resource-button"
+                    className={"add-resource-button " + serviceDef.getProtocolPkgName()}
                     fill={this.props.model.getViewState().showWebSocketMethods ? '#63605f' : '#a09c9b'}
                 />
                 <text

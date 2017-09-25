@@ -88,6 +88,7 @@ class SourceEditor extends React.Component {
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
         this.onFileContentChanged = this.onFileContentChanged.bind(this);
+        this.lastUpdatedTimestamp = props.file.lastUpdated;
     }
 
     /**
@@ -241,6 +242,7 @@ class SourceEditor extends React.Component {
         const contentRange = new Range(0, 0, session.getLength(),
                         session.getRowLength(session.getLength()));
         session.replace(contentRange, newContent);
+        this.lastUpdatedTimestamp = this.props.file.lastUpdated;
     }
 
     shouldComponentUpdate() {
@@ -312,11 +314,15 @@ class SourceEditor extends React.Component {
                 new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
         }
 
-        // Removing the file content changed event of the previous file.
-        this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
-        // Adding the file content changed event to the new file.
-        nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
-        this.replaceContent(nextProps.file.content, true);
+        if (this.props.file.id !== nextProps.file.id) {
+            // Removing the file content changed event of the previous file.
+            this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
+            // Adding the file content changed event to the new file.
+            nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
+            this.replaceContent(nextProps.file.content, true);
+        } else if (this.lastUpdatedTimestamp !== nextProps.file.lastUpdated) {
+            this.replaceContent(nextProps.file.content, true);
+        }
 
         this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }

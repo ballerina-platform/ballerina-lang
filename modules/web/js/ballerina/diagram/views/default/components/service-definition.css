@@ -1,6 +1,13 @@
 .add-resource-button {
     cursor: pointer;
 }
+.add-resource-button.ws{
+    fill: #E65100;
+}
+
+.add-resource-button.http{
+    fill: #3498db;
+}
 
 .add-resource-button-label{
     cursor: pointer;

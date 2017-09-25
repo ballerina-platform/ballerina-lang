@@ -4,20 +4,24 @@
 
     & .brand {
         @extend .unseletable-content;
-        font-size: 16px;
+        font-size: 13px;
         cursor: default;
         color: $header-brand-color;
         padding: 0 10px;
         margin-right: 25px;
-        line-height: 35px;
+        line-height: 24px;
         
         & a {
             color: $header-brand-color;
         }
-        
-        & span.appname {
-            color: #f17b31;
-            margin-left: 5px;
+
+        & span{
+            font-size: 14px;
+            margin-left: 1px;
+            &.appname {
+                color: #f17b31;
+                margin-left: 5px;
+            }
         }
     }
 }
