@@ -19,7 +19,11 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.Phase;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -105,6 +109,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
 
     private BLangNode result;
 
@@ -121,6 +126,7 @@ public class Desugar extends BLangNodeVisitor {
         context.put(DESUGAR_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -131,14 +137,22 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
+        if (pkgNode.phase != Phase.DESUGER) {
+            return;
+        }
+        pkgNode.imports = rewrite(pkgNode.imports);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
         result = pkgNode;
+        pkgNode.phase = Phase.CODEGEN;
     }
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
+        BPackageSymbol pkgSymbol = importPkgNode.symbol;
+        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        rewrite(pkgEnv.node);
         result = importPkgNode;
     }
 
