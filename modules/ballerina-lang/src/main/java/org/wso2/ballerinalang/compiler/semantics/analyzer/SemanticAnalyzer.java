@@ -150,6 +150,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         xmlnsNode.type = symTable.stringType;
         symbolEnter.defineNode(xmlnsNode, env);
+        typeChecker.checkExpr(xmlnsNode.namespaceURI, env, Lists.of(symTable.stringType));
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {

@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -49,13 +48,13 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     }
 
     @Override
-    public BLangExpression getNamespaceUri() {
+    public String getNamespaceUri() {
         return null;
     }
 
     @Override
-    public void setNamespaceUri(ExpressionNode namespaceUri) {
-//        this.namespaceUri = (BLangExpression) namespaceUri;
+    public void setNamespaceUri(String namespaceUri) {
+        this.namespaceURI = namespaceUri;
     }
 
     @Override

@@ -493,31 +493,42 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
+        xmlAttribute.name = rewrite(xmlAttribute.name);
+        xmlAttribute.value = rewrite(xmlAttribute.value);
         result = xmlAttribute;
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        xmlElementLiteral.startTagName = rewrite(xmlElementLiteral.startTagName);
+        xmlElementLiteral.endTagName = rewrite(xmlElementLiteral.endTagName);
+        xmlElementLiteral.modifiedChildren.forEach(child -> rewrite(child));
+        xmlElementLiteral.attributes.forEach(attribute -> rewrite(attribute));
         result = xmlElementLiteral;
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.concatExpr = rewrite(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        xmlCommentLiteral.concatExpr = rewrite(xmlCommentLiteral.concatExpr);
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        xmlProcInsLiteral.target = rewrite(xmlProcInsLiteral.target);
+        xmlProcInsLiteral.dataConcatExpr = rewrite(xmlProcInsLiteral.dataConcatExpr);
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
+        xmlQuotedString.concatExpr = rewrite(xmlQuotedString.concatExpr);
         result = xmlQuotedString;
     }
 

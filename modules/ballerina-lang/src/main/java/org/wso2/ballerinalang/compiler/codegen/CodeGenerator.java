@@ -2101,6 +2101,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;
+        prefixLiteral.type = symTable.stringType;
         genNode(prefixLiteral, env);
         return prefixLiteral.regIndex;
     }

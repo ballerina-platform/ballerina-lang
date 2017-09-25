@@ -28,9 +28,9 @@ public interface XMLQNameNode extends ExpressionNode {
 
     void setLocalname(IdentifierNode localname);
 
-    ExpressionNode getNamespaceUri();
+    String getNamespaceUri();
 
-    void setNamespaceUri(ExpressionNode namespaceUri);
+    void setNamespaceUri(String namespaceUri);
 
     IdentifierNode getPrefix();
 
