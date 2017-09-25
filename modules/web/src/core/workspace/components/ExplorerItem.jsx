@@ -118,8 +118,8 @@ class ExplorerItem extends React.Component {
                             <i className="fw fw-folder icon" />
                             <span className="root-label">{this.state.node.label}</span>
                             <span className="root-actions">
-                                <i className="fw fw-minus action" onClick={this.onRemoveProjectFolderClick} />
-                                <i className="fw fw-refresh action" onClick={this.onRefreshProjectFolderClick} />
+                                <i className="fw fw-refresh2 action" onClick={this.onRefreshProjectFolderClick} />
+                                <i className="fw fw-close action" onClick={this.onRemoveProjectFolderClick} />
                             </span>
                         </div>
                     </Tooltip>

@@ -24,6 +24,13 @@
             padding-left: 0;
             color: rgb(199, 199, 199);
         }
+        &:hover {
+            .root-actions {
+                .action {
+                    opacity: 0.6;
+                }
+            }
+        }
         .root-actions {
             float: right;
             margin-right: 5px;
