@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
@@ -188,11 +189,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        BSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
+        BTypeSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
                 names.fromIdNode(connectorNode.name), null, env.scope.owner);
-        connectorNode.symbol = conSymbol;
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
+        defineConnectorSymbol(connectorNode, conSymbol, connectorEnv);
         defineConnectorInitFunction(connectorNode);
-        defineSymbol(connectorNode.pos, conSymbol);
     }
 
     public void visit(BLangService serviceNode) {
@@ -397,6 +398,32 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         symbol.type = new BInvokableType(paramTypes, retTypes, null);
+    }
+
+    private void defineConnectorSymbol(BLangConnector connectorNode, BTypeSymbol connectorSymbol,
+                                       SymbolEnv connectorEnv) {
+        connectorNode.symbol = connectorSymbol;
+        defineSymbol(connectorNode.pos, connectorSymbol);
+        connectorEnv.scope = connectorSymbol.scope;
+        defineConnectorSymbolParams(connectorNode, connectorSymbol, connectorEnv);
+    }
+
+    private void defineConnectorSymbolParams(BLangConnector connectorNode, BTypeSymbol symbol,
+                                             SymbolEnv connectorEnv) {
+        List<BVarSymbol> paramSymbols =
+                connectorNode.params.stream()
+                        .peek(varNode -> defineNode(varNode, connectorEnv))
+                        .map(varNode -> varNode.symbol)
+                        .collect(Collectors.toList());
+
+        symbol.params = paramSymbols;
+
+        // Create function type
+        List<BType> paramTypes = paramSymbols.stream()
+                .map(paramSym -> paramSym.type)
+                .collect(Collectors.toList());
+
+        symbol.type = new BConnectorType(paramTypes, null);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
