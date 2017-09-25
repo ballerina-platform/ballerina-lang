@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.Phase;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -137,7 +137,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != Phase.DESUGER) {
+        if (pkgNode.phase != CompilerPhase.DESUGAR) {
             result = pkgNode;
             return;
         }
@@ -147,7 +147,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
         result = pkgNode;
-        pkgNode.phase = Phase.CODEGEN;
+        pkgNode.phase = CompilerPhase.CODE_GEN;
     }
 
     @Override

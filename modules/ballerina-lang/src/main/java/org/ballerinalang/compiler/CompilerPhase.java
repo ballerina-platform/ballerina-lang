@@ -30,7 +30,9 @@ public enum CompilerPhase {
 
     DESUGAR("desugar"),
 
-    CODE_GEN("codeGen");
+    CODE_GEN("codeGen"),
+
+    DONE("done");
 
     private String value;
 
@@ -50,6 +52,8 @@ public enum CompilerPhase {
                 return DESUGAR;
             case "codeGen":
                 return CODE_GEN;
+            case "done":
+                return DONE;
             default:
                 throw new IllegalArgumentException("invalid compiler phase: " + value);
         }

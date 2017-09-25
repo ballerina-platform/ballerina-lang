@@ -17,12 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.Phase;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -132,7 +132,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != Phase.TYPECHECK) {
+        if (pkgNode.phase != CompilerPhase.TYPE_CHECK) {
             return;
         }
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
@@ -143,7 +143,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
-        pkgNode.phase = Phase.CODE_ANLYSYS;
+        pkgNode.phase = CompilerPhase.CODE_ANALYZE;
     }
 
     public void visit(BLangImportPackage importPkgNode) {

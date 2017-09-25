@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.wso2.ballerinalang.compiler.Phase;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -267,7 +267,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != Phase.CODEGEN) {
+        if (pkgNode.phase != CompilerPhase.CODE_GEN) {
             return;
         }
         // first visit all the imports
@@ -322,7 +322,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
         currentPkgName = null;
-        pkgNode.phase = Phase.FINISH;
+        pkgNode.phase = CompilerPhase.DONE;
     }
 
     public void visit(BLangImportPackage importPkgNode) {

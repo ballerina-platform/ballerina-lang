@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
@@ -30,7 +31,6 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.wso2.ballerinalang.compiler.Phase;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStruct> structs;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction;
-    public Phase phase;
+    public CompilerPhase phase;
 
     public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;
@@ -69,7 +69,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.annotations = new ArrayList<>();
 
         this.topLevelNodes = new ArrayList<>();
-        this.phase = Phase.DEFINE;
+        this.phase = CompilerPhase.DEFINE;
     }
 
     @Override

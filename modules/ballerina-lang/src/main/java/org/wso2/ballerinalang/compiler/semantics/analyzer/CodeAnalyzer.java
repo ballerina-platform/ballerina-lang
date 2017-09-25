@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.Phase;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -154,13 +154,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != Phase.CODE_ANLYSYS) {
+        if (pkgNode.phase != CompilerPhase.CODE_ANALYZE) {
             return;
         }
         pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
 
         pkgNode.compUnits.forEach(e -> e.accept(this));
-        pkgNode.phase = Phase.DESUGER;
+        pkgNode.phase = CompilerPhase.DESUGAR;
     }
     
     @Override

@@ -17,13 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
-import org.wso2.ballerinalang.compiler.Phase;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -123,7 +123,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != Phase.DEFINE) {
+        if (pkgNode.phase != CompilerPhase.DEFINE) {
             return;
         }
         // Create PackageSymbol.
@@ -157,7 +157,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         definePackageInitFunction(pkgNode, pkgEnv);
-        pkgNode.phase = Phase.TYPECHECK;
+        pkgNode.phase = CompilerPhase.TYPE_CHECK;
     }
 
     public void visit(BLangImportPackage importPkgNode) {
