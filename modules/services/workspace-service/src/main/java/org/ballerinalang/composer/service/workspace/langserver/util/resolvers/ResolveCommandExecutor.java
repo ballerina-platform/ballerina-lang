@@ -42,6 +42,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +73,7 @@ public class ResolveCommandExecutor {
         ResourceContextResolver resourceContextResolver = new ResourceContextResolver();
         TopLevelResolver topLevelResolver = new TopLevelResolver();
         CallableUnitBodyContextResolver callableUnitBodyContextResolver = new CallableUnitBodyContextResolver();
+        BLangStructContextResolver bLangStructContextResolver = new BLangStructContextResolver();
 
         // Parser rule context based resolvers
         ParserRuleStatementContextResolver parserRuleStatementContextResolver =
@@ -113,6 +115,7 @@ public class ResolveCommandExecutor {
         resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
         resolvers.put(Resource.class, resourceContextResolver);
         resolvers.put(CallableUnitBodyContextResolver.class, callableUnitBodyContextResolver);
+        resolvers.put(BLangStruct.class, bLangStructContextResolver);
         resolvers.put(GlobalScope.class, globalScopeResolver);
         resolvers.put(BLangPackage.class, globalScopeResolver);
 

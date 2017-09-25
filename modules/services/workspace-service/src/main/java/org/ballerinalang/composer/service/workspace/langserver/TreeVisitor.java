@@ -138,7 +138,11 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
         SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
-        structNode.fields.forEach(field -> this.acceptNode(field, structEnv));
+        this.symbolEnv = structEnv;
+        Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
+        System.out.println(Collections.singletonList(visibleSymbolEntries));
+        this.populateSymbols(visibleSymbolEntries);
+        this.terminateVisitor = true;
     }
 
     public void visit(BLangAnnotation annotationNode) {
