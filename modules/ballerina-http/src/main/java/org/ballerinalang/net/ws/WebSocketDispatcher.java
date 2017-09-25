@@ -115,7 +115,7 @@ public class WebSocketDispatcher {
         if (onCloseResource == null) {
             return;
         }
-        BStruct wsConnection = getWSConnection(closeMessage);
+        BStruct wsConnection = removeConnection(closeMessage);
         BStruct wsCloseFrame = wsService.createCloseFrameStruct();
         wsCloseFrame.setIntField(0, closeMessage.getCloseCode());
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
@@ -130,7 +130,7 @@ public class WebSocketDispatcher {
         if (onIdleTimeoutResource == null) {
             return;
         }
-        BStruct wsConnection = removeConnection(controlMessage);
+        BStruct wsConnection = getWSConnection(controlMessage);
         BValue[] bValues = {wsConnection};
         ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
