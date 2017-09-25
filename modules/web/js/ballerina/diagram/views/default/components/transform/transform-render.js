@@ -293,7 +293,8 @@ class TransformRender {
             const arrowBottom = svgLine.children[2].getBoundingClientRect().bottom
              - (this.container.find('.middle-content').position().top + 100);
             // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
-            if (arrowBottom > yFunctionPointer && svgLine.getBoundingClientRect().width > 400) {
+            if (arrowBottom > yFunctionPointer && svgLine.getBoundingClientRect().width
+                > this.container.find('.middle-content').width()) {
                 yFunctionPointer = arrowBottom;
             }
         });
