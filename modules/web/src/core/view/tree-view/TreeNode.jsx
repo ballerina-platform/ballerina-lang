@@ -73,7 +73,7 @@ class TreeNode extends React.Component {
         });
         const { parent, id } = this.props.node;
         const newFullPath = parent + getPathSeperator() + inputValue;
-        if (newFullPath !== id) {
+        if (newFullPath !== id && !_.isEmpty(inputValue)) {
             exists(newFullPath)
             .then((resp) => {
                 let editError = '';
