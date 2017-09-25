@@ -2804,6 +2804,9 @@ public class BLangVM {
                     boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
                     arguments[i] = new BBoolean(temp);
                     break;
+                case TypeTags.BLOB_TAG:
+                    arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
+                    break;
                 default:
                     arguments[i] = callerSF.refRegs[argReg];
             }
@@ -2816,6 +2819,7 @@ public class BLangVM {
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
+        int blobRegIndex = -1;
         int refRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
@@ -2832,6 +2836,9 @@ public class BLangVM {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.getByteRegs()[++blobRegIndex] = ((BBlob) passedInValues[i]).blobValue();
                     break;
                 default:
                     currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];

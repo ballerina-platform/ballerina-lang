@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -57,10 +56,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -154,9 +151,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
-        // Define service nodes.
-
-        // Define resource nodes.
+        // Define service and resource nodes.
+        defineServices(pkgNode.services, pkgEnv);
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
@@ -301,7 +297,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
         BPackageSymbol pSymbol;
         if (pkgNode.pkgDecl == null) {
-            pSymbol = new BPackageSymbol(Names.EMPTY, Names.EMPTY, symTable.rootPkgSymbol);
+            pSymbol = new BPackageSymbol(Names.DEFAULT_PACKAGE, Names.EMPTY, symTable.rootPkgSymbol);
         } else {
             Name pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
             Name pkgVersion = names.fromIdNode(pkgNode.pkgDecl.version);
@@ -397,6 +393,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .peek(field -> defineNode(field, structEnv))
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
                     .collect(Collectors.toList());
+        });
+    }
+
+    private void defineServices(List<BLangService> serviceNodes, SymbolEnv pkgEnv) {
+        serviceNodes.forEach(service -> {
+            defineNode(service, pkgEnv);
+            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
+            service.resources.forEach(resource -> defineNode(resource, serviceEnv));
         });
     }
 
@@ -500,10 +504,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         initFunction.addParameter(param);
         //Add connector level variables to the init function
         for (BLangVariableDef variableDef : connector.getVariableDefs()) {
-            BLangAssignment assignmentNode = createAssignmentStatement(variableDef.pos,
-                    variableDef.getVariable().getName().getValue(), variableDef.getVariable().getInitialExpression());
-            initFunction.body.addStatement(assignmentNode);
+            initFunction.body.addStatement(variableDef);
         }
+        addInitReturnStatement(initFunction.body);
         connector.initFunction = initFunction;
         defineNode(connector.initFunction, env);
     }
@@ -512,10 +515,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue());
         //Add service level variables to the init function
         for (BLangVariableDef variableDef : service.getVariables()) {
-            BLangAssignment assignmentNode = createAssignmentStatement(variableDef.pos,
-                    variableDef.getVariable().getName().getValue(), variableDef.getVariable().getInitialExpression());
-            initFunction.body.addStatement(assignmentNode);
+            initFunction.body.addStatement(variableDef);
         }
+        addInitReturnStatement(initFunction.body);
         service.initFunction = initFunction;
         defineNode(service.initFunction, env);
     }
@@ -524,10 +526,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
         //Add global variables to the init function
         for (BLangVariable variable : pkgNode.getGlobalVariables()) {
-            BLangAssignment assignmentNode = createAssignmentStatement(variable.pos, variable.getName().getValue(),
-                    variable.getInitialExpression());
-            initFunction.body.addStatement(assignmentNode);
+            initFunction.body.addStatement(createVariableDefStatement(variable.pos, variable));
         }
+        addInitReturnStatement(initFunction.body);
         pkgNode.initFunction = initFunction;
         defineNode(pkgNode.initFunction, env);
     }
@@ -539,23 +540,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         //Create body of the init function
         BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
         body.pos = pos;
-        //Add return statement to the init function
-        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-        returnStmt.pos = pos;
-        body.addStatement(returnStmt);
         initFunction.setBody(body);
         return initFunction;
     }
 
-    private BLangAssignment createAssignmentStatement(DiagnosticPos pos, String varName, BLangExpression rExpr) {
-        BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentNode.pos = pos;
-        assignmentNode.setExpression(rExpr);
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.variableName = (BLangIdentifier) createIdentifier(varName);
-        assignmentNode.addVariable(varRef);
-        return assignmentNode;
+    private BLangVariableDef createVariableDefStatement(DiagnosticPos pos, BLangVariable variable) {
+        BLangVariableDef variableDef = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.var = variable;
+        return variableDef;
     }
 
     private IdentifierNode createIdentifier(String value) {
@@ -564,5 +557,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             node.setValue(value);
         }
         return node;
+    }
+
+    private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
+        //Add return statement to the init function
+        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = bLangBlockStmt.pos;
+        bLangBlockStmt.addStatement(returnStmt);
     }
 }

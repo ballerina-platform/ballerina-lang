@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.programfile.cpentries;
 
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 
+import java.util.Map;
+
 /**
  * {@code WorkerInfoPool} represents a table of worker data channels which workers use to pass data around.
  *
@@ -31,4 +33,6 @@ public interface WorkerInfoPool {
     WorkerDataChannelInfo getWorkerDataChannelInfo(String name);
 
     WorkerDataChannelInfo[] getWorkerDataChannelInfo();
+    
+    Map<String, WorkerDataChannelInfo> getWorkerDataChannelMap();
 }

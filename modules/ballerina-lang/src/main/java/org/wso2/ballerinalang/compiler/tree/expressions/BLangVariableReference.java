@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
@@ -27,10 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 public abstract class BLangVariableReference extends BLangExpression implements VariableReferenceNode {
 
     public BVarSymbol symbol;
-    public boolean lhsVariable = false;
+    public boolean lhsVar = false;
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.VARIABLE_REF;
-    }
 }

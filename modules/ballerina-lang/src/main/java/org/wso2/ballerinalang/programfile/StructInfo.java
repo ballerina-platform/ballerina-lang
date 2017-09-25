@@ -31,37 +31,21 @@ import java.util.Objects;
  */
 public class StructInfo extends StructureTypeInfo {
 
-    private BStructType structType;
-    private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
+    public BStructType structType;
+    public List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
 
-    public StructInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name);
-    }
-
-    public BStructType getType() {
-        return structType;
-    }
-
-    public void setType(BStructType structType) {
-        this.structType = structType;
-    }
-
-    public void addFieldInfo(StructFieldInfo fieldInfo) {
-        fieldInfoEntries.add(fieldInfo);
-    }
-
-    public StructFieldInfo[] getFieldInfoEntries() {
-        return fieldInfoEntries.toArray(new StructFieldInfo[0]);
+    public StructInfo(int pkgNameCPIndex, int nameCPIndex) {
+        super(pkgNameCPIndex, nameCPIndex);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pkgPathCPIndex, nameCPIndex);
+        return Objects.hash(pkgNameCPIndex, nameCPIndex);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof StructInfo && pkgPathCPIndex == (((StructInfo) obj).pkgPathCPIndex)
+        return obj instanceof StructInfo && pkgNameCPIndex == (((StructInfo) obj).pkgNameCPIndex)
                 && nameCPIndex == (((StructInfo) obj).nameCPIndex);
     }
 }

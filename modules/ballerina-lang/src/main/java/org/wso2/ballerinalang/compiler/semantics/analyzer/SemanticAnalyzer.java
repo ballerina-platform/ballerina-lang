@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.Types;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -44,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -52,8 +55,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -88,6 +94,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
+    private Types types;
     private DiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -112,6 +119,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
@@ -196,7 +204,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        blockNode.statements.forEach(stmt -> analyzeStmt(stmt, blockEnv));
+        blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 
     public void visit(BLangVariableDef varDefNode) {
@@ -218,7 +226,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVariable = true;
+            ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
@@ -245,10 +253,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(whileNode.body, env);
     }
 
+    public void visit(BLangTransform transformNode) {
+        analyzeStmt(transformNode.body, env);
+    }
+
     public void visit(BLangConnector connectorNode) {
     }
 
     public void visit(BLangService serviceNode) {
+        BSymbol serviceSymbol = serviceNode.symbol;
+        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
+        serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
+        serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
+        serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
+    }
+
+    public void visit(BLangResource resourceNode) {
+        BSymbol resourceSymbol = resourceNode.symbol;
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
+        resourceNode.annAttachments.forEach(a -> this.analyzeDef(a, resourceEnv));
+        resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
+        resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
+        analyzeStmt(resourceNode.body, resourceEnv);
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
@@ -262,8 +288,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCatch bLangCatch) {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
         analyzeNode(bLangCatch.param, catchBlockEnv);
-        this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        this.types.checkType(bLangCatch.param.pos, bLangCatch.param.type, symTable.errStructType,
+                DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        analyzeStmt(transactionNode.transactionBody, env);
+        if (transactionNode.failedBody != null) {
+            analyzeStmt(transactionNode.failedBody, env);
+        }
+        if (transactionNode.committedBody != null) {
+            analyzeStmt(transactionNode.committedBody, env);
+        }
+        if (transactionNode.abortedBody != null) {
+            analyzeStmt(transactionNode.abortedBody, env);
+        }
+        if (transactionNode.retryCount != null) {
+            typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
     }
 
     private boolean isJoinResultType(BLangVariable var) {
@@ -305,12 +357,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
          * join result's environment */
         SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
-        
+
         if (forkJoin.timeoutExpression != null) {
             /* create code black and environment for timeout section */
             BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
             SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
-            this.typeChecker.checkExpr(forkJoin.timeoutExpression, 
+            this.typeChecker.checkExpr(forkJoin.timeoutExpression,
                     timeoutVarEnv, Arrays.asList(symTable.intType));
             this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
             /* create an environment for the timeout body, making the enclosing environment the earlier 
@@ -337,17 +389,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.exprs.forEach(e -> this.typeChecker.checkExpr(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
-        String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        if (!workerSendNode.isForkJoinSend) {
+            String workerName = workerSendNode.workerIdentifier.getValue();
+            if (!this.workerExists(this.env, workerName)) {
+                this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            }
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        workerReceiveNode.exprs.forEach(e -> this.typeChecker.checkExpr(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
@@ -367,32 +423,39 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(returnNode.pos, DiagnosticCode.SINGLE_VALUE_RETURN_EXPECTED);
         } else if (expRetCount == 0 && actualRetCount >= 1) {
             this.dlog.error(returnNode.pos, DiagnosticCode.RETURN_VALUE_NOT_EXPECTED);
-        } else if (actualRetCount > 1 && expRetCount > actualRetCount) {
+        } else if (expRetCount > actualRetCount) {
             this.dlog.error(returnNode.pos, DiagnosticCode.NOT_ENOUGH_RETURN_VALUES);
-        } else if (actualRetCount > 1 && expRetCount < actualRetCount) {
+        } else if (expRetCount < actualRetCount) {
             this.dlog.error(returnNode.pos, DiagnosticCode.TOO_MANY_RETURN_VALUES);
         } else {
             success = true;
         }
         return success;
     }
-    
+
     private boolean isInvocationExpr(BLangExpression expr) {
         return expr.getKind() == NodeKind.INVOCATION;
     }
-    
+
     @Override
     public void visit(BLangReturn returnNode) {
         if (returnNode.exprs.size() == 1 && this.isInvocationExpr(returnNode.exprs.get(0))) {
             /* a single return expression can be expanded to match a multi-value return */
-            this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env, 
+            this.typeChecker.checkExpr(returnNode.exprs.get(0), this.env,
                     this.env.enclInvokable.getReturnParameters().stream()
-                    .map(e -> e.getTypeNode().type)
-                    .collect(Collectors.toList()));
+                            .map(e -> e.getTypeNode().type)
+                            .collect(Collectors.toList()));
         } else {
+            if (returnNode.exprs.size() == 0 && this.env.enclInvokable.getReturnParameters().size() > 0
+                    && !this.env.enclInvokable.getReturnParameters().get(0).name.value.isEmpty()) {
+                // Return stmt has no expressions, but function/action has returns and they are named returns.
+                // Rewrite tree at desuger phase.
+                returnNode.namedReturnVariables = this.env.enclInvokable.getReturnParameters();
+                return;
+            }
             if (this.checkReturnValueCounts(returnNode)) {
                 for (int i = 0; i < returnNode.exprs.size(); i++) {
-                    this.typeChecker.checkExpr(returnNode.exprs.get(i), this.env, 
+                    this.typeChecker.checkExpr(returnNode.exprs.get(i), this.env,
                             Arrays.asList(this.env.enclInvokable.getReturnParameters().get(i).getTypeNode().type));
                 }
             }
@@ -414,7 +477,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangContinue continueNode) {
         /* ignore */
     }
-    
+
     public void visit(BLangBreak breakNode) {
         /* ignore */
     }
@@ -454,7 +517,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 expTypes.add(symTable.errType);
                 continue;
             }
-            ((BLangVariableReference) varRef).lhsVariable = true;
+            ((BLangVariableReference) varRef).lhsVar = true;
             // Check variable symbol if exists.
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
             Name varName = names.fromIdNode(simpleVarRef.variableName);

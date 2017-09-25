@@ -54,7 +54,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
 
-    private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
+    public Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
@@ -124,7 +124,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     }
 
     public void addConnectorInfo(String connectorName, ConnectorInfo connectorInfo) {
-        connectorInfo.setPackageInfo(this);
         connectorInfoMap.put(connectorName, connectorInfo);
         structureTypeInfoMap.put(connectorName, connectorInfo);
     }
@@ -142,7 +141,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     }
 
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
-        serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
         structureTypeInfoMap.put(serviceName, serviceInfo);
     }

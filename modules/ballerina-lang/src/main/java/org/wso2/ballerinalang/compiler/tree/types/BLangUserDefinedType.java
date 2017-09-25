@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -44,6 +45,11 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     @Override
     public BLangIdentifier getTypeName() {
         return typeName;
+    }
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.USER_DEFINED_TYPE;
     }
 
     @Override

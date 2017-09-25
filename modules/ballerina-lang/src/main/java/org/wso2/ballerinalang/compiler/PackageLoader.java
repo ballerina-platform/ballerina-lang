@@ -121,6 +121,9 @@ public class PackageLoader {
     private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
         BLangPackage pkgNode;
         BPackageSymbol pSymbol;
+
+        // TODO Handle pkgEntity 
+
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
             pSymbol = symbolEnter.definePackage(pkgNode);

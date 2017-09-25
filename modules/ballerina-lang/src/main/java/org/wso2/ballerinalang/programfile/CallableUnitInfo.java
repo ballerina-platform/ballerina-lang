@@ -111,4 +111,10 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public WorkerDataChannelInfo[] getWorkerDataChannelInfo() {
         return dataChannelInfoMap.values().toArray(new WorkerDataChannelInfo[0]);
     }
+
+    @Override
+    public Map<String, WorkerDataChannelInfo> getWorkerDataChannelMap() {
+        return dataChannelInfoMap;
+    }    
+    
 }

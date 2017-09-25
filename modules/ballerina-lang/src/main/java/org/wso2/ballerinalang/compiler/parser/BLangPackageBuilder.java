@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -102,9 +103,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -492,7 +495,7 @@ public class BLangPackageBuilder {
     public void addKeyValueRecord() {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
-        keyValue.keyExpr = (BLangExpression) exprNodeStack.pop();
+        keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 
@@ -602,15 +605,15 @@ public class BLangPackageBuilder {
     public void createTypeConversionExpr(DiagnosticPos pos) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
-        typeConversionNode.expr = exprNodeStack.pop();
-        typeConversionNode.typeName = typeNodeStack.pop();
+        typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
+        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
 
     public void createUnaryExpr(DiagnosticPos pos, String operator) {
         BLangUnaryExpr unaryExpressionNode = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         unaryExpressionNode.pos = pos;
-        unaryExpressionNode.expressionNode = exprNodeStack.pop();
+        unaryExpressionNode.expr = (BLangExpression) exprNodeStack.pop();
         unaryExpressionNode.operator = OperatorKind.valueFrom(operator);
         addExpressionNode(unaryExpressionNode);
     }
@@ -621,6 +624,7 @@ public class BLangPackageBuilder {
         ternaryExpr.elseExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.thenExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(ternaryExpr);
     }
 
 
@@ -1119,7 +1123,10 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addRetrytmt() {
+    public void addRetrytmt(DiagnosticPos pos) {
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        addStmtToCurrentBlock(retryNode);
         TransactionNode transactionNode = transactionNodeStack.peek();
         transactionNode.setRetryCount(exprNodeStack.pop());
     }
@@ -1156,8 +1163,8 @@ public class BLangPackageBuilder {
 
     public void addWorkerSendStmt(DiagnosticPos pos, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
-        workerSendNode.workerIdentifier = createIdentifier(workerName);
-        workerSendNode.expressions = exprNodeListStack.pop();
+        workerSendNode.setWorkerName(this.createIdentifier(workerName));
+        exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         addStmtToCurrentBlock(workerSendNode);
@@ -1165,8 +1172,8 @@ public class BLangPackageBuilder {
 
     public void addWorkerReceiveStmt(DiagnosticPos pos, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.workerIdentifier = createIdentifier(workerName);
-        workerReceiveNode.expressions = exprNodeListStack.pop();
+        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
+        exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
         workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);
     }
@@ -1297,14 +1304,49 @@ public class BLangPackageBuilder {
         addExpressionNode(xmlProcInsLiteral);
     }
 
+    public void addXMLNSDeclaration(DiagnosticPos pos, String namespaceUri, String prefix, boolean isTopLevel) {
+        BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
+        BLangIdentifier prefixIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        prefixIdentifer.pos = pos;
+        prefixIdentifer.value = prefix;
+
+        addLiteralValue(pos, TypeTags.STRING, namespaceUri);
+        xmlns.namespaceURI = (BLangLiteral) exprNodeStack.pop();
+        xmlns.prefix = prefixIdentifer;
+        xmlns.pos = pos;
+
+        if (isTopLevel) {
+            this.compUnit.addTopLevelNode(xmlns);
+            return;
+        }
+
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = pos;
+        addStmtToCurrentBlock(xmlnsStmt);
+    }
+
     public void createStringTemplateLiteral(DiagnosticPos pos, Stack<String> precedingTextFragments,
                                             String endingText) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
-        stringTemplateLiteral.expressions =
+        stringTemplateLiteral.exprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         stringTemplateLiteral.pos = pos;
         addExpressionNode(stringTemplateLiteral);
+    }
+
+    public void startTransformStmt() {
+        startBlock();
+    }
+
+    public void createTransformStatement(DiagnosticPos pos) {
+        BLangTransform transformNode = (BLangTransform) TreeBuilder.createTransformNode();
+        transformNode.pos = pos;
+        BLangBlockStmt transformBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        transformBlock.pos = pos;
+        transformNode.setBody(transformBlock);
+        addStmtToCurrentBlock(transformNode);
     }
 
     private List<BLangExpression> getExpressionsInTemplate(DiagnosticPos pos, Stack<String> precedingTextFragments,
@@ -1327,27 +1369,5 @@ public class BLangPackageBuilder {
 
         Collections.reverse(expressions);
         return expressions;
-    }
-
-    public void addXMLNSDeclaration(DiagnosticPos pos, String namespaceUri, String prefix, boolean isTopLevel) {
-        BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
-        BLangIdentifier prefixIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        prefixIdentifer.pos = pos;
-        prefixIdentifer.value = prefix;
-        
-        addLiteralValue(pos, TypeTags.STRING, namespaceUri);
-        xmlns.namespaceURI = (BLangLiteral) exprNodeStack.pop();
-        xmlns.prefix = prefixIdentifer;
-        xmlns.pos = pos;
-
-        if (isTopLevel) {
-            this.compUnit.addTopLevelNode(xmlns);
-            return;
-        }
-
-        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
-        xmlnsStmt.xmlnsDecl = xmlns;
-        xmlnsStmt.pos = pos;
-        addStmtToCurrentBlock(xmlnsStmt);
     }
 }

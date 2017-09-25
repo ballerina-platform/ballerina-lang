@@ -1,4 +1,6 @@
-function testFuncInvocation(int a, int b, int c) (int) {
+import ballerina.lang.math;
+
+function testFuncInvocation (int a, int b, int c) (int) {
     int x;
     x = 10;
     a = add(a, b);
@@ -25,6 +27,10 @@ function sum (int a) (int) {
         x = sum(a - 1);
         a =  a + x;
     }
-   return a;
+    return a;
 }
 
+function getPowerOfN (float a, float n) (float v) {
+    v = math:pow(a, n);
+    return;
+}

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.94
  */
 public class BLangWhile extends BLangStatement implements WhileNode {
+
     public BLangExpression expr;
     public BLangBlockStmt body;
 

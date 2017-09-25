@@ -43,14 +43,18 @@ public enum DiagnosticCode {
     INVALID_WORKER_RECEIVE_POSITION("invalid.worker.receive.position"),
     UNDEFINED_WORKER("undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
-    
+
     FUNCTION_MUST_RETURN("function.must.return"),
+    ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     UNREACHABLE_CODE("unreachable.code"),
-    DEAD_CODE("dead.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
+    ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
+    RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK("retry.cannot.be.outside.transaction.failed.block"),
+    TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
+    INCOMPATIBLE_TYPES_CONVERSION("incompatible.types.conversion"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
@@ -64,7 +68,7 @@ public enum DiagnosticCode {
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
-    
+
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
@@ -74,7 +78,11 @@ public enum DiagnosticCode {
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
-    
+
+    OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
+    OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
+    INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags")
     ;

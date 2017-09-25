@@ -20,7 +20,10 @@ package org.ballerinalang.repository;
 import org.ballerinalang.model.elements.PackageID;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This represents an aggregated package repository, which is a container for multiple {@link PackageRepository}s
@@ -63,6 +66,12 @@ public class AggregatedPackageRepository implements PackageRepository {
             }
         }
         return result;
+    }
+
+    @Override
+    public Set<PackageID> listPackages() {
+        return this.repos.stream().flatMap(e -> e.listPackages().stream()).collect(
+                Collectors.toCollection(LinkedHashSet::new));
     }
 
 }
