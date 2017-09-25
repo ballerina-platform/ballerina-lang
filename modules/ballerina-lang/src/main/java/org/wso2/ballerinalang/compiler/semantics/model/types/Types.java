@@ -150,7 +150,7 @@ public class Types {
             return true;
         }
 
-        if(actualType.tag == expType.tag) {
+        if (actualType.tag == expType.tag) {
             // This is for temporary reasons. Remove this ASAP.
             return true;
         }
