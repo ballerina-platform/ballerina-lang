@@ -92,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -280,10 +279,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransform transformNode) {
+        if (transformNode.body.getStatements().size() == 0) {
+            this.dlog.error(transformNode.pos, DiagnosticCode.TRANSFORM_STATEMENT_EMPTY_BODY);
+        }
         this.checkStatementExecutionValidity(transformNode);
         Map<String, BLangExpression> inputs = new HashMap<>(); // right hand expressions by variable
         Map<String, BLangExpression> outputs = new HashMap<>(); //left hand expressions by variable
-        validateTransformStatementBody(transformNode.pos, transformNode.body, inputs, outputs);
+        validateTransformStatementBody(transformNode.body, inputs, outputs);
         inputs.forEach((k, v) -> transformNode.addInputExpression(v));
         outputs.forEach((k, v) -> transformNode.addOutputExpression(v));
     }
@@ -513,7 +515,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @param inputs    input variable reference expressions map
      * @param outputs   output variable reference expressions map
      */
-    private void validateTransformStatementBody(DiagnosticPos pos, BLangBlockStmt blockStmt,
+    private void validateTransformStatementBody(BLangBlockStmt blockStmt,
             Map<String, BLangExpression> inputs, Map<String, BLangExpression> outputs) {
         for (BLangStatement statement : blockStmt.getStatements()) {
             if (statement.getKind() == NodeKind.VARIABLE) {
@@ -522,7 +524,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String varName = variable.getName().getValue();
                 //variables defined in transform scope, cannot be used as output
                 if (outputs.get(varName) != null) {
-                    this.dlog.error(pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                    this.dlog.error(variableDefStmt.pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
                     continue;
                 }
                 //if variable has not been used as an output before
@@ -539,7 +541,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             // if lhs is declared with var, they not considered as output variables since they are
                             // only available in transform statement scope
                             if (inputs.get(varName) != null) {
-                                this.dlog.error(pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                                this.dlog
+                                        .error(assignStmt.pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
                                 continue;
                             }
                             //if variable has not been used as an input before
@@ -552,7 +555,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression exp : varRefExpressions) {
                     String varName = ((BLangSimpleVarRef) exp).variableName.getValue();
                     if (outputs.get(varName) != null) {
-                        this.dlog.error(pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
+                        this.dlog.error(((BLangSimpleVarRef) exp).pos,
+                                DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
                         continue;
                     }
                     //if variable has not been used as an output before
