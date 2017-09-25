@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
@@ -145,6 +146,10 @@ public class ServerConnectorBootstrap {
 
     public void addHttpTraceLogHandler(Boolean isHttpTraceLogEnabled) {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
+    }
+
+    public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        httpServerChannelInitializer.setRequestSizeValidationConfig(requestSizeValidationConfig);
     }
 
     class HTTPServerConnector implements ServerConnector {
