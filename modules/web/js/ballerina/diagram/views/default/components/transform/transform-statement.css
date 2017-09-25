@@ -352,6 +352,7 @@ div.operator-cell {
 }
 div.operator-col {
   background-color: #dedede;
+  color: #fff;
   float: left;
   border-style: solid;
   border-width: 1px;
@@ -376,4 +377,19 @@ div.operator-expanded-func {
     padding: 0;
     color: #bababb;
     z-index: 0 !important;
+}
+
+.folded-op-body {
+    color: #3d3d3d;
+    background-color: #dedede;
+    height: 30px;
+}
+
+.folded-op-body .operator-name {
+    line-height: 30px;
+    float: left;
+}
+
+.folded-op-body .folder {
+    float: right;
 }

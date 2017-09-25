@@ -60,6 +60,7 @@ class TransformExpanded extends React.Component {
             selectedTarget: '-1',
             foldedEndpoints: {},
             foldedFunctions: {},
+            foldedOperators: {},
         };
         this.sourceElements = {};
         this.targetElements = {};
@@ -84,6 +85,7 @@ class TransformExpanded extends React.Component {
         this.removeTargetType = this.removeTargetType.bind(this);
         this.foldEndpoint = this.foldEndpoint.bind(this);
         this.foldFunction = this.foldFunction.bind(this);
+        this.foldOperator = this.foldOperator.bind(this);
         this.removeEndpoint = this.removeEndpoint.bind(this);
         this.removeIntermediateNode = this.removeIntermediateNode.bind(this);
         this.updateVariable = this.updateVariable.bind(this);
@@ -108,6 +110,15 @@ class TransformExpanded extends React.Component {
             {
                 foldedFunctions: _.extend(this.state.foldedFunctions, {
                     [key]: !this.state.foldedFunctions[key],
+                }),
+            });
+    }
+
+    foldOperator(key) {
+        this.setState(
+            {
+                foldedOperators: _.extend(this.state.foldedOperators, {
+                    [key]: !this.state.foldedOperators[key],
                 }),
             });
     }
@@ -215,7 +226,7 @@ class TransformExpanded extends React.Component {
         let nodeDef;
         let nodeName;
         let paramExpressions = [];
-        
+
         if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
@@ -228,7 +239,7 @@ class TransformExpanded extends React.Component {
             }
             paramExpressions.push(nodeExpression.getRightExpression());
         }
-        
+
         if (_.isUndefined(nodeDef)) {
             // alerts.error('Definition for "' + nodeName + '" cannot be found');
             return;
@@ -1230,6 +1241,8 @@ class TransformExpanded extends React.Component {
                                             onEndpointRemove={this.removeEndpoint}
                                             onOperatorRemove={this.removeIntermediateNode}
                                             onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                            isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
+                                            onFolderClick={this.foldFunction}
                                         />);
                                     })
                                 }
