@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import './import-declaration-expanded.css';
-import ImageUtil from './image-util';
+import ImageUtil from '../../../../image-util';
 import SuggestionsText from './suggestions-text';
 import ImportDeclarationItem from './import-declaration-item';
 

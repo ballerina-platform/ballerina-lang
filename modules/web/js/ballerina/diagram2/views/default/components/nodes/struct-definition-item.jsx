@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Alerts from 'alerts';
 import * as DesignerDefaults from '../../designer-defaults';
-import ImageUtil from './image-util';
+import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 
 const closeButtonWidth = 40;

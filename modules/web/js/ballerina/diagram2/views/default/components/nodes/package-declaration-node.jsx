@@ -24,7 +24,7 @@ import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
-import ImageUtil from './image-util';
+import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 import PackageDeclarationModel from '../../../../../model/tree/abstract-tree/package-declaration-node';
 import { parseContent } from './../../../../../../api-client/api-client';
@@ -42,14 +42,10 @@ class PackageDeclarationNode extends React.Component {
      * @return {string} the text displayed in the expanded view for the given node
      */
     static getDisplayValue(globalDef) {
-        if (globalDef.parent.getGlobalVariableDefinitions().includes(globalDef)) {
+        if (globalDef.parent.getGlobalVariableDefinitions().includes(globalDef) ||
+            globalDef.parent.getConstantDefinitions().includes(globalDef)) {
             return globalDef.getSource();
         }
-
-        if (globalDef.parent.getConstantDefinitions().includes(globalDef)) {
-            return globalDef.getSource();
-        }
-
         return 'invalid value';
     }
 

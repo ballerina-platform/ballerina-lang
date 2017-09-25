@@ -124,7 +124,7 @@ class Node extends EventChannel {
 
         function w() {
             const wsI = ws[i++];
-            return wsI === undefined ? '' : wsI;
+            return wsI === undefined ? ' ' : wsI;
         }
 
         switch (node.kind) {
@@ -133,12 +133,12 @@ class Node extends EventChannel {
             case 'Variable':
                 if (node.const && node.typeNode && node.name.value &&
                     node.initialExpression) {
-                    return 'const ' + w() + node.typeNode.getSource() + ' ' +
+                    return 'const' + w() + node.typeNode.getSource() +
                         node.name.value + w() + '=' + w() + node.initialExpression.getSource() +
                         ';' + w();
                 }
                 if (node.typeNode && node.name.value && node.initialExpression) {
-                    return node.typeNode.getSource() + ' ' + node.name.value +
+                    return node.typeNode.getSource() + node.name.value +
                         w() + '=' + w() + node.initialExpression.getSource();
                 }
                 if (node.typeNode && node.name.value) {

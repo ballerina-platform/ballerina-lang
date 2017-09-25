@@ -170,7 +170,7 @@ class VariableNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
+    removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
         this.removeAnnotationAttachmentsByIndex(index);
         if (!silent) {
@@ -208,10 +208,6 @@ class VariableNodeAbstract extends Node {
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
-    }
-
-    getIndexOfInitialExpressions(child) {
-        return _.findIndex(this.initialExpression, ['id', child.id]);
     }
 
     filterAnnotationAttachments(predicateFunction) {

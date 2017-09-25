@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './import-declaration.css';
-import ImageUtil from './image-util';
+import ImageUtil from '../../../../image-util';
 
 const ImportDeclaration = ({ bBox, viewState, noOfImports, onClick }) => {
     const {

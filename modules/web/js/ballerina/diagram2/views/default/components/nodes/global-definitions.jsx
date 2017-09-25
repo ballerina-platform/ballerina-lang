@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './global-definitions.css';
-import ImageUtil from './image-util';
+import ImageUtil from '../../../../image-util';
 import { util as SizingUtils } from '../../sizing-util';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 

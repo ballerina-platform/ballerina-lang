@@ -25,7 +25,7 @@ import './struct-definition.css';
 import Renderer from './renderer';
 import * as DesignerDefaults from './../../designer-defaults';
 import SuggestionsText from './suggestions-text2';
-import ImageUtil from './image-util';
+import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
 import TreeUtils from './../../../../../model/tree-util';
