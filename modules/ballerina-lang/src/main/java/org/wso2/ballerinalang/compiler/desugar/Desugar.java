@@ -554,6 +554,23 @@ public class Desugar extends BLangNodeVisitor {
         return (E) resultNode;
     }
 
+    @SuppressWarnings("unchecked")
+    private <E extends BLangExpression> E rewrite(E node) {
+        if (node == null) {
+            return null;
+        }
+
+        if(node.impCastExpr != null) {
+            System.out.println("");
+        }
+
+        BLangExpression expr = node.impCastExpr != null ? node.impCastExpr : node;
+        expr.accept(this);
+        BLangNode resultNode = this.result;
+        this.result = null;
+        return (E) resultNode;
+    }
+
     private <E extends BLangNode> List<E> rewrite(List<E> nodeList) {
         for (int i = 0; i < nodeList.size(); i++) {
             nodeList.set(i, rewrite(nodeList.get(i)));

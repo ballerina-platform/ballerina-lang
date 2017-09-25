@@ -32,8 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.Types.RecordKind;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -76,6 +76,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private Names names;
     private SymbolTable symTable;
     private SymbolResolver symResolver;
+    private Types types;
     private DiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -104,6 +105,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
@@ -149,16 +151,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultTypes;
     }
 
-    public void checkNodeType(BLangNode node, BType expType, DiagnosticCode diagCode) {
-        checkType(node.pos, node.type, expType, diagCode);
-    }
-
 
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
-        resultTypes = checkTypes(literalExpr, Lists.of(literalType), expTypes);
+        resultTypes = types.checkTypes(literalExpr, Lists.of(literalType), expTypes);
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
@@ -179,7 +177,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = new BArrayType(arrayType.eType);
         }
 
-        resultTypes = checkTypes(arrayLiteral, Lists.of(actualType), expTypes);
+        resultTypes = types.checkTypes(arrayLiteral, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -199,7 +197,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = expTypes.get(0);
         }
 
-        resultTypes = checkTypes(recordLiteral, Lists.of(actualType), expTypes);
+        resultTypes = types.checkTypes(recordLiteral, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -228,7 +226,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
-        resultTypes = checkTypes(varRefExpr, Lists.of(actualType), expTypes);
+        resultTypes = types.checkTypes(varRefExpr, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
@@ -256,7 +254,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         varRefType);
         }
 
-        resultTypes = checkTypes(fieldAccessExpr, Lists.of(actualType), this.expTypes);
+        resultTypes = types.checkTypes(fieldAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
@@ -300,7 +298,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         indexBasedAccessExpr.expr.type);
         }
 
-        resultTypes = checkTypes(indexBasedAccessExpr, Lists.of(actualType), this.expTypes);
+        resultTypes = types.checkTypes(indexBasedAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
     public void visit(BLangInvocation iExpr) {
@@ -356,7 +354,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        resultTypes = checkTypes(binaryExpr, Lists.of(actualType), expTypes);
+        resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
@@ -394,7 +392,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        resultTypes = checkTypes(unaryExpr, Lists.of(actualType), expTypes);
+        resultTypes = types.checkTypes(unaryExpr, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangTypeCastExpr castExpr) {
@@ -419,7 +417,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualTypes = getActualTypesOfCastExpr(castExpr, targetType, sourceType, castSym);
         }
 
-        resultTypes = checkTypes(castExpr, actualTypes, expTypes);
+        resultTypes = types.checkTypes(castExpr, actualTypes, expTypes);
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
@@ -439,53 +437,15 @@ public class TypeChecker extends BLangNodeVisitor {
             actualTypes = getActualTypesOfConversionExpr(conversionExpr, targetType, sourceType, conversionSym);
         }
 
-        resultTypes = checkTypes(conversionExpr, actualTypes, expTypes);
+        resultTypes = types.checkTypes(conversionExpr, actualTypes, expTypes);
     }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
     }
 
+
     // Private methods
-
-    private List<BType> checkTypes(BLangExpression node, List<BType> actualTypes, List<BType> expTypes) {
-        List<BType> resTypes = new ArrayList<>();
-        for (int i = 0; i < actualTypes.size(); i++) {
-            resTypes.add(checkType(node, actualTypes.get(i), expTypes.get(i)));
-        }
-        return resTypes;
-    }
-
-    private BType checkType(BLangExpression node, BType type, BType expType) {
-        return checkType(node, type, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
-    }
-
-    private BType checkType(BLangExpression node, BType type, BType expType, DiagnosticCode diagCode) {
-        return node.type = checkType(node.pos, type, expType, diagCode);
-    }
-
-    private BType checkType(DiagnosticPos pos, BType type, BType expType, DiagnosticCode diagCode) {
-        if (expType.tag == TypeTags.ERROR) {
-            return expType;
-        } else if (expType.tag == TypeTags.NONE) {
-            return type;
-        } else if (type.tag == TypeTags.ERROR) {
-            return type;
-        } else if (type.tag == expType.tag) {
-            return type;
-        } else if (expType.tag == TypeTags.ANY) {
-            // TODO Implicit cast possible
-            return expType;
-        }
-
-        // TODO Add more logic to check type compatibility assignability etc.
-
-        // TODO: Add invokable type compatibility check.
-
-        // e.g. incompatible types: expected 'int', found 'string'
-        dlog.error(pos, diagCode, expType, type);
-        return symTable.errType;
-    }
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
@@ -635,7 +595,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualTypes = getListWithErrorTypes(expected);
         }
 
-        resultTypes = checkTypes(iExpr, actualTypes, expTypes);
+        resultTypes = types.checkTypes(iExpr, actualTypes, expTypes);
     }
 
     private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
