@@ -35,12 +35,15 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.NativeException;
+import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;
@@ -48,6 +51,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,10 +62,58 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+
 /**
  * Utility methods for workspace service
  */
 public class WorkspaceUtils {
+
+    /**
+     * This method is designed to generate the Ballerina model for a given Ballerina file saved in the file-system.
+     * @param filePath - Path to Ballerina file.
+     * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
+     * @return BLangPackage - Ballerina model
+     */
+    public static BLangPackage getBLangPackage(String filePath, String fileName){
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, filePath);
+        Compiler compiler = Compiler.getInstance(context);
+        return compiler.getModel(fileName);
+    }
+
+    /**
+     * This method is designed to generate the Ballerina model for a given Ballerina content. Ideal use case is
+     * generating Ballerina model for unsaved Ballerina files.
+     *
+     * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
+     * @param source - Ballerina source content that needs to be parsed.
+     * @return BLangPackage - Ballerina model
+     */
+    public static BLangPackage getBLangPackageForContent(String fileName, String source){
+        CompilerContext context = prepareCompilerContext(fileName, source);
+        Compiler compiler = Compiler.getInstance(context);
+        return compiler.getModel(fileName);
+    }
+
+    /**
+     * Returns a CompilerContext for the provided fileName and Ballerina source content.
+     *
+     * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
+     * @param source- Ballerina source content that needs to be parsed.
+     * @return CompilerContext
+     */
+    private static CompilerContext prepareCompilerContext(String fileName, String source){
+        CompilerContext context = new CompilerContext();
+        List<Name> names = new ArrayList<>();
+        names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+        // Registering custom PackageRepository to provide ballerina content without a file in file-system
+        context.put(PackageRepository.class, new InMemoryPackageRepository(
+                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
+                "", fileName, source.getBytes(StandardCharsets.UTF_8)));
+        return context;
+    }
 
     /**
      * Get All Native Packages
@@ -70,15 +122,7 @@ public class WorkspaceUtils {
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
 
-        CompilerContext context = new CompilerContext();
-
-        List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
-        names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
-        // Registering custom PackageRepository to provide ballerina content without a file in file-system
-        context.put(PackageRepository.class, new InMemoryPackageRepository(
-                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
-                "", "", "".getBytes(StandardCharsets.UTF_8)));
-
+        CompilerContext context = prepareCompilerContext("", "");
         PackageLoader packageLoader = PackageLoader.getInstance(context);
         Set<PackageID> packages = packageLoader.listPackages();
         packages.stream().forEach(pkg -> {

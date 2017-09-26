@@ -27,6 +27,12 @@ public class BLangJSONModelConstants {
 
     public static final String CHILDREN = "children";
 
+    public static final String BODY = "body";
+
+    public static final String STATEMENTS = "statements";
+
+    public static final String TOP_LEVEL_NODES = "topLevelNodes";
+
     public static final String DEFINITION_TYPE = "type";
 
     public static final String CONNECTOR_DEFINITION = "connector_definition";
