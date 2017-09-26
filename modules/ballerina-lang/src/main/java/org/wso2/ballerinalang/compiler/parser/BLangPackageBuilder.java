@@ -383,10 +383,6 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-//    public void addConnectorVarDeclaration(DiagnosticPos pos, String identifier, boolean exprAvailable) {
-//        addVariableDefStatement(pos, identifier, exprAvailable);
-//    }
-
     public void addConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {
         BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
         connectorInitNode.pos = pos;

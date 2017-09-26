@@ -829,7 +829,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.regIndex);
         }
 
-        BInvokableSymbol initFunc = connectorSymbol.initFunction;
+        BInvokableSymbol initFunc = connectorSymbol.initFunctionSymbol;
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
         int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
@@ -1444,7 +1444,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         createFunctionInfoEntry(connectorInitFunction);
         connectorInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(connectorInitFunction.name.toString());
         this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
-        // Create action info entries for all resources
+        // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
     }
 
@@ -1463,7 +1463,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add worker info
         this.addWorkerInfoEntries(actionInfo, actionNode.getWorkers());
 
-        // Add action info to the service info
+        // Add action info to the connector info
         connectorInfo.actionInfoMap.put(actionNode.name.getValue(), actionInfo);
     }
 

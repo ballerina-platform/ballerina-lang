@@ -428,7 +428,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         symbol.params = paramSymbols;
 
-        // Create function type
+        // Create connector type
         List<BType> paramTypes = paramSymbols.stream()
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
@@ -490,7 +490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         addInitReturnStatement(initFunction.body);
         connector.initFunction = initFunction;
         defineNode(connector.initFunction, env);
-        connector.symbol.initFunction = initFunction.symbol;
+        connector.symbol.initFunctionSymbol = initFunction.symbol;
     }
 
     private void defineServiceInitFunction(BLangService service) {

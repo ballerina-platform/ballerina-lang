@@ -464,14 +464,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (invocationExpr.expr instanceof BLangSimpleVarRef) {
             invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
             invocationExpr.expr = rewriteExpr(invocationExpr.expr);
-            if (invocationExpr.functionPointerInvocation) {
-                BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-                varRef.symbol = (BVarSymbol) invocationExpr.symbol;
-                varRef.type = invocationExpr.symbol.type;
-                genIExpr = new BFunctionPointerInvocation(invocationExpr, varRef);
-            }
         }
-
 
         genIExpr.impCastExpr = invocationExpr.impCastExpr;
         result = genIExpr;
