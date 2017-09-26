@@ -50,6 +50,7 @@ export const DIALOGS = {
     OPEN_FILE: 'composer.dialog.open-file',
     OPEN_FOLDER: 'composer.dialog.open-folder',
     REPLACE_FILE_CONFIRM: 'composer.dialog.replace-file-confirm',
+    DELETE_FILE_CONFIRM: 'composer.dialog.delete-file-confirm',
 };
 
 export const HISTORY = {

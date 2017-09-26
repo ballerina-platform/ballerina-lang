@@ -14,7 +14,7 @@ const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
-const headerHeight = 35;
+const headerHeight = 24;
 const toolAreaHeight = 30;
 /**
  * React component for App.

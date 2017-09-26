@@ -85,6 +85,16 @@ public class LocalFSWorkspace implements Workspace {
     }
 
     @Override
+    public void move(String src, String dest) throws IOException {
+        Files.move(Paths.get(src), Paths.get(dest));
+    }
+
+    @Override
+    public void copy(String src, String dest) throws IOException {
+        Files.copy(Paths.get(src), Paths.get(dest));
+    }
+
+    @Override
     public JsonObject read(String path) throws IOException {
         byte[] fileContent = Files.readAllBytes(Paths.get(path));
         JsonObject fileObject = new JsonObject();
@@ -113,9 +123,9 @@ public class LocalFSWorkspace implements Workspace {
     }
 
     @Override
-    public void delete(String path, String type) throws IOException {
+    public void delete(String path) throws IOException {
         Path ioPath = Paths.get(path);
-        if (FOLDER_TYPE.equals(type)) {
+        if (ioPath.toFile().isDirectory()) {
             Files.walk(ioPath, FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
                  .forEach(File::delete);
         } else {

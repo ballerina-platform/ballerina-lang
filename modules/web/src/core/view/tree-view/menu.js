@@ -1,14 +1,21 @@
 import _ from 'lodash';
+import log from 'log';
 import { listFiles } from 'api-client/api-client';
-import { COMMANDS as WORKSPACE_CMDS } from './../../workspace/constants';
+import { COMMANDS as WORKSPACE_CMDS, DIALOGS as WORKSPACE_DIALOGS } from './../../workspace/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from './../../layout/constants';
 import { EDIT_TYPES } from './TreeNode';
+
+import { remove } from './../../workspace/fs-util';
 
 /**
  * Creates the context menu items for given node type
  * @param {Object} node root, folder or file node
+ * @param {Object} parentNode
  * @param {Object} command Command API
+ * @param {function} onNodeUpdate
+ * @param {function} onNodeRefresh
  */
-export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
+export function getContextMenuItems(node, parentNode, command, onNodeUpdate = () => {}, onNodeRefresh = () => {}) {
     const menu = [];
     const { dispatch } = command;
     const { type } = node;
@@ -35,6 +42,21 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
         icon: 'delete',
         label: 'Delete',
         handler: () => {
+            dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                id: WORKSPACE_DIALOGS.DELETE_FILE_CONFIRM,
+                additionalProps: {
+                    filePath: node.id,
+                    onConfirm: () => {
+                        remove(node.id)
+                            .then(() => {
+                                onNodeRefresh(parentNode);
+                            })
+                            .catch((err) => {
+                                log.error(err);
+                            });
+                    },
+                },
+            });
         },
         isActive: () => {
             return true;
@@ -153,7 +175,6 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
             menu.push(newFolderMenu);
             menu.push(menuDivider);
             menu.push(renameMenu);
-            menu.push(menuDivider);
             menu.push(deleteMenu);
             break;
         }
@@ -162,6 +183,7 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
                 icon: '',
                 label: 'Open In Editor',
                 handler: () => {
+                    dispatch(WORKSPACE_CMDS.OPEN_FILE, { filePath: node.id });
                 },
                 isActive: () => {
                     return true;
@@ -170,7 +192,6 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
             });
             menu.push(menuDivider);
             menu.push(renameMenu);
-            menu.push(menuDivider);
             menu.push(deleteMenu);
             break;
         }
