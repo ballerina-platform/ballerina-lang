@@ -43,7 +43,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns the current user's locale.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "utils:",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct",
         value = "current user's locale")})
 public class GetLocale extends AbstractNativeFunction {
 
