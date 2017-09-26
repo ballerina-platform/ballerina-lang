@@ -160,8 +160,8 @@ public class JMSUtils {
             String messageType = messageStruct.getStringField(0);
 
             try {
-                jmsMessage = new JMSConnectorFactoryImpl().createClientConnector()
-                        .createJMSMessage(propertyMap, messageType);
+                jmsMessage = new JMSConnectorFactoryImpl().createClientConnector(propertyMap)
+                        .createJMSMessage(messageType);
             } catch (JMSConnectorException e) {
                 throw new BallerinaException("Failed to send message. " + e.getMessage(), e);
             }

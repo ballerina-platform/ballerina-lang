@@ -21,6 +21,9 @@ package org.ballerinalang.net.jms.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -34,6 +37,7 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
 
 import java.util.ServiceLoader;
+import java.util.UUID;
 
 /**
  * {@code Init} is the Init action implementation of the JMS Connector.
@@ -60,16 +64,19 @@ public class Init extends AbstractJMSAction {
 
     @Override
     public ConnectorFuture execute(Context context) {
-        if (BallerinaConnectorManager.getInstance().
-                getClientConnector(Constants.PROTOCOL_JMS) == null) {
-            CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
-                    .getMessageProcessor();
-            ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
-            clientConnectorLoader.forEach((clientConnector) -> {
-                clientConnector.setMessageProcessor(carbonMessageProcessor);
-                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
-            });
-        }
+//        if (BallerinaConnectorManager.getInstance().
+//                getClientConnector(Constants.PROTOCOL_JMS) == null) {
+//            CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
+//                    .getMessageProcessor();
+//            ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
+//            clientConnectorLoader.forEach((clientConnector) -> {
+//                clientConnector.setMessageProcessor(carbonMessageProcessor);
+//                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
+//            });
+//        }
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        BMap sharedMap = (BMap) bConnector.getRefField(0);
+        sharedMap.put(Constants.JMS_CONNECTOR_KEY, new BString(UUID.randomUUID().toString()));
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();
         return future;
