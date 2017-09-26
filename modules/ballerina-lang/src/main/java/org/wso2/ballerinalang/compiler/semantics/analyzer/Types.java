@@ -120,6 +120,8 @@ public class Types {
             return actualType;
         } else if (isAssignable(actualType, expType)) {
             return actualType;
+        } else if (isImplicitCastPossible(actualType, expType)) {
+            return actualType;
         }
 
         // TODO: Add invokable actualType compatibility check.
@@ -156,21 +158,14 @@ public class Types {
             return true;
         }
 
-        // Check whether there exists an implicit cast
-        if (isImplicitCastPossible(actualType, expType)) {
-            return true;
-        }
-
         // If both types are structs then check for their equivalency
         if (checkStructEquivalency(actualType, expType)) {
             return true;
         }
 
-        // TODO Struct and connector equivalency
-
-        // TODO JSON and constrained JSON assignability 
-
-
+        // TODO Check connector equivalency
+        // TODO Check enums
+        // TODO JSON and constrained JSON assignability
         return false;
     }
 
