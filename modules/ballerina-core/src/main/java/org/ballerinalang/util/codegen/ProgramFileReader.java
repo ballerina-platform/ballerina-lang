@@ -903,7 +903,7 @@ public class ProgramFileReader {
         ForkjoinInfo[] forkjoinInfos = new ForkjoinInfo[forkJoinCount];
         for (int i = 0; i < forkJoinCount; i++) {
             ForkjoinInfo forkjoinInfo = getForkJoinInfo(dataInStream, packageInfo);
-            forkjoinInfos[forkjoinInfo.getIndex()] = forkjoinInfo;
+            forkjoinInfos[i] = forkjoinInfo;
         }
         workerInfo.setForkjoinInfos(forkjoinInfos);
     }

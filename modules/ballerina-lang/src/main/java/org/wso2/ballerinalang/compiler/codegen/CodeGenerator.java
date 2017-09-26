@@ -229,6 +229,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> abortInstructions = new Stack<>();
 
     private int workerChannelCount = 0;
+    private int forkJoinCount = 0;
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -1573,12 +1574,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
         ForkjoinInfo forkjoinInfo = this.processForkJoinTimeout(forkJoin);
         this.populatForkJoinWorkerInfo(forkJoin, forkjoinInfo);
-        int forkJoinInfoIndex;
+        int forkJoinInfoIndex = this.forkJoinCount++;
         /* was I already inside a fork/join */
         if (this.env.forkJoin != null) {
-            forkJoinInfoIndex = this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
+            this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
         } else {
-            forkJoinInfoIndex = this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
+            this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
         }
         ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
         int forkJoinInfoIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
@@ -1606,7 +1607,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
         this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
-        this.endWorkerInfoUnit(this.currentWorkerInfo.codeAttributeInfo);
     }
 
     private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {
