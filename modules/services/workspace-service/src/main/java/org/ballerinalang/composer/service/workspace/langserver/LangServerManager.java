@@ -26,8 +26,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
-import org.ballerinalang.BLangASTBuilder;
-import org.ballerinalang.composer.service.workspace.Constants;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
@@ -50,12 +49,10 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPacka
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -64,13 +61,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +73,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Language server Manager which manage langServer requests from the clients.
@@ -532,10 +526,6 @@ public class LangServerManager {
 
             Position position = posParams.getPosition();
             String textContent = posParams.getText();
-            String fileName = posParams.getFileName();
-            String filePath = posParams.getFilePath();
-            String pkgName = posParams.getPackageName();
-
             CompilerContext compilerContext = new CompilerContext();
 
             // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
@@ -543,8 +533,7 @@ public class LangServerManager {
             // contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
 
              options = CompilerOptions.getInstance(compilerContext);
-             options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
-             options.put(COMPILER_PHASE, "typeCheck");
+             options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
 
             // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
             // LangServerPackageRepository pkgRepo =
