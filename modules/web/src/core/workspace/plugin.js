@@ -16,6 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
@@ -102,7 +103,7 @@ class WorkspacePlugin extends Plugin {
     openFile(filePath, type = 'bal') {
         return new Promise((resolve, reject) => {
             // if not already opened
-            if (_.findIndex(this.openedFiles, file => file === filePath) === -1) {
+            if (_.findIndex(this.openedFiles, file => file.fullPath === filePath) === -1) {
                 read(filePath)
                     .then((file) => {
                         file.extension = type;
@@ -117,7 +118,7 @@ class WorkspacePlugin extends Plugin {
                         reject(JSON.stringify(err));
                     });
             } else {
-                reject(`File ${filePath} is already opened.`);
+                log.warn(`File ${filePath} is already opened.`);
             }
         });
     }
