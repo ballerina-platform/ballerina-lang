@@ -49,7 +49,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.transport.jms.clientfactory.SessionWrapper;
+import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
 import org.wso2.carbon.transport.jms.contract.JMSClientConnector;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
