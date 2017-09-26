@@ -75,8 +75,11 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
-    public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePass";
-    public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPass";
+    public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePassword";
+    public static final String ANN_CONFIG_ATTR_TRUST_STORE_FILE = "trustStoreFile";
+    public static final String ANN_CONFIG_ATTR_TRUST_STORE_PASS = "trustStorePassword";
+    public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPassword";
+    public static final String ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT = "sslVerifyClient";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;

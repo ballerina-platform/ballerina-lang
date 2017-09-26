@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -40,9 +39,7 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
-import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -65,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Utility class providing utility methods.
  */
@@ -75,7 +71,7 @@ public class HttpUtil {
     private static final String TRANSPORT_MESSAGE = "transport_message";
 
     public static BValue[] addHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BStruct requestStruct  = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
+        BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
@@ -96,8 +92,7 @@ public class HttpUtil {
         if (log.isDebugEnabled()) {
             log.debug("Invoke message clone.");
         }
-        //        BMessage msg = (BMessage) getRefArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
+        BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         BStruct clonedRequestStruct = new BStruct(requestStruct.getType());
@@ -144,7 +139,6 @@ public class HttpUtil {
         BJSON result = null;
         try {
             // Accessing First Parameter Value.
-            //            BMessage msg = (BMessage) getRefArgument(ctx, 0);
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
@@ -163,18 +157,18 @@ public class HttpUtil {
                 httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
-            //            ErrorHandler.handleJsonException(OPERATION, e);
+            throw new BallerinaException("Error while retrieving json payload from message: " + e.getMessage());
         }
-
         // Setting output value.
         return abstractNativeFunction.getBValues(result);
     }
 
     public static BValue[] getProperty(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
+        BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
         String propertyName = abstractNativeFunction.getStringArgument(context, 0);
 
-        Object propertyValue = msg.getProperty(propertyName);
+        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
 
         if (propertyValue == null) {
             return AbstractNativeFunction.VOID_RETURN;
@@ -191,11 +185,13 @@ public class HttpUtil {
         BString result;
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
-                    .getNativeData(Constants.TRANSPORT_MESSAGE);
+            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
             } else {
+                if (httpCarbonMessage.isEmpty()) {
+                    return abstractNativeFunction.getBValues(new BString(""));
+                }
                 String payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
                         .getInputStream());
                 result = new BString(payload);
@@ -209,20 +205,6 @@ public class HttpUtil {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
         return abstractNativeFunction.getBValues(result);
-    }
-
-    public static BValue[] getStringValue(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BMessage msg = (BMessage) abstractNativeFunction.getRefArgument(context, 0);
-        CarbonMessage carbonMessage = msg.value();
-        String mapKey = abstractNativeFunction.getStringArgument(context, 0);
-        String mapValue = null;
-        if (carbonMessage instanceof MapCarbonMessage) {
-            mapValue = ((MapCarbonMessage) carbonMessage).getValue(mapKey);
-        }
-        if (mapValue == null) {
-            throw new BallerinaException("Given property " + mapKey + " is not found in the Map message");
-        }
-        return abstractNativeFunction.getBValues(new BString(mapValue));
     }
 
     public static BValue[] getXMLPayload(Context context, AbstractNativeFunction abstractNativeFunction) {
@@ -243,13 +225,16 @@ public class HttpUtil {
                     result = XMLUtils.parse(httpCarbonMessage.getMessageDataSource().getMessageAsString());
                 }
             } else {
+                if (httpCarbonMessage.isEmpty()) {
+                    throw new BallerinaException("empty content");
+                }
                 result = XMLUtils.parse(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
                 httpCarbonMessage.setMessageDataSource(result);
-//                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
+                result.setOutputStream(new HttpMessageDataStreamer(httpCarbonMessage).getOutputStream());
                 httpCarbonMessage.setAlreadyRead(true);
             }
         } catch (Throwable e) {
-            //            ErrorHandler.handleJsonException(OPERATION, e);
+            throw new BallerinaException("Error while retrieving XML payload from message: " + e.getMessage());
         }
         // Setting output value.
         return abstractNativeFunction.getBValues(result);
@@ -273,7 +258,7 @@ public class HttpUtil {
         byte[] buffer = new byte[4096];
         int n1;
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        for (; -1 != (n1 = input.read(buffer));) {
+        for (; -1 != (n1 = input.read(buffer)); ) {
             output.write(buffer, 0, n1);
         }
         byte[] bytes = output.toByteArray();
@@ -370,7 +355,6 @@ public class HttpUtil {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
 
         String lengthStr = httpCarbonMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
-
         try {
             contentLength = Integer.parseInt(lengthStr);
         } catch (NumberFormatException e) {
@@ -516,7 +500,7 @@ public class HttpUtil {
      * This will first look for the port property and if present then it will get other properties,
      * and create the property map.
      *
-     * @param configInfo            In which listener configurations are specified.
+     * @param configInfo In which listener configurations are specified.
      * @return listenerConfMap      With required properties
      */
     private static Map<String, Map<String, String>> buildListerProperties(Annotation configInfo) {
@@ -540,8 +524,11 @@ public class HttpUtil {
         }
 
         AnnAttrValue keyStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttrValue keyStorePassAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttrValue certPassAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
+        AnnAttrValue keyStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
+        AnnAttrValue certPasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
+        AnnAttrValue trustStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
+        AnnAttrValue trustStorePasswordAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
+        AnnAttrValue sslVerifyClientAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
 
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
             Map<String, String> httpPropMap = new HashMap<>();
@@ -568,18 +555,39 @@ public class HttpUtil {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
             }
-            if (keyStorePassAttrVal == null || keyStorePassAttrVal.getStringValue() == null) {
+            if (keyStorePasswordAttrVal == null || keyStorePasswordAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
             }
-            if (certPassAttrVal == null || certPassAttrVal.getStringValue() == null) {
+            if (certPasswordAttrVal == null || certPasswordAttrVal.getStringValue() == null) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException(
                         "Certificate password value must be provided for secure connection");
             }
+            if ((trustStoreFileAttrVal == null || trustStoreFileAttrVal.getStringValue() == null)
+                    && sslVerifyClientAttrVal != null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
+            }
+            if ((trustStorePasswordAttrVal == null || trustStorePasswordAttrVal.getStringValue() == null)
+                    && sslVerifyClientAttrVal != null) {
+                //TODO get from language pack, and add location
+                throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
+            }
+
             httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePasswordAttrVal.getStringValue());
+            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPasswordAttrVal.getStringValue());
+            if (sslVerifyClientAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT, sslVerifyClientAttrVal.getStringValue());
+            }
+            if (trustStoreFileAttrVal != null) {
+                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_FILE, trustStoreFileAttrVal.getStringValue());
+            }
+            if (trustStorePasswordAttrVal != null) {
+                httpsPropMap
+                        .put(Constants.ANN_CONFIG_ATTR_TRUST_STORE_PASS, trustStorePasswordAttrVal.getStringValue());
+            }
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
         return listenerConfMap;
