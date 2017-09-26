@@ -60,7 +60,7 @@ export default class importDeclarationItem extends React.Component {
             className = 'package-declaration-item-hightlighted';
         }
 
-        const importPkgName = this.props.importDec.package;
+        const importPkgName = this.props.importDec.parent.getPackageName(this.props.importDec);
         /* if (this.props.importDec.getAsName() !== undefined) {
             importPkgName = importPkgName + ' as ' + this.props.importDec.getAsName();
         }*/

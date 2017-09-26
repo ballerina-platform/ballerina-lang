@@ -18,12 +18,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import log from 'log';
 import _ from 'lodash';
 import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 import { util } from '../../sizing-util';
 import * as DesignerDefaults from '../../designer-defaults';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
+import { parseContent } from './../../../../../../api-client/api-client';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * React component for an entry representing a variable in the expanded variable pane.
@@ -73,6 +76,18 @@ export default class GlobalDefinitionItem extends React.Component {
         this.setState({ highlighted: false });
     }
 
+    setEditedSource(value) {
+        const oldNode = this;
+        value += ';\n';
+        parseContent(value)
+            .then((jsonTree) => {
+                if (jsonTree.topLevelNodes[0]) {
+                    this.parent.removeTopLevelNodes(oldNode);
+                    this.parent.addTopLevelNodes(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                }
+            })
+            .catch(log.error);
+    }
     /**
      * renders an ExpressionEditor in the add new variable area.
      * @param {Object} bBox - bounding box ExpressionEditor should be rendered.
@@ -82,13 +97,9 @@ export default class GlobalDefinitionItem extends React.Component {
         let setterFunc;
         const editorOuterPadding = 10;
         if (_.includes(this.props.globalDec.parent.filterTopLevelNodes({ kind: 'Variable' }), this.props.globalDec)) {
-            getterFunc = this.props.globalDec.getGlobalVariableDefinitionAsString;
-            setterFunc = this.props.globalDec.setGlobalVariableDefinitionFromString;
-        } else {
-            getterFunc = this.props.globalDec.getStatementString;
-            setterFunc = this.props.globalDec.setStatementFromString;
+            getterFunc = this.props.globalDec.getSource;
+            setterFunc = this.setEditedSource;
         }
-
         const options = {
             propertyType: 'text',
             key: 'Global Variable',

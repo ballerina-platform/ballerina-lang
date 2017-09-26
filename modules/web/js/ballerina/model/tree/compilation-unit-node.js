@@ -51,11 +51,11 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
      */
     getPackageName(node) {
         let pkgName = '';
-        if (node.getPackageName()) {
-            node.getPackageName().forEach((identifier) => {
+        if (node.packageName) {
+            node.packageName.forEach((identifier) => {
                 pkgName = pkgName.concat(identifier.value);
-                const index = node.getPackageName().indexOf(identifier);
-                if (index !== node.getPackageName().length - 1) {
+                const index = node.packageName.indexOf(identifier);
+                if (index !== node.packageName.length - 1) {
                     pkgName = pkgName.concat('.');
                 }
             });

@@ -18,7 +18,6 @@
 import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Alerts from 'alerts';
 import { packageDefinition } from '../../designer-defaults';
 import './package-definition.css';
 import ImportDeclaration from './import-node';
@@ -29,7 +28,7 @@ import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 import PackageDeclarationModel from '../../../../../model/tree/abstract-tree/package-declaration-node';
 import { parseContent } from './../../../../../../api-client/api-client';
-import NodeFactory from './../../../../../model/node-factory';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * Class representing the package definition and other top level views.
@@ -112,28 +111,6 @@ class PackageDeclarationNode extends React.Component {
     }
 
     /**
-     * Validate input values for globals
-     * Only checks for the simple literals
-     *
-     * @param {string} type
-     * @param {any} value
-     */
-    validateDefaultValue(type, value) {
-        if (type === 'int' && /^[-]?\d+$/.test(value)) {
-            return;
-        } else if (type === 'float' && ((/\d*\.?\d+/.test(value) || parseFloat(value)))) {
-            return;
-        } else if (type === 'boolean' && (/\btrue\b/.test(value) || /\bfalse\b/.test(value))) {
-            return;
-        } else if (type === 'string') {
-            return;
-        }
-        const errorString = 'Type of the default value is not compatible with the expected type';
-        Alerts.error(errorString);
-        throw errorString;
-    }
-
-    /**
      * Called when a new global constant or variable is entered
      * @param {string} value - statement for adding the new global
      */
@@ -141,46 +118,15 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
-        const valueSplitted = value.split(' ');
-        let isConst = false;
-        let identifier,
-            type,
-            valueOfGlobal = '';
-        // Check if the value is a constant or a global value
-        if (valueSplitted[0] === 'const') {
-            isConst = true;
-            type = valueSplitted[1];
-            identifier = valueSplitted[2];
-            valueOfGlobal = valueSplitted[4];
-            if (valueOfGlobal === undefined) {
-                log.debug('Variable value for a constant cannot be undefined');
-                return;
-            }
-        } else {
-            type = valueSplitted[0];
-            identifier = valueSplitted[1];
-            valueOfGlobal = valueSplitted[3];
-        }
-        if (this.props.model.parent.isExistingGlobalIdentifier(identifier)) {
-            const errorString = 'A global variable with this identifier  "' + identifier + '" already exists.';
-            log.debug(errorString);
-            return;
-        }
 
-        const identifierNode = NodeFactory.createIdentifier({ value: identifier });
-        const typeNode = NodeFactory.createValueType({ typeKind: type });
-        let literalNode = null;
-        if (valueOfGlobal !== undefined) {
-            this.validateDefaultValue(type, valueOfGlobal);
-            literalNode = NodeFactory.createLiteral({ value: valueOfGlobal });
-        }
-
-        // Create a variable node
-        const variableNode = NodeFactory.createVariable({ name: identifierNode,
-            initialExpression: literalNode,
-            typeNode,
-            const: isConst });
-        this.props.model.parent.addTopLevelNodes(variableNode);
+        value += ';\n';
+        parseContent(value)
+            .then((jsonTree) => {
+                if (jsonTree.topLevelNodes[0]) {
+                    this.props.model.parent.addTopLevelNodes(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                }
+            })
+            .catch(log.error);
     }
 
     /**
@@ -191,15 +137,19 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
-        // value = 'import ' + value + ';\n';
         if (this.props.model.parent.isExistingPackage(value)) {
             const errorString = 'Package "' + value + '" is already imported.';
             log.debug(errorString);
             return;
         }
-        // Create import node
-        const importNode = NodeFactory.createImport({ package: value });
-        this.props.model.parent.addTopLevelNodes(importNode);
+        value = 'import ' + value + ';\n';
+        parseContent(value)
+            .then((jsonTree) => {
+                if (jsonTree.topLevelNodes[0]) {
+                    this.props.model.parent.addTopLevelNodes(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                }
+            })
+            .catch(log.error);
     }
 
     /**
