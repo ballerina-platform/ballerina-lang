@@ -3,10 +3,10 @@
 $ ballerina run websocket-basic-endpoint.bal
 
 # To invoke the service, use Chrome or Firefox javascript console and run the below commands <br>
-$ var ws = new WebSocket("ws://localhost:9090/endpoint/ws");
-$ ws.onmessage = function(frame) {console.log(frame.data)};
-$ ws.onclose = function(frame) {console.log(frame)};
+$ var ws = new WebSocket("ws://localhost:9090/basic/ws");
+
 # To send messages
 $ ws.send("hello world");
+
 #To close the connection
-$ ws.close();
+$ ws.close(1000, "I want to go");
