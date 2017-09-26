@@ -10,3 +10,6 @@ $ ws.onclose = function(frame) {console.log(frame)};
 
 # To send messages
 $ ws.send("hello world");
+
+#To close the connection
+$ ws.close(1000, "I want to go");

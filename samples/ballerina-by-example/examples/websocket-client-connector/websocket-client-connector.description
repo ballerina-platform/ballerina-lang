@@ -1,4 +1,0 @@
-// This example explains the basic WebSocket client connector.
-// When new client is connected to the WebSocket endpoint, onHandshake new WebSocket client connection is created and stored in a map.
-// When the endpoint client sends a message, get the client for remote server from the map and send the same message to remote server.
-// That server will echo it back and it will be received to "ClientService" which will print the echoed message.
