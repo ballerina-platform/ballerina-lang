@@ -5,7 +5,7 @@
         overflow: hidden;
         border-bottom: none;
         .rc-tabs-content {
-            height: 100%;
+            height: calc(100% - 20px);
         }
         .rc-tabs-bar {
             border-bottom: none;
