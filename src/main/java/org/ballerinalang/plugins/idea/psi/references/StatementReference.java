@@ -66,7 +66,7 @@ public class StatementReference extends BallerinaElementReference {
             }
             PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
             return BallerinaPsiImplUtil.resolveElementInPackage(containingPackage, identifier, true, true, true,
-                    true, true, false);
+                    true, true, true, false);
         } else {
             return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
         }
@@ -148,13 +148,16 @@ public class StatementReference extends BallerinaElementReference {
         if (scope != null) {
             int caretOffset = identifier.getStartOffset();
 
-            List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
+            List<IdentifierPSINode> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                    caretOffset);
             results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
 
-            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope, caretOffset);
+            List<IdentifierPSINode> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                    caretOffset);
             results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
 
-            List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+            List<IdentifierPSINode> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
+                    (scope);
             results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
             List<IdentifierPSINode> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
@@ -163,7 +166,8 @@ public class StatementReference extends BallerinaElementReference {
 
         PsiDirectory containingPackage = originalFile.getParent();
         if (containingPackage != null) {
-            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage, true);
+            List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage,
+                    true);
             results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
         }
         return results;

@@ -102,6 +102,10 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Namespace";
             case RULE_workerDeclaration:
                 return "Worker";
+            case RULE_enumDefinition:
+                return "Enum";
+            case RULE_enumField:
+                return "Enum Field";
         }
         return "";
     }

@@ -55,6 +55,8 @@ import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorVarDefStatementNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionAssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
@@ -151,7 +153,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ABORTED, ACTION, ALL, ANNOTATION, AS, ATTACH, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
-            CONTINUE, CREATE, ELSE, FAILED, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, LENGTHOF, NATIVE,
+            CONTINUE, CREATE, ELSE, ENUM, FAILED, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, LENGTHOF, NATIVE,
             PACKAGE, PARAMETER, PUBLIC, REPLY, RESOURCE, RETRY, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORM, TRY, TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT,
             TYPE_FLOAT, TYPE_STRING, TYPE_BLOB, TYPE_MESSAGE, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE,
@@ -391,6 +393,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new XmlContentNode(node);
             case BallerinaParser.RULE_invocation:
                 return new InvocationNode(node);
+            case BallerinaParser.RULE_enumDefinition:
+                return new EnumDefinitionNode(node);
+            case BallerinaParser.RULE_enumField:
+                return new EnumFieldNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

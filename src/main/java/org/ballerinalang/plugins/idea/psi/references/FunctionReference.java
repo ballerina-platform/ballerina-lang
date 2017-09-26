@@ -81,7 +81,7 @@ public class FunctionReference extends BallerinaElementReference {
             return null;
         }
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false,
-                false, true);
+                false, false, true);
     }
 
     @Nullable
@@ -93,7 +93,7 @@ public class FunctionReference extends BallerinaElementReference {
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
         return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false,
-                false, false);
+                false, false,  false);
     }
 
     @NotNull

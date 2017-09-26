@@ -38,6 +38,8 @@ import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueRef
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
+import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
+import org.ballerinalang.plugins.idea.psi.references.EnumReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.LambdaFunctionReference;
@@ -234,7 +236,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
             StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
                     (definitionNode);
-            if(structDefinitionNode!=null){
+            if (structDefinitionNode != null) {
                 return new LambdaFunctionReference(this);
             }
         }
@@ -266,6 +268,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                 return new ActionInvocationReference(this);
                             }
                             return new FieldReference(this);
+                        } else if (definitionNode instanceof EnumDefinitionNode) {
+                            return new EnumFieldReference(this);
                         }
                     }
                 } else {

@@ -21,7 +21,10 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.completion.ParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -32,9 +35,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class StructReference extends BallerinaElementReference {
+public class EnumReference extends BallerinaElementReference {
 
-    public StructReference(@NotNull IdentifierPSINode element) {
+    public EnumReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
@@ -46,10 +49,36 @@ public class StructReference extends BallerinaElementReference {
 
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
         if (packageNameNode == null) {
-            return resolveInCurrentPackage();
+            return resolveInCurrentPackage(identifier);
         } else {
-            return resolveInPackage(packageNameNode);
+            return resolveInPackage(packageNameNode, identifier);
         }
+    }
+
+    @Nullable
+    private PsiElement resolveInCurrentPackage(@NotNull IdentifierPSINode identifier) {
+        PsiFile containingFile = identifier.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
+        PsiDirectory psiDirectory = containingFile.getParent();
+        if (psiDirectory == null) {
+            return null;
+        }
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, false, true,
+                false, false, true);
+    }
+
+    @Nullable
+    private PsiElement resolveInPackage(@NotNull PackageNameNode packageNameNode,
+                                        @NotNull IdentifierPSINode identifier) {
+        PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
+        if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
+            return null;
+        }
+        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, false, true,
+                false, false, false);
     }
 
     @NotNull
@@ -68,34 +97,6 @@ public class StructReference extends BallerinaElementReference {
         return results.toArray(new LookupElement[results.size()]);
     }
 
-    @Nullable
-    private PsiElement resolveInCurrentPackage() {
-        IdentifierPSINode identifier = getElement();
-        PsiFile containingFile = identifier.getContainingFile();
-        if (containingFile == null) {
-            return null;
-        }
-        PsiFile originalFile = containingFile.getOriginalFile();
-        PsiDirectory psiDirectory = originalFile.getParent();
-        if (psiDirectory == null) {
-            return null;
-        }
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false,
-                false, true, false, false, false, true);
-    }
-
-    @Nullable
-    private PsiElement resolveInPackage(PackageNameNode packageNameNode) {
-        PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
-        if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
-            return null;
-        }
-        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        IdentifierPSINode identifier = getElement();
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, false, true, false,
-                false, false, false);
-    }
-
     @NotNull
     private List<LookupElement> getVariantsFromCurrentPackage() {
         List<LookupElement> results = new LinkedList<>();
@@ -103,22 +104,25 @@ public class StructReference extends BallerinaElementReference {
         PsiFile containingFile = identifier.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
         PsiDirectory containingPackage = originalFile.getParent();
-        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, true);
-        results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
+
+        if (containingPackage != null) {
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(containingPackage,
+                    true);
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
+        }
         return results;
     }
 
     @NotNull
-    private Collection<? extends LookupElement> getVariantsFromPackage(PackageNameNode packageNameNode) {
+    private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
         List<LookupElement> results = new LinkedList<>();
         PsiElement resolvedElement = BallerinaPsiImplUtil.resolvePackage(packageNameNode);
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }
-
-        PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
-        List<IdentifierPSINode> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage, false);
-        results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
+        PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+        List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(resolvedPackage, false);
+        results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
         return results;
     }
 }

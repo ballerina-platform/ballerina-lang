@@ -61,7 +61,7 @@ public class StructValueReference extends BallerinaElementReference {
         }
         // First we try to resolve the reference to following definitions.
         PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true,
-                true, true, true, true);
+                true, true, true, true, true);
         if (element != null) {
             return element;
         }

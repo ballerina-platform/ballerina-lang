@@ -56,6 +56,7 @@ public class BallerinaCompletionUtils {
     private static final int CONNECTOR_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ACTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ANNOTATION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int ENUM_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int KEYWORDS_PRIORITY = VALUE_TYPES_PRIORITY - 2;
 
     // File level keywords
@@ -74,6 +75,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
     private static final LookupElementBuilder XMLNS;
+    private static final LookupElementBuilder ENUM;
 
     // Simple types
     private static final LookupElementBuilder BOOLEAN;
@@ -144,6 +146,7 @@ public class BallerinaCompletionUtils {
         ATTACH = createKeywordLookupElement("attach");
         PARAMETER = createKeywordLookupElement("parameter");
         XMLNS = createKeywordLookupElement("xmlns");
+        ENUM = createKeywordLookupElement("enum");
 
         BOOLEAN = createTypeLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
         INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
@@ -340,6 +343,7 @@ public class BallerinaCompletionUtils {
         lookupElements.add(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
         lookupElements.add(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
+        lookupElements.add(PrioritizedLookupElement.withPriority(ENUM, KEYWORDS_PRIORITY));
         return lookupElements;
     }
 
@@ -621,6 +625,22 @@ public class BallerinaCompletionUtils {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (IdentifierPSINode struct : structs) {
             lookupElements.add(createStructLookupElement(struct));
+        }
+        return lookupElements;
+    }
+
+    @NotNull
+    private static LookupElement createEnumLookupElement(@NotNull IdentifierPSINode element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Enum").withIcon(BallerinaIcons.ENUM);
+        return PrioritizedLookupElement.withPriority(builder, ENUM_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createEnumLookupElements(@NotNull List<IdentifierPSINode> enums) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (IdentifierPSINode anEnum : enums) {
+            lookupElements.add(createEnumLookupElement(anEnum));
         }
         return lookupElements;
     }

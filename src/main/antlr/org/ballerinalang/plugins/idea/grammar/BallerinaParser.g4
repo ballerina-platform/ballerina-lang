@@ -112,7 +112,11 @@ enumDefinition
     ;
 
 enumFieldList
-    : Identifier (COMMA Identifier)*
+    :  enumField (COMMA enumField)*
+    ;
+
+enumField
+    :   Identifier
     ;
 
 globalVariableDefinition

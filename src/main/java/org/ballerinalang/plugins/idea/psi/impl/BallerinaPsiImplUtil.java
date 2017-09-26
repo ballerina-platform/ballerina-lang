@@ -59,6 +59,7 @@ import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
@@ -436,6 +437,12 @@ public class BallerinaPsiImplUtil {
     public static List<IdentifierPSINode> getAllStructsFromPackage(@NotNull PsiDirectory directory,
                                                                    boolean includePrivate) {
         return getAllMatchingElementsFromPackage(directory, StructDefinitionNode.class, includePrivate);
+    }
+
+    @NotNull
+    public static List<IdentifierPSINode> getAllEnumsFromPackage(@NotNull PsiDirectory directory,
+                                                                 boolean includePrivate) {
+        return getAllMatchingElementsFromPackage(directory, EnumDefinitionNode.class, includePrivate);
     }
 
     @NotNull
@@ -1290,7 +1297,7 @@ public class BallerinaPsiImplUtil {
     @Nullable
     public static PsiElement resolveElementInPackage(@NotNull PsiDirectory aPackage,
                                                      @NotNull IdentifierPSINode identifier, boolean matchFunctions,
-                                                     boolean matchConnectors, boolean matchStructs,
+                                                     boolean matchConnectors, boolean matchStructs, boolean matchEnums,
                                                      boolean matchGlobalVariables, boolean matchConstants,
                                                      boolean includePrivate) {
         if (matchFunctions) {
@@ -1325,6 +1332,17 @@ public class BallerinaPsiImplUtil {
                 }
                 if (identifier.getText().equals(struct.getText())) {
                     return struct;
+                }
+            }
+        }
+        if (matchEnums) {
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(aPackage, includePrivate);
+            for (PsiElement anEnum : enums) {
+                if (anEnum == null) {
+                    continue;
+                }
+                if (identifier.getText().equals(anEnum.getText())) {
+                    return anEnum;
                 }
             }
         }
