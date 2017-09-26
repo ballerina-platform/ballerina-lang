@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.symbols.Symbol;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public interface XMLElementLiteralNode extends XMLLiteralNode {
 
     void addChild(ExpressionNode content);
     
-    Map<Name, ? extends BSymbol> getNamespaces();
+    Map<? extends Name, ? extends Symbol> getNamespaces();
     
-    void addNamespace(Name prefix, BSymbol namespaceUri);
+    void addNamespace(Name prefix, Symbol namespaceUri);
 }

@@ -38,6 +38,6 @@ public class SymTag {
     public static final int WORKER = 1 << 12 | INVOKABLE;
     public static final int ANNOTATION = 1 << 13;
     public static final int ANNOTATION_ATTRIBUTE = 1 << 14;
-    public static final int ERROR = 1 << 15;
-    public static final int XMLNS = 1 << 16;
+    public static final int XMLNS = 1 << 15;
+    public static final int ERROR = 1 << 16;
 }

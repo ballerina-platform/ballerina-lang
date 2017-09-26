@@ -17,15 +17,15 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,12 +94,12 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     }
 
     @Override
-    public Map<Name, BXMLNSSymbol> getNamespaces() {
+    public Map<Name, ? extends Symbol> getNamespaces() {
         return namespaces;
     }
 
     @Override
-    public void addNamespace(Name prefix, BSymbol namespaceUri) {
+    public void addNamespace(Name prefix, Symbol namespaceUri) {
         this.namespaces.put(prefix, (BXMLNSSymbol) namespaceUri);
     }
 

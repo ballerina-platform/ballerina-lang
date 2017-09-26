@@ -484,14 +484,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
-        symbol.scope = new Scope(symbol);
-        env.scope.define(symbol.name, symbol);
-        this.env = prevEnv;
-    }
-
     private void defineConnectorInitFunction(BLangConnector connector) {
         BLangFunction initFunction = createInitFunction(connector.pos, connector.getName().getValue());
         //Add connector as a parameter to the init function

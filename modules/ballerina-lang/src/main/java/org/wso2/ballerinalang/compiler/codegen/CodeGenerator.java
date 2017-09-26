@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -116,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.AnnAttachmentInfo;
@@ -1976,7 +1976,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         
         // Add namespaces decelerations visible to this element.
         xmlElementLiteral.namespaces.forEach((name, symbol) -> {
-            BLangXMLQName nsQName = new BLangXMLQName(name.value);
+            BLangXMLQName nsQName = new BLangXMLQName(name.getValue());
             genNode(nsQName, xmlElementEnv);
             int uriIndex = getNamespaceURIIndex(symbol);
             emit(InstructionCodes.XMLATTRSTORE, xmlElementLiteral.regIndex, nsQName.regIndex, uriIndex);
@@ -2056,7 +2056,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Stack<Instruction> endJumpInstrStack = new Stack<>();
         String prefix;
         for (Entry<Name, BXMLNSSymbol> keyValues : namespaces.entrySet()) {
-            prefix = keyValues.getKey().value;
+            prefix = keyValues.getKey().getValue();
 
             // skip the default namespace
             if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {

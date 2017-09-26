@@ -18,13 +18,13 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 
 /**
  * @since 0.94
  */
 public interface XMLNSDeclStatementNode extends StatementNode {
+
     XMLNSDeclarationNode getNamespaceDeclaration();
 
-    void setNamespaceDeclaration(BLangXMLNS xmlnsDecl);
+    void setNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 }

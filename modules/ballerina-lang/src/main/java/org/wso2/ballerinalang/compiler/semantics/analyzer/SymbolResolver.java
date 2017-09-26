@@ -277,19 +277,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return namespaces;
     }
 
-    private void addNamespacesInScope(Map<Name, BXMLNSSymbol> namespaces, SymbolEnv env) {
-        if (env == null) {
-            return;
-        }
-        env.scope.entries.forEach((name, scopeEntry) -> {
-            if (scopeEntry.symbol.kind == SymbolKind.XMLNS) {
-                BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
-                namespaces.put(name, nsSymbol);
-            }
-        });
-        addNamespacesInScope(namespaces, env.enclEnv);
-    }
-
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
@@ -393,5 +380,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         resultType = typeNode.type = typeSymbol.type;
+    }
+
+    private void addNamespacesInScope(Map<Name, BXMLNSSymbol> namespaces, SymbolEnv env) {
+        if (env == null) {
+            return;
+        }
+        env.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol.kind == SymbolKind.XMLNS) {
+                BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
+                namespaces.put(name, nsSymbol);
+            }
+        });
+        addNamespacesInScope(namespaces, env.enclEnv);
     }
 }

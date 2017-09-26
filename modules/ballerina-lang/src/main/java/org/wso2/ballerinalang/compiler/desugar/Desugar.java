@@ -489,42 +489,42 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        xmlAttribute.name = rewrite(xmlAttribute.name);
-        xmlAttribute.value = rewrite(xmlAttribute.value);
+        xmlAttribute.name = rewriteExpr(xmlAttribute.name);
+        xmlAttribute.value = rewriteExpr(xmlAttribute.value);
         result = xmlAttribute;
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        xmlElementLiteral.startTagName = rewrite(xmlElementLiteral.startTagName);
-        xmlElementLiteral.endTagName = rewrite(xmlElementLiteral.endTagName);
-        xmlElementLiteral.modifiedChildren.forEach(child -> rewrite(child));
-        xmlElementLiteral.attributes.forEach(attribute -> rewrite(attribute));
+        xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
+        xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
+        xmlElementLiteral.modifiedChildren.forEach(child -> rewriteExpr(child));
+        xmlElementLiteral.attributes.forEach(attribute -> rewriteExpr(attribute));
         result = xmlElementLiteral;
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.concatExpr = rewrite(xmlTextLiteral.concatExpr);
+        xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.concatExpr = rewrite(xmlCommentLiteral.concatExpr);
+        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        xmlProcInsLiteral.target = rewrite(xmlProcInsLiteral.target);
-        xmlProcInsLiteral.dataConcatExpr = rewrite(xmlProcInsLiteral.dataConcatExpr);
+        xmlProcInsLiteral.target = rewriteExpr(xmlProcInsLiteral.target);
+        xmlProcInsLiteral.dataConcatExpr = rewriteExpr(xmlProcInsLiteral.dataConcatExpr);
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.concatExpr = rewrite(xmlQuotedString.concatExpr);
+        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
         result = xmlQuotedString;
     }
 
