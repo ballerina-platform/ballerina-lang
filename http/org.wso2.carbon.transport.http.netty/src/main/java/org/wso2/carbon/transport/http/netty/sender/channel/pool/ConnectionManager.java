@@ -39,6 +39,7 @@ public class ConnectionManager {
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
     private final Map<String, GenericObjectPool> connGlobalPool;
+    private EventLoopGroup targetEventLoopGroup;
     private static volatile ConnectionManager connectionManager;
 
     private ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties) {
@@ -49,6 +50,7 @@ public class ConnectionManager {
         connGlobalPool = new ConcurrentHashMap<>();
         clientEventGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
+        targetEventLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
@@ -96,7 +98,9 @@ public class ConnectionManager {
         if (sourceHandler != null) {
             EventLoopGroup group;
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
-            group = ctx.channel().eventLoop();
+            // TODO: use the same event loop group once pass-through service detection is complete.
+//            group = ctx.channel().eventLoop();
+            group = targetEventLoopGroup;
             Class cl = ctx.channel().getClass();
 
             if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
