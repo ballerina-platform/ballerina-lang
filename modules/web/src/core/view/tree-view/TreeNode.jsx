@@ -173,9 +173,13 @@ class TreeNode extends React.Component {
                 type,
                 label,
             },
+            parentNode,
             onClick,
             onDoubleClick,
             children,
+            onNodeUpdate,
+            onNodeRefresh,
+            onNodeDelete,
         } = this.props;
         const treeNodeHeader = (
             <Tooltip
@@ -278,9 +282,7 @@ class TreeNode extends React.Component {
                 {this.props.enableContextMenu && !enableEdit &&
                 <ContextMenuTrigger
                     id={node.id}
-                    menu={getContextMenuItems(node, this.context.command, (targetNode) => {
-                        this.props.onNodeUpdate(targetNode);
-                    })}
+                    menu={getContextMenuItems(node, parentNode, this.context.command, onNodeUpdate, onNodeRefresh)}
                     onShow={() => {
                         this.setState({
                             disableToolTip: true,
