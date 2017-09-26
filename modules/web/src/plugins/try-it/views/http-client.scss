@@ -15,79 +15,101 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-.http-client-wrapper {
-    overflow: auto;
-}
 
- .http-client-action-wrapper {
-     .react-autosuggest__container {
-        padding-top: 2px;
-        float: left;
-        color: black;
-        position: relative;
-    }
-    .react-autosuggest__input {
-        padding: 1px 10px;
-        border: 1px solid black;
-        height: 26px;
-        border-radius: 5px;
-    }
-    .react-autosuggest__suggestions-container {
-        z-index: 10000;
-        overflow: visible;
-        background: #E2E2E5;
-        border-radius: 5px;
-        width: 187px;
-        position: absolute
-    }
+.http-client-wrapper {
+   height: 100%;
 }
 
 .http-client-request {
     float: left;
     padding-right: 20px;
-    border-right: 1px solid #565656;
+    border-right: 1px solid rgb(87, 87, 87);
+    height: 100%;
+
+    h3{
+        font-size: 18px;
+        border-bottom: 3px solid #f17b31;
+        width: 73px;
+        padding-bottom: 3px;
+    }
+    input[type=text].header-input{
+        margin-left: 5px;
+        border: 0.5px solid #333333;
+        height: 22px;
+        background-color: #333333;
+        margin-bottom: 3px;
+        width: 46%;
+        margin-right: 2px;
+    }
 
     input[type=text]{
-        color: black;
-        height: 27px;
-        border-radius: 5px;
-        border: 1px solid black;
+        color: #fff;
+        height: 32px;
         padding: 6px;
+        background-color: #575757;
+        border: none;
     }
+    .http-client-action-wrapper {
+        padding: 20px 15px;
+        background-color: #333;
+        .btn-success {
+            width: 95px;
+        }
+        .btn i {
+            margin-right: 7px;
+        }
+        .react-autosuggest__container {
+            float: left;
+            color: black;
+            position: relative;
+        }
+        .react-autosuggest__input {
+            padding: 1px 10px;
+            border-right: 1px solid #333;
+        }
+        .react-autosuggest__suggestions-container {
+            z-index: 10000;
+            overflow: visible;
+            background: #E2E2E5;
+            width: 187px;
+            position: absolute
+        }
+    }
+    .http-client-content-type-wrapper{
+        margin-top: 10px;
+        .http-client-content-type {
+            margin-left: 5px;
+            border: .5px solid rgb(51, 51, 51);
+            height: 22px;
+            background-color: #333333;
+        }
+    }
+
+
 }
 
 .http-client-path {
     width: 450px;
-    margin-left: 10px;
 }
 
-.http-client-content-type {
-    margin-left: 5px;
-}
-
-.http-client-action-wrapper {
-    padding-top: 5px;
-    .btn {
-        margin-left: 10px;
-        border-radius: 5px;
-    }
-    .btn-success {
-        width: 95px;
-    }
-    .btn i {
-        margin-right: 7px;
-    }
-}
-
-.http-client-content-type-wrapper {
-    padding-top: 6px;
-}
 
 .http-client-response {
     padding-left: 20px;
     float: left;
     width: 700px;
+
+    h3{
+        font-size: 18px;
+        border-bottom: 3px solid #f17b31;
+        width: 90px;
+        padding-bottom: 3px;
+    }
+}
+.section-header{
+    padding-top: 20px;
+    border-bottom: 1px solid #f17b31;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 .http-client-headers-wrapper, .http-client-body-wrapper {
@@ -95,7 +117,9 @@
 }
 
 .http-client-headers-wrapper .fw {
-    margin-left: 5px;
+    margin-top: 3px;
+    padding: 2px;
+    margin-right: 5px;
     .fw:hover {
         cursor: pointer;
         opacity: 0.5;
@@ -111,12 +135,27 @@
         white-space: pre-wrap;
     }
     .response-headers, .http-client-response-content .request-headers {
-        border: 1px solid #6b6b6b;
-        padding: 5px;
-        background: #565656;
+        margin-bottom: 30px;
+        margin-top: 10px;
     }
 }
 
-.http-client-response-attributes {
+.http-client-response-attributes span{
     padding-top: 5px;
+    color:#5cb85c;
+}
+
+hr{
+    margin-top: 0px;
+    margin-bottom: 10px;
+    border: 0;
+    border-top: 1px solid #464343;
+}
+
+.add-header-button{
+    float: right;
+    background: rgb(51, 51, 51);
+    display: block;
+    padding: 0px 5px;
+    border: 1px solid rgba(241, 123, 49, 0.41);
 }
