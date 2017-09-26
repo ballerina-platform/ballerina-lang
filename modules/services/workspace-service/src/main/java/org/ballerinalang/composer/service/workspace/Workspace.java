@@ -41,10 +41,14 @@ public interface Workspace {
     JsonArray listFilesInPath(String path, List<String> extensions) throws IOException;
     
     JsonObject exists(String path) throws IOException;
+
+    void move(String src, String dest) throws IOException;
+
+    void copy(String src, String dest) throws IOException;
     
     void create(String path, String type) throws IOException;
     
-    void delete(String path, String type) throws IOException;
+    void delete(String path) throws IOException;
     
     void write(String path, String content) throws IOException;
     

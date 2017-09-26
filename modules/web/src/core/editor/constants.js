@@ -3,6 +3,7 @@ export const COMMANDS = {
     OPEN_CUSTOM_EDITOR_TAB: 'open-custom-editor-tab',
     UNDO: 'undo',
     REDO: 'redo',
+    ACTIVATE_EDITOR_FOR_FILE: 'activate-editor-for-file',
 };
 
 export const EVENTS = {

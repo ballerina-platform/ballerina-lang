@@ -73,9 +73,17 @@ class ExplorerItem extends React.Component {
             <div className="explorer-item">
                 <ContextMenuTrigger
                     id={this.state.node.id}
-                    menu={getContextMenuItems(this.state.node, this.context.command, () => {
-                        this.forceUpdate();
-                    })}
+                    menu={getContextMenuItems(
+                            this.state.node,
+                            undefined,
+                            this.context.command,
+                            () => {
+                                this.forceUpdate();
+                            },
+                            () => {
+                                this.forceUpdate();
+                            })
+                        }
                     onShow={() => {
                         this.setState({
                             disableToolTip: true,
