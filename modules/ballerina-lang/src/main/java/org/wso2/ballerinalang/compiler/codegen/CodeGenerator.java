@@ -813,7 +813,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorType.tsymbol.name.value);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
-        PackageInfo packageInfo = programFile.getPackageInfo(pkgSymbol.name.value);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes.tRef;

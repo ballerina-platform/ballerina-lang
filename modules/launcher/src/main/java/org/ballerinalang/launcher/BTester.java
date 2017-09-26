@@ -52,7 +52,8 @@ public class BTester {
 
         Compiler compiler = Compiler.getInstance(context);
 //        compiler.compile("bar.bal");
-        compiler.compile("pkg.bal");
+        compiler.compile("pkg3.bal");
+//        compiler.compile("org.old.man");
 //        compiler.compile("a.b.c");
     }
 

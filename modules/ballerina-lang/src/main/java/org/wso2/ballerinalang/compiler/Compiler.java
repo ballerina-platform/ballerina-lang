@@ -116,7 +116,7 @@ public class Compiler {
         programFile = this.codeGenerator.generate(pkgNode);
 
         try {
-            ProgramFileWriter.writeProgram(programFile, Paths.get("temp.balx"));
+            ProgramFileWriter.writeProgram(programFile, Paths.get("ballerina-0.93.1-SNAPSHOT/bin/abc.balx"));
         } catch (IOException e) {
             // TODO FIX This ASAP
             PrintStream err = System.err;
