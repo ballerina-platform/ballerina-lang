@@ -30,6 +30,7 @@ public enum DiagnosticCode {
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
+    UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
@@ -71,6 +72,7 @@ public enum DiagnosticCode {
     FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
     FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE("func.defined.on.non.local.struct.type"),
     STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
+    PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),

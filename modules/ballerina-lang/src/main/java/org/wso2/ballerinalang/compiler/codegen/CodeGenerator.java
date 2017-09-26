@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -762,6 +763,22 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
             }
+        }
+    }
+
+    public void visit(BLangFunctionInvocation iExpr) {
+        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+
+        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+
+        if (Symbols.isNative(funcSymbol)) {
+            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+        } else {
+            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
         }
     }
 
