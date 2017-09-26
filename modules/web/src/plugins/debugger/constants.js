@@ -26,6 +26,7 @@ export const COMMANDS = {
     STEP_IN: 'step-in',
     STEP_OUT: 'step-out',
     STOP: 'stop',
+    SHOW_LAUNCHER_CONFIG_DIALOG: 'show-launcher-config-dialog',
 };
 
 export const VIEWS = {
@@ -43,6 +44,10 @@ export const LABELS = {
     DEBUG: 'Debug',
     DEBUG_START: 'Start Debugging',
     DEBUG_STOP: 'Stop Debugging',
+};
+
+export const DIALOG_IDS = {
+    LAUNCHER_CONFIG: 'composer.dialog.laucher-config',
 };
 
 export const PLUGIN_ID = 'composer.plugin.debugger';

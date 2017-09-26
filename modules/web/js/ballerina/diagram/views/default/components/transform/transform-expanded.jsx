@@ -60,6 +60,7 @@ class TransformExpanded extends React.Component {
             selectedTarget: '-1',
             foldedEndpoints: {},
             foldedFunctions: {},
+            foldedOperators: {},
         };
         this.sourceElements = {};
         this.targetElements = {};
@@ -84,6 +85,7 @@ class TransformExpanded extends React.Component {
         this.removeTargetType = this.removeTargetType.bind(this);
         this.foldEndpoint = this.foldEndpoint.bind(this);
         this.foldFunction = this.foldFunction.bind(this);
+        this.foldOperator = this.foldOperator.bind(this);
         this.removeEndpoint = this.removeEndpoint.bind(this);
         this.removeIntermediateNode = this.removeIntermediateNode.bind(this);
         this.updateVariable = this.updateVariable.bind(this);
@@ -108,6 +110,15 @@ class TransformExpanded extends React.Component {
             {
                 foldedFunctions: _.extend(this.state.foldedFunctions, {
                     [key]: !this.state.foldedFunctions[key],
+                }),
+            });
+    }
+
+    foldOperator(key) {
+        this.setState(
+            {
+                foldedOperators: _.extend(this.state.foldedOperators, {
+                    [key]: !this.state.foldedOperators[key],
                 }),
             });
     }
@@ -167,9 +178,10 @@ class TransformExpanded extends React.Component {
         // There can be multiple left expressions.
         // E.g. : e.name, e.username = p.first_name;
         const leftExpression = statement.getLeftExpression();
-        const { exp: rightExpression, isTemp } = this.transformNodeManager.getResolvedExpression(statement.getRightExpression(), statement);
-        if (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
-              ASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
+        const { exp: rightExpression, isTemp } = this.transformNodeManager
+                        .getResolvedExpression(statement.getRightExpression(), statement);
+        if (!isTemp && (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
+              ASTFactory.isSimpleVariableReferenceExpression(rightExpression))) {
             _.forEach(leftExpression.getChildren(), (leftExpr) => {
                 const sourceExprString = rightExpression.getExpressionString().trim();
                 let sourceId = `${sourceExprString}:${viewId}`;
@@ -193,18 +205,19 @@ class TransformExpanded extends React.Component {
         if (ASTFactory.isFunctionInvocationExpression(rightExpression)
                     || ASTFactory.isBinaryExpression(rightExpression)
                     || ASTFactory.isUnaryExpression(rightExpression)) {
-            this.drawIntermediateNode(leftExpression, rightExpression, statement);
+            this.drawIntermediateNode(leftExpression, rightExpression, statement, isTemp);
         }
     }
 
     /**
      * Draw connections in intermediate nodes. Intermediate nodes are functions and operators.
-     * @param {any} argumentExpressions argument expressions
-     * @param {any} nodeExpression intermediate node expression
-     * @param {any} statement enclosing statement
+     * @param {[Expression]} argumentExpressions argument expressions
+     * @param {Expression} nodeExpression intermediate node expression
+     * @param {Statement} statement enclosing statement
+     * @param {boolean} isTemp is a temporary expression
      * @memberof TransformExpanded
      */
-    drawIntermediateNode(argumentExpressions, nodeExpression, statement) {
+    drawIntermediateNode(argumentExpressions, nodeExpression, statement, nodeExpIsTemp = false) {
         if (!ASTFactory.isFunctionInvocationExpression(nodeExpression)
             && !ASTFactory.isBinaryExpression(nodeExpression)
             && !ASTFactory.isUnaryExpression(nodeExpression)) {
@@ -215,7 +228,7 @@ class TransformExpanded extends React.Component {
         let nodeDef;
         let nodeName;
         let paramExpressions = [];
-        
+
         if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
@@ -228,7 +241,7 @@ class TransformExpanded extends React.Component {
             }
             paramExpressions.push(nodeExpression.getRightExpression());
         }
-        
+
         if (_.isUndefined(nodeDef)) {
             // alerts.error('Definition for "' + nodeName + '" cannot be found');
             return;
@@ -240,53 +253,67 @@ class TransformExpanded extends React.Component {
         const returnParams = nodeDef.returnParams;
         const nodeExpID = nodeExpression.getID();
 
-        paramExpressions.forEach((expression, i) => {
-            if (ASTFactory.isFunctionInvocationExpression(expression)
-                    || ASTFactory.isBinaryExpression(expression)
-                    || ASTFactory.isUnaryExpression(expression)) {
-                this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement);
-            } else {
-                let target;
-                let source;
-                const { exp, isTemp} = this.transformNodeManager.getResolvedExpression(expression, statement);
+        if (!nodeExpIsTemp) {
+            // if the node expression is a temp resolved expression, do not need to
+            // draw the parameters
+            paramExpressions.forEach((expression, i) => {
+                const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
                 expression = exp;
-                if (ASTFactory.isKeyValueExpression(expression.children[0])) {
-                    // if parameter is a key value expression, iterate each expression and draw connections
-                    _.forEach(expression.children, (propParam) => {
-                        source = this.getConnectionProperties('source', propParam.children[1]);
-                        target = this.getConnectionProperties('target', nodeDef.getParameters()[i]);
-                        target.targetProperty.push(propParam.children[0].getVariableName());
-                        const typeDef = _.find(this.state.vertices, { typeName: nodeDef.getParameters()[i].type });
-                        const propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName() });
-                        target.targetType.push(propType.type);
-                        this.drawConnection(statement.getID() + nodeExpression.getID(), source, target);
-                    });
-                } else {
-                    // expression = this.transformNodeManager.getResolvedExpression(expression);
-                    let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
-                    let folded = false;
-                    if (!this.sourceElements[sourceId]) {
-                        folded = true;
-                        sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
+                if (ASTFactory.isFunctionInvocationExpression(expression)
+                        || ASTFactory.isBinaryExpression(expression)
+                        || ASTFactory.isUnaryExpression(expression)) {
+                    this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
+                } else if (!isTemp) {
+                    let target;
+                    let source;
+                    if (ASTFactory.isBasicLiteralExpression(expression)) {
+                        // TODO: implement default value logic
+                    } else if (ASTFactory.isKeyValueExpression(expression.children[0])) {
+                        // if parameter is a key value expression, iterate each expression and draw connections
+                        _.forEach(expression.children, (propParam) => {
+                            source = this.getConnectionProperties('source', propParam.children[1]);
+                            target = this.getConnectionProperties('target', nodeDef.getParameters()[i]);
+                            target.targetProperty.push(propParam.children[0].getVariableName());
+                            const typeDef = _.find(this.state.vertices,
+                                { typeName: nodeDef.getParameters()[i].type });
+                            const propType = _.find(typeDef.properties,
+                                { name: propParam.children[0].getVariableName() });
+                            target.targetType.push(propType.type);
+                            this.drawConnection(statement.getID() + nodeExpression.getID(), source, target);
+                        });
+                    } else {
+                        // expression = this.transformNodeManager.getResolvedExpression(expression);
+                        let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                        let folded = false;
+                        if (!this.sourceElements[sourceId]) {
+                            folded = true;
+                            sourceId = this.getFoldedEndpointId(
+                                expression.getExpressionString().trim(), viewId, 'source');
+                        }
+
+                        let targetId = `${nodeExpID}:${i}:${viewId}`;
+
+                        if (!this.targetElements[targetId]) {
+                            // function is folded
+                            folded = true;
+                            targetId = `${nodeExpID}:${viewId}`;
+                        }
+
+                        this.drawConnection(sourceId, targetId, folded);
                     }
-
-                    let targetId = `${nodeExpID}:${i}:${viewId}`;
-
-                    if (!this.targetElements[targetId]) {
-                        // function is folded
-                        folded = true;
-                        targetId = `${nodeExpID}:${viewId}`;
-                    }
-
-                    this.drawConnection(sourceId, targetId, folded);
                 }
-            }
-        });
+            });
+        }
 
         if (nodeDef.returnParams.length !== argumentExpressions.getChildren().length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
         _.forEach(argumentExpressions.getChildren(), (expression, i) => {
+            const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
+            if (isTemp) {
+                return;
+            }
+            expression = exp;
             if (!returnParams[i]) {
                 return;
             }
@@ -321,7 +348,7 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     drawInnerIntermediateNode(parentNodeExpression, nodeExpression, parentNodeDefinition,
-                                      parentParameterIndex, statement) {
+                                      parentParameterIndex, statement, nodeExpIsTemp = false) {
         if (!ASTFactory.isFunctionInvocationExpression(nodeExpression)
                 && !ASTFactory.isBinaryExpression(nodeExpression)
                 && !ASTFactory.isUnaryExpression(nodeExpression)) {
@@ -355,12 +382,13 @@ class TransformExpanded extends React.Component {
         if (nodeDef.parameters.length !== paramExpressions.length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + nodeName + '"');
         }
-
         paramExpressions.forEach((expression, i) => {
+            const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
+            expression = exp;
             if (ASTFactory.isFunctionInvocationExpression(expression)
                 || ASTFactory.isBinaryExpression(expression)
                 || ASTFactory.isUnaryExpression(expression)) {
-                this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement);
+                this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
             } else {
                 let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
                 let folded = false;
@@ -1230,6 +1258,8 @@ class TransformExpanded extends React.Component {
                                             onEndpointRemove={this.removeEndpoint}
                                             onOperatorRemove={this.removeIntermediateNode}
                                             onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                            isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
+                                            onFolderClick={this.foldFunction}
                                         />);
                                     })
                                 }

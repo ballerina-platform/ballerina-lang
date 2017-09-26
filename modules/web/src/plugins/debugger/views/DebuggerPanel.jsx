@@ -140,9 +140,6 @@ class DebuggerPanel extends View {
                             onClick={this.startApplication}
                         >
                             <span className="launch-label">Run</span>
-                            <div type="button" className="btn pull-right btn-config" title="Config">
-                                <i className="fw fw-configarations" />
-                            </div>
                         </div>
                         <div
                             type="button"
@@ -151,10 +148,7 @@ class DebuggerPanel extends View {
                             title="Start Application"
                             onClick={this.startDebug}
                         >
-                            <span className="launch-label">Run with Debuging</span>
-                            <div type="button" className="btn pull-right btn-config" title="Config">
-                                <i className="fw fw-configarations" />
-                            </div>
+                            <span className="launch-label">Debug</span>
                         </div>
                     </div>
                 </div>

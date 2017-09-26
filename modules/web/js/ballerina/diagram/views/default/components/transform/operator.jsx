@@ -27,8 +27,8 @@ export default class Operator extends React.Component {
         let targetPoint02 = [];
 
         const {
-            operator, opExp, recordSourceElement, recordTargetElement, viewId,
-            parentNode, statement, onEndpointRemove, onConnectPointMouseEnter, onOperatorRemove
+            operator, opExp, recordSourceElement, recordTargetElement, viewId, isCollapsed,
+            parentNode, statement, onEndpointRemove, onConnectPointMouseEnter, onOperatorRemove, onFolderClick,
         } = this.props;
 
         operator.parameters.forEach((param) => {
@@ -46,9 +46,29 @@ export default class Operator extends React.Component {
             targetPoint02 = operator.parameters.slice(1, 2);
         }
 
-        return (
-            <div className='operator-expanded-func func'>
-                <div className='function-param-body'>
+        let opBody;
+
+        if(isCollapsed) {
+            opBody = (
+                <div className='folded-op-body' id={`${opExp.getID()}:${viewId}`}>
+                    <div className='operator-col'>
+                        <div className='operator-cell operator-name'><span>{opExp.getOperator()}</span></div>
+                    </div>
+                    <div className='operator-col'>
+                        <div className='operator-cell'>
+                            <span
+                                onClick={() => this.props.onFolderClick(opExp.getID())}
+                                className='fw-stack fw-lg btn folder'
+                            >
+                                <i className='fw-stack-1x fw-down' />
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            );
+        } else {
+            opBody = (
+                <div>
                     <div className='operator-col'>
                         <div className='operator-cell'>
                             <Tree
@@ -94,8 +114,23 @@ export default class Operator extends React.Component {
                                 onConnectPointMouseEnter={onConnectPointMouseEnter}
                             />
                         </div>
-                        <div className='operator-cell' />
+                        <div className='operator-cell' >
+                            <span
+                                onClick={() => this.props.onFolderClick(opExp.getID())}
+                                className='fw-stack fw-lg btn btn-remove-func'
+                            >
+                                <i className='fw-delete fw-stack-1x fw-up' />
+                            </span>
+                        </div>
                     </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className='operator-expanded-func func'>
+                <div className='function-param-body'>
+                    {opBody}
                 </div>
             </div>
         );

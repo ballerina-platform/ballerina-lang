@@ -20,6 +20,6 @@
 .debug-point-hit {
     background: rgba(0, 161, 255, 0.4);
     position: absolute;
-    width: 100%;
-    left: 0;
+    width: 100%!important; /** added !important to override ace editor inline styles **/
+    left: 0!important; /** added !important to override ace editor inline styles **/
 }

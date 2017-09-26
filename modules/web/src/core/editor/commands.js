@@ -38,5 +38,11 @@ export function getCommandDefinitions() {
                 default: 'ctrl+shift+z',
             },
         },
+        {
+            id: COMMANDS.ACTIVATE_EDITOR_FOR_FILE,
+            argTypes: {
+                filePath: PropTypes.string.isRequired,
+            },
+        },
     ];
 }

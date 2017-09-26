@@ -24,7 +24,7 @@ class ContextMenuTrigger extends React.Component {
                 >
                     {this.props.children}
                 </ReactContextMenuTrigger>
-                <ContextMenu id={this.props.id}>
+                <ContextMenu id={this.props.id} onShow={this.props.onShow} onHide={this.props.onHide} >
                     {this.props.menu.map((menuItem, i) => {
                         const { divider, handler, label, isActive } = menuItem;
                         return (
@@ -59,12 +59,16 @@ ContextMenuTrigger.propTypes = {
     id: PropTypes.string,
     children: PropTypes.node,
     menu: PropTypes.arrayOf(MenuDef),
+    onShow: PropTypes.func,
+    onHide: PropTypes.func,
 };
 
 ContextMenuTrigger.defaultProps = {
     id: uuid(),
     children: [],
     menu: [],
+    onShow: () => {},
+    onHide: () => {},
 };
 
 export default ContextMenuTrigger;

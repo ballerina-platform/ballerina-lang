@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.composer.service.workspace.util;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.langserver.model.Action;
 import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationAttachment;
 import org.ballerinalang.composer.service.workspace.langserver.model.AnnotationDef;
@@ -62,6 +63,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
@@ -79,8 +81,9 @@ public class WorkspaceUtils {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
+        options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         Compiler compiler = Compiler.getInstance(context);
-        return compiler.getModel(fileName);
+        return compiler.compile(fileName);
     }
 
     /**
@@ -93,8 +96,10 @@ public class WorkspaceUtils {
      */
     public static BLangPackage getBLangPackageForContent(String fileName, String source){
         CompilerContext context = prepareCompilerContext(fileName, source);
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         Compiler compiler = Compiler.getInstance(context);
-        return compiler.getModel(fileName);
+        return compiler.compile(fileName);
     }
 
     /**

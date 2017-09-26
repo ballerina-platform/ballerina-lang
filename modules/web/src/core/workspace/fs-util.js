@@ -24,6 +24,10 @@ const COMMON_HEADERS = {
     'content-type': 'text/plain; charset=utf-8',
 };
 
+const FORM_CONTENT_COMMON_HEADERS = {
+    'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+};
+
 const WORKSPACE_SERVICE = 'workspace';
 
 /**
@@ -34,19 +38,24 @@ const WORKSPACE_SERVICE = 'workspace';
  */
 export function read(targetFilePath) {
     const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/read`;
-    return new Promise((resolve, reject) => {
-        axios.post(serviceEP, targetFilePath, { headers: COMMON_HEADERS })
-            .then((response) => {
-                const { fileContent, fileName, filePath, fileFullPath, extension } = response.data;
-                const name = fileName;
-                const path = filePath;
-                const fullPath = fileFullPath;
-                const content = fileContent;
-                resolve(new File({ content, name, fullPath, path, extension, isPersisted: true, isDirty: false }));
-            }).catch(error => reject(error));
-    });
+    return axios.post(serviceEP, targetFilePath, { headers: COMMON_HEADERS })
+                .then((response) => {
+                    const { fileContent, fileName, filePath, fileFullPath, extension } = response.data;
+                    const name = fileName;
+                    const path = filePath;
+                    const fullPath = fileFullPath;
+                    const content = fileContent;
+                    return new File({
+                        content,
+                        name,
+                        fullPath,
+                        path,
+                        extension,
+                        isPersisted: true,
+                        isDirty: false,
+                    });
+                });
 }
-
 
 /**
  * Update the given file with new content.
@@ -62,22 +71,25 @@ export function createOrUpdate(path, name, content) {
     // FIXME: Refactor backend params
     const data = `location=${btoa(path)}&configName=${btoa(name)}&config=${
                             encodeURIComponent(content)}`;
-    return new Promise((resolve, reject) => {
-        axios.post(serviceEP, data, { headers: COMMON_HEADERS })
-            .then((response) => {
-                resolve(true);
-            }).catch(error => reject(error));
-    });
+    return axios.post(serviceEP, data, { headers: COMMON_HEADERS })
+        .then((response) => {
+            return response.data;
+        });
 }
 
 /**
  * Removes given file/folder from file system.
  *
- * @param {String} filePath Path of the file/folder
- * @returns {Promise} Resolves removed file path or reject with error.
+ * @param {String} path Path of the file/folder
+ * @returns {Promise} Resolves status or reject with error.
  */
-export function remove(filePath) {
-    return new Promise();
+export function remove(path) {
+    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/delete`;
+    const data = `path=${btoa(path)}`;
+    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+        .then((response) => {
+            return response.data;
+        });
 }
 
 
@@ -93,14 +105,45 @@ export function create(path, type) {
     const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/create`;
     // FIXME: Refactor backend params
     const data = `path=${btoa(path)}&type=${btoa(type)}`;
-    return new Promise((resolve, reject) => {
-        axios.post(serviceEP, data, { headers: {
-            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
-        } })
+    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+        .then((response) => {
+            return response.data;
+        });
+}
+
+
+/**
+ * Moves given file/folder in file system to given destination.
+ *
+ * @param {String} srcPath Path of the source file/folder
+ * @param {String} destPath Path of the destination file/folder
+ *
+ * @returns {Promise} Resolves status or reject with error.
+ */
+export function move(srcPath, destPath) {
+    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/move`;
+    const data = `srcPath=${btoa(srcPath)}&destPath=${btoa(destPath)}`;
+    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
             .then((response) => {
-                resolve(true);
-            }).catch(error => reject(error));
-    });
+                return response.data;
+            });
+}
+
+/**
+ * Copies given file/folder in file system to given destination.
+ *
+ * @param {String} srcPath Path of the source file/folder
+ * @param {String} destPath Path of the destination file/folder
+ *
+ * @returns {Promise} Resolves status or reject with error.
+ */
+export function copy(srcPath, destPath) {
+    const serviceEP = `${getServiceEndpoint(WORKSPACE_SERVICE)}/copy`;
+    const data = `srcPath=${btoa(srcPath)}&destPath=${btoa(destPath)}`;
+    return axios.post(serviceEP, data, { headers: FORM_CONTENT_COMMON_HEADERS })
+            .then((response) => {
+                return response.data;
+            });
 }
 
 /**

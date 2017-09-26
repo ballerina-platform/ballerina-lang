@@ -122,13 +122,48 @@ public class WorkspaceService {
     }
 
     @POST
+    @Path("/move")
+    @Produces("application/json")
+    public Response move(@FormParam("srcPath") String srcPath, @FormParam("destPath") String destPath) {
+        try {
+            String src = new String(Base64.getDecoder().decode(srcPath), Charset.defaultCharset()),
+                    dest = new String(Base64.getDecoder().decode(destPath), Charset.defaultCharset());
+            workspace.move(src, dest);
+            JsonObject entity = new JsonObject();
+            entity.addProperty(STATUS, SUCCESS);
+            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
+            logger.error("/create service error", throwable.getMessage());
+            return getErrorResponse(throwable);
+        }
+    }
+
+    @POST
+    @Path("/copy")
+    @Produces("application/json")
+    public Response copy(@FormParam("srcPath") String srcPath, @FormParam("destPath") String destPath) {
+        try {
+            String src = new String(Base64.getDecoder().decode(srcPath), Charset.defaultCharset()),
+                    dest = new String(Base64.getDecoder().decode(destPath), Charset.defaultCharset());
+            workspace.copy(src, dest);
+            JsonObject entity = new JsonObject();
+            entity.addProperty(STATUS, SUCCESS);
+            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
+            logger.error("/create service error", throwable.getMessage());
+            return getErrorResponse(throwable);
+        }
+    }
+
+    @POST
     @Path("/delete")
     @Produces("application/json")
-    public Response delete(@FormParam("path") String pathParam, @FormParam("type") String typeParam) {
+    public Response delete(@FormParam("path") String pathParam) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
-                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
-            workspace.delete(path, type);
+            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset());
+            workspace.delete(path);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')

@@ -105,22 +105,7 @@ class BallerinaFileEditor extends React.Component {
         this.environment = new PackageScopedEnvironment();
 
         this.hideSwaggerAceEditor = false;
-        // Show the swagger view when 'try it' is invoked.
-        props.commandProxy.on('show-try-it-view', () => {
-            // Creating try it service for first service definition.
-            this.hideSwaggerAceEditor = true;
-            this.showSwaggerViewForService(this.state.model.getServiceDefinitions()[0]);
-        }, this);
 
-        // Show the swagger view when 'try it' is invoked.
-        props.commandProxy.on('hide-try-it-view', () => {
-            if (this.state.activeView === SWAGGER_VIEW) {
-                this.setState({
-                    activeView: DESIGN_VIEW,
-                });
-                this.resetSwaggerView();
-            }
-        }, this);
         // Resize the canvas
         props.commandProxy.on('resize', () => {
             this.update();
@@ -281,19 +266,6 @@ class BallerinaFileEditor extends React.Component {
                 row: line,
                 column: offset,
             });
-    }
-
-    /**
-     * Display the swagger view for given service def node
-     *
-     * @param {ServiceDefinition} serviceDef Service def node to display
-     */
-    showSwaggerViewForService(serviceDef) {
-        // not using setState to avoid multiple re-renders
-        // this.update() will finally trigger re-render
-        this.state.swaggerViewTargetService = serviceDef;
-        this.state.activeView = SWAGGER_VIEW;
-        this.update();
     }
 
     /**

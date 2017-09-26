@@ -26,7 +26,7 @@ class LaunchManager extends EventChannel {
         this.endpoint = endpoint;
     }
 
-    run(file, debug = false) {
+    run(file, debug = false, configs) {
         let command;
         if (debug) {
             command = 'DEBUG_PROGRAM';
@@ -35,7 +35,7 @@ class LaunchManager extends EventChannel {
         }
         this.channel = new LaunchChannel(this.endpoint);
         this.channel.on('connected', () => {
-            this.sendRunApplicationMessage(file, command);
+            this.sendRunApplicationMessage(file, command, configs);
         });
         this.channel.on('onmessage', (message) => {
             this.processMesssage(message);
@@ -55,12 +55,12 @@ class LaunchManager extends EventChannel {
      *
      * @memberof LaunchManager
      */
-    sendRunApplicationMessage(file, command) {
+    sendRunApplicationMessage(file, command, configs) {
         const message = {
             command,
             fileName: `${file.name}.${file.extension}`,
             filePath: file.path,
-            // commandArgs: this.getApplicationConfigs(file),
+            commandArgs: configs,
         };
         this.channel.sendMessage(message);
     }

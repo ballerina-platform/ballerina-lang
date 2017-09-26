@@ -43,5 +43,15 @@ export function getHandlerDefinitions(editorPlugin) {
                 editorPlugin.dispatchToolBarUpdate();
             },
         },
+        {
+            cmdID: COMMANDS.ACTIVATE_EDITOR_FOR_FILE,
+            handler: (args) => {
+                const { filePath } = args;
+                const editor = editorPlugin.getEditorForFile(filePath);
+                if (editor) {
+                    editorPlugin.setActiveEditor(editor);
+                }
+            },
+        },
     ];
 }

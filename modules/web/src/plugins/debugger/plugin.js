@@ -23,10 +23,11 @@ import { REGIONS } from 'core/layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import { PLUGIN_ID, VIEWS as VIEW_IDS } from './constants';
+import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOG_IDS, COMMANDS as COMMAND_IDS } from './constants';
 
 import DebuggerPanel from './views/DebuggerPanel';
 import DebuggerConsole from './views/DebugConsole';
+import LauncherConfigDialog from './views/LauncherConfigDialog';
 
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
@@ -45,14 +46,36 @@ class DebuggerPlugin extends Plugin {
     }
 
     /**
+     * create unique id for file
+     * @param {File} file
+     * @returns string - unique id
+     * @memberof DebuggerPlugin
+     */
+    getFileUniqueID(file = {}) {
+        const name = file.name;
+        const path = file.path;
+        return encodeURI(`${path}/${name}`);
+    }
+
+    getArgumentConfigs() {
+        const activeEditor = this.appContext.editor.getActiveEditor();
+
+        let configArgumentsStr = '';
+        const uniqueID = this.getFileUniqueID(activeEditor.file);
+        if (activeEditor && activeEditor.file) {
+            configArgumentsStr = this.appContext.pref.get(`launcher-app-configs-${uniqueID}`) || '';
+        }
+        return configArgumentsStr;
+    }
+
+    /**
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, VIEWS, DIALOGS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
-            [MENUS]: getMenuDefinitions(this),
             [VIEWS]: [
                 {
                     id: VIEW_IDS.DEBUGGER_PANEL,
@@ -70,13 +93,14 @@ class DebuggerPlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'bug',
-                        panelTitle: 'Debug',
+                        activityBarIcon: 'start',
+                        panelTitle: 'Launcher',
                         panelActions: [
                             {
-                                icon: '',
-                                state: () => {
-
+                                icon: 'configarations',
+                                handleAction: () => {
+                                    const { command: { dispatch } } = this.appContext;
+                                    dispatch(COMMAND_IDS.SHOW_LAUNCHER_CONFIG_DIALOG, {});
                                 },
                             },
                         ],
@@ -101,6 +125,24 @@ class DebuggerPlugin extends Plugin {
                         ],
                     },
                     displayOnLoad: true,
+                },
+            ],
+            [DIALOGS]: [
+                {
+                    id: DIALOG_IDS.LAUNCHER_CONFIG,
+                    component: LauncherConfigDialog,
+                    propsProvider: () => {
+                        const activeEditor = this.appContext.editor.getActiveEditor();
+                        const uniqueID = this.getFileUniqueID(activeEditor.file);
+                        const configArguments = this.getArgumentConfigs().split(' ') || [];
+                        return {
+                            debuggerPlugin: this,
+                            configArguments,
+                            onSaveConfigs: (newConfigArguments = []) => {
+                                this.appContext.pref.put(`launcher-app-configs-${uniqueID}`, newConfigArguments.join(' '));
+                            },
+                        };
+                    },
                 },
             ],
         };

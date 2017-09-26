@@ -78,9 +78,8 @@ class DebuggerConsole extends View {
         return (
             <div id="console">
                 {this.state.messages.map((message, i) => {
-                    const specialCharsEscapedStr = _.escape(message.message);
                     return (
-                        <div className={message.type} key={i}><pre>{specialCharsEscapedStr}</pre></div>
+                        <div className={message.type} key={i}><pre>{message.message}</pre></div>
                     );
                 })}
             </div>
