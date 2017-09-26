@@ -86,6 +86,7 @@ class VariableTypeDropdown extends React.Component {
         const inputProps = {
             value: this.state.value,
             onChange: this.onChange,
+            placeholder: this.props.placeholder,
         };
 
         return (
