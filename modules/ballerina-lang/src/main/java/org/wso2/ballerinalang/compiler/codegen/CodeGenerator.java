@@ -1430,13 +1430,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add connector level variables
         int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
         LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
+        connectorNode.params.forEach(var -> visitServiceNodeVariable(var.symbol, localVarAttributeInfo));
         connectorNode.varDefs.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
         connectorInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
         // Create variable count attribute info
-        prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+        prepareIndexes(pvIndexes);
+        int[] fieldCount = new int[]{pvIndexes.tInt, pvIndexes.tFloat,
+                pvIndexes.tString, pvIndexes.tBoolean, pvIndexes.tBlob, pvIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, connectorInfo, fieldCount);
 
         // Create the init function info
