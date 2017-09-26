@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -34,8 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.types.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -404,12 +403,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
                 if (unaryExpr.expr.type.tag == TypeTags.ANY) {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                            opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
+                            symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);
                 } else {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                            opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
+                            symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);
                 }
@@ -664,24 +663,26 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes, Name funcName) {
-        int expected = expTypes.size();
+        List<BType> newActualTypes = actualTypes;
+        List<BType> newExpTypes = this.expTypes;
+        int expected = this.expTypes.size();
         int actual = actualTypes.size();
         if (expected == 1 && actual > 1) {
             dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, funcName);
-            actualTypes = getListWithErrorTypes(expected);
+            newActualTypes = getListWithErrorTypes(expected);
         } else if (expected == 0) {
             // This could be from a expression statement. e.g foo();
             if (this.env.node.getKind() != NodeKind.EXPRESSION_STATEMENT) {
                 dlog.error(iExpr.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, funcName);
             }
-            actualTypes = new ArrayList<>(0);
+            newExpTypes = newActualTypes;
         } else if (expected != actual) {
             // Special case actual == 0 scenario.. VOID Function
             dlog.error(iExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
-            actualTypes = getListWithErrorTypes(expected);
+            newActualTypes = getListWithErrorTypes(expected);
         }
 
-        resultTypes = types.checkTypes(iExpr, actualTypes, expTypes);
+        resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
     }
 
     private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name funcName) {

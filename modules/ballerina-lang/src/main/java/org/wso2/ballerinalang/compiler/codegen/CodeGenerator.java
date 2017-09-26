@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.codegen;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -215,7 +216,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private ProgramFile programFile;
 
     private PackageInfo currentPkgInfo;
-    private String currentPkgName;
+    private PackageID currentPkgID;
     private int currentPackageRefCPIndex;
 
     private LineNumberTableAttributeInfo lineNoAttrInfo;
@@ -258,8 +259,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         genPackage(pkgSymbol);
 
-        programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgSymbol.name.value,
-                pkgSymbol.version.value);
+        programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgSymbol.pkgID);
 
         // TODO Setting this program as a main program. Remove this ASAP
         programFile.setMainEPAvailable(true);
@@ -282,19 +282,19 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
-        currentPkgName = pkgSymbol.name.getValue();
-        int pkgNameCPIndex = addUTF8CPEntry(programFile, currentPkgName);
-        int pkgVersionCPIndex = addUTF8CPEntry(programFile, pkgSymbol.version.getValue());
+        currentPkgID = pkgSymbol.pkgID;
+        int pkgNameCPIndex = addUTF8CPEntry(programFile, currentPkgID.name.value);
+        int pkgVersionCPIndex = addUTF8CPEntry(programFile, currentPkgID.version.value);
         currentPkgInfo = new PackageInfo(pkgNameCPIndex, pkgVersionCPIndex);
 
         // TODO We need to create identifier for both name and the version
-        programFile.packageInfoMap.put(currentPkgName, currentPkgInfo);
+        programFile.packageInfoMap.put(currentPkgID.name.value, currentPkgInfo);
 
         // Insert the package reference to the constant pool of the Ballerina program
-        addPackageRefCPEntry(programFile, currentPkgName, pkgSymbol.version.value);
+        addPackageRefCPEntry(programFile, currentPkgID);
 
         // Insert the package reference to the constant pool of the current package
-        currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgName, pkgSymbol.version.value);
+        currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
 
         // This attribute keep track of line numbers
         int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
@@ -311,10 +311,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.connectors.forEach(this::createConnectorInfoEntry);
 //        createConnectorInfoEntries(bLangPackage.getConnectors());
-//        createServiceInfoEntries(bLangPackage.getServices());
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
-        pkgNode.services.forEach(serviceNode -> createServiceInfoEntry(serviceNode));
-        pkgNode.functions.forEach(funcNode -> createFunctionInfoEntry(funcNode));
+        pkgNode.services.forEach(this::createServiceInfoEntry);
+        pkgNode.functions.forEach(this::createFunctionInfoEntry);
 
         // Create function info for the package function
         BLangFunction pkgInitFunc = pkgNode.initFunction;
@@ -329,7 +328,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
-        currentPkgName = null;
+        currentPkgID = null;
         pkgNode.phase = CompilerPhase.DONE;
     }
 
@@ -563,15 +562,26 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
+        int mapVarRegIndex = ++regIndexes.tRef;
+        mapLiteral.regIndex = mapVarRegIndex;
+        emit(InstructionCodes.NEWMAP, mapVarRegIndex);
 
+        // Handle Map init stuff
+        for (BLangRecordKeyValue keyValue : mapLiteral.keyValuePairs) {
+            BLangExpression keyExpr = keyValue.key.expr;
+            genNode(keyExpr, this.env);
+
+            BLangExpression valueExpr = keyValue.valueExpr;
+            genNode(valueExpr, this.env);
+
+            emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+        }
     }
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
         BSymbol structSymbol = structLiteral.type.tsymbol;
-        BPackageSymbol pkgSymbol = (BPackageSymbol) structSymbol.owner;
-        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value,
-                pkgSymbol.version.value);
+        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
         int structCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
@@ -752,8 +762,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         if (iExpr.expr == null) {
             BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
-            BPackageSymbol pkgSymbol = (BPackageSymbol) funcSymbol.owner;
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
             FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 
@@ -1145,7 +1154,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void getAnnotationAttributeValue(AnnotationAttachmentAttributeNode attributeNode,
-            AnnAttachmentInfo annAttachmentInfo) {
+                                             AnnAttachmentInfo annAttachmentInfo) {
         int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attributeNode.getName());
         AnnAttributeValue attribValue = null;
         //TODO:create AnnAttributeValue
@@ -1228,7 +1237,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void visitServiceAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
-            AnnotationAttributeInfo annotationAttributeInfo) {
+                                                  AnnotationAttributeInfo annotationAttributeInfo) {
         AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
         annotationAttributeInfo.attachmentList.add(attachmentInfo);
     }
@@ -1593,6 +1602,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             resourceInfo.paramNameCPIndexes[i] = paramNameCPIndex;
         }
     }
+
     private WorkerDataChannelInfo getWorkerDataChannelInfo(CallableUnitInfo callableUnit,
                                                            String source, String target) {
         WorkerDataChannelInfo workerDataChannelInfo = callableUnit.getWorkerDataChannelInfo(
@@ -1621,9 +1631,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         return pool.addCPEntry(pkgPathCPEntry);
     }
 
-    private int addPackageRefCPEntry(ConstantPool pool, String name, String version) {
-        int nameCPIndex = addUTF8CPEntry(pool, name);
-        int versionCPIndex = addUTF8CPEntry(pool, version);
+    private int addPackageRefCPEntry(ConstantPool pool, PackageID pkgID) {
+        int nameCPIndex = addUTF8CPEntry(pool, pkgID.name.value);
+        int versionCPIndex = addUTF8CPEntry(pool, pkgID.version.value);
         PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(nameCPIndex, versionCPIndex);
         return pool.addCPEntry(packageRefCPEntry);
     }
@@ -1679,7 +1689,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     /* visit the workers within fork-join block */
     private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, VariableIndex lvIndexesCopy,
-            SymbolEnv forkJoinEnv) {
+                                    SymbolEnv forkJoinEnv) {
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
         int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         for (BLangWorker worker : forkJoin.workers) {
@@ -1729,7 +1739,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
         forkjoinInfo.setJoinIp(nextIP());
         if (forkJoin.joinResultVar != null) {
-            visitForkJoinParameterDefs(forkJoin.joinResultVar);
+            visitForkJoinParameterDefs(forkJoin.joinResultVar, forkJoinEnv);
         }
         int joinMemOffset = forkJoin.joinResultVar.symbol.varIndex;
         forkjoinInfo.setJoinMemOffset(joinMemOffset);
@@ -1748,7 +1758,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
         }
         if (forkJoin.timeoutVariable != null) {
-            visitForkJoinParameterDefs(forkJoin.timeoutVariable);
+            visitForkJoinParameterDefs(forkJoin.timeoutVariable, forkJoinEnv);
         }
         int timeoutMemOffset = forkJoin.joinResultVar.symbol.varIndex;
         forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
@@ -1762,18 +1772,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
         ForkjoinInfo forkjoinInfo = this.processForkJoinTimeout(forkJoin);
         this.populatForkJoinWorkerInfo(forkJoin, forkjoinInfo);
-        int forkJoinIndex;
+        int forkJoinInfoIndex;
         /* was I already inside a fork/join */
         if (this.env.forkJoin != null) {
-            forkJoinIndex = this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
+            forkJoinInfoIndex = this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
         } else {
-            forkJoinIndex = this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
+            forkJoinInfoIndex = this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
         }
-        ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinIndex);
-        forkJoinIndexCPEntry.setForkjoinInfo(forkjoinInfo);
-        int forkJoinIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
-        forkjoinInfo.setIndexCPIndex(forkJoinIndexCPEntryIndex);
-        this.emit(InstructionCodes.FORKJOIN, forkJoinIndexCPEntryIndex);
+        ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
+        int forkJoinInfoIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
+
+        forkjoinInfo.setIndexCPIndex(forkJoinInfoIndexCPEntryIndex);
+        this.emit(InstructionCodes.FORKJOIN, forkJoinInfoIndexCPEntryIndex);
         VariableIndex lvIndexesCopy = this.copyVarIndex(this.lvIndexes);
         VariableIndex regIndexesCopy = this.copyVarIndex(this.regIndexes);
         VariableIndex maxRegIndexesCopy = this.copyVarIndex(this.maxRegIndexes);
@@ -1795,14 +1805,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
         this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
+        this.endWorkerInfoUnit(this.currentWorkerInfo.codeAttributeInfo);
     }
 
-    private void visitForkJoinParameterDefs(BLangVariable parameterDef) {
+    private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {
         LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
         int lvIndex = this.getNextIndex(parameterDef.type.tag, this.lvIndexes);
         parameterDef.symbol.varIndex = lvIndex;
-        parameterDef.accept(this);
-        this.genNode(parameterDef, this.env);
+        this.genNode(parameterDef, forkJoinEnv);
         LocalVariableInfo localVariableDetails = this.getLocalVarAttributeInfo(parameterDef.symbol);
         localVariableAttributeInfo.localVars.add(localVariableDetails);
     }
@@ -1814,7 +1824,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
         wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
         int wrkrInvRefCPIndex = currentPkgInfo.addCPEntry(wrkrInvRefCPEntry);
-        if (this.env.forkJoin != null) {
+        if (workerSendNode.isForkJoinSend) {
             this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex);
             this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
         }
@@ -2132,8 +2142,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     // private helper methods of visitors.
 
     private void visitFunctionPointerLoad(BInvokableSymbol funcSymbol) {
-        BPackageSymbol pkgSymbol = (BPackageSymbol) funcSymbol.owner;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
 

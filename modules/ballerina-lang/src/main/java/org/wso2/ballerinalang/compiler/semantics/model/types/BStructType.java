@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.StructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -54,7 +55,10 @@ public class BStructType extends BType implements StructType {
 
     @Override
     public String toString() {
-        return this.tsymbol.pkgName.value + ":" + this.tsymbol.name.value;
+        if (this.tsymbol.pkgID == PackageID.DEFAULT) {
+            return this.tsymbol.name.value;
+        }
+        return this.tsymbol.pkgID + ":" + this.tsymbol.name;
     }
 
     /**

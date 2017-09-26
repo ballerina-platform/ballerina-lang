@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -31,7 +32,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     public List<BVarSymbol> params;
     public BInvokableSymbol initFunction;
 
-    public BTypeSymbol(int kind, int flags, Name name, BType type, BSymbol owner) {
-        super(kind, flags, name, type, owner);
+    public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(kind, flags, name, pkgID, type, owner);
     }
 }

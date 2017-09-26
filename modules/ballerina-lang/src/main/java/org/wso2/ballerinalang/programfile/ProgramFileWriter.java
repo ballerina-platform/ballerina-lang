@@ -162,7 +162,7 @@ public class ProgramFileWriter {
                     break;
                 case CP_ENTRY_FORK_JOIN:
                     ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;
-                    dataOutStream.writeInt(forkJoinCPEntry.getForkJoinCPIndex());
+                    dataOutStream.writeInt(forkJoinCPEntry.forkJoinInfoIndex);
                     break;
                 case CP_ENTRY_WRKR_INTERACTION:
                     WrkrInteractionArgsCPEntry workerInvokeCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;

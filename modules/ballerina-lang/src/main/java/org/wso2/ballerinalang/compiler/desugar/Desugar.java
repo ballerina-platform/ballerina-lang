@@ -341,6 +341,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
         forkJoin.workers = rewrite(forkJoin.workers);
+        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar);
+        forkJoin.joinedBody = rewrite(forkJoin.joinedBody);
+        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody);
         result = forkJoin;
     }
 
@@ -448,6 +451,22 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
         targetVarRef.type = indexAccessExpr.type;
         result = targetVarRef;
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        BLangInvocation genIExpr = invocationExpr;
+        invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
+        invocationExpr.expr = rewriteExpr(invocationExpr.expr);
+        if (invocationExpr.functionPointerInvocation) {
+            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+            varRef.symbol = (BVarSymbol) invocationExpr.symbol;
+            varRef.type = invocationExpr.symbol.type;
+            genIExpr = new BFunctionPointerInvocation(invocationExpr, varRef);
+        }
+
+        genIExpr.impCastExpr = invocationExpr.impCastExpr;
+        result = genIExpr;
     }
 
     @Override
