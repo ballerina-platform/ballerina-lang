@@ -71,11 +71,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
-        // Handle operations for empty content messages initiated from the Ballerina core itself
-        if (cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
-            cMsg.setEndOfMsgAdded(true);
-        }
-
         String uri = null;
         try {
             uri = connector.getStringField(0) + path;
