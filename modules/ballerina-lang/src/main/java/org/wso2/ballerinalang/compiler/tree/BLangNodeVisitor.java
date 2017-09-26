@@ -366,7 +366,8 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    // expressions that will used only after the Desugar phase
+
+    // expressions that will used only from the Desugar phase
 
     public void visit(BLangLocalVarRef localVarRef) {
         throw new AssertionError();

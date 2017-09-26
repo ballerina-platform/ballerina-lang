@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 
 import java.io.File;
@@ -71,14 +72,13 @@ public class DiagnosticPos implements DiagnosticPosition {
 
     @Override
     public String toString() {
-        boolean pkgNameAvailable = src.pkgName != null && !src.pkgName.isEmpty();
         boolean cUnitNameAvailable = src.cUnitName != null && !src.cUnitName.isEmpty();
         String strPos = "";
 
-        if (pkgNameAvailable && cUnitNameAvailable) {
-            strPos = strPos + src.pkgName + File.separator + src.cUnitName + ":";
-        } else if (pkgNameAvailable) {
-            strPos = strPos + src.pkgName + ":";
+        if (src.pkgID != PackageID.DEFAULT && cUnitNameAvailable) {
+            strPos = strPos + src.pkgID + File.separator + src.cUnitName + ":";
+        } else if (src.pkgID != PackageID.DEFAULT) {
+            strPos = strPos + src.pkgID + ":";
         } else {
             strPos = strPos + src.cUnitName + ":";
         }
