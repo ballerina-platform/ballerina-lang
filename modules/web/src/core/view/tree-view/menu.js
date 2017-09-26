@@ -162,6 +162,7 @@ export function getContextMenuItems(node, command, onNodeUpdate = () => {}) {
                 icon: '',
                 label: 'Open In Editor',
                 handler: () => {
+                    dispatch(WORKSPACE_CMDS.OPEN_FILE, { filePath: node.id });
                 },
                 isActive: () => {
                     return true;
