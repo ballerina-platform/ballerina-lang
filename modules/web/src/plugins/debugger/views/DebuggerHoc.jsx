@@ -43,7 +43,6 @@ function debuggerHoc(WrappedComponent) {
             this.addListner = DebugManager.on('breakpoint-added', this.updateBreakpoints.bind(this));
             this.removeListner = DebugManager.on('breakpoint-removed', this.updateBreakpoints.bind(this));
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
-            this.endListner = DebugManager.on('session-ended', this.end.bind(this));
             this.cmpListner = DebugManager.on('execution-ended', this.end.bind(this));
             this.resumeListner = DebugManager.on('resume-execution', this.end.bind(this));
         }
@@ -54,7 +53,6 @@ function debuggerHoc(WrappedComponent) {
             DebugManager.off('breakpoint-added', this.addListner, this);
             DebugManager.off('breakpoint-removed', this.removeListner, this);
             DebugManager.off('debug-hit', this.hitListner, this);
-            DebugManager.off('session-ended', this.endListner, this);
             DebugManager.off('execution-ended', this.cmpListner, this);
             DebugManager.off('resume-execution', this.resumeListner, this);
         }

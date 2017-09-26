@@ -222,6 +222,15 @@ class EditorPlugin extends Plugin {
     }
 
     /**
+     * Gets any editor associated with given file
+     *
+     * @param {String} filePath Path of the file
+     */
+    getEditorForFile(filePath) {
+        return _.find(this.openedEditors, ['file.fullPath', filePath]);
+    }
+
+    /**
      * @inheritdoc
      */
     getContributions() {

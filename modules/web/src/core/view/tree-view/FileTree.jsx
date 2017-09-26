@@ -29,16 +29,7 @@ class FileTree extends React.Component {
      * @inheritdoc
      */
     componentDidMount() {
-        const isFSRoot = this.props.root === FS_ROOT;
-        const loadData = isFSRoot ? getFSRoots() : listFiles(this.props.root);
-        loadData
-            .then((tree) => {
-                const data = tree;
-                this.setState({
-                    data,
-                });
-                this.props.onLoadData(data);
-            });
+        this.loadData();
     }
 
     /**
@@ -52,16 +43,8 @@ class FileTree extends React.Component {
         if (node.children) {
             node.collapsed = collapsed;
             if (_.isEmpty(node.children)) {
-                node.loading = true;
-                listFiles(node.id, ['.bal'])
-                    .then((data) => {
-                        node.loading = false;
-                        if (_.isEmpty(data)) {
-                            delete node.children;
-                            node.collapsed = false;
-                        } else {
-                            node.children = data;
-                        }
+                this.loadNodeChildren(node)
+                    .then(() => {
                         this.forceUpdate();
                     });
             }
@@ -70,9 +53,50 @@ class FileTree extends React.Component {
     }
 
     /**
+     * Load tree data
+     */
+    loadData() {
+        const extensions = ['bal'];
+        const isFSRoot = this.props.root === FS_ROOT;
+        const loadData = isFSRoot ? getFSRoots(extensions) : listFiles(this.props.root, extensions);
+        loadData
+            .then((tree) => {
+                const data = tree;
+                this.setState({
+                    data,
+                });
+                this.props.onLoadData(data);
+            });
+    }
+
+    /**
+     * Load children of given node
+     *
+     * @param {Object} node Tree Node
+     */
+    loadNodeChildren(node) {
+        node.loading = true;
+        delete node.children;
+        this.forceUpdate();
+        return listFiles(node.id, ['.bal'])
+                .then((data) => {
+                    node.loading = false;
+                    if (_.isEmpty(data)) {
+                        node.children = false;
+                        node.collapsed = false;
+                    } else {
+                        node.children = data;
+                    }
+                    return node;
+                });
+    }
+
+    /**
      * @inheritdoc
      */
     render() {
+        const files = _.filter(this.state.data, ['type', 'file']);
+        const folders = _.filter(this.state.data, ['type', 'folder']);
         const renderNode = (node, parentNode) => {
             if (_.isNil(node.collapsed)) {
                 node.collapsed = true;
@@ -90,8 +114,18 @@ class FileTree extends React.Component {
                     onClick={() => this.onToggle(node, !node.collapsed)}
                     onDoubleClick={this.props.onOpen}
                     enableContextMenu={this.props.enableContextMenu}
-                    onNodeUpdate={() => {
+                    onNodeUpdate={(targetNode) => {
                         this.forceUpdate();
+                    }}
+                    onNodeRefresh={(targetNode) => {
+                        if (_.isNil(targetNode)) {
+                            this.loadData();
+                        } else {
+                            this.loadNodeChildren(targetNode)
+                                .then(() => {
+                                    this.forceUpdate();
+                                });
+                        }
                     }}
                     onNodeDelete={(targetNode) => {
                         if (!_.isNil(parentNode)) {
@@ -101,6 +135,7 @@ class FileTree extends React.Component {
                         }
                         this.forceUpdate();
                     }}
+                    parentNode={parentNode}
                 >
                     {
                         node.children
@@ -114,7 +149,10 @@ class FileTree extends React.Component {
         };
         return (
             <div className="file-tree">
-                {this.state.data.map((childNode) => {
+                {folders.map((childNode) => {
+                    return renderNode(childNode, undefined);
+                })}
+                {files.map((childNode) => {
                     return renderNode(childNode, undefined);
                 })}
             </div>

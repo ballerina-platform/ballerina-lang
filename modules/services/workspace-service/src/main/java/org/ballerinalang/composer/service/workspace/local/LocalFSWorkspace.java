@@ -56,6 +56,7 @@ public class LocalFSWorkspace implements Workspace {
     private static final String FILE_CONTENT = "fileContent";
     private static final String FILE_NAME = "fileName";
     private static final String FILE_PATH = "filePath";
+    private static final String PARENT = "parent";
     private static final String FILE_FULL_PATH = "fileFullPath";
     private static final String EXTENSION = "extension";
     private static final String EXISTS = "exists";
@@ -81,6 +82,16 @@ public class LocalFSWorkspace implements Workspace {
         result.addProperty(FILE_TYPE, path);
         result.addProperty(EXISTS, exists);
         return result;
+    }
+
+    @Override
+    public void move(String src, String dest) throws IOException {
+        Files.move(Paths.get(src), Paths.get(dest));
+    }
+
+    @Override
+    public void copy(String src, String dest) throws IOException {
+        Files.copy(Paths.get(src), Paths.get(dest));
     }
 
     @Override
@@ -112,9 +123,9 @@ public class LocalFSWorkspace implements Workspace {
     }
 
     @Override
-    public void delete(String path, String type) throws IOException {
+    public void delete(String path) throws IOException {
         Path ioPath = Paths.get(path);
-        if (FOLDER_TYPE.equals(type)) {
+        if (ioPath.toFile().isDirectory()) {
             Files.walk(ioPath, FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
                  .forEach(File::delete);
         } else {
@@ -129,7 +140,7 @@ public class LocalFSWorkspace implements Workspace {
     public JsonArray listFilesInPath(String path, List<String> extensions) throws IOException {
         Path ioPath = Paths.get(path);
         JsonArray dirs = new JsonArray();
-        Iterator<Path> iterator = Files.list(ioPath).iterator();
+        Iterator<Path> iterator = Files.list(ioPath).sorted().iterator();
         while (iterator.hasNext()) {
             Path next = iterator.next();
             if ((Files.isDirectory(next) || Files.isRegularFile(next)) && !Files.isHidden(next) &&
@@ -198,6 +209,10 @@ public class LocalFSWorkspace implements Workspace {
             rootObj.addProperty(NODE_LABEL, root.toString());
         }
         rootObj.addProperty(NODE_ID, root.toAbsolutePath().toString());
+        Path parent = root.getParent();
+        if (parent != null) {
+            rootObj.addProperty(PARENT, parent.toAbsolutePath().toString());
+        }
         if (Files.isDirectory(root)) {
             rootObj.addProperty(NODE_TYPE, FOLDER_TYPE);
             try {

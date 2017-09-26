@@ -78,8 +78,7 @@ function breakpointHOC(WrappedComponent) {
                 }
             });
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
-            this.endListner = DebugManager.on('session-ended', this.end.bind(this));
-            this.cmpListner = DebugManager.on('session-completed', this.end.bind(this));
+            this.endListner = DebugManager.on('execution-ended', this.end.bind(this));
             this.continueListner = DebugManager.on('resume-execution', this.end.bind(this));
         }
         /**
@@ -89,8 +88,7 @@ function breakpointHOC(WrappedComponent) {
             DebugManager.off('breakpoint-added', this.addListner, this);
             DebugManager.off('breakpoint-removed', this.removeListner, this);
             DebugManager.off('debug-hit', this.hitListner, this);
-            DebugManager.off('session-ended', this.endListner, this);
-            DebugManager.off('session-completed', this.cmpListner, this);
+            DebugManager.off('execution-ended', this.endListner, this);
             DebugManager.off('resume-execution', this.continueListner, this);
         }
         /**
