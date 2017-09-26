@@ -99,8 +99,8 @@ public class ConnectionManager {
             EventLoopGroup group;
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
             // TODO: use the same event loop group once pass-through service detection is complete.
-            group = ctx.channel().eventLoop();
-//            group = targetEventLoopGroup;
+//            group = ctx.channel().eventLoop();
+            group = targetEventLoopGroup;
             Class cl = ctx.channel().getClass();
 
             if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
