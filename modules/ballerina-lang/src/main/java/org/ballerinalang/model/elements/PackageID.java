@@ -97,6 +97,10 @@ public class PackageID {
 
     @Override
     public String toString() {
+        if (version == Names.DEFAULT_VERSION) {
+            return this.name.value;
+        }
+
         return this.name + "[" + this.version + "]";
     }
 }

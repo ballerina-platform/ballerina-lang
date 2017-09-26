@@ -15,14 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.types;
+package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -106,7 +109,10 @@ public class Types {
     }
 
     public BType checkType(DiagnosticPos pos, BType actualType, BType expType, DiagnosticCode diagCode) {
-        if (expType.tag == TypeTags.ERROR) {
+        // First check whether both references points to the same object.
+        if (actualType == expType) {
+            return actualType;
+        } else if (expType.tag == TypeTags.ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
             return actualType;
@@ -128,6 +134,11 @@ public class Types {
     }
 
     public boolean isAssignable(BType actualType, BType expType) {
+        // First check whether both references points to the same object.
+        if (actualType == expType) {
+            return true;
+        }
+
         if (expType.tag == TypeTags.ERROR) {
             return true;
         }
@@ -150,8 +161,8 @@ public class Types {
             return true;
         }
 
-        if (actualType.tag == expType.tag) {
-            // This is for temporary reasons. Remove this ASAP.
+        // If both types are structs then check for their equivalency
+        if (checkStructEquivalency(actualType, expType)) {
             return true;
         }
 
@@ -221,6 +232,30 @@ public class Types {
 
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
         return expType.tag == TypeTags.ANY && !isValueType(actualType);
+    }
+
+    public boolean checkStructEquivalency(BType actualType, BType expType) {
+        if (actualType.tag != TypeTags.STRUCT || expType.tag != TypeTags.STRUCT) {
+            return false;
+        }
+
+        BStructType expStructType = (BStructType) expType;
+        BStructType actualStructType = (BStructType) actualType;
+        if (expStructType.fields.size() > actualStructType.fields.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < expStructType.fields.size(); i++) {
+            BStructField expStructField = expStructType.fields.get(i);
+            BStructField actualStructField = actualStructType.fields.get(i);
+            if (expStructField.name.equals(actualStructField.name) &&
+                    isAssignable(actualStructField.type, expStructField.type)) {
+                continue;
+            }
+            return false;
+        }
+
+        return true;
     }
 
 

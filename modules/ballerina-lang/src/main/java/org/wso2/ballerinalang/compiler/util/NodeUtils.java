@@ -45,6 +45,10 @@ public class NodeUtils {
 
     public static PackageID getPackageID(Names names, List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
         List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).collect(Collectors.toList());
-        return new PackageID(nameList, names.fromIdNode(versionNode));
+        Name version = names.fromIdNode(versionNode);
+        if (version == Names.EMPTY) {
+            version = Names.DEFAULT_VERSION;
+        }
+        return new PackageID(nameList, version);
     }
 }
