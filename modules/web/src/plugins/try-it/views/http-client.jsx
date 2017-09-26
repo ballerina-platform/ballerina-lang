@@ -291,8 +291,9 @@ class HttpClient extends React.Component {
             return (<div key={`${header.id}`}>
                 <input
                     key={`key-${header.id}`}
-                    placeholder='Field'
+                    placeholder='Key'
                     type='text'
+                    className="header-input"
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -302,6 +303,7 @@ class HttpClient extends React.Component {
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
+                    className="header-input"
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -357,7 +359,7 @@ class HttpClient extends React.Component {
                     {sendOrCancelButton}
                 </div>
                 <div className='http-client-content-type-wrapper'>
-                    Content-Type
+                    <strong>Content-Type</strong> :
                     <input
                         className='http-client-content-type'
                         placeholder='application/json'
@@ -367,9 +369,10 @@ class HttpClient extends React.Component {
                     />
                 </div>
                 <div className='http-client-headers-wrapper'>
-                    Headers
-                    <span className='add-header-button'>
-                        <i className='fw fw-add' onClick={this.onAddNewHeader} />
+                    <span className="section-header">Headers</span>
+                    <span className='add-header-button' onClick={this.onAddNewHeader}>
+                        <i className='fw fw-add'/>
+                        Add New
                     </span>
                     <hr />
                     <div className='current-headers'>
@@ -377,7 +380,8 @@ class HttpClient extends React.Component {
                     </div>
                 </div>
                 <div className='http-client-body-wrapper'>
-                    Body
+                    <span className="section-header">Body</span>
+                    <hr/>
                     <div>
                         <AceEditor
                             mode={this.getRequestBodyMode()}
@@ -402,11 +406,11 @@ class HttpClient extends React.Component {
                 <h3>Response</h3>
                 <hr />
                 <div className='http-client-response-attributes'>
-                    Reponse Code: {this.state.responseCode}
+                    <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
                     <br />
-                    Time Consumed: {this.state.timeConsumed} milliseconds
+                    <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
                     <br />
-                    Request URL: {this.state.requestUrl}
+                    <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
                 </div>
                 <div className='http-client-response-content'>
                     <ul className='nav nav-pills'>
@@ -421,12 +425,12 @@ class HttpClient extends React.Component {
                         <div role="tabpanel" className="tab-pane active" id="headers">
                             <div className='header-content'>
                                 <div className='response-headers'>
-                                    Response Headers
+                                    <span className="section-header">Response Headers</span>
                                     <hr />
                                     {this.state.responseHeaders}
                                 </div>
                                 <div className='request-headers'>
-                                    Request Headers
+                                    <span className="section-header">Request Headers</span>
                                     <hr />
                                     {this.state.returnedRequestHeaders}
                                 </div>
