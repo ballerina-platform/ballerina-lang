@@ -20,7 +20,6 @@ package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -47,18 +46,15 @@ import java.util.Map;
 import javax.jms.Message;
 
 /**
- * Create Text JMS Message.
+ * Close resources of Client Connector.
  */
-@BallerinaFunction(packageName = "ballerina.net.jms", functionName = "createTextMessage", args = {
+@BallerinaFunction(packageName = "ballerina.net.jms", functionName = "closeConnector", args = {
         @Argument(name = "clientConnector", type = TypeEnum.CONNECTOR) },
-                   returnType = {@ReturnType(type = TypeEnum.STRUCT, structPackage = "ballerina.net.jms", structType = "JMSMessage")},
                    isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Session commit action implementation for jms connector when using jms session transaction mode") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "JMSMessage",
-                                                                         value = "Created JMS text message") })
-public class CreateTextMessage extends AbstractNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(CreateTextMessage.class);
+        value = "Close Client Connector resources") })
+public class CloseConnector extends AbstractNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(CloseConnector.class);
 
     public BValue[] execute(Context context) {
 
@@ -78,8 +74,8 @@ public class CreateTextMessage extends AbstractNativeFunction {
 
         BStruct bStruct = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_JMS, "JMSMessage");
 
-        carbonMessage.setProperty(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE, jmsMessage);
-        bStruct.addNativeData(org.ballerinalang.net.jms.Constants.TRANSPORT_MESSAGE, carbonMessage);
+        carbonMessage.setProperty(Constants.JMS_API_MESSAGE, jmsMessage);
+        bStruct.addNativeData(Constants.TRANSPORT_MESSAGE, carbonMessage);
 
         return this.getBValues(bStruct);
     }
