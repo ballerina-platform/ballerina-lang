@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import PositionUtil from './../../positioning-util';
 /**
  * Position Calculater for Block.
  *
@@ -31,7 +31,7 @@ class BlockPositionVisitor {
      * @memberOf BlockPositionVisitor
      * */
     beginVisit(node) {
-
+        PositionUtil.positionBlockNode(node);
     }
 
     /**

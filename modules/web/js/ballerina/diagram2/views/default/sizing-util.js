@@ -237,6 +237,53 @@ class SizingUtil {
 		const textWidth = util.getTextWidth(name);
 	}
 
+	sizeStatement(expression, viewState) {
+		const textViewState = util.getTextWidth(expression);
+		const dropZoneHeight = DesignerDefaults.statement.gutter.v;
+		viewState.components['drop-zone'] = new SimpleBBox();
+		// Set statement box as an opaque element to prevent conflicts with arrows.
+		viewState.components['statement-box'] = new SimpleBBox();
+		viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+		viewState.components['drop-zone'].w = textViewState.w;
+		viewState.components['statement-box'].h = DesignerDefaults.statement.height;
+		viewState.components['statement-box'].w = textViewState.w;
+		// set the component as a vertical block.
+		// the following value will be used by arrow conflict resolver.
+		viewState.components['statement-box'].setOpaque(true);
+
+		viewState.bBox.w = textViewState.w;
+		viewState.bBox.h = DesignerDefaults.statement.height + viewState.components['drop-zone'].h;
+
+		viewState.expression = textViewState.text;
+		viewState.fullExpression = expression;
+	}
+
+    sizeTransformNode(node) {
+		const viewState = node.viewState;
+        this.sizeStatement('Transform',viewState); 
+    }
+
+    sizeBlockNode(node){
+		const viewState = node.viewState;
+        const statements = node.getStatements();
+        this.setContainerSize(statements, viewState , DesignerDefaults.statement.width );
+    }
+
+    setContainerSize(nodes, viewState, width = 0, height = 0){
+        let stH = 0
+        nodes.forEach((element) => {
+            if (element.viewState.bBox.w > width){
+                width = element.viewState.bBox.w;
+            }
+            stH = element.viewState.bBox.h;
+        });
+        if(stH > height){
+            height = stH;
+        }
+        viewState.bBox.w = width;
+        viewState.bBox.h = height;
+    }
+
 	// Populate functions
 	populatePanelDecoratorBBox(node, name) {
         /*

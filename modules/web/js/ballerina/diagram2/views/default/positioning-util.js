@@ -122,15 +122,15 @@ function getCompoundStatementChildPosition(node) {
  * */
 function populateInnerPanelDecoratorBBoxPosition(node) {
     const parent = node.getParent();
-    const viewSate = node.getViewState();
+    const viewState = node.getViewState();
     const parentViewState = parent.getViewState();
     const parentBBox = parentViewState.bBox;
-    const bBox = viewSate.bBox;
-    const statementContainerBBox = viewSate.components.statementContainer;
-    const workerScopeContainer = viewSate.components.workerScopeContainer;
-    const headerBBox = viewSate.components.heading;
-    const bodyBBox = viewSate.components.body;
-    const annotation = viewSate.components.annotation;
+    const bBox = viewState.bBox;
+    const statementContainerBBox = viewState.components.statementContainer;
+    const workerScopeContainer = viewState.components.workerScopeContainer;
+    const headerBBox = viewState.components.heading;
+    const bodyBBox = viewState.components.body;
+    const annotation = viewState.components.annotation;
     const resources = _.filter(parent.getChildren(), child =>
     ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child));
     let headerY;
@@ -189,8 +189,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
  * @param {ASTNode} node - AST node.
  * */
 function populateOuterPanelDecoratorBBoxPosition(node) {
-    const viewSate = node.getViewState();
-    const bBox = viewSate.bBox;
+    const viewState = node.getViewState();
+    const bBox = viewState.bBox;
     const parent = node.getParent();
     const panelChildren = parent.filterChildren(child => ASTFactory.isFunctionDefinition(child) ||
            ASTFactory.isServiceDefinition(child) ||
@@ -198,12 +198,12 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
             ASTFactory.isAnnotationDefinition(child) ||
             ASTFactory.isStructDefinition(child) ||
             ASTFactory.isPackageDefinition(child));
-    const heading = viewSate.components.heading;
-    const body = viewSate.components.body;
-    const annotation = viewSate.components.annotation;
+    const heading = viewState.components.heading;
+    const body = viewState.components.body;
+    const annotation = viewState.components.annotation;
     // FIXME
-    const transportLine = !_.isNil(viewSate.components.transportLine) ?
-        viewSate.components.transportLine : { x: 0, y: 0 };
+    const transportLine = !_.isNil(viewState.components.transportLine) ?
+        viewState.components.transportLine : { x: 0, y: 0 };
     const currentServiceIndex = _.findIndex(panelChildren, node);
     let headerX;
     let headerY;
@@ -367,7 +367,6 @@ export {
 class PositioningUtil {
 
     positionFunctionNode(node) {
-        console.log(node);
         const viewState = node.viewState;
         const cmp = viewState.components;
 
@@ -379,6 +378,20 @@ class PositioningUtil {
         cmp.defaultWorker.y = cmp.statementContainer.y - lifeLine.head.height;
 
         // position the children
+        const body = node.getBody();
+        body.viewState.bBox.x = viewState.bBox.x + defaultPanel.body.padding.left;
+        body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + defaultPanel.body.padding.top + lifeLine.head.height;
+    }
+
+    positionBlockNode(node) {
+        const viewState = node.viewState;
+        const statements = node.getStatements();
+        let height = 0;
+        statements.forEach((element) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = viewState.bBox.y + height;
+            height += element.viewState.bBox.h;
+        });
     }
 }
 

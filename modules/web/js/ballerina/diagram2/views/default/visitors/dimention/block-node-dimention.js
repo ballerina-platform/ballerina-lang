@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { util } from './../../sizing-util';
 
 /**
  * Dimension Calculater for Block.
@@ -42,7 +43,7 @@ class BlockDimensionVisitor {
      * @memberOf BlockDimensionVisitor
      * */
     endVisit(node) {
-        
+        util.sizeBlockNode(node);
     }
 }
 

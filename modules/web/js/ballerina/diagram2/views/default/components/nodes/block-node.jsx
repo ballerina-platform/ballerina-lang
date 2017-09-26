@@ -15,35 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { util } from './../../sizing-util';
-/**
- * Dimension Calculater for Transform.
- *
- * @class ReturnStatementDimensionCalculatorVisitor
- * */
-class TransformDimensionVisitor {
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf TransformDimensionVisitor
-     * */
-    beginVisit(node) {
+import React from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import StatementContainer from '../decorators/statement-container';
+import { getComponentForNodeArray } from './../../../../diagram-util';
 
+
+class BlockNode extends React.Component {
+
+    constructor(props) {
+        super(props);
     }
 
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf TransformDimensionVisitor
-     * */
-    endVisit(node) {
-        util.sizeTransformNode(node);
+    render() {
+        const statements = getComponentForNodeArray(this.props.model.getStatements(), this.context.mode);
+        return (<g>{statements}</g>);
     }
 }
 
-export default TransformDimensionVisitor;
+BlockNode.contextTypes = {
+    mode: PropTypes.string,
+};
+
+export default BlockNode;

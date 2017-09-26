@@ -23,10 +23,10 @@ import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
 import { lifeLine } from './../../designer-defaults';
 import LifeLine from '../decorators/lifeline';
+import StatementContainer from '../decorators/statement-container';
 
 import { getComponentForNodeArray } from './../../../../diagram-util';
 /* TODOX
-import StatementContainer from '../decorators/statement-container';
 import ASTFactory from '../../../../ast/ast-factory.js';
 */
 class FunctionNode extends React.Component {
@@ -55,11 +55,8 @@ class FunctionNode extends React.Component {
         if (name === 'main') {
             icons = 'tool-icons/main-function';
         }
-                
-        
-        const statementContainerBBox = this.props.model.viewState.components.statementContainer;
-        const statementContainerBBoxClone = Object.assign({}, this.props.model.viewState
-            .components.statementContainer);
+
+        const body = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
         /*const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
         statementContainerBBoxClone.w += connectorOffset;*/
 
@@ -126,14 +123,13 @@ class FunctionNode extends React.Component {
                         icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                         iconColor='#025482'
                     />
-                    {/*
                     <StatementContainer
                         dropTarget={this.props.model}
                         title="StatementContainer"
-                        bBox={statementContainerBBoxClone}
+                        bBox={this.props.model.viewState.components.statementContainer}
                     >
-                        {children}
-                    </StatementContainer>*/}
+                        {body}
+                    </StatementContainer>
                 </PanelDecorator>);
                 
        // TODOX }

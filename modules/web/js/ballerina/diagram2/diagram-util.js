@@ -25,6 +25,9 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
     // components.compact = requireAll(require.context('./views/compact/components/', true, /\.jsx$/));
 
+    // make sure what is passed is an array.
+    nodeArray = _.concat([], nodeArray);
+
     return nodeArray.filter((child) => {
         const compName = child.constructor.name;
         if (components['default'][compName]) {
@@ -76,7 +79,6 @@ function getDimentionVisitor(name, mode = 'default') {
 
 function getPositionVisitor(name) {
     // lets load the view components diffrent modes.
-    console.log(name);
     let diagramVisitors = requireAll(require.context('./views/default/visitors/position', true, /\.js$/));
     return diagramVisitors[name];
 }

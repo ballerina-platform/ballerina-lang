@@ -1,0 +1,173 @@
+.transformOverlay {
+    font-size: 13px
+}
+
+.left-content {
+    float: left;
+}
+
+.right-content {
+    float: right;
+}
+
+.left-content, .right-content {
+    width: calc(100% /3.7);
+    min-height: 100%;
+    padding: 0px 20px 0px 20px;
+}
+
+.transformOverlay .btn {
+    border: none;
+}
+
+.transformOverlay .react-autosuggest__input {
+    padding-left: 10px;
+    height: 30px;
+    width: 100%;
+    background-color: #f3f3f3;
+    border: 0;
+}
+
+.transformOverlay .react-autosuggest__container {
+    width: 99%;
+    float: left;
+}
+
+.transformOverlay .react-autosuggest__suggestion {
+    padding-left: 10px;
+    background: #eee;
+}
+
+.transformOverlay .react-autosuggest__suggestions-list {
+    position: absolute;
+    z-index: 100;
+    margin: 0;
+    list-style-type: none;
+    border: 1px solid #e4e4e4;
+    width: calc(100% - 2px);
+}
+
+.transformOverlay .btn-add-source {
+    float: right;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    padding: 0;
+    color: #bababb;
+    background: #666769;
+}
+
+.transform-con-remove {
+    font-size: 0.94em;
+    color: #666769;
+}
+
+.variable-edit-type {
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 65px;
+    max-width: 250px;
+}
+
+.variable-edit-name {
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 70px;
+    max-width: 250px;
+    background-color: #f3f3f3;
+    border: 1px solid;
+    border-color: #bababb;
+}
+
+.variable-edit-val {
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 70px;
+    max-width: 250px;
+    background-color: #f3f3f3;
+    border: 1px solid;
+    border-color: #bababb;
+}
+
+.transform-edit-panel {
+    width: calc(100% / 3.7);
+    position: absolute;
+    z-index: 40;
+}
+
+.transform-edit-panel .react-autosuggest__input {
+    padding-left: 10px;
+    height: 22px;
+    width: 100%;
+    background-color: #f3f3f3;
+    border: 1px solid;
+    border-color: #bababb;
+}
+
+.transform-edit-panel .react-autosuggest__container {
+    width: 60px;
+    float: left;
+    padding-top: 3px;
+}
+
+.transform-edit-panel .react-autosuggest__suggestion {
+    padding-left: 0px;
+    background: #eee;
+}
+
+.transform-edit-panel .react-autosuggest__suggestions-list {
+    position: absolute;
+    z-index: 100;
+    margin: 0;
+    list-style-type: none;
+    border: 1px solid #e4e4e4;
+    width: 60px;
+}
+
+
+.select-source {
+    float: left;
+    left: 20px;
+    top: 20px;
+    position: relative;
+    width: calc(100%/3.7 - 37px);
+}
+
+.select-target {
+    float: right;
+    right: 20px;
+    top: 20px;
+    position: relative;
+    width: calc(100%/3.7 - 37px);
+}
+
+.transform-connections {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.transform-dragging-connections {
+    position: absolute;
+    width: calc(100% - 244px);
+    height: calc(100% - 85px);;
+    top: 85px;
+    overflow: hidden;
+}
+
+.middle-content-frame {
+    width: calc(100%/2.2);
+    height: 100%;
+    position: absolute;
+    border: 1px dashed #ccc;
+    left: calc(100%/3.7);
+    background: #fff;
+}
+
+.drop-not-valid {
+    cursor: not-allowed;
+}
+
+.drop-valid {
+    cursor: auto;
+}
