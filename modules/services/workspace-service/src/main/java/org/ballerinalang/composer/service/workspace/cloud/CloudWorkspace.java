@@ -54,7 +54,7 @@ public class CloudWorkspace implements Workspace {
     }
     
     @Override
-    public void delete(String path, String type) throws IOException {
+    public void delete(String path) throws IOException {
         
     }
     
@@ -75,7 +75,17 @@ public class CloudWorkspace implements Workspace {
     public JsonObject exists(String path) throws IOException {
         return null;
     }
-    
+
+    @Override
+    public void move(String src, String dest) throws IOException {
+
+    }
+
+    @Override
+    public void copy(String src, String dest) throws IOException {
+
+    }
+
     // TODO: This is just for future use.
     
     

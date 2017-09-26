@@ -8,7 +8,7 @@ import { getPathSeperator } from 'api-client/api-client';
 import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
 import { getContextMenuItems } from './menu';
-import { exists, create } from './../../workspace/fs-util';
+import { exists, create, move } from './../../workspace/fs-util';
 
 export const EDIT_TYPES = {
     NEW: 'new',
@@ -122,13 +122,13 @@ class TreeNode extends React.Component {
      * Upon name modification completion
      */
     onEditComplete() {
-        const { node, node: { editType }, onNodeDelete } = this.props;
+        const { node, node: { id, editType, parent, type }, onNodeDelete } = this.props;
+        const newFullPath = parent + getPathSeperator() + this.state.inputValue;
+
         if (_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
             onNodeDelete(node);
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
             if (!this.state.editTargetExists) {
-                const { parent, type } = this.props.node;
-                const newFullPath = parent + getPathSeperator() + this.state.inputValue;
                 create(newFullPath, type)
                     .then((sucess) => {
                         if (sucess) {
@@ -140,7 +140,21 @@ class TreeNode extends React.Component {
                     });
             }
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.RENAME) {
-
+            // user didn't change the name, just disable edit mode.
+            if (this.state.inputValue === node.label) {
+                node.enableEdit = false;
+                this.forceUpdate();
+            } else {
+                move(id, newFullPath)
+                    .then((sucess) => {
+                        if (sucess) {
+                            this.props.onNodeRefresh(this.props.parentNode);
+                        }
+                    })
+                    .catch((error) => {
+                        log.error(error.message);
+                    });
+            }
         }
     }
 
