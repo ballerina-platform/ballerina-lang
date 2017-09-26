@@ -190,7 +190,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangConnector connectorNode) {
         BTypeSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
-                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID,null, env.scope.owner);
+                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         defineConnectorSymbol(connectorNode, conSymbol, connectorEnv);
         defineConnectorInitFunction(connectorNode);
