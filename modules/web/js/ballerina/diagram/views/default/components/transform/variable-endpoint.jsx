@@ -108,18 +108,21 @@ export default class VariableEndpoint extends React.Component {
                 <div className='transform-edit-panel'>
                     <VariableTypeDropdown
                         value={this.state.varType}
+                        placeholder='type'
                         onChange={this.typeChange}
                     />
                     <input
                         type='text'
                         className='variable-edit-name'
                         value={this.state.varName}
+                        placeholder='name'
                         onChange={this.nameChange}
                     />
                     <input
                         type='text'
                         className='variable-edit-val'
                         value={this.state.varVal}
+                        placeholder='value'
                         onChange={this.valChange}
                     />
                     <span>
