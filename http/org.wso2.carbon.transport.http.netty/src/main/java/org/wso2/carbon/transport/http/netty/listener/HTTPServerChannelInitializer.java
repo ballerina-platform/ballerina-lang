@@ -44,11 +44,12 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
 
-    private ServerConnectorFuture serverConnectorFuture;
-    private SSLConfig sslConfig;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
     private String interfaceId;
+    private SSLConfig sslConfig;
+    private ServerConnectorFuture serverConnectorFuture;
+    private RequestSizeValidationConfiguration requestSizeValidationConfig;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -84,13 +85,13 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      */
     public void configureHTTPPipeline(ChannelPipeline pipeline) {
         // Removed the default encoder since http/2 version upgrade already added to pipeline
-        if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
-            pipeline.addLast("decoder", new CustomHttpRequestDecoder());
+        if (requestSizeValidationConfig != null && requestSizeValidationConfig.isHeaderSizeValidation()) {
+            pipeline.addLast("decoder", new CustomHttpRequestDecoder(requestSizeValidationConfig));
         } else {
             pipeline.addLast("decoder", new HttpRequestDecoder());
         }
-        if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
-            pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator());
+        if (requestSizeValidationConfig != null && requestSizeValidationConfig.isRequestSizeValidation()) {
+            pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
         }
         pipeline.addLast("compressor", new CustomHttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
@@ -138,5 +139,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setSslConfig(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
+    }
+
+    public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 }

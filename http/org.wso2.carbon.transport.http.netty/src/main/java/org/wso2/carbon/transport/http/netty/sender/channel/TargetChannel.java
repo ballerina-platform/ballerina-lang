@@ -159,18 +159,18 @@ public class TargetChannel {
                 if (httpCarbonRequest.isEndOfMsgAdded() && httpCarbonRequest.isEmpty()) {
                     this.getChannel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;
-                }
-                HttpContent httpContent = httpCarbonRequest.getHttpContent();
-                if (httpContent instanceof LastHttpContent) {
-                    this.getChannel().writeAndFlush(httpContent);
+                } else {
+                    HttpContent httpContent = httpCarbonRequest.getHttpContent();
+                    if (httpContent instanceof LastHttpContent) {
+                        this.getChannel().writeAndFlush(httpContent);
 //                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
 //                                executeAtTargetRequestSending(httpCarbonRequest);
 //                    }
-                    break;
-                }
-                if (httpContent != null) {
-                    this.getChannel().write(httpContent);
+                        break;
+                    } else {
+                        this.getChannel().write(httpContent);
+                    }
                 }
             }
         } catch (Exception e) {

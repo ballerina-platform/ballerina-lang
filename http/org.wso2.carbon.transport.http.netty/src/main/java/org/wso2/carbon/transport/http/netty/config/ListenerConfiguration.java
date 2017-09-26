@@ -93,6 +93,8 @@ public class ListenerConfiguration {
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
 
+    private RequestSizeValidationConfiguration requestSizeValidationConfig;
+
     public ListenerConfiguration() {
     }
 
@@ -246,5 +248,13 @@ public class ListenerConfiguration {
 
     public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+    }
+
+    public RequestSizeValidationConfiguration getRequestSizeValidationConfig() {
+        return requestSizeValidationConfig;
+    }
+
+    public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 }

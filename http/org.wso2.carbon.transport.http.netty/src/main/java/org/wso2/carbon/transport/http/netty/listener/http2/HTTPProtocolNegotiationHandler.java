@@ -47,12 +47,14 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
     private static final Logger log = LoggerFactory.getLogger(HTTPProtocolNegotiationHandler.class);
     protected ConnectionManager connectionManager;
     protected ListenerConfiguration listenerConfiguration;
+    protected RequestSizeValidationConfiguration requestSizeValidationConfig;
 
     public HTTPProtocolNegotiationHandler(ConnectionManager connectionManager, ListenerConfiguration
             listenerConfiguration) {
         super(ApplicationProtocolNames.HTTP_1_1);
         this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
+        this.requestSizeValidationConfig = listenerConfiguration.getRequestSizeValidationConfig();
     }
 
     @Override
@@ -70,13 +72,13 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
         // handles pipeline for HTTP/1 requests after SSL handshake
         if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
             p.addLast("encoder", new HttpResponseEncoder());
-            if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
-                p.addLast("decoder", new CustomHttpRequestDecoder());
+            if (requestSizeValidationConfig.isHeaderSizeValidation()) {
+                p.addLast("decoder", new CustomHttpRequestDecoder(requestSizeValidationConfig));
             } else {
                 p.addLast("decoder", new HttpRequestDecoder());
             }
-            if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
-                p.addLast("custom-aggregator", new CustomHttpObjectAggregator());
+            if (requestSizeValidationConfig.isRequestSizeValidation()) {
+                p.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
             }
             p.addLast("compressor", new HttpContentCompressor());
             p.addLast("chunkWriter", new ChunkedWriteHandler());

@@ -44,10 +44,12 @@ import java.util.Map;
 public class CustomHttpRequestDecoder extends HttpRequestDecoder {
     private static final Logger log = LoggerFactory.getLogger(CustomHttpRequestDecoder.class);
 
-    public CustomHttpRequestDecoder() {
-        super(RequestSizeValidationConfiguration.getInstance().getHeaderMaxRequestLineSize(),
-                RequestSizeValidationConfiguration.getInstance().getHeaderMaxSize(),
-                RequestSizeValidationConfiguration.getInstance().getMaxChunkSize(), true);
+    private RequestSizeValidationConfiguration requestSizeValidationConfig;
+
+    public CustomHttpRequestDecoder(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        super(requestSizeValidationConfig.getHeaderMaxRequestLineSize(), requestSizeValidationConfig.getHeaderMaxSize(),
+                requestSizeValidationConfig.getMaxChunkSize(), true);
+        this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 
     @Override
@@ -75,16 +77,15 @@ public class CustomHttpRequestDecoder extends HttpRequestDecoder {
                         }
                     }
 
-                    String rejectMessage = RequestSizeValidationConfiguration.getInstance().getHeaderRejectMessage();
+                    String rejectMessage = requestSizeValidationConfig.getHeaderRejectMessage();
                     byte[] errorMessageBytes = rejectMessage.getBytes(Charset.defaultCharset());
                     ByteBuf content = Unpooled.wrappedBuffer(errorMessageBytes);
                     DefaultFullHttpResponse rejectResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                            HttpResponseStatus.valueOf(
-                                    RequestSizeValidationConfiguration.getInstance().getHeaderRejectStatusCode()),
+                            HttpResponseStatus.valueOf(requestSizeValidationConfig.getHeaderRejectStatusCode()),
                             content);
                     rejectResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, errorMessageBytes.length);
                     rejectResponse.headers().set(Constants.HTTP_CONTENT_TYPE,
-                            RequestSizeValidationConfiguration.getInstance().getHeaderRejectMsgContentType());
+                            requestSizeValidationConfig.getHeaderRejectMsgContentType());
 
                     ctx.writeAndFlush(rejectResponse);
                     break;
