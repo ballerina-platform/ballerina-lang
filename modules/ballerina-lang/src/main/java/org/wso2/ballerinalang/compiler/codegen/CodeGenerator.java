@@ -549,7 +549,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
+        int mapVarRegIndex = ++regIndexes.tRef;
+        mapLiteral.regIndex = mapVarRegIndex;
+        emit(InstructionCodes.NEWMAP, mapVarRegIndex);
 
+        // Handle Map init stuff
+        for (BLangRecordKeyValue keyValue : mapLiteral.keyValuePairs) {
+            BLangExpression keyExpr = keyValue.key.expr;
+            genNode(keyExpr, this.env);
+
+            BLangExpression valueExpr = keyValue.valueExpr;
+            genNode(valueExpr, this.env);
+
+            emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+        }
     }
 
     @Override
