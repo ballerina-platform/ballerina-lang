@@ -19,6 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
+import { COMMANDS as EDITOR_COMMANDS } from './../editor/constants';
 
 import { REGIONS } from './../layout/constants';
 
@@ -118,7 +119,11 @@ class WorkspacePlugin extends Plugin {
                         reject(JSON.stringify(err));
                     });
             } else {
-                log.warn(`File ${filePath} is already opened.`);
+                const { command: { dispatch } } = this.appContext;
+                dispatch(EDITOR_COMMANDS.ACTIVATE_EDITOR_FOR_FILE, {
+                    filePath,
+                });
+                log.debug(`File ${filePath} is already opened.`);
             }
         });
     }
