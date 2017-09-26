@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -105,11 +106,12 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(Names.EMPTY, Names.EMPTY, null);
+        this.rootPkgSymbol = new BPackageSymbol(PackageID.DEFAULT, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
-        this.notFoundSymbol = new BSymbol(SymTag.NIL, 0, Names.INVALID, noType, rootPkgSymbol);
+        this.notFoundSymbol = new BSymbol(SymTag.NIL, 0, Names.INVALID,
+                rootPkgSymbol.pkgID, noType, rootPkgSymbol);
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
@@ -126,7 +128,8 @@ public class SymbolTable {
 
         // Initialize error type;
         this.errType = new BErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.ERROR, 0, Names.INVALID, errType, rootPkgSymbol);
+        this.errSymbol = new BTypeSymbol(SymTag.ERROR, 0, Names.INVALID,
+                rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
 
         // Initialize builtin error struct type and stackFrame struct.
@@ -136,7 +139,7 @@ public class SymbolTable {
         BStructType.BStructField lineNumberField = new BStructType.BStructField(Names.LINE_NUMBER, intType);
         this.stackFrameType = new BStructType(null,
                 Lists.of(callerField, packageField, fileNameField, lineNumberField));
-        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME,
+        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME, this.rootPkgSymbol.pkgID,
                 this.stackFrameType, rootPkgSymbol);
         defineType(stackFrameType, stackFrameSymbol);
 
@@ -147,7 +150,8 @@ public class SymbolTable {
         BStructType.BStructField stackTraceField = new BStructType.BStructField(Names.STACK_TRACE,
                 new BArrayType(stackFrameType));
         this.errStructType.fields = Lists.of(msgField, causeField, stackTraceField);
-        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.errStructType, rootPkgSymbol);
+        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.rootPkgSymbol.pkgID,
+                this.errStructType, rootPkgSymbol);
         defineType(errStructType, errStructSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
@@ -184,7 +188,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, 0, name, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, 0, name, null, type, rootPkgSymbol));
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
@@ -336,7 +340,7 @@ public class SymbolTable {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BCastOperatorSymbol symbol = new BCastOperatorSymbol(opType, rootPkgSymbol,
+        BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.rootPkgSymbol,
                 implicit, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
@@ -348,7 +352,8 @@ public class SymbolTable {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(opType, rootPkgSymbol, safe, opcode);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,
+                this.rootPkgSymbol, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 
@@ -357,7 +362,7 @@ public class SymbolTable {
                                 List<BType> retTypes,
                                 int opcode) {
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BOperatorSymbol symbol = new BOperatorSymbol(name, opType, rootPkgSymbol, opcode);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, opcode);
         rootScope.define(name, symbol);
     }
 }
