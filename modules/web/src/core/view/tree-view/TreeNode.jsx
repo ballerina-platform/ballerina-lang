@@ -8,7 +8,7 @@ import { getPathSeperator } from 'api-client/api-client';
 import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
 import { getContextMenuItems } from './menu';
-import { exists } from './../../workspace/fs-util';
+import { exists, create } from './../../workspace/fs-util';
 
 export const EDIT_TYPES = {
     NEW: 'new',
@@ -33,6 +33,7 @@ class TreeNode extends React.Component {
         this.state = {
             disableToolTip: false,
             editError: '',
+            editTargetExists: false,
             inputValue: this.props.node.label,
         };
         this.nameInput = undefined;
@@ -77,12 +78,15 @@ class TreeNode extends React.Component {
             exists(newFullPath)
             .then((resp) => {
                 let editError = '';
+                let editTargetExists = false;
                 if (resp.exists) {
                     editError = `A file or folder "${inputValue}" already exists at this location.
                     Please choose a differrent name`;
+                    editTargetExists = true;
                 }
                 this.setState({
                     editError,
+                    editTargetExists,
                 });
             })
             .catch((error) => {
@@ -94,6 +98,7 @@ class TreeNode extends React.Component {
         } else {
             this.setState({
                 editError: '',
+                editTargetExists: false,
             });
         }
     }
@@ -120,12 +125,22 @@ class TreeNode extends React.Component {
         const { node, node: { editType }, onNodeDelete } = this.props;
         if (_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
             onNodeDelete(node);
-        } else {
-            node.label = this.state.inputValue;
-            node.enableEdit = false;
-            this.forceUpdate();
-            // FIX ME: Implement logic to rename file/folder  or to create file/folder
-            // using BE services along with error handling
+        } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
+            if (!this.state.editTargetExists) {
+                const { parent, type } = this.props.node;
+                const newFullPath = parent + getPathSeperator() + this.state.inputValue;
+                create(newFullPath, type)
+                    .then((sucess) => {
+                        if (sucess) {
+                            this.props.onNodeRefresh(this.props.parentNode);
+                        }
+                    })
+                    .catch((error) => {
+                        log.error(error.message);
+                    });
+            }
+        } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.RENAME) {
+
         }
     }
 
@@ -202,7 +217,7 @@ class TreeNode extends React.Component {
                                 onChange={this.onEditName}
                                 onBlur={this.onEditComplete}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                                    if (e.key === 'Enter' && !this.state.editTargetExists) {
                                         this.onEditComplete();
                                     } else if (e.key === 'Escape') {
                                         this.onEditEscape();
@@ -286,8 +301,10 @@ TreeNode.propTypes = {
         enableEdit: PropTypes.bool,
 
     }).isRequired,
+    parentNode: PropTypes.objectOf(Object),
     onNodeUpdate: PropTypes.func,
     onNodeDelete: PropTypes.func,
+    onNodeRefresh: PropTypes.func,
     enableContextMenu: PropTypes.bool,
     children: PropTypes.node,
     onClick: PropTypes.func,
@@ -298,6 +315,7 @@ TreeNode.defaultProps = {
     enableContextMenu: false,
     onNodeDelete: () => {},
     onNodeUpdate: () => {},
+    onNodeRefresh: () => {},
     onClick: () => {},
     onDoubleClick: () => {},
 };
