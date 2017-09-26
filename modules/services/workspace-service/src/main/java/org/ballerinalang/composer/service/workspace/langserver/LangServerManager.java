@@ -46,11 +46,13 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentP
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangPrograms;
@@ -60,6 +62,7 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
 import java.io.IOException;
@@ -535,24 +538,32 @@ public class LangServerManager {
 
             CompilerContext compilerContext = new CompilerContext();
 
-            HashMap<String, byte[]> contentMap = new HashMap<>();
-            contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
+            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
+            // HashMap<String, byte[]> contentMap = new HashMap<>();
+            // contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
 
-            options = CompilerOptions.getInstance(compilerContext);
-            options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
-            options.put(COMPILER_PHASE, "typeCheck");
+             options = CompilerOptions.getInstance(compilerContext);
+             options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
+             options.put(COMPILER_PHASE, "typeCheck");
 
-                LangServerPackageRepository pkgRepo =
-                    new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
+            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
+            // LangServerPackageRepository pkgRepo =
+            //        new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
             SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
 
+            List<Name> names = new ArrayList<>();
+            names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+            PackageID tempPackageID = new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+            InMemoryPackageRepository inMemoryPackageRepository = new InMemoryPackageRepository(tempPackageID, "",
+                    "temp.bal", textContent.getBytes(StandardCharsets.UTF_8));
+            compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
+
             CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
-            compilerContext.put(PackageRepository.class, pkgRepo);
             compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
             Compiler compiler = Compiler.getInstance(compilerContext);
             // here we need to compile the whole package
-            BLangPackage bLangPackage = compiler.compile("test.bal");
+            BLangPackage bLangPackage = compiler.compile("temp.bal");
 
             // Visit the package to resolve the symbols
             TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
@@ -573,6 +584,10 @@ public class LangServerManager {
         } else {
             logger.warn("Invalid Message type found");
         }
+    }
+
+    public static void main(String[] args) {
+
     }
 
     /**
