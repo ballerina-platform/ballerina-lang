@@ -406,6 +406,8 @@ class BallerinaFileEditor extends React.Component {
                             // get ast from json
                             const ast = TreeBuilder.build(jsonTree /* , this.props.file*/);
                             console.log(ast);
+                            // Populate the tree with a package declaration node
+                            TreeBuilder.populateDefaultPackageDeclaration(ast);
                             // TODOX this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
@@ -421,7 +423,7 @@ class BallerinaFileEditor extends React.Component {
                             // update package name of the file
                             // TODOX file.packageName = pkgName || '.';
                             // init bal env in background
-                            /*BallerinaEnvironment.initialize()
+                            /* BallerinaEnvironment.initialize()
                                 .then(() => {
                                     this.environment.init();
 

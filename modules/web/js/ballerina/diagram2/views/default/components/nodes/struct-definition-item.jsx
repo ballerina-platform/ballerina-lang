@@ -23,6 +23,7 @@ import Alerts from 'alerts';
 import * as DesignerDefaults from '../../designer-defaults';
 import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
+import NodeFactory from './../../../../../model/node-factory';
 
 const closeButtonWidth = 40;
 /**
@@ -50,8 +51,6 @@ class StructDefinitionItem extends React.Component {
      * @param {Object} node
      */
     deleteStatement(model) {
-      //  model.parent.parent.removeTopLevelNodes(model);
-        // Remove the variable node
         model.parent.removeFields(model);
     }
     render() {
@@ -133,7 +132,6 @@ class StructDefinitionItem extends React.Component {
                             Alerts.error(errorString);
                             throw errorString;
                         }
-                        //model.setIdentifier(this.state.newIdentifier || identifier);
                         model.getName().setValue(this.state.newIdentifier || identifier);
                     }}
                     editing={this.state.newIdentifierEditing}
@@ -172,18 +170,15 @@ class StructDefinitionItem extends React.Component {
                             // const valueArrayId = model.getRightExpression() && model.getRightExpression().id;
                             const valueArrayId = model.getInitialExpression() && model.getInitialExpression().id;
                             if (valueArrayId) {
-                                // model.removeChildById(valueArrayId);
                                 // Remove the literal node
-                                model.removeInitialExpressions(model.getInitialExpression());
-                                console.log("Value removed");
+                                model.getInitialExpression().setValue('');
                             }
                         } else {
                             const newDefaultValue = this.props.addQuotesToString(type, this.state.newDefaultValue);
-                            // model.setValue(newDefaultValue);
                             if (model.getInitialExpression()) {
                                 model.getInitialExpression().setValue(newDefaultValue);
                             } else {
-                                // Create a literal node and then add to the variable node
+                                model.setInitialExpression(NodeFactory.createLiteral({ value: newDefaultValue }));
                             }
                         }
                     }}

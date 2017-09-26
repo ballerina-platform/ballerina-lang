@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { packageDefinition } from '../../designer-defaults';
 import './package-definition.css';
-import ImportDeclaration from './import-declaration';
+import ImportDeclaration from './import-node';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
@@ -28,6 +28,7 @@ import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 import PackageDeclarationModel from '../../../../../model/tree/abstract-tree/package-declaration-node';
 import { parseContent } from './../../../../../../api-client/api-client';
+import NodeFactory from './../../../../../model/node-factory';
 
 /**
  * Class representing the package definition and other top level views.
@@ -118,18 +119,45 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
+        const valueSplitted = value.split(' ');
+        let isConst = false;
+        let identifier,
+            type,
+            valueOfGlobal = '';
+        // Check if the value is a constant or a global value
+        if (valueSplitted[0] === 'const') {
+            isConst = true;
+            type = valueSplitted[1];
+            identifier = valueSplitted[2];
+            valueOfGlobal = valueSplitted[4];
+            if (valueOfGlobal === undefined) {
+                log.debug('Variable value for a constant cannot be undefined');
+                return;
+            }
+        } else {
+            type = valueSplitted[0];
+            identifier = valueSplitted[1];
+            valueOfGlobal = valueSplitted[3];
+        }
+        if (this.props.model.parent.isExistingGlobalIdentifier(identifier)) {
+            const errorString = 'A global variable with this identifier  "' + identifier + '" already exists.';
+            log.debug(errorString);
+            return;
+        }
 
-        value += ';\n';
-        parseContent(value)
-            .then((jsonTree) => {
-                // 0 th object of jsonTree is a packageDeclaration. Next should be global var or const.
-                if (!jsonTree.root[1]) {
-                    return;
-                }
+        const identifierNode = NodeFactory.createIdentifier({ value: identifier });
+        const typeNode = NodeFactory.createValueType({ typeKind: type });
+        let literalNode = null;
+        if (valueOfGlobal !== undefined) {
+            literalNode = NodeFactory.createLiteral({value: valueOfGlobal});
+        }
 
-                this.props.model.parent.addGlobal(jsonTree.root[1]);
-            })
-            .catch(log.error);
+        // Create a variable node
+        const variableNode = NodeFactory.createVariable({ name: identifierNode,
+            initialExpression: literalNode,
+            typeNode,
+            const: isConst });
+        this.props.model.parent.addTopLevelNodes(variableNode);
     }
 
     /**
@@ -140,14 +168,15 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
-        value = 'import ' + value + ';\n';
-        parseContent(value)
-            .then((jsonTree) => {
-                if (jsonTree.root[1]) {
-                    this.props.model.parent.addImportFromJson(jsonTree.root[1]);
-                }
-            })
-            .catch(log.error);
+        // value = 'import ' + value + ';\n';
+        if (this.props.model.parent.isExistingPackage(value)) {
+            const errorString = 'Package "' + value + '" is already imported.';
+            log.debug(errorString);
+            return;
+        }
+        // Create import node
+        const importNode = NodeFactory.createImport({ package: value });
+        this.props.model.parent.addTopLevelNodes(importNode);
     }
 
     /**
@@ -155,15 +184,15 @@ class PackageDeclarationNode extends React.Component {
      * @param {object} deletedGlobal - global constant or variable node deleted
      */
     handleDeleteGlobal(deletedGlobal) {
-        this.props.model.parent.deleteGlobal(deletedGlobal);
+        this.props.model.parent.removeTopLevelNodes(deletedGlobal);
     }
 
     /**
      * Called when a new import declaration is deleted
      * @param {string} value - name of the package deleted
      */
-    handleDeleteImport(value) {
-        this.props.model.parent.deleteImport(value);
+    handleDeleteImport(importDecl) {
+        this.props.model.parent.removeTopLevelNodes(importDecl);
     }
 
     /**

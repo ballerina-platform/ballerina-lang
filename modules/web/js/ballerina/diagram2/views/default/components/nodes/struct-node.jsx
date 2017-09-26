@@ -30,6 +30,7 @@ import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
 import TreeUtils from './../../../../../model/tree-util';
 import Node from './../../../../../../ballerina/model/tree/node';
+import NodeFactory from './../../../../../model/node-factory';
 
 /**
  * @class StructDefinition
@@ -79,8 +80,8 @@ class StructNode extends React.Component {
         }
 
         const { model } = this.props;
-        const identifierAlreadyExists = _.findIndex(model.getVariableDefinitionStatements(), (variableDefinitionStatement) => {
-            return variableDefinitionStatement.getIdentifier() === identifier;
+        const identifierAlreadyExists = _.findIndex(model.getFields(), (field) => {
+            return field.getName().value === identifier;
         }) !== -1;
         if (identifierAlreadyExists) {
             const errorString = `A variable with identifier ${identifier} already exists.`;
@@ -89,8 +90,16 @@ class StructNode extends React.Component {
         }
 
         this.validateDefaultValue(this.state.newType, this.state.newValue);
+        const identifierNode = NodeFactory.createIdentifier({ value: identifier });
+        const typeNode = NodeFactory.createValueType({ typeKind: bType });
+        const literalNode = NodeFactory.createLiteral({ value: defaultValue });
 
-        this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
+        // Create a variable node
+        const variableNode = NodeFactory.createVariable({ name: identifierNode,
+            initialExpression: literalNode,
+            typeNode: typeNode });
+        // Pass the variable node into the field
+        this.props.model.addFields(variableNode);
     }
     /**
      * Handle the default value if the data type is a string
@@ -171,9 +180,6 @@ class StructNode extends React.Component {
      * @param {string} identifier - identifier name
      */
     validateIdentifierName(identifier) {
-        console.log('VIN');
-        console.log(identifier);
-
         if (Node.isValidIdentifier(identifier)) {
             return true;
         }
@@ -231,6 +237,9 @@ class StructNode extends React.Component {
         const { environment } = this.context;
         // Environment does not load the types
         // const structSuggestions = environment.getTypes().map(name => ({ name }));
+        const typeArray = ['any', 'blob', 'boolean', 'connector', 'datatable', 'float', 'int', 'json', 'map',
+            'message', 'string', 'type', 'xml'];
+        const structSuggestions = typeArray.map(name => ({ name }));
         return (
             <g>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
@@ -241,7 +250,7 @@ class StructNode extends React.Component {
                         y={y + DesignerDefaults.contentOperations.height / 2 + 2}
                     > {this.state.newType || 'Select Type'}
                     </text>
-                    {/* <SuggestionsText
+                    <SuggestionsText
                         {...typeCellbox}
                         suggestionsPool={structSuggestions}
                         show={this.state.canShowAddType}
@@ -249,7 +258,7 @@ class StructNode extends React.Component {
                         onEnter={() => this.hideAddSuggestions()}
                         onChange={value => this.onAddStructTypeChange(value)}
                         value={this.state.newType}
-                    />*/}
+                    />
                 </g>
                 <g onClick={e => this.setState({ newIdentifierEditing: true })} >
                     <rect {...identifierCellBox} className="struct-input-value-wrapper" />
