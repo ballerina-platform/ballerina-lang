@@ -68,6 +68,8 @@ public enum DiagnosticCode {
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
+    FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
+    FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE("func.defined.on.non.local.struct.type"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
