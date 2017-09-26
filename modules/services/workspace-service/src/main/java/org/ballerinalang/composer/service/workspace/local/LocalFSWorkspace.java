@@ -140,7 +140,7 @@ public class LocalFSWorkspace implements Workspace {
     public JsonArray listFilesInPath(String path, List<String> extensions) throws IOException {
         Path ioPath = Paths.get(path);
         JsonArray dirs = new JsonArray();
-        Iterator<Path> iterator = Files.list(ioPath).iterator();
+        Iterator<Path> iterator = Files.list(ioPath).sorted().iterator();
         while (iterator.hasNext()) {
             Path next = iterator.next();
             if ((Files.isDirectory(next) || Files.isRegularFile(next)) && !Files.isHidden(next) &&
