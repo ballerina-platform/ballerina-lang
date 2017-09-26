@@ -417,4 +417,8 @@ public abstract class BLangNodeVisitor {
     public void visit(BFunctionPointerInvocation bFunctionPointerInvocation) {
         throw new AssertionError();
     }
+
+    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
+        throw new AssertionError();
+    }
 }

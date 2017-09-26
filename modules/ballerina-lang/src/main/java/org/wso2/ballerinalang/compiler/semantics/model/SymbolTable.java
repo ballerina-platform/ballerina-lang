@@ -58,6 +58,9 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
+    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
+
+
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
@@ -107,7 +110,7 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(PackageID.DEFAULT, null);
+        this.rootPkgSymbol = new BPackageSymbol(BUILTIN, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;

@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -312,6 +314,29 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+        if (pkgAlias != Names.EMPTY) {
+            dlog.error(iExpr.pos, DiagnosticCode.PKG_ALIAS_NOT_ALLOWED_HERE);
+            return;
+        }
+
+        // Find the variable reference expression type
+        checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
+        switch (iExpr.expr.type.tag) {
+            case TypeTags.STRUCT:
+                // Invoking a function bound to a struct
+                // First check whether there exist a function with this name
+                // Then perform arg and param matching
+                checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
+                break;
+            case TypeTags.CONNECTOR:
+                // TODO handle action invocation
+                break;
+            default:
+                // TODO Handle this condition
+        }
+
+
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
         if (iExpr.expr instanceof BLangSimpleVarRef) {
@@ -319,7 +344,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-//        checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
     }
 
     public void visit(BLangConnectorInit cIExpr) {
@@ -570,7 +594,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
-        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         Name funcName = names.fromIdNode(iExpr.name);
         BSymbol funcSymbol = symResolver.resolveFunction(iExpr.pos, this.env,
                 names.fromIdNode(iExpr.pkgAlias), funcName);
@@ -579,7 +602,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol functionPointer = symResolver.lookupSymbol(env, funcName, SymTag.VARIABLE);
             if (functionPointer.type.tag != TypeTags.INVOKABLE) {
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
-                resultTypes = actualTypes;
+                resultTypes = getListWithErrorTypes(expTypes.size());
                 return;
             }
             iExpr.functionPointerInvocation = true;
@@ -589,16 +612,35 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
+        checkInvocationParamAndReturnType(iExpr);
+    }
 
+    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructType structType) {
+        Name funcName = getFuncSymbolName(iExpr, structType);
+        BPackageSymbol packageSymbol = (BPackageSymbol) structType.tsymbol.owner;
+        BSymbol funcSymbol = symResolver.lookupMemberSymbol(packageSymbol.scope, funcName, SymTag.FUNCTION);
+        if (funcSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+            resultTypes = getListWithErrorTypes(expTypes.size());
+            return;
+        }
+
+        iExpr.symbol = funcSymbol;
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
+        BSymbol funcSymbol = iExpr.symbol;
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
         if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
             checkExpr(iExpr.argExprs.get(0), this.env, paramTypes);
 
         } else if (paramTypes.size() > iExpr.argExprs.size()) {
-            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, funcName);
+            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
 
         } else if (paramTypes.size() < iExpr.argExprs.size()) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, funcName);
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
 
         } else {
             for (int i = 0; i < iExpr.argExprs.size(); i++) {
@@ -607,7 +649,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualTypes = funcSymbol.type.getReturnTypes();
         }
 
-        checkInvocationReturnTypes(iExpr, actualTypes, funcName);
+        checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr) {
@@ -662,18 +704,18 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes, actionSym.name);
     }
 
-    private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes, Name funcName) {
+    private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes) {
         List<BType> newActualTypes = actualTypes;
         List<BType> newExpTypes = this.expTypes;
         int expected = this.expTypes.size();
         int actual = actualTypes.size();
         if (expected == 1 && actual > 1) {
-            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, funcName);
+            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, iExpr.name.value);
             newActualTypes = getListWithErrorTypes(expected);
         } else if (expected == 0) {
             // This could be from a expression statement. e.g foo();
             if (this.env.node.getKind() != NodeKind.EXPRESSION_STATEMENT) {
-                dlog.error(iExpr.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, funcName);
+                dlog.error(iExpr.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, iExpr.name.value);
             }
             newExpTypes = newActualTypes;
         } else if (expected != actual) {
@@ -683,6 +725,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
+    }
+
+    private Name getFuncSymbolName(BLangInvocation iExpr, BStructType structType) {
+        return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 
     private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name funcName) {

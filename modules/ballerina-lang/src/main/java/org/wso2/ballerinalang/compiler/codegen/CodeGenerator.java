@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -237,6 +238,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> abortInstructions = new Stack<>();
 
     private int workerChannelCount = 0;
+    private int forkJoinCount = 0;
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -836,6 +838,22 @@ public class CodeGenerator extends BLangNodeVisitor {
         FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+    }
+
+    public void visit(BLangFunctionInvocation iExpr) {
+        BInvokableSymbol funcSymbol = (BInvokableSymbol) iExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+
+        int funcCallCPIndex = getFunctionCallCPIndex(iExpr);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+
+        if (Symbols.isNative(funcSymbol)) {
+            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallCPIndex);
+        } else {
+            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
+        }
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
@@ -1706,12 +1724,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
         ForkjoinInfo forkjoinInfo = this.processForkJoinTimeout(forkJoin);
         this.populatForkJoinWorkerInfo(forkJoin, forkjoinInfo);
-        int forkJoinInfoIndex;
+        int forkJoinInfoIndex = this.forkJoinCount++;
         /* was I already inside a fork/join */
         if (this.env.forkJoin != null) {
-            forkJoinInfoIndex = this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
+            this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
         } else {
-            forkJoinInfoIndex = this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
+            this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
         }
         ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
         int forkJoinInfoIndexCPEntryIndex = this.currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
@@ -1739,7 +1757,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
         this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
-        this.endWorkerInfoUnit(this.currentWorkerInfo.codeAttributeInfo);
     }
 
     private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {

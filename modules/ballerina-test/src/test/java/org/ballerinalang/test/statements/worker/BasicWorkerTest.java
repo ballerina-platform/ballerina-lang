@@ -42,36 +42,37 @@ public class BasicWorkerTest {
         BTestUtils.invoke(result, "workerDeclTest", new BValue[0]);
     }
     
-    @Test (enabled = false)
+    @Test
     public void simpleWorkerMessagePassingTest() {
         BTestUtils.invoke(result, "simpleWorkerMessagePassingTest", new BValue[0]);
     }
     
-    @Test (enabled = false)
+    @Test
     public void basicForkJoinTest() {
         BValue[] vals = BTestUtils.invoke(result, "basicForkJoinTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
     }
     
-    @Test (enabled = false)
+    @Test
     public void forkJoinWithMessageParsingTest() {
         BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMessageParsingTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
     
-    @Test (enabled = false)
+    @Test
     public void forkJoinWithSingleForkMessages() {
         BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSingleForkMessages", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
     
-    @Test (enabled = false)
+    @Test
     public void forkJoinWithMultipleForkMessages() {
         BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMultipleForkMessages", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
+    
 }
