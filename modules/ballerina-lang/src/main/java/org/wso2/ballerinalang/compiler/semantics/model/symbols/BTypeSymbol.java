@@ -29,6 +29,7 @@ import java.util.List;
 public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public List<BVarSymbol> params;
+    public BInvokableSymbol initFunction;
 
     public BTypeSymbol(int kind, int flags, Name name, BType type, BSymbol owner) {
         super(kind, flags, name, type, owner);

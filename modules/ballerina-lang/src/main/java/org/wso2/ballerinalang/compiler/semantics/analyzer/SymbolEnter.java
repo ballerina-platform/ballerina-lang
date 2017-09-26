@@ -193,6 +193,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), null, env.scope.owner);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         defineConnectorSymbol(connectorNode, conSymbol, connectorEnv);
+        conSymbol.pkgName = env.scope.owner.name;
         defineConnectorInitFunction(connectorNode);
     }
 
@@ -216,6 +217,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name), null,
                         env.scope.owner);
+        BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
+        param.pos = env.node.pos;
+        param.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
+        BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        connectorType.pos = env.node.pos;
+        connectorType.typeName = ((BLangConnector) env.node).name;
+        param.setTypeNode(connectorType);
+        List<BLangVariable> params = new ArrayList<>();
+        params.add(param);
+        params.addAll(actionNode.params);
+        actionNode.params = params;
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
     }
@@ -423,7 +435,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
 
-        symbol.type = new BConnectorType(paramTypes, null);
+        symbol.type = new BConnectorType(paramTypes, symbol);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
@@ -479,6 +491,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         addInitReturnStatement(initFunction.body);
         connector.initFunction = initFunction;
         defineNode(connector.initFunction, env);
+        connector.symbol.initFunction = initFunction.symbol;
     }
 
     private void defineServiceInitFunction(BLangService service) {

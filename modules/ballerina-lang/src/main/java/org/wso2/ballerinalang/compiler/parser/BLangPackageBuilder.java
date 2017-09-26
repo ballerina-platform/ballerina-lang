@@ -392,7 +392,8 @@ public class BLangPackageBuilder {
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
@@ -406,7 +407,8 @@ public class BLangPackageBuilder {
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         this.connectorInitNodeStack.push(connectorInitNode);
     }

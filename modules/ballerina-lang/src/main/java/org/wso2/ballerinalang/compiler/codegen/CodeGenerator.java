@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -71,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -114,9 +117,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.ActionInfo;
 import org.wso2.ballerinalang.programfile.AnnAttachmentInfo;
 import org.wso2.ballerinalang.programfile.AnnAttributeValue;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
+import org.wso2.ballerinalang.programfile.ConnectorInfo;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
@@ -141,6 +146,7 @@ import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -217,6 +223,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private LocalVariableAttributeInfo localVarAttrInfo;
     private WorkerInfo currentWorkerInfo;
     private ServiceInfo currentServiceInfo;
+    private ConnectorInfo currentConnectorInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -302,6 +309,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.structs.forEach(this::createStructInfoEntry);
+        pkgNode.connectors.forEach(this::createConnectorInfoEntry);
 //        createConnectorInfoEntries(bLangPackage.getConnectors());
 //        createServiceInfoEntries(bLangPackage.getServices());
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
@@ -757,7 +765,134 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
             }
+        } else if (iExpr.expr instanceof BLangSimpleVarRef) {
+            BInvokableSymbol actionSymbol = (BInvokableSymbol) iExpr.symbol;
+            BPackageSymbol pkgSymbol = (BPackageSymbol) actionSymbol.owner.owner;
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+            int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
+
+            PackageInfo packageInfo = programFile.getPackageInfo(pkgSymbol.name.value);
+            ConnectorInfo connectorInfo = packageInfo.getConnectorInfo(actionSymbol.owner.name.value);
+            int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.owner.name.value);
+
+            StructureRefCPEntry connectorRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connectorNameCPIndex);
+            int connectorRefCPIndex = currentPkgInfo.addCPEntry(connectorRefCPEntry);
+
+
+            ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
+                    connectorRefCPIndex, actionNameCPIndex);
+            ActionInfo actionInfo = connectorInfo.actionInfoMap.get(iExpr.name.value);
+            actionRefCPEntry.setActionInfo(actionInfo);
+            int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
+            int actionCallIndex = getFunctionCallCPIndex(iExpr);
+
+            if (Symbols.isNative(iExpr.symbol)) {
+                // TODO Move this to the place where we create action info entry
+//                actionInfo.setNativeAction((AbstractNativeAction) actionIExpr.getCallableUnit());
+                emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
+            } else {
+                emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
+            }
+
         }
+    }
+
+    public void visit(BLangConnectorInit cIExpr) {
+
+        BConnectorType connectorType = (BConnectorType) cIExpr.type;
+//        BConnectorSymbol connectorType = cIExpr.symbol;
+        BTypeSymbol connectorSymbol = connectorType.tsymbol;
+        BPackageSymbol pkgSymbol = (BPackageSymbol) connectorSymbol.owner;
+//
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+        int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorType.tsymbol.name.value);
+
+        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgSymbol.name.value);
+        ConnectorInfo connectorInfo = packageInfo.getConnectorInfo(connectorType.tsymbol.name.value);
+//        connectorInfo.setFilterConnector(isfil);
+        int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+        //Emit an instruction to create a new connector.
+        int connectorRegIndex = ++regIndexes.tRef;
+        emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
+
+
+        List<BLangExpression> argExprs = cIExpr.argsExpr;
+        for (int i = 0; i < argExprs.size(); i++) {
+            BLangExpression argExpr = argExprs.get(i);
+            genNode(argExpr, this.env);
+            BVarSymbol paramSymbol = connectorType.tsymbol.params.get(i);
+
+            int fieldIndex = paramSymbol.varIndex;
+            int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.IFIELDSTORE);
+            emit(opcode, connectorRegIndex, fieldIndex, argExpr.regIndex);
+        }
+
+
+
+
+        BInvokableSymbol initFunc = connectorSymbol.initFunction;
+
+        int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
+        int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
+//        FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[0], new int[0]);
+        int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
+        emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+//
+//
+//        BInvokableSymbol initAction = connectorType.initAction;
+//        if (initAction == null) {
+//            return;
+//        }
+//
+//        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, initAction.name.value);
+//
+//        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, structureRefCPIndex, actionNameCPIndex);
+//
+//        ActionInfo actionInfo = connectorInfo.actionInfoMap.get(initAction.name);
+//        actionRefCPEntry.setActionInfo(actionInfo);9
+//        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
+////
+////        actionInfo.setNativeAction((AbstractNativeAction) initAction.getNativeAction().load());
+////        actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
+////        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
+//
+////        connectorInfo
+
+
+
+
+
+
+
+
+
+
+
+//
+//        baseConnectorInfo = null;
+//        // Invoke Connector init native action if any
+//        BallerinaAction action = connectorDef.getInitAction();
+//        if (action == null) {
+//            return;
+//        }
+//
+//        String actionName = action.getName();
+//        UTF8CPEntry actionNameCPEntry = new UTF8CPEntry(actionName);
+//        int actionNameCPIndex = currentPkgInfo.addCPEntry(actionNameCPEntry);
+//        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgCPIndex, connectorDef.getPackagePath(),
+//                structureRefCPIndex, structureRefCPEntry, actionNameCPIndex, actionName);
+//
+//        ActionInfo actionInfo = connectorInfo.getActionInfo(actionName);
+//        actionRefCPEntry.setActionInfo(actionInfo);
+//        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
+//
+//        actionInfo.setNativeAction((AbstractNativeAction) action.getNativeAction().load());
+//        actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
+//        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
+
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
@@ -915,6 +1050,16 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         for (BType retType : callableUnitInfo.retParamTypes) {
             strBuilder.append(retType.getDesc());
+        }
+        strBuilder.append(")");
+
+        return strBuilder.toString();
+    }
+
+    private String generateSignature(ConnectorInfo callableUnitInfo) {
+        StringBuilder strBuilder = new StringBuilder("(");
+        for (BType paramType : callableUnitInfo.paramTypes) {
+            strBuilder.append(paramType.getDesc());
         }
         strBuilder.append(")");
 
@@ -1331,6 +1476,55 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
+    private void createConnectorInfoEntry(BLangConnector connectorNode) {
+        BConnectorType connectorType = (BConnectorType) connectorNode.symbol.type;
+        // Add connector name as an UTFCPEntry to the constant pool
+        int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorNode.name.value);
+        //Create connector info
+        ConnectorInfo connectorInfo = new ConnectorInfo(currentPackageRefCPIndex, connectorNameCPIndex);
+        connectorInfo.paramTypes = connectorType.paramTypes.toArray(new BType[0]);
+        connectorInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateSignature(connectorInfo));
+        // Add connector level variables
+        int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
+        connectorNode.varDefs.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
+        connectorInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
+
+        // Create variable count attribute info
+        // Create variable count attribute info
+        prepareIndexes(fieldIndexes);
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+        addVariableCountAttributeInfo(currentPkgInfo, connectorInfo, fieldCount);
+
+        // Create the init function info
+        BLangFunction connectorInitFunction = (BLangFunction) connectorNode.getInitFunction();
+        createFunctionInfoEntry(connectorInitFunction);
+        connectorInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(connectorInitFunction.name.toString());
+        this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
+        // Create action info entries for all resources
+        connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
+    }
+
+    private void createActionInfoEntry(BLangAction actionNode, ConnectorInfo connectorInfo) {
+        BInvokableSymbol actionSymbol = actionNode.symbol;
+        BInvokableType actionType = (BInvokableType) actionSymbol.type;
+        // Add action name as an UTFCPEntry to the constant pool
+        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionNode.name.value);
+        ActionInfo actionInfo = new ActionInfo(currentPackageRefCPIndex, actionNameCPIndex);
+
+        actionInfo.paramTypes = actionType.paramTypes.toArray(new BType[0]);
+        actionInfo.retParamTypes = actionType.retTypes.toArray(new BType[0]);
+        actionInfo.flags = actionSymbol.flags;
+//        setParameterNames(actionNode, actionInfo);
+        actionInfo.signatureCPIndex = addUTF8CPEntry(currentPkgInfo, generateSignature(actionInfo));
+        // Add worker info
+        this.addWorkerInfoEntries(actionInfo, actionNode.getWorkers());
+
+        // Add action info to the service info
+        connectorInfo.actionInfoMap.put(actionNode.name.getValue(), actionInfo);
+    }
+
     private void createServiceInfoEntry(BLangService serviceNode) {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
@@ -1701,11 +1895,28 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        /* ignore */
+        BLangFunction initFunction = (BLangFunction) connectorNode.getInitFunction();
+        visit(initFunction);
+
+        currentConnectorInfo = currentPkgInfo.getConnectorInfo(connectorNode.getName().getValue());
+
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        connectorNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        currentConnectorInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, this.env);
+        connectorNode.actions.forEach(action -> genNode(action, connectorEnv));
     }
 
     public void visit(BLangAction actionNode) {
-        /* ignore */
+        ActionInfo actionInfo = currentConnectorInfo.actionInfoMap.get(actionNode.name.getValue());
+        currentCallableUnitInfo = actionInfo;
+
+        SymbolEnv actionEnv = SymbolEnv
+                .createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, this.env);
+        visitInvokableNode(actionNode, currentCallableUnitInfo, actionEnv);
     }
 
     public void visit(BLangStruct structNode) {

@@ -430,16 +430,16 @@ public class ProgramFileReader {
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
 
-            Map<Integer, Integer> methodTableInteger = new HashMap<>();
-            int count = dataInStream.readInt();
-
-            for (int k = 0; k < count; k++) {
-                int key = dataInStream.readInt();
-                int value = dataInStream.readInt();
-                methodTableInteger.put(new Integer(key), new Integer(value));
-            }
-
-            connectorInfo.setMethodTableIndex(methodTableInteger);
+//            Map<Integer, Integer> methodTableInteger = new HashMap<>();
+//            int count = dataInStream.readInt();
+//
+//            for (int k = 0; k < count; k++) {
+//                int key = dataInStream.readInt();
+//                int value = dataInStream.readInt();
+//                methodTableInteger.put(new Integer(key), new Integer(value));
+//            }
+//
+//            connectorInfo.setMethodTableIndex(methodTableInteger);
 
             boolean isFilterConnector = dataInStream.readBoolean();
             connectorInfo.setFilterConnector(isFilterConnector);
@@ -461,6 +461,8 @@ public class ProgramFileReader {
                 UTF8CPEntry actionSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(actionSigCPIndex);
                 actionInfo.setSignatureCPIndex(actionSigCPIndex);
                 actionInfo.setSignature(actionSigUTF8Entry.getValue());
+                int flags = dataInStream.readInt();
+//                actionInfo.setflags(flags);
                 setCallableUnitSignature(actionInfo, actionSigUTF8Entry.getValue(), packageInfo);
 
                 // TODO Temp solution.

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +34,13 @@ public class ConnectorInfo extends StructureTypeInfo {
     // Connector constructor signature
     public int signatureCPIndex;
 
+    public BType[] paramTypes;
+
     public BConnectorType connectorType;
 
     public Map<String, ActionInfo> actionInfoMap = new HashMap<>();
+
+    public FunctionInfo initFuncInfo;
 
     private boolean isFilterConnector = false;
 
@@ -43,9 +48,8 @@ public class ConnectorInfo extends StructureTypeInfo {
     protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
     protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
 
-    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex, int signatureCPIndex) {
+    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex) {
         super(pkgPathCPIndex, nameCPIndex);
-        this.signatureCPIndex = signatureCPIndex;
     }
 
     public Map<Integer, Integer> getMethodTableIndex() {

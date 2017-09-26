@@ -25,8 +25,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -41,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
@@ -98,6 +101,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -181,13 +185,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConnector connectorNode) {
+        connectorNode.params = rewrite(connectorNode.params);
         connectorNode.actions = rewrite(connectorNode.actions);
         connectorNode.varDefs = rewrite(connectorNode.varDefs);
+        connectorNode.initFunction = rewrite(connectorNode.initFunction);
         result = connectorNode;
     }
 
     @Override
     public void visit(BLangAction actionNode) {
+        actionNode.params = rewrite(actionNode.params);
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
         result = actionNode;
@@ -446,17 +453,35 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         BLangInvocation genIExpr = invocationExpr;
-        invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
-        invocationExpr.expr = rewriteExpr(invocationExpr.expr);
-        if (invocationExpr.functionPointerInvocation) {
-            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-            varRef.symbol = (BVarSymbol) invocationExpr.symbol;
-            varRef.type = invocationExpr.symbol.type;
-            genIExpr = new BFunctionPointerInvocation(invocationExpr, varRef);
+        if (invocationExpr.expr == null) {
+            invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
+            if (invocationExpr.functionPointerInvocation) {
+                BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+                varRef.symbol = (BVarSymbol) invocationExpr.symbol;
+                varRef.type = invocationExpr.symbol.type;
+                genIExpr = new BFunctionPointerInvocation(invocationExpr, varRef);
+            }
+        } else if (invocationExpr.expr instanceof BLangSimpleVarRef) {
+            invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
+            invocationExpr.expr = rewriteExpr(invocationExpr.expr);
+            if (invocationExpr.functionPointerInvocation) {
+                BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+                varRef.symbol = (BVarSymbol) invocationExpr.symbol;
+                varRef.type = invocationExpr.symbol.type;
+                genIExpr = new BFunctionPointerInvocation(invocationExpr, varRef);
+            }
         }
+
 
         genIExpr.impCastExpr = invocationExpr.impCastExpr;
         result = genIExpr;
+    }
+
+    public void visit(BLangConnectorInit connectorInitExpr) {
+        BLangConnectorInit genCIExpr = connectorInitExpr;
+        connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
+        genCIExpr.impCastExpr = connectorInitExpr.impCastExpr;
+        result = genCIExpr;
     }
 
     @Override

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.Types;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -258,6 +259,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
+        BSymbol connectorSymbol = connectorNode.symbol;
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
+        connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
+        connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
+        connectorNode.annAttachments.forEach(annotation -> this.analyzeDef(annotation, connectorEnv));
+        this.analyzeDef(connectorNode.initFunction, env);
+        connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
+    }
+
+    public void visit(BLangAction actionNode) {
+        BSymbol actionSymbol = actionNode.symbol;
+        if (Symbols.isNative(actionSymbol)) {
+            return;
+        }
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
+        actionNode.annAttachments.forEach(a -> this.analyzeDef(a, actionEnv));
+        actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
+        analyzeStmt(actionNode.body, actionEnv);
+        // Process workers
+        actionNode.workers.forEach(e -> this.symbolEnter.defineNode(e, actionEnv));
+        actionNode.workers.forEach(e -> analyzeNode(e, actionEnv));
     }
 
     public void visit(BLangService serviceNode) {
