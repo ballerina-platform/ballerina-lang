@@ -575,10 +575,6 @@ public class LangServerManager {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
-
     /**
      * Get packages
      *
