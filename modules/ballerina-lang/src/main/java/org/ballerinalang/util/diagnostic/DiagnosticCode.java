@@ -70,6 +70,7 @@ public enum DiagnosticCode {
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
     FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
     FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE("func.defined.on.non.local.struct.type"),
+    STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
