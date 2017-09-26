@@ -18,6 +18,7 @@
 import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
+import Alerts from 'alerts';
 import { packageDefinition } from '../../designer-defaults';
 import './package-definition.css';
 import ImportDeclaration from './import-node';
@@ -43,8 +44,7 @@ class PackageDeclarationNode extends React.Component {
      * @return {string} the text displayed in the expanded view for the given node
      */
     static getDisplayValue(globalDef) {
-        if (globalDef.parent.getGlobalVariableDefinitions().includes(globalDef) ||
-            globalDef.parent.getConstantDefinitions().includes(globalDef)) {
+        if (globalDef.parent.filterTopLevelNodes({ kind: 'Variable' }).includes(globalDef)) {
             return globalDef.getSource();
         }
         return 'invalid value';
@@ -112,6 +112,28 @@ class PackageDeclarationNode extends React.Component {
     }
 
     /**
+     * Validate input values for globals
+     * Only checks for the simple literals
+     *
+     * @param {string} type
+     * @param {any} value
+     */
+    validateDefaultValue(type, value) {
+        if (type === 'int' && /^[-]?\d+$/.test(value)) {
+            return;
+        } else if (type === 'float' && ((/\d*\.?\d+/.test(value) || parseFloat(value)))) {
+            return;
+        } else if (type === 'boolean' && (/\btrue\b/.test(value) || /\bfalse\b/.test(value))) {
+            return;
+        } else if (type === 'string') {
+            return;
+        }
+        const errorString = 'Type of the default value is not compatible with the expected type';
+        Alerts.error(errorString);
+        throw errorString;
+    }
+
+    /**
      * Called when a new global constant or variable is entered
      * @param {string} value - statement for adding the new global
      */
@@ -149,7 +171,8 @@ class PackageDeclarationNode extends React.Component {
         const typeNode = NodeFactory.createValueType({ typeKind: type });
         let literalNode = null;
         if (valueOfGlobal !== undefined) {
-            literalNode = NodeFactory.createLiteral({value: valueOfGlobal});
+            this.validateDefaultValue(type, valueOfGlobal);
+            literalNode = NodeFactory.createLiteral({ value: valueOfGlobal });
         }
 
         // Create a variable node
@@ -259,8 +282,8 @@ class PackageDeclarationNode extends React.Component {
         };
 
         const astRoot = this.props.model.parent;
-        const imports = astRoot.getImports();
-        const globals = astRoot.getGlobalVariableDefinitions().concat(astRoot.getConstantDefinitions());
+        const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
+        const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
 
         const packageSuggestions = this.context.environment.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))

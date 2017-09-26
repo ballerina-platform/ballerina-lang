@@ -55,7 +55,7 @@ class PackageDeclarationDimensionVisitor {
         const noOfImportsTextPadding = 10;
         const importDecDecoratorWidth = 3;
 
-        const imports = node.parent.getImports();
+        const imports = node.parent.filterTopLevelNodes({ kind: 'Import' });
         const noOfImports = imports.length;
 
         const noOfImportsTextWidth = SizingUtils.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
@@ -98,14 +98,14 @@ class PackageDeclarationDimensionVisitor {
         const astRoot = node.parent;
 
         if (viewState.importsExpanded) {
-            const imports = astRoot.getImports();
+            const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
 
             height += topGutter + topBarHeight + importInputHeight +
                 (imports.length * packageDefinition.importDeclaration.itemHeight);
         }
 
         if (viewState.globalsExpanded) {
-            const globals = astRoot.getGlobalVariableDefinitions().concat(astRoot.getConstantDefinitions());
+            const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
 
             height += topGutter + topBarHeight + importInputHeight +
                 (globals.length * packageDefinition.importDeclaration.itemHeight);

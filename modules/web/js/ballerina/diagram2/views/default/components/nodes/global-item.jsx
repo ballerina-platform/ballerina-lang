@@ -81,7 +81,7 @@ export default class GlobalDefinitionItem extends React.Component {
         let getterFunc;
         let setterFunc;
         const editorOuterPadding = 10;
-        if (_.contains(this.props.globalDec.parent.getGlobalVariableDefinitions(), this.props.globalDec)) {
+        if (_.includes(this.props.globalDec.parent.filterTopLevelNodes({ kind: 'Variable' }), this.props.globalDec)) {
             getterFunc = this.props.globalDec.getGlobalVariableDefinitionAsString;
             setterFunc = this.props.globalDec.setGlobalVariableDefinitionFromString;
         } else {
