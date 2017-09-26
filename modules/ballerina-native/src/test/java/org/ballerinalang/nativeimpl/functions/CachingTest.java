@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -56,5 +57,94 @@ public class CachingTest {
         Assert.assertEquals(returns[0].stringValue(), cacheName);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), timeout);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), capacity);
+    }
+
+    @Test
+    public void testPut() {
+        String cacheName = "userCache";
+        int timeout = 60;
+        int capacity = 10;
+        String key = "Ballerina";
+        String value = "Rocks";
+        BValue[] args = new BValue[5];
+        args[0] = new BString(cacheName);
+        args[1] = new BInteger(timeout);
+        args[2] = new BInteger(capacity);
+        args[3] = new BString(key);
+        args[4] = new BString(value);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testPut", args);
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test
+    public void testGet() {
+        String cacheName = "userCache";
+        int timeout = 60;
+        int capacity = 10;
+        String key = "Ballerina";
+        String value = "Rocks";
+        BValue[] args = new BValue[5];
+        args[0] = new BString(cacheName);
+        args[1] = new BInteger(timeout);
+        args[2] = new BInteger(capacity);
+        args[3] = new BString(key);
+        args[4] = new BString(value);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGet", args);
+        Assert.assertTrue(returns.length == 2);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns[1].stringValue(), "Rocks");
+    }
+
+    @Test
+    public void testRemove() {
+        String cacheName = "userCache";
+        int timeout = 60;
+        int capacity = 10;
+        String key = "Ballerina";
+        String value = "Rocks";
+        BValue[] args = new BValue[5];
+        args[0] = new BString(cacheName);
+        args[1] = new BInteger(timeout);
+        args[2] = new BInteger(capacity);
+        args[3] = new BString(key);
+        args[4] = new BString(value);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testRemove", args);
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
+    public void testClear() {
+        String cacheName = "userCache";
+        int timeout = 60;
+        int capacity = 10;
+        BValue[] args = new BValue[3];
+        args[0] = new BString(cacheName);
+        args[1] = new BInteger(timeout);
+        args[2] = new BInteger(capacity);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testClear", args);
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
+    public void testCacheEviction() {
+        String cacheName = "userCache";
+        int timeout = 60;
+        int capacity = 2;
+        BValue[] args = new BValue[3];
+        args[0] = new BString(cacheName);
+        args[1] = new BInteger(timeout);
+        args[2] = new BInteger(capacity);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCacheEviction", args);
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertTrue(returns[0] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "B");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "C");
     }
 }

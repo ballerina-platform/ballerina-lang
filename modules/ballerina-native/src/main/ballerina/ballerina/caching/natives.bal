@@ -1,12 +1,13 @@
 package ballerina.caching;
 
 import ballerina.doc;
+import ballerina.lang.errors;
 import ballerina.lang.maps;
 import ballerina.lang.system;
 
 @doc:Description {value:"Represents a cache."}
 @doc:Field {value:"name - name of the cache"}
-@doc:Field {value:"timeout - timeout of the cache"}
+@doc:Field {value:"timeout - timeout of the cache in seconds"}
 @doc:Field {value:"capacity - capacity of the cache"}
 @doc:Field {value:"entries - map which contains the cache entries"}
 struct cache {
@@ -18,7 +19,7 @@ struct cache {
 
 @doc:Description {value:"Represents a cache entry"}
 @doc:Field {value:"value - cache value"}
-@doc:Field {value:"lastAccessedTime - last accessed time of this value which is used to remove LRU cached values"}
+@doc:Field {value:"lastAccessedTime - last accessed time(in nano seconds) of this value which is used to remove LRU cached values"}
 struct cacheEntry {
     any value;
     int lastAccessedTime;
@@ -27,11 +28,14 @@ struct cacheEntry {
 @doc:Description {value:"Creates a new cache."}
 @doc:Param {value:"name - name of the cache"}
 @doc:Param {value:"timeout - timeout of the cache"}
-@doc:Param {value:"capacity - capacitry of the cache"}
+@doc:Param {value:"capacity - capacitry of the cache which should be greater than 0"}
 @doc:Return {value:"cache - a new cache"}
 function createCache (string name, int timeOut, int capacity) returns (cache) {
-    map entries = {};
-    cache c = {name:name, timeOut:timeOut, capacity:capacity, entries:entries};
+    if (capacity <= 0) {
+        errors:Error e = {msg:"Capacity must be greater than 0."};
+        throw e;
+    }
+    cache c = {name:name, timeOut:timeOut, capacity:capacity, entries:{}};
     return c;
 }
 
@@ -42,12 +46,13 @@ function createCache (string name, int timeOut, int capacity) returns (cache) {
 function put (cache c, string key, any value) {
     int maxCapacity = c.capacity;
     int currentCapacity = maps:length(c.entries);
+    // if the current cache is full,
     if (maxCapacity <= currentCapacity) {
         string cacheKey = getLRUCache(c);
         maps:remove(c.entries, cacheKey);
     }
-
-    int currentTime = system:currentTimeMillis();
+    // Add the new entry
+    int currentTime = system:nanoTime();
     cacheEntry entry = {value:value, lastAccessedTime:currentTime};
     c.entries[key] = entry;
 }
@@ -64,7 +69,7 @@ function get (cache c, string key) returns (any) {
     if (e != null || entry == null) {
         return null;
     }
-    entry.lastAccessedTime = system:currentTimeMillis();
+    entry.lastAccessedTime = system:nanoTime();
     return entry.value;
 }
 
@@ -88,7 +93,7 @@ function getLRUCache (cache c) (string cacheKey) {
     map entries = c.entries;
     string[] keys = maps:keys(entries);
     cacheKey = "";
-    int currentMin = system:currentTimeMillis();
+    int currentMin = system:nanoTime();
 
     int index = 0;
     int size = lengthof keys;
@@ -96,7 +101,7 @@ function getLRUCache (cache c) (string cacheKey) {
     while (index < size) {
         string key = keys[index];
         var entry, _ = (cacheEntry)entries[key];
-        if (currentMin < entry.lastAccessedTime) {
+        if (currentMin > entry.lastAccessedTime) {
             cacheKey = key;
             currentMin = entry.lastAccessedTime;
         }
