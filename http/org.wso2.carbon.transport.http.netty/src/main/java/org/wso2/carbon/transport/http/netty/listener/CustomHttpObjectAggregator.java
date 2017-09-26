@@ -44,8 +44,11 @@ public class CustomHttpObjectAggregator extends HttpObjectAggregator {
 
     private static final Logger log = LoggerFactory.getLogger(CustomHttpObjectAggregator.class);
 
-    public CustomHttpObjectAggregator() {
-        super(RequestSizeValidationConfiguration.getInstance().getRequestMaxSize());
+    private RequestSizeValidationConfiguration requestSizeValidationConfig;
+
+    public CustomHttpObjectAggregator(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        super(requestSizeValidationConfig.getRequestMaxSize());
+        this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 
     @Override
@@ -68,16 +71,15 @@ public class CustomHttpObjectAggregator extends HttpObjectAggregator {
                 }
             }
 
-            String rejectMessage = RequestSizeValidationConfiguration.getInstance().getRequestRejectMessage();
+            String rejectMessage = requestSizeValidationConfig.getRequestRejectMessage();
             byte[] errorMessageBytes = rejectMessage.getBytes(Charset.defaultCharset());
             ByteBuf content = Unpooled.wrappedBuffer(errorMessageBytes);
             DefaultFullHttpResponse rejectResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                    HttpResponseStatus
-                            .valueOf(RequestSizeValidationConfiguration.getInstance().getRequestRejectStatusCode()),
+                    HttpResponseStatus.valueOf(requestSizeValidationConfig.getRequestRejectStatusCode()),
                     content);
             rejectResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, errorMessageBytes.length);
             rejectResponse.headers().set(Constants.HTTP_CONTENT_TYPE,
-                    RequestSizeValidationConfiguration.getInstance().getRequestRejectMsgContentType());
+                    requestSizeValidationConfig.getRequestRejectMsgContentType());
 
             ctx.writeAndFlush(rejectResponse);
         }
