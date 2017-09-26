@@ -44,17 +44,17 @@ public class Name implements org.ballerinalang.model.Name {
         }
 
         Name name = (Name) o;
-        return value != null ? value.equals(name.value) : name.value == null;
+        return value.equals(name.value);
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        return value.hashCode();
     }
-    
+
     @Override
     public String toString() {
         return this.getValue();
     }
-    
+
 }
