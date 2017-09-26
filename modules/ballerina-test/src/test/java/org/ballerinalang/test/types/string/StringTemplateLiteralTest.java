@@ -1,27 +1,26 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- * <p>
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.functions;
+package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,17 +30,17 @@ import org.testng.annotations.Test;
  */
 public class StringTemplateLiteralTest {
 
-    private ProgramFile programFile;
-
+    private CompileResult result;
+    //TODO setup fails
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/stringTemplate/stringTemplateTest.bal");
+        result = BTestUtils.compile("test-src/types/string/string-template-literal.bal");
     }
 
     @Test
     public void testEmptyStringTemplate() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "emptyStringTemplate", args);
+        BValue[] returns = BTestUtils.invoke(result, "emptyStringTemplate", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "");
     }
@@ -49,7 +48,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText1() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText1", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText1", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "`");
     }
@@ -57,7 +56,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText2() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText2", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText2", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "\\");
     }
@@ -65,7 +64,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText3() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText3", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText3", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{");
     }
@@ -73,7 +72,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText4() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText4", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText4", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{{");
     }
@@ -81,7 +80,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText5() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText5", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText5", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{{");
     }
@@ -89,7 +88,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText6() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText6", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText6", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "}");
 
@@ -98,7 +97,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText7() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText7", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText7", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "}}");
     }
@@ -106,7 +105,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText8() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText8", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText8", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "}}}");
     }
@@ -114,7 +113,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText9() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText9", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText9", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello");
     }
@@ -122,7 +121,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText10() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText10", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText10", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
@@ -130,7 +129,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText11() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText11", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText11", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina");
     }
@@ -138,7 +137,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText12() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText12", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText12", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina !!!");
     }
@@ -146,7 +145,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText13() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText13", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText13", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !!!");
     }
@@ -154,7 +153,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText14() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText14", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText14", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello Smith, John");
     }
@@ -162,7 +161,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText15() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText15", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText15", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello Smith, John !!!");
     }
@@ -170,7 +169,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText16() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText16", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText16", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Count = 10");
     }
@@ -178,7 +177,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText17() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText17", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText17", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{{count}}");
     }
@@ -186,7 +185,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText18() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText18", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText18", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "\\10");
     }
@@ -194,7 +193,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText19() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText19", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText19", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Path = \\root");
     }
@@ -202,7 +201,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText20() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText20", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText20", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Path = \\");
     }
@@ -210,7 +209,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText21() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText21", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText21", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
     }
@@ -218,7 +217,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText22() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText22", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText22", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
     }
@@ -226,7 +225,7 @@ public class StringTemplateLiteralTest {
     @Test
     public void testStringTemplateWithText23() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringTemplateWithText23", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText23", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
     }

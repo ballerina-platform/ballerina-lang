@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.statements.variableDef;
+package org.ballerinalang.test.statements.variabledef;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -29,15 +29,15 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for variable scopes.
  */
-public class VariableScopeTest {
+public class VariableScopeTestNew {
 
     private CompileResult result;
     private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/variableDef/variable-scope.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/variableDef/variable-scope-negative.bal");
+        result = BTestUtils.compile("test-src/statements/variabledef/variable-scope.bal");
+        resultNegative = BTestUtils.compile("test-src/statements/variabledef/variable-scope-negative.bal");
     }
 
     @Test

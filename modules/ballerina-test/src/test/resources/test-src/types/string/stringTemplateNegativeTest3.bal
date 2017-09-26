@@ -4,3 +4,4 @@ function stringTemplateWithText15() (string) {
     string s = string `Hello {{firstName + " " + string `{{lastName}}`}} !!!`;
     return s;
 }
+//TODO delete

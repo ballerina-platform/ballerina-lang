@@ -39,14 +39,14 @@ import java.io.UnsupportedEncodingException;
 /**
  * Test Native functions in ballerina.model.string.
  */
-public class StringTest {
+public class StringTestNew {
     private ProgramFile programFile;
     private static final String s1 = "WSO2 Inc.";
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/string/stringTest.bal");
+        result = BTestUtils.compile("test-src/types/string/string-test.bal");
     }
 
     @Test
@@ -279,7 +279,7 @@ public class StringTest {
         final String expected = "<test>name</test>";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-
+    //TODO test this
     @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testXmlValueOfNegative() {
         BValue[] args = {new BXMLItem("<test>name<test>")};

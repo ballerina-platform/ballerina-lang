@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.statements.reply;
 
 import org.ballerinalang.test.utils.BTestUtils;
@@ -26,10 +27,10 @@ import org.testng.annotations.Test;
 /**
  * Test class for reply statement.
  */
-public class ReplyStmtTest {
+public class ReplyStmtTestNew {
     private CompileResult result;
     private CompileResult resultNegative;
-
+    //TODO delete
     @BeforeClass
     public void setup() {
 //        BuiltInNativeConstructLoader.loadConstructs();
@@ -44,6 +45,7 @@ public class ReplyStmtTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
+
     @Test(description = "Test reply statement with errors")
     public void testReplyStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
@@ -54,4 +56,23 @@ public class ReplyStmtTest {
 //        BTestUtils.validateError(resultNegative, 1, "unreachable code", 25, 4);
 
     }
+
+    /* Negative Tests */
+
+//    @Test(description = "Test reply statement in a function",
+//            expectedExceptions = {SemanticException.class},
+//            expectedExceptionsMessageRegExp = "reply-from-function.bal:1: reply statement cannot be used in a " +
+//                    "function definition")
+//    public void testReplyFromFunctionwww() {
+//        BTestUtils.compile("test-src/statements/reply/reply-from-function.bal");
+//    }
+//
+//    @Test(description = "Test reply statement in a action",
+//            expectedExceptions = {SemanticException.class},
+//            expectedExceptionsMessageRegExp = "reply-from-action.bal:5: reply statement cannot be used in a action " +
+//                    "definition")
+//    public void testReplyFromAction() {
+//        BTestUtils.compile("test-src/statements/reply/reply-from-action.bal");
+//    }
+
 }

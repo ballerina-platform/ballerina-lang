@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.statements.variableDef;
+package org.ballerinalang.test.statements.variabledef;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -32,15 +32,15 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for defining variable.
  */
-public class VariableDefinitionTest {
+public class VariableDefinitionTestNew {
     private static final double DELTA = 0.01;
     CompileResult result;
     CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/statements/variableDef/variable-definition-stmt.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/variableDef/variable-definition-stmt-negative.bal");
+        result = BTestUtils.compile("test-src/statements/variabledef/variable-definition-stmt.bal");
+        resultNegative = BTestUtils.compile("test-src/statements/variabledef/variable-definition-stmt-negative.bal");
     }
 
     @Test
