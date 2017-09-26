@@ -28,6 +28,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.Whitespace;
@@ -172,27 +173,17 @@ public class BLangFileRestService {
      * @throws IOException
      */
     private static String parseJsonDataModel(BFile bFile) throws IOException {
-
         String filePath = bFile.getFilePath();
         String fileName = bFile.getFileName();
         String content = bFile.getContent();
 
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, filePath);
-
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model;
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
-            List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
-            names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
-            // Registering custom PackageRepository to provide ballerina content without a file in file-system
-            context.put(PackageRepository.class, new InMemoryPackageRepository(
-                    new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
-                    filePath, fileName, content.getBytes(StandardCharsets.UTF_8)));
+            model = WorkspaceUtils.getBLangPackageForContent(fileName, content);
+        }else{
+            model = WorkspaceUtils.getBLangPackage(filePath, fileName);
         }
-
-        Compiler compiler = Compiler.getInstance(context);
-        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(fileName);
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
         return generateJSONString(compilationUnit);
@@ -207,7 +198,7 @@ public class BLangFileRestService {
         }
     }
 
-    private static JsonElement generateJSON(Node node) throws InvocationTargetException, IllegalAccessException {
+    public static JsonElement generateJSON(Node node) throws InvocationTargetException, IllegalAccessException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
