@@ -54,4 +54,8 @@ public class Constants {
      */
     public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
 
+    public static final String JMS_CONNECTOR_KEY = "jms_connector_key";
+
+    public static final String JMS_ACK_MODE = "transport.jms.SessionAcknowledgement";
+
 }
