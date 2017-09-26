@@ -56,8 +56,9 @@ class FileTree extends React.Component {
      * Load tree data
      */
     loadData() {
+        const extensions = ['bal'];
         const isFSRoot = this.props.root === FS_ROOT;
-        const loadData = isFSRoot ? getFSRoots() : listFiles(this.props.root);
+        const loadData = isFSRoot ? getFSRoots(extensions) : listFiles(this.props.root, extensions);
         loadData
             .then((tree) => {
                 const data = tree;
@@ -94,6 +95,8 @@ class FileTree extends React.Component {
      * @inheritdoc
      */
     render() {
+        const files = _.filter(this.state.data, ['type', 'file']);
+        const folders = _.filter(this.state.data, ['type', 'folder']);
         const renderNode = (node, parentNode) => {
             if (_.isNil(node.collapsed)) {
                 node.collapsed = true;
@@ -146,7 +149,10 @@ class FileTree extends React.Component {
         };
         return (
             <div className="file-tree">
-                {this.state.data.map((childNode) => {
+                {folders.map((childNode) => {
+                    return renderNode(childNode, undefined);
+                })}
+                {files.map((childNode) => {
                     return renderNode(childNode, undefined);
                 })}
             </div>

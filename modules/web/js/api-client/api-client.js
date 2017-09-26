@@ -198,8 +198,9 @@ export function getPackages() {
 /**
  * Get FS Roots
  */
-export function getFSRoots() {
-    const endpoint = `${getServiceEndpoint('workspace')}/root`;
+export function getFSRoots(extensions) {
+    const exts = _.join(extensions, ',');
+    const endpoint = `${getServiceEndpoint('workspace')}/root?extensions=${exts}`;
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
