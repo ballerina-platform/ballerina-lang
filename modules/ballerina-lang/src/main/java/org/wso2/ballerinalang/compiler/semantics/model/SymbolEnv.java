@@ -47,7 +47,7 @@ public class SymbolEnv {
     public BLangService enclService;
 
     public BLangInvokableNode enclInvokable;
-    
+
     public BLangForkJoin forkJoin;
 
     public BVarSymbol enclVarSym;
@@ -76,11 +76,9 @@ public class SymbolEnv {
         target.enclEnv = this;
     }
 
-    public static SymbolEnv createPkgEnv(BLangPackage node,
-                                         Scope scope,
-                                         BLangPackage rootPkgNode) {
+    public static SymbolEnv createPkgEnv(BLangPackage node, Scope scope) {
         SymbolEnv env = new SymbolEnv(node, scope);
-        env.enclPkg = rootPkgNode;
+        env.enclPkg = node;
         return env;
     }
 
@@ -114,7 +112,7 @@ public class SymbolEnv {
         symbolEnv.enclInvokable = node;
         return symbolEnv;
     }
-    
+
     public static SymbolEnv createForkJoinSymbolEnv(BLangForkJoin node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);

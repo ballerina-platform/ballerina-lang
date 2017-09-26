@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
@@ -27,8 +28,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BXMLAttributeSymbol extends BSymbol implements VariableSymbol {
 
-    public BXMLAttributeSymbol(String localname, String namespaceURI, BSymbol owner) {
-        super(SymTag.NIL, 0, NodeUtils.getName(localname, namespaceURI), new BNoType(TypeTags.NONE), owner);
+    public BXMLAttributeSymbol(String localname, String namespaceURI, PackageID pkgID, BSymbol owner) {
+        super(SymTag.NIL, 0, NodeUtils.getName(localname, namespaceURI), pkgID, new BNoType(TypeTags.NONE), owner);
     }
 
     @Override
