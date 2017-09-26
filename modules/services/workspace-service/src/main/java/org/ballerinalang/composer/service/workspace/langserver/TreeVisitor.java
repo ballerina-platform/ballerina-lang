@@ -20,7 +20,6 @@ package org.ballerinalang.composer.service.workspace.langserver;
 
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -47,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -54,7 +54,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -65,7 +67,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -137,30 +141,34 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
-        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
-        this.symbolEnv = structEnv;
+        this.symbolEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
         Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
         System.out.println(Collections.singletonList(visibleSymbolEntries));
         this.populateSymbols(visibleSymbolEntries);
         this.terminateVisitor = true;
     }
 
+    @Override
     public void visit(BLangAnnotation annotationNode) {
     }
 
+    @Override
     public void visit(BLangVariable varNode) {
         // TODO: Finalize
     }
 
+    @Override
     public void visit(BLangLiteral litNode) {
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
     }
 
 
     // Statements
 
+    @Override
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         this.blockStmtStack.push(blockNode);
@@ -168,20 +176,24 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.blockStmtStack.pop();
     }
 
+    @Override
     public void visit(BLangVariableDef varDefNode) {
         if(!isCursorBeforeStatement(varDefNode.getPosition(), varDefNode)) {
             this.acceptNode(varDefNode.var, symbolEnv);
         }
     }
 
+    @Override
     public void visit(BLangAssignment assignNode) {
         isCursorBeforeStatement(assignNode.getPosition(), assignNode);
-        // TODO: Finalize
     }
 
+    @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        isCursorBeforeStatement(exprStmtNode.getPosition(), exprStmtNode);
     }
 
+    @Override
     public void visit(BLangIf ifNode) {
         if (!isCursorBeforeStatement(ifNode.getPosition(), ifNode)) {
             this.blockOwnerStack.push(ifNode);
@@ -215,6 +227,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
     }
 
+    @Override
     public void visit(BLangTryCatchFinally tryCatchFinally) {
         if (!isCursorBeforeStatement(tryCatchFinally.getPosition(), tryCatchFinally)) {
 
@@ -236,6 +249,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangCatch bLangCatch) {
         if (!isCursorBeforeStatement(bLangCatch.getPosition(), bLangCatch)) {
             SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, symbolEnv);
@@ -245,6 +259,39 @@ public class TreeVisitor extends BLangNodeVisitor {
             this.acceptNode(bLangCatch.body, catchBlockEnv);
             this.blockOwnerStack.pop();
         }
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        this.blockOwnerStack.push(transactionNode);
+        this.acceptNode(transactionNode.transactionBody, symbolEnv);
+        this.blockOwnerStack.pop();
+
+        if (transactionNode.failedBody != null) {
+            this.blockOwnerStack.push(transactionNode);
+            this.acceptNode(transactionNode.failedBody, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
+
+        if (transactionNode.committedBody != null) {
+            this.blockOwnerStack.push(transactionNode);
+            this.acceptNode(transactionNode.committedBody, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
+
+        if (transactionNode.abortedBody != null) {
+            this.blockOwnerStack.push(transactionNode);
+            this.acceptNode(transactionNode.abortedBody, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
     }
 
     private boolean isJoinResultType(BLangVariable var) {
@@ -409,11 +456,13 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     private int getBlockOwnerELine(Node blockOwner, BLangBlockStmt bLangBlockStmt) {
         if (blockOwner instanceof BLangTryCatchFinally) {
-            return getTryBlockEndLine((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
+            return getTryCatchBlockComponentEndLine((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
             return bLangBlockStmt.getPosition().getEndLine();
+        } else if (blockOwner instanceof BLangTransaction) {
+            return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, bLangBlockStmt);
         } else {
             return blockOwner.getPosition().getEndLine();
         }
@@ -421,7 +470,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     private int getBlockOwnerECol(Node blockOwner, BLangBlockStmt bLangBlockStmt) {
         if (blockOwner instanceof BLangTryCatchFinally) {
-            return getTryBlockEndCol((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
+            return getTryCatchBlockComponentEndCol((BLangTryCatchFinally) blockOwner, bLangBlockStmt);
         } else if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
@@ -431,7 +480,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
     }
 
-    private int getTryBlockEndLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+    private int getTryCatchBlockComponentEndLine(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
         if (blockStmt == tryCatchFinally.tryBody) {
             // We are inside the try block
             if (tryCatchFinally.catchBlocks.size() > 0) {
@@ -448,7 +497,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         }
     }
 
-    private int getTryBlockEndCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
+    private int getTryCatchBlockComponentEndCol(BLangTryCatchFinally tryCatchFinally, BLangBlockStmt blockStmt) {
         if (blockStmt == tryCatchFinally.tryBody) {
             // We are inside the try block
             if (tryCatchFinally.catchBlocks.size() > 0) {
@@ -462,6 +511,37 @@ public class TreeVisitor extends BLangNodeVisitor {
         } else {
             // We are inside the finally block
             return tryCatchFinally.getPosition().eCol;
+        }
+    }
+
+    private int getTransactionBlockComponentEndLine(BLangTransaction bLangTransaction, BLangBlockStmt bLangBlockStmt) {
+        BLangBlockStmt transactionBody = bLangTransaction.transactionBody;
+        BLangBlockStmt committedBody = bLangTransaction.committedBody;
+        BLangBlockStmt failedBody = bLangTransaction.failedBody;
+        BLangBlockStmt abortedBody = bLangTransaction.abortedBody;
+
+        List<BLangBlockStmt> components = new ArrayList<>();
+        components.add(transactionBody);
+        components.add(committedBody);
+        components.add(failedBody);
+        components.add(abortedBody);
+
+        components.sort(Comparator.comparing(component -> {
+            if (component != null) {
+                return component.getPosition().getEndLine();
+            } else {
+                return -1;
+            }
+        }));
+
+        int blockStmtIndex = components.indexOf(bLangBlockStmt);
+        if (blockStmtIndex == components.size() - 1) {
+            return bLangTransaction.getPosition().eLine;
+        } else if (components.get(blockStmtIndex + 1) != null) {
+            return components.get(blockStmtIndex + 1).getPosition().sLine;
+        } else {
+            // Ideally should not invoke this
+            return -1;
         }
     }
 
