@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import Node from './tree/node';
+import NodeFactory from './../model/node-factory';
 
 // TODO: Move this to a generic place.
 function requireAll(requireContext) {
@@ -84,6 +85,12 @@ class TreeBuilder {
         // TODO: Special case node creation with kind.
         json.parent = parent;
         return Object.assign(node, json);
+    }
+
+    static populateDefaultPackageDeclaration(ast) {
+        if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
+            ast.addTopLevelNodes(NodeFactory.createPackageDeclaration({}));
+        }
     }
 }
 

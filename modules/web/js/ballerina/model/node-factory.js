@@ -456,4 +456,4 @@ class NodeFactory {
 
 }
 
-export default NodeFactory;
+export default new NodeFactory();

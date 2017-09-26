@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 import { util } from '../../sizing-util';
