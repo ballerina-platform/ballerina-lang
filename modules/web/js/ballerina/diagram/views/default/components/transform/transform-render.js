@@ -163,11 +163,12 @@ class TransformRender {
                 strokeWidth: 1,
                 stroke: '#666769',
                 cssClass: 'plumbConnect',
-                outlineStroke: '#F7F7F7',
-                outlineWidth: 2,
                 dashstyle: '4',
             };
-
+            options.hoverPaintStyle = {
+                strokeWidth: 2,
+                stroke: '#ff9900',
+            };
             options.parameters = options.parameters || {};
             options.parameters.isFolded = true;
         }
