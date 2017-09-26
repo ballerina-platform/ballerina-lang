@@ -193,7 +193,6 @@ public class BLangVM {
                 VMDebugManager.getInstance().releaseExecutionLock();
             }
         } catch (Throwable e) {
-            e.printStackTrace();
             String message;
             if (e.getMessage() == null) {
                 message = "unknown error occurred";
@@ -940,7 +939,6 @@ public class BLangVM {
             case InstructionCodes.RLOAD:
                 lvIndex = operands[0];
                 i = operands[1];
-                System.out.println("X: " + sf.refRegs.length + ":" + sf.refLocalVars.length + ":" + i + ":" + lvIndex);
                 sf.refRegs[i] = sf.refLocalVars[lvIndex];
                 break;
             case InstructionCodes.IALOAD:
