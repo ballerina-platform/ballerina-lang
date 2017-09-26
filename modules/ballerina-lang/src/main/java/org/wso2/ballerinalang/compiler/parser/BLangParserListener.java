@@ -1513,6 +1513,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
+        this.pkgBuilder.addCommentStmt(getCurrentPos(ctx), getWS(ctx), ctx.LINE_COMMENT().getText());
     }
 
     /**
