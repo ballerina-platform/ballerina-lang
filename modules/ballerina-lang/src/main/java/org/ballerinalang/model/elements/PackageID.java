@@ -85,7 +85,7 @@ public class PackageID {
         }
 
         PackageID packageID = (PackageID) o;
-        return nameComps.equals(packageID.nameComps) && version.equals(packageID.version);
+        return name.equals(packageID.name) && version.equals(packageID.version);
     }
 
     @Override
