@@ -113,6 +113,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 //                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
 //                                    executeAtSourceRequestSending(sourceReqCmsg);
 //                        }
+                        sourceReqCmsg = null;
                     }
                 }
             }

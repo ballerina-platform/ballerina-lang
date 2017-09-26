@@ -42,22 +42,27 @@ public class BlockingEntityCollector implements EntityCollector {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlockingEntityCollector.class);
 
-    private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
-    private AtomicBoolean alreadyRead = new AtomicBoolean(false);
-    private AtomicBoolean endOfMsgAdded = new AtomicBoolean(false);
+    private BlockingQueue<HttpContent> httpContentQueue;
+    private BlockingQueue<HttpContent> outContentQueue;
+    private BlockingQueue<HttpContent> garbageCollected;
+    private AtomicBoolean alreadyRead;
+    private AtomicBoolean endOfMsgAdded;
 
     public BlockingEntityCollector(int soTimeOut) {
         this.soTimeOut = soTimeOut;
+        this.httpContentQueue = new LinkedBlockingQueue<>();
+        this.outContentQueue = new LinkedBlockingQueue<>();
+        this.garbageCollected = new LinkedBlockingQueue<>();
+        this.alreadyRead = new AtomicBoolean(false);
+        this.endOfMsgAdded = new AtomicBoolean(false);
     }
 
     private int soTimeOut = 60;
 
     public void addHttpContent(HttpContent httpContent) {
         try {
-            httpContentQueue.put(httpContent);
-        } catch (InterruptedException e) {
+            httpContentQueue.add(httpContent);
+        } catch (Exception e) {
             LOG.error("Cannot put content to queue", e);
         }
     }

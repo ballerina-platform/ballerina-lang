@@ -22,7 +22,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,9 +136,7 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setIdleTimeout(socketIdleTimeout);
     }
 
-    public void addThreadPools(int parentSize, int childSize) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(parentSize);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(childSize);
+    public void addThreadPools(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
 
