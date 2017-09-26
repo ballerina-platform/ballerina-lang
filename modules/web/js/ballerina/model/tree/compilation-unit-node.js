@@ -25,72 +25,12 @@ import TreeUtils from '../tree-util';
 class CompilationUnitNode extends CompilationUnitNodeAbstract {
 
     /**
-     * Get package declaration nodes
-     * @returns {*}
-     */
-    getPackageDeclaration() {
-        let pkgNode = null;
-        this.getTopLevelNodes().forEach((node) => {
-            if (TreeUtils.isPackageDeclaration(node)) {
-                pkgNode = node;
-            }
-        });
-        return pkgNode;
-    }
-
-    /**
-     * Get the import Nodes
-     * @returns {Array}
-     */
-    getImports() {
-        const imports = [];
-        this.getTopLevelNodes().forEach((node) => {
-            if (TreeUtils.isImport(node)) {
-                imports.push(node);
-            }
-        });
-        return imports;
-    }
-
-    /**
-     * Get the constant definitions
-     * @returns {Array}
-     */
-    getConstantDefinitions() {
-        const constantDefs = [];
-        this.getTopLevelNodes().forEach((node) => {
-            if (TreeUtils.isVariable(node)) {
-                if (node.const) {
-                    constantDefs.push(node);
-                }
-            }
-        });
-        return constantDefs;
-    }
-
-    /**
-     * Get the global variable definitions
-     * @returns {Array}
-     */
-    getGlobalVariableDefinitions() {
-        const globalVariableDefs = [];
-        this.getTopLevelNodes().forEach((node) => {
-            if (TreeUtils.isVariable(node)) {
-                if (!node.const) {
-                    globalVariableDefs.push(node);
-                }
-            }
-        });
-        return globalVariableDefs;
-    }
-
-    /**
      * Check whether package name is existing one or not.
      *
      * if exist returns true if doesn't return false
      * */
     isExistingPackage(packageName) {
-        return !!_.find(this.getImports(), (child) => {
+        return !!_.find(this.filterTopLevelNodes({ kind: 'Import' }), (child) => {
             return _.isEqual(child.package, packageName);
         });
     }
@@ -101,7 +41,7 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
      * if exist returns true if doesn't return false
      * */
     isExistingGlobalIdentifier(identifier) {
-        return !!_.find(this.getGlobalVariableDefinitions().concat(this.getConstantDefinitions()), (child) => {
+        return !!_.find(this.filterTopLevelNodes({ kind: 'Variable' }), (child) => {
             return _.isEqual(child.getName().value, identifier);
         });
     }
