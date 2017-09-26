@@ -1,4 +1,4 @@
-package samples.websocket.proxyServer;
+package sample.websocket.proxyserver;
 
 import ballerina.net.ws;
 

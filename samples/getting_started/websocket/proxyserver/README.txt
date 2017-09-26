@@ -4,4 +4,9 @@ This is a WebSocket proxy written in ballerina which will pass messages from cli
 
 How to run the sample
 =====================
-bin$ ./ballerina run ../samples/websocket/proxyServer/proxyServer.balx
+bin$ ./ballerina run ../samples/websocket/proxyserver/proxyserver.balx
+
+
+How to connect
+==============
+Connect to ws://localhost:9090/proxy/ws using any WebSocket client and send messages to check
