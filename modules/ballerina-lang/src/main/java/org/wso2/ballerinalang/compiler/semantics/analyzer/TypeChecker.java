@@ -370,12 +370,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
                 if (unaryExpr.expr.type.tag == TypeTags.ANY) {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                            opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
+                            symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);
                 } else {
                     BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                            opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
+                            symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
                     unaryExpr.opSymbol = symbol;
                     actualType = symbol.type.getReturnTypes().get(0);
                 }

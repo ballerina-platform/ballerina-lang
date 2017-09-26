@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -124,8 +125,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         // Create PackageSymbol.
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode,
-                pSymbol.scope, symTable.rootPkgNode);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope);
         packageEnvs.put(pSymbol, pkgEnv);
 
         // visit the package node recursively and define all package level symbols.
@@ -169,7 +169,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = Symbols.createStructSymbol(Flags.asMask(structNode.flagSet),
-                names.fromIdNode(structNode.name), null, env.scope.owner);
+                names.fromIdNode(structNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         structNode.symbol = structSymbol;
         defineSymbol(structNode.pos, structSymbol);
     }
@@ -177,14 +177,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
-                names.fromIdNode(workerNode.name), null, env.scope.owner);
+                names.fromIdNode(workerNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
     }
 
     public void visit(BLangConnector connectorNode) {
         BSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
-                names.fromIdNode(connectorNode.name), null, env.scope.owner);
+                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         connectorNode.symbol = conSymbol;
         defineConnectorInitFunction(connectorNode);
         defineSymbol(connectorNode.pos, conSymbol);
@@ -192,7 +192,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
-                names.fromIdNode(serviceNode.name), null, env.scope.owner);
+                names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
         defineServiceInitFunction(serviceNode);
         defineSymbol(serviceNode.pos, serviceSymbol);
@@ -200,24 +200,24 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         BInvokableSymbol funcSymbol = Symbols
-                .createFunctionSymbol(Flags.asMask(funcNode.flagSet), names.fromIdNode(funcNode.name), null,
-                        env.scope.owner);
+                .createFunctionSymbol(Flags.asMask(funcNode.flagSet), names.fromIdNode(funcNode.name),
+                        env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
     }
 
     public void visit(BLangAction actionNode) {
         BInvokableSymbol actionSymbol = Symbols
-                .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name), null,
-                        env.scope.owner);
+                .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
+                        env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
     }
 
     public void visit(BLangResource resourceNode) {
         BInvokableSymbol resourceSymbol = Symbols
-                .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name), null,
-                        env.scope.owner);
+                .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name),
+                        env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
@@ -243,11 +243,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
         BPackageSymbol pSymbol;
         if (pkgNode.pkgDecl == null) {
-            pSymbol = new BPackageSymbol(Names.DEFAULT_PACKAGE, Names.EMPTY, symTable.rootPkgSymbol);
+            pSymbol = new BPackageSymbol(PackageID.DEFAULT, symTable.rootPkgSymbol);
         } else {
-            Name pkgName = NodeUtils.getName(names, pkgNode.pkgDecl.pkgNameComps);
-            Name pkgVersion = names.fromIdNode(pkgNode.pkgDecl.version);
-            pSymbol = new BPackageSymbol(pkgName, pkgVersion, symTable.rootPkgSymbol);
+            PackageID pkgID = NodeUtils.getPackageID(names, pkgNode.pkgDecl.pkgNameComps, pkgNode.pkgDecl.version);
+            pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
         pSymbol.scope = new Scope(pSymbol);
@@ -412,7 +411,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                                       SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName, varType, enclScope.owner);
+        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
+                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
 
         // Add it to the enclosing scope
         // Find duplicates

@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,10 +32,10 @@ import java.util.stream.Collectors;
  */
 public class PackageID {
 
-    public static final PackageID EMPTY = new PackageID(Lists.of(Names.EMPTY), Names.EMPTY);
+    public static final PackageID DEFAULT = new PackageID(Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
 
-    public List<Name> nameComps = Lists.of(Names.EMPTY);
-    public Name name = Names.EMPTY;
+    public List<Name> nameComps;
+    public Name name = Names.DEFAULT_PACKAGE;
     public Name version = Names.DEFAULT_VERSION;
 
     public PackageID(List<Name> nameComps, Name version) {
@@ -44,6 +45,17 @@ public class PackageID {
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
         this.version = version;
+    }
+
+    public PackageID(Name name, Name version) {
+        this.name = name;
+        this.version = version;
+        if (name == Names.DEFAULT_PACKAGE) {
+            this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
+        } else {
+            this.nameComps = Arrays.stream(name.value.split("//."))
+                    .map(Name::new).collect(Collectors.toList());
+        }
     }
 
     public Name getName() {
