@@ -149,8 +149,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                         context.getProperty(Constants.SRC_HANDLER));
             }
 
+            String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
+                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
         } catch (Exception e) {
