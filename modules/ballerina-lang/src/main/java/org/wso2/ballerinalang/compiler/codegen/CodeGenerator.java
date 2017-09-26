@@ -777,7 +777,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else if (iExpr.expr instanceof BLangSimpleVarRef) {
             BInvokableSymbol actionSymbol = (BInvokableSymbol) iExpr.symbol;
             BPackageSymbol pkgSymbol = (BPackageSymbol) actionSymbol.owner.owner;
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, actionSymbol.pkgID);
             int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
 
             PackageInfo packageInfo = programFile.getPackageInfo(pkgSymbol.name.value);
@@ -796,8 +796,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             int actionCallIndex = getFunctionCallCPIndex(iExpr);
 
             if (Symbols.isNative(iExpr.symbol)) {
-                // TODO Move this to the place where we create action info entry
-//                actionInfo.setNativeAction((AbstractNativeAction) actionIExpr.getCallableUnit());
                 emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
             } else {
                 emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
@@ -807,24 +805,19 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnectorInit cIExpr) {
-
         BConnectorType connectorType = (BConnectorType) cIExpr.type;
-//        BConnectorSymbol connectorType = cIExpr.symbol;
         BTypeSymbol connectorSymbol = connectorType.tsymbol;
         BPackageSymbol pkgSymbol = (BPackageSymbol) connectorSymbol.owner;
-//
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.name.value, pkgSymbol.version.value);
+
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, connectorSymbol.pkgID);
         int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorType.tsymbol.name.value);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
         PackageInfo packageInfo = programFile.getPackageInfo(pkgSymbol.name.value);
-        ConnectorInfo connectorInfo = packageInfo.getConnectorInfo(connectorType.tsymbol.name.value);
-//        connectorInfo.setFilterConnector(isfil);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes.tRef;
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-
 
         List<BLangExpression> argExprs = cIExpr.argsExpr;
         for (int i = 0; i < argExprs.size(); i++) {
@@ -837,71 +830,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.regIndex);
         }
 
-
-
-
         BInvokableSymbol initFunc = connectorSymbol.initFunction;
-
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
         int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
-//        FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[0], new int[0]);
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
-//
-//
-//        BInvokableSymbol initAction = connectorType.initAction;
-//        if (initAction == null) {
-//            return;
-//        }
-//
-//        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, initAction.name.value);
-//
-//        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, structureRefCPIndex, actionNameCPIndex);
-//
-//        ActionInfo actionInfo = connectorInfo.actionInfoMap.get(initAction.name);
-//        actionRefCPEntry.setActionInfo(actionInfo);9
-//        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-////
-////        actionInfo.setNativeAction((AbstractNativeAction) initAction.getNativeAction().load());
-////        actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
-////        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
-//
-////        connectorInfo
-
-
-
-
-
-
-
-
-
-
-
-//
-//        baseConnectorInfo = null;
-//        // Invoke Connector init native action if any
-//        BallerinaAction action = connectorDef.getInitAction();
-//        if (action == null) {
-//            return;
-//        }
-//
-//        String actionName = action.getName();
-//        UTF8CPEntry actionNameCPEntry = new UTF8CPEntry(actionName);
-//        int actionNameCPIndex = currentPkgInfo.addCPEntry(actionNameCPEntry);
-//        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgCPIndex, connectorDef.getPackagePath(),
-//                structureRefCPIndex, structureRefCPEntry, actionNameCPIndex, actionName);
-//
-//        ActionInfo actionInfo = connectorInfo.getActionInfo(actionName);
-//        actionRefCPEntry.setActionInfo(actionInfo);
-//        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-//
-//        actionInfo.setNativeAction((AbstractNativeAction) action.getNativeAction().load());
-//        actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
-//        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
-
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {

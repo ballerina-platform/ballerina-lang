@@ -189,19 +189,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        BSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
-                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        connectorNode.symbol = conSymbol;
-        defineConnectorInitFunction(connectorNode);
-        defineSymbol(connectorNode.pos, conSymbol);
-    }
-
-    public void visit(BLangConnector connectorNode) {
         BTypeSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
-                names.fromIdNode(connectorNode.name), null, env.scope.owner);
+                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID,null, env.scope.owner);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         defineConnectorSymbol(connectorNode, conSymbol, connectorEnv);
-        conSymbol.pkgName = env.scope.owner.name;
         defineConnectorInitFunction(connectorNode);
     }
 
@@ -225,14 +216,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
-    }
-
-    public void visit(BLangAction actionNode) {
-        BInvokableSymbol actionSymbol = Symbols
-                .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name), null,
-                        env.scope.owner);
         BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
         param.pos = env.node.pos;
         param.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
