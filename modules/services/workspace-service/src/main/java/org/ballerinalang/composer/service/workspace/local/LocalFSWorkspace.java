@@ -56,6 +56,7 @@ public class LocalFSWorkspace implements Workspace {
     private static final String FILE_CONTENT = "fileContent";
     private static final String FILE_NAME = "fileName";
     private static final String FILE_PATH = "filePath";
+    private static final String PARENT = "parent";
     private static final String FILE_FULL_PATH = "fileFullPath";
     private static final String EXTENSION = "extension";
     private static final String EXISTS = "exists";
@@ -198,6 +199,10 @@ public class LocalFSWorkspace implements Workspace {
             rootObj.addProperty(NODE_LABEL, root.toString());
         }
         rootObj.addProperty(NODE_ID, root.toAbsolutePath().toString());
+        Path parent = root.getParent();
+        if (parent != null) {
+            rootObj.addProperty(PARENT, parent.toAbsolutePath().toString());
+        }
         if (Files.isDirectory(root)) {
             rootObj.addProperty(NODE_TYPE, FOLDER_TYPE);
             try {

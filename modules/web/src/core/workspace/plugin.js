@@ -257,21 +257,21 @@ class WorkspacePlugin extends Plugin {
                         panelTitle: 'Explorer',
                         panelActions: [
                             {
-                                icon: 'add',
+                                icon: 'refresh2',
+                                isActive: () => {
+                                    return true;
+                                },
+                                handleAction: () => {
+                                },
+                            },
+                            {
+                                icon: 'add-folder',
                                 isActive: () => {
                                     return true;
                                 },
                                 handleAction: () => {
                                     const { command: { dispatch } } = this.appContext;
                                     dispatch(COMMAND_IDS.SHOW_FOLDER_OPEN_WIZARD, {});
-                                },
-                            },
-                            {
-                                icon: 'refresh',
-                                isActive: () => {
-                                    return true;
-                                },
-                                handleAction: () => {
                                 },
                             },
                         ],
