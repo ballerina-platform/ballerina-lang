@@ -166,11 +166,8 @@ class StructDefinitionItem extends React.Component {
                         });
                         validateDefaultValue(type, this.state.newDefaultValue);
                         if (!this.state.newDefaultValue) {
-                            // Get id of the literal node
-                            // const valueArrayId = model.getRightExpression() && model.getRightExpression().id;
                             const valueArrayId = model.getInitialExpression() && model.getInitialExpression().id;
                             if (valueArrayId) {
-                                // Remove the literal node
                                 model.getInitialExpression().setValue('');
                             }
                         } else {

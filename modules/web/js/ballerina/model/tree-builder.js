@@ -89,7 +89,7 @@ class TreeBuilder {
 
     static populateDefaultPackageDeclaration(ast) {
         if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
-            ast.addTopLevelNodes(NodeFactory.createPackageDeclaration({}));
+            ast.addTopLevelNodes(NodeFactory.createPackageDeclaration({}), 0);
         }
     }
 }

@@ -19,6 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import Alerts from 'alerts';
+import log from 'log';
 import PropTypes from 'prop-types';
 import PanelDecorator from './../decorators/panel-decorator';
 import './struct-definition.css';
@@ -30,7 +31,8 @@ import EditableText from './editable-text';
 import StructDefinitionItem from './struct-definition-item';
 import TreeUtils from './../../../../../model/tree-util';
 import Node from './../../../../../../ballerina/model/tree/node';
-import NodeFactory from './../../../../../model/node-factory';
+import { parseContent } from './../../../../../../api-client/api-client';
+import TreeBuilder from './../../../../../model/tree-builder';
 
 /**
  * @class StructDefinition
@@ -88,18 +90,17 @@ class StructNode extends React.Component {
             Alerts.error(errorString);
             throw errorString;
         }
-
-        this.validateDefaultValue(this.state.newType, this.state.newValue);
-        const identifierNode = NodeFactory.createIdentifier({ value: identifier });
-        const typeNode = NodeFactory.createValueType({ typeKind: bType });
-        const literalNode = NodeFactory.createLiteral({ value: defaultValue });
-
-        // Create a variable node
-        const variableNode = NodeFactory.createVariable({ name: identifierNode,
-            initialExpression: literalNode,
-            typeNode: typeNode });
-        // Pass the variable node into the field
-        this.props.model.addFields(variableNode);
+        let statement = bType + ' ' + identifier;
+        if (defaultValue) {
+            statement += ' = ' + defaultValue;
+        }
+        parseContent(statement)
+            .then((jsonTree) => {
+                if (jsonTree.topLevelNodes[0]) {
+                    this.props.model.addFields(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                }
+            })
+            .catch(log.error);
     }
     /**
      * Handle the default value if the data type is a string
