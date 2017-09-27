@@ -232,8 +232,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             // Check whether there exists a struct field with the same name as the function name.
             BTypeSymbol structSymbol = funcNode.receiver.type.tsymbol;
-            BSymbol symbol = symResolver.lookupMemberSymbol(structSymbol.scope, names.fromIdNode(funcNode.name),
-                    SymTag.VARIABLE);
+            BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, structSymbol.scope, invokableEnv,
+                    names.fromIdNode(funcNode.name), SymTag.VARIABLE);
             if (symbol != symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
                         funcNode.name.value, funcNode.receiver.type.toString());
@@ -375,6 +375,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, struct.symbol.scope, pkgEnv);
             BStructType structType = (BStructType) struct.symbol.type;
             structType.fields = struct.fields.stream()
+                    .peek(field -> field.flagSet.add(Flag.PUBLIC))
                     .peek(field -> defineNode(field, structEnv))
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.type))
                     .collect(Collectors.toList());
@@ -385,14 +386,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         serviceNodes.forEach(service -> {
             defineNode(service, pkgEnv);
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
-            service.resources.forEach(resource -> defineNode(resource, serviceEnv));
+            service.resources.stream()
+                    .peek(resource -> resource.flagSet.add(Flag.PUBLIC))
+                    .forEach(resource -> defineNode(resource, serviceEnv));
         });
     }
 
     private void defineActions(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
-            connector.actions.forEach(action -> defineNode(action, conEnv));
+            connector.actions.stream()
+                    .peek(action -> action.flagSet.add(Flag.PUBLIC))
+                    .forEach(action -> defineNode(action, conEnv));
         });
     }
 
