@@ -31,7 +31,7 @@ public interface AnnotationAttachmentNode extends Node {
 
     void setAnnotationName(IdentifierNode name);
 
-    List<AnnotationAttachmentAttributeNode> geAttributes();
+    List<? extends AnnotationAttachmentAttributeNode> geAttributes();
 
     void addAttribute(String attrName, AnnotationAttachmentAttributeValueNode value);
 }

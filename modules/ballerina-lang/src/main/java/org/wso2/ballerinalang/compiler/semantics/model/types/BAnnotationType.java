@@ -15,30 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+
+package org.wso2.ballerinalang.compiler.semantics.model.types;
+
+import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * @since 0.94
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
+public class BAnnotationType extends BType {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+    public BAnnotationType(BAnnotationSymbol symbol) {
+        super(TypeTags.ANNOTATION, symbol);
+        this.tsymbol = symbol;
+    }
 
-    OTHER
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.ANNOTATION;
+    }
 }

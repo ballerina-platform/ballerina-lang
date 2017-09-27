@@ -267,11 +267,22 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        // 2) Lookup the current package scope.
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
-        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, typeName, SymTag.TYPE);
+        BSymbol symbol = symTable.notFoundSymbol;
+
+        // 2) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
+        // Only valued types and ANNOTATION type allowed.
+        if (env.scope.owner.tag == SymTag.ANNOTATION) {
+            symbol = lookupMemberSymbol(pkgSymbol.scope, typeName, SymTag.ANNOTATION);
+        }
+
+        // 3) Lookup the current package scope.
         if (symbol == symTable.notFoundSymbol) {
-            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(pkgSymbol.scope, typeName, SymTag.TYPE);
+        }
+
+        if (symbol == symTable.notFoundSymbol) {
+            // 4) Lookup the root scope for types such as 'error'
             symbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
         }
 

@@ -32,6 +32,18 @@ public class Symbols {
         typeSymbol.kind = SymbolKind.STRUCT;
         return typeSymbol;
     }
+
+    public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name, BType type, BSymbol owner) {
+        BAnnotationAttributeSymbol annotationAttributeSymbol = new BAnnotationAttributeSymbol(name, type, owner);
+        annotationAttributeSymbol.kind = SymbolKind.ANNOTATION_ATTRIBUTE;
+        return annotationAttributeSymbol;
+    }
+
+    public static BAnnotationSymbol createAnnotationSymbol(Name name, BType type, BSymbol owner) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, type, owner);
+        annotationSymbol.kind = SymbolKind.ANNOTATION;
+        return annotationSymbol;
+    }
     
     public static BInvokableSymbol createWorkerSymbol(int flags, Name name, BType type, BSymbol owner) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, type, owner);

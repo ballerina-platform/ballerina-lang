@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -38,12 +39,22 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public List<BLangAnnotAttribute> attributes;
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
-    public BAnnotationSymbol symbol;
+    public BSymbol symbol;
+    public List<BLangAnnotationAttachmentPoint> attachmentPoints;
 
     public BLangAnnotation() {
         this.attributes = new ArrayList<>();
         this.flags = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
+        this.attachmentPoints = new ArrayList<>();
+    }
+
+    public void addAttachmentPoint(BLangAnnotationAttachmentPoint attachmentPoint) {
+        attachmentPoints.add(attachmentPoint);
+    }
+
+    public List<BLangAnnotationAttachmentPoint> getAttachmentPoints() {
+        return attachmentPoints;
     }
 
     @Override
@@ -57,7 +68,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     }
 
     @Override
-    public List<? extends AnnotationAttributeNode> getAttributes() {
+    public List<BLangAnnotAttribute> getAttributes() {
         return attributes;
     }
 
@@ -77,7 +88,7 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     }
 
     @Override
-    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
+    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
 

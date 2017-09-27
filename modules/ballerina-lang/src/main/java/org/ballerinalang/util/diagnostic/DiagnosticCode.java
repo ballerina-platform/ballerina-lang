@@ -76,7 +76,16 @@ public enum DiagnosticCode {
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
-    INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access")
+    INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+    UNDEFINED_ANNOTATION("undefined.annotation"),
+    ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
+    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
+    INVALID_DEFAULT_VALUE("invalid.default.value"),
+    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
+    NO_SUCH_ATTRIBUTE("no.such.attribute"),
+    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
+
     ;
 
     private String value;

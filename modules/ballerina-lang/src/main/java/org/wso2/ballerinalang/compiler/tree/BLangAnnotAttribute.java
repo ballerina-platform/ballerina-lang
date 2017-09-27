@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -44,7 +45,7 @@ public class BLangAnnotAttribute extends BLangNode implements AnnotationAttribut
     public Set<Flag> flags;
     public List<BLangAnnotationAttachment> annAttachments;
 
-    public BVarSymbol symbol;
+    public BSymbol symbol;
 
     public BLangAnnotAttribute() {
         this.annAttachments = new ArrayList<>();

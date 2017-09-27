@@ -178,6 +178,19 @@ public class SymbolTable {
         }
     }
 
+    public boolean isValueType(BType type) {
+        if (type == intType ||
+                type == floatType ||
+                type == stringType ||
+                type == booleanType ||
+                type == blobType) {
+            return true;
+        }
+
+        return false;
+    }
+
+
     private void initializeType(BType type, String name) {
         initializeType(type, names.fromString(name));
     }

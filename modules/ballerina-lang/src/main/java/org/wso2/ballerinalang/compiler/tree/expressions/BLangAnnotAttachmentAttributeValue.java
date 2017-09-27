@@ -32,7 +32,7 @@ public class BLangAnnotAttachmentAttributeValue extends BLangExpression
         implements AnnotationAttachmentAttributeValueNode {
 
     public Node value;
-    public List<AnnotationAttachmentAttributeValueNode> arrayValues;
+    public List<BLangAnnotAttachmentAttributeValue> arrayValues;
 
     public BLangAnnotAttachmentAttributeValue() {
         arrayValues = new ArrayList<>();
@@ -44,7 +44,7 @@ public class BLangAnnotAttachmentAttributeValue extends BLangExpression
     }
 
     @Override
-    public List<AnnotationAttachmentAttributeValueNode> getValueArray() {
+    public List<BLangAnnotAttachmentAttributeValue> getValueArray() {
         return arrayValues;
     }
 
@@ -55,7 +55,7 @@ public class BLangAnnotAttachmentAttributeValue extends BLangExpression
 
     @Override
     public void addValue(AnnotationAttachmentAttributeValueNode value) {
-        this.arrayValues.add(value);
+        this.arrayValues.add((BLangAnnotAttachmentAttributeValue)value);
     }
 
     @Override

@@ -26,17 +26,22 @@ import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -148,6 +153,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
+        // Define annotation nodes.
+        pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
+
         // Define service nodes.
 
         // Define resource nodes.
@@ -158,6 +166,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         definePackageInitFunction(pkgNode, pkgEnv);
+
+
+    }
+
+    public void visit(BLangAnnotation annotationNode) {
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(names.
+                fromIdNode(annotationNode.name), null, env.scope.owner);
+        annotationSymbol.type = new BAnnotationType((BAnnotationSymbol)annotationSymbol);
+        annotationNode.attachmentPoints.forEach(point ->
+                ((BAnnotationSymbol)annotationSymbol).attachmentPoints.add(point));
+        annotationNode.symbol = annotationSymbol;
+        defineSymbol(annotationNode.pos, annotationSymbol);
+    }
+
+    public void visit(BLangAnnotAttribute annotationAttribute) {
+        BSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
+                fromIdNode(annotationAttribute.name), annotationAttribute.type, env.scope.owner);
+        ((BAnnotationAttributeSymbol) annotationAttributeSymbol).expr = annotationAttribute.expr;
+        annotationAttribute.symbol = annotationAttributeSymbol;
+        ((BAnnotationSymbol) env.scope.owner).attributes.add((BAnnotationAttributeSymbol) annotationAttributeSymbol);
+        defineSymbol(annotationAttribute.pos, annotationAttributeSymbol);
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -326,6 +355,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case ANNOTATION:
                 // TODO
+                pkgNode.annotations.add((BLangAnnotation) node);
                 break;
             case XMLNS:
                 // TODO

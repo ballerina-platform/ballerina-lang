@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -187,10 +188,19 @@ public class BLangPackageBuilder {
 
     private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
 
+    private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+
     protected int lambdaFunctionCount = 0;
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
+    }
+
+    public void addAttachPoint(String attachPoint, String pkgPath) {
+        BLangAnnotationAttachmentPoint attachmentPoint =
+                new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint
+                        .AttachmentPoint.valueOf(attachPoint.toUpperCase()), pkgPath);
+        attachmentPointStack.push(attachmentPoint);
     }
 
     public void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -931,7 +941,9 @@ public class BLangPackageBuilder {
             // add the attribute to the annotation definition
             annotationNode.addAttribute(annAttrNode);
         });
-
+        while (!attachmentPointStack.empty()) {
+            ((BLangAnnotation) annotationNode).attachmentPoints.add(attachmentPointStack.pop());
+        }
         this.compUnit.addTopLevelNode(annotationNode);
     }
 
@@ -1351,4 +1363,5 @@ public class BLangPackageBuilder {
             addLiteralValue(pos, TypeTags.STRING, strContent);
         }
     }
+
 }

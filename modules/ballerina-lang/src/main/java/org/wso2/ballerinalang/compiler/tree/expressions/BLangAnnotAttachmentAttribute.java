@@ -28,9 +28,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangAnnotAttachmentAttribute extends BLangExpression implements AnnotationAttachmentAttributeNode {
 
     public String name;
-    public AnnotationAttachmentAttributeValueNode value;
+    public BLangAnnotAttachmentAttributeValue value;
 
-    public BLangAnnotAttachmentAttribute(String name, AnnotationAttachmentAttributeValueNode value) {
+    public BLangAnnotAttachmentAttribute(String name, BLangAnnotAttachmentAttributeValue value) {
         this.name = name;
         this.value = value;
     }
@@ -52,7 +52,7 @@ public class BLangAnnotAttachmentAttribute extends BLangExpression implements An
 
     @Override
     public void setValue(AnnotationAttachmentAttributeValueNode value) {
-        this.value = value;
+        this.value = (BLangAnnotAttachmentAttributeValue)value;
     }
 
     @Override
