@@ -109,7 +109,6 @@ class PackageDeclarationNode extends React.Component {
             this.onPackageInputBlur(event);
         }
     }
-
     /**
      * Called when a new global constant or variable is entered
      * @param {string} value - statement for adding the new global
@@ -123,7 +122,7 @@ class PackageDeclarationNode extends React.Component {
         parseContent(value)
             .then((jsonTree) => {
                 if (jsonTree.topLevelNodes[0]) {
-                    this.props.model.parent.addTopLevelNodes(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                    this.props.model.parent.addGlobal(TreeBuilder.build(jsonTree.topLevelNodes[0]));
                 }
             })
             .catch(log.error);
@@ -137,16 +136,16 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
-        if (this.props.model.parent.isExistingPackage(value)) {
+        /* if (this.props.model.parent.isExistingPackage(value)) {
             const errorString = 'Package "' + value + '" is already imported.';
             log.debug(errorString);
             return;
-        }
+        }*/
         value = 'import ' + value + ';\n';
         parseContent(value)
             .then((jsonTree) => {
                 if (jsonTree.topLevelNodes[0]) {
-                    this.props.model.parent.addTopLevelNodes(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                    this.props.model.parent.addImport(TreeBuilder.build(jsonTree.topLevelNodes[0]));
                 }
             })
             .catch(log.error);
