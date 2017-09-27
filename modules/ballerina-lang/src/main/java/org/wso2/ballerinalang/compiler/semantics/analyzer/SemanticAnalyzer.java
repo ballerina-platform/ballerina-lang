@@ -294,6 +294,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
+        this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
     }
 

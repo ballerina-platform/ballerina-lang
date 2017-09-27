@@ -61,8 +61,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -164,17 +166,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define connector nodes.
         pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
 
+        // Define service and resource nodes.
+        pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
 
         // Define connector action nodes.
-        defineActions(pkgNode.connectors, pkgEnv);
+        defineConnectorMembers(pkgNode.connectors, pkgEnv);
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
-        // Define service and resource nodes.
-        defineServices(pkgNode.services, pkgEnv);
+        // Define service resource nodes.
+        defineServiceMembers(pkgNode.services, pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
@@ -232,8 +237,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         defineConnectorSymbol(connectorNode, conSymbol, connectorEnv);
-        connectorNode.varDefs.forEach(varDef -> defineNode(varDef.var, connectorEnv));
-        defineConnectorInitFunction(connectorNode);
     }
 
     @Override
@@ -275,6 +278,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        // Create and keep parameter node to inject as action first parameter later
         BLangVariable connectorParam = (BLangVariable) TreeBuilder.createVariableNode();
         connectorParam.pos = env.node.pos;
         connectorParam.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
@@ -457,22 +461,29 @@ public class SymbolEnter extends BLangNodeVisitor {
         });
     }
 
-    private void defineServices(List<BLangService> serviceNodes, SymbolEnv pkgEnv) {
-        serviceNodes.forEach(service -> {
-            defineNode(service, pkgEnv);
-            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
-            service.resources.stream()
-                    .peek(resource -> resource.flagSet.add(Flag.PUBLIC))
-                    .forEach(resource -> defineNode(resource, serviceEnv));
-        });
-    }
-
-    private void defineActions(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
+    private void defineConnectorMembers(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
+            connector.varDefs.forEach(varDef -> defineNode(varDef.var, conEnv));
+            defineConnectorInitFunction(connector);
+            defineNode(connector.initFunction, conEnv);
+            connector.symbol.initFunctionSymbol = connector.initFunction.symbol;
             connector.actions.stream()
                     .peek(action -> action.flagSet.add(Flag.PUBLIC))
                     .forEach(action -> defineNode(action, conEnv));
+        });
+    }
+
+    private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
+        services.forEach(service -> {
+            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
+            service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
+            defineServiceInitFunction(service);
+            defineNode(service.initFunction, serviceEnv);
+//            service.symbol.initFunctionSymbol = service.initFunction.symbol;
+            service.resources.stream()
+                    .peek(action -> action.flagSet.add(Flag.PUBLIC))
+                    .forEach(resource -> defineNode(resource, serviceEnv));
         });
     }
 
@@ -581,23 +592,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         initFunction.addParameter(param);
         //Add connector level variables to the init function
         for (BLangVariableDef variableDef : connector.getVariableDefs()) {
-            initFunction.body.addStatement(variableDef);
+            initFunction.body.addStatement(createAssignmentStmt(variableDef));
         }
         addInitReturnStatement(initFunction.body);
         connector.initFunction = initFunction;
-        defineNode(connector.initFunction, env);
-        connector.symbol.initFunctionSymbol = initFunction.symbol;
     }
 
     private void defineServiceInitFunction(BLangService service) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue());
         //Add service level variables to the init function
         for (BLangVariableDef variableDef : service.getVariables()) {
-            initFunction.body.addStatement(variableDef);
+            initFunction.body.addStatement(createAssignmentStmt(variableDef));
         }
         addInitReturnStatement(initFunction.body);
         service.initFunction = initFunction;
-        defineNode(service.initFunction, env);
+    }
+
+    private BLangAssignment createAssignmentStmt(BLangVariableDef variableDef) {
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variableDef.var.expr;
+        assignmentStmt.pos = variableDef.pos;
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
+                .createSimpleVariableReferenceNode();
+        varRef.pos = variableDef.pos;
+        varRef.variableName = variableDef.var.name;
+        assignmentStmt.addVariable(varRef);
+        return assignmentStmt;
     }
 
     private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
