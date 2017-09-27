@@ -78,8 +78,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
                                                                                 httpTraceLogEnabled, chunkDisabled);
-            TargetChannel targetChannel = connectionManager
-                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled);
             targetChannel.getChannelFuture()
                     .addListener(new ChannelFutureListener() {
                         @Override
