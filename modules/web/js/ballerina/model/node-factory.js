@@ -30,19 +30,37 @@ import IdentifierNode from './tree/identifier-node';
 import ImportNode from './tree/import-node';
 import PackageNode from './tree/package-node';
 import PackageDeclarationNode from './tree/package-declaration-node';
+import RecordLiteralKeyValueNode from './tree/record-literal-key-value-node';
 import ResourceNode from './tree/resource-node';
 import RetryNode from './tree/retry-node';
 import ServiceNode from './tree/service-node';
 import StructNode from './tree/struct-node';
 import VariableNode from './tree/variable-node';
 import WorkerNode from './tree/worker-node';
+import XmlnsNode from './tree/xmlns-node';
 import AnnotationAttachmentAttributeValueNode from './tree/annotation-attachment-attribute-value-node';
 import ArrayLiteralExprNode from './tree/array-literal-expr-node';
 import BinaryExprNode from './tree/binary-expr-node';
+import ConnectorInitExprNode from './tree/connector-init-expr-node';
+import FieldBasedAccessExprNode from './tree/field-based-access-expr-node';
+import IndexBasedAccessExprNode from './tree/index-based-access-expr-node';
 import InvocationNode from './tree/invocation-node';
+import LambdaNode from './tree/lambda-node';
 import LiteralNode from './tree/literal-node';
+import RecordLiteralExprNode from './tree/record-literal-expr-node';
+import SimpleVariableRefNode from './tree/simple-variable-ref-node';
 import StringTemplateLiteralNode from './tree/string-template-literal-node';
+import TernaryExprNode from './tree/ternary-expr-node';
+import TypeCastExprNode from './tree/type-cast-expr-node';
+import TypeConversionExprNode from './tree/type-conversion-expr-node';
 import UnaryExprNode from './tree/unary-expr-node';
+import XmlAttributeNode from './tree/xml-attribute-node';
+import XmlCommentLiteralNode from './tree/xml-comment-literal-node';
+import XmlElementLiteralNode from './tree/xml-element-literal-node';
+import XmlPiLiteralNode from './tree/xml-pi-literal-node';
+import XmlQnameNode from './tree/xml-qname-node';
+import XmlQuotedStringNode from './tree/xml-quoted-string-node';
+import XmlTextLiteralNode from './tree/xml-text-literal-node';
 import AbortNode from './tree/abort-node';
 import AssignmentNode from './tree/assignment-node';
 import BlockNode from './tree/block-node';
@@ -57,10 +75,13 @@ import CommentNode from './tree/comment-node';
 import ThrowNode from './tree/throw-node';
 import TransactionNode from './tree/transaction-node';
 import TransformNode from './tree/transform-node';
+import TryNode from './tree/try-node';
+import VariableDefNode from './tree/variable-def-node';
 import WhileNode from './tree/while-node';
 import WorkerReceiveNode from './tree/worker-receive-node';
 import WorkerSendNode from './tree/worker-send-node';
 import ArrayTypeNode from './tree/array-type-node';
+import BuiltInRefTypeNode from './tree/built-in-ref-type-node';
 import ConstrainedTypeNode from './tree/constrained-type-node';
 import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
@@ -173,6 +194,14 @@ class NodeFactory {
         return node;
     }
 
+    createRecordLiteralKeyValue(json){
+        json.kind = 'RecordLiteralKeyValue';
+        let node = new RecordLiteralKeyValueNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createResource(json){
         json.kind = 'Resource';
         let node = new ResourceNode();
@@ -221,6 +250,14 @@ class NodeFactory {
         return node;
     }
 
+    createXmlns(json){
+        json.kind = 'Xmlns';
+        let node = new XmlnsNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createAnnotationAttachmentAttributeValue(json){
         json.kind = 'AnnotationAttachmentAttributeValue';
         let node = new AnnotationAttachmentAttributeValueNode();
@@ -245,9 +282,41 @@ class NodeFactory {
         return node;
     }
 
+    createConnectorInitExpr(json){
+        json.kind = 'ConnectorInitExpr';
+        let node = new ConnectorInitExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createFieldBasedAccessExpr(json){
+        json.kind = 'FieldBasedAccessExpr';
+        let node = new FieldBasedAccessExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createIndexBasedAccessExpr(json){
+        json.kind = 'IndexBasedAccessExpr';
+        let node = new IndexBasedAccessExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createInvocation(json){
         json.kind = 'Invocation';
         let node = new InvocationNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createLambda(json){
+        json.kind = 'Lambda';
+        let node = new LambdaNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
@@ -261,6 +330,22 @@ class NodeFactory {
         return node;
     }
 
+    createRecordLiteralExpr(json){
+        json.kind = 'RecordLiteralExpr';
+        let node = new RecordLiteralExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createSimpleVariableRef(json){
+        json.kind = 'SimpleVariableRef';
+        let node = new SimpleVariableRefNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createStringTemplateLiteral(json){
         json.kind = 'StringTemplateLiteral';
         let node = new StringTemplateLiteralNode();
@@ -269,9 +354,89 @@ class NodeFactory {
         return node;
     }
 
+    createTernaryExpr(json){
+        json.kind = 'TernaryExpr';
+        let node = new TernaryExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createTypeCastExpr(json){
+        json.kind = 'TypeCastExpr';
+        let node = new TypeCastExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createTypeConversionExpr(json){
+        json.kind = 'TypeConversionExpr';
+        let node = new TypeConversionExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createUnaryExpr(json){
         json.kind = 'UnaryExpr';
         let node = new UnaryExprNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlAttribute(json){
+        json.kind = 'XmlAttribute';
+        let node = new XmlAttributeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlCommentLiteral(json){
+        json.kind = 'XmlCommentLiteral';
+        let node = new XmlCommentLiteralNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlElementLiteral(json){
+        json.kind = 'XmlElementLiteral';
+        let node = new XmlElementLiteralNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlPiLiteral(json){
+        json.kind = 'XmlPiLiteral';
+        let node = new XmlPiLiteralNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlQname(json){
+        json.kind = 'XmlQname';
+        let node = new XmlQnameNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlQuotedString(json){
+        json.kind = 'XmlQuotedString';
+        let node = new XmlQuotedStringNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlTextLiteral(json){
+        json.kind = 'XmlTextLiteral';
+        let node = new XmlTextLiteralNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
@@ -389,6 +554,22 @@ class NodeFactory {
         return node;
     }
 
+    createTry(json){
+        json.kind = 'Try';
+        let node = new TryNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createVariableDef(json){
+        json.kind = 'VariableDef';
+        let node = new VariableDefNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createWhile(json){
         json.kind = 'While';
         let node = new WhileNode();
@@ -416,6 +597,14 @@ class NodeFactory {
     createArrayType(json){
         json.kind = 'ArrayType';
         let node = new ArrayTypeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createBuiltInRefType(json){
+        json.kind = 'BuiltInRefType';
+        let node = new BuiltInRefTypeNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;

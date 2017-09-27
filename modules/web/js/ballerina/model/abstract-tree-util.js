@@ -71,6 +71,10 @@ class AbstractTreeUtil {
         return node.kind === 'PackageDeclaration';
     }
 
+    isRecordLiteralKeyValue(node) {
+        return node.kind === 'RecordLiteralKeyValue';
+    }
+
     isResource(node) {
         return node.kind === 'Resource';
     }
@@ -95,6 +99,10 @@ class AbstractTreeUtil {
         return node.kind === 'Worker';
     }
 
+    isXmlns(node) {
+        return node.kind === 'Xmlns';
+    }
+
     isAnnotationAttachmentAttributeValue(node) {
         return node.kind === 'AnnotationAttachmentAttributeValue';
     }
@@ -107,20 +115,84 @@ class AbstractTreeUtil {
         return node.kind === 'BinaryExpr';
     }
 
+    isConnectorInitExpr(node) {
+        return node.kind === 'ConnectorInitExpr';
+    }
+
+    isFieldBasedAccessExpr(node) {
+        return node.kind === 'FieldBasedAccessExpr';
+    }
+
+    isIndexBasedAccessExpr(node) {
+        return node.kind === 'IndexBasedAccessExpr';
+    }
+
     isInvocation(node) {
         return node.kind === 'Invocation';
+    }
+
+    isLambda(node) {
+        return node.kind === 'Lambda';
     }
 
     isLiteral(node) {
         return node.kind === 'Literal';
     }
 
+    isRecordLiteralExpr(node) {
+        return node.kind === 'RecordLiteralExpr';
+    }
+
+    isSimpleVariableRef(node) {
+        return node.kind === 'SimpleVariableRef';
+    }
+
     isStringTemplateLiteral(node) {
         return node.kind === 'StringTemplateLiteral';
     }
 
+    isTernaryExpr(node) {
+        return node.kind === 'TernaryExpr';
+    }
+
+    isTypeCastExpr(node) {
+        return node.kind === 'TypeCastExpr';
+    }
+
+    isTypeConversionExpr(node) {
+        return node.kind === 'TypeConversionExpr';
+    }
+
     isUnaryExpr(node) {
         return node.kind === 'UnaryExpr';
+    }
+
+    isXmlAttribute(node) {
+        return node.kind === 'XmlAttribute';
+    }
+
+    isXmlCommentLiteral(node) {
+        return node.kind === 'XmlCommentLiteral';
+    }
+
+    isXmlElementLiteral(node) {
+        return node.kind === 'XmlElementLiteral';
+    }
+
+    isXmlPiLiteral(node) {
+        return node.kind === 'XmlPiLiteral';
+    }
+
+    isXmlQname(node) {
+        return node.kind === 'XmlQname';
+    }
+
+    isXmlQuotedString(node) {
+        return node.kind === 'XmlQuotedString';
+    }
+
+    isXmlTextLiteral(node) {
+        return node.kind === 'XmlTextLiteral';
     }
 
     isAbort(node) {
@@ -179,6 +251,14 @@ class AbstractTreeUtil {
         return node.kind === 'Transform';
     }
 
+    isTry(node) {
+        return node.kind === 'Try';
+    }
+
+    isVariableDef(node) {
+        return node.kind === 'VariableDef';
+    }
+
     isWhile(node) {
         return node.kind === 'While';
     }
@@ -193,6 +273,10 @@ class AbstractTreeUtil {
 
     isArrayType(node) {
         return node.kind === 'ArrayType';
+    }
+
+    isBuiltInRefType(node) {
+        return node.kind === 'BuiltInRefType';
     }
 
     isConstrainedType(node) {

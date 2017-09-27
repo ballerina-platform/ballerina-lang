@@ -46,36 +46,41 @@ public class ModelGenerator {
             String lowerHyphenName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, entry.getKey());
             generateSourceFiles(node, "node.hbs" , "tree/" + lowerHyphenName + ".js");
             generateSourceFiles(node, "abstract-node.hbs" , "tree/abstract-tree/" + lowerHyphenName + ".js");
-            generateSourceFiles(node, "dimention-visitor.hbs" , "dimention/" + lowerHyphenName + "-dimention.js");
-            generateSourceFiles(node, "position-visitor.hbs" , "position/" + lowerHyphenName + "-position.js");
             kinds.add(node.get("kind"));
         }
         generateSourceFiles(nodes, "abstract-tree-util.hbs" , "abstract-tree-util.js");
         generateSourceFiles(nodes, "node-factory.hbs" , "node-factory.js");
+        generateSourceFiles(nodes, "positioning-util.hbs" , "positioning-util.js");
+        generateSourceFiles(nodes, "sizing-util.hbs" , "sizing-util.js");
     }
 
     public static JsonObject getContext() {
         // Set alias for the classes
-        alias.put("ForkjoinNode", "ForkJoinNode");
         alias.put("ImportNode", "ImportPackageNode");
-        alias.put("TryNode", "");
-        alias.put("VariableRefNode", "");
-        alias.put("XmlnsNode", "");
+        alias.put("RecordLiteralKeyValueNode", "RecordKeyValueNode");
+        alias.put("XmlnsNode", "XMLNSDeclarationNode");
         alias.put("ArrayLiteralExprNode", "ArrayLiteralNode");
-        alias.put("RecodeLiteralExprNode", "");
         alias.put("BinaryExprNode", "BinaryExpressionNode");
+        alias.put("ConnectorInitExprNode", "ConnectorInitNode");
+        alias.put("FieldBasedAccessExprNode", "FieldBasedAccessNode");
+        alias.put("IndexBasedAccessExprNode", "IndexBasedAccessNode");
+        alias.put("LambdaNode", "LambdaFunctionNode");
+        alias.put("RecordLiteralExprNode", "RecordLiteralNode");
+        alias.put("SimpleVariableRefNode", "SimpleVariableReferenceNode");
+        alias.put("TernaryExprNode", "TernaryExpressionNode");
+        alias.put("TypeCastExprNode", "TypeCastNode");
+        alias.put("TypeConversionExprNode", "TypeConversionNode");
         alias.put("UnaryExprNode", "UnaryExpressionNode");
-        alias.put("ConnectorInitExprNode", "ConnectorInitExpressionNode");
-        alias.put("LambdaNode", "");
-        alias.put("XmlQnameNode", "");
-        alias.put("XmlElementLiteralNode", "");
-        alias.put("XmlTextLiteralNode", "");
-        alias.put("XmlCommentLiteralNode", "");
-        alias.put("XmlPiLiteralNode", "");
-        alias.put("XmlQuotedStringNode", "");
-        alias.put("TypeCastExprNode", "");
-        alias.put("TypeConversionExprNode", "");
-        alias.put("TernaryExprNode", "");
+        alias.put("XmlAttributeNode", "XMLAttributeNode");
+        alias.put("XmlCommentLiteralNode", "XMLCommentLiteralNode");
+        alias.put("XmlElementLiteralNode", "XMLElementLiteralNode");
+        alias.put("XmlPiLiteralNode", "XMLProcessingInstructionLiteralNode");
+        alias.put("XmlQnameNode", "XMLQNameNode");
+        alias.put("XmlQuotedStringNode", "XMLQuotedStringNode");
+        alias.put("XmlTextLiteralNode", "XMLTextLiteralNode");
+        alias.put("TryNode", "TryCatchFinallyNode");
+        alias.put("VariableDefNode", "VariableDefinitionNode");
+        alias.put("BuiltInRefTypeNode", "BuiltInReferenceTypeNode");
 
         List<Class<?>> list = ModelGenerator.find("org.ballerinalang.model.tree");
 
@@ -112,7 +117,7 @@ public class ModelGenerator {
                 nodeObj.add("attributes", attr);
                 nodes.add(nodeClassName, nodeObj);
             } catch (NoSuchElementException e) {
-                out.println("Unable to find proper class for the given kind :" + nodeClassName);
+                out.println("alias.put(\"" + nodeClassName + "\", \"\");");
             }
         }
         out.println(nodes);

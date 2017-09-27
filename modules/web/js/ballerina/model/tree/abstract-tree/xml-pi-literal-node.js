@@ -19,13 +19,13 @@
 import Node from '../node';
 import _ from 'lodash';
 
-class AssignmentNodeAbstract extends Node {
+class XmlPiLiteralNodeAbstract extends Node {
 
 
-    setVariables(newValue, silent, title) {
-        const oldValue = this.variables;
+    setDataTextFragments(newValue, silent, title) {
+        const oldValue = this.dataTextFragments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variables = newValue;
+        this.dataTextFragments = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'variables',
+                    attributeName: 'dataTextFragments',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getVariables() {
-        return this.variables;
+    getDataTextFragments() {
+        return this.dataTextFragments;
     }
 
 
-    addVariables(node, i = -1, silent){
+    addDataTextFragments(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.variables.push(node);
-            index = this.variables.length;
+            this.dataTextFragments.push(node);
+            index = this.dataTextFragments.length;
         } else {
-            this.variables.splice(i, 0, node);
+            this.dataTextFragments.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    removeVariables(node, silent){
-        const index = this.getIndexOfVariables(node);
-        this.removeVariablesByIndex(index);
+    removeDataTextFragments(node, silent){
+        const index = this.getIndexOfDataTextFragments(node);
+        this.removeDataTextFragmentsByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AssignmentNodeAbstract extends Node {
         }        
     }
 
-    removeVariablesByIndex(index, silent){
-        this.variables.splice(index, 1);
+    removeDataTextFragmentsByIndex(index, silent){
+        this.dataTextFragments.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,26 +99,26 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    replaceVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfVariables(oldChild);
-        this.variables[index] = newChild;
+    replaceDataTextFragments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDataTextFragments(oldChild);
+        this.dataTextFragments[index] = newChild;
     }
 
-    getIndexOfVariables(child) {
-        return _.findIndex(this.variables, ['id', child.id]);
+    getIndexOfDataTextFragments(child) {
+        return _.findIndex(this.dataTextFragments, ['id', child.id]);
     }
 
-    filterVariables(predicateFunction) {
-        return _.filter(this.variables, predicateFunction);
+    filterDataTextFragments(predicateFunction) {
+        return _.filter(this.dataTextFragments, predicateFunction);
     }
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setTarget(newValue, silent, title) {
+        const oldValue = this.target;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.target = newValue;
 
-        this.expression.parent = this;
+        this.target.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -126,7 +126,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'target',
                     newValue,
                     oldValue,
                 },
@@ -134,12 +134,12 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getTarget() {
+        return this.target;
     }
 
 
 
 }
 
-export default AssignmentNodeAbstract;
+export default XmlPiLiteralNodeAbstract;

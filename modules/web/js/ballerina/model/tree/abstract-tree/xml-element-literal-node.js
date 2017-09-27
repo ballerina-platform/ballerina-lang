@@ -19,15 +19,15 @@
 import Node from '../node';
 import _ from 'lodash';
 
-class ServiceNodeAbstract extends Node {
+class XmlElementLiteralNodeAbstract extends Node {
 
 
-    setProtocolPackageIdentifier(newValue, silent, title) {
-        const oldValue = this.protocolPackageIdentifier;
+    setStartTagName(newValue, silent, title) {
+        const oldValue = this.startTagName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.protocolPackageIdentifier = newValue;
+        this.startTagName = newValue;
 
-        this.protocolPackageIdentifier.parent = this;
+        this.startTagName.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class ServiceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'protocolPackageIdentifier',
+                    attributeName: 'startTagName',
                     newValue,
                     oldValue,
                 },
@@ -43,16 +43,18 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getProtocolPackageIdentifier() {
-        return this.protocolPackageIdentifier;
+    getStartTagName() {
+        return this.startTagName;
     }
 
 
 
-    setVariables(newValue, silent, title) {
-        const oldValue = this.variables;
+    setEndTagName(newValue, silent, title) {
+        const oldValue = this.endTagName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variables = newValue;
+        this.endTagName = newValue;
+
+        this.endTagName.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -60,7 +62,7 @@ class ServiceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'variables',
+                    attributeName: 'endTagName',
                     newValue,
                     oldValue,
                 },
@@ -68,19 +70,44 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getVariables() {
-        return this.variables;
+    getEndTagName() {
+        return this.endTagName;
     }
 
 
-    addVariables(node, i = -1, silent){
+
+    setNamespaces(newValue, silent, title) {
+        const oldValue = this.namespaces;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.namespaces = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'namespaces',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getNamespaces() {
+        return this.namespaces;
+    }
+
+
+    addNamespaces(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.variables.push(node);
-            index = this.variables.length;
+            this.namespaces.push(node);
+            index = this.namespaces.length;
         } else {
-            this.variables.splice(i, 0, node);
+            this.namespaces.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -95,9 +122,9 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    removeVariables(node, silent){
-        const index = this.getIndexOfVariables(node);
-        this.removeVariablesByIndex(index);
+    removeNamespaces(node, silent){
+        const index = this.getIndexOfNamespaces(node);
+        this.removeNamespacesByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -111,8 +138,8 @@ class ServiceNodeAbstract extends Node {
         }        
     }
 
-    removeVariablesByIndex(index, silent){
-        this.variables.splice(index, 1);
+    removeNamespacesByIndex(index, silent){
+        this.namespaces.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -126,26 +153,26 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    replaceVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfVariables(oldChild);
-        this.variables[index] = newChild;
+    replaceNamespaces(oldChild, newChild, silent) {
+        const index = this.getIndexOfNamespaces(oldChild);
+        this.namespaces[index] = newChild;
     }
 
-    getIndexOfVariables(child) {
-        return _.findIndex(this.variables, ['id', child.id]);
+    getIndexOfNamespaces(child) {
+        return _.findIndex(this.namespaces, ['id', child.id]);
     }
 
-    filterVariables(predicateFunction) {
-        return _.filter(this.variables, predicateFunction);
+    filterNamespaces(predicateFunction) {
+        return _.filter(this.namespaces, predicateFunction);
     }
 
 
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
+    setDefaultNamespaceUri(newValue, silent, title) {
+        const oldValue = this.defaultNamespaceUri;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
+        this.defaultNamespaceUri = newValue;
 
-        this.initFunction.parent = this;
+        this.defaultNamespaceUri.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -153,7 +180,7 @@ class ServiceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'initFunction',
+                    attributeName: 'defaultNamespaceUri',
                     newValue,
                     oldValue,
                 },
@@ -161,18 +188,16 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getInitFunction() {
-        return this.initFunction;
+    getDefaultNamespaceUri() {
+        return this.defaultNamespaceUri;
     }
 
 
 
-    setName(newValue, silent, title) {
-        const oldValue = this.name;
+    setAttributes(newValue, silent, title) {
+        const oldValue = this.attributes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-
-        this.name.parent = this;
+        this.attributes = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -180,7 +205,7 @@ class ServiceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'name',
+                    attributeName: 'attributes',
                     newValue,
                     oldValue,
                 },
@@ -188,44 +213,19 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getName() {
-        return this.name;
+    getAttributes() {
+        return this.attributes;
     }
 
 
-
-    setResources(newValue, silent, title) {
-        const oldValue = this.resources;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.resources = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'resources',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getResources() {
-        return this.resources;
-    }
-
-
-    addResources(node, i = -1, silent){
+    addAttributes(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.resources.push(node);
-            index = this.resources.length;
+            this.attributes.push(node);
+            index = this.attributes.length;
         } else {
-            this.resources.splice(i, 0, node);
+            this.attributes.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -240,9 +240,9 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    removeResources(node, silent){
-        const index = this.getIndexOfResources(node);
-        this.removeResourcesByIndex(index);
+    removeAttributes(node, silent){
+        const index = this.getIndexOfAttributes(node);
+        this.removeAttributesByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -256,8 +256,8 @@ class ServiceNodeAbstract extends Node {
         }        
     }
 
-    removeResourcesByIndex(index, silent){
-        this.resources.splice(index, 1);
+    removeAttributesByIndex(index, silent){
+        this.attributes.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -271,24 +271,24 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    replaceResources(oldChild, newChild, silent) {
-        const index = this.getIndexOfResources(oldChild);
-        this.resources[index] = newChild;
+    replaceAttributes(oldChild, newChild, silent) {
+        const index = this.getIndexOfAttributes(oldChild);
+        this.attributes[index] = newChild;
     }
 
-    getIndexOfResources(child) {
-        return _.findIndex(this.resources, ['id', child.id]);
+    getIndexOfAttributes(child) {
+        return _.findIndex(this.attributes, ['id', child.id]);
     }
 
-    filterResources(predicateFunction) {
-        return _.filter(this.resources, predicateFunction);
+    filterAttributes(predicateFunction) {
+        return _.filter(this.attributes, predicateFunction);
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setContent(newValue, silent, title) {
+        const oldValue = this.content;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.content = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -296,7 +296,7 @@ class ServiceNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'content',
                     newValue,
                     oldValue,
                 },
@@ -304,44 +304,19 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getContent() {
+        return this.content;
     }
 
 
-
-    setAnnotationAttachments(newValue, silent, title) {
-        const oldValue = this.annotationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'annotationAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getAnnotationAttachments() {
-        return this.annotationAttachments;
-    }
-
-
-    addAnnotationAttachments(node, i = -1, silent){
+    addContent(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.annotationAttachments.push(node);
-            index = this.annotationAttachments.length;
+            this.content.push(node);
+            index = this.content.length;
         } else {
-            this.annotationAttachments.splice(i, 0, node);
+            this.content.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -356,9 +331,9 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
-        const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index);
+    removeContent(node, silent){
+        const index = this.getIndexOfContent(node);
+        this.removeContentByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -372,8 +347,8 @@ class ServiceNodeAbstract extends Node {
         }        
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
-        this.annotationAttachments.splice(index, 1);
+    removeContentByIndex(index, silent){
+        this.content.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -387,20 +362,20 @@ class ServiceNodeAbstract extends Node {
         }
     }
 
-    replaceAnnotationAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfAnnotationAttachments(oldChild);
-        this.annotationAttachments[index] = newChild;
+    replaceContent(oldChild, newChild, silent) {
+        const index = this.getIndexOfContent(oldChild);
+        this.content[index] = newChild;
     }
 
-    getIndexOfAnnotationAttachments(child) {
-        return _.findIndex(this.annotationAttachments, ['id', child.id]);
+    getIndexOfContent(child) {
+        return _.findIndex(this.content, ['id', child.id]);
     }
 
-    filterAnnotationAttachments(predicateFunction) {
-        return _.filter(this.annotationAttachments, predicateFunction);
+    filterContent(predicateFunction) {
+        return _.filter(this.content, predicateFunction);
     }
 
 
 }
 
-export default ServiceNodeAbstract;
+export default XmlElementLiteralNodeAbstract;

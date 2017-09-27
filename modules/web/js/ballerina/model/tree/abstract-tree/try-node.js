@@ -19,13 +19,15 @@
 import Node from '../node';
 import _ from 'lodash';
 
-class AssignmentNodeAbstract extends Node {
+class TryNodeAbstract extends Node {
 
 
-    setVariables(newValue, silent, title) {
-        const oldValue = this.variables;
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variables = newValue;
+        this.body = newValue;
+
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'variables',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +43,44 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getVariables() {
-        return this.variables;
+    getBody() {
+        return this.body;
     }
 
 
-    addVariables(node, i = -1, silent){
+
+    setCatchBlocks(newValue, silent, title) {
+        const oldValue = this.catchBlocks;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.catchBlocks = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'catchBlocks',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getCatchBlocks() {
+        return this.catchBlocks;
+    }
+
+
+    addCatchBlocks(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.variables.push(node);
-            index = this.variables.length;
+            this.catchBlocks.push(node);
+            index = this.catchBlocks.length;
         } else {
-            this.variables.splice(i, 0, node);
+            this.catchBlocks.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +95,9 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    removeVariables(node, silent){
-        const index = this.getIndexOfVariables(node);
-        this.removeVariablesByIndex(index);
+    removeCatchBlocks(node, silent){
+        const index = this.getIndexOfCatchBlocks(node);
+        this.removeCatchBlocksByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +111,8 @@ class AssignmentNodeAbstract extends Node {
         }        
     }
 
-    removeVariablesByIndex(index, silent){
-        this.variables.splice(index, 1);
+    removeCatchBlocksByIndex(index, silent){
+        this.catchBlocks.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,26 +126,26 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    replaceVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfVariables(oldChild);
-        this.variables[index] = newChild;
+    replaceCatchBlocks(oldChild, newChild, silent) {
+        const index = this.getIndexOfCatchBlocks(oldChild);
+        this.catchBlocks[index] = newChild;
     }
 
-    getIndexOfVariables(child) {
-        return _.findIndex(this.variables, ['id', child.id]);
+    getIndexOfCatchBlocks(child) {
+        return _.findIndex(this.catchBlocks, ['id', child.id]);
     }
 
-    filterVariables(predicateFunction) {
-        return _.filter(this.variables, predicateFunction);
+    filterCatchBlocks(predicateFunction) {
+        return _.filter(this.catchBlocks, predicateFunction);
     }
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setFinallyBody(newValue, silent, title) {
+        const oldValue = this.finallyBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.finallyBody = newValue;
 
-        this.expression.parent = this;
+        this.finallyBody.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -126,7 +153,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'finallyBody',
                     newValue,
                     oldValue,
                 },
@@ -134,12 +161,12 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getFinallyBody() {
+        return this.finallyBody;
     }
 
 
 
 }
 
-export default AssignmentNodeAbstract;
+export default TryNodeAbstract;

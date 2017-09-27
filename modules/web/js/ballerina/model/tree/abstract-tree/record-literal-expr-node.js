@@ -19,13 +19,13 @@
 import Node from '../node';
 import _ from 'lodash';
 
-class AssignmentNodeAbstract extends Node {
+class RecordLiteralExprNodeAbstract extends Node {
 
 
-    setVariables(newValue, silent, title) {
-        const oldValue = this.variables;
+    setKeyValuePairs(newValue, silent, title) {
+        const oldValue = this.keyValuePairs;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variables = newValue;
+        this.keyValuePairs = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AssignmentNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'variables',
+                    attributeName: 'keyValuePairs',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    getVariables() {
-        return this.variables;
+    getKeyValuePairs() {
+        return this.keyValuePairs;
     }
 
 
-    addVariables(node, i = -1, silent){
+    addKeyValuePairs(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.variables.push(node);
-            index = this.variables.length;
+            this.keyValuePairs.push(node);
+            index = this.keyValuePairs.length;
         } else {
-            this.variables.splice(i, 0, node);
+            this.keyValuePairs.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    removeVariables(node, silent){
-        const index = this.getIndexOfVariables(node);
-        this.removeVariablesByIndex(index);
+    removeKeyValuePairs(node, silent){
+        const index = this.getIndexOfKeyValuePairs(node);
+        this.removeKeyValuePairsByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AssignmentNodeAbstract extends Node {
         }        
     }
 
-    removeVariablesByIndex(index, silent){
-        this.variables.splice(index, 1);
+    removeKeyValuePairsByIndex(index, silent){
+        this.keyValuePairs.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,47 +99,20 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    replaceVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfVariables(oldChild);
-        this.variables[index] = newChild;
+    replaceKeyValuePairs(oldChild, newChild, silent) {
+        const index = this.getIndexOfKeyValuePairs(oldChild);
+        this.keyValuePairs[index] = newChild;
     }
 
-    getIndexOfVariables(child) {
-        return _.findIndex(this.variables, ['id', child.id]);
+    getIndexOfKeyValuePairs(child) {
+        return _.findIndex(this.keyValuePairs, ['id', child.id]);
     }
 
-    filterVariables(predicateFunction) {
-        return _.filter(this.variables, predicateFunction);
+    filterKeyValuePairs(predicateFunction) {
+        return _.filter(this.keyValuePairs, predicateFunction);
     }
-
-
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
 }
 
-export default AssignmentNodeAbstract;
+export default RecordLiteralExprNodeAbstract;

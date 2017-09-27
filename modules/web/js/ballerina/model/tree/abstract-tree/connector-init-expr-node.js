@@ -19,13 +19,13 @@
 import Node from '../node';
 import _ from 'lodash';
 
-class EnumNodeAbstract extends Node {
+class ConnectorInitExprNodeAbstract extends Node {
 
 
-    setEnumFields(newValue, silent, title) {
-        const oldValue = this.enumFields;
+    setExpressions(newValue, silent, title) {
+        const oldValue = this.expressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.enumFields = newValue;
+        this.expressions = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class EnumNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'enumFields',
+                    attributeName: 'expressions',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    getEnumFields() {
-        return this.enumFields;
+    getExpressions() {
+        return this.expressions;
     }
 
 
-    addEnumFields(node, i = -1, silent){
+    addExpressions(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.enumFields.push(node);
-            index = this.enumFields.length;
+            this.expressions.push(node);
+            index = this.expressions.length;
         } else {
-            this.enumFields.splice(i, 0, node);
+            this.expressions.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    removeEnumFields(node, silent){
-        const index = this.getIndexOfEnumFields(node);
-        this.removeEnumFieldsByIndex(index);
+    removeExpressions(node, silent){
+        const index = this.getIndexOfExpressions(node);
+        this.removeExpressionsByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class EnumNodeAbstract extends Node {
         }        
     }
 
-    removeEnumFieldsByIndex(index, silent){
-        this.enumFields.splice(index, 1);
+    removeExpressionsByIndex(index, silent){
+        this.expressions.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,26 +99,24 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    replaceEnumFields(oldChild, newChild, silent) {
-        const index = this.getIndexOfEnumFields(oldChild);
-        this.enumFields[index] = newChild;
+    replaceExpressions(oldChild, newChild, silent) {
+        const index = this.getIndexOfExpressions(oldChild);
+        this.expressions[index] = newChild;
     }
 
-    getIndexOfEnumFields(child) {
-        return _.findIndex(this.enumFields, ['id', child.id]);
+    getIndexOfExpressions(child) {
+        return _.findIndex(this.expressions, ['id', child.id]);
     }
 
-    filterEnumFields(predicateFunction) {
-        return _.filter(this.enumFields, predicateFunction);
+    filterExpressions(predicateFunction) {
+        return _.filter(this.expressions, predicateFunction);
     }
 
 
-    setName(newValue, silent, title) {
-        const oldValue = this.name;
+    setFilterConnectos(newValue, silent, title) {
+        const oldValue = this.filterConnectos;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-
-        this.name.parent = this;
+        this.filterConnectos = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -126,7 +124,7 @@ class EnumNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'name',
+                    attributeName: 'filterConnectos',
                     newValue,
                     oldValue,
                 },
@@ -134,69 +132,19 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    getName() {
-        return this.name;
+    getFilterConnectos() {
+        return this.filterConnectos;
     }
 
 
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
-    setAnnotationAttachments(newValue, silent, title) {
-        const oldValue = this.annotationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'annotationAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getAnnotationAttachments() {
-        return this.annotationAttachments;
-    }
-
-
-    addAnnotationAttachments(node, i = -1, silent){
+    addFilterConnectos(node, i = -1, silent){
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.annotationAttachments.push(node);
-            index = this.annotationAttachments.length;
+            this.filterConnectos.push(node);
+            index = this.filterConnectos.length;
         } else {
-            this.annotationAttachments.splice(i, 0, node);
+            this.filterConnectos.splice(i, 0, node);
         }
         if(!silent) {
             this.trigger('tree-modified', {
@@ -211,9 +159,9 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
-        const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index);
+    removeFilterConnectos(node, silent){
+        const index = this.getIndexOfFilterConnectos(node);
+        this.removeFilterConnectosByIndex(index);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -227,8 +175,8 @@ class EnumNodeAbstract extends Node {
         }        
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
-        this.annotationAttachments.splice(index, 1);
+    removeFilterConnectosByIndex(index, silent){
+        this.filterConnectos.splice(index, 1);
         if(!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -242,20 +190,47 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    replaceAnnotationAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfAnnotationAttachments(oldChild);
-        this.annotationAttachments[index] = newChild;
+    replaceFilterConnectos(oldChild, newChild, silent) {
+        const index = this.getIndexOfFilterConnectos(oldChild);
+        this.filterConnectos[index] = newChild;
     }
 
-    getIndexOfAnnotationAttachments(child) {
-        return _.findIndex(this.annotationAttachments, ['id', child.id]);
+    getIndexOfFilterConnectos(child) {
+        return _.findIndex(this.filterConnectos, ['id', child.id]);
     }
 
-    filterAnnotationAttachments(predicateFunction) {
-        return _.filter(this.annotationAttachments, predicateFunction);
+    filterFilterConnectos(predicateFunction) {
+        return _.filter(this.filterConnectos, predicateFunction);
     }
+
+
+    setConnectorType(newValue, silent, title) {
+        const oldValue = this.connectorType;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.connectorType = newValue;
+
+        this.connectorType.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'connectorType',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getConnectorType() {
+        return this.connectorType;
+    }
+
 
 
 }
 
-export default EnumNodeAbstract;
+export default ConnectorInitExprNodeAbstract;
