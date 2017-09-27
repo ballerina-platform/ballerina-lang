@@ -24,6 +24,7 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
 
 public class GreaterLessThanOperationTest {
 
@@ -32,8 +33,8 @@ public class GreaterLessThanOperationTest {
 
     @BeforeClass
     public void setup() {
-        //result = BTestUtils.compile("test-src/expressions/binaryoperations/greater-less-than-operation.bal");
-        /*resultNegative = BTestUtils.
+        /*result = BTestUtils.compile("test-src/expressions/binaryoperations/greater-less-than-operation.bal");
+        resultNegative = BTestUtils.
          compile("test-src/expressions/binaryoperations/greater-less-than-operation-negative.bal");*/
     }
 
@@ -107,6 +108,24 @@ public class GreaterLessThanOperationTest {
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
 
         Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    //@Test
+    public void testIntGTFloat() {
+        BValue[] args = {new BInteger(110), new BFloat(22L)};
+        BValue[] returns = BTestUtils.invoke(result, "intGTFloat", args);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        final String expected = "true";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    //@Test
+    public void testFloatGTInt() {
+        BValue[] args = {new BFloat(110f), new BInteger(22)};
+        BValue[] returns = BTestUtils.invoke(result, "floatGTInt", args);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        final String expected = "true";
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     //@Test(description = "Test binary statement with errors")

@@ -130,7 +130,7 @@ public class AssignStmtTest {
         //testAssignCountMismatch2
         BTestUtils.validateError(resultNegative, 2, "assignment count mismatch: 4 != 3", 21, 20);
         //testAssignTypeMismatch1
-        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 16);
+        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 17);
         BTestUtils.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 11);
         //testAssignTypeMismatch2
         BTestUtils.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 17);
