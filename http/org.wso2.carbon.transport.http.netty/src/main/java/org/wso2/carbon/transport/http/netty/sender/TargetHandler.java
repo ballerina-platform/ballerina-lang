@@ -18,7 +18,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -52,7 +51,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
     private HttpResponseFuture httpResponseFuture;
-    private HTTPCarbonMessage cMsg;
+    private HTTPCarbonMessage targetRespMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private HTTPCarbonMessage incomingMsg;
@@ -75,15 +74,15 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (targetChannel.isRequestWritten()) {
             if (msg instanceof HttpResponse) {
-                cMsg = setUpCarbonMessage(ctx, msg);
+                targetRespMsg = setUpCarbonMessage(ctx, msg);
                 // TODO: Revisit all of these after the refactor
 //                if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                    HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                            executeAtTargetResponseReceiving(cMsg);
+//                            executeAtTargetResponseReceiving(targetRespMsg);
 //                }
                 if (this.httpResponseFuture != null) {
                     try {
-                        httpResponseFuture.notifyHttpListener(cMsg);
+                        httpResponseFuture.notifyHttpListener(targetRespMsg);
                     } catch (Exception e) {
                         LOG.error("Error while notifying response to listener ", e);
                     }
@@ -91,20 +90,18 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     LOG.error("Cannot correlate callback with request callback is null");
                 }
             } else {
-                if (cMsg != null) {
+                if (targetRespMsg != null) {
+                    HttpContent httpContent = (HttpContent) msg;
+                    targetRespMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        HttpContent httpContent = (LastHttpContent) msg;
-                        cMsg.addHttpContent(httpContent);
-                        cMsg.setEndOfMsgAdded(true);
+                        targetRespMsg.setEndOfMsgAdded(true);
+                        targetRespMsg = null;
 //                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                    executeAtTargetResponseSending(cMsg);
+//                                    executeAtTargetResponseSending(targetRespMsg);
 //                        }
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
-                    } else {
-                        HttpContent httpContent = (DefaultHttpContent) msg;
-                        cMsg.addHttpContent(httpContent);
                     }
                 }
             }
@@ -160,24 +157,26 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
-        cMsg = new HTTPCarbonMessage();
+        targetRespMsg = new HTTPCarbonMessage();
 //        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
+//            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+        // .executeAtTargetResponseReceiving(targetRespMsg);
 //        }
 
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+        targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
 
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-        cMsg.setHeaders(Util.getHeaders(httpResponse).getAll());
+        targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
+        targetRespMsg.setHeaders(Util.getHeaders(httpResponse).getAll());
 
         //copy required properties for service chaining from incoming carbon message to the response carbon message
         //copy shared worker pool
-        cMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, incomingMsg.getProperty(Constants.EXECUTOR_WORKER_POOL));
+        targetRespMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, incomingMsg
+                .getProperty(Constants.EXECUTOR_WORKER_POOL));
         //TODO copy mandatory properties from previous message if needed
 
-        return cMsg;
+        return targetRespMsg;
 
     }
 

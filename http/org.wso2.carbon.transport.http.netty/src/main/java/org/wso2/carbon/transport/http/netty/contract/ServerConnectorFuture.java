@@ -101,6 +101,14 @@ public interface ServerConnectorFuture {
     void notifyWSListener(Throwable throwable) throws ServerConnectorException;
 
     /**
+     * Notify idle timeout of WebSocket connection.
+     *
+     * @param controlMessage Indicate WebSocket connection timeout.
+     * @throws ServerConnectorException if any error occurred during notification to the listener.
+     */
+    void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws ServerConnectorException;
+
+    /**
      * Notify error messages to the listener.
      *
      * @param cause Reason for the error.

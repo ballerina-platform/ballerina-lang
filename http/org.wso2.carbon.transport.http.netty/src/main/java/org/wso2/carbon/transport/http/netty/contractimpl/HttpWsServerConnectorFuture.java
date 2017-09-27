@@ -114,6 +114,14 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
+    public void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws ServerConnectorException {
+        if (wsConnectorListener == null) {
+            throw new ServerConnectorException("WebSocket connector listener is not set");
+        }
+        wsConnectorListener.onIdleTimeout(controlMessage);
+    }
+
+    @Override
     public void sync() throws InterruptedException {
         channelFuture.sync();
     }

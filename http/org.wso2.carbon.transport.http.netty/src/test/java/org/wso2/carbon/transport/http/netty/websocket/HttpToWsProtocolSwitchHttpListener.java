@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware;
+package org.wso2.carbon.transport.http.netty.websocket;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.slf4j.Logger;
@@ -31,10 +31,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Message processor which echos the incoming message
+ * HTTP connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
-public class EchoMessageListener implements HttpConnectorListener {
-    private static final Logger logger = LoggerFactory.getLogger(EchoMessageListener.class);
+public class HttpToWsProtocolSwitchHttpListener implements HttpConnectorListener {
+    private static final Logger logger = LoggerFactory.getLogger(HttpToWsProtocolSwitchHttpListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 

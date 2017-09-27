@@ -19,24 +19,23 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
+import javax.websocket.Session;
+
 /**
- * Control signals for WebSocket connection.
- * These signals are the heartbeat signals of a WebSocket connection.
+ * Future listener for WebSocket handshake.
  */
-public enum WebSocketControlSignal {
+public interface HandshakeListener {
 
     /**
-     * Heartbeat request signal.
+     * Notify the success of the handshake.
+     *
+     * @param session Session for the successful handshake.
      */
-    PING,
+    public void onSuccess(Session session);
 
     /**
-     * Heartbeat response signal.
+     * Notify error on handshake.
+     * @param t error occurred during handshake.
      */
-    PONG,
-
-    /**
-     * Idle timeout indicator.
-     */
-    IDLE_TIMEOUT;
+    public void onError(Throwable t);
 }

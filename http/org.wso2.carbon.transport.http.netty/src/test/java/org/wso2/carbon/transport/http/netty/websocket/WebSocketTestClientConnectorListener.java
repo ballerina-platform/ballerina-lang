@@ -41,6 +41,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private String receivedTextToClient;
     private ByteBuffer receivedByteBufferToClient;
     private boolean isPongReceived = false;
+    private boolean isIdleTimeout = false;
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
@@ -72,6 +73,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     @Override
     public void onError(Throwable throwable) {
         handleError(throwable);
+    }
+
+    @Override
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
+        isIdleTimeout = true;
     }
 
     /**
@@ -107,8 +113,19 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
         return tmp;
     }
 
+    /**
+     * Check whether any idle timeout triggered or not.
+     *
+     * @return true if idle timeout is triggered.
+     */
+    public boolean isIdleTimeout() {
+        boolean temp = isIdleTimeout;
+        isIdleTimeout = false;
+        return temp;
+    }
+
     private void handleError(Throwable throwable) {
-        log.error(throwable.getMessage());
+        log.error("Error handler received: " + throwable.getMessage());
     }
 
 }

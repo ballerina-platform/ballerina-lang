@@ -21,6 +21,9 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -31,7 +34,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMess
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.io.IOException;
-import java.net.ProtocolException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,25 +47,36 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
     private List<Session> sessionList = new LinkedList<>();
+    private boolean isIdleTimeout = false;
+
+    public WebSocketTestServerConnectorListener() {
+    }
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        try {
-            Session session = initMessage.handshake();
-            sessionList.forEach(
-                    currentSession -> {
-                        try {
-                            currentSession.getBasicRemote().
-                                    sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-                        } catch (IOException e) {
-                            log.error("IO exception when sending data : " + e.getMessage(), e);
+        HandshakeFuture future = initMessage.handshake(null, true, 3000);
+        future.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session session) {
+                sessionList.forEach(
+                        currentSession -> {
+                            try {
+                                currentSession.getBasicRemote().
+                                        sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
+                            } catch (IOException e) {
+                                log.error("IO exception when sending data : " + e.getMessage(), e);
+                            }
                         }
-                    }
-            );
-            sessionList.add(session);
-        } catch (ProtocolException e) {
-            handleError(e);
-        }
+                );
+                sessionList.add(session);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, "Error: " + t.getMessage());
+            }
+        });
     }
 
     @Override
@@ -94,6 +107,16 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             boolean isPongReceived = true;
+            return;
+        }
+
+        if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
+            Session session = controlMessage.getChannelSession();
+            try {
+                session.getBasicRemote().sendPong(controlMessage.getPayload());
+            } catch (IOException e) {
+                Assert.assertTrue(false, "Could not send the message.");
+            }
         }
     }
 
@@ -116,8 +139,25 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         handleError(throwable);
     }
 
+    @Override
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
+        this.isIdleTimeout = true;
+        try {
+            Session session = controlMessage.getChannelSession();
+            session.close();
+        } catch (IOException e) {
+            log.error("Error occurred while closing the connection: " + e.getMessage());
+        }
+    }
+
     private void handleError(Throwable throwable) {
         log.error(throwable.getMessage());
+    }
+
+    public boolean isIdleTimeout() {
+        boolean temp = isIdleTimeout;
+        isIdleTimeout = false;
+        return temp;
     }
 
 }

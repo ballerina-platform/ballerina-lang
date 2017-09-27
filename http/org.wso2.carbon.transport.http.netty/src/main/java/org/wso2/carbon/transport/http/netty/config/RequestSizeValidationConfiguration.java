@@ -25,8 +25,6 @@ import java.util.Set;
  */
 public class RequestSizeValidationConfiguration {
 
-    private static RequestSizeValidationConfiguration instance = new RequestSizeValidationConfiguration();
-
     private boolean requestSizeValidation = false;
     private int requestMaxSize = Integer.MAX_VALUE;
     private int requestRejectStatusCode = 401;
@@ -41,10 +39,7 @@ public class RequestSizeValidationConfiguration {
     private String headerRejectMessage = "Message header is bigger than the valid size";
     private String headerRejectMsgContentType = "plain/text";
 
-    private RequestSizeValidationConfiguration() {
-        Set<TransportProperty> transportProperties =
-                ConfigurationBuilder.getInstance().getConfiguration().getTransportProperties();
-
+    public RequestSizeValidationConfiguration(Set<TransportProperty> transportProperties) {
          transportProperties.forEach(transportProperty -> {
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation")) {
                 requestSizeValidation = (Boolean) transportProperty.getValue();
@@ -83,10 +78,6 @@ public class RequestSizeValidationConfiguration {
                 headerRejectMsgContentType = (String) transportProperty.getValue();
             }
         });
-    }
-
-    public static RequestSizeValidationConfiguration getInstance() {
-        return instance;
     }
 
     public boolean isRequestSizeValidation() {

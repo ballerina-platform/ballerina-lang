@@ -20,7 +20,7 @@
 package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.testng.Assert;
-import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
+import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketTestClient;
 
 import java.nio.ByteBuffer;
 
@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 public class WebSocketTestCase {
 
     private int threadSleepTime = 100;
-    private int messageDeliveryCountDown = 40;
+    private int messageDeliveryCountDown = 100;
 
     protected void setThreadSleepTime(int threadSleepTime) {
         this.threadSleepTime = threadSleepTime;
@@ -40,31 +40,33 @@ public class WebSocketTestCase {
         this.messageDeliveryCountDown = messageDeliveryCountDown;
     }
 
-    protected void assertWebSocketClientTextMessage(WebSocketClient client, String expected)
+    protected void assertWebSocketClientTextMessage(WebSocketTestClient client, String expected)
             throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
-            if (expected.equals(client.getTextReceived())) {
-                Assert.assertTrue(true);
+            String textReceived = client.getTextReceived();
+            if (textReceived != null) {
+                Assert.assertEquals(textReceived, expected);
                 return;
             }
         }
-        Assert.assertTrue(false);
+        Assert.assertEquals(client.getTextReceived(), expected);
     }
 
     protected void assertWebSocketClientTextMessage(WebSocketTestClientConnectorListener clientConnectorListener,
                                                     String expected) throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
-            if (expected.equals(clientConnectorListener.getReceivedTextToClient())) {
-                Assert.assertTrue(true);
+            String textReceived = clientConnectorListener.getReceivedTextToClient();
+            if (textReceived != null) {
+                Assert.assertEquals(textReceived, expected);
                 return;
             }
         }
-        Assert.assertTrue(false);
+        Assert.assertEquals(clientConnectorListener.getReceivedByteBufferToClient(), expected);
     }
 
-    protected void assertWebSocketClientBinaryMessage(WebSocketClient client, ByteBuffer bufferExpected)
+    protected void assertWebSocketClientBinaryMessage(WebSocketTestClient client, ByteBuffer bufferExpected)
             throws InterruptedException {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
@@ -111,6 +113,18 @@ public class WebSocketTestCase {
                     Assert.assertTrue(false);
                     return;
                 }
+            }
+        }
+        Assert.assertTrue(false);
+    }
+
+    protected void assertWebSocketClientPongMessage(WebSocketTestClientConnectorListener clientConnectorListener)
+            throws InterruptedException {
+        for (int j = 0; j < messageDeliveryCountDown; j++) {
+            Thread.sleep(threadSleepTime);
+            if (clientConnectorListener.isPongReceived()) {
+                Assert.assertTrue(true);
+                return;
             }
         }
         Assert.assertTrue(false);

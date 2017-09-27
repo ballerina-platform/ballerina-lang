@@ -21,7 +21,6 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -30,63 +29,44 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
- * WebSocket connector listener to identify the properties of a message.
+ * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
  */
-public class WebSocketMessagePropertiesConnectorListener implements WebSocketConnectorListener {
+public class HttpToWsProtocolSwitchWebSocketListener implements WebSocketConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketMessagePropertiesConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpToWsProtocolSwitchWebSocketListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        // Assert properties
-        Assert.assertFalse(initMessage.isConnectionSecured());
-        Assert.assertEquals(initMessage.getTarget(), "/test");
-
-        // Assert custom headers
-        String checkSubProtocol = initMessage.getHeader("check-sub-protocol");
-        Assert.assertEquals(initMessage.getHeader("message-type"), "websocket");
-        Assert.assertEquals(initMessage.getHeader("message-sender"), "wso2");
-        if ("true".equals(checkSubProtocol)) {
-            String[] subProtocols = {"xml"};
-            initMessage.handshake(subProtocols, true);
-        }
-
+        initMessage.handshake();
     }
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        // Assert properties
-        Assert.assertEquals(textMessage.getSubProtocol(), "xml");
-        Assert.assertFalse(textMessage.isConnectionSecured());
-        Assert.assertEquals(textMessage.getTarget(), "/test");
-
-        // Assert custom headers
-        Assert.assertEquals(textMessage.getHeader("message-type"), "websocket");
-        Assert.assertEquals(textMessage.getHeader("message-sender"), "wso2");
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        // Do nothing.
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
-        // Do nothing.
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        // Do nothing.
     }
 
     @Override
     public void onError(Throwable throwable) {
-        // Do nothing.
+        handleError(throwable);
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        // Do nothing.
     }
+
+    private void handleError(Throwable throwable) {
+        log.error(throwable.getMessage());
+    }
+
 }

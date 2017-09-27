@@ -34,10 +34,12 @@ import io.netty.handler.ssl.SslContext;
 public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final String WEBSOCKET_PATH = "/websocket";
+    private final String subProtocols;
     private final SslContext sslCtx;
 
-    public WebSocketRemoteServerInitializer(SslContext sslCtx) {
+    public WebSocketRemoteServerInitializer(SslContext sslCtx, String subProtocols) {
         this.sslCtx = sslCtx;
+        this.subProtocols = subProtocols;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketC
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
         pipeline.addLast(new WebSocketServerCompressionHandler());
-        pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+        pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, subProtocols, true));
         pipeline.addLast(new WebSocketRemoteServerFrameHandler());
     }
 }

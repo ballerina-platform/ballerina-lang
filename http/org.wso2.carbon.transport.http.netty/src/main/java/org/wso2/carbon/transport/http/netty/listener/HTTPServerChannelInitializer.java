@@ -18,7 +18,6 @@ package org.wso2.carbon.transport.http.netty.listener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.logging.LogLevel;
@@ -45,11 +44,12 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
 
-    private ServerConnectorFuture serverConnectorFuture;
-    private SSLConfig sslConfig;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
     private String interfaceId;
+    private SSLConfig sslConfig;
+    private ServerConnectorFuture serverConnectorFuture;
+    private RequestSizeValidationConfiguration requestSizeValidationConfig;
 
     @Override
     public void setup(Map<String, String> parameters) {
@@ -81,25 +81,28 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     /**
      * Configure the pipeline if user sent HTTP requests
      *
-     * @param pipeline                    Channel
+     * @param pipeline Channel
      */
     public void configureHTTPPipeline(ChannelPipeline pipeline) {
         // Removed the default encoder since http/2 version upgrade already added to pipeline
-        if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
-            pipeline.addLast("decoder", new CustomHttpRequestDecoder());
+        if (requestSizeValidationConfig != null && requestSizeValidationConfig.isHeaderSizeValidation()) {
+            pipeline.addLast("decoder", new CustomHttpRequestDecoder(requestSizeValidationConfig));
         } else {
             pipeline.addLast("decoder", new HttpRequestDecoder());
         }
-        if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
-            pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator());
+        if (requestSizeValidationConfig != null && requestSizeValidationConfig.isRequestSizeValidation()) {
+            pipeline.addLast("custom-aggregator", new CustomHttpObjectAggregator(requestSizeValidationConfig));
         }
-        pipeline.addLast("compressor", new HttpContentCompressor());
+        pipeline.addLast("compressor", new CustomHttpContentCompressor());
         pipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                       new HTTPTraceLoggingHandler("tracelog.http.downstream", LogLevel.DEBUG));
         }
+
+        pipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
+                         new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
 
         try {
             pipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
@@ -136,5 +139,9 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setSslConfig(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
+    }
+
+    public void setRequestSizeValidationConfig(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 }

@@ -34,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -63,12 +64,11 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             try {
-                InputStream inputStream = httpRequestMessage.getInputStream();
-                OutputStream outputStream = httpRequestMessage.getOutputStream();
+                InputStream inputStream = new HttpMessageDataStreamer(httpRequestMessage).getInputStream();
+                OutputStream outputStream = new HttpMessageDataStreamer(httpRequestMessage).getOutputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
                 outputStream.write(bytes);
-                outputStream.flush();
-                httpRequestMessage.setEndOfMsgAdded(true);
+                outputStream.close();
                 httpRequestMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                 httpRequestMessage.setProperty(Constants.PORT, TestUtil.TEST_HTTP_SERVER_PORT);
 
@@ -81,8 +81,8 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 }
 
                 String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(configuration,
-                                                                                                   scheme);
+                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                        .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
                 HttpClientConnector clientConnector =
@@ -92,13 +92,12 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            InputStream inputS = httpResponse.getInputStream();
-                            OutputStream outputS = httpResponse.getOutputStream();
+                            InputStream inputS = new HttpMessageDataStreamer(httpResponse).getInputStream();
+                            OutputStream outputS = new HttpMessageDataStreamer(httpResponse).getOutputStream();
                             try {
                                 byte[] bytes = IOUtils.toByteArray(inputS);
                                 outputS.write(bytes);
-                                outputS.flush();
-                                httpResponse.setEndOfMsgAdded(true);
+                                outputS.close();
                             } catch (IOException e) {
                                 throw new RuntimeException("Cannot read Input Stream from Response", e);
                             }

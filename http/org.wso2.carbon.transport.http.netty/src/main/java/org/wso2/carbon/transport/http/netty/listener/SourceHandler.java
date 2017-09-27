@@ -27,7 +27,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -39,15 +38,11 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpResponseListener;
-import org.wso2.carbon.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
-import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +53,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     protected ChannelHandlerContext ctx;
-    private HTTPCarbonMessage cMsg;
+    private HTTPCarbonMessage sourceReqCmsg;
     private Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     private ServerConnectorFuture serverConnectorFuture;
     private String interfaceId;
@@ -72,7 +67,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
-        this.ctx = ctx;
     }
 
     @Override
@@ -91,119 +85,50 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpMessage) {
             FullHttpMessage fullHttpMessage = (FullHttpMessage) msg;
-            cMsg = setupCarbonMessage(fullHttpMessage);
-            publishToMessageProcessor(cMsg);
+            sourceReqCmsg = setupCarbonMessage(fullHttpMessage);
+            notifyRequestListener(sourceReqCmsg, ctx);
             ByteBuf content = ((FullHttpMessage) msg).content();
-            cMsg.addHttpContent(new DefaultLastHttpContent(content));
-            cMsg.setEndOfMsgAdded(true);
+            sourceReqCmsg.addHttpContent(new DefaultLastHttpContent(content));
+            sourceReqCmsg.setEndOfMsgAdded(true);
+            // TODO: Revisit when the refactor is complete
 //            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+//                HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+//             .executeAtSourceRequestSending(sourceReqCmsg);
 //            }
 
         } else if (msg instanceof HttpRequest) {
-
-            // TODO: Change the default behavior to support WebSocket on demand.
-            /*
-            Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
-             */
             HttpRequest httpRequest = (HttpRequest) msg;
-            HttpHeaders headers = httpRequest.headers();
-            if (isConnectionUpgrade(headers) &&
-                    Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
-                log.debug("Upgrading the connection from Http to WebSocket for " +
-                                     "channel : " + ctx.channel());
-                handleWebSocketHandshake(httpRequest, ctx);
+            sourceReqCmsg = setupCarbonMessage(httpRequest);
+            notifyRequestListener(sourceReqCmsg, ctx);
 
-            } else {
-                cMsg = setupCarbonMessage(httpRequest);
-                publishToMessageProcessor(cMsg);
-            }
-            //Publish message to CarbonMessageProcessor
         } else {
-            if (cMsg != null) {
+            if (sourceReqCmsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
-                    cMsg.addHttpContent(httpContent);
+                    sourceReqCmsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        cMsg.setEndOfMsgAdded(true);
+                        sourceReqCmsg.setEndOfMsgAdded(true);
+                        // TODO: Revisit when the refactor is complete
 //                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
-//                                    executeAtSourceRequestSending(cMsg);
+//                                    executeAtSourceRequestSending(sourceReqCmsg);
 //                        }
+                        sourceReqCmsg = null;
                     }
                 }
             }
         }
     }
 
-    /**
-     * Some clients can send multiple parameters for "Connection" header. This checks whether the "Connection" header
-     * contains "Upgrade" value.
-     *
-     * @param headers {@link HttpHeaders} of the request.
-     * @return true if the "Connection" header contains value "Upgrade".
-     */
-    protected boolean isConnectionUpgrade(HttpHeaders headers) {
-        if (!headers.contains(Constants.CONNECTION)) {
-            return false;
-        }
-
-        String connectionHeaderValues = headers.get(Constants.CONNECTION);
-        for (String connectionValue: connectionHeaderValues.split(",")) {
-            if (Constants.UPGRADE.equalsIgnoreCase(connectionValue.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Handle the WebSocket handshake.
-     *
-     * @param httpRequest {@link HttpRequest} of the request.
-     */
-    private void handleWebSocketHandshake(HttpRequest httpRequest, ChannelHandlerContext ctx) throws Exception {
-        boolean isSecured = false;
-
-        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
-            isSecured = true;
-        }
-
-        String uri = httpRequest.uri();
-        String subProtocol = WebSocketUtil.getSubProtocol(httpRequest);
-        WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
-
-        Map<String, String> headers = new HashMap<>();
-        httpRequest.headers().forEach(
-                header -> headers.put(header.getKey(), header.getValue())
-        );
-        WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, subProtocol, isSecured, channelSession, httpRequest,
-                                           headers, ctx, interfaceId);
-        WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
-                                                                            headers);
-
-        // Setting common properties for init message
-        initMessage.setSubProtocol(subProtocol);
-        initMessage.setChannelSession(channelSession);
-        initMessage.setIsServerMessage(true);
-        initMessage.setTarget(httpRequest.uri());
-        initMessage.setListenerInterface(interfaceId);
-        initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
-
-        serverConnectorFuture.notifyWSListener(initMessage);
-    }
-
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
-    protected void publishToMessageProcessor(HTTPCarbonMessage httpRequestMsg) throws URISyntaxException {
+    protected void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
+            throws URISyntaxException {
         // TODO: Revisit when the refactor is complete
 //        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
 //                    executeAtSourceRequestReceiving(httpRequestMsg);
 //        }
-
-        boolean continueRequest = true;
 
 //        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //
@@ -215,11 +140,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 //                    });
 //
 //        }
+        boolean continueRequest = true;
         if (continueRequest) {
             if (serverConnectorFuture != null) {
                 try {
                     ServerConnectorFuture serverConnectorFuture = httpRequestMsg.getHTTPConnectorFuture();
-                    serverConnectorFuture.setHttpConnectorListener(new HttpResponseListener(this.ctx, httpRequestMsg));
+                    serverConnectorFuture.setHttpConnectorListener(new HttpResponseListener(ctx, httpRequestMsg));
                     this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
                 } catch (Exception e) {
                     log.error("Error while notifying listeners", e);
@@ -266,34 +192,36 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     protected HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
-        cMsg = new HTTPCarbonMessage();
+        sourceReqCmsg = new HTTPCarbonMessage();
         boolean isSecuredConnection = false;
+        // TODO: Revisit when the refactor is complete
 //        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-//            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+//            HTTPTransportContextHolder.getInstance()
+//              .getHandlerExecutor().executeAtSourceRequestReceiving(sourceReqCmsg);
 //        }
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
-        cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-        cMsg.setProperty(Constants.SRC_HANDLER, this);
-        cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
-        cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
+        sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
+        sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
+        sourceReqCmsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
+        sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
 
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, interfaceId);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.HTTP_SCHEME);
+        sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT, localAddress.getPort());
+        sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID, interfaceId);
+        sourceReqCmsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.HTTP_SCHEME);
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecuredConnection = true;
         }
-        cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
-        cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
+        sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
 
-        cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
-        cMsg.setProperty(Constants.TO, httpRequest.getUri());
-        cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
+        sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
+        sourceReqCmsg.setProperty(Constants.TO, httpRequest.getUri());
+        sourceReqCmsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         //Added protocol name as a string
 
-        return cMsg;
+        return sourceReqCmsg;
     }
 
     @Override

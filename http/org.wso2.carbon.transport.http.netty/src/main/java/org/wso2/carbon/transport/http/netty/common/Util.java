@@ -139,7 +139,7 @@ public class Util {
     /**
      * Prepare request message with Transfer-Encoding/Content-Length
      *
-     * @param cMsg CarbonMessage
+     * @param cMsg HTTPCarbonMessage
      */
     public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg) {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
@@ -198,8 +198,12 @@ public class Util {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
         } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
-            int contentLength = cMsg.getFullMessageLength();
-            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            if (!cMsg.isEmpty()) {
+                int contentLength = cMsg.getFullMessageLength();
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            } else {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
+            }
         }
 
     }
