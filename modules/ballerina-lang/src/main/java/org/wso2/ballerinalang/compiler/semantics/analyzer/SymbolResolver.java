@@ -100,7 +100,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public boolean checkForUniqueMemberSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
-        BSymbol foundSym = lookupMemberSymbol(env.scope, symbol.name, symbol.tag);
+        BSymbol foundSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, symbol.tag);
         if (foundSym != symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
@@ -279,7 +279,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     /**
      * Resolve and return the namespaces visible to the given environment, as a map.
-     * 
+     *
      * @param env Environment to get the visible namespaces
      * @return Map of namespace symbols visible to the given environment
      */
@@ -409,7 +409,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         });
         addNamespacesInScope(namespaces, env.enclEnv);
     }
-  
+
     private boolean isMemberAccessAllowed(SymbolEnv env, BSymbol symbol) {
         return env.enclPkg.symbol.pkgID == symbol.pkgID || Symbols.isPublic(symbol);
     }
