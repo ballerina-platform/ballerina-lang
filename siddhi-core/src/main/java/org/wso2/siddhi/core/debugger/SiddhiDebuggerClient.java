@@ -456,7 +456,7 @@ public class SiddhiDebuggerClient {
         /**
          * Check whether the input feeder is running or not.
          *
-         * @return tru if the input feeder is running or not stopped manually, otherwise false.
+         * @return true if the input feeder is running or not stopped manually, otherwise false.
          */
         boolean isRunning() {
             return running.get();
