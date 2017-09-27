@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -51,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -205,9 +207,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAction actionNode) {
-        actionNode.params = rewrite(actionNode.params);
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
+
+        // If the action has a receiver, we rewrite it's parameter list to have
+        // the connector variable as the first parameter
+        if (actionNode.connector != null) {
+            BInvokableSymbol actionSymbol = actionNode.symbol;
+            List<BVarSymbol> params = actionSymbol.params;
+            params.add(0, actionNode.connector.symbol);
+            BInvokableType actionType = (BInvokableType) actionSymbol.type;
+            actionType.paramTypes.add(0, actionNode.connector.type);
+        }
         result = actionNode;
     }
 
@@ -488,31 +499,12 @@ public class Desugar extends BLangNodeVisitor {
                 result = new BLangFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol, iExpr.types);
                 break;
             case TypeTags.CONNECTOR:
-                // TODO
+                List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
+                actionArgExprs.add(0, iExpr.expr);
+                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.expr, iExpr.symbol, iExpr.types);
                 break;
         }
     }
-
-    @Override
-    public void visit(BLangInvocation invocationExpr) {
-        BLangInvocation genIExpr = invocationExpr;
-        if (invocationExpr.expr == null) {
-            invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
-            if (invocationExpr.functionPointerInvocation) {
-                BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-                varRef.symbol = (BVarSymbol) invocationExpr.symbol;
-                varRef.type = invocationExpr.symbol.type;
-                genIExpr = new BFunctionPointerInvocation(invocationExpr, varRef);
-            }
-        } else if (invocationExpr.expr instanceof BLangSimpleVarRef) {
-            invocationExpr.argExprs = rewriteExprs(invocationExpr.argExprs);
-            invocationExpr.expr = rewriteExpr(invocationExpr.expr);
-        }
-
-        genIExpr.impCastExpr = invocationExpr.impCastExpr;
-        result = genIExpr;
-    }
-
 
     public void visit(BLangConnectorInit connectorInitExpr) {
         BLangConnectorInit genCIExpr = connectorInitExpr;

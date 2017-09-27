@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -776,24 +775,17 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
             }
-        } else if (iExpr.expr instanceof BLangSimpleVarRef) {
+        } else if (iExpr.expr != null) {
             BInvokableSymbol actionSymbol = (BInvokableSymbol) iExpr.symbol;
-            BPackageSymbol pkgSymbol = (BPackageSymbol) actionSymbol.owner.owner;
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, actionSymbol.pkgID);
             int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
 
-            PackageInfo packageInfo = programFile.getPackageInfo(pkgSymbol.name.value);
-            ConnectorInfo connectorInfo = packageInfo.getConnectorInfo(actionSymbol.owner.name.value);
             int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.owner.name.value);
-
             StructureRefCPEntry connectorRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connectorNameCPIndex);
             int connectorRefCPIndex = currentPkgInfo.addCPEntry(connectorRefCPEntry);
 
-
             ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
                     connectorRefCPIndex, actionNameCPIndex);
-            ActionInfo actionInfo = connectorInfo.actionInfoMap.get(iExpr.name.value);
-            actionRefCPEntry.setActionInfo(actionInfo);
             int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
             int actionCallIndex = getFunctionCallCPIndex(iExpr);
 
@@ -802,7 +794,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
             }
-
         }
     }
 

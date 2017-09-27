@@ -330,7 +330,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
             case TypeTags.CONNECTOR:
-                // TODO handle action invocation
+                checkActionInvocationExpr(iExpr);
                 break;
             default:
                 // TODO Handle this condition
@@ -339,10 +339,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
-        if (iExpr.expr instanceof BLangSimpleVarRef) {
-            checkActionInvocationExpr(iExpr);
-            return;
-        }
 
     }
 
@@ -662,11 +658,6 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = getListWithErrorTypes(expTypes.size());;
             return;
         }
-
-        if (symbol.type.tag != TypeTags.CONNECTOR) {
-            resultTypes = getListWithErrorTypes(expTypes.size());;
-            return;
-        }
         iExpr.expr.symbol = (BVarSymbol) symbol;
 
         BSymbol actionSym = symResolver.lookupMemberSymbol(symbol.type.tsymbol.scope,
@@ -678,30 +669,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         iExpr.symbol = actionSym;
 
-        List<BLangExpression> argExprs = new ArrayList<>();
-        argExprs.add(iExpr.expr);
-        argExprs.addAll(iExpr.argExprs);
-        iExpr.argExprs = argExprs;
-
-        List<BType> paramTypes = ((BInvokableType) actionSym.type).getParameterTypes();
-        if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
-            checkExpr(iExpr.argExprs.get(0), this.env, paramTypes);
-
-        } else if (paramTypes.size() > iExpr.argExprs.size()) {
-            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, actionSym.name);
-
-        } else if (paramTypes.size() < iExpr.argExprs.size()) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, actionSym.name);
-
-        } else {
-            for (int i = 0; i < iExpr.argExprs.size(); i++) {
-                checkExpr(iExpr.argExprs.get(i), this.env, Lists.of(paramTypes.get(i)));
-            }
-            actualTypes = actionSym.type.getReturnTypes();
-        }
-        checkExpr(iExpr.expr, this.env);
-
-        checkInvocationReturnTypes(iExpr, actualTypes, actionSym.name);
+        checkInvocationParamAndReturnType(iExpr);
     }
 
     private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes) {

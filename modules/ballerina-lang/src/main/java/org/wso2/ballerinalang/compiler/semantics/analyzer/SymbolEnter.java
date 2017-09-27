@@ -256,19 +256,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
-        param.pos = env.node.pos;
-        param.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
+        BLangVariable connectorParam = (BLangVariable) TreeBuilder.createVariableNode();
+        connectorParam.pos = env.node.pos;
+        connectorParam.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
         BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         connectorType.pos = env.node.pos;
         connectorType.typeName = ((BLangConnector) env.node).name;
-        param.setTypeNode(connectorType);
-        List<BLangVariable> params = new ArrayList<>();
-        params.add(param);
-        params.addAll(actionNode.params);
-        actionNode.params = params;
+        connectorParam.setTypeNode(connectorType);
+        actionNode.connector = connectorParam;
+
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
+
+        defineNode(actionNode.connector, invokableEnv);
+        actionSymbol.receiverSymbol = actionNode.connector.symbol;
+        ((BInvokableType) actionSymbol.type).receiverType = actionNode.connector.symbol.type;
     }
 
     @Override
