@@ -190,7 +190,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
                 try {
 //                    carbonMessageProcessor.receive(cMsg, new HTTP2ResponseCallback(ctx, streamId));
                 } catch (Exception e) {
-                    log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
+                    log.error("Error while submitting HTTPCarbonMessage to CarbonMessageProcessor", e);
                 }
             } else {
                 log.error("Cannot find registered MessageProcessor for forward the message");

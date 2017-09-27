@@ -19,10 +19,6 @@
 
 package org.wso2.carbon.transport.http.netty.contract.websocket;
 
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-
-import javax.websocket.Session;
-
 /**
  * Client Connector for WebSocket.
  */
@@ -32,9 +28,7 @@ public interface WebSocketClientConnector {
      * Connect to the remote server.
      *
      * @param connectorListener {@link WebSocketConnectorListener} to listen incoming messages.
-     * @return Session for the newly created connection.
-     * @throws ClientConnectorException if any error occurred during the handshake.
+     * @return HandshakeFuture for the newly created connection.
      */
-    Session connect(WebSocketConnectorListener connectorListener)
-            throws ClientConnectorException;
+    HandshakeFuture connect(WebSocketConnectorListener connectorListener);
 }

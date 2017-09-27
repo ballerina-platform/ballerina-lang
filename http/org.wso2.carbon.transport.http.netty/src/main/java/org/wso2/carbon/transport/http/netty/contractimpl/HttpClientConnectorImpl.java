@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -29,8 +31,9 @@ import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
-import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannelListener;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+
+import java.net.ConnectException;
 
 /**
  * Implementation of the client connector.
@@ -75,18 +78,58 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, sslConfig,
                                                                                 httpTraceLogEnabled, chunkDisabled);
+            TargetChannel targetChannel = connectionManager
+                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled);
+            targetChannel.getChannelFuture()
+                    .addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                            if (isValidateChannel(channelFuture)) {
+                                targetChannel.setChannel(channelFuture.channel());
 
-            if (targetChannel.getChannel() != null) {
-                targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
-                targetChannel.setEndPointTimeout(socketIdleTimeout);
-                targetChannel.setCorrelationIdForLogging();
+                                targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
+                                targetChannel.setEndPointTimeout(socketIdleTimeout);
+                                targetChannel.setCorrelationIdForLogging();
 
-                targetChannel.writeContent(httpCarbonRequest);
-            } else {
-                targetChannel.getChannelFuture()
-                        .addListener(new TargetChannelListener(targetChannel, httpCarbonRequest,
-                                socketIdleTimeout, httpResponseFuture));
-            }
+                                targetChannel.setRequestWritten(true);
+                                targetChannel.writeContent(httpCarbonRequest);
+                            } else {
+                                notifyErrorState(channelFuture);
+                            }
+                        }
+
+                        private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
+                            if (channelFuture.isDone() && channelFuture.isSuccess()) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Created the connection to address: {}", route.toString());
+                                }
+                                return true;
+                            }
+                            return false;
+                        }
+
+                        private void notifyErrorState(ChannelFuture channelFuture) {
+                            if (channelFuture.isDone() && channelFuture.isCancelled()) {
+                                ConnectException cause = new ConnectException("Request Cancelled, " + route.toString());
+                                if (channelFuture.cause() != null) {
+                                    cause.initCause(channelFuture.cause());
+                                }
+                                targetChannel.getTargetHandler().getHttpResponseFuture().notifyHttpListener(cause);
+                            } else if (!channelFuture.isDone() && !channelFuture.isSuccess() &&
+                                    !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
+                                ConnectException cause
+                                        = new ConnectException("Connection timeout, " + route.toString());
+                                targetChannel.getTargetHandler().getHttpResponseFuture().notifyHttpListener(cause);
+                            } else {
+                                ConnectException cause
+                                        = new ConnectException("Connection refused, " + route.toString());
+                                if (channelFuture.cause() != null) {
+                                    cause.initCause(channelFuture.cause());
+                                }
+                                targetChannel.getTargetHandler().getHttpResponseFuture().notifyHttpListener(cause);
+                            }
+                        }
+                    });
         } catch (Exception failedCause) {
             httpResponseFuture.notifyHttpListener(failedCause);
         }

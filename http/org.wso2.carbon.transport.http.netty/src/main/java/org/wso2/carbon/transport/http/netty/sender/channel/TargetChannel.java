@@ -159,22 +159,28 @@ public class TargetChannel {
                 if (httpCarbonRequest.isEndOfMsgAdded() && httpCarbonRequest.isEmpty()) {
                     this.getChannel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;
-                }
-                HttpContent httpContent = httpCarbonRequest.getHttpContent();
-                if (httpContent instanceof LastHttpContent) {
-                    this.getChannel().writeAndFlush(httpContent);
+                } else {
+                    HttpContent httpContent = httpCarbonRequest.getHttpContent();
+                    if (httpContent instanceof LastHttpContent) {
+                        this.getChannel().writeAndFlush(httpContent);
 //                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 //                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
 //                                executeAtTargetRequestSending(httpCarbonRequest);
 //                    }
-                    break;
-                }
-                if (httpContent != null) {
-                    this.getChannel().write(httpContent);
+                        break;
+                    } else {
+                        this.getChannel().write(httpContent);
+                    }
                 }
             }
         } catch (Exception e) {
-            String msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            String msg;
+            if (e instanceof NullPointerException) {
+                msg = "Failed to send the request";
+            } else {
+                msg = "Failed to send the request : " + e.getMessage().toLowerCase(Locale.ENGLISH);
+            }
+
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, e, 101500);
             httpCarbonRequest.setMessagingException(messagingException);

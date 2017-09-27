@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
@@ -54,33 +53,38 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        try {
-            String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
-                                             TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
-            WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
-            configuration.setTarget("myService");
-            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
+        String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
+                                         TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
+        configuration.setTarget("myService");
+        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
 
-            WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
-            Session clientSession = clientConnector.connect(connectorListener);
-            HandshakeFuture future = initMessage.handshake();
-            future.setHandshakeListener(new HandshakeListener() {
-                @Override
-                public void onSuccess(Session serverSession) {
-                    WebSocketPassThroughTestSessionManager.getInstance().
-                            interRelateSessions(serverSession, clientSession);
-                }
+        WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
+        HandshakeFuture clientFuture = clientConnector.connect(connectorListener);
+        clientFuture.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session clientSession) {
+                HandshakeFuture serverFuture = initMessage.handshake();
+                serverFuture.setHandshakeListener(new HandshakeListener() {
+                    @Override
+                    public void onSuccess(Session serverSession) {
+                        WebSocketPassThroughTestSessionManager.getInstance().
+                                interRelateSessions(serverSession, clientSession);
+                    }
 
-                @Override
-                public void onError(Throwable t) {
-                    logger.error(t.getMessage());
-                    Assert.assertTrue(false, "Error: " + t.getMessage());
-                }
-            });
-        } catch (ClientConnectorException e) {
-            logger.error("Error occurred during connection: " + e.getMessage());
-        }
+                    @Override
+                    public void onError(Throwable t) {
+                        logger.error(t.getMessage());
+                        Assert.assertTrue(false, "Error: " + t.getMessage());
+                    }
+                });
+            }
 
+            @Override
+            public void onError(Throwable t) {
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
     }
 
     @Override

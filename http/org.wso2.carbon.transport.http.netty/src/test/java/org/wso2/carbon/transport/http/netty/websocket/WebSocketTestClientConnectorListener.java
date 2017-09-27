@@ -125,7 +125,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     }
 
     private void handleError(Throwable throwable) {
-        log.error(throwable.getMessage());
+        log.error("Error handler received: " + throwable.getMessage());
     }
 
 }
