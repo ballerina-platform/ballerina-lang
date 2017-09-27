@@ -135,6 +135,12 @@ public class Types {
         return type.tag <= TypeTags.TYPE;
     }
 
+    public boolean isAnnotationFieldType(BType type) {
+        return this.isValueType(type) ||
+                (type.tag == TypeTags.ANNOTATION) ||
+                (type.tag == TypeTags.ARRAY && ((BArrayType) type).eType.tag == TypeTags.ANNOTATION);
+    }
+
     public boolean isAssignable(BType actualType, BType expType) {
         // First check whether both references points to the same object.
         if (actualType == expType) {

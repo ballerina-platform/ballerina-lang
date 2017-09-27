@@ -201,9 +201,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAnnotation annotationNode) {
         BSymbol annotSymbol = annotationNode.symbol;
         SymbolEnv annotationEnv = SymbolEnv.createPkgLevelSymbolEnv(annotationNode, annotSymbol.scope, env);
-        for (BLangAnnotAttribute attribute : annotationNode.getAttributes()) {
+
+        annotationNode.attributes.forEach(attribute -> {
             analyzeNode(attribute, annotationEnv);
-        }
+        });
+
         annotationNode.attributes.forEach(att -> this.symbolEnter.defineNode(att, annotationEnv));
 
         annotationNode.annAttachments.forEach(annotationAttachment -> {
@@ -218,20 +220,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType targetType = this.symResolver.resolveTypeNode(annotationAttribute.typeNode, env);
 
         if (annotationAttribute.expr != null) {
-            BType expType = this.typeChecker.checkExpr(annotationAttribute.expr, env, Lists.of(symTable.noType)).get(0);
+            // Default value exists case, default value should be of simpleLiteral
+            BType actualType = this.typeChecker.checkExpr(annotationAttribute.expr, env,
+                    Lists.of(targetType), DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES).get(0);
 
-            if (!(this.symTable.isValueType(targetType) && this.symTable.isValueType(expType))) {
+            if (!(this.types.isValueType(targetType) && this.types.isValueType(actualType))) {
                 this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_DEFAULT_VALUE);
             }
-
-            if (targetType != expType) {
-                this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES,
-                        targetType, expType);
-            }
         } else {
-            if (!(this.symTable.isValueType(targetType) || (targetType.tag == TypeTags.ANNOTATION)
-                    || (targetType.tag == TypeTags.ARRAY && this.symTable.isValueType(((BArrayType) targetType).eType))
-                    || (targetType.tag == TypeTags.ARRAY && ((BArrayType) targetType).eType.tag == TypeTags.ANNOTATION))) {
+            if (!this.types.isAnnotationFieldType(targetType)) {
                 this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES,
                         targetType);
             }
@@ -246,7 +243,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
         }
-
+        // Validate Attachment Point against the Annotation Definition.
         BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
         if (annotationSymbol.getAttachmentPoints() != null && annotationSymbol.getAttachmentPoints().size() > 0) {
             BLangAnnotationAttachmentPoint[] attachmentPointsArrray =
@@ -265,7 +262,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         annAttachmentNode.attachmentPoint.getAttachmentPoint(), annotationSymbol.name, msg);
             }
         }
+        // Validate Annotation Attachment Attributes against Annotation Definition.
         validateAttributes(annAttachmentNode, annotationSymbol);
+        // Populate default values for Annotation Attachment from Annotation Definition.
         populateDefaultValues(annAttachmentNode, annotationSymbol);
     }
 
@@ -273,6 +272,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         annAttachmentNode.attributes.forEach(annotAttachmentAttribute -> {
             BAnnotationAttributeSymbol attributeSymbol = (BAnnotationAttributeSymbol)
                     annotationSymbol.scope.lookup(new Name(annotAttachmentAttribute.getName())).symbol;
+            // Resolve Attribute against the Annotation Definition
             if (attributeSymbol == null) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
                         annotAttachmentAttribute.getName(), annotationSymbol.name);
@@ -286,13 +286,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             } else {
                 if (attributeSymbol.type.tag == TypeTags.ARRAY) {
-
+                    // Attachment Attribute is Non Array Type as opposed to
+                    // Annotation Definition Attribute is of Array Type
                     if (annotAttachmentAttribute.value.value != null) {
-//                        this.typeChecker.checkNodeType(annotAttachmentAttribute, attributeSymbol.type,
-//                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                        this.types.checkType(annotAttachmentAttribute.pos, annotAttachmentAttribute.type,
+                                attributeSymbol.type, DiagnosticCode.INCOMPATIBLE_TYPES);
                     }
-
-                    for (BLangAnnotAttachmentAttributeValue value : annotAttachmentAttribute.value.arrayValues) {
+                    annotAttachmentAttribute.value.arrayValues.forEach(value -> {
                         if (value.value instanceof BLangAnnotationAttachment) {
                             BLangAnnotationAttachment childAttachment =
                                     (BLangAnnotationAttachment) value.value;
@@ -300,17 +300,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                 BSymbol symbol = this.symResolver.lookupSymbol(env,
                                         new Name(childAttachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
                                 childAttachment.type = symbol.type;
-//                                this.typeChecker.checkNodeType(childAttachment,
-//                                        ((BArrayType) attributeSymbol.type).eType, DiagnosticCode.INCOMPATIBLE_TYPES);
+                                this.types.checkType(childAttachment.pos, childAttachment.type,
+                                        ((BArrayType) attributeSymbol.type).eType, DiagnosticCode.INCOMPATIBLE_TYPES);
                                 validateAttributes(childAttachment, (BAnnotationSymbol) symbol);
                             }
                         } else {
                             this.typeChecker.checkExpr((BLangExpression) value.value,
                                     env, Lists.of(((BArrayType) attributeSymbol.type).eType), DiagnosticCode.INCOMPATIBLE_TYPES);
-                            return;
                         }
-                    }
+                    });
                 } else {
+                    // Attachment Attribute is Array Type as opposed to
+                    // Annotation Definition Attribute is Non Array Type
                     if (annotAttachmentAttribute.value.value == null) {
                         this.dlog.error(annAttachmentNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_ARRAY_FOUND,
                                 annotAttachmentAttribute.getName(), attributeSymbol.type);
@@ -322,8 +323,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         BSymbol symbol = this.symResolver.lookupSymbol(env,
                                 new Name(childAttachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
                         childAttachment.type = symbol.type;
-//                        this.typeChecker.checkNodeType(childAttachment,
-//                                attributeSymbol.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+                        this.types.checkType(childAttachment.pos, childAttachment.type,
+                                attributeSymbol.type, DiagnosticCode.INCOMPATIBLE_TYPES);
                         validateAttributes(childAttachment, (BAnnotationSymbol) symbol);
                     }
                 }
@@ -337,10 +338,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (annAttachmentNode.geAttributes().size() > 0) {
                 BLangAnnotAttachmentAttribute[] attributeArrray =
                         new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
+                // Traverse through Annotation Attachment attributes and find whether current
+                // Annotation Definition attribute is present
                 Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
                         .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
                         .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
                         .findAny();
+                // If no matching attribute is present populate with default value
                 if (!matchingAttribute.isPresent()) {
                     if (defAttribute.expr != null) {
                         BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
@@ -350,11 +354,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
+                // Annotation Definition attribute is basic literal and it is included in current
+                // Annotation Attachment attribute, so continue to next Annotation Definition attribute
                 if (matchingAttribute.get().value.value != null &&
                         !(matchingAttribute.get().value.value instanceof BLangAnnotationAttachment)) {
                     continue;
                 }
 
+                // Annotation Definition attribute is an Array of Annotation Attachments and it is included in current
+                // Annotation Attachment attribute,
+                // Recursively populate default values for this Array of Annotation Attachments
                 if (matchingAttribute.get().value.arrayValues.size() > 0) {
                     for (BLangAnnotAttachmentAttributeValue attr : matchingAttribute.get().value.arrayValues) {
                         BLangAnnotationAttachment attachment =
@@ -366,6 +375,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         }
                     }
                 } else {
+                    // Annotation Definition attribute it self is Annotation Attachment and it is included in current
+                    // Annotation Attachment attribute,
+                    // Recursively populate default values for this Annotation Attachment
                     BLangAnnotationAttachment attachment =
                             (BLangAnnotationAttachment) matchingAttribute.get().value.value;
                     if (attachment != null) {
