@@ -304,12 +304,84 @@ class SizingUtil {
      * Calculate dimention of PackageDeclaration nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizePackageDeclarationNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        const topGutter = 10;
+        const topBarHeight = 25;
+        const importInputHeight = 40;
+
+        let height = 0;
+        const astRoot = node.parent;
+
+        if (viewState.importsExpanded) {
+            const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
+
+            height += topGutter + topBarHeight + importInputHeight +
+                (imports.length * this.config.packageDefinition.importDeclaration.itemHeight);
+        }
+
+        if (viewState.globalsExpanded) {
+            const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
+
+            height += topGutter + topBarHeight + importInputHeight +
+                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
+        }
+
+        viewState.bBox.h = height;
+        viewState.bBox.w = 0;
+
+        viewState.components = viewState.components || {};
+        viewState.components.importDeclaration = this._getImportDeclarationBadgeViewState(node);
+        viewState.components.importsExpanded = this._getImportDeclarationExpandedViewState(node);        
     }
 
+    _getImportDeclarationExpandedViewState() {
+        return {
+            importDeclarationHeight: 30,
+            importInputHeight: 40,
+            topBarHeight: 25,
+        };
+    }
+
+    _getImportDeclarationBadgeViewState(node) {
+        const headerHeight = 35;
+        const leftPadding = 10;
+        const iconSize = 20;
+        const importNoFontSize = 13;
+        const noOfImportsLeftPadding = 12;
+        const iconLeftPadding = 12;
+        const noOfImportsBGHeight = 18;
+        const importLabelWidth = 48.37;
+        const noOfImportsTextPadding = 10;
+        const importDecDecoratorWidth = 3;
+
+        const imports = node.parent.filterTopLevelNodes({ kind: 'Import' });
+        const noOfImports = imports.length;
+
+        const noOfImportsTextWidth = this.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
+        const noOfImportsBGWidth = Math.max(noOfImportsTextWidth + noOfImportsTextPadding, noOfImportsBGHeight);
+
+        const badgeWidth = leftPadding + importLabelWidth + noOfImportsLeftPadding + noOfImportsTextWidth +
+            iconLeftPadding + iconSize + leftPadding;
+
+        return {
+            headerHeight,
+            leftPadding,
+            iconSize,
+            importNoFontSize,
+            noOfImportsLeftPadding,
+            iconLeftPadding,
+            noOfImportsBGHeight,
+            importLabelWidth,
+            noOfImportsTextPadding,
+            noOfImportsTextWidth,
+            noOfImportsBGWidth,
+            badgeWidth,
+            importDecDecoratorWidth,
+        };
+    }
 
 
     /**

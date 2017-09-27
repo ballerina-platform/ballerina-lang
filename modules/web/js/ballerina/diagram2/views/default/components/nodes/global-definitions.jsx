@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './global-definitions.css';
 import ImageUtil from '../../../../image-util';
-import { util as SizingUtils } from '../../sizing-util';
+import { util as SizingUtils } from '../../sizing-util_bk';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
 
 const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
