@@ -40,37 +40,36 @@ class PanelDecorator extends React.Component {
 
     constructor(props) {
         super(props);
-        
+
         this.state = {
             dropZoneActivated: false,
             dropZoneDropNotAllowed: false,
             titleEditing: false,
             editingTitle: this.props.title,
-            showProtocolSelect: false
+            showProtocolSelect: false,
         };
-        
+
         this.handleProtocolClick = this.handleProtocolClick.bind(this);
         this.handleProtocolBlur = this.handleProtocolBlur.bind(this);
         this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
 
         // todo : another hack for now we need to move this to correct place and make it dynamic.
-        this.availableProtocols = [{ name: 'http'}, {name: 'ws'}, {name: 'jms'}, {name: 'file'}];
-        
+        this.availableProtocols = [{ name: 'http' }, { name: 'ws' }, { name: 'jms' }, { name: 'file' }];
     }
 
     handleProtocolClick() {
-        this.setState({ showProtocolSelect : true });
+        this.setState({ showProtocolSelect: true });
     }
 
     handleProtocolBlur(value) {
         value = (typeof value === 'string') ? value : value.currentTarget.textContent;
         value = (value === '') ? 'http' : value;
         this.props.model.setProtocolPkgName(value);
-        this.setState({ showProtocolSelect : false });
+        this.setState({ showProtocolSelect: false });
     }
 
     handleProtocolEnter(value) {
-        this.setState({ showProtocolSelect : false });
+        this.setState({ showProtocolSelect: false });
     }
 
     onCollapseClick() {
@@ -83,7 +82,7 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleClick() {
-        if (this.props.model.getType() === 'FunctionDefinition' && this.props.model.getFunctionName() === 'main') {
+        if (this.props.model.getKind() === 'Function' && this.props.model.getName().value === 'main') {
             // should not edit main function name
             return;
         }
@@ -105,10 +104,7 @@ class PanelDecorator extends React.Component {
     }
 
     setPropertyName() {
-        const modelType = this.props.model.type.replace('Definition', '');
-
-        // Setter functions take form 'setModelTypeName'. eg: setServiceName
-        this.props.model[`set${modelType}Name`](this.state.editingTitle);
+        this.props.model.setName(NodeFactory.createIdentifier({ value: this.state.editingTitle }));
         this.setState({
             titleEditing: false,
         });
@@ -189,20 +185,20 @@ class PanelDecorator extends React.Component {
         const annotationBodyClassName = 'annotation-body';
         let annotationBodyHeight = 0;
 
-        
+
         // TODO: Fix Me
         if (!_.isNil(this.props.model.viewState.components.annotation)) {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
 
         const titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        const annotations = []; //this.props.model.getChildren().filter(
+        const annotations = []; // this.props.model.getChildren().filter(
                               //                          child => ASTFactory.isAnnotationAttachment(child));
         const annotationString = this.getAnnotationsString(annotations);
         const annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
         const titleWidth = util.getTextWidth(this.state.editingTitle);
-        
+
         // calculate the panel bBox;
         const panelBBox = new SimpleBBox();
         panelBBox.x = bBox.x;
@@ -216,7 +212,7 @@ class PanelDecorator extends React.Component {
         };
 
         const rightHeadingButtons = this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
-       
+
         let protocolOffset = 0;
         let protocolTextSize = 0;
         if (this.props.protocol) {
@@ -227,18 +223,27 @@ class PanelDecorator extends React.Component {
         return (<g className="panel">
             <g className="panel-header">
                 <rect
-                    x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
+                    x={bBox.x}
+                    y={bBox.y + annotationBodyHeight}
+                    width={bBox.w}
+                    height={titleHeight}
+                    rx="0"
+                    ry="0"
                     className="headingRect"
                     data-original-title=""
                     title=""
                 />
                 <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <image
-                    x={bBox.x + 8} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
+                    x={bBox.x + 8}
+                    y={bBox.y + 8 + annotationBodyHeight}
+                    width={iconSize}
+                    height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}
                 />
                 <EditableText
-                    x={bBox.x + titleHeight + iconSize + 15 + protocolOffset } y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    x={bBox.x + titleHeight + iconSize + 15 + protocolOffset}
+                    y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     width={titleWidth.w}
                     onBlur={() => { this.onTitleInputBlur(); }}
                     onClick={() => { this.onTitleClick(); }}
@@ -270,7 +275,7 @@ class PanelDecorator extends React.Component {
                 <rect
                     x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight - 3}
                     className="annotation-icon-wrapper"
-                /> 
+                />
                 <image
                     x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
@@ -293,7 +298,9 @@ class PanelDecorator extends React.Component {
                         y={panelBBox.y}
                         width={panelBBox.w}
                         height={panelBBox.h}
-                        rx="0" ry="0" fill="#fff"
+                        rx="0"
+                        ry="0"
+                        fill="#fff"
                         className={dropZoneClassName}
                         onMouseOver={e => this.onDropZoneActivate(e)}
                         onMouseOut={e => this.onDropZoneDeactivate(e)}
@@ -311,7 +318,7 @@ class PanelDecorator extends React.Component {
         const dropTarget = this.props.dropTarget;
         const dropSourceValidateCB = this.props.dropSourceValidateCB;
         const droppedNodeIndexCallBack = function () {
-            /*if (ASTFactory.isConnectorDeclaration(dragDropManager.getNodeBeingDragged())) {
+            /* if (ASTFactory.isConnectorDeclaration(dragDropManager.getNodeBeingDragged())) {
                 const nodes = _.filter(dropTarget.getChildren(), (child) => {
                     return ASTFactory.isConnectorDeclaration(child)
                        || ASTFactory.isStatement(child) || ASTFactory.isWorkerDeclaration(child);
@@ -323,8 +330,8 @@ class PanelDecorator extends React.Component {
                     return undefined;
                 }
             } else {*/
-                return undefined;
-            //}
+            return undefined;
+            // }
         };
 
         if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
