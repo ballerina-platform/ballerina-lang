@@ -26,8 +26,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
-import org.ballerinalang.BLangASTBuilder;
-import org.ballerinalang.composer.service.workspace.Constants;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
@@ -46,28 +45,27 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentP
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +73,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Language server Manager which manage langServer requests from the clients.
@@ -529,30 +526,33 @@ public class LangServerManager {
 
             Position position = posParams.getPosition();
             String textContent = posParams.getText();
-            String fileName = posParams.getFileName();
-            String filePath = posParams.getFilePath();
-            String pkgName = posParams.getPackageName();
-
             CompilerContext compilerContext = new CompilerContext();
 
-            HashMap<String, byte[]> contentMap = new HashMap<>();
-            contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
+            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
+            // HashMap<String, byte[]> contentMap = new HashMap<>();
+            // contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
 
-            options = CompilerOptions.getInstance(compilerContext);
-            options.put(SOURCE_ROOT, "/home/nadeeshaan/Desktop");
-            options.put(COMPILER_PHASE, "typeCheck");
+             options = CompilerOptions.getInstance(compilerContext);
+             options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
 
-                LangServerPackageRepository pkgRepo =
-                    new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
+            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
+            // LangServerPackageRepository pkgRepo =
+            //        new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
             SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
 
+            List<Name> names = new ArrayList<>();
+            names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+            PackageID tempPackageID = new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+            InMemoryPackageRepository inMemoryPackageRepository = new InMemoryPackageRepository(tempPackageID, "",
+                    "temp.bal", textContent.getBytes(StandardCharsets.UTF_8));
+            compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
+
             CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
-            compilerContext.put(PackageRepository.class, pkgRepo);
             compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
             Compiler compiler = Compiler.getInstance(compilerContext);
             // here we need to compile the whole package
-            BLangPackage bLangPackage = compiler.compile("test.bal");
+            BLangPackage bLangPackage = compiler.compile("temp.bal");
 
             // Visit the package to resolve the symbols
             TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
