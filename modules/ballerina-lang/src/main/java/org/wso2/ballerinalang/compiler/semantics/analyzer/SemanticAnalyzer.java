@@ -239,9 +239,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         BSymbol symbol = this.symResolver.lookupSymbol(env,
                 new Name(annAttachmentNode.getAnnotationName().getValue()), SymTag.ANNOTATION);
-        if (symbol == null) {
+        if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
+            return;
         }
         // Validate Attachment Point against the Annotation Definition.
         BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
@@ -276,6 +277,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (attributeSymbol == null) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
                         annotAttachmentAttribute.getName(), annotationSymbol.name);
+                return;
             }
 
             if (annotAttachmentAttribute.value.value != null
