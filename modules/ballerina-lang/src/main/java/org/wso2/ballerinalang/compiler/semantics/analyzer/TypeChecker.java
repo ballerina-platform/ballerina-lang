@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -183,6 +184,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expTypeTag == TypeTags.NONE) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
 
+        } else if (expTypeTag == TypeTags.JSON) {
+            checkExprs(arrayLiteral.exprs, this.env, expTypes.get(0));
+            actualType = expTypes.get(0);
+
         } else if (expTypeTag != TypeTags.ARRAY && expTypeTag != TypeTags.ERROR) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
 
@@ -210,6 +215,8 @@ public class TypeChecker extends BLangNodeVisitor {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
             actualType = expTypes.get(0);
+        } else if (expTypeTag != TypeTags.ERROR) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
         }
 
         resultTypes = types.checkTypes(recordLiteral, Lists.of(actualType), expTypes);
@@ -250,16 +257,22 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(fieldAccessExpr.expr, this.env, Lists.of(symTable.noType));
 
         BType varRefType = fieldAccessExpr.expr.type;
+        Name fieldName;
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
-                Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+                fieldName = names.fromIdNode(fieldAccessExpr.field);
                 actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
                 break;
             case TypeTags.MAP:
                 actualType = ((BMapType) varRefType).getConstraint();
                 break;
             case TypeTags.JSON:
-                // TODO with constrained json
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    fieldName = names.fromIdNode(fieldAccessExpr.field);
+                    checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
+                }
+                actualType = symTable.jsonType;
                 break;
             case TypeTags.ERROR:
                 // Do nothing
@@ -296,7 +309,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                // TODO with constrained json
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                    if (indexExprType.tag != TypeTags.STRING) {
+                        break;
+                    }
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+                }
+                actualType = symTable.jsonType;
                 break;
             case TypeTags.ARRAY:
                 indexExprType = checkExpr(indexExpr, this.env,
@@ -751,6 +773,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
         BType fieldType = symTable.errType;
+        BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
             case TypeTags.STRUCT:
                 fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
@@ -759,10 +782,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
+
+                // First visit the expression having field type, as the expected type.
+                checkExpr(valueExpr, this.env, Lists.of(fieldType)).get(0);
+
+                // Again check the type compatibility with JSON
+                if (valueExpr.impCastExpr == null) {
+                    types.checkTypes(valueExpr, Lists.of(valueExpr.type), Lists.of(symTable.jsonType));
+                } else {
+                    BType valueType = valueExpr.type;
+                    types.checkTypes(valueExpr, valueExpr.impCastExpr.types, Lists.of(symTable.jsonType));
+                    valueExpr.type = valueType;
+                }
+                resultTypes = Lists.of(valueExpr.type);
+                return;
         }
 
-        BLangExpression valueExpr = keyValuePair.valueExpr;
         checkExpr(valueExpr, this.env, Lists.of(fieldType));
     }
 
@@ -799,12 +835,19 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkJSONLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
-        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
+    private BType checkJSONLiteralKeyExpr(BLangRecordKey key, BType recordType, RecordKind recKind) {
+        BJSONType type = (BJSONType) recordType;
+        
+        // If the JSON is constrained with a struct, get the field type from the struct
+        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.ERROR) {
+            return checkStructLiteralKeyExpr(key, type.constraint, recKind);
+        }
+
+        if (checkRecLiteralKeyExpr(key.expr, recKind).tag != TypeTags.STRING) {
             return symTable.errType;
         }
 
-        // TODO constrained json
+        // If the JSON is not constrained, field type is always JSON.
         return symTable.jsonType;
     }
 

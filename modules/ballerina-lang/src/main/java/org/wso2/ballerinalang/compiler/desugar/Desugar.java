@@ -38,12 +38,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
@@ -351,6 +353,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
+        if (arrayLiteral.type.tag == TypeTags.JSON) {
+            result = new BLangJSONArrayLiteral(arrayLiteral.exprs, arrayLiteral.type);
+            result = rewriteExpr((BLangExpression) result);
+            return;
+        }
         arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
         result = arrayLiteral;
     }
@@ -413,8 +420,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.JSON) {
-            //TODO
-            targetVarRef = fieldAccessExpr;
+            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
@@ -435,8 +442,8 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.JSON) {
-            // TODO
-            targetVarRef = indexAccessExpr;
+            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, 
+                    indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.ARRAY) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
@@ -637,6 +644,11 @@ public class Desugar extends BLangNodeVisitor {
         result = fpInvocation;
     }
 
+    @Override
+    public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
+        jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
+        result = jsonArrayLiteral;
+    }
 
     // private functions
 
@@ -661,7 +673,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = node;
         if (node.impCastExpr != null) {
             expr = node.impCastExpr;
-            node.impCastExpr.expr = node;
             node.impCastExpr = null;
         }
 
