@@ -2098,7 +2098,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangThrow throwNode) {
-        /* ignore */
+        genNode(throwNode.expr, env);
+        emit(InstructionFactory.get(InstructionCodes.THROW, throwNode.expr.regIndex));
     }
 
     public void visit(BLangComment commentNode) {
