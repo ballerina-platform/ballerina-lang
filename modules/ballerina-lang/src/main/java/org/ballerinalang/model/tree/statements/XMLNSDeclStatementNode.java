@@ -23,5 +23,8 @@ import org.ballerinalang.model.tree.XMLNSDeclarationNode;
  * @since 0.94
  */
 public interface XMLNSDeclStatementNode extends StatementNode {
+
     XMLNSDeclarationNode getNamespaceDeclaration();
+
+    void setNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 }

@@ -42,7 +42,8 @@ public class TypeTags {
     public static final int INVOKABLE = PACKAGE + 1;
     public static final int NONE = INVOKABLE + 1;
     public static final int VOID = NONE + 1;
-    public static final int ERROR = VOID + 1;
+    public static final int XMLNS = VOID + 1;
+    public static final int ERROR = XMLNS + 1;
 
     private TypeTags() {
     }

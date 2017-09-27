@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -53,6 +55,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -65,6 +74,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.xml.XMLConstants;
 
 /**
  * @since 0.94
@@ -76,6 +88,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private Names names;
     private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
     private Types types;
     private DiagnosticLog dlog;
@@ -105,6 +118,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
@@ -467,6 +481,95 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
     }
 
+    public void visit(BLangXMLQName bLangXMLQName) {
+        String prefix = bLangXMLQName.prefix.value;
+        resultTypes = Lists.of(types.checkType(bLangXMLQName, symTable.stringType, expTypes.get(0)));
+        // TODO: check isLHS
+
+        if (env.node.getKind() == NodeKind.XML_ATTRIBUTE && prefix.isEmpty()
+                && bLangXMLQName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            BLangXMLAttribute attribute = (BLangXMLAttribute) env.node;
+            attribute.isNamespaceDeclr = true;
+            return;
+        }
+
+        if (env.node.getKind() == NodeKind.XML_ATTRIBUTE && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            ((BLangXMLAttribute) env.node).isNamespaceDeclr = true;
+            return;
+        }
+
+        if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
+            bLangXMLQName.type = symTable.errType;
+            return;
+        }
+
+        BSymbol xmlnsSymbol = symResolver.lookupSymbol(env, names.fromIdNode(bLangXMLQName.prefix), SymTag.XMLNS);
+
+        if (prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
+            return;
+        }
+
+        if (!prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
+            dlog.error(bLangXMLQName.pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix);
+            bLangXMLQName.type = symTable.errType;
+            return;
+        }
+        bLangXMLQName.namespaceURI = ((BXMLNSSymbol) xmlnsSymbol).namespaceURI;
+        bLangXMLQName.nsSymbol = (BXMLNSSymbol) xmlnsSymbol;
+    }
+
+    public void visit(BLangXMLAttribute bLangXMLAttribute) {
+        SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(bLangXMLAttribute, env);
+
+        // check attribute name
+        checkExpr((BLangExpression) bLangXMLAttribute.name, xmlAttributeEnv, Lists.of(symTable.stringType));
+
+        // check attribute value
+        checkExpr((BLangExpression) bLangXMLAttribute.value, xmlAttributeEnv, Lists.of(symTable.stringType));
+
+        symbolEnter.defineNode(bLangXMLAttribute, env);
+    }
+
+    public void visit(BLangXMLElementLiteral bLangXMLElementLiteral) {
+        SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(bLangXMLElementLiteral, env);
+
+        bLangXMLElementLiteral.attributes.forEach(attribute -> {
+            checkExpr((BLangExpression) attribute, xmlElementEnv, Lists.of(symTable.noType));
+        });
+
+        Map<Name, BXMLNSSymbol> namespaces = symResolver.resolveAllNamespaces(xmlElementEnv);
+        Name defaultNs = names.fromString(XMLConstants.DEFAULT_NS_PREFIX);
+        if (namespaces.containsKey(defaultNs)) {
+            bLangXMLElementLiteral.defaultNsSymbol = namespaces.remove(defaultNs);
+        }
+        bLangXMLElementLiteral.namespaces.putAll(namespaces);
+
+        validateTags(bLangXMLElementLiteral, xmlElementEnv);
+        bLangXMLElementLiteral.modifiedChildren = concatSimilarKindXMLNodes(bLangXMLElementLiteral.children);
+        resultTypes = Lists.of(types.checkType(bLangXMLElementLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
+        bLangXMLTextLiteral.concatExpr = getStringTemplateConcatExpr(bLangXMLTextLiteral.textFragments);
+        resultTypes = Lists.of(types.checkType(bLangXMLTextLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
+        bLangXMLCommentLiteral.concatExpr = getStringTemplateConcatExpr(bLangXMLCommentLiteral.textFragments);
+        resultTypes = Lists.of(types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
+        checkExpr((BLangExpression) bLangXMLProcInsLiteral.target, env, Lists.of(symTable.stringType));
+        bLangXMLProcInsLiteral.dataConcatExpr = getStringTemplateConcatExpr(bLangXMLProcInsLiteral.dataFragments);
+        resultTypes = Lists.of(types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
+        bLangXMLQuotedString.concatExpr = getStringTemplateConcatExpr(bLangXMLQuotedString.textFragments);
+        resultTypes = Lists.of(types.checkType(bLangXMLQuotedString, symTable.stringType, expTypes.get(0)));
+    }
 
     // Private methods
 
@@ -751,5 +854,113 @@ public class TypeChecker extends BLangNodeVisitor {
         // Setting the field symbol. This is used during the code generation phase
         varReferExpr.symbol = (BVarSymbol) fieldSymbol;
         return fieldSymbol.type;
+    }
+
+    private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {
+        // check type for start and end tags
+        BLangExpression startTagName = (BLangExpression) bLangXMLElementLiteral.startTagName;
+        checkExpr(startTagName, xmlElementEnv, Lists.of(symTable.stringType));
+        BLangExpression endTagName = (BLangExpression) bLangXMLElementLiteral.endTagName;
+        if (endTagName != null) {
+            checkExpr(endTagName, xmlElementEnv, Lists.of(symTable.stringType));
+        }
+
+        if (endTagName == null) {
+            return;
+        }
+
+        if (startTagName.getKind() == NodeKind.XML_QNAME && startTagName.getKind() == NodeKind.XML_QNAME
+                && startTagName.equals(endTagName)) {
+            return;
+        }
+
+        if (startTagName.getKind() != NodeKind.XML_QNAME && startTagName.getKind() != NodeKind.XML_QNAME) {
+            return;
+        }
+
+        dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
+    }
+
+    private BLangExpression getStringTemplateConcatExpr(List<BLangExpression> exprs) {
+        BLangExpression concatExpr = null;
+        for (BLangExpression expr : exprs) {
+            checkExpr((BLangExpression) expr, env);
+            if (concatExpr == null) {
+                concatExpr = expr;
+                continue;
+            }
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
+            if (opSymbol == symTable.notFoundSymbol) {
+                if (expr.type != symTable.errType) {
+                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
+                }
+
+                return concatExpr;
+            }
+            concatExpr = getBinaryAddExppression(concatExpr, expr);
+        }
+
+        return concatExpr;
+    }
+
+    /**
+     * Concatenate the consecutive text type nodes, and get the reduced set of children.
+     * 
+     * @param exprs Child nodes
+     * @return Reduced set of children
+     */
+    private List<BLangExpression> concatSimilarKindXMLNodes(List<BLangExpression> exprs) {
+        List<BLangExpression> newChildren = new ArrayList<BLangExpression>();
+        BLangExpression strConcatExpr = null;
+
+        for (BLangExpression expr : exprs) {
+            BType exprType = checkExpr((BLangExpression) expr, env).get(0);
+            if (exprType == symTable.xmlType) {
+                if (strConcatExpr != null) {
+                    newChildren.add(getXMLTextLiteral(strConcatExpr));
+                    strConcatExpr = null;
+                }
+                newChildren.add(expr);
+                continue;
+            }
+
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, exprType);
+            if (opSymbol == symTable.notFoundSymbol) {
+                if (exprType != symTable.errType) {
+                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
+                }
+                return newChildren;
+            }
+
+            if (strConcatExpr == null) {
+                strConcatExpr = expr;
+                continue;
+            }
+            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr);
+        }
+
+        // Add remaining concatenated text nodes as children
+        if (strConcatExpr != null) {
+            newChildren.add(getXMLTextLiteral(strConcatExpr));
+        }
+
+        return newChildren;
+    }
+
+    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr) {
+        BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpressionNode.lhsExpr = lExpr;
+        binaryExpressionNode.rhsExpr = rExpr;
+        binaryExpressionNode.pos = rExpr.pos;
+        binaryExpressionNode.opKind = OperatorKind.ADD;
+        checkExpr(binaryExpressionNode, env);
+        return binaryExpressionNode;
+    }
+
+    private BLangExpression getXMLTextLiteral(BLangExpression contentExpr) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.concatExpr = contentExpr;
+        xmlTextLiteral.pos = contentExpr.pos;
+        return xmlTextLiteral;
     }
 }
