@@ -71,11 +71,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
-        // Handle operations for empty content messages initiated from the Ballerina core itself
-        if (cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
-            cMsg.setEndOfMsgAdded(true);
-        }
-
         String uri = null;
         try {
             uri = connector.getStringField(0) + path;
@@ -149,8 +144,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                         context.getProperty(Constants.SRC_HANDLER));
             }
 
+            String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
+                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
         } catch (Exception e) {

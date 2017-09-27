@@ -158,10 +158,10 @@ public class HttpConnectionManager {
         return startedConnectors;
     }
 
-    public HttpClientConnector getHTTPHttpClientConnector() {
+    public HttpClientConnector getHTTPHttpClientConnector(String scheme) {
         Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(trpConfig, "http");
+                HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);
