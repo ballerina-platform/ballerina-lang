@@ -101,6 +101,8 @@
     "react-collapsible": "^1.4.0",
     "react-contextmenu": "^2.7.0",
     "react-custom-scrollbars": "^4.1.2",
+    "react-dnd": "^2.5.3",
+    "react-dnd-html5-backend": "^2.5.3",
     "react-dom": "^15.4.2",
     "react-htmltree": "^0.8.1",
     "react-json-view": "^1.12.0",

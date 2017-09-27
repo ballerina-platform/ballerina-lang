@@ -19,6 +19,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext } from 'react-dnd';
+import DragLayer from './../drag-drop/drag-layer';
 import BallerinaDiagram from './../diagram2/diagram';
 import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
 import DragDropManager from '../tool-palette/drag-drop-manager';
@@ -228,4 +231,4 @@ DesignView.childContextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default DesignView;
+export default DragDropContext(HTML5Backend)(DesignView);
