@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import backends from 'bal_configs/backends';
 // This import defines ace/worker/mirror so we can ace.require ace/worker/mirror later
 import './ace-mirror-worker';
 import { fetchConfigs } from './../../api-client/api-client';
@@ -68,7 +67,7 @@ ace.define('ace/worker/ballerina', ['require', 'exports'], (acequire, exports) =
             // fetch configs from backend if not fetched already
             if (!newConfig) {
                 fetchConfigs().then((configs) => {
-                    newConfig = _.merge(backends, configs);
+                    newConfig = _.merge({}, configs);
                     callBackend.bind(this)();
                 });
             } else {
