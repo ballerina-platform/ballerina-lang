@@ -47,17 +47,8 @@
     margin-top: -17px;
 }
 
-.transform-endpoint .connect-point> i[class*="jtk-connected"]::after {
-    content: " ";
-    width: 14px;
-    position: absolute;
-    top: 8px;
-    height: 14px;
-    left: 8px;
-    border-radius: 7px;
-    color: #3d3d3d;
-    z-index: 999;
-    border: 1px solid;
+.transform-endpoint .connect-point> i[class*="jtk-connected"] {
+    font-size: 12px;
 }
 
 .transform-endpoint .folder {
@@ -65,15 +56,15 @@
     height: 30px;
     line-height: 30px;
     z-index: 1;
-    font-size: 17px
+    font-size: 17px;
 }
 
 .transform-endpoint-struct .folder::after {
-    content: '▾'
+    content: '▾';
 }
 
 .transform-endpoint-struct-folded .folder::after {
-    content: '▸'
+    content: '▸';
 }
 
 .transform-endpoint:nth-child(2) .tree-view-icon:before {
