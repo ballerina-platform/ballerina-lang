@@ -154,13 +154,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != CompilerPhase.CODE_ANALYZE) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
         pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
 
         pkgNode.compUnits.forEach(e -> e.accept(this));
-        pkgNode.phase = CompilerPhase.DESUGAR;
+        pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
     
     @Override

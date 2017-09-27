@@ -275,7 +275,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != CompilerPhase.CODE_GEN) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
             return;
         }
         // first visit all the imports
@@ -330,7 +330,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
-        pkgNode.phase = CompilerPhase.DONE;
+        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
     }
 
     public void visit(BLangImportPackage importPkgNode) {

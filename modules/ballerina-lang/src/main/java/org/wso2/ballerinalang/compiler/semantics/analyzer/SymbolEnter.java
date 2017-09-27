@@ -139,7 +139,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != CompilerPhase.DEFINE) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.DEFINE)) {
             return;
         }
         // Create PackageSymbol.
@@ -172,7 +172,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         definePackageInitFunction(pkgNode, pkgEnv);
-        pkgNode.phase = CompilerPhase.TYPE_CHECK;
+        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
     @Override
@@ -214,6 +214,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         defineConnectorSymbol(connectorNode, conSymbol, connectorEnv);
+        connectorNode.varDefs.forEach(varDef -> defineNode(varDef.var, connectorEnv));
         defineConnectorInitFunction(connectorNode);
     }
 

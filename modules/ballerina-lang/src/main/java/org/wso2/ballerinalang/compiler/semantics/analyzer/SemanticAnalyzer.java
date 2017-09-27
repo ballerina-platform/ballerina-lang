@@ -132,7 +132,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != CompilerPhase.TYPE_CHECK) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
             return;
         }
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
@@ -143,7 +143,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
-        pkgNode.phase = CompilerPhase.CODE_ANALYZE;
+        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -264,7 +264,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
         connectorNode.annAttachments.forEach(annotation -> this.analyzeDef(annotation, connectorEnv));
-        this.analyzeDef(connectorNode.initFunction, env);
+        this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
     }
 

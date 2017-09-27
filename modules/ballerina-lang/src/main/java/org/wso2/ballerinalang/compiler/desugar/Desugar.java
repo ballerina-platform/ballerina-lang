@@ -143,7 +143,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.phase != CompilerPhase.DESUGAR) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.DESUGAR)) {
             result = pkgNode;
             return;
         }
@@ -152,8 +152,8 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
+        pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
-        pkgNode.phase = CompilerPhase.CODE_GEN;
     }
 
     @Override
@@ -210,15 +210,12 @@ public class Desugar extends BLangNodeVisitor {
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
 
-        // If the action has a receiver, we rewrite it's parameter list to have
-        // the connector variable as the first parameter
-        if (actionNode.connector != null) {
-            BInvokableSymbol actionSymbol = actionNode.symbol;
-            List<BVarSymbol> params = actionSymbol.params;
-            params.add(0, actionNode.connector.symbol);
-            BInvokableType actionType = (BInvokableType) actionSymbol.type;
-            actionType.paramTypes.add(0, actionNode.connector.type);
-        }
+        // we rewrite it's parameter list to have the connector variable as the first parameter
+        BInvokableSymbol actionSymbol = actionNode.symbol;
+        List<BVarSymbol> params = actionSymbol.params;
+        params.add(0, actionNode.connector.symbol);
+        BInvokableType actionType = (BInvokableType) actionSymbol.type;
+        actionType.paramTypes.add(0, actionNode.connector.type);
         result = actionNode;
     }
 

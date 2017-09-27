@@ -34,7 +34,9 @@ import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -52,7 +54,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStruct> structs;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction;
-    public CompilerPhase phase;
+    public Set<CompilerPhase> completedPhases;
 
     public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;
@@ -69,7 +71,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.annotations = new ArrayList<>();
 
         this.topLevelNodes = new ArrayList<>();
-        this.phase = CompilerPhase.DEFINE;
+        this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
     }
 
     @Override
