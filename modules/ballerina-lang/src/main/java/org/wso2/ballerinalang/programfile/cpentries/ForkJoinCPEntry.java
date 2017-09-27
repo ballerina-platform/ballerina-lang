@@ -17,37 +17,17 @@
  */
 package org.wso2.ballerinalang.programfile.cpentries;
 
-
-import org.wso2.ballerinalang.programfile.ForkjoinInfo;
-
 /**
  * {@code ForkJoinCPEntry} represents a Ballerina fork join statement in the constant pool.
  *
  * @since 0.90
  */
 public class ForkJoinCPEntry implements ConstantPoolEntry {
-    private int forkJoinCPIndex;
+    
+    public int forkJoinInfoIndex;
 
-    private ForkjoinInfo forkjoinInfo;
-
-    public ForkJoinCPEntry(int forkJoinCPIndex) {
-        this.forkJoinCPIndex = forkJoinCPIndex;
-    }
-
-    public int getForkJoinCPIndex() {
-        return forkJoinCPIndex;
-    }
-
-    public ForkjoinInfo getForkjoinInfo() {
-        return forkjoinInfo;
-    }
-
-    public void setForkjoinInfo(ForkjoinInfo forkjoinInfo) {
-        this.forkjoinInfo = forkjoinInfo;
-    }
-
-    public void setForkJoinCPIndex(int forkJoinCPIndex) {
-        this.forkJoinCPIndex = forkJoinCPIndex;
+    public ForkJoinCPEntry(int forkJoinInfoIndex) {
+        this.forkJoinInfoIndex = forkJoinInfoIndex;
     }
 
     public EntryType getEntryType() {
@@ -65,11 +45,12 @@ public class ForkJoinCPEntry implements ConstantPoolEntry {
         }
 
         ForkJoinCPEntry that = (ForkJoinCPEntry) o;
-        return forkJoinCPIndex == that.forkJoinCPIndex;
+        return forkJoinInfoIndex == that.forkJoinInfoIndex;
     }
 
     @Override
     public int hashCode() {
-        return forkJoinCPIndex;
+        return forkJoinInfoIndex;
     }
+    
 }

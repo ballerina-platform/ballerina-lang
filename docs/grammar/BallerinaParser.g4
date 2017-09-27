@@ -97,7 +97,7 @@ structBody
     ;
 
 annotationDefinition
-    : ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
     ;
 
 enumDefinition

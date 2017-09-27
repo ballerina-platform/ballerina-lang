@@ -91,7 +91,7 @@ public class PackageLoader {
         }
 
         PackageEntity pkgEntity;
-        PackageID pkgId = PackageID.EMPTY;
+        PackageID pkgId = PackageID.DEFAULT;
         if (sourcePkg.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
             pkgEntity = this.packageRepo.loadPackage(pkgId, sourcePkg);
         } else {
