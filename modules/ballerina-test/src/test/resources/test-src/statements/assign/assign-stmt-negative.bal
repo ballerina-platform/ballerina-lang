@@ -44,7 +44,16 @@ function testAssignTypeMismatch2() (int, string, int) {
     return a, name, b;
 }
 
+function testVarRepeatedReturn1() (int, string, int) {
+    var a, name, a = testMultiReturnValid();
+    return a, name, b;
+}
+
+function testVarRepeatedReturn2() (int, string, int) {
+    var a, name, name = testMultiReturnValid();
+    return a, name, b;
+}
+
 function testMultiReturnValid() (int, string, int) {
     return 5, "john", 6;
 }
-
