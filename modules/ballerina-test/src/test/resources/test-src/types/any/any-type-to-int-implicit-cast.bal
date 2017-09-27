@@ -7,7 +7,3 @@ function intReturn()(any) {
   int val = 6;
   return val;
 }
-
-
-
-

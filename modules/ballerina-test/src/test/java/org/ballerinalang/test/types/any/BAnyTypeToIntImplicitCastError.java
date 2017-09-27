@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.model.any;
 
-import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.annotations.Test;
 
 /**
@@ -26,10 +26,9 @@ import org.testng.annotations.Test;
  */
 public class BAnyTypeToIntImplicitCastError {
 
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "any-type-to-int-implicit-cast.bal:3: incompatible types: 'any' " +
-                                              "cannot be assigned to 'int'")
+    @Test
     public void testAnyToIntImplicitCast() {
-        BTestUtils.getProgramFile("lang/any/any-type-to-int-implicit-cast.bal");
+        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-to-int-implicit-cast.bal");
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 15);
     }
 }
