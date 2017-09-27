@@ -274,13 +274,15 @@ public class BLangVMErrors {
 
             values[0] = parentScope + callableUnitInfo.getName();
             values[1] = callableUnitInfo.getPkgPath();
-            LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
-            if (lineNumberInfo != null) {
-                values[2] = lineNumberInfo.getFileName();
-                values[3] = lineNumberInfo.getLineNumber();
-            } else {
+            if (callableUnitInfo.isNative()) {
                 values[2] = "<native>";
                 values[3] = 0;
+            } else {
+                LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
+                if (lineNumberInfo != null) {
+                    values[2] = lineNumberInfo.getFileName();
+                    values[3] = lineNumberInfo.getLineNumber();
+                }
             }
 
             stackTraceItems.add(stackTraceLocation, createBStruct(stackTraceItem, values));

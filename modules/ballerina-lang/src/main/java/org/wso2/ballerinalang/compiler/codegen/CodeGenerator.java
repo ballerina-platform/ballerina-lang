@@ -133,11 +133,13 @@ import org.wso2.ballerinalang.programfile.AnnAttachmentInfo;
 import org.wso2.ballerinalang.programfile.AnnAttributeValue;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.ConnectorInfo;
+import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
@@ -154,6 +156,7 @@ import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
@@ -250,6 +253,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
+
+    private Stack<BLangStatement> statementsStack = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -398,13 +403,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
         for (BLangStatement stmt : blockNode.stmts) {
-//            if (stmt instanceof CommentStmt) {
-//                continue;
-//            }
-//
-//            if (!(stmt instanceof TryCatchStmt)) {
-//                addLineNumberInfo(stmt.getNodeLocation());
-//            }
+            addLineNumberInfo(stmt);
 
             genNode(stmt, blockEnv);
 
@@ -469,6 +468,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 i++;
             }
         }
+        generateFinallyInstructions(NodeKind.CALLABLE_UNIT);
         emit(InstructionCodes.RET);
     }
 
@@ -1137,6 +1137,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private methods
 
+    private void genNode(BLangStatement statement, SymbolEnv env) {
+        this.statementsStack.push(statement);
+        genNode((BLangNode) statement, env);
+        this.statementsStack.pop();
+    }
+
     private void genNode(BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
@@ -1677,6 +1683,36 @@ public class CodeGenerator extends BLangNodeVisitor {
         callableUnitInfo.addWorkerInfo(worker.name.value, workerInfo);
     }
 
+    private ErrorTableAttributeInfo createErrorTableIfAbsent(PackageInfo packageInfo) {
+        ErrorTableAttributeInfo errorTable =
+                (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
+        if (errorTable == null) {
+            UTF8CPEntry attribNameCPEntry = new UTF8CPEntry(AttributeInfo.Kind.ERROR_TABLE.toString());
+            int attribNameCPIndex = packageInfo.addCPEntry(attribNameCPEntry);
+            errorTable = new ErrorTableAttributeInfo(attribNameCPIndex);
+            packageInfo.addAttributeInfo(AttributeInfo.Kind.ERROR_TABLE, errorTable);
+        }
+        return errorTable;
+    }
+
+    private void addLineNumberInfo(BLangStatement statement) {
+        DiagnosticPos pos = statement.pos;
+        if (pos == null || NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
+            return;
+        }
+        LineNumberInfo lineNumInfo = createLineNumberInfo(pos, currentPkgInfo, currentPkgInfo.instructionList.size());
+        lineNoAttrInfo.addLineNumberInfo(lineNumInfo);
+    }
+
+    private LineNumberInfo createLineNumberInfo(DiagnosticPos pos, PackageInfo packageInfo, int ip) {
+        UTF8CPEntry fileNameUTF8CPEntry = new UTF8CPEntry(pos.src.cUnitName);
+        int fileNameCPEntryIndex = packageInfo.addCPEntry(fileNameUTF8CPEntry);
+        LineNumberInfo lineNumberInfo = new LineNumberInfo(pos.sLine, fileNameCPEntryIndex, pos.src.cUnitName, ip);
+        lineNumberInfo.setPackageInfo(packageInfo);
+        lineNumberInfo.setIp(ip);
+        return lineNumberInfo;
+    }
+
     private void setParameterNames(BLangResource resourceNode, ResourceInfo resourceInfo) {
         int paramCount = resourceNode.params.size();
         resourceInfo.paramNameCPIndexes = new int[paramCount];
@@ -1759,6 +1795,17 @@ public class CodeGenerator extends BLangNodeVisitor {
             result[4] = this.tBlob;
             result[5] = this.tRef;
             return result;
+        }
+
+        VariableIndex copy() {
+            VariableIndex variableIndex = new VariableIndex();
+            variableIndex.tInt = this.tInt;
+            variableIndex.tFloat = this.tFloat;
+            variableIndex.tString = this.tString;
+            variableIndex.tBoolean = this.tBoolean;
+            variableIndex.tBlob = this.tBlob;
+            variableIndex.tRef = this.tRef;
+            return variableIndex;
         }
 
     }
@@ -2086,10 +2133,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangContinue continueNode) {
+        generateFinallyInstructions(NodeKind.WHILE);
         this.emit(this.loopResetInstructionStack.peek());
     }
 
     public void visit(BLangBreak breakNode) {
+        generateFinallyInstructions(NodeKind.WHILE);
         this.emit(this.loopExitInstructionStack.peek());
     }
 
@@ -2209,8 +2258,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
-        //TODO:Add below error handling code
-        //generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
+        generateFinallyInstructions(NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
     }
 
@@ -2474,11 +2522,68 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        /* ignore */
+        Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        List<int[]> unhandledErrorRangeList = new ArrayList<>();
+        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+
+        // Handle try block.
+        int fromIP = nextIP();
+        genNode(tryNode.tryBody, env);
+        int toIP = nextIP() - 1;
+
+        // Append finally block instructions.
+        if (tryNode.finallyBody != null) {
+            genNode(tryNode.finallyBody, env);
+        }
+        emit(instructGotoTryCatchEnd);
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+        // Handle catch blocks.
+        int order = 0;
+        for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            int targetIP = nextIP();
+            genNode(bLangCatch, env);
+            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+            // Append finally block instructions.
+            if (tryNode.finallyBody != null) {
+                genNode(tryNode.finallyBody, env);
+            }
+            emit(instructGotoTryCatchEnd);
+            // Create Error table entry for this catch block
+            BTypeSymbol structSymbol = bLangCatch.param.symbol.type.tsymbol;
+            BPackageSymbol packageSymbol = (BPackageSymbol) bLangCatch.param.symbol.type.tsymbol.owner;
+            int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, packageSymbol.pkgID);
+            int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+            int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+            StructInfo errorStructInfo = this.programFile.getPackageInfo(packageSymbol.name.value)
+                    .getStructInfo(structSymbol.name.value);
+            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
+            errorTableEntry.setError(errorStructInfo);
+            errorTable.addErrorTableEntry(errorTableEntry);
+        }
+
+        if (tryNode.finallyBody != null) {
+            // Create Error table entry for unhandled errors in try and catch(s) blocks
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
+                errorTable.addErrorTableEntry(errorTableEntry);
+            }
+            // Append finally block instruction.
+            genNode(tryNode.finallyBody, env);
+            emit(InstructionFactory.get(InstructionCodes.THROW, -1));
+        }
+        instructGotoTryCatchEnd.setOperand(0, nextIP());
     }
 
-    public void visit(BLangCatch catchNode) {
-        /* ignore */
+    public void visit(BLangCatch bLangCatch) {
+        // Define local variable index for Error.
+        BLangVariable variable = bLangCatch.param;
+        int lvIndex = ++lvIndexes.tRef;
+        variable.symbol.varIndex = lvIndex;
+        emit(InstructionFactory.get(InstructionCodes.ERRSTORE, lvIndex));
+
+        // Visit Catch Block.
+        genNode(bLangCatch.body, env);
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -2495,5 +2600,31 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+
+    private void generateFinallyInstructions(NodeKind targetStatementKind) {
+        VariableIndex regIndexesOriginal = this.regIndexes.copy();
+        BLangStatement statement;
+        int i = statementsStack.size() - 1;
+        while (i >= 0) {
+            statement = statementsStack.get(i--);
+            if (statement.getKind() == targetStatementKind) {
+                return;
+            }
+            BLangTryCatchFinally tryCatchFinallyStmt;
+            if (NodeKind.TRY == statement.getKind()) {
+                tryCatchFinallyStmt = (BLangTryCatchFinally) statement;
+            } else if (NodeKind.CATCH == statement.getKind()) {
+                tryCatchFinallyStmt = ((BLangCatch) statement).parent;
+            } else {
+                continue;
+            }
+            if (tryCatchFinallyStmt.finallyBody != null) {
+                this.regIndexes = new VariableIndex();
+                genNode(tryCatchFinallyStmt.finallyBody, env);
+            }
+        }
+        this.regIndexes = regIndexesOriginal;
     }
 }

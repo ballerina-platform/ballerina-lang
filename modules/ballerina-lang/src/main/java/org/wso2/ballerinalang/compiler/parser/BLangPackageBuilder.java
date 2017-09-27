@@ -481,6 +481,7 @@ public class BLangPackageBuilder {
         catchNode.body = (BLangBlockStmt) this.blockNodeStack.pop();
         catchNode.param = variableNode;
         tryCatchFinallyNodesStack.peek().catchBlocks.add(catchNode);
+        catchNode.parent = tryCatchFinallyNodesStack.peek();
     }
 
     public void startFinallyBlock() {

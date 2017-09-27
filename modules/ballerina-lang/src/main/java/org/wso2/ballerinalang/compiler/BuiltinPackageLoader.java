@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler;
 
+import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -49,6 +50,7 @@ public class BuiltinPackageLoader {
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private Desugar desugar;
     private BLangPackage builtInPkg, errorPkg;
 
 
@@ -65,6 +67,7 @@ public class BuiltinPackageLoader {
         this.symbolTable = SymbolTable.getInstance(newContext);
         this.semAnalyzer = SemanticAnalyzer.getInstance(newContext);
         this.codeAnalyzer = CodeAnalyzer.getInstance(newContext);
+        this.desugar = Desugar.getInstance(newContext);
     }
 
     public static BuiltinPackageLoader getInstance(CompilerContext context) {
@@ -146,7 +149,7 @@ public class BuiltinPackageLoader {
     private BLangPackage loadPackage(String pkg) {
         // TODO: Initial implementation. Refactor this to read from balo.
         try {
-            return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(pkg)));
+            return desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(pkg))));
         } catch (RuntimeException e) {
             // Ignore error for now. Ideally this shouldn't throw any errors.
             return new BLangPackage();
