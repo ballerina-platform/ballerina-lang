@@ -7,7 +7,7 @@ import ballerina.doc;
 @doc:Field {value:"value: Value of paramter pass into the SQL query"}
 @doc:Field {value:"direction: Direction of the SQL Parameter 0 - IN, 1- OUT, 2 - INOUT"}
 @doc:Field {value:"structuredType: Underline SQL type to be used for parameter of SQL array type or custom structure type to be used with struct type"}
-struct Parameter {
+public struct Parameter {
 	string sqlType;
 	any value;
 	int direction;
@@ -35,7 +35,7 @@ struct Parameter {
 @doc:Field {value:"validationTimeout:  Maximum amount of time that a connection will be tested for aliveness"}
 @doc:Field {value:"leakDetectionThreshold: Amount of time that a connection can be out of the pool before a message is logged indicating a possible connection leak"}
 @doc:Field {value:"datasourceProperties: Data source specific properties which are used along with the dataSourceClassName"}
-struct ConnectionProperties {
+public struct ConnectionProperties {
 	string url;
 	string dataSourceClassName;
 	string connectionTestQuery;
@@ -58,7 +58,7 @@ struct ConnectionProperties {
 	map datasourceProperties;
 }
 
-connector ClientConnector (string dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
+public connector ClientConnector (string dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
     map sharedMap = {};
 
 	@doc:Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
@@ -99,38 +99,38 @@ connector ClientConnector (string dbType, string hostOrPath, int port, string db
 }
 
 @doc:Description { value:"Construct MySQL DB jdbc url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
-const string MYSQL = "MYSQL";
+public const string MYSQL = "MYSQL";
 
 @doc:Description { value:"Construct SQL Server DB jdbc url in the format of  jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
-const string SQLSERVER = "SQLSERVER";
+public const string SQLSERVER = "SQLSERVER";
 
 @doc:Description { value:"Construct Oracle  DB jdbc url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
-const string ORACLE = "ORACLE";
+public const string ORACLE = "ORACLE";
 
 @doc:Description { value:"Construct Sybase DB jdbc url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
-const string SYBASE = "SYBASE";
+public const string SYBASE = "SYBASE";
 
 @doc:Description { value:"Construct PostgreSQL DB jdbc url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
-const string POSTGRE = "POSTGRE";
+public const string POSTGRE = "POSTGRE";
 
 @doc:Description { value:"Construct IBM Db2  DB jdbc url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
-const string IBMDB2 = "IBMDB2";
+public const string IBMDB2 = "IBMDB2";
 
 @doc:Description { value:"Construct HSQLDB SERVER dB jdbc url in the format of  jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
-const string HSQLDB_SERVER = "HSQLDB_SERVER";
+public const string HSQLDB_SERVER = "HSQLDB_SERVER";
 
 @doc:Description { value:"Construct HSQLDB FILE DB jdbc url in the format of  jdbc:hsqldb:file:[path]/[database]"}
-const string HSQLDB_FILE = "HSQLDB_FILE";
+public const string HSQLDB_FILE = "HSQLDB_FILE";
 
 @doc:Description { value:"Construct H2 SERVER DB jdbc url in the format of  jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
-const string H2_SERVER = "H2_SERVER";
+public const string H2_SERVER = "H2_SERVER";
 
 @doc:Description { value:"Construct H2 FILE DB jdbc url in the format of  jdbc:h2:file://[path]/[database]"}
-const string H2_FILE = "H2_FILE";
+public const string H2_FILE = "H2_FILE";
 
 @doc:Description { value:"Construct Derby SERVER DB jdbc url in the format of  jdbc:derby://[HOST]:[PORT]/[database]"}
-const string DERBY_SERVER = "DERBY_SERVER";
+public const string DERBY_SERVER = "DERBY_SERVER";
 
 @doc:Description { value:"Construct Derby FILE DB jdbc url in the format of  jdbc:derby://[path]/[database]"}
-const string DERBY_FILE = "DERBY_FILE";
+public const string DERBY_FILE = "DERBY_FILE";
 

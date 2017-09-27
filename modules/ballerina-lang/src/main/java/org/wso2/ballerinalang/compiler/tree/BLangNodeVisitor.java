@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -73,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -206,7 +206,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLanXMLNSStatement xmlnsStmtNode) {
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         throw new AssertionError();
     }
 
@@ -366,7 +366,8 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    // expressions that will used only after the Desugar phase
+
+    // expressions that will used only from the Desugar phase
 
     public void visit(BLangLocalVarRef localVarRef) {
         throw new AssertionError();
@@ -409,6 +410,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BFunctionPointerInvocation bFunctionPointerInvocation) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangInvocation.BLangFunctionInvocation iExpr) {
         throw new AssertionError();
     }
 }

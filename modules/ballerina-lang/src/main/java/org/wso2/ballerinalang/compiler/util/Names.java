@@ -31,6 +31,7 @@ public class Names {
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
+    public static final Name BUILTIN_PACKAGE = new Name("<builtin.package>");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
@@ -81,5 +82,13 @@ public class Names {
 
     public Name fromTypeKind(TypeKind typeKind) {
         return fromString(typeKind.typeName());
+    }
+
+    public Name merge(Name... names) {
+        StringBuilder builder = new StringBuilder("");
+        for (Name name : names) {
+            builder.append(name.value);
+        }
+        return new Name(builder.toString());
     }
 }

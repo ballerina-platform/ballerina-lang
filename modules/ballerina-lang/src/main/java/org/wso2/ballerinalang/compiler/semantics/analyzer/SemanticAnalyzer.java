@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -92,6 +93,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
+    private Types types;
     private DiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -116,6 +118,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
@@ -144,17 +147,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        throw new AssertionError();
+        xmlnsNode.type = symTable.stringType;
+        symbolEnter.defineNode(xmlnsNode, env);
+        typeChecker.checkExpr(xmlnsNode.namespaceURI, env, Lists.of(symTable.stringType));
+    }
+
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        analyzeNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
     public void visit(BLangFunction funcNode) {
         // Check for native functions
-        BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeStmt(funcNode.body, funcEnv);
+
         // Process workers
         funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
         funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
@@ -279,7 +289,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCatch bLangCatch) {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
         analyzeNode(bLangCatch.param, catchBlockEnv);
-        this.typeChecker.checkNodeType(bLangCatch.param, symTable.errStructType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        this.types.checkType(bLangCatch.param.pos, bLangCatch.param.type, symTable.errStructType,
+                DiagnosticCode.INCOMPATIBLE_TYPES);
         analyzeStmt(bLangCatch.body, catchBlockEnv);
     }
 

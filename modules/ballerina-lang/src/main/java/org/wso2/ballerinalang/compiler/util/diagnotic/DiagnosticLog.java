@@ -43,6 +43,8 @@ public class DiagnosticLog {
     private static String warningMsgKeyPrefix = "warning" + ".";
     private static String noteMsgKeyPrefix = "note" + ".";
 
+    public int errorCount = 0;
+
     private DiagnosticListener listener;
 
     public static DiagnosticLog getInstance(CompilerContext context) {
@@ -69,6 +71,7 @@ public class DiagnosticLog {
                 pos.src, pos, code, msg);
 
         listener.received(diagnostic);
+        errorCount++;
     }
 
     public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
