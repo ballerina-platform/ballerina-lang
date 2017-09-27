@@ -39,6 +39,8 @@ import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +57,7 @@ public class StreamJunction {
     private final StreamDefinition streamDefinition;
     private int bufferSize;
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
-    private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
+    private List<Publisher> publishers = Collections.synchronizedList(new LinkedList<>());
     private ExecutorService executorService;
     private Boolean async = null;
     private Disruptor<Event> disruptor;

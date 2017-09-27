@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Runtime class to handle partitioning. It will hold all information regarding current partiotns and wil create
@@ -231,7 +230,7 @@ public class PartitionRuntime implements Snapshotable {
 
         if (partitionInstance == null) {
             List<QueryRuntime> queryRuntimeList = new ArrayList<QueryRuntime>();
-            List<QueryRuntime> partitionedQueryRuntimeList = new CopyOnWriteArrayList<QueryRuntime>();
+            List<QueryRuntime> partitionedQueryRuntimeList = new ArrayList<QueryRuntime>();
 
             for (QueryRuntime queryRuntime : metaQueryRuntimeMap.values()) {
 

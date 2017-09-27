@@ -56,7 +56,6 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            currentAttributeAggregator.initAggregator(attributeExpressionExecutors, siddhiAppContext, configReader);
             currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
         }
@@ -65,7 +64,6 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-
                                                        attributeExpressionExecutors, configReader, siddhiAppContext,
                                                        queryName);
     }
@@ -88,7 +86,6 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
             String key = entry.getKey();
             AttributeAggregator aAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            aAttributeAggregator.initAggregator(attributeExpressionExecutors, siddhiAppContext, configReader);
             aAttributeAggregator.start();
             aAttributeAggregator.restoreState(entry.getValue());
             aggregatorMap.put(key, aAttributeAggregator);
