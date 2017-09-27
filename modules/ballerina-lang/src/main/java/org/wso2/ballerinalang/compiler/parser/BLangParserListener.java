@@ -449,7 +449,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx) {
-        this.pkgBuilder.endAnnotationDef(ctx.Identifier().getText());
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
+        this.pkgBuilder.endAnnotationDef(ctx.Identifier().getText(), publicAnnotation);
     }
 
     /**
