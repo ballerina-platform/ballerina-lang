@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,34 +16,23 @@
  * under the License.
  */
 
-/**
- * Position Calculater for {{kind}}.
- *
- * @class {{kind}}PositionVisitor
- * */
-class {{kind}}PositionVisitor {
+import _ from 'lodash';
+import TreeUtil from './../../../model/tree-util';
+
+class PositioningUtil {
+
+{{#each this}}
 
     /**
-     * begin visit.
+     * Calculate position of {{kind}} nodes.
      *
-     * @param {Node} node.
-     *
-     * @memberOf {{kind}}PositionVisitor
-     * */
-    beginVisit(node) {
-
+     * @param {object} node {{kind}} object
+     */
+    position{{ kind }}Node(node) {
+        // Not implemented.
     }
+{{/each}}
 
-    /**
-     * visit the visitor at the end.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf {{kind}}PositionVisitor
-     * */
-    endVisit(node) {
-        
-    }
 }
 
-export default {{kind}}PositionVisitor;
+export default PositioningUtil;

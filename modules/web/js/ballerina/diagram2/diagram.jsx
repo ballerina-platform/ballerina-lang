@@ -24,7 +24,7 @@ import DimensionVisitor from './visitors/dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
-import { getComponentForNodeArray, getDesigner } from './diagram-util';
+import { getComponentForNodeArray, getSizingUtil, getPositioningUtil } from './diagram-util';
 import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
@@ -56,7 +56,6 @@ class Diagram extends React.Component {
             astRoot: this.props.model,
             activeArbiter: new ActiveArbiter(),
             mode: this.props.mode,
-            // TODOX designer: getDesigner([this.props.mode]),
         };
     }
 
@@ -65,16 +64,13 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
-        const designer = getDesigner([this.props.mode]);
-
         // Following is how we render the diagram.
         // 1 First clear any intermediate state we have set.
         this.props.model.accept(new Clean());
 
         // 2. We will visit the model tree and calculate width and height of all
         //    the elements. We will run the DimensionVisitor.
-        this.dimentionVisitor.setMode(this.props.mode);
-        this.dimentionVisitor.setDesigner(designer);
+        this.dimentionVisitor.setSizingUtil(getSizingUtil(this.props.mode));
         this.props.model.accept(this.dimentionVisitor);
 
         // 3 We need to adjest the width of the panel to accomodate width of the screen.
@@ -87,6 +83,7 @@ class Diagram extends React.Component {
         };
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
+        this.positionCalc.setPositioningUtil(getPositioningUtil(this.props.mode));
         this.props.model.accept(this.positionCalc);
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
@@ -148,7 +145,6 @@ Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     mode: PropTypes.string,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
-    designer: PropTypes.instanceOf(Object),
 };
 
 Diagram.defaultProps = {

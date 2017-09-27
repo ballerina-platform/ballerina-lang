@@ -25,7 +25,7 @@ import ImageUtil from '../../../../image-util';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import PanelDecoratorButton from './panel-decorator-button';
 import EditableText from './editable-text';
-import { util } from '../../sizing-util';
+import { util } from '../../sizing-util_bk';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import './panel-decorator.css';
 

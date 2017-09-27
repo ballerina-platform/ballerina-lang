@@ -16,25 +16,24 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import log from 'log';
-import { getPositionVisitor, getDesigner } from '../diagram-util.js';
 
 class PositionVisitor {
 
+    setPositioningUtil(positionUtil) {
+        this.util = positionUtil;
+    }
+
     beginVisit(node) {
-        if (_.isFunction(node.getKind) && getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
-            const nodeVisitor = new (getPositionVisitor(`${node.getKind()}PositionVisitor`))();
-            return nodeVisitor.beginVisit(node);
+        if (_.isFunction(this.util[`position${node.getKind()}Node`])) {
+            this.util[`position${node.getKind()}Node`](node);
         }
         return undefined;
     }
 
     endVisit(node) {
-        if (_.isFunction(node.getKind) && getPositionVisitor(`${node.getKind()}PositionVisitor`)) {
-            const nodeVisitor = new (getPositionVisitor(`${node.getKind()}PositionVisitor`))();
-            return nodeVisitor.endVisit(node);
-        }
-        // log.warn(`Unable to find Position Calculator for : ${node.getKind()}`);
+        // do nothing.
         return undefined;
     }
 }

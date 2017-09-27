@@ -22,55 +22,19 @@ import { getDimentionVisitor, getDesigner } from '../diagram-util.js';
 
 class DimensionVisitor {
 
-    /**
-     * Constructor for DimensionVisitor
-     * @param {object} options - DimensionVisitor options
-     */
-    constructor(options) {
-        this.mode = 'default';
-        this.setDesigner(_.get(options, 'designer'));
-    }
-
-    setMode(mode) {
-        this.mode = mode;
-    }
-
-    /**
-     * Set the designer
-     * @param {object} designer - designer related default values
-     */
-    setDesigner(designer) {
-        if (_.isNil(designer)) {
-            this.designer = getDesigner();
-        } else {
-            this.designer = designer;
-        }
-    }
-
-    /**
-     * Get the designer
-     * @returns {object} designer - designer related default values
-     */
-    getDesigner() {
-        return this.designer;
+    setSizingUtil(sizingUtil) {
+        this.util = sizingUtil;
     }
 
     beginVisit(node) {
-        if (_.isFunction(node.getKind) && getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
-            const nodeVisitor = new (getDimentionVisitor(`${node.getKind()}DimensionVisitor`,
-                this.mode))({ designer: this.getDesigner() });
-            return nodeVisitor.beginVisit(node);
-        }
+        // do nothing.
         return undefined;
     }
 
     endVisit(node) {
-        if (_.isFunction(node.getKind) && getDimentionVisitor(`${node.getKind()}DimensionVisitor`, this.mode)) {
-            const nodeVisitor = new (getDimentionVisitor(`${node.getKind()}DimensionVisitor`,
-                this.mode))({ designer: this.getDesigner() });
-            return nodeVisitor.endVisit(node);
+        if (_.isFunction(this.util[`size${node.getKind()}Node`])) {
+            this.util[`size${node.getKind()}Node`](node);
         }
-        // log.warn(`Unable to find Dimension Calculator for : ${node.getKind()}`);
         return undefined;
     }
 }

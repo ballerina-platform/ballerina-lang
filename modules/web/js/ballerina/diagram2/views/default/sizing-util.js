@@ -18,11 +18,10 @@
 
 import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
-import * as DesignerDefaults from './designer-defaults';
-import { panel as defaultPanel} from './designer-defaults';
 import TreeUtil from './../../../model/tree-util';
 
 class SizingUtil {
+
     constructor() {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('style', 'border: 0px');
@@ -34,6 +33,10 @@ class SizingUtil {
         document.body.appendChild(svg);
     }
 
+    setConfig(config) {
+        this.config = config;
+    }
+
     /**
      * Get width of a given text and processed text
      * considering provided min and max widths.
@@ -42,9 +45,10 @@ class SizingUtil {
      * @param {number} maxWidth
      * @return {object} {width,text}
      * */
-    getTextWidth(text, minWidth = DesignerDefaults.statement.width, maxWidth = DesignerDefaults.statement.maxWidth) {
+    getTextWidth(text, minWidth = this.config.statement.width, maxWidth = this.config.statement.maxWidth) {
         this.textElement.innerHTML = _.escape(text);
-        let width = DesignerDefaults.statement.padding.left + this.textElement.getComputedTextLength() + DesignerDefaults.statement.padding.right;
+        let width = this.config.statement.padding.left +
+            this.textElement.getComputedTextLength() + this.config.statement.padding.right;
         // if the width is more then max width crop the text
         if (width <= minWidth) {
             // set the width to minimam width
@@ -53,220 +57,63 @@ class SizingUtil {
             // do nothing
         } else {
             // We need to truncate displayText and show an ellipses at the end.
-			const ellipses = '...';
-			let possibleCharactersCount = 0;
-			for (let i = (text.length - 1); i > 1; i--) {
-				if ((DesignerDefaults.statement.padding.left + this.textElement.getSubStringLength(0, i) + DesignerDefaults.statement.padding.right) < maxWidth) {
-					possibleCharactersCount = i;
-					break;
-				}
-			}
-			// We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
-			text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
+            const ellipses = '...';
+            let possibleCharactersCount = 0;
+            for (let i = (text.length - 1); i > 1; i--) {
+                if ((this.config.statement.padding.left + this.textElement.getSubStringLength(0, i)
+                    + this.config.statement.padding.right) < maxWidth) {
+                    possibleCharactersCount = i;
+                    break;
+                }
+            }
+            // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
+            text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
 
-			width = maxWidth;
-		}
-		return {
-			w: width,
-			text,
-		};
-	}
-
-	/**
-	 * Returns the width of a given string when rendered as svg text according to given options
-	 * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
-	 * @param {string} text - The string of which the length is measured
-	 * @param {Object} options - Options to be used for the rendering
-	 * @param {number} options.fontSize - Font size the text should be rendered for measuring width
-	 * @return {number} Width of the text in pixels
-	 * */
-	getOnlyTextWidth(text, options = {}) {
-		const { fontSize } = options;
-		this.textElement.innerHTML = _.escape(text);
-		const currentFZ = this.textElement.style.fontSize;
-		this.textElement.style.fontSize = fontSize;
-		const tl = this.textElement.getComputedTextLength();
-		this.textElement.style.fontSize = currentFZ;
-		return tl;
-	}
-
-	populateSimpleStatementBBox(expression, viewState) {
-		const textViewState = util.getTextWidth(expression);
-		const dropZoneHeight = DesignerDefaults.statement.gutter.v;
-		viewState.components['drop-zone'] = new SimpleBBox();
-		// Set statement box as an opaque element to prevent conflicts with arrows.
-		viewState.components['statement-box'] = new SimpleBBox();
-		viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
-		viewState.components['drop-zone'].w = textViewState.w;
-		viewState.components['statement-box'].h = DesignerDefaults.statement.height;
-		viewState.components['statement-box'].w = textViewState.w;
-		// set the component as a vertical block.
-		// the following value will be used by arrow conflict resolver.
-		viewState.components['statement-box'].setOpaque(true);
-
-		viewState.bBox.w = textViewState.w;
-		viewState.bBox.h = DesignerDefaults.statement.height + viewState.components['drop-zone'].h;
-
-		viewState.expression = textViewState.text;
-		viewState.fullExpression = expression;
-		return viewState;
-	}
-
-	getHighestStatementContainer(workers) {
-		const sortedWorkers = _.sortBy(workers, worker => worker.viewState.components.statementContainer.h);
-		return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
-	}
-
-	populateCompoundStatementChild(node, expression = undefined) {
-		const viewState = node.getViewState();
-		const components = viewState.components;
-		components.statementContainer = new SimpleBBox();
-		const statementChildren = node.filterChildren(TreeUtil.isStatement);
-		const connectorDeclarationChildren = node.filterChildren(TreeUtil.isConnectorDeclaration);
-		let statementContainerWidth = 0;
-		let statementContainerHeight = 0;
-		let widthExpansion = 0;
-		let statementContainerWidthExpansion = 0;
-		// Iterate over statement children
-		_.forEach(statementChildren, (child) => {
-			statementContainerHeight += child.viewState.bBox.h;
-			if (child.viewState.bBox.w > statementContainerWidth) {
-				statementContainerWidth = child.viewState.bBox.w;
-			}
-			if (child.viewState.bBox.expansionW > statementContainerWidthExpansion) {
-				statementContainerWidthExpansion = child.viewState.bBox.expansionW;
-				widthExpansion = child.viewState.bBox.expansionW;
-			}
-		});
-		// Iterate over connector declaration children
-		_.forEach(connectorDeclarationChildren, (child) => {
-			statementContainerHeight += DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
-			widthExpansion += (child.viewState.bBox.w + DesignerDefaults.blockStatement.heading.width);
-			if (child.viewState.components.statementViewState.bBox.w > statementContainerWidth) {
-				statementContainerWidth = child.viewState.components.statementViewState.bBox.w;
-			}
-		});
-		// Iterating to set the height of the connector
-		if (connectorDeclarationChildren.length > 0) {
-			if (statementContainerHeight > (DesignerDefaults.statementContainer.height)) {
-				_.forEach(connectorDeclarationChildren, (child) => {
-					child.viewState.components.statementContainer.h = statementContainerHeight - (
-						DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
-						(DesignerDefaults.variablesPane.leftRightPadding * 2)) - DesignerDefaults.statement.padding.bottom
-						+ DesignerDefaults.statement.height;
-				});
-			} else {
-				statementContainerHeight = DesignerDefaults.statementContainer.height + (
-					DesignerDefaults.lifeLine.head.height + DesignerDefaults.lifeLine.footer.height +
-					(DesignerDefaults.variablesPane.leftRightPadding * 2)) + DesignerDefaults.statement.padding.bottom;
-			}
-		}
-
-		/**
-		 * Add the left padding and right padding for the statement container and
-		 * add the additional gutter height to the statement container height, in order to keep the gap between the
-		 * last statement and the block statement bottom margin
-		 */
-		statementContainerHeight += (statementContainerHeight > 0 ? DesignerDefaults.statement.gutter.v :
-			DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
-
-		statementContainerWidth += (statementContainerWidth > 0 ?
-			(DesignerDefaults.blockStatement.body.padding.left + DesignerDefaults.blockStatement.body.padding.right) : DesignerDefaults.blockStatement.width);
-
-		// for compound statement like if , while we need to render condition expression
-		// we will calculate the width of the expression and adjest the block statement
-		if (expression !== undefined) {
-			// see how much space we have to draw the condition
-			const available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
-			components.expression = this.getTextWidth(expression, 0, available);
-		}
-
-		components.statementContainer.h = statementContainerHeight + DesignerDefaults.statement.height;
-		components.statementContainer.w = statementContainerWidth;
-		viewState.bBox.h = statementContainerHeight + DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.height;
-		viewState.bBox.expansionW = widthExpansion;
-		viewState.bBox.expansionH = statementContainerHeight + DesignerDefaults.statement.height;
-		// Set the block headder as an opaque box to prevent conflicts with arrows.
-		components['block-header'] = new SimpleBBox();
-		components['block-header'].setOpaque(true);
-		components['block-header'].h = DesignerDefaults.blockStatement.heading.height;
-
-		viewState.bBox.w = statementContainerWidth;
-		components.statementContainer.expansionW = statementContainerWidthExpansion;
-	}
-
-	addParamDimenstion(viewState, expression, param, offset) {
-		const components = viewState.components;
-		const paramW = util.getTextWidth(param, 3);
-		components.param = new SimpleBBox(0, 0, paramW.w, 0);
-		components.param.text = paramW.text;
-		const joinTypeW = util.getTextWidth(expression, 3);
-		const widthOfText = paramW.w + joinTypeW.w + offset +
-			DesignerDefaults.blockStatement.heading.paramSeparatorOffsetX + DesignerDefaults.blockStatement.heading.paramSeparatorOffsetX +
-			DesignerDefaults.blockStatement.heading.paramEndOffsetX;
-		viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
-	}
-
-
-	sizeFunctionNode(node, name) {
-		const viewState = node.viewState;
-		const cmp = viewState.components;
-
-		/* Define the sub components */
-		cmp.heading = new SimpleBBox();
-		cmp.statementContainer = new SimpleBBox();
-		cmp.defaultWorker = new SimpleBBox();
-		cmp.body = new SimpleBBox();
-		cmp.parameters = new SimpleBBox();
-		cmp.annotation = new SimpleBBox();
-
-		// calculate statement container
-		cmp.statementContainer.w = DesignerDefaults.statement.width;
-		cmp.statementContainer.h = DesignerDefaults.statementContainer.height;
-		// calculate defult worker
-		cmp.defaultWorker.w = DesignerDefaults.lifeLine.width;
-		cmp.defaultWorker.h = cmp.statementContainer.h + (DesignerDefaults.lifeLine.head.height * 2);
-		// calculate body
-		cmp.body.h = cmp.defaultWorker.h + defaultPanel.body.padding.top + defaultPanel.body.padding.bottom;
-		// calculate parameters
-		cmp.heading.h = DesignerDefaults.panel.heading.height;
-		// calculate annotations
-
-		viewState.bBox.h = cmp.heading.h + cmp.body.h + cmp.annotation.h;
-
-		const textWidth = util.getTextWidth(name);
-	}
-
-	sizeStatement(expression, viewState) {
-		const textViewState = util.getTextWidth(expression);
-		const dropZoneHeight = DesignerDefaults.statement.gutter.v;
-		viewState.components['drop-zone'] = new SimpleBBox();
-		// Set statement box as an opaque element to prevent conflicts with arrows.
-		viewState.components['statement-box'] = new SimpleBBox();
-		viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
-		viewState.components['drop-zone'].w = textViewState.w;
-		viewState.components['statement-box'].h = DesignerDefaults.statement.height;
-		viewState.components['statement-box'].w = textViewState.w;
-		// set the component as a vertical block.
-		// the following value will be used by arrow conflict resolver.
-		viewState.components['statement-box'].setOpaque(true);
-
-		viewState.bBox.w = textViewState.w;
-		viewState.bBox.h = DesignerDefaults.statement.height + viewState.components['drop-zone'].h;
-
-		viewState.expression = textViewState.text;
-		viewState.fullExpression = expression;
-	}
-
-    sizeTransformNode(node) {
-		const viewState = node.viewState;
-        this.sizeStatement('Transform',viewState); 
+            width = maxWidth;
+        }
+        return {
+            w: width,
+            text,
+        };
     }
 
-    sizeBlockNode(node){
-		const viewState = node.viewState;
-        const statements = node.getStatements();
-        this.setContainerSize(statements, viewState , DesignerDefaults.statement.width );
+    /**
+    * Returns the width of a given string when rendered as svg text according to given options
+    * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
+    * @param {string} text - The string of which the length is measured
+    * @param {Object} options - Options to be used for the rendering
+    * @param {number} options.fontSize - Font size the text should be rendered for measuring width
+    * @return {number} Width of the text in pixels
+    * */
+    getOnlyTextWidth(text, options = {}) {
+        const { fontSize } = options;
+        this.textElement.innerHTML = _.escape(text);
+        const currentFZ = this.textElement.style.fontSize;
+        this.textElement.style.fontSize = fontSize;
+        const tl = this.textElement.getComputedTextLength();
+        this.textElement.style.fontSize = currentFZ;
+        return tl;
+    }
+
+    sizeStatement(expression, viewState) {
+        const textViewState = this.getTextWidth(expression);
+        const dropZoneHeight = this.config.statement.gutter.v;
+        viewState.components['drop-zone'] = new SimpleBBox();
+        // Set statement box as an opaque element to prevent conflicts with arrows.
+        viewState.components['statement-box'] = new SimpleBBox();
+        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+        viewState.components['drop-zone'].w = textViewState.w;
+        viewState.components['statement-box'].h = this.config.statement.height;
+        viewState.components['statement-box'].w = textViewState.w;
+        // set the component as a vertical block.
+        // the following value will be used by arrow conflict resolver.
+        viewState.components['statement-box'].setOpaque(true);
+
+        viewState.bBox.w = textViewState.w;
+        viewState.bBox.h = this.config.statement.height + viewState.components['drop-zone'].h;
+
+        viewState.expression = textViewState.text;
+        viewState.fullExpression = expression;
     }
 
     setContainerSize(nodes, viewState, width = 0, height = 0){
@@ -284,671 +131,934 @@ class SizingUtil {
         viewState.bBox.h = height;
     }
 
-	// Populate functions
-	populatePanelDecoratorBBox(node, name) {
-        /*
-        const viewState = node.getViewState();
-        const components = viewState.components;
-
-        const textWidth = util.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
-            + DesignerDefaults.panelHeading.iconSize.width;
-        viewState.trimmedTitle = textWidth.text;
-
-        components.heading = new SimpleBBox();
-        components.heading.h = DesignerDefaults.panel.heading.height;
-
-        components.annotation = new SimpleBBox();
-
-        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
-            node.viewState.showAnnotationContainer = true;
-        }
-
-        if (!node.viewState.showAnnotationContainer || (node.isLambda && node.isLambda())) {
-            components.annotation.h = 0;
-        } else {
-            components.annotation.h = this.getAnnotationHeight(node, 20);
-        }
-
-        components.statementContainer = new SimpleBBox();
-
-        let connectorOffset = 0;
-        const statementChildren = node.filterChildren(
-            child => TreeUtil.isStatement(child) || TreeUtil.isConnectorDeclaration(child));
-        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
-            DesignerDefaults.statementContainer.padding.right;
-        let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
-        let statementHeight = 0;
-        let connectorsForWorker = 0;
-        _.forEach(statementChildren, (child) => {
-            let childW = 0;
-            let childH = 0;
-            if (TreeUtil.isConnectorDeclaration(child)) {
-                childW = child.viewState.components.statementViewState.bBox.w;
-                childH = child.viewState.components.statementViewState.bBox.h;
-                connectorsForWorker += child.viewState.bBox.w + DesignerDefaults.blockStatement.heading.width;
-            } else {
-                childW = child.viewState.bBox.w;
-                childH = child.viewState.bBox.h;
-            }
-            statementHeight += childH;
-            if ((childW + statementContainerWidthPadding) > statementWidth) {
-                statementWidth = childW + statementContainerWidthPadding;
-                if (child.viewState.bBox.expansionW > connectorOffset) {
-                    connectorOffset = child.viewState.bBox.expansionW;
-                }
-            }
-        });
-        components.statementContainer.expansionW = connectorOffset;
-        /**
-         * We add an extra gap to the statement container height, in order to maintain the gap between the
-         * last statement's bottom margin and the default worker bottom rect's top margin
-         *//*
-        statementHeight += DesignerDefaults.statement.gutter.v;
-
-        if (statementHeight < DesignerDefaults.statementContainer.height) {
-            statementHeight = DesignerDefaults.statementContainer.height;
-        }
-
-        components.statementContainer.h = statementHeight;
-        components.statementContainer.w = statementWidth;
-        components.body = new SimpleBBox();
-
-        const workerChildren = node.filterChildren(child => TreeUtil.isWorkerDeclaration(child));
-
-        const connectorChildren = node.filterChildren(
-            child => TreeUtil.isConnectorDeclaration(child)
-            || (TreeUtil.isAssignmentStatement(child)
-            && TreeUtil.isConnectorInitExpression(child.getChildren()[1])));
-
-        const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
-
-        /**
-         * If the current default worker's statement container height is less than
-         * the highest worker's statement container
-         * we set the default statement container height to the highest statement container's height
-         *//*
-        components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
-
-        const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
-
-
-        let lifeLineWidth = 0;
-        _.forEach(workerChildren.concat(connectorChildren), (child) => {
-            let childViewState;
-            if (TreeUtil.isAssignmentStatement(child)
-                && TreeUtil.isConnectorInitExpression(child.getChildren()[1])) {
-                childViewState = child.getViewState().connectorDeclViewState;
-            } else {
-                childViewState = child.getViewState();
-            }
-            lifeLineWidth += childViewState.bBox.w + childViewState.bBox.expansionW +
-                DesignerDefaults.lifeLine.gutter.h;
-            childViewState.bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
-                (DesignerDefaults.lifeLine.head.height * 2);
-            childViewState.components.statementContainer.h = _.max([components.statementContainer.h,
-                highestStatementContainerHeight]);
-            if (TreeUtil.isWorkerDeclaration(child)) {
-                childViewState.components.workerScopeContainer.h = components.statementContainer.h +
-                    DesignerDefaults.canvas.padding.top +
-                    DesignerDefaults.canvas.padding.bottom + DesignerDefaults.statement.padding.top
-                    + DesignerDefaults.statement.padding.bottom;
-            }
-            // Set the connector height of the worker's children
-            const connectorChildrenOfWorker = child.filterChildren(innerChild => TreeUtil
-            .isConnectorDeclaration(innerChild));
-            if (connectorChildrenOfWorker.length > 0) {
-                _.forEach(connectorChildrenOfWorker, (innerChild) => {
-                    innerChild.getViewState().components.statementContainer.h = _.max([components.statementContainer.h,
-                        highestStatementContainerHeight]);
-                });
-            }
-        });
-
-
-
-        if (node.viewState.collapsed) {
-            components.body.h = 0;
-        } else {
-            components.body.h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ?
-                    defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
-                + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        }
-
-        components.body.w = components.statementContainer.w + DesignerDefaults.panel.body.padding.right +
-            DesignerDefaults.panel.body.padding.left + lifeLineWidth + components.statementContainer.expansionW;
-        components.annotation.w = components.body.w;
-
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
-
-        components.parametersPrefixContainer = {};
-        components.parametersPrefixContainer.w = util.getTextWidth('Parameters: ').w;
-        this.populateHeadingWidth(node);*/
+    /**
+     * Calculate dimention of Action nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeActionNode(node) {
+        // Not implemented.
     }
 
-    populateOuterPanelDecoratorBBox(node, name) {
+
+
+    /**
+     * Calculate dimention of Annotation nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeAnnotationNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of AnnotationAttachment nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeAnnotationAttachmentNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of AnnotationAttribute nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeAnnotationAttributeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Catch nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeCatchNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of CompilationUnit nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeCompilationUnitNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Connector nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeConnectorNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Enum nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeEnumNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Function nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeFunctionNode(node) {
         const viewState = node.viewState;
-        const components = {};
-        const totalResourceHeight = 0;
-        const connectorStatementContainerHeight = 0;
-        /* const resources = node.filterChildren(child => TreeUtil.isResourceDefinition(child) ||
-                TreeUtil.isConnectorAction(child));
-        const connectors = node.filterChildren(child => TreeUtil.isConnectorDeclaration(child));
-        let maxResourceWidth = 0;*/
-        // Initial statement height include panel heading and panel padding.
-        let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        // Set the width initial value to the padding left and right
-        const bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+        const cmp = viewState.components;
+
+        /* Define the sub components */
+        cmp.heading = new SimpleBBox();
+        cmp.statementContainer = new SimpleBBox();
+        cmp.defaultWorker = new SimpleBBox();
+        cmp.body = new SimpleBBox();
+        cmp.parameters = new SimpleBBox();
+        cmp.annotation = new SimpleBBox();
+
+        // calculate statement container
+        cmp.statementContainer.w = this.config.statement.width;
+        cmp.statementContainer.h = this.config.statementContainer.height;
+        // calculate defult worker
+        cmp.defaultWorker.w = this.config.lifeLine.width;
+        cmp.defaultWorker.h = cmp.statementContainer.h + (this.config.lifeLine.head.height * 2);
+        // calculate body
+        cmp.body.h = cmp.defaultWorker.h + this.config.panel.body.padding.top + this.config.panel.body.padding.bottom;
+        // calculate parameters
+        cmp.heading.h = this.config.panel.heading.height;
+        // calculate annotations
+
+        viewState.bBox.h = cmp.heading.h + cmp.body.h + cmp.annotation.h;
 
         const textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
-            + DesignerDefaults.panelHeading.iconSize.width;
-        viewState.trimmedTitle = textWidth.text;
-        const variableDefinitionsHeight = 0; // Remove when refactoring
-
-        // const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
-
-        /**
-         * If there are service level connectors, their height depends on the heights of the resources
-         */
-        /* _.forEach(resources, (resource) => {
-            totalResourceHeight += resource.viewState.bBox.h;
-            if (maxResourceWidth < resource.viewState.bBox.w) {
-                maxResourceWidth = resource.viewState.bBox.w;
-            }
-        });
-
-        totalResourceHeight += DesignerDefaults.panel.body.padding.top;
-
-        /!**
-         * Set the max resource width to the resources
-         *!/
-        _.forEach(resources, (resource) => {
-            resource.getViewState().bBox.w = maxResourceWidth;
-            resource.getViewState().components.body.w = maxResourceWidth;
-        });
-
-        // Add the max resource width to the body width
-        bodyWidth += maxResourceWidth;
-
-        /!**
-         * Set the connector statement container height and the connectors' height accordingly only if there are service
-         * level connectors
-         *!/
-        if (connectors.length > 0) {
-            if (totalResourceHeight <= 0) {
-                // There are no resources in the service
-                connectorStatementContainerHeight = DesignerDefaults.statementContainer.height;
-            } else {
-                // Here we add additional gutter height to balance the gaps from top and bottom
-                connectorStatementContainerHeight = totalResourceHeight + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 2);
-            }
-            /!**
-             * Adjust the height of the connectors and adjust the service's body width with the connector widths
-             *!/
-            _.forEach(connectors, (connector) => {
-                connector.getViewState().bBox.h = connectorStatementContainerHeight +
-                    DesignerDefaults.lifeLine.head.height * 2;
-                connector.getViewState().components.statementContainer.h = connectorStatementContainerHeight;
-                bodyWidth += (connector.getViewState().components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h);
-            });
-
-            bodyHeight = connectorStatementContainerHeight + DesignerDefaults.lifeLine.head.height +
-                DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        } else if (totalResourceHeight > 0) {
-            bodyHeight = totalResourceHeight + DesignerDefaults.panel.body.padding.top +
-                DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 2);
-        } else if (TreeUtil.isStructDefinition(node)) {
-            bodyHeight = DesignerDefaults.structDefinition.body.height;
-        } else {*/
-            // There are no connectors as well as resources, since we set the default height
-        bodyHeight = DesignerDefaults.innerPanel.body.height;
-        // }
-
-        /**
-         * Add the total variable definitions height to the total height
-         */
-        // bodyHeight += variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top;
-
-        components.heading = new SimpleBBox();
-        components.body = new SimpleBBox();
-        components.annotation = new SimpleBBox();
-        components.variablesPane = new SimpleBBox();
-        components.transportLine = new SimpleBBox();
-        components.heading.h = DesignerDefaults.panel.heading.height;
-        if (node.viewState.collapsed) {
-            components.body.h = 0;
-        } else {
-            components.body.h = bodyHeight;
-        }
-
-        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
-            node.viewState.showAnnotationContainer = true;
-        }
-
-        if (!node.viewState.showAnnotationContainer) {
-            components.annotation.h = 0;
-        } else {
-            components.annotation.h = this.getAnnotationHeight(node, 20);
-        }
-
-        components.variablesPane.h = variableDefinitionsHeight;
-
-        components.body.w = bodyWidth;
-        components.annotation.w = bodyWidth;
-
-        // transport line height calculations.
-        // FIXME
-        components.transportLine.h = totalResourceHeight;
-
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
-        viewState.components = components;
-        this.populateHeadingWidth(node);
     }
 
-    getStatementHeightBefore(statement) {
-        const parent = statement.getParent();
-        const statements = parent.filterChildren(TreeUtil.isStatement);
-        const currentStatementIndex = _.indexOf(statements, statement);
-        const connectors = [];
-        const statementsBefore = _.slice(statements, 0, currentStatementIndex);
+
+
+    /**
+     * Calculate dimention of Identifier nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeIdentifierNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Import nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeImportNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Package nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizePackageNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of PackageDeclaration nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizePackageDeclarationNode(node) {
+        const viewState = node.viewState;
+        const topGutter = 10;
+        const topBarHeight = 25;
+        const importInputHeight = 40;
 
         let height = 0;
-        _.forEach(statementsBefore, (stmt) => {
-            height += stmt.getViewState().bBox.h;
-        });
+        const astRoot = node.parent;
 
-        return height;
+        if (viewState.importsExpanded) {
+            const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
+
+            height += topGutter + topBarHeight + importInputHeight +
+                (imports.length * this.config.packageDefinition.importDeclaration.itemHeight);
+        }
+
+        if (viewState.globalsExpanded) {
+            const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
+
+            height += topGutter + topBarHeight + importInputHeight +
+                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
+        }
+
+        viewState.bBox.h = height;
+        viewState.bBox.w = 0;
+
+        viewState.components = viewState.components || {};
+        viewState.components.importDeclaration = this._getImportDeclarationBadgeViewState(node);
+        viewState.components.importsExpanded = this._getImportDeclarationExpandedViewState(node);        
     }
 
-    getDefaultStatementHeight() {
-        return DesignerDefaults.statement.height + DesignerDefaults.statement.gutter.v;
+    _getImportDeclarationExpandedViewState() {
+        return {
+            importDeclarationHeight: 30,
+            importInputHeight: 40,
+            topBarHeight: 25,
+        };
     }
+
+    _getImportDeclarationBadgeViewState(node) {
+        const headerHeight = 35;
+        const leftPadding = 10;
+        const iconSize = 20;
+        const importNoFontSize = 13;
+        const noOfImportsLeftPadding = 12;
+        const iconLeftPadding = 12;
+        const noOfImportsBGHeight = 18;
+        const importLabelWidth = 48.37;
+        const noOfImportsTextPadding = 10;
+        const importDecDecoratorWidth = 3;
+
+        const imports = node.parent.filterTopLevelNodes({ kind: 'Import' });
+        const noOfImports = imports.length;
+
+        const noOfImportsTextWidth = this.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
+        const noOfImportsBGWidth = Math.max(noOfImportsTextWidth + noOfImportsTextPadding, noOfImportsBGHeight);
+
+        const badgeWidth = leftPadding + importLabelWidth + noOfImportsLeftPadding + noOfImportsTextWidth +
+            iconLeftPadding + iconSize + leftPadding;
+
+        return {
+            headerHeight,
+            leftPadding,
+            iconSize,
+            importNoFontSize,
+            noOfImportsLeftPadding,
+            iconLeftPadding,
+            noOfImportsBGHeight,
+            importLabelWidth,
+            noOfImportsTextPadding,
+            noOfImportsTextWidth,
+            noOfImportsBGWidth,
+            badgeWidth,
+            importDecDecoratorWidth,
+        };
+    }
+
 
     /**
+     * Calculate dimention of RecordLiteralKeyValue nodes.
      *
-     * @param {ASTNode} parent - parent node
-     * @param {ASTNode} childNode - child node, upto which we need to calculate the total height
-     * @returns {number}
+     * @param {object} node
+     * 
      */
-    getTotalHeightUpto(parent, childNode) {
-        const self = this;
-
-        const statementChildren = _.filter(parent.getChildren(), child => TreeUtil.isStatement(child));
-        const nodeIndex = _.findIndex(statementChildren, child => child.id === childNode.id);
-
-        const slicedChildren = _.slice(statementChildren, 0, nodeIndex);
-        let totalHeight = 0;
-
-        _.forEach(slicedChildren, (child) => {
-            const dimensionSynced = child.getViewState().dimensionsSynced;
-            if (TreeUtil.isWorkerInvocationStatement(child) && !dimensionSynced) {
-                if (!child.getViewState().dimensionsSynced) {
-                    self.syncWorkerInvocationDimension(child);
-                }
-            } else if (TreeUtil.isWorkerReplyStatement(child) && !dimensionSynced) {
-                if (!child.getViewState().dimensionsSynced) {
-                    self.syncWorkerReplyDimension(child);
-                }
-            }
-
-            totalHeight += child.getViewState().bBox.h;
-        });
-
-        // add any connector declaration heights.
-        const connectors = [];
-        parent.children.forEach((child) => {
-            if (childNode.getNodeIndex() > child.getNodeIndex() &&
-                TreeUtil.isConnectorDeclaration(child)) {
-                connectors.push(child);
-            }
-        });
-        // here we will add any connector declaration statement height.
-        _.forEach(connectors, (stmt) => {
-            totalHeight += stmt.getViewState().components.statementViewState.bBox.h;
-        });
-
-
-        totalHeight += childNode.getViewState().bBox.h;
-
-        return totalHeight;
+    sizeRecordLiteralKeyValueNode(node) {
+        // Not implemented.
     }
 
-    /**
-     * When given a worker invocation statement, this would sync the dimensions, to make the invocation statement
-     * and the reply statement linear
-     * @param {ASTNode} node - worker invocation node
-     */
-    syncWorkerInvocationDimension(node) {
-        const destinationWorkerName = node.getWorkerName();
-        const topLevelParent = node.getTopLevelParent();
-        const workersParent = TreeUtil.isWorkerDeclaration(topLevelParent) ?
-            topLevelParent.getParent() : topLevelParent;
 
-        let workerDeclaration;
-        if (destinationWorkerName === 'default') {
-            workerDeclaration = workersParent;
-        } else {
-            workerDeclaration = _.find(workersParent.getChildren(), (child) => {
-                if (TreeUtil.isWorkerDeclaration(child)) {
-                    return child.getWorkerName() === destinationWorkerName;
-                }
-
-                return false;
-            });
-        }
-
-        if (!_.isNil(workerDeclaration)) {
-            /**
-             * Check whether there is a worker reply at destination, receiving the invocation
-             */
-            const workerName = TreeUtil.isWorkerDeclaration(topLevelParent) ?
-                topLevelParent.getWorkerName() : 'default';
-            const workerReplyStatement = this.getWorkerReplyStatementTo(workerDeclaration, workerName);
-
-            if (!_.isNil(workerReplyStatement)) {
-                const upToReplyHeight = util.getTotalHeightUpto(workerDeclaration, workerReplyStatement);
-                const upToInvocationTotalHeight = util.getTotalHeightUpto(topLevelParent, node);
-
-                if (upToReplyHeight > upToInvocationTotalHeight) {
-                    node.getViewState().components['drop-zone'].h += upToReplyHeight - upToInvocationTotalHeight;
-                    node.getViewState().bBox.h += upToReplyHeight - upToInvocationTotalHeight;
-                } else {
-                    workerReplyStatement.getViewState().components['drop-zone'].h += upToInvocationTotalHeight - upToReplyHeight;
-                    workerReplyStatement.getViewState().bBox.h += upToInvocationTotalHeight - upToReplyHeight;
-                }
-                workerReplyStatement.getViewState().dimensionsSynced = true;
-            }
-
-            node.getViewState().dimensionsSynced = true;
-        }
-    }
 
     /**
-     * When given a worker reply statement, this would sync the dimensions in order to make the invocation statement
-     * and the reply statement linear
-     * @param {ASTNode} node - worker reply statement
-     */
-    syncWorkerReplyDimension(node) {
-        const destinationWorkerName = node.getWorkerName();
-        const topLevelParent = node.getTopLevelParent();
-        const workersParent = TreeUtil.isWorkerDeclaration(topLevelParent) ?
-            topLevelParent.getParent() : topLevelParent;
-        let workerDeclaration;
-        if (destinationWorkerName === 'default') {
-            workerDeclaration = workersParent;
-        } else {
-            workerDeclaration = _.find(workersParent.getChildren(), (child) => {
-                if (TreeUtil.isWorkerDeclaration(child)) {
-                    return child.getWorkerName() === destinationWorkerName;
-                }
-
-                return false;
-            });
-        }
-        if (!_.isNil(workerDeclaration)) {
-            /**
-             * Check whether there is a worker reply at destination, receiving the invocation
-             */
-            const workerName = TreeUtil.isWorkerDeclaration(topLevelParent) ?
-                topLevelParent.getWorkerName() : 'default';
-            const workerInvocationStatement = this.getWorkerInvocationStatementFrom(workerDeclaration, workerName);
-
-            if (!_.isNil(workerInvocationStatement)) {
-                const upToInvocationHeight = util.getTotalHeightUpto(workerDeclaration, workerInvocationStatement);
-                const upToReplyTotalHeight = util.getTotalHeightUpto(topLevelParent, node);
-
-                if (upToInvocationHeight > upToReplyTotalHeight) {
-                    node.getViewState().components['drop-zone'].h += upToInvocationHeight - upToReplyTotalHeight;
-                    node.getViewState().bBox.h += upToInvocationHeight - upToReplyTotalHeight;
-                } else {
-                    workerInvocationStatement.getViewState().components['drop-zone'].h += upToReplyTotalHeight - upToInvocationHeight;
-                    workerInvocationStatement.getViewState().bBox.h += upToReplyTotalHeight - upToInvocationHeight;
-                }
-                workerInvocationStatement.getViewState().dimensionsSynced = true;
-            }
-            node.getViewState().dimensionsSynced = true;
-        }
-    }
-
-    /**
-     * Get the worker reply statement, which send the reply to the given top level
-     * node (ie resource, action, function, worker
-     * @param {String} workerName
-     * @param {ASTNode} parentNode - node which encapsulate the children need to be iterated (worker, function, etc)
-     * @returns {undefined|ASTNode}
-     */
-    getWorkerReplyStatementTo(parentNode, workerName) {
-        let childNodes;
-        if (!_.isNil(parentNode)) {
-            childNodes = _.filter(parentNode.getChildren(), (child) => {
-                if (TreeUtil.isWorkerReplyStatement(child)) {
-                    return child.getWorkerName() === workerName;
-                }
-                return false;
-            });
-        }
-
-        if (_.isNil(childNodes)) {
-            return undefined;
-        }
-        return childNodes[0];
-    }
-
-    /**
-     * Get the worker reply statement, which send the request from the given top level
-     * node (ie resource, action, function, worker
-     * @param {String} workerName
-     * @param {ASTNode} parentNode - node which encapsulate the children need to be iterated (worker, function, etc)
-     * @returns {undefined|ASTNode}
-     */
-    getWorkerInvocationStatementFrom(parentNode, workerName) {
-        const childNodes = _.filter(parentNode.getChildren(), (child) => {
-            if (TreeUtil.isWorkerInvocationStatement(child)) {
-                return child.getWorkerName() === workerName;
-            }
-            return false;
-        });
-
-        if (_.isNil(childNodes)) {
-            return undefined;
-        }
-        return childNodes[0];
-    }
-
-    /**
-     * Calculates the height of the annotations of a given node.
+     * Calculate dimention of Resource nodes.
      *
-     * @param {ASTNode} node The node with annotations.
-     * @param {number} [defaultHeight=0] The height value to start from.
-     * @param {number} [annotationLineHeight=18.75] The default height of an annotation or annotation entry when
-     * contained to a single line.
-     * @returns {number} The total height needed for the annotations.
-     *
-     * @memberof SizingUtil
+     * @param {object} node
+     * 
      */
-    getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 18.75) {
-        const height = defaultHeight;
-        /* if (TreeUtil.isServiceDefinition(node) || TreeUtil.isResourceDefinition(node) ||
-            TreeUtil.isFunctionDefinition(node) || TreeUtil.isConnectorDefinition(node) ||
-            TreeUtil.isConnectorAction(node) || TreeUtil.isAnnotationDefinition(node) ||
-            TreeUtil.isStructDefinition(node)) {
-            for (const annotation of node.getChildrenOfType(TreeUtil.isAnnotationAttachment)) {
-                height += this.getAnnotationHeight(annotation) + 10;
-            }
-        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
-            const annotationAttachment = node;
-            // Considering the start line of the annotation.
-            height += annotationLineHeight;
-            if (!annotationAttachment.getViewState().collapsed) {
-                if (annotationAttachment.getChildren().length > 0) {
-                    annotationAttachment.getChildren().forEach((annotationAttribute) => {
-                        height += this.getAnnotationHeight(annotationAttribute);
-                    });
-                }
-            }
-        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttribute(node)) {
-            const annotationAttribute = node;
-            // If the annotation entry a simple native type value
-            if (annotationAttribute.getValue().isBValue()) {
-                height += annotationLineHeight;
-            } else if (annotationAttribute.getValue().isAnnotation()) {
-                if (!annotationAttribute.getViewState().collapsed) {
-                    // If the annotation entry value an annotation
-                    height += this.getAnnotationHeight(annotationAttribute.getValue().getChildren()[0]);
-                } else {
-                    // When collapsed we have to consider attribute as a line.
-                    height += annotationLineHeight;
-                }
-            } else if (annotationAttribute.getValue().isArray()) {
-                // If the annotation entry value an array
-                height += annotationLineHeight;
-                if (!annotationAttribute.getViewState().collapsed) {
-                    // Calculating the height for the array children.
-                    annotationAttribute.getValue().getChildren().forEach((childAnnotationAttribute) => {
-                        childAnnotationAttribute.getChildren().forEach((arrayChild) => {
-                            height += this.getAnnotationHeight(arrayChild);
-                        });
-                    });
-                }
-            }
-        } else if (!_.isNil(node) && TreeUtil.isBValue(node)) {
-            height += annotationLineHeight;
-        }*/
-
-        return height;
+    sizeResourceNode(node) {
+        // Not implemented.
     }
 
-    getConnectorLevelVariablesHeight(node) {
-        const variablesPaneDefaults = DesignerDefaults.variablesPane;
-        let height = variablesPaneDefaults.topBarHeight + variablesPaneDefaults.inputHeight;
 
-        if (!node.viewState.variablesExpanded) {
-            return variablesPaneDefaults.headerHeight;
-        }
 
-        const variables = node.filterChildren(child => TreeUtil.isVariableDefinitionStatement(child));
-
-        if (!_.isEmpty(variables)) {
-            height += (variables.length * 30);
-        }
-
-        return height;
+    /**
+     * Calculate dimention of Retry nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeRetryNode(node) {
+        // Not implemented.
     }
 
-    populateHeadingWidth(node) {
+
+
+    /**
+     * Calculate dimention of Service nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeServiceNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Struct nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeStructNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Variable nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeVariableNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Worker nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeWorkerNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Xmlns nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlnsNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of AnnotationAttachmentAttributeValue nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeAnnotationAttachmentAttributeValueNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of ArrayLiteralExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeArrayLiteralExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of BinaryExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeBinaryExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of ConnectorInitExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeConnectorInitExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of FieldBasedAccessExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeFieldBasedAccessExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of IndexBasedAccessExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeIndexBasedAccessExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Invocation nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeInvocationNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Lambda nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeLambdaNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Literal nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of RecordLiteralExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeRecordLiteralExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of SimpleVariableRef nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeSimpleVariableRefNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of StringTemplateLiteral nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeStringTemplateLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of TernaryExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTernaryExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of TypeCastExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTypeCastExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of TypeConversionExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTypeConversionExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of UnaryExpr nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeUnaryExprNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlAttribute nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlAttributeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlCommentLiteral nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlCommentLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlElementLiteral nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlElementLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlPiLiteral nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlPiLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlQname nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlQnameNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlQuotedString nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlQuotedStringNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of XmlTextLiteral nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlTextLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Abort nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeAbortNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Assignment nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeAssignmentNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Block nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeBlockNode(node) {
         const viewState = node.viewState;
-        const isLambda = (node.isLambda && node.isLambda());
-        // // Creating components for parameters
-        if (node.getArguments) {
-            // Creating component for opening bracket of the parameters view.
-            viewState.components.openingParameter = {};
-            viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the parameters view.
-            viewState.components.closingParameter = {};
-            viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
-
-            viewState.components.heading.w += viewState.components.openingParameter.w
-                + viewState.components.closingParameter.w
-                + this.getParameterTypeWidth(node) + 120;
-        }
-
-        // // Creating components for attachment points of the annotation
-        if (node.getAttachmentPoints) {
-            // Creating component for opening bracket of the parameters view.
-            viewState.components.openingParameter = {};
-            viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the parameters view.
-            viewState.components.closingParameter = {};
-            viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
-
-            viewState.components.heading.w = viewState.components.openingParameter.w
-                + viewState.components.closingParameter.w
-                + this.annotationAttachmentPointWidth(node) + 140;
-        }
-
-        // // Creating components for return types
-        if (node.getReturnTypes) {
-            // Creating component for the Return type text.
-            viewState.components.returnTypesIcon = {};
-            viewState.components.returnTypesIcon.w = util.getTextWidth('returns', 0).w;
-
-            // Creating component for opening bracket of the return types view.
-            viewState.components.openingReturnType = {};
-            viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
-
-            // Creating component for closing bracket of the return types view.
-            viewState.components.closingReturnType = {};
-            viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
-
-            viewState.components.heading.w += viewState.components.returnTypesIcon.w
-                + viewState.components.openingReturnType.w
-                + viewState.components.closingReturnType.w
-                + this.getReturnTypeWidth(node) + (isLambda ? 0 : 120);
-        }
-
-        viewState.components.heading.w += viewState.titleWidth + (isLambda ? 0 : 100);
-
-        // Get the largest among component heading width and component body width.
-        const componentWidth = viewState.components.heading.w > viewState.components.body.w
-            ? viewState.components.heading.w : viewState.components.body.w;
-        if (TreeUtil.isStruct(node)) {
-            viewState.bBox.w = 600 + (DesignerDefaults.panel.wrapper.gutter.h * 2);
-        } else {
-            viewState.bBox.w = componentWidth + (isLambda ? 0 : (DesignerDefaults.panel.wrapper.gutter.h * 2));
-        }
+        const statements = node.getStatements();
+        this.setContainerSize(statements, viewState, this.config.statement.width);
     }
+
+
 
     /**
-     * Calculate Parameters' text width for the node.
-     * @param {ASTNode} node
-     * @return {number} width - return sum of widths of parameter texts.
-     * */
-    getParameterTypeWidth(node) {
-        let width = 0;
-        if (node.getArguments().length > 0) {
-            for (let i = 0; i < node.getArguments().length; i++) {
-                // 21 is delete button and separator widths.
-                width += util.getTextWidth(node.getArguments()[i].getParameterDefinitionAsString(), 0).w + 21;
-            }
-        }
-
-        return width;
+     * Calculate dimention of Break nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeBreakNode(node) {
+        // Not implemented.
     }
+
+
 
     /**
-     * Calculate Return Parameters' text width for node.
-     * @param {ASTNode} node
-     * @return {number} width - return sum of widths of return parameter texts.
-     * */
-    getReturnTypeWidth(node) {
-        let width = 0;
-        if (node.getReturnTypes().length > 0) {
-            for (let i = 0; i < node.getReturnTypes().length; i++) {
-                width += util.getTextWidth(node.getReturnTypes()[i].getParameterDefinitionAsString(), 0).w + 21;
-            }
-        }
-        return width;
+     * Calculate dimention of Continue nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeContinueNode(node) {
+        // Not implemented.
     }
+
+
 
     /**
-     * Calculate Attachment point text width for annotation attachments.
-     * @param {AnnotationDefinition} node - Annotation Definition Node.
-     * @return {number} width - return sum of the widths of attachment texts.
-     * */
-    annotationAttachmentPointWidth(node) {
-        let width = 0;
-        if (node.getAttachmentPoints().length > 0) {
-            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
-                width += util.getTextWidth(node.getAttachmentPoints()[i], 0).w + 21;
-            }
-        }
-
-        return width;
+     * Calculate dimention of ExpressionStatement nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeExpressionStatementNode(node) {
+        // Not implemented.
     }
+
+
+
+    /**
+     * Calculate dimention of ForkJoin nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeForkJoinNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of If nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeIfNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Reply nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeReplyNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Return nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeReturnNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Comment nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeCommentNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Throw nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeThrowNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Transaction nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTransactionNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of Transform nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTransformNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement('Transform', viewState);
+    }
+
+
+
+    /**
+     * Calculate dimention of Try nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeTryNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of VariableDef nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeVariableDefNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of While nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeWhileNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of WorkerReceive nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeWorkerReceiveNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of WorkerSend nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeWorkerSendNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of ArrayType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeArrayTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of BuiltInRefType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeBuiltInRefTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of ConstrainedType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeConstrainedTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of FunctionType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeFunctionTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of UserDefinedType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeUserDefinedTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
+    /**
+     * Calculate dimention of ValueType nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeValueTypeNode(node) {
+        // Not implemented.
+    }
+
+
+
 }
 
-
-export let util = new SizingUtil();
+export default SizingUtil;

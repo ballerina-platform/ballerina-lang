@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,372 +17,523 @@
  */
 
 import _ from 'lodash';
-import ASTFactory from '../../../ast/ast-factory';
-import * as DesignerDefaults from './designer-defaults';
-import { panel as defaultPanel} from './designer-defaults';
-import { util } from './sizing-util';
-import { lifeLine } from './designer-defaults';
-
-/**
- * get simple statement position.
- *
- * @param {ASTNode} node - AST node.
- * */
-function getSimpleStatementPosition(node) {
-    const viewState = node.getViewState();
-    const bBox = viewState.bBox;
-    const parent = node.getParent();
-    const parentViewState = parent.getViewState();
-    const parentStatementContainer = parentViewState.components.statementContainer || {};
-
-    const parentStatements = parent.filterChildren(child =>
-    ASTFactory.isStatement(child) || ASTFactory.isExpression(child) || ASTFactory.isConnectorDeclaration(child));
-    const currentIndex = _.findIndex(parentStatements, node);
-    let y;
-
-    /**
-     * Here we center the statement based on the parent's statement container's dimensions
-     * Always the statement container's width should be greater than the statements/expressions
-     */
-    if (parentStatementContainer.w < bBox.w) {
-        const exception = {
-            message: 'Invalid statement container width found, statement width should be ' +
-            'greater than or equal to statement/ statement width ',
-        };
-        throw exception;
-    }
-    const x = parentStatementContainer.x + ((parentStatementContainer.w - bBox.w) / 2);
-    if (currentIndex === 0) {
-        y = parentStatementContainer.y;
-    } else if (currentIndex > 0) {
-        const previousChild = parentStatements[currentIndex - 1];
-        if (ASTFactory.isConnectorDeclaration(previousChild)) {
-            y = previousChild.getViewState().components.statementViewState.bBox.getBottom();
-        } else {
-            y = previousChild.getViewState().bBox.getBottom();
-        }
-    } else {
-        const exception = {
-            message: `Invalid Index found for ${node.getType()}`,
-        };
-        throw exception;
-    }
-
-    // calculate the positions of sub components.
-    if (viewState.components['drop-zone']) {
-        viewState.components['drop-zone'].x = x;
-        viewState.components['drop-zone'].y = y;
-    }
-
-    if (viewState.components['statement-box']) {
-        viewState.components['statement-box'].x = x;
-        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
-    }
-
-    bBox.x = x;
-    bBox.y = y;
-}
-
-/**
- * get compound statement child position.
- *
- * @param {ASTNode} node - AST node.
- * */
-function getCompoundStatementChildPosition(node) {
-    const viewState = node.getViewState();
-    const bBox = viewState.bBox;
-    const currentIndex = _.findIndex(node.getParent().getChildren(), node);
-    /**
-     * Current Index should be greater than 0
-     */
-    if (currentIndex <= 0) {
-        const exception = {
-            message: 'Invalid Current Index Found for Block Statement',
-        };
-        throw exception;
-    }
-    const previousStatement = node.getParent().getChildren()[currentIndex - 1];
-
-    const x = previousStatement.getViewState().bBox.x;
-    const y = previousStatement.getViewState().bBox.getBottom();
-    const statementContainerX = x;
-    const statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
-
-    bBox.x = x;
-    bBox.y = y;
-    viewState.components.statementContainer.x = statementContainerX;
-    viewState.components.statementContainer.y = statementContainerY;
-    viewState.components['block-header'].y = y;
-}
-
-/**
- * populate inner panel decorator bounding box position.
- *
- * @param {ASTNode} node - AST node.
- * */
-function populateInnerPanelDecoratorBBoxPosition(node) {
-    const parent = node.getParent();
-    const viewState = node.getViewState();
-    const parentViewState = parent.getViewState();
-    const parentBBox = parentViewState.bBox;
-    const bBox = viewState.bBox;
-    const statementContainerBBox = viewState.components.statementContainer;
-    const workerScopeContainer = viewState.components.workerScopeContainer;
-    const headerBBox = viewState.components.heading;
-    const bodyBBox = viewState.components.body;
-    const annotation = viewState.components.annotation;
-    const resources = _.filter(parent.getChildren(), child =>
-    ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child));
-    let headerY;
-    const currentResourceIndex = _.findIndex(resources, node);
-
-    const headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
-
-    if (currentResourceIndex === 0) {
-        const serviceVariablesHeightGap = node.getParent().getViewState().components.variablesPane.h +
-            DesignerDefaults.panel.body.padding.top;
-
-        /**
-         * If there are service level connectors, then we need to drop the first resource further down,
-         * in order to maintain a gap between the connector heading and the resource heading
-         */
-        const parentLevelConnectors = node.getParent().filterChildren(child =>
-            ASTFactory.isConnectorDeclaration(child));
-        headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top;
-        
-
-        headerY += serviceVariablesHeightGap;
-    } else if (currentResourceIndex > 0) {
-        const previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
-        headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
-    } else {
-        const exception = {
-            message: 'Invalid Index for Resource Definition',
-        };
-        throw exception;
-    }
-
-    const x = headerX;
-    const y = headerY;
-    const bodyX = headerX;
-    const bodyY = headerY + headerBBox.h + annotation.h;
-
-    statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
-    statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
-        DesignerDefaults.lifeLine.head.height;
-    // If more than one worker is present, then draw the worker scope container boundary around the workers
-    if ((node.filterChildren(ASTFactory.isWorkerDeclaration)).length >= 1) {
-        workerScopeContainer.x = x + DesignerDefaults.innerPanel.body.padding.left;
-        workerScopeContainer.y = bodyY + (DesignerDefaults.innerPanel.body.padding.top / 2);
-    }
-    bBox.x = x;
-    bBox.y = y;
-    headerBBox.x = headerX;
-    headerBBox.y = headerY;
-    bodyBBox.x = bodyX;
-    bodyBBox.y = bodyY;
-}
-
-/**
- * populate outer panel decorator bounding box position.
- *
- * @param {ASTNode} node - AST node.
- * */
-function populateOuterPanelDecoratorBBoxPosition(node) {
-    const viewState = node.getViewState();
-    const bBox = viewState.bBox;
-    const parent = node.getParent();
-    const panelChildren = parent.filterChildren(child => ASTFactory.isFunctionDefinition(child) ||
-           ASTFactory.isServiceDefinition(child) ||
-            ASTFactory.isConnectorDefinition(child) ||
-            ASTFactory.isAnnotationDefinition(child) ||
-            ASTFactory.isStructDefinition(child) ||
-            ASTFactory.isPackageDefinition(child));
-    const heading = viewState.components.heading;
-    const body = viewState.components.body;
-    const annotation = viewState.components.annotation;
-    // FIXME
-    const transportLine = !_.isNil(viewState.components.transportLine) ?
-        viewState.components.transportLine : { x: 0, y: 0 };
-    const currentServiceIndex = _.findIndex(panelChildren, node);
-    let headerX;
-    let headerY;
-    if (currentServiceIndex === 0) {
-        headerX = DesignerDefaults.panel.wrapper.gutter.h;
-        headerY = DesignerDefaults.panel.wrapper.gutter.v;
-    } else if (currentServiceIndex > 0) {
-        const previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
-        headerX = DesignerDefaults.panel.wrapper.gutter.h;
-        headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
-    } else {
-        const exception = {
-            message: 'Invalid Index for Service Definition',
-        };
-        throw exception;
-    }
-
-    const x = headerX;
-    const y = headerY;
-    const bodyX = headerX;
-    const bodyY = headerY + heading.h + annotation.h;
-
-    bBox.x = x;
-    bBox.y = y;
-    heading.x = headerX;
-    heading.y = headerY;
-    body.x = bodyX;
-    body.y = bodyY;
-    transportLine.x = body.x + 25;
-    transportLine.y = body.y;
-
-    // here we need to re adjust resource width to match the service width.
-    const resources = node.filterChildren(child => ASTFactory.isResourceDefinition(child) ||
-            ASTFactory.isConnectorAction(child));
-    // make sure you substract the panel padding to calculate the min width of a resource.
-    const minWidth = node.getViewState().bBox.w -
-        (DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right);
-    let connectorWidthTotal = 0;
-    const connectors = node.filterChildren(child => ASTFactory.isConnectorDeclaration(child));
-
-    _.forEach(connectors, (connector) => {
-        connectorWidthTotal += connector.getViewState().bBox.w + DesignerDefaults.lifeLine.gutter.h;
-    });
-
-    resources.forEach((element) => {
-        const viewState = element.getViewState();
-        // if the service width is wider than resource width we will readjust.
-        if (viewState.bBox.w + connectorWidthTotal < minWidth) {
-            viewState.bBox.w = minWidth - connectorWidthTotal;
-        }
-    }, this);
-}
-
-/**
- * populate panel heading positioning.
- *
- * @param {ASTNode} node - AST node.
- * @param {func} createPositionForTitleNode - function to create position for title.
- * */
-function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
-    const viewState = node.getViewState();
-
-    if (node.getArguments) {
-        const isLambda = node.isLambda && node.isLambda();
-        viewState.components.openingParameter.x = viewState.bBox.x + (isLambda ? 0 : (
-        viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
-        + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding));
-        viewState.components.openingParameter.y = viewState.bBox.y
-            + viewState.components.annotation.h;
-
-        // Positioning the resource parameters
-        let nextXPositionOfParameter = viewState.components.openingParameter.x
-            + viewState.components.openingParameter.w;
-        if (node.getArguments().length > 0) {
-            for (let i = 0; i < node.getArguments().length; i++) {
-                const argument = node.getArguments()[i];
-                nextXPositionOfParameter = createPositionForTitleNode(argument, nextXPositionOfParameter,
-                    (viewState.bBox.y + viewState.components.annotation.h));
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 130;
-        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-    }
-
-    if (node.getAttachmentPoints) {
-        // / Positioning parameters
-        // Setting positions of function parameters.
-        // Positioning the opening bracket component of the parameters.
-        viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
-            + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding + util.getTextWidth('attach', 80, 80).w;
-        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        viewState.attachments = {};
-        // Positioning the resource parameters
-        let nextXPositionOfParameter = viewState.components.openingParameter.x
-            + viewState.components.openingParameter.w;
-        if (node.getAttachmentPoints().length > 0) {
-            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
-                const attachment = {
-                    attachment: node.getAttachmentPoints()[i],
-                    model: node,
-                };
-                nextXPositionOfParameter = createPositionForTitleNode(attachment, nextXPositionOfParameter,
-                    (viewState.bBox.y + viewState.components.annotation.h));
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 140;
-        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-    }
-
-    if (node.getReturnTypes) {
-        // // Positioning return types
-        // Setting positions of return types.
-        // Positioning the Parameters text component.
-        viewState.components.returnTypesIcon.x = viewState.components.closingParameter.x
-            + viewState.components.closingParameter.w
-            + 10;
-        viewState.components.returnTypesIcon.y = viewState.bBox.y
-            + viewState.components.annotation.h
-            + 18;
-
-        // Positioning the opening bracket component of the return types.
-        viewState.components.openingReturnType.x = viewState.components.returnTypesIcon.x
-            + viewState.components.returnTypesIcon.w;
-        viewState.components.openingReturnType.y = viewState.bBox.y
-            + viewState.components.annotation.h;
-
-        // Positioning the resource parameters
-        let nextXPositionOfReturnType = viewState.components.openingReturnType.x
-            + viewState.components.openingReturnType.w;
-        if (node.getReturnTypes().length > 0) {
-            for (let i = 0; i < node.getReturnTypes().length; i++) {
-                const returnType = node.getReturnTypes()[i];
-                nextXPositionOfReturnType = createPositionForTitleNode(returnType, nextXPositionOfReturnType,
-                    (viewState.bBox.y + viewState.components.annotation.h));
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingReturnType.x = nextXPositionOfReturnType + 130;
-        viewState.components.closingReturnType.y = viewState.bBox.y
-            + viewState.components.annotation.h;
-    }
-}
-
-export {
-    getSimpleStatementPosition,
-    getCompoundStatementChildPosition,
-    populateOuterPanelDecoratorBBoxPosition,
-    populateInnerPanelDecoratorBBoxPosition,
-    populatePanelHeadingPositioning,
-};
-
+import TreeUtil from './../../../model/tree-util';
 
 class PositioningUtil {
 
+    setConfig(config) {
+        this.config = config;
+    }
+
+
+    /**
+     * Calculate position of Action nodes.
+     *
+     * @param {object} node Action object
+     */
+    positionActionNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Annotation nodes.
+     *
+     * @param {object} node Annotation object
+     */
+    positionAnnotationNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of AnnotationAttachment nodes.
+     *
+     * @param {object} node AnnotationAttachment object
+     */
+    positionAnnotationAttachmentNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of AnnotationAttribute nodes.
+     *
+     * @param {object} node AnnotationAttribute object
+     */
+    positionAnnotationAttributeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Catch nodes.
+     *
+     * @param {object} node Catch object
+     */
+    positionCatchNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of CompilationUnit nodes.
+     *
+     * @param {object} node CompilationUnit object
+     */
+    positionCompilationUnitNode(node) {
+        let width = 0;
+        let height = 0;
+        // filter out visible children from top level nodes.
+        const children = node.filterTopLevelNodes((child) => {
+            return TreeUtil.isPackageDeclaration(child) || TreeUtil.isFunction(child) || TreeUtil.isService(child)
+                || TreeUtil.isStruct(child);
+        });
+
+        children.forEach((child) => {
+            // we will get the maximum node's width.
+            if (width <= child.viewState.bBox.w) {
+                width = child.viewState.bBox.w;
+            }
+            // for each top level node set x and y.
+            child.viewState.bBox.x = this.config.panel.wrapper.gutter.v;
+            child.viewState.bBox.y = height + this.config.panel.wrapper.gutter.h;
+            height = this.config.panel.wrapper.gutter.h + child.viewState.bBox.h + height;
+        });
+
+        height = (height > node.viewState.container.height) ? height : node.viewState.container.height;
+        width = (width > node.viewState.container.width) ? width : node.viewState.container.width;
+
+        // re-adjust the width of each node to fill the container.
+        children.forEach((child) => {
+            child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
+        });
+
+        node.viewState.bBox.h = height;
+        node.viewState.bBox.w = width;
+    }
+
+
+    /**
+     * Calculate position of Connector nodes.
+     *
+     * @param {object} node Connector object
+     */
+    positionConnectorNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Enum nodes.
+     *
+     * @param {object} node Enum object
+     */
+    positionEnumNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Function nodes.
+     *
+     * @param {object} node Function object
+     */
     positionFunctionNode(node) {
         const viewState = node.viewState;
         const cmp = viewState.components;
 
         // position the components.
-        cmp.statementContainer.x = viewState.bBox.x + defaultPanel.body.padding.left;
-        cmp.statementContainer.y = viewState.bBox.y + cmp.heading.h + defaultPanel.body.padding.top + lifeLine.head.height;
+        cmp.statementContainer.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        cmp.statementContainer.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
+                                   this.config.lifeLine.head.height;
 
-        cmp.defaultWorker.x = cmp.statementContainer.x + ((cmp.statementContainer.w - lifeLine.width) / 2);
-        cmp.defaultWorker.y = cmp.statementContainer.y - lifeLine.head.height;
+        cmp.defaultWorker.x = cmp.statementContainer.x + ((cmp.statementContainer.w - this.config.lifeLine.width) / 2);
+        cmp.defaultWorker.y = cmp.statementContainer.y - this.config.lifeLine.head.height;
 
         // position the children
         const body = node.getBody();
-        body.viewState.bBox.x = viewState.bBox.x + defaultPanel.body.padding.left;
-        body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + defaultPanel.body.padding.top + lifeLine.head.height;
+        body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
+                                this.config.lifeLine.head.height;
     }
 
+
+    /**
+     * Calculate position of Identifier nodes.
+     *
+     * @param {object} node Identifier object
+     */
+    positionIdentifierNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Import nodes.
+     *
+     * @param {object} node Import object
+     */
+    positionImportNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Package nodes.
+     *
+     * @param {object} node Package object
+     */
+    positionPackageNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of PackageDeclaration nodes.
+     *
+     * @param {object} node PackageDeclaration object
+     */
+    positionPackageDeclarationNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of RecordLiteralKeyValue nodes.
+     *
+     * @param {object} node RecordLiteralKeyValue object
+     */
+    positionRecordLiteralKeyValueNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Resource nodes.
+     *
+     * @param {object} node Resource object
+     */
+    positionResourceNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Retry nodes.
+     *
+     * @param {object} node Retry object
+     */
+    positionRetryNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Service nodes.
+     *
+     * @param {object} node Service object
+     */
+    positionServiceNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Struct nodes.
+     *
+     * @param {object} node Struct object
+     */
+    positionStructNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Variable nodes.
+     *
+     * @param {object} node Variable object
+     */
+    positionVariableNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Worker nodes.
+     *
+     * @param {object} node Worker object
+     */
+    positionWorkerNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Xmlns nodes.
+     *
+     * @param {object} node Xmlns object
+     */
+    positionXmlnsNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of AnnotationAttachmentAttributeValue nodes.
+     *
+     * @param {object} node AnnotationAttachmentAttributeValue object
+     */
+    positionAnnotationAttachmentAttributeValueNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ArrayLiteralExpr nodes.
+     *
+     * @param {object} node ArrayLiteralExpr object
+     */
+    positionArrayLiteralExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of BinaryExpr nodes.
+     *
+     * @param {object} node BinaryExpr object
+     */
+    positionBinaryExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ConnectorInitExpr nodes.
+     *
+     * @param {object} node ConnectorInitExpr object
+     */
+    positionConnectorInitExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of FieldBasedAccessExpr nodes.
+     *
+     * @param {object} node FieldBasedAccessExpr object
+     */
+    positionFieldBasedAccessExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of IndexBasedAccessExpr nodes.
+     *
+     * @param {object} node IndexBasedAccessExpr object
+     */
+    positionIndexBasedAccessExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Invocation nodes.
+     *
+     * @param {object} node Invocation object
+     */
+    positionInvocationNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Lambda nodes.
+     *
+     * @param {object} node Lambda object
+     */
+    positionLambdaNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Literal nodes.
+     *
+     * @param {object} node Literal object
+     */
+    positionLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of RecordLiteralExpr nodes.
+     *
+     * @param {object} node RecordLiteralExpr object
+     */
+    positionRecordLiteralExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of SimpleVariableRef nodes.
+     *
+     * @param {object} node SimpleVariableRef object
+     */
+    positionSimpleVariableRefNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of StringTemplateLiteral nodes.
+     *
+     * @param {object} node StringTemplateLiteral object
+     */
+    positionStringTemplateLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of TernaryExpr nodes.
+     *
+     * @param {object} node TernaryExpr object
+     */
+    positionTernaryExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of TypeCastExpr nodes.
+     *
+     * @param {object} node TypeCastExpr object
+     */
+    positionTypeCastExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of TypeConversionExpr nodes.
+     *
+     * @param {object} node TypeConversionExpr object
+     */
+    positionTypeConversionExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of UnaryExpr nodes.
+     *
+     * @param {object} node UnaryExpr object
+     */
+    positionUnaryExprNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlAttribute nodes.
+     *
+     * @param {object} node XmlAttribute object
+     */
+    positionXmlAttributeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlCommentLiteral nodes.
+     *
+     * @param {object} node XmlCommentLiteral object
+     */
+    positionXmlCommentLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlElementLiteral nodes.
+     *
+     * @param {object} node XmlElementLiteral object
+     */
+    positionXmlElementLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlPiLiteral nodes.
+     *
+     * @param {object} node XmlPiLiteral object
+     */
+    positionXmlPiLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlQname nodes.
+     *
+     * @param {object} node XmlQname object
+     */
+    positionXmlQnameNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlQuotedString nodes.
+     *
+     * @param {object} node XmlQuotedString object
+     */
+    positionXmlQuotedStringNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlTextLiteral nodes.
+     *
+     * @param {object} node XmlTextLiteral object
+     */
+    positionXmlTextLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Abort nodes.
+     *
+     * @param {object} node Abort object
+     */
+    positionAbortNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Assignment nodes.
+     *
+     * @param {object} node Assignment object
+     */
+    positionAssignmentNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Block nodes.
+     *
+     * @param {object} node Block object
+     */
     positionBlockNode(node) {
         const viewState = node.viewState;
         const statements = node.getStatements();
@@ -393,9 +544,228 @@ class PositioningUtil {
             height += element.viewState.bBox.h;
         });
     }
+
+
+    /**
+     * Calculate position of Break nodes.
+     *
+     * @param {object} node Break object
+     */
+    positionBreakNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Continue nodes.
+     *
+     * @param {object} node Continue object
+     */
+    positionContinueNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ExpressionStatement nodes.
+     *
+     * @param {object} node ExpressionStatement object
+     */
+    positionExpressionStatementNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ForkJoin nodes.
+     *
+     * @param {object} node ForkJoin object
+     */
+    positionForkJoinNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of If nodes.
+     *
+     * @param {object} node If object
+     */
+    positionIfNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Reply nodes.
+     *
+     * @param {object} node Reply object
+     */
+    positionReplyNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Return nodes.
+     *
+     * @param {object} node Return object
+     */
+    positionReturnNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Comment nodes.
+     *
+     * @param {object} node Comment object
+     */
+    positionCommentNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Throw nodes.
+     *
+     * @param {object} node Throw object
+     */
+    positionThrowNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Transaction nodes.
+     *
+     * @param {object} node Transaction object
+     */
+    positionTransactionNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Transform nodes.
+     *
+     * @param {object} node Transform object
+     */
+    positionTransformNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of Try nodes.
+     *
+     * @param {object} node Try object
+     */
+    positionTryNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of VariableDef nodes.
+     *
+     * @param {object} node VariableDef object
+     */
+    positionVariableDefNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of While nodes.
+     *
+     * @param {object} node While object
+     */
+    positionWhileNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of WorkerReceive nodes.
+     *
+     * @param {object} node WorkerReceive object
+     */
+    positionWorkerReceiveNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of WorkerSend nodes.
+     *
+     * @param {object} node WorkerSend object
+     */
+    positionWorkerSendNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ArrayType nodes.
+     *
+     * @param {object} node ArrayType object
+     */
+    positionArrayTypeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of BuiltInRefType nodes.
+     *
+     * @param {object} node BuiltInRefType object
+     */
+    positionBuiltInRefTypeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ConstrainedType nodes.
+     *
+     * @param {object} node ConstrainedType object
+     */
+    positionConstrainedTypeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of FunctionType nodes.
+     *
+     * @param {object} node FunctionType object
+     */
+    positionFunctionTypeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of UserDefinedType nodes.
+     *
+     * @param {object} node UserDefinedType object
+     */
+    positionUserDefinedTypeNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of ValueType nodes.
+     *
+     * @param {object} node ValueType object
+     */
+    positionValueTypeNode(node) {
+        // Not implemented.
+    }
+
+
 }
 
-const positioningUtil = new PositioningUtil();
-
-export default positioningUtil;
-
+export default PositioningUtil;
