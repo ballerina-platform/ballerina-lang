@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 
@@ -147,6 +149,23 @@ public class SymbolEnv {
     public static SymbolEnv createFolkJoinEnv(BLangForkJoin forkJoin, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv getXMLElementEnv(BLangXMLElementLiteral node, SymbolEnv env) {
+        Scope scope = node.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            node.scope = scope;
+        }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv getXMLAttributeEnv(BLangXMLAttribute node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
     }

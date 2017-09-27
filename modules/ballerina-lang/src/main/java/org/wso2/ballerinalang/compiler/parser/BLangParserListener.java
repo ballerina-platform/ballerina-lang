@@ -1668,13 +1668,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void enterNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) {
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
     @Override
     public void exitNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) {
+        boolean isTopLevel = ctx.parent instanceof BallerinaParser.CompilationUnitContext;
+        String namespaceUri = ctx.QuotedStringLiteral().getText();
+        namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
+        namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
+        String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : "";
+
+        this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), namespaceUri, prefix, isTopLevel);
     }
 
     @Override
@@ -2085,7 +2087,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitStartTag(BallerinaParser.StartTagContext ctx) {
-        this.pkgBuilder.startXMLElement(getCurrentPos(ctx));
+        boolean isRoot = ctx.parent.parent instanceof BallerinaParser.XmlItemContext;
+        this.pkgBuilder.startXMLElement(getCurrentPos(ctx), isRoot);
     }
 
     /**
@@ -2123,7 +2126,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitEmptyTag(BallerinaParser.EmptyTagContext ctx) {
-        this.pkgBuilder.startXMLElement(getCurrentPos(ctx));
+        boolean isRoot = ctx.parent.parent instanceof BallerinaParser.XmlItemContext;
+        this.pkgBuilder.startXMLElement(getCurrentPos(ctx), isRoot);
     }
 
     /**

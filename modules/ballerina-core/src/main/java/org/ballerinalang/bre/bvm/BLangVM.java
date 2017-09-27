@@ -2285,7 +2285,7 @@ public class BLangVM {
 
                 xmlVal = (BXML<?>) sf.refRegs[i];
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
-                xmlVal.setChildren(child);
+                xmlVal.addChildren(child);
                 break;
         }
     }
