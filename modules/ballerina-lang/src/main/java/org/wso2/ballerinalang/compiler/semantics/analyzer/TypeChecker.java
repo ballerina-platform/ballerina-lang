@@ -613,7 +613,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructType structType) {
         Name funcName = getFuncSymbolName(iExpr, structType);
         BPackageSymbol packageSymbol = (BPackageSymbol) structType.tsymbol.owner;
-        BSymbol funcSymbol = symResolver.lookupMemberSymbol(packageSymbol.scope, funcName, SymTag.FUNCTION);
+        BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
+                funcName, SymTag.FUNCTION);
         if (funcSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
             resultTypes = getListWithErrorTypes(expTypes.size());
@@ -747,7 +748,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check weather the struct field exists
-        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, fieldName, recordType.tsymbol);
+        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env,
+                fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             return symTable.errType;
         }
@@ -803,7 +805,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, fieldName, structType.tsymbol);
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
+                fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             return symTable.errType;
         }

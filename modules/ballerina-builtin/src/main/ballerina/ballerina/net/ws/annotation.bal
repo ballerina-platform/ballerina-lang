@@ -1,17 +1,17 @@
 package ballerina.net.ws;
 
-annotation WebSocketUpgradePath attach service {
+public annotation WebSocketUpgradePath attach service {
     string value;
 }
 
-annotation ClientService attach service {
+public annotation ClientService attach service {
 }
 
-annotation OnOpen attach resource {
+public annotation OnOpen attach resource {
 }
 
-annotation OnTextMessage attach resource {
+public annotation OnTextMessage attach resource {
 }
 
-annotation OnClose attach resource {
+public annotation OnClose attach resource {
 }

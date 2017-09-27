@@ -917,8 +917,8 @@ public class BLangPackageBuilder {
         this.annotationStack.add(annotNode);
     }
 
-    public void endAnnotationDef(String identifier) {
-        AnnotationNode annotationNode = this.annotationStack.pop();
+    public void endAnnotationDef(String identifier, boolean publicAnnotation) {
+        BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.setName(this.createIdentifier(identifier));
         this.varListStack.pop().forEach(var -> {
             BLangVariable variable = (BLangVariable) var;
@@ -934,6 +934,9 @@ public class BLangPackageBuilder {
             annotationNode.addAttribute(annAttrNode);
         });
 
+        if (publicAnnotation) {
+            annotationNode.flagSet.add(Flag.PUBLIC);
+        }
         this.compUnit.addTopLevelNode(annotationNode);
     }
 
