@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -27,7 +28,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -48,7 +51,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -87,6 +92,16 @@ public class SymbolResolver extends BLangNodeVisitor {
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
         BSymbol foundSym = lookupSymbol(env, symbol.name, symbol.tag);
         if (foundSym != symTable.notFoundSymbol && foundSym.owner == symbol.owner) {
+            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean checkForUniqueMemberSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
+        BSymbol foundSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, symbol.tag);
+        if (foundSym != symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -153,7 +168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (pkgSymbol == symTable.notFoundSymbol) {
             return pkgSymbol;
         }
-        return lookupMemberSymbol(pkgSymbol.scope, invokableName, SymTag.FUNCTION);
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
     }
 
 
@@ -167,15 +182,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             return pkgSymbol;
         }
 
-        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, invokableName, SymTag.INVOKABLE);
+        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.INVOKABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(pos, code, invokableName);
         }
         return symbol;
     }
 
-    public BSymbol resolveStructField(DiagnosticPos pos, Name fieldName, BTypeSymbol structSymbol) {
-        BSymbol symbol = lookupMemberSymbol(structSymbol.scope, fieldName, SymTag.VARIABLE);
+    public BSymbol resolveStructField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
+        BSymbol symbol = lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structSymbol);
         }
@@ -239,26 +254,49 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
      */
-    public BSymbol lookupMemberSymbol(Scope scope, Name name, int expSymTag) {
+    public BSymbol lookupMemberSymbol(DiagnosticPos pos,
+                                      Scope scope,
+                                      SymbolEnv env,
+                                      Name name,
+                                      int expSymTag) {
         ScopeEntry entry = scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
-                return entry.symbol;
+            if ((entry.symbol.tag & expSymTag) != expSymTag) {
+                entry = entry.next;
+                continue;
             }
-            entry = entry.next;
+
+            if (isMemberAccessAllowed(env, entry.symbol)) {
+                return entry.symbol;
+            } else {
+                dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, entry.symbol.name);
+                return symTable.notFoundSymbol;
+            }
         }
 
         return symTable.notFoundSymbol;
     }
 
+    /**
+     * Resolve and return the namespaces visible to the given environment, as a map.
+     *
+     * @param env Environment to get the visible namespaces
+     * @return Map of namespace symbols visible to the given environment
+     */
+    public Map<Name, BXMLNSSymbol> resolveAllNamespaces(SymbolEnv env) {
+        Map<Name, BXMLNSSymbol> namespaces = new HashMap<Name, BXMLNSSymbol>();
+        addNamespacesInScope(namespaces, env);
+        return namespaces;
+    }
+
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
-        visitBuiltInTypeNode(valueTypeNode, valueTypeNode.typeKind);
+        visitBuiltInTypeNode(valueTypeNode, valueTypeNode.typeKind, this.env);
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind);
+        visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {
@@ -289,10 +327,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Lookup the current package scope.
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
-        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, typeName, SymTag.TYPE);
+        BSymbol symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
+                this.env, typeName, SymTag.TYPE);
         if (symbol == symTable.notFoundSymbol) {
             // 3) Lookup the root scope for types such as 'error'
-            symbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
+                    this.env, typeName, SymTag.TYPE);
         }
 
         if (symbol == symTable.notFoundSymbol) {
@@ -346,13 +386,31 @@ public class SymbolResolver extends BLangNodeVisitor {
         return foundSymbol;
     }
 
-    private void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind) {
+    private void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind, SymbolEnv env) {
         Name typeName = names.fromTypeKind(typeKind);
-        BSymbol typeSymbol = lookupMemberSymbol(symTable.rootScope, typeName, SymTag.TYPE);
+        BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope,
+                env, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(typeNode.pos, diagCode, typeName);
         }
 
         resultType = typeNode.type = typeSymbol.type;
+    }
+
+    private void addNamespacesInScope(Map<Name, BXMLNSSymbol> namespaces, SymbolEnv env) {
+        if (env == null) {
+            return;
+        }
+        env.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol.kind == SymbolKind.XMLNS) {
+                BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
+                namespaces.put(name, nsSymbol);
+            }
+        });
+        addNamespacesInScope(namespaces, env.enclEnv);
+    }
+
+    private boolean isMemberAccessAllowed(SymbolEnv env, BSymbol symbol) {
+        return env.enclPkg.symbol.pkgID == symbol.pkgID || Symbols.isPublic(symbol);
     }
 }

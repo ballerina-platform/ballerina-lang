@@ -92,9 +92,8 @@ public class WorkerInfo implements AttributeInfoPool {
         return forkjoinInfoList.toArray(new ForkjoinInfo[0]);
     }
 
-    public int addForkJoinInfo(ForkjoinInfo forkjoinInfo) {
+    public void addForkJoinInfo(ForkjoinInfo forkjoinInfo) {
         forkjoinInfoList.add(forkjoinInfo);
-        return forkjoinInfoList.indexOf(forkjoinInfo);
     }
 
     public void setForkjoinInfos(ForkjoinInfo[] forkjoinInfos) {

@@ -33,6 +33,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> params;
     public List<BVarSymbol> retParams;
 
+    // This field is only applicable for functions at the moment.
+    public BVarSymbol receiverSymbol;
+
     public BInvokableSymbol(int tag,
                             int flags,
                             Name name,

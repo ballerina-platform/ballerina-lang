@@ -33,7 +33,8 @@ public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedSt
 
     public List<BLangExpression> textFragments;
     public QuoteType quoteType;
-
+    public BLangExpression concatExpr;
+    
     public BLangXMLQuotedString() {
         textFragments = new ArrayList<BLangExpression>();
     }

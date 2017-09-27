@@ -43,6 +43,11 @@ public class NodeUtils {
         return names.fromString(pkgName);
     }
 
+    public static Name getName(String localname, String namespaceURI) {
+        String qname = (namespaceURI == null ? "" : "{" + namespaceURI + "}") + localname;
+        return new Name(qname);
+    }
+
     public static PackageID getPackageID(Names names, List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
         List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).collect(Collectors.toList());
         Name version = names.fromIdNode(versionNode);
