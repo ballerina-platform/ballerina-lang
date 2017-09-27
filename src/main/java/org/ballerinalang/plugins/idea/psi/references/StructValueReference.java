@@ -26,6 +26,7 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -37,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -108,6 +110,11 @@ public class StructValueReference extends BallerinaElementReference {
                                 BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage, false);
                         results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
 
+                        Collection<EnumFieldNode> fieldDefinitionNodes =
+                                PsiTreeUtil.findChildrenOfType(resolvedPackage, EnumFieldNode.class);
+                        results.addAll(BallerinaCompletionUtils.createEnumFieldLookupElements(fieldDefinitionNodes,
+                                (IdentifierPSINode) resolvedElement));
+
                         List<IdentifierPSINode> globalVariables =
                                 BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage, false);
                         results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
@@ -124,6 +131,9 @@ public class StructValueReference extends BallerinaElementReference {
         if (currentPackage != null) {
             List<IdentifierPSINode> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage, true);
             results.addAll(BallerinaCompletionUtils.createFunctionLookupElements(functions));
+
+            List<IdentifierPSINode> enums = BallerinaPsiImplUtil.getAllEnumsFromPackage(currentPackage, true);
+            results.addAll(BallerinaCompletionUtils.createEnumLookupElements(enums));
 
             List<IdentifierPSINode> globalVariables =
                     BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage, true);

@@ -108,7 +108,7 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == MAP_STRUCT_LITERAL) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == CODE_BLOCK_BODY) {
+                } else if (childElementType == CODE_BLOCK_BODY || childElementType == ENUM_FIELD_LIST) {
                     indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == EXPRESSION_LIST) {
                     if (parentElementType == VARIABLE_REFERENCE) {

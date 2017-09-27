@@ -134,6 +134,7 @@ public class BallerinaTypes {
     public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
     public static final RuleIElementType CONNECTOR_VAR_DEF_STATEMENT =
             ruleIElementTypes.get(RULE_connectorVarDefStatement);
+    public static final RuleIElementType ENUM_FIELD_LIST = ruleIElementTypes.get(RULE_enumFieldList);
 
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);

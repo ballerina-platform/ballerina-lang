@@ -143,7 +143,8 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                 resourceDefinitionNode = PsiTreeUtil.getParentOfType(prevVisibleLeaf, ResourceDefinitionNode.class);
                 if (resourceDefinitionNode != null) {
                     return false;
-                }                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
+                }
+                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
                 if (nextVisibleLeaf == null || !(nextVisibleLeaf instanceof LeafPsiElement)) {
                     return false;
                 }

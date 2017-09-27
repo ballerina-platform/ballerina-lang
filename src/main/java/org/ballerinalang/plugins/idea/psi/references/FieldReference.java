@@ -22,6 +22,8 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
+import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -34,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FieldReference extends BallerinaElementReference {
@@ -122,6 +125,8 @@ public class FieldReference extends BallerinaElementReference {
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
         } else if (resolvedElementParent instanceof NameReferenceNode) {
             structDefinitionNode = BallerinaPsiImplUtil.findStructDefinition((IdentifierPSINode) resolvedElement);
+        } else if (resolvedElementParent instanceof EnumDefinitionNode) {
+            return ((EnumDefinitionNode) resolvedElementParent).resolve(identifier);
         }
         if (structDefinitionNode == null) {
             return null;
@@ -155,6 +160,7 @@ public class FieldReference extends BallerinaElementReference {
         }
         PsiElement resolvedElementParent = resolvedElement.getParent();
         StructDefinitionNode structDefinitionNode = null;
+        List<LookupElement> results = new LinkedList<>();
         // Resolve the corresponding resolvedElementParent to get the struct definition.
         if (resolvedElementParent instanceof VariableDefinitionNode
                 || resolvedElementParent instanceof CodeBlockParameterNode
@@ -172,14 +178,20 @@ public class FieldReference extends BallerinaElementReference {
                     resolvedElement = structName;
                 }
             }
+        } else if (resolvedElementParent instanceof EnumDefinitionNode) {
+            Collection<EnumFieldNode> fieldDefinitionNodes =
+                    PsiTreeUtil.findChildrenOfType(resolvedElementParent, EnumFieldNode.class);
+            results.addAll(BallerinaCompletionUtils.createEnumFieldLookupElements(fieldDefinitionNodes,
+                    (IdentifierPSINode) resolvedElement));
+            return results.toArray(new LookupElement[results.size()]);
         }
         if (structDefinitionNode == null) {
             return new LookupElement[0];
         }
         Collection<FieldDefinitionNode> fieldDefinitionNodes =
                 PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
-        List<LookupElement> results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
-                (IdentifierPSINode) resolvedElement, null);
+        results.addAll(BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                (IdentifierPSINode) resolvedElement, null));
 
         List<IdentifierPSINode> attachedFunctions =
                 BallerinaPsiImplUtil.getAttachedFunctions(structDefinitionNode);

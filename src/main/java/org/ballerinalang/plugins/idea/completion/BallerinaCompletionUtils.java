@@ -32,6 +32,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
+import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -731,6 +732,13 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    private static LookupElementBuilder createEnumFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                                     @NotNull IdentifierPSINode ownerName) {
+        return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
+                .withTypeText(ownerName.getText()).withIcon(BallerinaIcons.FIELD);
+    }
+
+    @NotNull
     private static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
                                                                  @NotNull TypeNameNode fieldType,
                                                                  @NotNull IdentifierPSINode ownerName) {
@@ -763,6 +771,22 @@ public class BallerinaCompletionUtils {
             }
             LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
                     definitionName, insertHandler);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
+    @NotNull
+    public static List<LookupElement> createEnumFieldLookupElements(@NotNull Collection<EnumFieldNode> enumFieldNodes,
+                                                                    @NotNull IdentifierPSINode definitionName) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (EnumFieldNode fieldDefinitionNode : enumFieldNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
+            if (fieldName == null) {
+                continue;
+            }
+            LookupElement lookupElement = BallerinaCompletionUtils.createEnumFieldLookupElement(fieldName,
+                    definitionName);
             lookupElements.add(lookupElement);
         }
         return lookupElements;

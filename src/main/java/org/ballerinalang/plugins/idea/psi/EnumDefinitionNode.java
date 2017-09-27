@@ -20,6 +20,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
@@ -28,6 +29,8 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 import javax.swing.Icon;
 
@@ -52,6 +55,16 @@ public class EnumDefinitionNode extends IdentifierDefSubtree implements TopLevel
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
+        Collection<EnumFieldNode> fields = PsiTreeUtil.findChildrenOfType(this,
+                EnumFieldNode.class);
+        for (EnumFieldNode field : fields) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(field, IdentifierPSINode.class);
+            if (fieldName != null) {
+                if (fieldName.getText().equals(element.getText())) {
+                    return fieldName;
+                }
+            }
+        }
         return null;
     }
 }

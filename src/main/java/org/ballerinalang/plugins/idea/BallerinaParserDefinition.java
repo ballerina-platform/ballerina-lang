@@ -269,8 +269,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StatementNode(node);
             case BallerinaParser.RULE_typeName:
                 return new TypeNameNode(node);
-            //            case BallerinaParser.RULE_actionInvocation:
-            //                return new ActionInvocationNode(node);
             case BallerinaParser.RULE_constantDefinition:
                 return new ConstantDefinitionNode(node);
             case BallerinaParser.RULE_structDefinition:
