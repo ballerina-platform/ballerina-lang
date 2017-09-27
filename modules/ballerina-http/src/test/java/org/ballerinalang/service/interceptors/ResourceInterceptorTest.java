@@ -30,7 +30,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.nio.file.NoSuchFileException;
 
@@ -58,28 +58,28 @@ public class ResourceInterceptorTest {
 
     @Test(priority = 0)
     public void testSuccessfulRequestIntercept() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (1) res2");
     }
 
     @Test(priority = 1)
     public void testFailedRequestIntercept() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login ");
     }
 
     @Test(priority = 2)
     public void testFailedRequestInterceptInvalidLogin() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "bob");
         cMsg.setHeader("password", "bob");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "invalid login bob");
     }
@@ -91,10 +91,10 @@ public class ResourceInterceptorTest {
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment2.yaml");
         BLangRuntimeRegistry.getInstance().initialize();
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (1)");
     }
@@ -116,10 +116,10 @@ public class ResourceInterceptorTest {
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment3.yaml");
         BLangRuntimeRegistry.getInstance().initialize();
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (1) res2 res1 (2)");
     }
@@ -131,17 +131,17 @@ public class ResourceInterceptorTest {
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment3.yaml");
         BLangRuntimeRegistry.getInstance().initialize();
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (1) res2 res1 (2)");
 
         cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        response = Services.invoke(cMsg);
+        response = Services.invokeNew(cMsg);
         value = response.getHeader("test");
         Assert.assertEquals(value, "req1 res1 (3) res2 res1 (4)");
     }
@@ -153,10 +153,10 @@ public class ResourceInterceptorTest {
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment4.yaml");
         BLangRuntimeRegistry.getInstance().initialize();
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         String value = ((StringDataSource) response.getMessageDataSource()).getValue();
         Assert.assertEquals(value, "ballerina.lang.errors:NullReferenceError");
         // TODO Fix this.
@@ -171,10 +171,10 @@ public class ResourceInterceptorTest {
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment5.yaml");
         BLangRuntimeRegistry.getInstance().initialize();
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
+        HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
-        CarbonMessage response = Services.invoke(cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(cMsg);
         Assert.assertNull(response);
     }
 

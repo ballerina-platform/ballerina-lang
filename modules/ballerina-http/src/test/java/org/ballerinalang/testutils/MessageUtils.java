@@ -26,6 +26,7 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,22 +45,22 @@ public class MessageUtils {
         return new DefaultCarbonMessage();
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method) {
         return generateHTTPMessage(path, method, null, null);
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
         return generateHTTPMessage(path, method, null, payload);
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method, String payload) {
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, String payload) {
         return generateHTTPMessage(path, method, null, new StringDataSource(payload));
     }
 
-    public static CarbonMessage generateHTTPMessage(String path, String method, List<Header> headers,
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
                                              BallerinaMessageDataSource payload) {
 
-        CarbonMessage carbonMessage = new DefaultCarbonMessage();
+        HTTPTestRequest carbonMessage = new HTTPTestRequest();
 
         // Set meta data
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
@@ -68,6 +69,7 @@ public class MessageUtils {
                                   Constants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
+        carbonMessage.setProperty(Constants.REQUEST_URL, path);
 
         // Set method
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
@@ -79,7 +81,7 @@ public class MessageUtils {
 
         // Set message body
         if (payload != null) {
-            payload.setOutputStream(carbonMessage.getOutputStream());
+            payload.setOutputStream(new HttpMessageDataStreamer(carbonMessage).getOutputStream());
             carbonMessage.setMessageDataSource(payload);
             carbonMessage.setAlreadyRead(true);
         }
@@ -136,5 +138,4 @@ public class MessageUtils {
                                   new LinkedList<>());
         return carbonMessage;
     }
-
 }

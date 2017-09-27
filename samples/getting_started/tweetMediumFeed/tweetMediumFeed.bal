@@ -1,10 +1,12 @@
-import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.lang.system;
 import ballerina.lang.xmls;
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.utils;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
+
 function main(string[] args) {
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector mediumEP = create http:ClientConnector("https://medium.com");
@@ -19,14 +21,14 @@ function main(string[] args) {
         string consumerSecret = args[1];
         string accessToken = args[2];
         string accessTokenSecret = args[3];
-        message request = {};
-        message mediumResponse = mediumEP.get("/feed/@wso2", request);
-        xml feedXML = messages:getXmlPayload(mediumResponse);
+        http:Request request = {};
+        http:Response mediumResponse = mediumEP.get("/feed/@wso2", request);
+        xml feedXML = response:getXmlPayload(mediumResponse);
         string title = xmls:getString(feedXML, "/rss/channel/item[1]/title/text()");
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
-        messages:setHeader(request, "Authorization", oauthHeader);
+        request:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(title);
-        message response = tweeterEP.post(tweetPath, request);
+        http:Response response = tweeterEP.post(tweetPath, request);
         system:println("Successfully tweeted: '" + title + "'");
         
     }

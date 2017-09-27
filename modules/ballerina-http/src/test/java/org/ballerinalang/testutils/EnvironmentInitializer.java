@@ -20,10 +20,8 @@ package org.ballerinalang.testutils;
 
 import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.services.MessageProcessor;
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -39,8 +37,7 @@ public class EnvironmentInitializer {
 
     public static ProgramFile setupProgramFile(String sourcePath) {
         // Initialize server connectors before starting the test cases
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
+        ServerConnectorRegistry.getInstance().initServerConnectors();
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
@@ -57,12 +54,9 @@ public class EnvironmentInitializer {
 
     public static void cleanup(ProgramFile programFile) {
         PackageInfo packageInfo = programFile.getEntryPackage();
-        for (ServiceInfo service : packageInfo.getServiceInfoEntries()) {
-            DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
-                dispatcher.serviceUnregistered(service);
-            });
+        for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
+            ServerConnectorRegistry.getInstance().unRegisterService(serviceInfo);
         }
-
     }
 
 }

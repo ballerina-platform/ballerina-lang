@@ -47,4 +47,8 @@ public class WebSocketConnectionManager {
     public void addConnection(String connectionID, BStruct wsConnection) {
         wsConnecionsMap.put(connectionID, wsConnection);
     }
+
+    public BStruct removeConnection(String connectionID) {
+        return wsConnecionsMap.remove(connectionID);
+    }
 }

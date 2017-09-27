@@ -75,8 +75,11 @@ public class Constants {
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
     public static final String ANN_CONFIG_ATTR_SCHEME = "scheme";
     public static final String ANN_CONFIG_ATTR_KEY_STORE_FILE = "keyStoreFile";
-    public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePass";
-    public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPass";
+    public static final String ANN_CONFIG_ATTR_KEY_STORE_PASS = "keyStorePassword";
+    public static final String ANN_CONFIG_ATTR_TRUST_STORE_FILE = "trustStoreFile";
+    public static final String ANN_CONFIG_ATTR_TRUST_STORE_PASS = "trustStorePassword";
+    public static final String ANN_CONFIG_ATTR_CERT_PASS = "certPassword";
+    public static final String ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT = "sslVerifyClient";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -125,7 +128,7 @@ public class Constants {
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
     public static final String TYPE_STRING = "string";
-
+    public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String HTTP_SESSION = "http_session";
 
     /**
@@ -157,4 +160,5 @@ public class Constants {
      * HTTP content-type application/x-www-form-urlencoded.
      */
     public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
+
 }

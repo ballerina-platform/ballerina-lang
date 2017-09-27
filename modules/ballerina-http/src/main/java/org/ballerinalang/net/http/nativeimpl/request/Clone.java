@@ -36,7 +36,8 @@ import org.ballerinalang.net.http.HttpUtil;
         functionName = "clone",
         args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Request",
+                structPackage = "ballerina.net.http")},
         isPublic = true
 )
 public class Clone  extends AbstractNativeFunction {

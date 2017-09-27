@@ -22,6 +22,9 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
@@ -34,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketServicesRegistry {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
     private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
     // Map<interface, Map<uri, service>>
@@ -60,18 +64,27 @@ public class WebSocketServicesRegistry {
         } else {
 
             String upgradePath = findFullWebSocketUpgradePath(service);
-            // TODO: Add properties to propMap after adding config annotation to WebSocket.
+            Annotation configAnnotation =
+                    service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
             Set<ListenerConfiguration> listenerConfigurationSet =
-                    HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
+                    HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
 
             for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-                String entryListenerInterface = listenerConfiguration.getHost() + ":" +
-                        listenerConfiguration.getPort();
+                String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
                 Map<String, WebSocketService> servicesOnInterface = serviceEndpoints
                         .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
-                servicesOnInterface.put(upgradePath, service);
+
                 HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
+                // Assumption : this is always sequential, no two simultaneous calls can get here
+                if (servicesOnInterface.containsKey(upgradePath)) {
+                    throw new BallerinaConnectorException(
+                            "service with base path :" + upgradePath + " already exists in listener : "
+                                    + entryListenerInterface);
+                }
+                servicesOnInterface.put(upgradePath, service);
             }
+
+            logger.info("Service deployed : " + service.getName() + " with context " + upgradePath);
         }
     }
 

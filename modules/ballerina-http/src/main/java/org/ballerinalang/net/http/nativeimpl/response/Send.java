@@ -45,8 +45,8 @@ public class Send extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct requestStruct = (BStruct) getRefArgument(context, 0);
-        context.getConnectorFuture().notifyReply(requestStruct);
+        BStruct responseStruct = (BStruct) getRefArgument(context, 0);
+        context.getConnectorFuture().notifyReply(responseStruct);
         return VOID_RETURN;
     }
 }

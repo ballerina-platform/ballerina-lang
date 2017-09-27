@@ -21,7 +21,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.net.ws.BallerinaWebSocketConnectorListener;
+import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -152,7 +152,7 @@ public class HttpConnectionManager {
                     serverConnectorEntry.getValue();
             ServerConnectorFuture connectorFuture = serverConnector.start();
             connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener());
-            connectorFuture.setWSConnectorListener(new BallerinaWebSocketConnectorListener());
+            connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
             startedConnectors.add(serverConnector);
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
@@ -160,10 +160,10 @@ public class HttpConnectionManager {
         return startedConnectors;
     }
 
-    public HttpClientConnector getHTTPHttpClientConnector(BConnector bConnector) {
+    public HttpClientConnector getHTTPHttpClientConnector(String scheme, BConnector bConnector) {
         Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(trpConfig, "http");
+                HTTPConnectorUtil.getSenderConfiguration(trpConfig, scheme);
 
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);

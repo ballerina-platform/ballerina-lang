@@ -72,7 +72,7 @@ public class ConnectionStoreTest {
         String textSent;
         //Sending message to client 1 and check
         textSent = "Hi store 1";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", textSent));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), textSent);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), null);
@@ -80,7 +80,7 @@ public class ConnectionStoreTest {
 
         //Sending message to client 2 and check
         textSent = "Hi store 2";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/2", "POST", textSent));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/2", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), textSent);
         Assert.assertEquals(session3.getTextReceived(), null);
@@ -88,7 +88,7 @@ public class ConnectionStoreTest {
 
         //Sending message to client 3 and check
         textSent = "Hi store 3";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/3", "POST", textSent));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/3", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), textSent);
@@ -96,7 +96,7 @@ public class ConnectionStoreTest {
 
         //Sending message to client 4 and check
         textSent = "Hi store 4";
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/4", "POST", textSent));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/4", "POST", textSent));
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), null);
@@ -105,8 +105,8 @@ public class ConnectionStoreTest {
 
     @Test(priority = 1)
     public void removeConnection() {
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/rm/1", "GET"));
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", "test"));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/rm/1", "GET"));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/1", "POST", "test"));
 
         Assert.assertEquals(session1.getTextReceived(), null);
         Assert.assertEquals(session2.getTextReceived(), null);
@@ -122,7 +122,7 @@ public class ConnectionStoreTest {
         Assert.assertTrue(session3.isOpen());
         Assert.assertTrue(session4.isOpen());
 
-        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/close/2", "GET"));
+        Services.invokeNew(MessageUtils.generateHTTPMessage(httpBasePath + "/close/2", "GET"));
 
         // Check post conditions
         Assert.assertTrue(session1.isOpen());

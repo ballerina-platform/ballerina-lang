@@ -26,10 +26,8 @@ import org.ballerinalang.connector.api.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +83,7 @@ public class HTTPServicesRegistry {
         Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
         String basePath = discoverBasePathFrom(service, annotation);
-        Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotation);
+        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
 
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
             String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
@@ -113,7 +111,7 @@ public class HTTPServicesRegistry {
         Annotation annotation = service.getAnnotation(Constants.HTTP_PACKAGE_PATH, Constants.ANN_NAME_CONFIG);
 
         String basePath = discoverBasePathFrom(service, annotation);
-        Set<ListenerConfiguration> listenerConfigurationSet = getDefaultOrDynamicListenerConfig(annotation);
+        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
 
         for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
             String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
@@ -126,24 +124,6 @@ public class HTTPServicesRegistry {
                 }
             }
         }
-    }
-
-    private Set<ListenerConfiguration> getListenerConfigurationsFrom(Map<String, Map<String, String>> listenerProp) {
-        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
-        for (Map.Entry<String, Map<String, String>> entry : listenerProp.entrySet()) {
-            Map<String, String> propMap = entry.getValue();
-            String entryListenerInterface = getListenerInterface(propMap);
-            ListenerConfiguration listenerConfiguration = HTTPConnectorUtil
-                    .buildListenerConfig(entryListenerInterface, propMap);
-            listenerConfigurationSet.add(listenerConfiguration);
-        }
-        return listenerConfigurationSet;
-    }
-
-    private String getListenerInterface(Map<String, String> parameters) {
-        String host = parameters.get("host") != null ? parameters.get("host") : "0.0.0.0";
-        int port = Integer.parseInt(parameters.get("port"));
-        return host + ":" + port;
     }
 
     private String discoverBasePathFrom(Service service, Annotation annotation) {
@@ -162,98 +142,5 @@ public class HTTPServicesRegistry {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
         return basePath;
-    }
-
-    private Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
-        Map<String, Map<String, String>> listenerProp = buildListerProperties(annotationInfo);
-
-        Set<ListenerConfiguration> listenerConfigurationSet;
-        if (listenerProp == null || listenerProp.isEmpty()) {
-            listenerConfigurationSet =
-                    HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        } else {
-            listenerConfigurationSet = getListenerConfigurationsFrom(listenerProp);
-        }
-        return listenerConfigurationSet;
-    }
-
-    /**
-     * Method to build map of listener property maps given the service annotation attachment.
-     * This will first look for the port property and if present then it will get other properties,
-     * and create the property map.
-     *
-     * @param configInfo            In which listener configurations are specified.
-     * @return listenerConfMap      With required properties
-     */
-    private Map<String, Map<String, String>> buildListerProperties(Annotation configInfo) {
-        if (configInfo == null) {
-            return null;
-        }
-        //key - listenerId, value - listener config property map
-        Map<String, Map<String, String>> listenerConfMap = new HashMap<>();
-
-
-        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HOST);
-        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_PORT);
-        AnnAttrValue httpsPortAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_HTTPS_PORT);
-        AnnAttrValue keyStoreFileAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttrValue keyStorePassAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttrValue certPassAttrVal = configInfo.getAnnAttrValue(Constants.ANN_CONFIG_ATTR_CERT_PASS);
-
-        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
-            Map<String, String> httpPropMap = new HashMap<>();
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(portAttrVal.getIntValue()));
-            httpPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTP);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
-            } else {
-                httpPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
-            }
-            listenerConfMap.put(buildInterfaceName(httpPropMap), httpPropMap);
-        }
-
-        if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
-            Map<String, String> httpsPropMap = new HashMap<>();
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_PORT, Long.toString(httpsPortAttrVal.getIntValue()));
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_SCHEME, Constants.PROTOCOL_HTTPS);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, hostAttrVal.getStringValue());
-            } else {
-                httpsPropMap.put(Constants.ANN_CONFIG_ATTR_HOST, Constants.HTTP_DEFAULT_HOST);
-            }
-            if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore location must be provided for protocol https");
-            }
-            if (keyStorePassAttrVal == null || keyStorePassAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore password value must be provided for protocol https");
-            }
-            if (certPassAttrVal == null || certPassAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Certificate password value must be provided for protocol https");
-            }
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            httpsPropMap.put(Constants.ANN_CONFIG_ATTR_CERT_PASS, certPassAttrVal.getStringValue());
-            listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
-        }
-        return listenerConfMap;
-    }
-
-    /**
-     * Build interface name using schema and port.
-     *
-     * @param propMap which has schema and port
-     * @return interfaceName
-     */
-    private String buildInterfaceName(Map<String, String> propMap) {
-        StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_SCHEME));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_HOST));
-        iName.append("_");
-        iName.append(propMap.get(Constants.ANN_CONFIG_ATTR_PORT));
-        return iName.toString();
     }
 }

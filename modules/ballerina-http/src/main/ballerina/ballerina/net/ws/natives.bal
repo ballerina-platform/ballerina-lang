@@ -62,12 +62,17 @@ native function isOpen(Connection conn) (boolean);
 
 @doc:Description {value:"Get a map of all the upgrade headers of the connection"}
 @doc:Return {value:"map<string>: Map of all the headers received in the connection upgrade"}
-native function getUpgradeHeaders(Connection conn) (map<string>);
+native function getUpgradeHeaders(Connection conn) (map);
 
 @doc:Description {value:"Get a value of a header"}
 @doc:Param {value:"key: Key of the header which the value should be retrieved"}
 @doc:Return {value:"string: Value of the key if exists else null"}
 native function getUpgradeHeader(Connection conn, string key) (string);
+
+@doc:Description {value:"Get parent connection if exisits"}
+@doc:Param {value:"conn: connection which the parent connection should be retrieved"}
+@doc:Return {value:"Connection: The parent connection if exisits else null"}
+native function getParentConnection(Connection conn) (Connection);
 
 @doc:Description {value:"Push text to the connection"}
 @doc:Param {value:"text: Text which should be sent"}
@@ -82,32 +87,24 @@ native function pushBinary(Connection conn, blob data);
 @doc:Param {value:"reason: Reason for closing the connection"}
 native function closeConnection(Connection conn, int statusCode, string reason);
 
+
+@doc:Description {value:"Configuration struct for WebSocket client connection"}
+struct ClientConnectorConfig {
+    string [] subProtocols;
+    string parentConnectionID;
+    map<string> customHeaders;
+    int idleTimeoutInSeconds = -1;
+}
+
 @doc:Description {value:"WebSocket client connector for connecting to WebSocket backend"}
 @doc:Param {value:"url: WebSocket url for the backend"}
 @doc:Param {value:"callbackService: Callback service to listen to the incoming messages from the backend"}
 connector ClientConnector(string url, string callbackService) {
-    @doc:Description {value:"Set the supportable sub protocols from the client"}
-    @doc:Param {value:"subProtocols: String array which represent the sub protcols which can be negotiated by the client"}
-    native action setSubProtocols(string[] subProtocols);
-
-    @doc:Description {value:"Set parent connection for the client connector if any association with another WebSocket connectio is needed after the connection is established"}
-    @doc:Param {value:"conn: Connection which should be accotiated with the connection initiating from the client connector"}
-    native action setParentConnection(Connection conn);
-
-    @doc:Description {value:"set custom headers"}
-    @doc:Param {value:"customHeaders: custom headers which should be added."}
-    native action addCustomHeaders(map<string> customHeaders);
-
-    @doc:Description {value:"Add custom header"}
-    @doc:Param {value:"key: key of the header"}
-    @doc:Param {value:"value: value of the header"}
-    native action addCustomHeader(string key, string value);
-
-    @doc:Description {value:"Set Idle timeout"}
-    @doc:Param {value:"value: setIdleTimeout"}
-    native action setIdleTimeoutMilli(int timeoutInMilli);
 
     @doc:Description {value:"Connect to remote endpoint"}
     @doc:Return {value:"Connection: New WebSocket connection for the connected backend"}
-    native action connect() (Connection);
+    native action connect(ClientConnectorConfig config) (Connection);
+
+    @doc:Description {value:"Connect to remote endpoint with default configuration"}
+    native action connectWithDefault() (Connection);
 }

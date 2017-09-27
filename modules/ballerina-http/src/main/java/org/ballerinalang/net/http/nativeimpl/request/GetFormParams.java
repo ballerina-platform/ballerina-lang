@@ -21,8 +21,6 @@ package org.ballerinalang.net.http.nativeimpl.request;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.util.MessageUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -34,9 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Get the Form params from HTTP message and return a map.
@@ -64,13 +60,14 @@ public class GetFormParams extends AbstractNativeFunction {
                 if (httpCarbonMessage.isAlreadyRead()) {
                     payload = httpCarbonMessage.getMessageDataSource().getMessageAsString();
                 } else {
-                    payload = MessageUtils.getStringFromInputStream(httpCarbonMessage.getInputStream());
+                    payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
+                            .getInputStream());
                     StringDataSource stringDataSource = new StringDataSource(payload);
                     httpCarbonMessage.setMessageDataSource(stringDataSource);
                     httpCarbonMessage.setAlreadyRead(true);
                 }
                 if (!payload.isEmpty()) {
-                    return getBValues(processFormParams(payload));
+                    return getBValues(HttpUtil.getParamMap(payload));
                 } else {
                     throw new BallerinaException("empty message payload");
                 }
@@ -80,19 +77,5 @@ public class GetFormParams extends AbstractNativeFunction {
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving form param from message: " + e.getMessage());
         }
-    }
-
-    private BMap<String, BString> processFormParams(String payload) throws UnsupportedEncodingException {
-        BMap<String, BString> formParams = new BMap<>();
-        String[] entries = payload.split("&");
-        for (String entry : entries) {
-            int index = entry.indexOf('=');
-            if (index != -1) {
-                String name = entry.substring(0, index).trim();
-                String value = URLDecoder.decode(entry.substring(index + 1).trim(), "UTF-8");
-                formParams.put(name, new BString(value));
-            }
-        }
-        return formParams;
     }
 }

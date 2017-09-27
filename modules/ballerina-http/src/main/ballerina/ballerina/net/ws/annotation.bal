@@ -5,10 +5,11 @@ annotation configuration attach service {
     string[] subProtocols;
     string host;
     int port;
+    int wssPort;
     int idleTimeOutSeconds;
     string keyStoreFile;
-    string keyStorePass;
-    string certPass;
+    string keyStorePassword;
+    string certPassword;
 }
 
 annotation ClientService attach service {

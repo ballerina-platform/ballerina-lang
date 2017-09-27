@@ -33,11 +33,6 @@ native function setReasonPhrase (http:Response res, string reasonPhrase);
 @doc:Return { value:"json: The JSON reresentation of the message payload" }
 native function getJsonPayload (http:Response res) (json);
 
-@doc:Description { value:"Gets the message payload in JSON format"}
-@doc:Param { value:"res: The response message" }
-@doc:Return { value:"json: The JSON reresentation of the message payload" }
-native function getJsonPayload (http:Response res) (json);
-
 @doc:Description { value:"Gets the message payload in XML format"}
 @doc:Param { value:"res: The response message" }
 @doc:Return { value:"xml: The XML representation of the message payload" }
@@ -107,22 +102,16 @@ native function removeAllHeaders (http:Response res);
 @doc:Param { value:"payload: The XML payload object" }
 native function setXmlPayload (http:Response res, xml payload);
 
-@doc:Description { value:"Clones and creates a new instance of a message object"}
+@doc:Description { value:"Clones and creates a new instance of a response message"}
 @doc:Param { value:"res: The response message" }
-@doc:Return { value:"message: The new instance of the message object " }
-native function clone (http:Response res) (message);
+@doc:Return { value:"response: The new instance of the response message" }
+native function clone (http:Response res) (http:Response);
 
 @doc:Description { value:"Sets the value of a transport header"}
 @doc:Param { value:"res: The response message" }
 @doc:Param { value:"key: The header name" }
 @doc:Param { value:"value: The header value" }
 native function setHeader (http:Response res, string key, string value);
-
-@doc:Description { value:"To get the value for a string property in a map type message"}
-@doc:Param { value:"res: The response message" }
-@doc:Param { value:"propertyName: Name of the property" }
-@doc:Return { value:"string: The value of the map property" }
-native function getStringValue (http:Response res, string propertyName) (string);
 
 @doc:Description { value:"To get the value for a string property in a map type message"}
 @doc:Param { value:"res: The response message" }
