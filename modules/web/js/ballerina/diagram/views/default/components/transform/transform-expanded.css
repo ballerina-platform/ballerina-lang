@@ -97,7 +97,7 @@
 
 .transform-edit-panel .react-autosuggest__input {
     padding-left: 10px;
-    height: 23px;
+    height: 22px;
     width: 100%;
     background-color: #f3f3f3;
     border: 1px solid;
@@ -107,7 +107,7 @@
 .transform-edit-panel .react-autosuggest__container {
     width: calc(33% - 12px);
     float: left;
-    padding-top: 3px;
+    padding-top: 4px;
 }
 
 .transform-edit-panel .react-autosuggest__suggestion {
