@@ -12,21 +12,6 @@ function workerDeclTest() {
    }
 }
 
-function simpleWorkerMessagePassingTest() {
-   worker w1 {
-     int a = 10;
-     a -> w2;
-     a <- w2;
-   }
-   worker w2 {
-     int a = 0;
-     int b = 15;
-     a <- w1;
-     b -> w1;
-   }
-}
-
-
 function forkJoinWithMessageParsingTest() (int) {
     int x = 5;
     fork {
@@ -101,5 +86,19 @@ function forkJoinWithMultipleForkMessages() (int) {
 	   }
 	} join (all) (map results) {  system:println(results);  }
 	return x;
+}
+
+function simpleWorkerMessagePassingTest() {
+   worker w1 {
+     int a = 10;
+     a -> w2;
+     a <- w2;
+   }
+   worker w2 {
+     int a = 0;
+     int b = 15;
+     a <- w1;
+     b -> w1;
+   }
 }
 

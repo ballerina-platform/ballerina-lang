@@ -30,4 +30,12 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(kind, flags, name, pkgID, type, owner);
     }
+
+    @Override
+    public String toString() {
+        if (this.pkgID == PackageID.DEFAULT) {
+            return this.name.value;
+        }
+        return this.pkgID + ":" + this.name;
+    }
 }

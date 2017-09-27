@@ -193,7 +193,6 @@ public class BLangVM {
                 VMDebugManager.getInstance().releaseExecutionLock();
             }
         } catch (Throwable e) {
-            e.printStackTrace();
             String message;
             if (e.getMessage() == null) {
                 message = "unknown error occurred";
@@ -940,7 +939,6 @@ public class BLangVM {
             case InstructionCodes.RLOAD:
                 lvIndex = operands[0];
                 i = operands[1];
-                System.out.println("X: " + sf.refRegs.length + ":" + sf.refLocalVars.length + ":" + i + ":" + lvIndex);
                 sf.refRegs[i] = sf.refLocalVars[lvIndex];
                 break;
             case InstructionCodes.IALOAD:
@@ -2288,7 +2286,7 @@ public class BLangVM {
 
                 xmlVal = (BXML<?>) sf.refRegs[i];
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
-                xmlVal.setChildren(child);
+                xmlVal.addChildren(child);
                 break;
         }
     }
@@ -2691,15 +2689,19 @@ public class BLangVM {
             String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
-                //resultMsgs.add(res);
+                WorkerResult wr = invokeAnyWorker(workerRunnerList, timeout);
+                if (wr != null) {
+                    resultMsgs.add(wr);
+                }
             } else {
                 List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
-                //resultMsgs.add(res);
+                WorkerResult wr = invokeAnyWorker(workerRunnersSpecified, timeout);
+                if (wr != null) {
+                    resultMsgs.add(wr);
+                }
             }
         } else {
             String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
@@ -2770,7 +2772,9 @@ public class BLangVM {
                 }
 
             }).forEach((WorkerResult b) -> {
-                result.add(b);
+                if (b != null) {
+                    result.add(b);
+                }
             });
         } catch (InterruptedException e) {
             return result;

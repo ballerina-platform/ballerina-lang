@@ -17,30 +17,40 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
  */
 public class BLangXMLElementLiteral extends BLangExpression implements XMLElementLiteralNode {
 
-    public ExpressionNode startTagName;
-    public ExpressionNode endTagName;
-    public List<XMLAttributeNode> attributes;
-    public List<ExpressionNode> children;
-    public List<XMLAttributeNode> namespaces;
-    public ExpressionNode defaultNamespaceUri;
+    public BLangExpression startTagName;
+    public BLangExpression endTagName;
+    public List<BLangXMLAttribute> attributes;
+    public List<BLangExpression> children;
+    public Map<Name, BXMLNSSymbol> namespaces;
+    public BXMLNSSymbol defaultNsSymbol;
+    public boolean isRoot;
+    public Scope scope;
+    public List<BLangExpression> modifiedChildren;
     
     public BLangXMLElementLiteral() {
-        attributes = new ArrayList<XMLAttributeNode>();
-        children = new ArrayList<ExpressionNode>();
+        attributes = new ArrayList<BLangXMLAttribute>();
+        children = new ArrayList<BLangExpression>();
+        namespaces = new HashMap<Name, BXMLNSSymbol>();
     }
 
     @Override
@@ -50,7 +60,7 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
 
     @Override
     public void setStartTagName(ExpressionNode startTagName) {
-        this.startTagName = startTagName;
+        this.startTagName = (BLangExpression) startTagName;
     }
 
     @Override
@@ -60,47 +70,37 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
 
     @Override
     public void setEndTagName(ExpressionNode endTagName) {
-        this.endTagName = endTagName;
+        this.endTagName = (BLangExpression) endTagName;
     }
 
     @Override
-    public List<XMLAttributeNode> getAttributes() {
+    public List<BLangXMLAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
     public void addAttribute(XMLAttributeNode attribute) {
-        this.attributes.add(attribute);
+        this.attributes.add((BLangXMLAttribute) attribute);
     }
 
     @Override
-    public List<ExpressionNode> getContent() {
+    public List<BLangExpression> getContent() {
         return children;
     }
 
     @Override
     public void addChild(ExpressionNode expr) {
-        this.children.add(expr);
+        this.children.add((BLangExpression) expr);
     }
 
     @Override
-    public List<XMLAttributeNode> getNamespaces() {
+    public Map<Name, ? extends Symbol> getNamespaces() {
         return namespaces;
     }
 
     @Override
-    public void addNamespace(XMLAttributeNode namespace) {
-        this.namespaces.add(namespace);
-    }
-
-    @Override
-    public ExpressionNode getDefaultNamespaceUri() {
-        return defaultNamespaceUri;
-    }
-
-    @Override
-    public void setDefaultNamespaceUri(ExpressionNode defaultNamespaceUri) {
-        this.defaultNamespaceUri = defaultNamespaceUri;
+    public void addNamespace(Name prefix, Symbol namespaceUri) {
+        this.namespaces.put(prefix, (BXMLNSSymbol) namespaceUri);
     }
 
     @Override
