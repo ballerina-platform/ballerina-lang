@@ -1,17 +1,17 @@
 package ballerina.doc;
 
-annotation Description {
+public annotation Description {
     string value;
 }
 
-annotation Param attach resource, function, connector, action, typemapper {
+public annotation Param attach resource, function, connector, action, typemapper {
     string value;
 }
 
-annotation Return attach function, action, typemapper {
+public annotation Return attach function, action, typemapper {
     string value;
 }
 
-annotation Field attach struct {
+public annotation Field attach struct {
     string value;
 }
