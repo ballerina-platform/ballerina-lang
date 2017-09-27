@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -46,10 +48,13 @@ public class Compiler {
     private CompilerOptions options;
     private DiagnosticLog dlog;
     private PackageLoader pkgLoader;
+    private SymbolTable symbolTable;
+    private SymbolEnter symbolEnter;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
+    private BuiltinPackageLoader builtinPackageLoader;
 
     private CompilerPhase compilerPhase;
     private ProgramFile programFile;
@@ -69,11 +74,14 @@ public class Compiler {
         this.options = CompilerOptions.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
+        this.builtinPackageLoader = BuiltinPackageLoader.getInstance(context);
         this.compilerPhase = getCompilerPhase();
     }
 
@@ -117,7 +125,7 @@ public class Compiler {
         if (stopCompilation(CompilerPhase.DEFINE)) {
             return null;
         }
-
+        builtinPackageLoader.loadBuiltinPackage(symbolTable);
         return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
     }
 
@@ -150,6 +158,7 @@ public class Compiler {
             return;
         }
 
+        builtinPackageLoader.mergePackages(symbolEnter);
         programFile = this.codeGenerator.generate(pkgNode);
 
         try {
