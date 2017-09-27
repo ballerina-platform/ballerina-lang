@@ -352,7 +352,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BTypeSymbol connSymbol = (BTypeSymbol) symbol;
-//        cIExpr.symbol = connSymbol;
         List<BType> paramTypes = ((BConnectorType) connSymbol.type).paramTypes;
 
         if (paramTypes.size() > cIExpr.argsExpr.size()) {
@@ -699,22 +698,13 @@ public class TypeChecker extends BLangNodeVisitor {
         return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 
-    private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name funcName) {
+    private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name connName) {
         int expected = expTypes.size();
         if (expTypes.size() > 1) {
-            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, funcName);
+            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, connName);
             resultTypes = getListWithErrorTypes(expected);
             return;
         }
-        if (expected == 0) {
-            // This could be from a expression statement. e.g foo();
-            if (this.env.node.getKind() != NodeKind.EXPRESSION_STATEMENT) {
-                dlog.error(iExpr.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, funcName);
-            }
-            resultTypes = new ArrayList<>(0);
-            return;
-        }
-
         resultTypes = types.checkTypes(iExpr, Lists.of(actualType), expTypes);
     }
 

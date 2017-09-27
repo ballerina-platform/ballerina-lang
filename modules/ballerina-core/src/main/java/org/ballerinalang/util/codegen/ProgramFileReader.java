@@ -440,9 +440,9 @@ public class ProgramFileReader {
 //            }
 //
 //            connectorInfo.setMethodTableIndex(methodTableInteger);
-
-            boolean isFilterConnector = dataInStream.readBoolean();
-            connectorInfo.setFilterConnector(isFilterConnector);
+//
+//            boolean isFilterConnector = dataInStream.readBoolean();
+//            connectorInfo.setFilterConnector(isFilterConnector);
 
             // Read action info entries
             int actionCount = dataInStream.readShort();

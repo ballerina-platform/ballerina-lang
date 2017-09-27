@@ -309,8 +309,8 @@ public class ProgramFileWriter {
 //            dataOutStream.writeInt(s);
 //            dataOutStream.writeInt(methodTable.get(s));
 //        }
-
-        dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
+//
+//        dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
 
         ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);

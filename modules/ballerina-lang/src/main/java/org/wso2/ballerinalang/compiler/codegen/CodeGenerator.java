@@ -800,7 +800,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangConnectorInit cIExpr) {
         BConnectorType connectorType = (BConnectorType) cIExpr.type;
         BTypeSymbol connectorSymbol = connectorType.tsymbol;
-        BPackageSymbol pkgSymbol = (BPackageSymbol) connectorSymbol.owner;
 
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, connectorSymbol.pkgID);
         int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorType.tsymbol.name.value);
@@ -1452,7 +1451,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create the init function info
         BLangFunction connectorInitFunction = (BLangFunction) connectorNode.getInitFunction();
         createFunctionInfoEntry(connectorInitFunction);
-        connectorInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(connectorInitFunction.name.toString());
         this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
         // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
