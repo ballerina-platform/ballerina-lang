@@ -179,11 +179,11 @@ class ToolView extends React.Component {
      */
     render() {
         const tool = this.props.tool;
-        let toolTip = '';
-        let toolDef = '';
+        let toolTip;
+        let toolDef;
         if (this.props.toolOrder === 'horizontal') {
-            toolTip = tool.get('name');
-            toolDef = tool.get('definition');
+            toolTip = tool.get('name') || '';
+            toolDef = tool.get('definition') || '';
             return (
                 <div
                     className="tool-block tool-container"
