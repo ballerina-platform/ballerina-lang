@@ -133,7 +133,7 @@ service<http> echo11 {
     }
     resource echo13 (http:Request req, http:Response res) {
         map params = request:getQueryParams(req);
-        var bar, _ = (string)params.foo;
+        var bar, _ = (int)params.foo;
         json responseJson = {"echo13":bar};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -145,7 +145,7 @@ service<http> echo11 {
     }
     resource echo14 (http:Request req, http:Response res) {
         map params = request:getQueryParams(req);
-        var bar, _ = (string)params.foo;
+        var bar, _ = (float)params.foo;
         json responseJson = {"echo14":bar};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -157,7 +157,7 @@ service<http> echo11 {
     }
     resource echo15 (http:Request req, http:Response res) {
         map params = request:getQueryParams(req);
-        var bar, _ = (string)params.foo;
+        var bar, _ = (boolean)params.foo;
         json responseJson = {"echo15":bar};
         response:setJsonPayload(res, responseJson);
         response:send(res);

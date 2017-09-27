@@ -25,6 +25,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -375,15 +377,33 @@ public class HttpUtil {
         return AbstractNativeFunction.VOID_RETURN;
     }
 
-    public static BMap<String, BString> getParamMap(String payload) throws UnsupportedEncodingException {
-        BMap<String, BString> params = new BMap<>();
+    public static BMap<String, BValue> getParamMap(String payload) throws UnsupportedEncodingException {
+        BMap<String, BValue> params = new BMap<>();
         String[] entries = payload.split("&");
         for (String entry : entries) {
             int index = entry.indexOf('=');
             if (index != -1) {
+                BValue bValue;
                 String name = entry.substring(0, index).trim();
                 String value = URLDecoder.decode(entry.substring(index + 1).trim(), "UTF-8");
-                params.put(name, new BString(value));
+                if (value.matches("")) {
+                    params.put(name, new BString(""));
+                    continue;
+                }
+                if (value.matches("[0-9.]*")) {
+                    if (value.contains(".")) {
+                        bValue = new BFloat(Double.valueOf(value));
+                    } else {
+                        bValue = new BInteger(Integer.valueOf(value));
+                    }
+                } else {
+                    if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+                        bValue = new BBoolean(Boolean.valueOf(value));
+                    } else {
+                        bValue = new BString(value);
+                    }
+                }
+                params.put(name, bValue);
             }
         }
         return params;
