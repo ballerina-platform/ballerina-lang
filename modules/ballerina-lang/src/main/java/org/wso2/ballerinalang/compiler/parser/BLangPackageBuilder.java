@@ -534,7 +534,7 @@ public class BLangPackageBuilder {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.packageIdentifier = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         varRef.variableName = (BLangIdentifier) nameReference.name;
         this.exprNodeStack.push(varRef);
     }

@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -285,6 +286,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         connectorType.pos = env.node.pos;
         connectorType.typeName = ((BLangConnector) env.node).name;
+        connectorType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         connectorParam.setTypeNode(connectorType);
         actionNode.connector = connectorParam;
 
@@ -588,6 +590,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         connectorType.pos = connector.pos;
         connectorType.typeName = connector.name;
+        connectorType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         param.setTypeNode(connectorType);
         initFunction.addParameter(param);
         //Add connector level variables to the init function
@@ -616,6 +619,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .createSimpleVariableReferenceNode();
         varRef.pos = variableDef.pos;
         varRef.variableName = variableDef.var.name;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         assignmentStmt.addVariable(varRef);
         return assignmentStmt;
     }
