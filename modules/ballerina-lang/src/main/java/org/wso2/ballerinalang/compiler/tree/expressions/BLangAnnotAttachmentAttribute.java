@@ -52,7 +52,7 @@ public class BLangAnnotAttachmentAttribute extends BLangExpression implements An
 
     @Override
     public void setValue(AnnotationAttachmentAttributeValueNode value) {
-        this.value = (BLangAnnotAttachmentAttributeValue)value;
+        this.value = (BLangAnnotAttachmentAttributeValue) value;
     }
 
     @Override

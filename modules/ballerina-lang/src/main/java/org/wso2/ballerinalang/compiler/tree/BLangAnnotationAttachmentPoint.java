@@ -56,6 +56,9 @@ public class BLangAnnotationAttachmentPoint {
         return true;
     }
 
+    /**
+     * Enum to represent attachment point.
+     */
     public enum AttachmentPoint {
         SERVICE("service"),
         RESOURCE("resource"),

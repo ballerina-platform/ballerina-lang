@@ -24,18 +24,18 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -308,7 +308,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             }
                         } else {
                             this.typeChecker.checkExpr((BLangExpression) value.value,
-                                    env, Lists.of(((BArrayType) attributeSymbol.type).eType), DiagnosticCode.INCOMPATIBLE_TYPES);
+                                    env, Lists.of(((BArrayType) attributeSymbol.type).eType),
+                                    DiagnosticCode.INCOMPATIBLE_TYPES);
                         }
                     });
                 } else {
@@ -334,7 +335,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
-    private void populateDefaultValues(BLangAnnotationAttachment annAttachmentNode, BAnnotationSymbol annotationSymbol) {
+    private void populateDefaultValues(BLangAnnotationAttachment annAttachmentNode,
+                                       BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
 
             if (annAttachmentNode.geAttributes().size() > 0) {

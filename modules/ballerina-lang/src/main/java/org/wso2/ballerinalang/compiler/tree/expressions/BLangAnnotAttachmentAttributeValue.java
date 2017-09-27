@@ -55,7 +55,7 @@ public class BLangAnnotAttachmentAttributeValue extends BLangExpression
 
     @Override
     public void addValue(AnnotationAttachmentAttributeValueNode value) {
-        this.arrayValues.add((BLangAnnotAttachmentAttributeValue)value);
+        this.arrayValues.add((BLangAnnotAttachmentAttributeValue) value);
     }
 
     @Override

@@ -45,8 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -196,7 +196,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
         BSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
-                fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID, annotationAttribute.type, env.scope.owner);
+                fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
+                annotationAttribute.type, env.scope.owner);
         ((BAnnotationAttributeSymbol) annotationAttributeSymbol).expr = annotationAttribute.expr;
         annotationAttribute.symbol = annotationAttributeSymbol;
         ((BAnnotationSymbol) env.scope.owner).attributes.add((BAnnotationAttributeSymbol) annotationAttributeSymbol);
