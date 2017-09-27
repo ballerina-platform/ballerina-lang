@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -55,9 +57,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -180,9 +187,20 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        throw new AssertionError();
+        // Create namespace symbol
+        BXMLNSSymbol xmlnsSymbol = new BXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix),
+                (String) xmlnsNode.namespaceURI.value, env.enclPkg.symbol.pkgID, env.scope.owner);
+        xmlnsSymbol.definedInline = false;
+        xmlnsNode.symbol = xmlnsSymbol;
+
+        // Define it in the enclosing scope
+        defineSymbol(xmlnsNode.pos, xmlnsSymbol);
     }
 
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        defineNode(xmlnsStmtNode.xmlnsDecl, env);
+    }
+    
     @Override
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = Symbols.createStructSymbol(Flags.asMask(structNode.flagSet),
@@ -279,6 +297,43 @@ public class SymbolEnter extends BLangNodeVisitor {
         varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varType, varName, env);
     }
 
+    public void visit(BLangXMLAttribute bLangXMLAttribute) {
+        if (!(bLangXMLAttribute.name.getKind() == NodeKind.XML_QNAME)) {
+            return;
+        }
+
+        BLangXMLQName qname = (BLangXMLQName) bLangXMLAttribute.name;
+
+        // If the attribute is not an in-line namespace declaration, check for duplicate attributes.
+        // If no duplicates, then define this attribute symbol.
+        if (!bLangXMLAttribute.isNamespaceDeclr) {
+            BXMLAttributeSymbol attrSymbol = new BXMLAttributeSymbol(qname.localname.value, qname.namespaceURI,
+                    env.enclPkg.symbol.pkgID, env.scope.owner);
+            if (symResolver.checkForUniqueMemberSymbol(bLangXMLAttribute.pos, env, attrSymbol)) {
+                env.scope.define(attrSymbol.name, attrSymbol);
+                bLangXMLAttribute.symbol = attrSymbol;
+            }
+            return;
+        }
+
+        List<BLangExpression> exprs = bLangXMLAttribute.value.textFragments;
+        String nsURI = null;
+
+        // We reach here if the attribute is an in-line namesapce declaration.
+        // Get the namespace URI, only if it is statically defined. Then define the namespace symbol.
+        // This namespace URI is later used by the attributes, when they lookup for duplicate attributes.
+        // TODO: find a better way to get the statically defined URI.
+        if (exprs.size() == 1 && exprs.get(0).getKind() == NodeKind.LITERAL) {
+            nsURI = (String) ((BLangLiteral) exprs.get(0)).value;
+        }
+        BXMLNSSymbol xmlnsSymbol =
+                new BXMLNSSymbol(names.fromIdNode(qname.localname), nsURI, env.enclPkg.symbol.pkgID, env.scope.owner);
+        if (symResolver.checkForUniqueSymbol(bLangXMLAttribute.pos, env, xmlnsSymbol)) {
+            env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
+            xmlnsSymbol.definedInline = true;
+            bLangXMLAttribute.symbol = xmlnsSymbol;
+        }
+    }
 
     // Private methods
 
@@ -364,7 +419,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO
                 break;
             case XMLNS:
-                // TODO
+                pkgNode.xmlnsList.add((BLangXMLNS) node);
                 break;
         }
     }
@@ -500,10 +555,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
+
+        // Add namespace declarations to the init function
+        for (BLangXMLNS xmlns : pkgNode.xmlnsList) {
+            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
+        }
+
         //Add global variables to the init function
         for (BLangVariable variable : pkgNode.getGlobalVariables()) {
             initFunction.body.addStatement(createVariableDefStatement(variable.pos, variable));
         }
+        
         addInitReturnStatement(initFunction.body);
         pkgNode.initFunction = initFunction;
         defineNode(pkgNode.initFunction, env);
@@ -542,6 +604,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         bLangBlockStmt.addStatement(returnStmt);
     }
 
+    private BLangXMLNSStatement createNamespaceDeclrStatement(BLangXMLNS xmlns) {
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = xmlns.pos;
+        return xmlnsStmt;
+    }
+  
     private void validateFuncReceiver(BLangFunction funcNode) {
         if (funcNode.receiver == null) {
             return;

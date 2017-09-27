@@ -17,8 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -28,44 +31,54 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
 
-    public String localname;
-    public String namespaceUri;
-    public String prefix;
+    public BLangIdentifier localname;
+    public BLangIdentifier prefix;
+    public String namespaceURI;
+    public BXMLNSSymbol nsSymbol;
+    public boolean isUsedInXML = true;
+
+    public BLangXMLQName() {    
+    }
+
+    public BLangXMLQName(String localname) {
+        this.localname = new BLangIdentifier();
+        this.prefix = new BLangIdentifier();
+        this.localname.value = localname;
+    }
 
     @Override
-    public String getLocalname() {
+    public BLangIdentifier getLocalname() {
         return localname;
     }
 
     @Override
-    public void setLocalname(String localname) {
-        this.localname = localname;
+    public void setLocalname(IdentifierNode localname) {
+        this.localname = (BLangIdentifier) localname;
     }
 
     @Override
     public String getNamespaceUri() {
-        return namespaceUri;
+        return null;
     }
 
     @Override
     public void setNamespaceUri(String namespaceUri) {
-        this.namespaceUri = namespaceUri;
+        this.namespaceURI = namespaceUri;
     }
 
     @Override
-    public String getPrefix() {
+    public BLangIdentifier getPrefix() {
         return prefix;
     }
 
     @Override
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setPrefix(IdentifierNode prefix) {
+        this.prefix = (BLangIdentifier) prefix;
     }
 
     @Override
     public String toString() {
-        return "BLangXMLQName: " + (namespaceUri == null ? "" : "(" + namespaceUri + ") ") +
-                (prefix == null ? "" : "(" + prefix + ") ") + localname;
+        return "BLangXMLQName: " + (prefix == null ? "" : "(" + prefix + ") ") + localname;
     }
 
     @Override
@@ -76,5 +89,19 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || !(other instanceof BLangXMLQName)) {
+            return false;
+        }
+
+        BLangXMLQName otherQname = (BLangXMLQName) other;
+        return localname.equals(otherQname.localname) && prefix.equals(otherQname.prefix);
     }
 }

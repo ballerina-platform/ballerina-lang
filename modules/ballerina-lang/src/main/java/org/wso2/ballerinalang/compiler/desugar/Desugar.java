@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLanXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -93,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -271,7 +271,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLanXMLNSStatement xmlnsStmtNode) {
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         result = xmlnsStmtNode;
     }
 
@@ -520,31 +520,42 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
+        xmlAttribute.name = rewriteExpr(xmlAttribute.name);
+        xmlAttribute.value = rewriteExpr(xmlAttribute.value);
         result = xmlAttribute;
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
+        xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
+        xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
+        xmlElementLiteral.modifiedChildren.forEach(child -> rewriteExpr(child));
+        xmlElementLiteral.attributes.forEach(attribute -> rewriteExpr(attribute));
         result = xmlElementLiteral;
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        xmlProcInsLiteral.target = rewriteExpr(xmlProcInsLiteral.target);
+        xmlProcInsLiteral.dataConcatExpr = rewriteExpr(xmlProcInsLiteral.dataConcatExpr);
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
+        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
         result = xmlQuotedString;
     }
 

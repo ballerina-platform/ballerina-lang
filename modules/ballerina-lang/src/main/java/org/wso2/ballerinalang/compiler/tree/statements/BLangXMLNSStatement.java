@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -25,11 +26,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 /**
  * @since 0.94
  */
-public class BLanXMLNSStatement extends BLangStatement implements XMLNSDeclStatementNode {
+public class BLangXMLNSStatement extends BLangStatement implements XMLNSDeclStatementNode {
+
     public BLangXMLNS xmlnsDecl;
 
-    public BLanXMLNSStatement(BLangXMLNS xmlnsDecl) {
-        this.xmlnsDecl = xmlnsDecl;
+    @Override
+    public void setNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl) {
+        this.xmlnsDecl = (BLangXMLNS) xmlnsDecl;
     }
 
     @Override
@@ -45,5 +48,10 @@ public class BLanXMLNSStatement extends BLangStatement implements XMLNSDeclState
     @Override
     public NodeKind getKind() {
         return NodeKind.XMLNS;
+    }
+    
+    @Override
+    public String toString() {
+        return xmlnsDecl.toString();
     }
 }
