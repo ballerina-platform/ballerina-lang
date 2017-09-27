@@ -222,6 +222,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        assignNode.varRefs.removeIf(varRef -> varRef.type.tag == TypeTags.NONE);
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
