@@ -30,8 +30,8 @@ public interface TypeConversionNode extends ExpressionNode {
 
     void setExpression(ExpressionNode expressionNode);
 
-    TypeNode getTypeName();
+    TypeNode  getTypeNode();
 
-    void setTypeName(TypeNode typeName);
+    void setTypeNode(TypeNode typeNode);
 
 }

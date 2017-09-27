@@ -18,12 +18,12 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class BSymbol implements Symbol {
     public int tag;
     public int flags;
     public Name name;
-    public Name pkgName = Names.EMPTY;
+    public PackageID pkgID;
     public SymbolKind kind;
     public BType type;
     public BSymbol owner;
@@ -47,10 +47,11 @@ public class BSymbol implements Symbol {
      */
     public Scope scope;
 
-    public BSymbol(int tag, int flags, Name name, BType type, BSymbol owner) {
+    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         this.tag = tag;
         this.flags = flags;
         this.name = name;
+        this.pkgID = pkgID;
         this.type = type;
         this.owner = owner;
     }

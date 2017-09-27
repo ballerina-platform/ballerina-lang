@@ -30,9 +30,11 @@ public enum DiagnosticCode {
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
+    UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+    ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
@@ -45,12 +47,17 @@ public enum DiagnosticCode {
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
 
     FUNCTION_MUST_RETURN("function.must.return"),
+    ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     UNREACHABLE_CODE("unreachable.code"),
-    DEAD_CODE("dead.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
+    ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
+    RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK("retry.cannot.be.outside.transaction.failed.block"),
+    TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
+    TRANSFORM_STATEMENT_EMPTY_BODY("transform.statement.empty.body"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
+    INCOMPATIBLE_TYPES_CONVERSION("incompatible.types.conversion"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
@@ -64,6 +71,10 @@ public enum DiagnosticCode {
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
+    FUNC_DEFINED_ON_NON_STRUCT_TYPE("func.defined.on.non.struct.type"),
+    FUNC_DEFINED_ON_NON_LOCAL_STRUCT_TYPE("func.defined.on.non.local.struct.type"),
+    STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
+    PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
@@ -77,6 +88,10 @@ public enum DiagnosticCode {
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+
+    INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
+
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
     INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
@@ -84,8 +99,7 @@ public enum DiagnosticCode {
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
     NO_SUCH_ATTRIBUTE("no.such.attribute"),
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
-    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
-
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found")
     ;
 
     private String value;

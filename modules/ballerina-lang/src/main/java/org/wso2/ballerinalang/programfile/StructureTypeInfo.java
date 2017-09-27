@@ -28,43 +28,15 @@ import java.util.Map;
  * @since 0.87
  */
 public class StructureTypeInfo implements AttributeInfoPool {
-    protected int pkgPathCPIndex;
-    protected String packagePath;
 
-    protected int nameCPIndex;
-    protected String name;
-
-    private PackageInfo packageInfo;
+    public int pkgNameCPIndex;
+    public int nameCPIndex;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructureTypeInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
-        this.pkgPathCPIndex = pkgPathCPIndex;
-        this.packagePath = packagePath;
+    public StructureTypeInfo(int pkgNameCPIndex, int nameCPIndex) {
+        this.pkgNameCPIndex = pkgNameCPIndex;
         this.nameCPIndex = nameCPIndex;
-        this.name = name;
-    }
-
-    public int getNameCPIndex() {
-        return nameCPIndex;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPackagePath() {
-        return packagePath;
-    }
-
-    public PackageInfo getPackageInfo() {
-        return packageInfo;
-    }
-
-    protected void setPackageInfo(PackageInfo packageInfo) {
-        this.packageInfo = packageInfo;
-        // Update Cache values.
-//        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
     }
 
     @Override

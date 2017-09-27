@@ -17,10 +17,10 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import java.util.ArrayList;
@@ -91,10 +91,10 @@ public class BType implements ValueType {
 
     protected String getQualifiedTypeName() {
         String typeName;
-        if (tsymbol.pkgName == Names.EMPTY) {
-            typeName = tsymbol.name.getValue();
+        if (tsymbol.pkgID == PackageID.DEFAULT) {
+            typeName = tsymbol.name.value;
         } else {
-            typeName = tsymbol.pkgName + ":" + tsymbol.name;
+            typeName = tsymbol.pkgID.name + ":" + tsymbol.name;
         }
         return typeName;
     }

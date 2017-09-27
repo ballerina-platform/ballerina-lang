@@ -21,10 +21,11 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public BLangVariableReference expr;
     public List<BType> types = new ArrayList<>(0);
     public int[] regIndexes;
-    public BInvokableSymbol symbol;
+    public BSymbol symbol;
+    public boolean functionPointerInvocation;
 
     public boolean isMultiReturnExpr() {
         return true;
@@ -111,5 +113,51 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public int[] getRegIndexes() {
         return this.regIndexes;
+    }
+
+
+    /**
+     * @since 0.94
+     */
+    public static class BFunctionPointerInvocation extends BLangInvocation {
+
+        public BFunctionPointerInvocation(BLangInvocation parent, BLangSimpleVarRef varRef) {
+            this.pos = parent.pos;
+            this.name = parent.name;
+            this.argExprs = parent.argExprs;
+            this.types = parent.types;
+            this.regIndexes = parent.regIndexes;
+            this.symbol = parent.symbol;
+            this.expr = varRef;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangFunctionInvocation extends BLangInvocation {
+
+        public BLangFunctionInvocation(DiagnosticPos pos,
+                                       List<BLangExpression> argExprs,
+                                       BSymbol symbol,
+                                       List<BType> types) {
+            this.pos = pos;
+            this.argExprs = argExprs;
+            this.symbol = symbol;
+            this.types = types;
+            if (types.size() > 0) {
+                this.type = types.get(0);
+            }
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

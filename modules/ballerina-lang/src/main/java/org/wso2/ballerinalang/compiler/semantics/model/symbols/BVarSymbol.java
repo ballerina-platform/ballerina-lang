@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -33,8 +34,8 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      */
     public int varIndex;
 
-    public BVarSymbol(int flags, Name name, BType type, BSymbol owner) {
-        super(VARIABLE, flags, name, type, owner);
+    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(VARIABLE, flags, name, pkgID, type, owner);
     }
 
     @Override

@@ -26,6 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 public abstract class BLangVariableReference extends BLangExpression implements VariableReferenceNode {
 
     public BVarSymbol symbol;
-    public boolean lhsVariable = false;
+    public boolean lhsVar = false;
 
 }

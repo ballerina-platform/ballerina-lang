@@ -16,56 +16,12 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.SimpleTypeName;
-
 /**
  * {@link NativeUnit} represents any Native callable unit in ballerina.
  *
  * @since 0.8.0
  */
 public interface NativeUnit {
-
-    /**
-     * Get the simple Type Names of the return parameters.
-     *
-     * @return  Simple Type Names of the return parameters
-     */
-    SimpleTypeName[] getReturnParamTypeNames();
-
-    /**
-     * Get the simple Type Names of the input input arguments.
-     *
-     * @return   Simple Type Names of the input input arguments.
-     */
-    SimpleTypeName[] getArgumentTypeNames();
-
-    /**
-     * Get the names of the input arguments.
-     *
-     * @return Names of the input arguments.
-     */
-    String[] getArgumentNames();
-
-    /**
-     * Set the types of the return parameters of this callable unit.
-     *
-     * @param returnParamTypes  Types of the return parameters of this callable unit
-     */
-    void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes);
-
-    /**
-     * Set the types of the input arguments of this callable unit.
-     *
-     * @param argTypes  Types of the input arguments of this callable unit
-     */
-    void setArgTypeNames(SimpleTypeName[] argTypes);
-
-    /**
-     * Set the names of the input arguments of this callable unit.
-     *
-     * @param argNames Names of the input arguments of this callable unit
-     */
-    void setArgNames(String[] argNames);
 
     /**
      * Set the name of this callable unit.

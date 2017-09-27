@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
@@ -36,8 +37,8 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public List<BAnnotationAttributeSymbol> attributes;
     public List<BLangAnnotationAttachmentPoint> attachmentPoints;
 
-    public BAnnotationSymbol(Name name, BType type, BSymbol owner) {
-        super(ANNOTATION, 0, name, type, owner);
+    public BAnnotationSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(ANNOTATION, 0, name, pkgID, type, owner);
         attributes = new ArrayList<>();
         attachmentPoints =  new ArrayList<>();
     }

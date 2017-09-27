@@ -37,14 +37,14 @@ import java.util.Set;
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public BLangIdentifier name;
     public List<BLangAnnotAttribute> attributes;
-    public Set<Flag> flags;
+    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BSymbol symbol;
     public List<BLangAnnotationAttachmentPoint> attachmentPoints;
 
     public BLangAnnotation() {
         this.attributes = new ArrayList<>();
-        this.flags = EnumSet.noneOf(Flag.class);
+        this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.attachmentPoints = new ArrayList<>();
     }
@@ -79,12 +79,12 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
 
     @Override
     public Set<? extends Flag> getFlags() {
-        return flags;
+        return flagSet;
     }
 
     @Override
     public void addFlag(Flag flag) {
-        this.flags.add(flag);
+        this.flagSet.add(flag);
     }
 
     @Override

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -26,18 +27,16 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BCastOperatorSymbol extends BOperatorSymbol {
 
     public boolean implicit;
-    public boolean explicit;
     public boolean safe;
 
-    public BCastOperatorSymbol(BType type,
+    public BCastOperatorSymbol(PackageID pkgID,
+                               BType type,
                                BSymbol owner,
                                boolean implicit,
-                               boolean explicit,
                                boolean safe,
                                int opcode) {
-        super(Names.CAST_OP, type, owner, opcode);
+        super(Names.CAST_OP, pkgID, type, owner, opcode);
         this.implicit = implicit;
-        this.explicit = explicit;
         this.safe = safe;
     }
 }

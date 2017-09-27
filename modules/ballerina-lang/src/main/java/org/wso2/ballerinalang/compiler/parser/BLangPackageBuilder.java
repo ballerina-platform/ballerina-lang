@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ConnectorInitNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -68,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -103,14 +104,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -501,7 +505,7 @@ public class BLangPackageBuilder {
     public void addKeyValueRecord() {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
-        keyValue.keyExpr = (BLangExpression) exprNodeStack.pop();
+        keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 
@@ -612,7 +616,7 @@ public class BLangPackageBuilder {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
-        typeConversionNode.typeName = (BLangType) typeNodeStack.pop();
+        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
 
@@ -630,6 +634,7 @@ public class BLangPackageBuilder {
         ternaryExpr.elseExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.thenExpr = (BLangExpression) exprNodeStack.pop();
         ternaryExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(ternaryExpr);
     }
 
 
@@ -925,8 +930,8 @@ public class BLangPackageBuilder {
         this.annotationStack.add(annotNode);
     }
 
-    public void endAnnotationDef(String identifier) {
-        AnnotationNode annotationNode = this.annotationStack.pop();
+    public void endAnnotationDef(String identifier, boolean publicAnnotation) {
+        BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.setName(this.createIdentifier(identifier));
         this.varListStack.pop().forEach(var -> {
             BLangVariable variable = (BLangVariable) var;
@@ -941,6 +946,10 @@ public class BLangPackageBuilder {
             // add the attribute to the annotation definition
             annotationNode.addAttribute(annAttrNode);
         });
+
+        if (publicAnnotation) {
+            annotationNode.flagSet.add(Flag.PUBLIC);
+        }
         while (!attachmentPointStack.empty()) {
             ((BLangAnnotation) annotationNode).attachmentPoints.add(attachmentPointStack.pop());
         }
@@ -1130,7 +1139,10 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addRetrytmt() {
+    public void addRetrytmt(DiagnosticPos pos) {
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        addStmtToCurrentBlock(retryNode);
         TransactionNode transactionNode = transactionNodeStack.peek();
         transactionNode.setRetryCount(exprNodeStack.pop());
     }
@@ -1167,7 +1179,7 @@ public class BLangPackageBuilder {
 
     public void addWorkerSendStmt(DiagnosticPos pos, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
-        workerSendNode.workerIdentifier = createIdentifier(workerName);
+        workerSendNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
@@ -1176,7 +1188,7 @@ public class BLangPackageBuilder {
 
     public void addWorkerReceiveStmt(DiagnosticPos pos, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.workerIdentifier = createIdentifier(workerName);
+        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
         workerReceiveNode.pos = pos;
         addStmtToCurrentBlock(workerReceiveNode);
@@ -1224,34 +1236,32 @@ public class BLangPackageBuilder {
 
     public void createXMLQName(DiagnosticPos pos, String localname, String prefix) {
         BLangXMLQName qname = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-        qname.localname = localname;
-        qname.prefix = prefix;
+        qname.localname = (BLangIdentifier) createIdentifier(localname);
+        qname.prefix = (BLangIdentifier) createIdentifier(prefix);
         qname.pos = pos;
         addExpressionNode(qname);
     }
 
     public void createXMLAttribute(DiagnosticPos pos) {
-        ExpressionNode attrValue = exprNodeStack.pop();
-        ExpressionNode attrName = exprNodeStack.pop();
         BLangXMLAttribute xmlAttribute = (BLangXMLAttribute) TreeBuilder.createXMLAttributeNode();
-        xmlAttribute.value = attrValue;
-        xmlAttribute.name = attrName;
+        xmlAttribute.value = (BLangXMLQuotedString) exprNodeStack.pop();
+        xmlAttribute.name = (BLangExpression) exprNodeStack.pop();
         xmlAttribute.pos = pos;
         xmlAttributeNodeStack.push(xmlAttribute);
     }
 
-    public void startXMLElement(DiagnosticPos pos) {
-        ExpressionNode tagName = exprNodeStack.pop();
+    public void startXMLElement(DiagnosticPos pos, boolean isRoot) {
         BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
-        xmlElement.startTagName = tagName;
+        xmlElement.startTagName = (BLangExpression) exprNodeStack.pop();
         xmlElement.pos = pos;
+        xmlElement.isRoot = isRoot;
         xmlAttributeNodeStack.forEach(attribute -> xmlElement.addAttribute(attribute));
         xmlAttributeNodeStack.clear();
         addExpressionNode(xmlElement);
     }
 
     public void endXMLElement() {
-        ExpressionNode endTag = exprNodeStack.pop();
+        BLangExpression endTag = (BLangExpression) exprNodeStack.pop();
         BLangXMLElementLiteral xmlElement = (BLangXMLElementLiteral) exprNodeStack.peek();
         xmlElement.endTagName = endTag;
     }
@@ -1271,15 +1281,6 @@ public class BLangPackageBuilder {
         XMLLiteralNode child = (XMLLiteralNode) exprNodeStack.pop();
         BLangXMLElementLiteral parentXMLExpr = (BLangXMLElementLiteral) exprNodeStack.peek();
         parentXMLExpr.addChild(child);
-    }
-
-    public void createXMLTextLiteral(DiagnosticPos pos, String text) {
-        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        addLiteralValue(pos, TypeTags.STRING, text);
-        ExpressionNode textLiteral = exprNodeStack.pop();
-        xmlTextLiteral.addTextFragment(textLiteral);
-        xmlTextLiteral.pos = pos;
-        addExpressionNode(xmlTextLiteral);
     }
 
     public void createXMLTextLiteral(DiagnosticPos pos, Stack<String> precedingTextFragments, String endingText) {
@@ -1310,15 +1311,35 @@ public class BLangPackageBuilder {
         List<BLangExpression> dataExprs =
                 getExpressionsInTemplate(pos, precedingTextFragments, endingText, NodeKind.LITERAL);
         addLiteralValue(pos, TypeTags.STRING, targetQName);
-        LiteralNode target = (LiteralNode) exprNodeStack.pop();
 
         BLangXMLProcInsLiteral xmlProcInsLiteral =
                 (BLangXMLProcInsLiteral) TreeBuilder.createXMLProcessingIntsructionLiteralNode();
         xmlProcInsLiteral.pos = pos;
-        dataExprs.forEach(dataExpr -> xmlProcInsLiteral.dataFragments.add(dataExpr));
-        xmlProcInsLiteral.target = target;
-
+        xmlProcInsLiteral.dataFragments = dataExprs;
+        xmlProcInsLiteral.target = (BLangLiteral) exprNodeStack.pop();;
         addExpressionNode(xmlProcInsLiteral);
+    }
+
+    public void addXMLNSDeclaration(DiagnosticPos pos, String namespaceUri, String prefix, boolean isTopLevel) {
+        BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
+        BLangIdentifier prefixIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        prefixIdentifer.pos = pos;
+        prefixIdentifer.value = prefix;
+
+        addLiteralValue(pos, TypeTags.STRING, namespaceUri);
+        xmlns.namespaceURI = (BLangLiteral) exprNodeStack.pop();
+        xmlns.prefix = prefixIdentifer;
+        xmlns.pos = pos;
+
+        if (isTopLevel) {
+            this.compUnit.addTopLevelNode(xmlns);
+            return;
+        }
+
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = pos;
+        addStmtToCurrentBlock(xmlnsStmt);
     }
 
     public void createStringTemplateLiteral(DiagnosticPos pos, Stack<String> precedingTextFragments,
@@ -1331,37 +1352,38 @@ public class BLangPackageBuilder {
         addExpressionNode(stringTemplateLiteral);
     }
 
+    public void startTransformStmt() {
+        startBlock();
+    }
+
+    public void createTransformStatement(DiagnosticPos pos) {
+        BLangTransform transformNode = (BLangTransform) TreeBuilder.createTransformNode();
+        transformNode.pos = pos;
+        BLangBlockStmt transformBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        transformBlock.pos = pos;
+        transformNode.setBody(transformBlock);
+        addStmtToCurrentBlock(transformNode);
+    }
+
     private List<BLangExpression> getExpressionsInTemplate(DiagnosticPos pos, Stack<String> precedingTextFragments,
                                                            String endingText, NodeKind targetStrExprKind) {
-        List<BLangExpression> expressions = new ArrayList<>();
+        List<BLangExpression> expressions = new ArrayList<BLangExpression>();
 
         if (endingText != null && !endingText.isEmpty()) {
             endingText = StringEscapeUtils.unescapeJava(endingText);
-            createXMLStringExpr(pos, targetStrExprKind, endingText);
+            addLiteralValue(pos, TypeTags.STRING, endingText);
             expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
         while (!precedingTextFragments.isEmpty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());
             String textFragment = precedingTextFragments.pop();
-
-            if (textFragment != null && !textFragment.isEmpty()) {
-                textFragment = StringEscapeUtils.unescapeJava(textFragment);
-                createXMLStringExpr(pos, targetStrExprKind, textFragment);
-                expressions.add((BLangExpression) exprNodeStack.pop());
-            }
+            textFragment = textFragment == null ? "" : StringEscapeUtils.unescapeJava(textFragment);
+            addLiteralValue(pos, TypeTags.STRING, textFragment);
+            expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
         Collections.reverse(expressions);
         return expressions;
     }
-
-    private void createXMLStringExpr(DiagnosticPos pos, NodeKind targetExprKind, String strContent) {
-        if (targetExprKind == NodeKind.XML_TEXT_LITERAL) {
-            createXMLTextLiteral(pos, strContent);
-        } else {
-            addLiteralValue(pos, TypeTags.STRING, strContent);
-        }
-    }
-
 }

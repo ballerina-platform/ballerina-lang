@@ -2286,7 +2286,7 @@ public class BLangVM {
 
                 xmlVal = (BXML<?>) sf.refRegs[i];
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
-                xmlVal.setChildren(child);
+                xmlVal.addChildren(child);
                 break;
         }
     }
@@ -2689,15 +2689,19 @@ public class BLangVM {
             String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
-                //resultMsgs.add(res);
+                WorkerResult wr = invokeAnyWorker(workerRunnerList, timeout);
+                if (wr != null) {
+                    resultMsgs.add(wr);
+                }
             } else {
                 List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
-                //resultMsgs.add(res);
+                WorkerResult wr = invokeAnyWorker(workerRunnersSpecified, timeout);
+                if (wr != null) {
+                    resultMsgs.add(wr);
+                }
             }
         } else {
             String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
@@ -2768,7 +2772,9 @@ public class BLangVM {
                 }
 
             }).forEach((WorkerResult b) -> {
-                result.add(b);
+                if (b != null) {
+                    result.add(b);
+                }
             });
         } catch (InterruptedException e) {
             return result;
@@ -2804,6 +2810,9 @@ public class BLangVM {
                     boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
                     arguments[i] = new BBoolean(temp);
                     break;
+                case TypeTags.BLOB_TAG:
+                    arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
+                    break;
                 default:
                     arguments[i] = callerSF.refRegs[argReg];
             }
@@ -2816,6 +2825,7 @@ public class BLangVM {
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
+        int blobRegIndex = -1;
         int refRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
@@ -2832,6 +2842,9 @@ public class BLangVM {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.getByteRegs()[++blobRegIndex] = ((BBlob) passedInValues[i]).blobValue();
                     break;
                 default:
                     currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
