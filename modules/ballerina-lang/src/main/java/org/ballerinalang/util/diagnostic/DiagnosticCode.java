@@ -53,6 +53,7 @@ public enum DiagnosticCode {
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK("retry.cannot.be.outside.transaction.failed.block"),
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output"),
+    TRANSFORM_STATEMENT_EMPTY_BODY("transform.statement.empty.body"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),

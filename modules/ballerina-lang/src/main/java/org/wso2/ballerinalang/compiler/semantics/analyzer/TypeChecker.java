@@ -420,7 +420,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos,
                         unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
-                    dlog.error(unaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
+                    dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
                             unaryExpr.operator, exprType);
                 } else {
                     unaryExpr.opSymbol = (BOperatorSymbol) symbol;
