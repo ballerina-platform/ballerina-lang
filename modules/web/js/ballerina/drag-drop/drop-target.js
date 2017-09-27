@@ -5,10 +5,9 @@ import { ITEM_TYPES } from './constants';
  * Enable drop on given compenent
  *
  * @param {Componet} DropArea React Component for droppable area
- * @param {Node} targetNode Target Node
  *
  */
-export function withDropEnabled(DropArea, targetNode) {
+export function withDropEnabled(DropArea) {
     // drop target spec
     const dropSpec = {
         drop: (props, monitor, component) => {

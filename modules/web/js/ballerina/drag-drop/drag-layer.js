@@ -21,7 +21,7 @@ function getItemStyles(props) {
     }
 
     const { x, y } = currentOffset;
-    const transform = `translate(${x}px, ${y - 10}px)`;
+    const transform = `translate(${x - 15}px, ${y - 30}px)`;
     return {
         transform,
         WebkitTransform: transform,
@@ -56,7 +56,7 @@ SVGIconDragLayer.propTypes = {
 function collect(monitor) {
     return {
         item: monitor.getItem(),
-        currentOffset: monitor.getSourceClientOffset(),
+        currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
     };
 }
