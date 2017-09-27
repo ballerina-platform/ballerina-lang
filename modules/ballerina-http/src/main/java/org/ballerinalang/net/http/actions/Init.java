@@ -24,7 +24,9 @@ import java.util.ServiceLoader;
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING)
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "options", type = TypeEnum.STRUCT, structType = "Options",
+                          structPackage = "ballerina.net.http")
         }
 )
 public class Init extends AbstractHTTPAction {

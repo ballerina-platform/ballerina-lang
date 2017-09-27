@@ -44,7 +44,9 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING)
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "options", type = TypeEnum.STRUCT, structType = "Options",
+                          structPackage = "ballerina.net.http")
         }
 )
 public class Get extends AbstractHTTPAction {

@@ -19,6 +19,8 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.ws.BallerinaWebSocketConnectorListener;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
@@ -158,7 +160,7 @@ public class HttpConnectionManager {
         return startedConnectors;
     }
 
-    public HttpClientConnector getHTTPHttpClientConnector() {
+    public HttpClientConnector getHTTPHttpClientConnector(BConnector bConnector) {
         Map<String, Object> properties = HTTPConnectorUtil.getTransportProperties(trpConfig);
         SenderConfiguration senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(trpConfig, "http");
@@ -166,6 +168,12 @@ public class HttpConnectionManager {
         if (System.getProperty(BLogManager.HTTP_TRACE_LOGGER) != null) {
             senderConfiguration.setHttpTraceLogEnabled(true);
         }
+
+        BStruct options = (BStruct) bConnector.getRefField(0);
+        int followRedirect = options.getBooleanField(0);
+        Long maxRedirectCount = options.getIntField(0);
+        senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
+        senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
 
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
