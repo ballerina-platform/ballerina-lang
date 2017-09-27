@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,36 +16,28 @@
  * under the License.
  */
 
-import { util } from './../../sizing-util';
+import _ from 'lodash';
+import SimpleBBox from './../../../model/view/simple-bounding-box';
+import * as DesignerDefaults from './designer-defaults';
+import { panel as defaultPanel} from './designer-defaults';
+import TreeUtil from './../../../model/tree-util';
 
-/**
- * Dimension Calculater for {{kind}}.
- *
- * @class ReturnStatementDimensionCalculatorVisitor
- * */
-class {{kind}}DimensionVisitor {
+class SizingUtil {
 
-    /**
-     * begin visit.
-     *
-     * @param {Node} node.
-     *
-     * @memberOf {{kind}}DimensionVisitor
-     * */
-    beginVisit(node) {
-
-    }
+{{#each this}}
 
     /**
-     * visit the visitor at the end.
+     * Calculate dimention of {{kind}} nodes.
      *
-     * @param {Node} node.
-     *
-     * @memberOf {{kind}}DimensionVisitor
-     * */
-    endVisit(node) {
-        
+     * @param {object} node
+     * 
+     */
+    size{{ kind }}Node(node) {
+        // Not implemented.
     }
+
+{{/each}}
+
 }
 
-export default {{kind}}DimensionVisitor;
+export default SizingUtil;

@@ -1,11 +1,20 @@
 import log from 'log';
 import React from 'react';
-import * as DesignerDefaults from './views/default/designer-defaults';
-import * as DesignerAction from './views/compact/designer-defaults';
 import Hidden from './views/action/components/hidden';
 
+import * as DefaultConfig from './views/default/designer-defaults';
+import DefaultSizingUtil from './views/default/sizing-util';
+import DefaultPositioningUtil from './views/default/positioning-util';
+
+
 const components = {};
-const diagramVisitors = {};
+
+// initialize the utils.
+const defaultSizingUtil = new DefaultSizingUtil();
+const defaultPositioningUtil = new DefaultPositioningUtil();
+
+defaultSizingUtil.config = DefaultConfig;
+defaultPositioningUtil.config = DefaultConfig;
 
 // require all react components
 function requireAll(requireContext) {
@@ -63,44 +72,23 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     });
 }
 
-
-function getDimentionVisitor(name, mode = 'default') {
-    // lets load the view components diffrent modes.
-    diagramVisitors.default = requireAll(require.context('./views/default/visitors/dimention', true, /\.js$/));
-    //diagramVisitors.action = requireAll(require.context('./views/action/visitors/dimention', true, /\.js$/));
-    //diagramVisitors.compact = requireAll(require.context('./views/compact/visitors/dimention', true, /\.js$/));
-
-    if (diagramVisitors[mode][name]) {
-        return diagramVisitors[mode][name];
-    } else if (diagramVisitors.default[name]) {
-        return diagramVisitors.default[name];
+function getSizingUtil(mode) {
+    if (mode === 'default') {
+        return defaultSizingUtil;
     }
+    return undefined;
 }
 
-function getPositionVisitor(name) {
-    // lets load the view components diffrent modes.
-    let diagramVisitors = requireAll(require.context('./views/default/visitors/position', true, /\.js$/));
-    return diagramVisitors[name];
-}
-
-function getDesigner(modes) {
-    const designer = {};
-    Object.assign(designer, DesignerDefaults);
-    if (!_.isNil(modes)) {
-        modes.forEach((mode) => {
-            if (mode !== 'default') {
-                const modeDesigner = require('./views/' + mode + '/designer-defaults');
-                Object.assign(designer, modeDesigner);
-            }
-        });
+function getPositioningUtil(mode) {
+    if (mode === 'default') {
+        return defaultPositioningUtil;
     }
-    return designer;
+    return undefined;
 }
 
 export {
     getComponentForNodeArray,
     requireAll,
-    getDimentionVisitor,
-    getPositionVisitor,
-    getDesigner,
+    getSizingUtil,
+    getPositioningUtil,
 };
