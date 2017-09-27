@@ -4,18 +4,17 @@ import { ITEM_TYPES } from './constants';
 /**
  * Enable drag on given compenent
  *
- * @param {Componet} ToolComponent React Component for Tool
- * @param {Object} toolDef Tool Definition
+ * @param {Componet} ToolView React Component for Tool
  *
  */
-export function withDragEnabled(ToolComponent, toolDef) {
-    const { nodeFactoryArgs = {}, nodeFactoryMethod } = toolDef;
-
+export function withDragEnabled(ToolView) {
     // drag source spec
     const dragSpec = {
         beginDrag: (props, monitor, component) => {
+            const { meta = {}, nodeFactoryMethod, icon } = props.tool.attributes;
             return {
-                node: nodeFactoryMethod(nodeFactoryArgs),
+                node: nodeFactoryMethod(meta),
+                icon,
             };
         },
         endDrag: (props, monitor, component) => {
@@ -29,8 +28,9 @@ export function withDragEnabled(ToolComponent, toolDef) {
             // Call this function inside render()
             // to let React DnD handle the drag events:
             connectDragSource: connect.dragSource(),
+            connectDragPreview: connect.dragPreview(),
             isDragging: monitor.isDragging(),
         };
     }
-    return DragSource(ITEM_TYPES.NODE, dragSpec, collect)(ToolComponent);
+    return DragSource(ITEM_TYPES.NODE, dragSpec, collect)(ToolView);
 }

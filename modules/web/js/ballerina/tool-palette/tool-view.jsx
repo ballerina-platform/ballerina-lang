@@ -16,18 +16,12 @@
  * under the License.
  */
 import React from 'react';
-import log from 'log';
-import ReactDOM from 'react-dom';
-import $ from 'jquery';
-import 'jquery-ui/ui/widgets/draggable';
-import 'jquery-ui/themes/base/draggable.css';
-import * as d3 from 'd3';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
-import DragDropManager from '../tool-palette/drag-drop-manager';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import Tool from './tool';
 import ToolGroup from './tool-group';
 import ImageUtils from './../diagram/views/default/components/image-util';
+import { withDragEnabled } from './../drag-drop/drag-source';
 
 /**
  * Tool Component which render a tool in tool palette.
@@ -38,123 +32,16 @@ import ImageUtils from './../diagram/views/default/components/image-util';
 class ToolView extends React.Component {
 
     /**
-     * We use component did mount to initialize dragable.
-     *
-     * @memberof Tool
+     * @inheritdoc
      */
     componentDidMount() {
-        const toolDiv = ReactDOM.findDOMNode(this);
-        $(toolDiv).draggable({
-            helper: _.isUndefined(this.createCloneCallback)
-                ? 'clone'
-                : this.createCloneCallback(self),
-            cursor: 'move',
-            cursorAt: {
-                left: 30,
-                top: -10,
-            },
-            containment: 'document',
-            zIndex: 10001,
-            stop: this.createHandleDragStopEvent(),
-            start: this.createHandleDragStartEvent(),
-            drag: this.createHandleOnDragEvent(),
+        // Use empty image as a drag preview so browsers don't draw it
+        // and we can draw whatever we want on the custom drag layer instead.
+        this.props.connectDragPreview(getEmptyImage(), {
+            // IE fallback: specify that we'd rather screenshot the node
+            // when it already knows it's being dragged so we can hide it with CSS.
+            captureDraggingState: true,
         });
-    }
-
-    /**
-     * JQuery dragable drag stop event handler.
-     *
-     * @returns {function} handler.
-     * @memberof Tool
-     */
-    createHandleDragStopEvent() {
-        return () => {
-            try {
-                if (this.context.dragDropManager.isAtValidDropTarget()) {
-                    const indexForNewNode = this.context.dragDropManager.getDroppedNodeIndex();
-                    const nodeBeingDragged = this.context.dragDropManager.getNodeBeingDragged();
-                    if (indexForNewNode >= 0) {
-                        this.context.dragDropManager.getActivatedDropTarget()
-                            .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
-                    } else {
-                        this.context.dragDropManager.getActivatedDropTarget()
-                            .addChild(nodeBeingDragged, undefined, false, false, true);
-                    }
-                }
-            } catch (e) {
-                log.error('Error while completing the drop event.', e);
-            } finally {
-                this.context.dragDropManager.reset();
-                this._$disabledIcon = undefined;
-                this._$draggedToolIcon = undefined;
-            }
-        };
-    }
-
-    /**
-     * JQuery dragable drag start event handler.
-     *
-     * @returns {function} handler.
-     * @memberof Tool
-     */
-    createHandleDragStartEvent() {
-        return () => {
-            // Get the meta information/ arguments to create the particular tool
-            const meta = this.props.tool.get('meta') || {};
-            this.context.dragDropManager.setNodeBeingDragged(this.props.tool.nodeFactoryMethod(meta, true));
-        };
-    }
-
-    /**
-     * JQuery dragable on drag event handler.
-     *
-     * @returns {function} handler.
-     * @memberof Tool
-     */
-    createHandleOnDragEvent() {
-        return () => {
-            if (!this.context.dragDropManager.isAtValidDropTarget()) {
-                this._$disabledIcon.show();
-                this._$draggedToolIcon.css('opacity', 0.3);
-            } else {
-                this._$disabledIcon.hide();
-                this._$draggedToolIcon.css('opacity', 1);
-            }
-        };
-    }
-
-    /**
-     * JQuery dragable drag clone event handler.
-     *
-     * @returns {function} handler.
-     * @memberof Tool
-     */
-    createCloneCallback() {
-        const icon = $(`<i class="${this.props.tool.get('cssClass')}" style="font-size:50px" />`).get(0);
-        return () => {
-            const div = this.createContainerForDraggable();
-            div.node().appendChild(icon);
-            this._$draggedToolIcon = $(icon);
-            return div.node();
-        };
-    }
-
-    /**
-     * This function will create an icon image which will draged when a tool is draged.
-     *
-     * @returns {element} html div.
-     * @memberof Tool
-     */
-    createContainerForDraggable() {
-        const body = d3.select('body');
-        const div = body.append('div').attr('id', 'draggingToolClone').classed('tool-drag-container', true);
-        // For validation feedback
-        const disabledIconDiv = div.append('div').classed('disabled-icon-container', true);
-        disabledIconDiv.append('i').classed('fw fw-lg fw-block tool-disabled-icon', true);
-        this._$disabledIcon = $(disabledIconDiv.node());
-        this._$disabledIcon.css('top', 30 + 10);
-        this._$disabledIcon.css('left', 30);
-        return div;
     }
 
     /**
@@ -184,7 +71,7 @@ class ToolView extends React.Component {
         if (this.props.toolOrder === 'horizontal') {
             toolTip = tool.get('name');
             toolDef = tool.get('definition');
-            return (
+            return this.props.connectDragSource(
                 <div
                     className="tool-block tool-container"
                     title={toolTip + '\n' + toolDef}
@@ -193,7 +80,7 @@ class ToolView extends React.Component {
                     id={toolTip}
                 >
 
-                    <i className={tool.get('cssClass')} />
+                    <i className={`icon fw fw-${tool.get('icon')}`} />
                     <span className="tool-title-wrap" />
                     <span className="tool-title-wrap">
                         <p className="tool-title">{toolTip}</p>
@@ -234,10 +121,10 @@ class ToolView extends React.Component {
             const iconBytes = ImageUtils.getConnectorIcon(tool.get('meta').pkgName);
             imageIcon = <img alt="client connector icon" src={iconBytes} />;
         } else {
-            imageIcon = <i className={tool.get('cssClass')} />;
+            imageIcon = <i className={`icon fw fw-${tool.get('icon')}`} />;
         }
 
-        return (
+        return this.props.connectDragSource(
             <div
                 id={`${tool.id}-tool`}
                 className={`tool-block tool-container-vertical ${tool.get('classNames')}`}
@@ -273,14 +160,16 @@ ToolView.defaultProps = {
 };
 
 ToolView.propTypes = {
+    connectDragSource: PropTypes.func.isRequired,
+    connectDragPreview: PropTypes.func.isRequired,
+    isDragging: PropTypes.bool.isRequired,
     toolOrder: PropTypes.string,
     tool: PropTypes.instanceOf(Tool).isRequired,
     group: PropTypes.instanceOf(ToolGroup).isRequired,
 };
 
 ToolView.contextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default ToolView;
+export default withDragEnabled(ToolView);
