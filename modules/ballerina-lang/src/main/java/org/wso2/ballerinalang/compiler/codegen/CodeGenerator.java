@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
@@ -122,6 +123,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.ActionInfo;
 import org.wso2.ballerinalang.programfile.AnnAttachmentInfo;
 import org.wso2.ballerinalang.programfile.AnnAttributeValue;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
