@@ -163,26 +163,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (pkgSymbol == symTable.notFoundSymbol) {
             return pkgSymbol;
         }
-        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, connectorName, SymTag.CONNECTOR);
+        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(pos, code, connectorName);
         }
         return symbol;
     }
-
-    public BSymbol resolveSimpleVar(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
-                                    Name pkgAlias, Name varName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        BSymbol symbol = lookupMemberSymbol(pkgSymbol.scope, varName, SymTag.VARIABLE);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, code, varName);
-        }
-        return symbol;
-    }
-
 
     public BSymbol resolveInvokable(DiagnosticPos pos,
                                     DiagnosticCode code,
