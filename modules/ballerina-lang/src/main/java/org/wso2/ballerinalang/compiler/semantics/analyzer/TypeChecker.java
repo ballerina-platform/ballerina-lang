@@ -660,9 +660,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         iExpr.expr.symbol = (BVarSymbol) symbol;
 
+        Name actionName = names.fromIdNode(iExpr.name);
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, symbol.type.tsymbol.scope,
-                env, names.fromIdNode(iExpr.name), SymTag.ACTION);
+                env, actionName, SymTag.ACTION);
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName.value);
             resultTypes = actualTypes;
             return;
         }
