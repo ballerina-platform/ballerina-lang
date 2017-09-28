@@ -1,15 +1,8 @@
 package ballerina.builtin;
 
-public struct error {
+public struct NullReferenceError {
     string msg;
     error cause;
     stackFrame[] stackTrace;
-}
-
-public struct stackFrame {
-    string caller;
-    string packageName;
-    string fileName;
-    int lineNumber;
 }
 

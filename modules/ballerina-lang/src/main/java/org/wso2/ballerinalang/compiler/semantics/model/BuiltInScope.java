@@ -15,33 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.wso2.ballerinalang.compiler.semantics.model;
 
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-
-import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BTypeSymbol extends BSymbol implements TypeSymbol {
+public class BuiltInScope extends Scope {
 
-    public List<BVarSymbol> params;
-    public BInvokableSymbol initFunctionSymbol;
-
-    public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(kind, flags, name, pkgID, type, owner);
+    public BuiltInScope(BSymbol owner) {
+        super(owner);
     }
 
-    @Override
-    public String toString() {
-        if (this.pkgID == PackageID.DEFAULT || this.pkgID.name == Names.BUILTIN_PACKAGE) {
-            return this.name.value;
+    public void define(Name name, BSymbol symbol) {
+        if (symbol.pkgID != null && (Names.BUILTIN_PACKAGE.equals(symbol.pkgID.name) ||
+                Names.BUILTIN_PACKAGE_CORE.equals(symbol.pkgID.name))) {
+            symbol.pkgID.name = Names.BUILTIN_PACKAGE;
         }
-        return this.pkgID + ":" + this.name;
+        super.define(name, symbol);
+    }
+
+    public ScopeEntry lookup(Name name) {
+        return super.lookup(name);
     }
 }

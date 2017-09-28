@@ -43,7 +43,6 @@ public class BLangVMErrors {
     private static final Logger logger = LoggerFactory.getLogger(BLangVMErrors.class);
 
     public static final String BUILTIN_PACKAGE = "ballerina.builtin";
-    public static final String ERROR_PACKAGE = "ballerina.lang.errors";
     public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String STRUCT_NULL_REF_ERROR = "NullReferenceError";
     public static final String STRUCT_TYPE_CAST_ERROR = "TypeCastError";
@@ -97,7 +96,7 @@ public class BLangVMErrors {
      * @return created NullReferenceError
      */
     public static BStruct createNullRefError(Context context, int ip) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_ERROR);
         BStruct error = createBStruct(errorStructInfo);
         // Set StackTrace.
@@ -115,7 +114,7 @@ public class BLangVMErrors {
      * @return created NullReferenceError
      */
     public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CAST_ERROR);
 
         String errorMsg = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
@@ -138,7 +137,7 @@ public class BLangVMErrors {
      */
     public static BStruct createTypeConversionError(Context context, int ip,
                                                     String sourceTypeName, String targetTypeName) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
@@ -162,7 +161,7 @@ public class BLangVMErrors {
      */
     public static BStruct createTypeConversionError(Context context, int ip, String errorMessage,
                                                     String sourceTypeName, String targetTypeName) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
         BStruct error = createBStruct(errorStructInfo, errorMessage, null,
@@ -229,7 +228,7 @@ public class BLangVMErrors {
      * @param error   error Struct to be set the stackTrace.
      */
     public static void setStackTrace(Context context, int ip, BStruct error) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
         if (error == null) {
             // This shouldn't execute.
             logger.warn("Error struct is null. Default Error is created.");

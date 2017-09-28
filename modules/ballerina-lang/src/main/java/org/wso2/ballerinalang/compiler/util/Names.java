@@ -31,13 +31,13 @@ public class Names {
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
-    public static final Name BUILTIN_PACKAGE = new Name("<builtin.package>");
+    public static final Name BUILTIN_PACKAGE = new Name("ballerina.builtin");
+    public static final Name BUILTIN_PACKAGE_CORE = new Name("ballerina.builtin.core");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
-    public static final Name MSG = new Name("msg");
     public static final Name ERROR = new Name("error");
     public static final Name ERROR_TYPE_CAST = new Name("TypeCastError");
     public static final Name ERROR_TYPE_CONVERSION = new Name("TypeConversionError");

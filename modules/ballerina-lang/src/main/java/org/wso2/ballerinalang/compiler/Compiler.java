@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.programfile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
@@ -54,11 +55,13 @@ public class Compiler {
     private CodeAnalyzer codeAnalyzer;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
-    private BuiltinPackageLoader builtinPackageLoader;
 
     private CompilerPhase compilerPhase;
     private ProgramFile programFile;
     private BLangPackage pkgNode;
+
+    // TODO: Fix this. Added temporally for codegen. Load this from VM side.
+    public BLangPackage builtInPkg;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -81,11 +84,11 @@ public class Compiler {
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
-        this.builtinPackageLoader = BuiltinPackageLoader.getInstance(context);
         this.compilerPhase = getCompilerPhase();
     }
 
     public void compile(String sourcePkg) {
+        loadBuiltInPackage();
         switch (compilerPhase) {
             case DEFINE:
                 define(sourcePkg);
@@ -103,6 +106,15 @@ public class Compiler {
                 gen(desugar(codeAnalyze(typeCheck(define(sourcePkg)))));
                 break;
         }
+    }
+
+    private void loadBuiltInPackage() {
+        BLangPackage builtInCorePkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
+                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+        symbolTable.loadOperators();
+        builtInPkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
+                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
+        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
     }
 
     public ProgramFile getCompiledProgram() {
@@ -125,7 +137,6 @@ public class Compiler {
         if (stopCompilation(CompilerPhase.DEFINE)) {
             return null;
         }
-        builtinPackageLoader.loadBuiltinPackage(symbolTable);
         return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
     }
 
@@ -158,7 +169,6 @@ public class Compiler {
             return;
         }
 
-        builtinPackageLoader.mergePackages(symbolEnter);
         programFile = this.codeGenerator.generate(pkgNode);
 
         try {

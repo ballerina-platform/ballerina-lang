@@ -111,7 +111,7 @@ public class SymbolTable {
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(BUILTIN, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
-        this.rootScope = new Scope(rootPkgSymbol);
+        this.rootScope = new BuiltInScope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
@@ -135,12 +135,13 @@ public class SymbolTable {
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
+    }
 
+    public void loadOperators() {
         // Create dummy builtin error struct and required types.
-        BStructType.BStructField msgField = new BStructType.BStructField(Names.MSG, stringType);
-        this.errStructType = new BStructType(null, Lists.of(msgField));
-        this.errTypeCastType = new BStructType(null, Lists.of(msgField));
-        this.errTypeConversionType = new BStructType(null, Lists.of(msgField));
+        this.errStructType = (BStructType) rootScope.lookup(Names.ERROR).symbol.type;
+        this.errTypeCastType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CAST).symbol.type;
+        this.errTypeConversionType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CONVERSION).symbol.type;
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
