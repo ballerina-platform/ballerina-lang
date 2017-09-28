@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.transport.http.netty.https;
 
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
@@ -70,7 +73,8 @@ public class HTTPSClientTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage msg = new HTTPCarbonMessage();
+            HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                    HttpMethod.GET, ""));
             msg.setProperty("PORT", TestUtil.TEST_HTTPS_SERVER_PORT);
             msg.setProperty("PROTOCOL", "https");
             msg.setProperty("HOST", "localhost");

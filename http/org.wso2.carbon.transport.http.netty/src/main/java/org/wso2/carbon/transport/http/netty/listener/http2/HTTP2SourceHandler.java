@@ -22,8 +22,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
@@ -210,7 +213,9 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
     protected HTTPCarbonMessage setupCarbonMessage(int streamId, Http2Headers headers) {
 
         // Construct new HTTP carbon message and put into stream id request map
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        // TODO: This fix is temporary and we need to revisit this and the entire http2 implementation.
+        HTTPCarbonMessage cMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                HttpMethod.GET, ""));
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.SCHEME, listenerConfiguration.getScheme());
