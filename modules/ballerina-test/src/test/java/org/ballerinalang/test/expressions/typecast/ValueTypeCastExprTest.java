@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.expressions;
+package org.ballerinalang.test.expressions.typecast;
 
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
@@ -24,7 +24,8 @@ import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -37,16 +38,18 @@ import org.testng.annotations.Test;
 public class ValueTypeCastExprTest {
     private static final double DELTA = 0.01;
     private ProgramFile programFile;
+    private CompileResult result;
+
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/expressions/btype/cast/value-type-casting.bal");
+        result = BTestUtils.compile("test-src/expressions/typecast/value-type-casting.bal");
     }
 
     @Test
     public void testIntToFloat() {
         BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "intToFloat", args);
+        BValue[] returns = BTestUtils.invoke(result, "intToFloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         double expected = 5.5555555E7;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
@@ -55,7 +58,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testIntToString() {
         BValue[] args = {new BInteger(111)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "intToString", args);
+        BValue[] returns = BTestUtils.invoke(result, "intToString", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -64,7 +67,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testIntToBoolean() {
         BValue[] args = {new BInteger(1)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "intToBoolean", args);
+        BValue[] returns = BTestUtils.invoke(result, "intToBoolean", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final boolean expected = true;
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
@@ -73,14 +76,14 @@ public class ValueTypeCastExprTest {
     @Test
     public void testIntToAny() {
         BValue[] args = {new BInteger(1)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "intToAny", args);
+        BValue[] returns = BTestUtils.invoke(result, "intToAny", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
     }
 
     @Test
     public void testFloatToInt() {
         BValue[] args = {new BFloat(222222.44444f)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatToInt", args);
+        BValue[] returns = BTestUtils.invoke(result, "floatToInt", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "222222";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -89,7 +92,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testFloatToString() {
         BValue[] args = {new BFloat(111.333f)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatToString", args);
+        BValue[] returns = BTestUtils.invoke(result, "floatToString", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns[0].stringValue().substring(0, 7), expected);
@@ -98,7 +101,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testFloatToBoolean() {
         BValue[] args = {new BFloat(1.0f)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatToBoolean", args);
+        BValue[] returns = BTestUtils.invoke(result,"floatToBoolean", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final boolean expected = true;
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
@@ -107,14 +110,14 @@ public class ValueTypeCastExprTest {
     @Test
     public void testFloatToAny() {
         BValue[] args = {new BFloat(111.333f)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatToAny", args);
+        BValue[] returns = BTestUtils.invoke(result, "floatToAny", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
     }
 
     @Test
     public void testStringToInt() {
         BValue[] args = {new BString("100")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringToInt", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringToInt", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final long expected = 100;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
@@ -123,7 +126,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testStringToFloat() {
         BValue[] args = {new BString("2222.333f")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringToFloat", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringToFloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         double expected = 2222.333;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
@@ -132,7 +135,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testStringToBoolean() {
         BValue[] args = {new BString("trUe")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringToBoolean", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringToBoolean", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         boolean expected = true;
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
@@ -141,14 +144,14 @@ public class ValueTypeCastExprTest {
     @Test
     public void testStringToAny() {
         BValue[] args = {new BString("adfs sadfasd")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringToAny", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringToAny", args);
         Assert.assertTrue(returns[0] instanceof BString);
     }
 
     @Test
     public void testBooleanToInt() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanToInt", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleanToInt", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final int expected = 1;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
@@ -157,7 +160,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testBooleanToFloat() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanToFloat", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleanToFloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final double expected = 1.0;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected);
@@ -166,7 +169,7 @@ public class ValueTypeCastExprTest {
     @Test
     public void testBooleanToString() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanToString", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleanToString", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -175,14 +178,14 @@ public class ValueTypeCastExprTest {
     @Test
     public void testBooleanToAny() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanToAny", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleanToAny", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
     }
 
     @Test
     public void testBooleanAppendToString() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanappendtostring", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleanappendtostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true-append-true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -191,13 +194,13 @@ public class ValueTypeCastExprTest {
     @Test
     public void testBlobToAny() {
         BValue[] args = {new BBlob("string".getBytes())};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "blobToAny", args);
+        BValue[] returns = BTestUtils.invoke(result, "blobToAny", args);
         Assert.assertTrue(returns[0] instanceof BBlob);
     }
 
     @Test
     public void testIntArrayToLongArray() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "intarrtofloatarr");
+        BValue[] returns = BTestUtils.invoke(result, "intarrtofloatarr", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BFloatArray);
         BFloatArray result = (BFloatArray) returns[0];
         Assert.assertEquals(result.get(0), 999.0, DELTA);
@@ -207,7 +210,7 @@ public class ValueTypeCastExprTest {
 
     @Test
     public void testAnyToInt() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "anyToInt");
+        BValue[] returns = BTestUtils.invoke(result, "anyToInt", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BInteger);
         final int expected = 5;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
@@ -215,7 +218,7 @@ public class ValueTypeCastExprTest {
 
     @Test
     public void testAnyToFloat() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "anyToFloat");
+        BValue[] returns = BTestUtils.invoke(result, "anyToFloat", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BFloat);
         final double expected = 5.0;
         Assert.assertEquals(((BFloat) returns[0]).intValue(), expected, DELTA);
@@ -223,7 +226,7 @@ public class ValueTypeCastExprTest {
 
     @Test
     public void testAnyToString() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "anyToString");
+        BValue[] returns = BTestUtils.invoke(result, "anyToString", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "test";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -231,7 +234,7 @@ public class ValueTypeCastExprTest {
 
     @Test
     public void testAnyToBoolean() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "anyToBoolean");
+        BValue[] returns = BTestUtils.invoke(result, "anyToBoolean", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final boolean expected = false;
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
@@ -241,7 +244,7 @@ public class ValueTypeCastExprTest {
     public void testAnyToBlob() {
         byte[] data = "string".getBytes();
         BValue[] args = {new BBlob(data)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "anyToBlob", args);
+        BValue[] returns = BTestUtils.invoke(result, "anyToBlob", args);
         Assert.assertTrue(returns[0] instanceof BBlob);
         Assert.assertEquals(((BBlob) returns[0]).blobValue(), data);
     }

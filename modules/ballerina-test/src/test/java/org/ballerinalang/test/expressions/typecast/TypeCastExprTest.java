@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.expressions;
+package org.ballerinalang.test.expressions.typecast;
 
 
 import org.ballerinalang.model.values.BBoolean;
@@ -28,7 +28,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -43,10 +44,12 @@ import org.testng.annotations.Test;
 public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private ProgramFile bLangProgram;
+    private CompileResult result;
+
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/expressions/btype/cast/type-casting.bal");
+        result = BTestUtils.compile("test-src/expressions/cast/type-casting.bal");
     }
 
 //    @Test
@@ -70,7 +73,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToInt() {
         BValue[] args = {new BFloat(222222.44444f)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "floattoint", args);
+        BValue[] returns = BTestUtils.invoke(result, "floattoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "222222";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -79,7 +82,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToFloat() {
         BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "inttofloat", args);
+        BValue[] returns = BTestUtils.invoke(result, "inttofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         double expected = 5.5555555E7;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
@@ -88,7 +91,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToInt() {
         BValue[] args = {new BString("100")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "stringtoint", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringtoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "100";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -97,7 +100,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToFloat() {
         BValue[] args = {new BString("2222.333f")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "stringtofloat", args);
+        BValue[] returns = BTestUtils.invoke(result, "stringtofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         double expected = 2222.333;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
@@ -106,7 +109,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStringToJson", args);
+        BValue[] returns = BTestUtils.invoke(result, "testStringToJson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -124,7 +127,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToString() {
         BValue[] args = {new BInteger(111)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "inttostring", args);
+        BValue[] returns = BTestUtils.invoke(result, "inttostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -133,7 +136,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToString() {
         BValue[] args = {new BFloat(111.333f)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "floattostring", args);
+        BValue[] returns = BTestUtils.invoke(result, "floattostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns[0].stringValue().substring(0, 7), expected);
@@ -142,7 +145,7 @@ public class TypeCastExprTest {
     @Test
     public void testBooleanToString() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "booleantostring", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleantostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -151,7 +154,7 @@ public class TypeCastExprTest {
     @Test
     public void testBooleanAppendToString() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "booleanappendtostring", args);
+        BValue[] returns = BTestUtils.invoke(result, "booleanappendtostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true-append-true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -168,14 +171,14 @@ public class TypeCastExprTest {
 //
     @Test
     public void testJSONToString() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToStringCast");
+        BValue[] returns = BTestUtils.invoke(result, "testJsonToStringCast", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
     @Test
     public void testJSONObjectToStringCast() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJSONObjectToStringCast");
+        BValue[] returns = BTestUtils.invoke(result, "testJSONObjectToStringCast", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "");
         
@@ -185,28 +188,28 @@ public class TypeCastExprTest {
     
     @Test
     public void testJsonToInt() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToInt");
+        BValue[] returns = BTestUtils.invoke(result, "testJsonToInt", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
     @Test
     public void testJsonToFloat() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToFloat");
+        BValue[] returns = BTestUtils.invoke(result, "testJsonToFloat", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.65);
     }
 
     @Test
     public void testJsonToBoolean() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToBoolean");
+        BValue[] returns = BTestUtils.invoke(result, "testJsonToBoolean", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
 
     @Test
     public void testIntArrayToLongArray() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "intarrtofloatarr");
+        BValue[] returns = BTestUtils.invoke(result, "intarrtofloatarr", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BFloatArray);
         BFloatArray result = (BFloatArray) returns[0];
         Assert.assertEquals(result.get(0), 999.0, DELTA);
@@ -290,7 +293,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testStructToStruct() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStructToStruct");
+        BValue[] returns = BTestUtils.invoke(result, "testStructToStruct",new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct student = (BStruct) returns[0];
 
@@ -316,12 +319,12 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "incompatible-struct-cast.bal:24: incompatible types: 'Student' " +
                     "cannot be assigned to 'Person'")
     public void testIncompatibleStructToStructCast() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/incompatible-struct-cast.bal");
+        BTestUtils.compile("test-src/expressions/typecast/incompatible-struct-cast.bal");
     }
 
     @Test(description = "Test casting a JSON integer to a string")
     public void testJsonIntToString() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonIntToString");
+        BValue[] returns = BTestUtils.invoke(result, "testJsonIntToString", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "5");
     }
@@ -331,7 +334,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: " +
                     "'string' cannot be converted to 'int'.*")
     public void testIncompatibleJsonToInt() {
-        BLangFunctions.invokeNew(bLangProgram, "testIncompatibleJsonToInt");
+        BTestUtils.invoke(result, "testIncompatibleJsonToInt", new BValue[]{});
     }
 
     @Test(description = "Test casting an incomatible JSON to float",
@@ -339,7 +342,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: " +
                     "'string' cannot be converted to 'float'.*")
     public void testIncompatibleJsonToFloat() {
-        BLangFunctions.invokeNew(bLangProgram, "testIncompatibleJsonToFloat");
+        BTestUtils.invoke(result, "testIncompatibleJsonToFloat", new BValue[]{});
     }
 
     @Test(description = "Test casting an incomatible JSON to boolean",
@@ -347,7 +350,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: " +
                     "'string' cannot be converted to 'boolean'.*")
     public void testIncompatibleJsonToBoolean() {
-        BLangFunctions.invokeNew(bLangProgram, "testIncompatibleJsonToBoolean");
+        BTestUtils.invoke(result, "testIncompatibleJsonToBoolean", new BValue[]{});
     }
 
     @Test(description = "Test casting a boolean in JSON to int",
@@ -355,7 +358,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: 'boolean' " +
                     "cannot be converted to 'int'.*")
     public void testBooleanInJsonToInt() {
-        BLangFunctions.invokeNew(bLangProgram, "testBooleanInJsonToInt");
+        BTestUtils.invoke(result, "testBooleanInJsonToInt", new BValue[]{});
     }
 
     @Test(description = "Test casting an integer in JSON to float",
@@ -363,40 +366,40 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: 'int' " +
                     "cannot be converted to 'float'.*")
     public void testIntInJsonToFloat() {
-        BLangFunctions.invokeNew(bLangProgram, "testIntInJsonToFloat");
+        BTestUtils.invoke(result, "testIntInJsonToFloat", new BValue[]{});
     }
 
     @Test(description = "Test casting a null JSON to string",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     public void testNullJsonToString() {
-        BLangFunctions.invokeNew(bLangProgram, "testNullJsonToString");
+        BTestUtils.invoke(result, "testNullJsonToString" , new BValue[]{});
     }
 
     @Test(description = "Test casting a null JSON to int",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     public void testNullJsonToInt() {
-        BLangFunctions.invokeNew(bLangProgram, "testNullJsonToInt");
+        BTestUtils.invoke(result, "testNullJsonToInt", new BValue[]{});
     }
 
     @Test(description = "Test casting a null JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     public void testNullJsonToFloat() {
-        BLangFunctions.invokeNew(bLangProgram, "testNullJsonToFloat");
+        BTestUtils.invoke(result, "testNullJsonToFloat", new BValue[]{});
     }
 
     @Test(description = "Test casting a null JSON to boolean",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     public void testNullJsonToBoolean() {
-        BLangFunctions.invokeNew(bLangProgram, "testNullJsonToBoolean");
+        BTestUtils.invoke(result, "testNullJsonToBoolean", new BValue[]{});
     }
 
     @Test(description = "Test casting a null Struct to Struct")
     public void testNullStructToStruct() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testNullStructToStruct");
+        BValue[] returns = BTestUtils.invoke(result, "testNullStructToStruct", new BValue[]{});
         Assert.assertEquals(returns[0], null);
     }
 
@@ -405,7 +408,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'int' cannot be cast to 'json'.*")
     public void testAnyIntToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyIntToJson");
+        BTestUtils.invoke(result, "testAnyIntToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a string as any type to json",
@@ -413,7 +416,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'string' cannot be cast to 'json'.*")
     public void testAnyStringToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyStringToJson");
+        BTestUtils.invoke(result, "testAnyStringToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a boolean as any type to json",
@@ -421,7 +424,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, " +
                     "message: 'boolean' cannot be cast to 'json'.*")
     public void testAnyBooleanToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyBooleanToJson");
+        BTestUtils.invoke(result, "testAnyBooleanToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a float as any type to json",
@@ -429,7 +432,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'float' cannot be cast to 'json'.*")
     public void testAnyFloatToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyFloatToJson");
+        BTestUtils.invoke(result, "testAnyFloatToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a map as any type to json",
@@ -437,7 +440,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'map' " +
                     "cannot be cast to 'json'.*")
     public void testAnyMapToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyMapToJson");
+        BTestUtils.invoke(result, "testAnyMapToJson" ,new BValue[]{});
     }
 
     @Test(description = "Test casting a struct as any type to json",
@@ -445,19 +448,19 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'Address' cannot be cast to 'json'.*")
     public void testAnyStructToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyStructToJson");
+        BTestUtils.invoke(result,"testAnyStructToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a json as any type to json")
     public void testAnyJsonToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyJsonToJson");
+        BValue[] returns = BTestUtils.invoke(result, "testAnyJsonToJson" , new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"home\":\"SriLanka\"}");
     }
 
     @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToJson");
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToJson", new BValue[]{});
         Assert.assertEquals(returns[0], null);
     }
 
@@ -466,7 +469,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'any\\[\\]' " +
                     "cannot be cast to 'json'.*")
     public void testAnyArrayToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyArrayToJson");
+        BTestUtils.invoke(result, "testAnyArrayToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a xml as any type to json",
@@ -474,7 +477,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'message' " +
                     "cannot be cast to 'json'.*")
     public void testAnyMessageToJson() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyMessageToJson");
+        BTestUtils.invoke(result, "testAnyMessageToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a struct to map",
@@ -482,7 +485,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
                     "to 'map', try conversion")
     public void testStructToMap() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/struct-to-map.bal");
+        BTestUtils.compile("test-src/expressions/cast/struct-to-map.bal");
     }
 
     @Test(description = "Test casting a map to struct",
@@ -490,14 +493,14 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
                     "'Person', try conversion")
     public void testMapToStruct() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/map-to-struct.bal");
+        BTestUtils.compile("test-src/expressions/cast/map-to-struct.bal");
     }
 
     @Test(description = "Test casting a json to map",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "json-to-map.bal:9: incompatible types: 'json' cannot be cast to 'map'")
     public void testJsonToMap() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/json-to-map.bal");
+        BTestUtils.compile("test-src/expressions/cast/json-to-map.bal");
     }
 
     @Test(description = "Test casting a json to struct",
@@ -505,7 +508,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
                     " 'Person', try conversion")
     public void testJsonToStruct() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/json-to-struct.bal");
+        BTestUtils.compile("test-src/expressions/cast/json-to-struct.bal");
     }
 
     @Test(description = "Test casting a map to json",
@@ -513,12 +516,12 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "map-to-json-error.bal:7: incompatible types: 'map' cannot " +
                     "be cast to 'json'")
     public void testMapToJsonCastingError() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/map-to-json-error.bal");
+        BTestUtils.compile("test-src/expressions/cast/map-to-json-error.bal");
     }
 
     @Test(description = "Test casting struct stored as any to struct")
     public void testStructAsAnyToStruct() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStructAsAnyToStruct");
+        BValue[] returns = BTestUtils.invoke(result, "testStructAsAnyToStruct", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct student = (BStruct) returns[0];
@@ -549,30 +552,30 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
-        BLangFunctions.invokeNew(bLangProgram, "testAnyToStruct");
+        BTestUtils.invoke(result, "testAnyToStruct" , new BValue[]{});
     }
 
     @Test(description = "Test casting a null stored as any to struct")
     public void testAnyNullToStruct() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToStruct");
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToStruct",new BValue[]{});
         Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting a null stored as any to map")
     public void testAnyNullToMap() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToMap");
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToMap", new BValue[]{});
         Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting a null stored as any to xml")
     public void testAnyNullToXml() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToXml");
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToXml", new BValue[]{});
         Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test explicit casting struct to any")
     public void testStructToAnyExplicit() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStructToAnyExplicit");
+        BValue[] returns = BTestUtils.invoke(result, "testStructToAnyExplicit", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct student = (BStruct) returns[0];
 
@@ -597,7 +600,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test explicit casting struct to any")
     public void testMapToAnyExplicit() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMapToAnyExplicit");
+        BValue[] returns = BTestUtils.invoke(result, "testMapToAnyExplicit", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BString> map = (BMap<String, BString>) returns[0];
         Assert.assertEquals(map.get("name").stringValue(), "supun");
@@ -605,16 +608,15 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
-        ProgramFile bLangProgram = BTestUtils.getProgramFile("lang/expressions/btype/cast/foo");
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
-                "lang.expressions.btype.cast.foo", "testCastToStructInDifferentPkg");
+        result = BTestUtils.compile("lang/expressions/btype/cast/foo");
+        BValue[] returns = BTestUtils.invoke(result,"testCastToStructInDifferentPkg", new BValue[]{});
     }
 
     // Casting with errors returned
 
     @Test
     public void testCompatibleStructForceCasting() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testCompatibleStructForceCasting", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testCompatibleStructForceCasting", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct structC = (BStruct) returns[0];
 
@@ -628,7 +630,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testInCompatibleStructForceCasting() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testInCompatibleStructForceCasting", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 
         // check whether struct is null
         Assert.assertNull(returns[0]);
@@ -651,7 +653,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types: " +
                     "expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/mismatch-error-in-multi-return-casting.bal");
+        BTestUtils.compile("test-src/expressions/cast/mismatch-error-in-multi-return-casting.bal");
     }
 
     @Test(description = "Test casting with too many returns",
@@ -659,13 +661,13 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "casting-with-too-many-returns.bal:17: assignment count mismatch: " +
                     "3 != 2")
     public void testCastingWithTooManyReturns() {
-        BTestUtils.getProgramFile("lang/expressions/btype/cast/casting-with-too-many-returns.bal");
+        BTestUtils.compile("test-src/expressions/cast/casting-with-too-many-returns.bal");
     }
 
 
     @Test
     public void testAnyToStringWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToStringWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToStringWithErrors", new BValue[]{});
 
         // check whether string is empty
         //TODO : Check with VM string registry maintain empty as null
@@ -680,7 +682,7 @@ public class TypeCastExprTest {
 
     @Test (description = "Test any to string casting happens without errors, error struct should be null")
     public void testAnyToStringWithoutErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToStringWithoutErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToStringWithoutErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -692,7 +694,7 @@ public class TypeCastExprTest {
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
     public void testAnyToIntWithoutErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToIntWithoutErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToIntWithoutErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -704,7 +706,7 @@ public class TypeCastExprTest {
 
     @Test (description = "Test any to float casting happens without errors, error struct should be null")
     public void testAnyToFloatWithoutErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToFloatWithoutErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToFloatWithoutErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -716,7 +718,7 @@ public class TypeCastExprTest {
 
     @Test (description = "Test any to boolean casting happens without errors, error struct should be null")
     public void testAnyToBooleanWithoutErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToBooleanWithoutErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToBooleanWithoutErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -728,7 +730,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToStringWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToStringWithErrors", new BValue[]{});
 
         // check whether string is empty
         //TODO : Check with VM string registry maintain empty as null
@@ -743,7 +745,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToBooleanWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToBooleanWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
         // check whether string is empty
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -757,7 +759,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToBooleanWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToBooleanWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToBooleanWithErrors", new BValue[]{});
 
         // check whether string is empty
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -771,7 +773,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToIntWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToIntWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToIntWithErrors", new BValue[]{});
 
         // check whether int is zero
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -785,7 +787,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToIntWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToIntWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToIntWithErrors", new BValue[]{});
 
         // check whether int is zero
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -799,7 +801,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToFloatWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToFloatWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToFloatWithErrors", new BValue[]{});
 
         // check whether float is zero
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
@@ -813,7 +815,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToFloatWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToFloatWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToFloatWithErrors", new BValue[]{});
 
         // check whether float is zero
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
@@ -827,7 +829,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToMapWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToMapWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToMapWithErrors", new BValue[]{});
 
         // check whether map is null
         Assert.assertNull(returns[0]);

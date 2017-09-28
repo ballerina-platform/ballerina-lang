@@ -216,7 +216,7 @@ public class IfElseStmtTest {
 
     @Test(description = "Test if condition parameter resolver scope")
     public void testIfConditionScope() {
-        result = BTestUtils.compile("test-src/statements/ifelse/if-condition-scope.bal.bal");
+        result = BTestUtils.compile("test-src/statements/ifelse/if-condition-scope.bal");
 
 
         BValue[] args1 = { new BInteger(3)};

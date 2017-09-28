@@ -15,9 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.values;
+package org.ballerinalang.test.types.Float;
 
-import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -38,10 +41,12 @@ import org.testng.annotations.Test;
 public class BFloatValueTest {
     private static final double DELTA = 0.01;
     private ProgramFile bLangProgram;
+    private CompileResult result;
+
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/values/float-value.bal");
+        result = BTestUtils.compile("test-src/types/Float/float-value.bal");
     }
 
     @Test(description = "Test double value assignment")

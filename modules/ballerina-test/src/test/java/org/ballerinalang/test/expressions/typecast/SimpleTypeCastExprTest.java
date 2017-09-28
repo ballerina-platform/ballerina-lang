@@ -15,15 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,11 +32,11 @@ import org.testng.annotations.Test;
  */
 public class SimpleTypeCastExprTest {
 
-    private ProgramFile programFile;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/expressions/simple-type-cast.bal");
+        result = BTestUtils.compile("test-src/expressions/typecast/simple-type-cast.bal");
     }
 
     @Test
@@ -82,7 +81,7 @@ public class SimpleTypeCastExprTest {
 
     private void testBooleanToIntCast(Boolean input, long excepted, String functionName) {
         BValue[] args = { new BBoolean(input) };
-        BValue[] returns = BLangFunctions.invokeNew(programFile, functionName, args);
+        BValue[] returns = BTestUtils.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), excepted);
@@ -90,7 +89,7 @@ public class SimpleTypeCastExprTest {
 
     private void testBooleanToFloatCast(Boolean input, double excepted, String functionName) {
         BValue[] args = { new BBoolean(input) };
-        BValue[] returns = BLangFunctions.invokeNew(programFile, functionName, args);
+        BValue[] returns = BTestUtils.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), excepted);
@@ -98,7 +97,7 @@ public class SimpleTypeCastExprTest {
 
     private void testIntToBooleanCast(int input, boolean excepted) {
         BValue[] args = { new BInteger(input) };
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "intToBooleanExplicit", args);
+        BValue[] returns = BTestUtils.invoke(result, "intToBooleanExplicit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), excepted);
@@ -106,7 +105,7 @@ public class SimpleTypeCastExprTest {
 
     private void testFloatToBooleanCast(float input, boolean excepted) {
         BValue[] args = { new BFloat(input) };
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatToBooleanExplicit", args);
+        BValue[] returns = BTestUtils.invoke(result, "floatToBooleanExplicit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), excepted);
