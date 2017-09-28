@@ -1081,12 +1081,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectorVarDefStatement(BallerinaParser.ConnectorVarDefStatementContext ctx) {
-        this.pkgBuilder.addConnectorVarDeclaration(getCurrentPos(ctx),
-                ctx.Identifier().getText(), ctx.ASSIGN() != null);
-    }
-
-    @Override
     public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
         this.pkgBuilder.startMapStructLiteral();
     }
@@ -1353,7 +1347,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        this.pkgBuilder.addTimeoutCause(ctx.Identifier().getText());
+        this.pkgBuilder.addTimeoutCause(ctx.Identifier().getText(), this.getWS(ctx));
     }
 
     @Override

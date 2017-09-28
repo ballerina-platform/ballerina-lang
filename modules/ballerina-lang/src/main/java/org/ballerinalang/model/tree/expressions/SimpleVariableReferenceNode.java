@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
  */
 public interface SimpleVariableReferenceNode extends VariableReferenceNode {
 
-    IdentifierNode getPackageIdentifier();
+    IdentifierNode getPackageAlias();
 
     IdentifierNode getVariableName();
 }
