@@ -16,7 +16,7 @@ class Tool extends React.Component {
                 dispatch } = this.props;
 
         if (!isVisible()) {
-            return (<noscript />);
+            return null;
         }
         return (
             <div
