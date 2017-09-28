@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl;
 
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
@@ -40,14 +42,17 @@ import java.util.Map;
  */
 public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
 
-    private int serverSocketThreads = Runtime.getRuntime().availableProcessors();
-    private int childSocketThreads = Runtime.getRuntime().availableProcessors() * 2;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
 
-    public HttpWsConnectorFactoryImpl() {}
+    public HttpWsConnectorFactoryImpl() {
+        bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
+        workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+    }
 
     public HttpWsConnectorFactoryImpl(int serverSocketThreads, int childSocketThreads) {
-        this.serverSocketThreads = serverSocketThreads;
-        this.childSocketThreads = childSocketThreads;
+        bossGroup = new NioEventLoopGroup(serverSocketThreads);
+        workerGroup = new NioEventLoopGroup(childSocketThreads);
     }
 
     @Override
@@ -58,7 +63,8 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addSecurity(listenerConfig.getSslConfig());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
-        serverConnectorBootstrap.addThreadPools(serverSocketThreads, childSocketThreads);
+        serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);
+        serverConnectorBootstrap.addHeaderAndEntitySizeValidation(listenerConfig.getRequestSizeValidationConfig());
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }
