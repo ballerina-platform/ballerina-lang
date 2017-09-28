@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.var;
+package org.ballerinalang.test.types.var;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -23,7 +23,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -40,22 +41,24 @@ import org.testng.annotations.Test;
 public class VarDeclaredAssignmentStmtTest {
 
     private ProgramFile bLangProgram;
+    private CompileResult result;
+
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/var/var-type-assign-stmt.bal");
+        result = BTestUtils.compile("test-src/types/var/var-type-assign-stmt.bal");
     }
 
     @Test(description = "Test int to var assignment.")
     public void testIntToVarAssignment() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntToVarAssignment",
+        BValue[] returns = BTestUtils.invoke(result, "testIntToVarAssignment",
                 new BValue[]{});
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 81);
     }
 
     @Test(description = "Test multiple int to var assignment.")
     public void testMultipleIntToVarAssignment() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMultipleIntToVarAssignment",
+        BValue[] returns = BTestUtils.invoke(result, "testMultipleIntToVarAssignment",
                 new BValue[]{});
         Assert.assertEquals(returns.length, 4);
 
@@ -72,7 +75,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int var assignment with underscore.")
     public void testMultipleIntToVarAssignmentWithUnderscore() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMultipleIntToVarAssignmentWithUnderscore",
+        BValue[] returns = BTestUtils.invoke(result, "testMultipleIntToVarAssignmentWithUnderscore",
                 new BValue[]{});
         Assert.assertEquals(returns.length, 2);
 
@@ -85,7 +88,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int var assignment with underscore.")
     public void testMultipleIntToVarAssignmentWithUnderscoreCaseOne() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+        BValue[] returns = BTestUtils.invoke(result,
                 "testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne",
                 new BValue[]{});
         Assert.assertEquals(returns.length, 2);
@@ -99,7 +102,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int var assignment with underscore.")
     public void testMultipleIntToVarAssignmentWithUnderscoreCaseTwo() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+        BValue[] returns = BTestUtils.invoke(result,
                 "testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo",
                 new BValue[]{});
         Assert.assertEquals(returns.length, 2);
@@ -113,14 +116,14 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test string to var assignment.")
     public void testStringToVarAssignment() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStringToVarAssignment",
+        BValue[] returns = BTestUtils.invoke(result, "testStringToVarAssignment",
                 new BValue[]{});
         Assert.assertEquals(((BString) returns[0]).stringValue(), "name");
     }
 
     @Test(description = "Test multiple string to var assignment.")
     public void testMultipleStringToVarAssignment() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMultipleStringToVarAssignment",
+        BValue[] returns = BTestUtils.invoke(result, "testMultipleStringToVarAssignment",
                 new BValue[]{});
         Assert.assertEquals(returns.length, 4);
 
@@ -137,7 +140,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test var with at least non declared ref in LHS expr.")
     public void testVarDeclarationWithAtLeaseOneNonDeclaredSymbol() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testVarDeclarationWithAtLeaseOneNonDeclaredSymbol",
+        BValue[] returns = BTestUtils.invoke(result, "testVarDeclarationWithAtLeaseOneNonDeclaredSymbol",
                 new BValue[]{});
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertNull(returns[1]);
@@ -145,7 +148,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBooleanToVarAssignment",
+        BValue[] returns = BTestUtils.invoke(result, "testBooleanToVarAssignment",
                 new BValue[]{});
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
@@ -153,58 +156,58 @@ public class VarDeclaredAssignmentStmtTest {
     @Test(description = "Test var in variable def.", expectedExceptions = {ParserException.class})
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
-        BTestUtils.getProgramFile("lang/var/var-type-variable-def-negative.bal");
+        BTestUtils.compile("test-src/types/var/var-type-variable-def-negative.bal");
     }
 
     @Test(description = "Test var in global variable def.", expectedExceptions = {ParserException.class})
     public void testVarTypeInGlobalVariableDefStatement() {
         //var type is not not allowed in global variable def statements
-        BTestUtils.getProgramFile("lang/var/global-variable-def-var-type-negative.bal");
+        BTestUtils.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
     }
 
     @Test(description = "Test var in service level var def.", expectedExceptions = {ParserException.class})
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
-        BTestUtils.getProgramFile("lang/var/service-level-variable-def-with-var-type-negative.bal");
+        BTestUtils.compile("test-src/types/var/service-level-variable-def-with-var-type-negative.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class }, expectedExceptionsMessageRegExp = ".*invalid usage of var")
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         //all the expression of LHS of var declaration should be variable references
-        BTestUtils.getProgramFile("lang/var/var-invalid-usage-struct-field-access.bal");
+        BTestUtils.compile("test-src/types/var/var-invalid-usage-struct-field-access.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = ".*'age' is repeated on the left side of assignment")
     public void testVarDeclarationWithDuplicateVariableRefs() {
         //all the expression of LHS of var declaration should be unique variable references
-        BTestUtils.getProgramFile("lang/var/var-duplicate-variable-ref-lhs-expr.bal");
+        BTestUtils.compile("test-src/types/var/var-duplicate-variable-ref-lhs-expr.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = ".*invalid usage of var")
     public void testVarDeclarationWithArrayInit() {
         //var declarations cannot have array init, json init over RHS expr
-        BTestUtils.getProgramFile("lang/var/var-declaration-with-array-init.bal");
+        BTestUtils.compile("test-src/types/var/var-declaration-with-array-init.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class },
           expectedExceptionsMessageRegExp = "var-declared-symbols.bal:7: no new variables on left side")
     public void testVarDeclarationWithAllDeclaredSymbols() {
         //var declarations should at least one non declared var ref symbol
-        BTestUtils.getProgramFile("lang/var/var-declared-symbols.bal");
+        BTestUtils.compile("test-src/types/var/var-declared-symbols.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "var-all-ignored-symbols.bal:3: no new variables on left side")
     public void testVarDeclarationWithAllIgnoredSymbols() {
         //var declarations should at least one non declared var ref symbol
-        BTestUtils.getProgramFile("lang/var/var-all-ignored-symbols.bal");
+        BTestUtils.compile("test-src/types/var/var-all-ignored-symbols.bal");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
     public void testIncompatibleJsonToStructWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIncompatibleJsonToStructWithErrors",
+        BValue[] returns = BTestUtils.invoke(result, "testIncompatibleJsonToStructWithErrors",
                 new BValue[]{});
         Assert.assertNull(returns[0]);
         Assert.assertTrue(returns[1] instanceof BStruct);
@@ -216,7 +219,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test incompatible json to struct with errors.")
     public void testJsonToStructWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToStructWithErrors",
+        BValue[] returns = BTestUtils.invoke(result, "testJsonToStructWithErrors",
                 new BValue[]{});
         Assert.assertNull(returns[0]);
         Assert.assertTrue(returns[1] instanceof BStruct);
@@ -228,7 +231,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test compatible struct with force casting.")
     public void testCompatibleStructForceCasting() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testCompatibleStructForceCasting", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testCompatibleStructForceCasting", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct structC = (BStruct) returns[0];
 
@@ -242,7 +245,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test incompatible struct with force casting.")
     public void testInCompatibleStructForceCasting() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testInCompatibleStructForceCasting", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 
         // check whether struct is null
         Assert.assertNull(returns[0]);
@@ -262,7 +265,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to string with errors.")
     public void testAnyToStringWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToStringWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToStringWithErrors", new BValue[]{});
 
         // check whether string is empty
         Assert.assertEquals(returns[0].stringValue(), "");
@@ -276,7 +279,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to string with errors.")
     public void testAnyNullToStringWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToStringWithErrors", new BValue[]{});
 
         // check whether string is empty
         Assert.assertEquals(returns[0].stringValue(), "");
@@ -290,7 +293,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to boolean with errors.")
     public void testAnyToBooleanWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToBooleanWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
         // check whether string is empty
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -304,7 +307,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to boolean with errors.")
     public void testAnyNullToBooleanWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToBooleanWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToBooleanWithErrors", new BValue[]{});
 
         // check whether string is empty
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -318,7 +321,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to int with errors.")
     public void testAnyToIntWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToIntWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToIntWithErrors", new BValue[]{});
 
         // check whether int is zero
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -332,7 +335,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to int with errors.")
     public void testAnyNullToIntWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToIntWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToIntWithErrors", new BValue[]{});
 
         // check whether int is zero
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -346,7 +349,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to float with errors.")
     public void testAnyToFloatWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToFloatWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToFloatWithErrors", new BValue[]{});
 
         // check whether float is zero
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
@@ -360,7 +363,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to float with errors.")
     public void testAnyNullToFloatWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToFloatWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToFloatWithErrors", new BValue[]{});
 
         // check whether float is zero
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
@@ -374,7 +377,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to map with errors.")
     public void testAnyToMapWithErrors() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToMapWithErrors", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyToMapWithErrors", new BValue[]{});
 
         // check whether map is null
         Assert.assertNull(returns[0]);
