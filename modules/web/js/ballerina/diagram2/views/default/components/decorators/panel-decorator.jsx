@@ -26,8 +26,9 @@ import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import PanelDecoratorButton from './panel-decorator-button';
 import EditableText from './editable-text';
 import { util } from '../../sizing-util_bk';
-import { getComponentForNodeArray } from './../../../../diagram-util';
 import './panel-decorator.css';
+import ArgumentParameterDefinitionHolder from './../nodes/argument-parameter-definition-holder';
+import ReturnParameterDefinitionHolder from './../nodes/return-parameter-definition-holder';
 
 /* TODOX
 import ASTNode from '../../../../ast/node';
@@ -191,7 +192,7 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
 
-        const titleComponents = this.getTitleComponents(this.props.titleComponentData);
+        // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const annotations = []; // this.props.model.getChildren().filter(
                               //                          child => ASTFactory.isAnnotationAttachment(child));
         const annotationString = this.getAnnotationsString(annotations);
@@ -283,7 +284,22 @@ class PanelDecorator extends React.Component {
                 >
                     <title>Add Annotation</title> </image>
                 {titleComponents}*/}
+
                 {rightHeadingButtons}
+                { this.props.argumentParams &&
+                    <ArgumentParameterDefinitionHolder
+                        model={this.props.model}
+                    >
+                        {this.props.argumentParams}
+                    </ArgumentParameterDefinitionHolder>
+                }
+                { this.props.returnParams &&
+                <ReturnParameterDefinitionHolder
+                    model={this.props.model}
+                >
+                    {this.props.returnParams}
+                </ReturnParameterDefinitionHolder>
+                }
             </g>
             <g className={panelBodyClassName}>
                 <CSSTransitionGroup
@@ -365,20 +381,6 @@ class PanelDecorator extends React.Component {
             }
         } */
         e.stopPropagation();
-    }
-
-    getTitleComponents(titleComponentData) {
-        const components = [];
-        if (!_.isUndefined(titleComponentData)) {
-            for (const componentData of titleComponentData) {
-                if (componentData.isNode) {
-                    components.push(getComponentForNodeArray([componentData.model])[0]);
-                } else {
-                    components.push(componentData.model);
-                }
-            }
-        }
-        return components;
     }
 
     getAnnotationComponents(annotationComponentData, bBox, titleHeight) {
