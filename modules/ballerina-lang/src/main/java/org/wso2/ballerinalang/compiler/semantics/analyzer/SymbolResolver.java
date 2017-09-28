@@ -348,12 +348,24 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        // 2) Lookup the current package scope.
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
-        BSymbol symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                this.env, typeName, SymTag.TYPE);
+        BSymbol symbol = symTable.notFoundSymbol;
+
+        // 2) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
+        // Only valued types and ANNOTATION type allowed.
+        if (env.scope.owner.tag == SymTag.ANNOTATION) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
+                    this.env, typeName, SymTag.ANNOTATION);
+        }
+
+        // 3) Lookup the current package scope.
         if (symbol == symTable.notFoundSymbol) {
-            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
+                    this.env, typeName, SymTag.TYPE);
+        }
+
+        if (symbol == symTable.notFoundSymbol) {
+            // 4) Lookup the root scope for types such as 'error'
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
                     this.env, typeName, SymTag.TYPE);
         }

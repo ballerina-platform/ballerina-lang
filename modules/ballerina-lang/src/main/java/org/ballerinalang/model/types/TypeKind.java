@@ -59,6 +59,7 @@ public enum TypeKind {
     ENUM("enum"),
     CONNECTOR("connector"),
     FUNCTION("function"),
+    ANNOTATION("annotation"),
     ARRAY("[]"),
     VOID(""),
     NONE(""),
