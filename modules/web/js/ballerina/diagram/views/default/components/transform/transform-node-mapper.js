@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTFactory from '../../../../../ast/ast-factory';
+import TreeUtil from '../../../../../model/tree-util';
 import DefaultASTFactory from '../../../../../ast/default-ast-factory';
 
 const ExpressionType = {
@@ -965,8 +966,8 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getMappableExpression(expression) {
-        if (ASTFactory.isTypeCastExpression(expression) || ASTFactory.isTypeConversionExpression(expression)) {
-            return expression.getRightExpression();
+        if (TreeUtil.isTypeCastExpr(expression) || TreeUtil.isTypeConversionExpr(expression)) {
+            return expression.getExpression();
         }
         return expression;
     }
@@ -1093,9 +1094,10 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     isInTransformInputOutput(expression) {
-        const inputOutput = [...this._transformStmt.getInput(), ...this._transformStmt.getOutput()];
+        const inputOutput = [...this._transformStmt.getInputExpressions(),
+            ...this._transformStmt.getOutputExpressions()];
         const ioReference = inputOutput.find((io) => {
-            return io.getExpressionString().trim() === expression.getExpressionString().trim();
+            return io.getSource().trim() === expression.getSource().trim();
         });
         return (ioReference !== undefined);
     }
@@ -1108,7 +1110,7 @@ class TransformNodeMapper {
     */
     isErrorExpression(expression) {
         // TODO: enhance for user defined errors
-        return (expression.getExpressionString().trim() === '_');
+        return (expression.getSource().trim() === '_');
     }
 
     /**
@@ -1132,29 +1134,32 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getVerticesFromExpression(expression) {
-        if (ASTFactory.isSimpleVariableReferenceExpression(expression)) {
+        if (TreeUtil.isSimpleVariableRef(expression)) {
             return [expression];
         }
-        if (ASTFactory.isFieldBasedVarRefExpression(expression)) {
+        if (TreeUtil.isFieldBasedAccessExpr(expression)) {
             return [expression];
         }
-        if (ASTFactory.isReferenceTypeInitExpression(expression)) {
+        if (TreeUtil.isReferenceTypeInitExpression(expression)) {
             log.error('not implemented reference type init expression');
         }
-        if (ASTFactory.isTypeCastExpression(expression) || ASTFactory.isTypeConversionExpression(expression)) {
-            return [...this.getVerticesFromExpression(expression.getRightExpression())];
+        if (TreeUtil.isTypeCastExpr(expression) || TreeUtil.isTypeConversionExpr(expression)) {
+            return [...this.getVerticesFromExpression(expression.getExpression())];
         }
-        if (ASTFactory.isFunctionInvocationExpression(expression)) {
+        if (TreeUtil.isInvocation(expression)) {
             return _.flatten(expression.getChildren().map((exp) => {
                 return [...this.getVerticesFromExpression(exp)];
             }));
         }
-        if (ASTFactory.isBinaryExpression(expression)) {
+        if (TreeUtil.isBinaryExpr(expression)) {
             return [...this.getVerticesFromExpression(expression.getLeftExpression()),
                 ...this.getVerticesFromExpression(expression.getRightExpression())];
         }
-        if (ASTFactory.isUnaryExpression(expression)) {
-            return this.getVerticesFromExpression(expression.getRightExpression());
+        if (TreeUtil.isUnaryExpr(expression)) {
+            return this.getVerticesFromExpression(expression.getExpression());
+        }
+        if (TreeUtil.isTernaryExpr(expression)) {
+            log.error('not implemented reference type init expression');
         }
         return [];
     }
@@ -1182,9 +1187,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getOutputStatement(expression) {
-        return this._transformStmt.filterChildren(ASTFactory.isAssignmentStatement).find((stmt) => {
+        return this._transformStmt.filterChildren(TreeUtil.isAssignment).find((stmt) => {
             return stmt.getLeftExpression().getChildren().find((exp) => {
-                return expression.getExpressionString().trim() === exp.getExpressionString().trim();
+                return expression.getSource().trim() === exp.getSource().trim();
             });
         });
     }
@@ -1197,9 +1202,9 @@ class TransformNodeMapper {
     * @memberof TransformNodeMapper
     */
     getInputStatements(expression) {
-        return this._transformStmt.getChildren().filter((stmt) => {
-            const matchingInput = this.getVerticesFromExpression(stmt.getRightExpression()).filter((exp) => {
-                return (exp.getExpressionString().trim() === expression.getExpressionString().trim());
+        return this._transformStmt.getBody().getStatements().filter((stmt) => {
+            const matchingInput = this.getVerticesFromExpression(stmt.getExpression()).filter((exp) => {
+                return (exp.getSource().trim() === expression.getSource().trim());
             });
             return (matchingInput.length > 0);
         });
