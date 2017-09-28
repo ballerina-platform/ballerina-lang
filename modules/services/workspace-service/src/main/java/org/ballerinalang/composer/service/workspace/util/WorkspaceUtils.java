@@ -225,7 +225,7 @@ public class WorkspaceUtils {
      * @param pkg BLangPackage instance
      * @param packages packages map
      */
-    private static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
+    public static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
                                        Map<String, ModelPackage> packages) {
         if (pkg != null) {
            // Stream.of(pkg.getAnnotations()).forEach((annotationDef) -> extractAnnotationDefs(packages,
