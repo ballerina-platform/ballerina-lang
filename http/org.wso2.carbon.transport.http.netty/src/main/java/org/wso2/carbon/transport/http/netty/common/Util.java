@@ -256,7 +256,7 @@ public class Util {
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
             }
         }
-        if (verifyClient != null && verifyClient.equals("require")) {
+        if (verifyClient != null && verifyClient.equalsIgnoreCase("require")) {
             sslConfig.setNeedClientAuth(true);
         }
         if (trustStoreFilePath != null) {
