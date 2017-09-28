@@ -12,13 +12,17 @@ class Tool extends React.Component {
      * @inheritdoc
      */
     render() {
-        const { tool: { icon, commandID, commandArgs = {}, isActive = () => true },
+        const { tool: { icon, commandID, commandArgs = {}, isActive = () => true, isVisible = () => true },
                 dispatch } = this.props;
+
+        if (!isVisible()) {
+            return (<noscript />);
+        }
         return (
             <div
-                className={cn('tool-bar-tool', { active: isActive() })}
+                className={cn('tool-bar-tool', { active: isActive(), visible: isVisible() })}
                 onClick={() => {
-                    if (isActive()) {
+                    if (isActive() && isVisible()) {
                         dispatch(commandID, commandArgs);
                     }
                 }}
