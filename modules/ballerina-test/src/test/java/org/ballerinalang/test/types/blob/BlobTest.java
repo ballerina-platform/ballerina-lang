@@ -15,12 +15,13 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.functions;
+package org.ballerinalang.test.types.blob;
 
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,18 +37,20 @@ import java.io.UnsupportedEncodingException;
 public class BlobTest {
 
     private ProgramFile bLangProgram;
+    private CompileResult result;
+
     private static final String content = "This is a sample string";
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("samples/blobTest.bal");
+        result = BTestUtils.compile("test-src/types/blob/blobTest.bal");
     }
 
 
     @Test(description = "Get string representation of json")
     public void testToString() throws UnsupportedEncodingException {
         BValue[] args = {new BBlob(content.getBytes("UTF-8")), new BString("UTF-8")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "toString", args);
+        BValue[] returns = BTestUtils.invoke(result, "toString", args);
 
         final String expected = content;
         Assert.assertEquals(returns[0].stringValue(), expected);

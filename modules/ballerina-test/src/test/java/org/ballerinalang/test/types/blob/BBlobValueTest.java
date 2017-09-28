@@ -15,11 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.values;
+package org.ballerinalang.test.types.blob;
 
-import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,16 +32,18 @@ import org.testng.annotations.Test;
 public class BBlobValueTest {
     private ProgramFile bLangProgram;
 
-    @BeforeClass(alwaysRun = true)
-    public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/values/blob-value.bal");
+    private CompileResult result;
+    private final String funcName = "testIfStmt";
+
+    @BeforeClass
+    public void setup() { result = BTestUtils.compile("test-src/types/blob/blob-value.bal");
     }
 
     @Test(description = "Test blob value assignment")
     public void testBlobParameter() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobParameter", args);
+        BValue[] returns = BTestUtils.invoke(result, "testBlobParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];
@@ -51,7 +55,7 @@ public class BBlobValueTest {
         byte[] bytes1 = "string1".getBytes();
         byte[] bytes2 = "string2".getBytes();
         BValue[] args = {new BBlob(bytes1), new BBlob(bytes2)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobParameterArray", args);
+        BValue[] returns = BTestUtils.invoke(result, "testBlobParameterArray", args);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         Assert.assertSame(returns[1].getClass(), BBlob.class);
@@ -65,7 +69,7 @@ public class BBlobValueTest {
     public void testBlobGlobalVariable() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testGlobalVariable", args);
+        BValue[] returns = BTestUtils.invoke(result, "testGlobalVariable", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];
@@ -76,7 +80,7 @@ public class BBlobValueTest {
     public void testBlobField() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobField", args);
+        BValue[] returns = BTestUtils.invoke(result, "testBlobField", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];
