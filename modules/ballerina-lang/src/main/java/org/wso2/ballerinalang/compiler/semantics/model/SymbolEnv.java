@@ -85,7 +85,7 @@ public class SymbolEnv {
     public static SymbolEnv createPkgLevelSymbolEnv(BLangNode node,
                                                     Scope scope, SymbolEnv pkgEnv) {
         SymbolEnv symbolEnv = duplicate(node, scope, pkgEnv);
-        symbolEnv.enclPkg = (BLangPackage) pkgEnv.node;
+        symbolEnv.enclPkg = pkgEnv.enclPkg;
         return symbolEnv;
     }
 

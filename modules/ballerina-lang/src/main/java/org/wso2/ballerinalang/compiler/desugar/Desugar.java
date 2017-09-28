@@ -17,10 +17,14 @@
 */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -39,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
@@ -47,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -109,6 +115,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
 
     private BLangNode result;
 
@@ -125,6 +132,7 @@ public class Desugar extends BLangNodeVisitor {
         context.put(DESUGAR_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -135,15 +143,24 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.DESUGAR)) {
+            result = pkgNode;
+            return;
+        }
+        pkgNode.imports = rewrite(pkgNode.imports);
         pkgNode.globalVars = rewrite(pkgNode.globalVars);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
+        pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
+        BPackageSymbol pkgSymbol = importPkgNode.symbol;
+        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        rewrite(pkgEnv.node);
         result = importPkgNode;
     }
 
@@ -181,8 +198,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConnector connectorNode) {
+        connectorNode.params = rewrite(connectorNode.params);
         connectorNode.actions = rewrite(connectorNode.actions);
         connectorNode.varDefs = rewrite(connectorNode.varDefs);
+        connectorNode.initFunction = rewrite(connectorNode.initFunction);
         result = connectorNode;
     }
 
@@ -190,6 +209,13 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangAction actionNode) {
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
+
+        // we rewrite it's parameter list to have the receiver variable as the first parameter
+        BInvokableSymbol actionSymbol = actionNode.symbol;
+        List<BVarSymbol> params = actionSymbol.params;
+        params.add(0, actionNode.symbol.receiverSymbol);
+        BInvokableType actionType = (BInvokableType) actionSymbol.type;
+        actionType.paramTypes.add(0, actionNode.symbol.receiverSymbol.type);
         result = actionNode;
     }
 
@@ -388,7 +414,7 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ||
                 (ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
-            // Field variable in a struct or a connector
+            // Field variable in a struct or a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -471,9 +497,16 @@ public class Desugar extends BLangNodeVisitor {
                 result = new BLangFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol, iExpr.types);
                 break;
             case TypeTags.CONNECTOR:
-                // TODO 
+                List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
+                actionArgExprs.add(0, iExpr.expr);
+                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);
                 break;
         }
+    }
+
+    public void visit(BLangConnectorInit connectorInitExpr) {
+        connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
+        result = connectorInitExpr;
     }
 
     @Override

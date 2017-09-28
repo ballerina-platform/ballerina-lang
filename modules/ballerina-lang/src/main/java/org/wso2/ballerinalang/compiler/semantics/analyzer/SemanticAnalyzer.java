@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -131,6 +133,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
 
         // Visit all the imported packages
@@ -138,6 +143,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -259,6 +266,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
+        BSymbol connectorSymbol = connectorNode.symbol;
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
+        connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
+        connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
+        connectorNode.annAttachments.forEach(annotation -> this.analyzeDef(annotation, connectorEnv));
+        this.analyzeDef(connectorNode.initFunction, connectorEnv);
+        connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
+    }
+
+    public void visit(BLangAction actionNode) {
+        BSymbol actionSymbol = actionNode.symbol;
+        if (Symbols.isNative(actionSymbol)) {
+            return;
+        }
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
+        actionNode.annAttachments.forEach(a -> this.analyzeDef(a, actionEnv));
+        actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
+        analyzeStmt(actionNode.body, actionEnv);
+        // Process workers
+        actionNode.workers.forEach(e -> this.symbolEnter.defineNode(e, actionEnv));
+        actionNode.workers.forEach(e -> analyzeNode(e, actionEnv));
     }
 
     public void visit(BLangService serviceNode) {
@@ -266,6 +294,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
+        this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
     }
 

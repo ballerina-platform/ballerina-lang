@@ -30,7 +30,5 @@ public interface ConnectorInitNode extends ExpressionNode {
 
     List<? extends ExpressionNode> getExpressions();
 
-    void addExpression(ExpressionNode expressionNode);
-
     List<? extends ConnectorInitNode> getFilterConnectos();
 }
