@@ -33,8 +33,7 @@ public class SubtractOperationTest {
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/expressions/binaryoperations/subtract-operation.bal");
-        /*resultNegative = BTestUtils.
-         compile("test-src/expressions/binaryoperations/subtract-operation-negative.bal");*/
+        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/subtract-operation-negative.bal");
     }
 
     @Test(description = "Test two int subtract expression")
@@ -76,8 +75,10 @@ public class SubtractOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test binary statement with errors")
+    @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BTestUtils.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 8);
+        BTestUtils.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 9);
     }
 }
