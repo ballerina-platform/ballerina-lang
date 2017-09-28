@@ -49,6 +49,7 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPacka
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
@@ -56,10 +57,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -71,6 +75,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -178,9 +183,6 @@ public class LangServerManager {
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
                     this.getCompletionItems(message);
-                    break;
-                case LangServerConstants.PROGRAM_DIRECTORY_PACKAGES:
-                    //this.getProgramPackages(message);
                     break;
                 case LangServerConstants.BUILT_IN_PACKAGES:
                     this.getBuiltInPackages(message);
@@ -436,49 +438,6 @@ public class LangServerManager {
     private void exit(Message message) {
         //Exit the process
     }
-
-
-    /**
-     * Get all the packages in the program directory. Calling this method will update the "programPackagesMap"
-     * which is used to keep program packages against a file path.
-     *
-     * @param message Request Message
-     */
-//    private void getProgramPackages(Message message) {
-//        if (message instanceof RequestMessage) {
-//            JsonObject response = new JsonObject();
-//            Map<String, ModelPackage> packages;
-//            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-//            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
-//                    TextDocumentPositionParams.class);
-//            String fileName = textDocumentPositionParams.getFileName();
-//            String filePath = textDocumentPositionParams.getFilePath();
-//            String packageName = textDocumentPositionParams.getPackageName();
-//            if ("temp".equals(filePath) || ".".equals(packageName)) {
-//                // No need to resolve packages if the package is not defined or if the file is not saved
-//                return;
-//            }
-//            Path file = Paths.get(filePath + File.separator + fileName);
-//            packages = resolveProgramPackages(Paths.get(filePath), packageName);
-//            programPackagesMap.put(file, packages);
-//            LangServerManager.this.setPackages(packages.entrySet());
-//
-//            // add package info into response
-//            Gson gson = new Gson();
-//            String json = gson.toJson(packages.values());
-//            JsonParser parser = new JsonParser();
-//            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
-//            response.add("packages", packagesArray);
-//
-//            ResponseMessage responseMessage = new ResponseMessage();
-//            responseMessage.setId(((RequestMessage) message).getId());
-//            responseMessage.setResult(response);
-//            pushMessageToClient(langServerSession, responseMessage);
-//
-//        } else {
-//            logger.warn("Invalid Message type found");
-//        }
-//    }
 
     /**
      * Get all the built-in packages.
