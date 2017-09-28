@@ -63,6 +63,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 false, ctx.annotationAttachment().size());
     }
@@ -1076,12 +1079,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx),
                 ctx.Identifier().getText(), ctx.ASSIGN() != null);
     }
 
     @Override
     public void exitConnectorVarDefStatement(BallerinaParser.ConnectorVarDefStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         this.pkgBuilder.addConnectorVarDeclaration(getCurrentPos(ctx),
                 ctx.Identifier().getText(), ctx.ASSIGN() != null);
     }
@@ -1126,6 +1135,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         boolean isVarDeclaration = false;
         if (ctx.getChild(0).getText().equals("var")) {
             isVarDeclaration = true;
