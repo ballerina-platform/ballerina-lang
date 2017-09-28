@@ -22,7 +22,7 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 public class BinaryExprTest {
 
@@ -30,10 +30,10 @@ public class BinaryExprTest {
 
     @BeforeClass
     public void setup() {
-        //result = BTestUtils.compile("test-src/expressions/binaryoperations/binary-expr.bal");
+        result = BTestUtils.compile("test-src/expressions/binaryoperations/binary-expr.bal");
     }
 
-    //@Test(description = "Test binary logical expression")
+    @Test(description = "Test binary logical expression")
     public void testBinaryExpr() {
         // stone + value
         boolean stone = true;
@@ -80,7 +80,7 @@ public class BinaryExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test multiple binary AND expressions")
+    @Test(description = "Test multiple binary AND expressions")
     public void multiBinaryAndExpressionTest() {
         boolean one = true;
         boolean two = false;
@@ -97,7 +97,7 @@ public class BinaryExprTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test multiple binary OR expressions")
+    @Test(description = "Test multiple binary OR expressions")
     public void multiBinaryORExpressionTest() {
         boolean one = true;
         boolean two = false;
@@ -114,7 +114,7 @@ public class BinaryExprTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test multiple binary expressions")
+    @Test(description = "Test multiple binary expressions")
     public void multiBinaryExpressionTest() {
         boolean one = true;
         boolean two = false;

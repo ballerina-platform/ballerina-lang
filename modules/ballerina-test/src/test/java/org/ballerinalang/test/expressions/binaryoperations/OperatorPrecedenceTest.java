@@ -151,7 +151,7 @@ public class OperatorPrecedenceTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test
+    @Test
     public void testComparatorPrecedence() {
 
         // false && true || false

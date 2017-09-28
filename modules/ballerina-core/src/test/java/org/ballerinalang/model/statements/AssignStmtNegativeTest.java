@@ -27,55 +27,8 @@ import org.testng.annotations.Test;
 public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:6: incompatible types: 'int' " +
-                    "cannot be assigned to 'boolean'")
-    public void testIncompatibleTypeAssignment() {
-        BTestUtils.getProgramFile("lang/statements/assignment/incompatible-type-assignment.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "repeated-var-multivalue-1.bal:2: 'a' " +
-                    "is repeated on the left side of assignment")
-    public void testRepeatedVariableInAssignment1() {
-        BTestUtils.getProgramFile("lang/statements/assignment/repeated-var-multivalue-1.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "repeated-var-multivalue-2.bal:6: 'name' is repeated on the " +
-                    "left side of assignment")
-    public void testRepeatedVariableInAssignment2() {
-        BTestUtils.getProgramFile("lang/statements/assignment/repeated-var-multivalue-2.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "const-assignment.bal:8: cannot assign a value to constant 'i'")
     public void testConstAssignment() {
         BTestUtils.getProgramFile("lang/statements/assignment/const-assignment.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-count-mismatch-1.bal:6: assignment count mismatch: 2 != 3")
-    public void testAssignCountMismatch1() {
-        BTestUtils.getProgramFile("lang/statements/assignment/assign-count-mismatch-1.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-count-mismatch-2.bal:7: assignment count mismatch: 4 != 3")
-    public void testAssignCountMismatch2() {
-        BTestUtils.getProgramFile("lang/statements/assignment/assign-count-mismatch-2.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-types-mismatch-1.bal:6: incompatible types: " +
-                    "'string' cannot be assigned to 'int'")
-    public void testAssignTypeMismatch1() {
-        BTestUtils.getProgramFile("lang/statements/assignment/assign-types-mismatch-1.bal");
-    }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-types-mismatch-2.bal:6: incompatible types: " +
-                    "'string' cannot be assigned to 'int'")
-    public void testAssignTypeMismatch2() {
-        BTestUtils.getProgramFile("lang/statements/assignment/assign-types-mismatch-2.bal");
     }
 }
