@@ -18,7 +18,6 @@
 
 import React from 'react';
 import _ from 'lodash';
-import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { panel } from './../../designer-defaults';
 import ImageUtil from '../../../../image-util';
@@ -29,6 +28,7 @@ import { util } from '../../sizing-util_bk';
 import './panel-decorator.css';
 import ArgumentParameterDefinitionHolder from './../nodes/argument-parameter-definition-holder';
 import ReturnParameterDefinitionHolder from './../nodes/return-parameter-definition-holder';
+import NodeFactory from './../../../../../model/node-factory';
 
 /* TODOX
 import ASTNode from '../../../../ast/node';

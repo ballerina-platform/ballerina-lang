@@ -16,11 +16,12 @@
  * under the License.
  */
 import React from 'react';
-import Alerts from 'alerts';
 import _ from 'lodash';
+import log from 'log';
 import PropTypes from 'prop-types';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TagController from './../decorators/tag-component';
+import TreeBuilder from './../../../../../model/tree-builder';
 /**
  * Component class for ArgumentParameterDefinitionHolder.
  *
@@ -66,47 +67,28 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * @return {boolean} true|false
      * */
     addArgumentParameter(input) {
-        /* if (input !== '') {
+        if (input !== '') {
             input = input.replace(';', '');
             const fragment = FragmentUtils.createArgumentParameterFragment(input);
             const parsedJson = FragmentUtils.parseFragment(fragment);
-            const model = this.props.model;
 
-             if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
-                if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                    const parameterDefinition = ASTFactory.createParameterDefinition(parsedJson);
-                    parameterDefinition.initFromJson(parsedJson);
-                    if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
-                        this.props.model.addChild(parameterDefinition);
-                        return true;
+            if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+                if (_.isEqual(parsedJson.kind, 'Variable')) {
+                    const argumentParam = TreeBuilder.build(parsedJson);
+                    let index = this.props.model.getParameters().length - 1;
+
+                    // If there are no arguments index is -1. Then the argument is added in the first position
+                    if (index === -1) {
+                        index = 0;
                     }
-                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
-                    Alerts.error(errorString);
-                    return false;
+                    this.props.model.addParameters(argumentParam, index + 1);
+                } else {
+                    log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
                 }
-            }
-            const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
-            Alerts.error(errorString);
-            return false;
-        }*/
-    }
-
-    /**
-     * Check whether given identifier is already exist.
-     * @param {string} identifier - identifier of the user entered variable declaration.
-     * @return {boolean} isExist - true if exist, false if not.
-     * */
-    checkWhetherIdentifierAlreadyExist(identifier) {
-        let isExist = false;
-        if (this.props.model.getChildren().length > 0) {
-            for (let i = 0; i < this.props.model.getChildren().length; i++) {
-                if (this.props.model.getChildren()[i].getName() === identifier) {
-                    isExist = true;
-                    break;
-                }
+            } else {
+                log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
             }
         }
-        return isExist;
     }
 
     /**
@@ -117,24 +99,6 @@ class ArgumentParameterDefinitionHolder extends React.Component {
     validateInput(input) {
         const splitedExpression = input.split(' ');
         return splitedExpression.length > 1;
-    }
-
-    /**
-     * Validates the type
-     *
-     * @param {string} bType The ballerina type.
-     * @returns {boolean} true if valid, else false.
-     *
-     * @memberof ArgumentParameterDefinitionHolder
-     */
-    validateType(bType) {
-        let isValid = false;
-        const typeList = this.getTypeDropdownValues();
-        const filteredTypeList = _.filter(typeList, type => type.id === bType);
-        if (filteredTypeList.length > 0) {
-            isValid = true;
-        }
-        return isValid;
     }
 
     /**

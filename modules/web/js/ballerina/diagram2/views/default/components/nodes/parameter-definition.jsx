@@ -54,7 +54,7 @@ class ParameterDefinition extends React.Component {
     }
 
     onDelete() {
-        if (this.props.model.parent.filterParameters({ id: this.id }).length > 0) {
+        if (this.props.model.parent.filterParameters({ id: this.props.model.id }).length > 0) {
             this.props.model.parent.removeParameters(this.props.model);
         } else {
             this.props.model.parent.removeReturnParameters(this.props.model);
@@ -97,15 +97,7 @@ class ParameterDefinition extends React.Component {
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
             if (_.isEqual(parsedJson.kind, 'Variable')) {
                 const newNode = TreeBuilder.build(parsedJson);
-                const argumentsArr = this.parent.getParameters().concat(this.parent.getReturnParameters());
-                const identifierAlreadyExists = _.findIndex(argumentsArr, (parameter) => {
-                    return parameter.getName().value === newNode.getName().value;
-                }) !== -1;
-                if (identifierAlreadyExists) {
-                    const errorString = `A variable with identifier ${newNode.getName().value} already exists.`;
-                    Alerts.error(errorString);
-                    throw errorString;
-                } else if (type === 'argumentParameter') {
+                if (type === 'argumentParameter') {
                     this.parent.replaceParameters(oldNode, newNode);
                 } else {
                     this.parent.replaceReturnParameters(oldNode, newNode);

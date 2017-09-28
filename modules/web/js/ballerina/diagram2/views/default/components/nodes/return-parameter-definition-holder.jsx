@@ -16,12 +16,11 @@
  * under the License.
  */
 import React from 'react';
-import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import TagController from './../decorators/tag-component';
-import { getComponentForNodeArray } from './../../../../diagram-util';
 import FragmentUtils from './../../../../../utils/fragment-utils';
+import TreeBuilder from './../../../../../model/tree-builder';
 /**
  * Component class for ReturnParameterDefinitionHolder.
  * */
@@ -56,47 +55,28 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * @return {boolean} true||false
      * */
     addReturnParameter(input) {
-        /* if(input !== '') {
+        if (input !== '') {
+            input = input.replace(';', '');
             const fragment = FragmentUtils.createReturnParameterFragment(input);
             const parsedJson = FragmentUtils.parseFragment(fragment);
-            const model = this.props.model;
 
             if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
-                if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                    const parameterDefinition = ASTFactory.createParameterDefinition(parsedJson);
-                    parameterDefinition.initFromJson(parsedJson);
-                    if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
-                        this.props.model.addChild(parameterDefinition);
-                        return true;
-                    }
-                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
-                    Alerts.error(errorString);
-                    return false;
-                }
-            }
-            const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
-            Alerts.error(errorString);
-            return false;
-        }*/
-    }
+                if (_.isEqual(parsedJson.kind, 'Variable')) {
+                    const returnParam = TreeBuilder.build(parsedJson);
+                    let index = this.props.model.getReturnParameters().length - 1;
 
-    /**
-     * Check whether given identifier is already exist.
-     * @param {string} identifier - identifier of the user entered variable declaration.
-     * @return {object} isExist - true if exist, false if not.
-     * */
-    checkWhetherIdentifierAlreadyExist(identifier) {
-        let isExist = false;
-        if (this.props.model.getChildren().length > 0) {
-            for (let i = 0; i < this.props.model.getChildren().length; i++) {
-                if (!_.isNil(this.props.model.getChildren()[i].getName()) &&
-                    this.props.model.getChildren()[i].getName() === identifier) {
-                    isExist = true;
-                    break;
+                    // If there are no arguments index is -1. Then the argument is added in the first position
+                    if (index === -1) {
+                        index = 0;
+                    }
+                    this.props.model.addReturnParameters(returnParam, index + 1);
+                } else {
+                    log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
                 }
+            } else {
+                log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
             }
         }
-        return isExist;
     }
 
     /**
@@ -107,32 +87,6 @@ class ReturnParameterDefinitionHolder extends React.Component {
     validateInput(input) {
         const splitedExpression = input.split(' ');
         return splitedExpression.length > 0;
-    }
-
-    /**
-     * Validate type.
-     * */
-    validateType(typeString) {
-        let isValid = false;
-        const typeList = this.getTypeDropdownValues();
-        let type;
-        const structs = this.context.environment._currentPackage._structDefinitions;
-        const types = _.map(typeList, 'id');
-
-        if (typeString.substring(typeString.length - 2) === '[]') {
-            type = typeString.substring(0, typeString.length - 2);
-        } else if (typeString.split(':').length === 2) {
-            // TODO: Here we assume that the type is a struct referred from another package
-            return true;
-        } else {
-            type = typeString;
-        }
-
-        if (_.includes(types.concat(_.map(structs, '_structName')), type.trim())) {
-            isValid = true;
-        }
-
-        return isValid;
     }
 
     render() {
