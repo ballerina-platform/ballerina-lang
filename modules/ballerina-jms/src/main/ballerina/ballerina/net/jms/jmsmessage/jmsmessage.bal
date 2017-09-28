@@ -51,18 +51,6 @@ native function setFloatProperty (jms:JMSMessage msg, string key, float value);
 @doc:Return { value:"float: The float property value" }
 native function getFloatProperty (jms:JMSMessage msg, string key) (float);
 
-@doc:Description { value:"Sets a JMS transport header from the message"}
-@doc:Param { value:"msg: A request message" }
-@doc:Param { value:"key: The header name" }
-@doc:Param { value:"value: The header value" }
-native function setHeader (jms:JMSMessage msg, string key, string value);
-
-@doc:Description { value:"Get a JMS transport header from the message"}
-@doc:Param { value:"msg: A request message" }
-@doc:Param { value:"key: The header name" }
-@doc:Return { value:"string: The header value" }
-native function getHeader (jms:JMSMessage msg, string key) (string value);
-
 @doc:Description { value:"Sets text content for the JMS message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"content: Text Message Content" }
@@ -72,3 +60,72 @@ native function setTextMessageContent (jms:JMSMessage msg, string content);
 @doc:Param { value:"msg: A request message" }
 @doc:Return { value:"string: Text Message Content" }
 native function getTextMessageContent (jms:JMSMessage msg) (string value);
+
+@doc:Description { value:"Get JMS transport header MessageID from the message"}
+@doc:Param { value:"msg: A request message" }
+@doc:Return { value:"string: The header value" }
+native function getMessageID(jms:JMSMessage m) (string);
+
+@doc:Description { value:"Get JMS transport header Timestamp from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"int: The header value" }
+native function getTimestamp(jms:JMSMessage m) (int);
+
+@doc:Description { value:"Sets DeliveryMode JMS transport header to the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Param { value:"i: The header value" }
+native function setDeliveryMode(jms:JMSMessage m, int i);
+
+@doc:Description { value:"Get JMS transport header DeliveryMode from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"int: The header value" }
+native function getDeliveryMode(jms:JMSMessage m) (int);
+
+@doc:Description { value:"Sets Expiration JMS transport header to the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Param { value:"i: The header value" }
+native function setExpiration(jms:JMSMessage m, int i);
+
+@doc:Description { value:"Get JMS transport header Expiration from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"int: The header value" }
+native function getExpiration(jms:JMSMessage m) (int);
+
+@doc:Description { value:"Sets Priority JMS transport header to the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Param { value:"i: The header value" }
+native function setPriority(jms:JMSMessage m, int i);
+
+@doc:Description { value:"Get JMS transport header Priority from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"int: The header value" }
+native function getPriority(jms:JMSMessage m) (int);
+
+@doc:Description { value:"Get JMS transport header Redelivered from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"boolean: The header value" }
+native function getRedelivered(jms:JMSMessage m) (boolean);
+
+@doc:Description { value:"Sets CorrelationID JMS transport header to the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Param { value:"s: The header value" }
+native function setCorrelationID(jms:JMSMessage m, string s);
+
+@doc:Description { value:"Get JMS transport header CorrelationID from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"string: The header value" }
+native function getCorrelationID(jms:JMSMessage m) (string);
+
+@doc:Description { value:"Sets Type JMS transport header to the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Param { value:"s: The header value" }
+native function setType(jms:JMSMessage m, string s);
+
+@doc:Description { value:"Get JMS transport header Type from the message"}
+@doc:Param { value:"m: A request message" }
+@doc:Return { value:"string: The header value" }
+native function getType(jms:JMSMessage m) (string);
+
+@doc:Description { value:"Clear JMS properties of the message"}
+@doc:Param { value:"m: A request message" }
+native function clearProperties(jms:JMSMessage m);

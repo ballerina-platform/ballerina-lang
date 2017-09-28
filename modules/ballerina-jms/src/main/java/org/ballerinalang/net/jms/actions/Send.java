@@ -57,7 +57,6 @@ import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.Map;
 import javax.jms.Message;
-import javax.jms.Session;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -115,11 +114,12 @@ public class Send extends AbstractJMSAction {
 
         boolean isTransacted = Boolean.FALSE;
         if (propertyMap.get(JMSConstants.PARAM_ACK_MODE) != null) {
+            //Todo: do we need this?
             //if the JMS transacted send is outside of the Ballerina transaction block, make it non-jms-transaction
-            if((JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE))) && !context
-                    .isInTransaction()) {
-                propertyMap.put(JMSConstants.PARAM_ACK_MODE, String.valueOf(Session.AUTO_ACKNOWLEDGE));
-            }
+//            if((JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE))) && !context
+//                    .isInTransaction()) {
+//                propertyMap.put(JMSConstants.PARAM_ACK_MODE, JMSConstants.AUTO_ACKNOWLEDGE_MODE);
+//            }
             isTransacted =
                     (JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE)))
                             && context.isInTransaction();
