@@ -1,31 +1,30 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
-package org.ballerinalang.model.globalvar;
+package org.ballerinalang.test.types.globalvar;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,16 +34,17 @@ import org.testng.annotations.Test;
  */
 public class GlobalVarFunctionTest {
 
-    ProgramFile programFile;
+    CompileResult result;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/globalvar/global-var-function.bal");
+        result = BTestUtils.compile("test-src/types/globalvar/global-var-function.bal");
     }
 
     @Test(description = "Test Defining global variables")
     public void testDefiningGlobalVar() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "getGlobalVars");
+        BValue[] args = new BValue[0];
+        BValue[] returns = BTestUtils.invoke(result, "getGlobalVars", args);
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -58,7 +58,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test access global variable within function")
     public void testAccessGlobalVarWithinFunctions() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "accessGlobalVar");
+        BValue[] returns = BTestUtils.invoke(result, "accessGlobalVar", null);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89143);
@@ -67,7 +67,7 @@ public class GlobalVarFunctionTest {
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         BValue[] args = {new BInteger(88)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "changeGlobalVar", args);
+        BValue[] returns = BTestUtils.invoke(result, "changeGlobalVar", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -75,10 +75,10 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
 
-        ProgramFile programFileGlobalVar = BTestUtils
-                .getProgramFile("lang/globalvar/global-var-function.bal");
+        CompileResult resultGlobalVar = BTestUtils
+                .compile("test-src/types/globalvar/global-var-function.bal");
 
-        BValue[] returnsChanged = BLangFunctions.invokeNew(programFileGlobalVar, "getGlobalFloatVar");
+        BValue[] returnsChanged = BTestUtils.invoke(resultGlobalVar, "getGlobalFloatVar", null);
 
         Assert.assertEquals(returnsChanged.length, 1);
         Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
@@ -88,7 +88,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global variable to another global variable")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "getGlobalVarFloat1");
+        BValue[] returns = BTestUtils.invoke(result, "getGlobalVarFloat1", null);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -98,7 +98,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global var within a function")
     public void testInitializingGlobalVarWithinFunction() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "initializeGlobalVarSeparately");
+        BValue[] returns = BTestUtils.invoke(result, "initializeGlobalVarSeparately", null);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
