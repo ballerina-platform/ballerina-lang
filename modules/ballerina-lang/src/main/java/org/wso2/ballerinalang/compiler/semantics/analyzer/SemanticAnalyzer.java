@@ -297,6 +297,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                 childAttachment.type = symbol.type;
                                 this.types.checkType(childAttachment.pos, childAttachment.type,
                                         ((BArrayType) attributeSymbol.type).eType, DiagnosticCode.INCOMPATIBLE_TYPES);
+                                if (symbol == this.symTable.notFoundSymbol) {
+                                    this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                            childAttachment.getAnnotationName().getValue());
+                                    return;
+                                }
                                 validateAttributes(childAttachment, (BAnnotationSymbol) symbol);
                             }
                         } else {
@@ -321,6 +326,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         childAttachment.type = symbol.type;
                         this.types.checkType(childAttachment.pos, childAttachment.type,
                                 attributeSymbol.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+                        if (symbol == this.symTable.notFoundSymbol) {
+                            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                    childAttachment.getAnnotationName().getValue());
+                            return;
+                        }
                         validateAttributes(childAttachment, (BAnnotationSymbol) symbol);
                     }
                 }
@@ -372,6 +382,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         if (attachment != null) {
                             BSymbol symbol = this.symResolver.lookupSymbol(env,
                                     new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                            if (symbol == this.symTable.notFoundSymbol) {
+                                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                        attachment.getAnnotationName().getValue());
+                                return;
+                            }
                             populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
                         }
                     }
@@ -384,6 +399,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     if (attachment != null) {
                         BSymbol symbol = this.symResolver.lookupSymbol(env,
                                 new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                        if (symbol == this.symTable.notFoundSymbol) {
+                            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                    attachment.getAnnotationName().getValue());
+                            return;
+                        }
                         populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
                     }
                 }
