@@ -20,14 +20,24 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { withDropEnabled } from './drop-target';
 import Node from './../model/tree/node';
+import './drop-zone.scss';
 
 class DropZone extends React.Component {
     render() {
         const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
-            dropTarget, canDrop, ...restProps } = this.props;
+            isDragging, dropTarget, canDrop, ...restProps } = this.props;
         const Component = baseComponent;
         return connectDropTarget(
-            <Component {...restProps} className={cn(className, { active: isOver })} />
+            <Component
+                {...restProps}
+                className={
+                    cn(baseComponent, className, 'drop-zone',
+                        { active: isOverCurrent && canDrop },
+                        { blocked: !canDrop },
+                        { possible: isDragging && !isOverCurrent && canDrop }
+                    )
+                }
+            />
         );
     }
 }
@@ -40,6 +50,7 @@ DropZone.propTypes = {
     isOver: PropTypes.bool,
     isOverCurrent: PropTypes.bool,
     canDrop: PropTypes.bool,
+    isDragging: PropTypes.bool,
 };
 
 DropZone.defaultProps = {

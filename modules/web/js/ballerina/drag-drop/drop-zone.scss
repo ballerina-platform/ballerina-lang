@@ -1,0 +1,16 @@
+.drop-zone {
+    &.rect {
+        fill-opacity: 0;
+        &.active {
+            fill: green;
+            fill-opacity: 0.2;
+        }
+        &.blocked {
+            fill: red;
+        }
+        &.possible {
+            fill: yellow;
+            fill-opacity: 0.2;
+        }
+    }
+}

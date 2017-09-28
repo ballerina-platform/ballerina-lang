@@ -34,7 +34,7 @@ export function withDropEnabled(DropArea) {
 
         },
         canDrop: (props, monitor, component) => {
-
+            return true;
         },
     };
 
@@ -45,6 +45,7 @@ export function withDropEnabled(DropArea) {
             isOver: monitor.isOver(),
             isOverCurrent: monitor.isOver({ shallow: true }),
             canDrop: monitor.canDrop(),
+            isDragging: monitor.getItem() !== null,
         };
     }
     return DropTarget(ITEM_TYPES.NODE, dropSpec, collect)(DropArea);
