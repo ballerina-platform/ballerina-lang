@@ -4,13 +4,6 @@
     color: #f2f0ec;
 }
 
-/** added !important to override inline styles **/
-.debug-frames-container .react-json-view{
-    background: inherit !important;
-    color: inherit!important;
-    font-size: 14px!important;
-}
-
 .debug-frames-container .tree-view .node{
     padding-top: 6px;
 }
@@ -86,7 +79,6 @@
 }
 
 .debug-panel-header{
-    padding: 8px;
     color: #FFF !important;
     font-weight: bold;
 }
@@ -98,5 +90,41 @@
 }
 
 .debug-variables-container{
-    color: white;
+    color: #FFF;
+}
+
+.debugger-frames-wrapper {
+    padding: 0 10px;
+    font-size: 14px;
+    line-height: 23px;
+
+    .debug-frame-pkg-name{
+        color: #03a9f4;
+    }
+
+    .panel-title{
+        text-transform: inherit;
+        line-height: 22px;
+        font-weight: 500;
+        padding: 0;
+    }
+
+    .react-json-view{
+        background-color: inherit;
+    }
+
+    .debug-frame-header{
+        border-bottom: 1px solid #9a9a9a;
+    }
+
+    /** added !important to override inline styles **/
+    .react-json-view{
+        background: inherit !important;
+        color: inherit!important;
+        font-size: 14px!important;
+    }
+    .tool-group-header-title{
+        font-size: 14px;
+        margin-top: 10px;
+    }
 }
