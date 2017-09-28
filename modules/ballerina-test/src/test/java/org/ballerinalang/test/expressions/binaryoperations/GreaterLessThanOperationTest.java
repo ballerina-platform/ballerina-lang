@@ -24,7 +24,7 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 public class GreaterLessThanOperationTest {
 
@@ -33,12 +33,12 @@ public class GreaterLessThanOperationTest {
 
     @BeforeClass
     public void setup() {
-        /*result = BTestUtils.compile("test-src/expressions/binaryoperations/greater-less-than-operation.bal");
+        result = BTestUtils.compile("test-src/expressions/binaryoperations/greater-less-than-operation.bal");
         resultNegative = BTestUtils.
-         compile("test-src/expressions/binaryoperations/greater-less-than-operation-negative.bal");*/
+         compile("test-src/expressions/binaryoperations/greater-less-than-operation-negative.bal");
     }
 
-    //@Test(description = "Test int greater than, less than expression")
+    @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BTestUtils.invoke(result, "testIntRanges", args);
@@ -65,7 +65,7 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test float greater than, less than expression")
+    @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
         BValue[] args = {new BFloat(-123.8f)};
         BValue[] returns = BTestUtils.invoke(result, "testFloatRanges", args);
@@ -92,7 +92,7 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test Integer and long comparison")
+    @Test(description = "Test Integer and long comparison")
     public void testIntAndFloatComparison() {
         int a = 10;
         float b = 20f;
@@ -128,8 +128,16 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //@Test(description = "Test binary statement with errors")
+    @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        BTestUtils.validateError(resultNegative, 0, "operator '>' not defined for 'json' and 'json'", 7, 11);
+        BTestUtils.validateError(resultNegative, 1, "operator '>=' not defined for 'json' and 'json'", 16, 11);
+        BTestUtils.validateError(resultNegative, 2, "operator '<' not defined for 'json' and 'json'", 26, 11);
+        BTestUtils.validateError(resultNegative, 3, "operator '<=' not defined for 'json' and 'json'", 35, 11);
+        BTestUtils.validateError(resultNegative, 4, "operator '>' not defined for 'int' and 'string'", 41, 11);
+        BTestUtils.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 11);
+        BTestUtils.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 11);
+        BTestUtils.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 11);
     }
 }
