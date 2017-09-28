@@ -322,7 +322,8 @@ class TransformRender {
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
             // Get bottom and right values relative to the type mapper parent div
-            const arrowBottom = svgLine.children[2].getBoundingClientRect().bottom
+            const arrowEl = svgLine.children[2] || svgLine.children[1]
+            const arrowBottom = arrowEl.getBoundingClientRect().bottom
              - (this.container.find('.middle-content').position().top + 100);
             // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
             if (arrowBottom > yFunctionPointer && svgLine.getBoundingClientRect().width
