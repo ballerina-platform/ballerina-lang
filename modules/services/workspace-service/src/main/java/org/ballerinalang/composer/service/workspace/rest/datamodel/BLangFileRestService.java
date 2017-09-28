@@ -111,7 +111,8 @@ public class BLangFileRestService {
     @Path("/model/content")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBallerinaJsonDataModelGivenContent(BFile bFile) throws IOException {
+    public Response getBallerinaJsonDataModelGivenContent(BFile bFile) throws IOException, InvocationTargetException,
+            IllegalAccessException {
         String response = parseJsonDataModel(bFile);
         return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
     }
@@ -154,21 +155,37 @@ public class BLangFileRestService {
      * @return A string which contains a json model.
      * @throws IOException
      */
-    private static String parseJsonDataModel(BFile bFile) throws IOException {
+    private static String parseJsonDataModel(BFile bFile) throws IOException, InvocationTargetException,
+            IllegalAccessException {
         String filePath = bFile.getFilePath();
         String fileName = bFile.getFileName();
         String content = bFile.getContent();
 
         org.wso2.ballerinalang.compiler.tree.BLangPackage model;
+        List<Diagnostic> diagnostics;
+
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
             model = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getBLangPackage();
+            diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getDiagnostics();
+
         }else{
             model = WorkspaceUtils.getBallerinaFile(filePath, fileName).getBLangPackage();
+            diagnostics = WorkspaceUtils.getBallerinaFile(fileName, content).getDiagnostics();
         }
+
+        Gson gson = new Gson();
+        JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
+
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
-        return generateJSONString(compilationUnit);
+        JsonElement modelElement = generateJSON(compilationUnit);
+        JsonObject result = new JsonObject();
+        result.add("model", modelElement);
+        result.add("diagnostics", diagnosticsJson);
+
+        return result.toString();
+
     }
 
     private static String generateJSONString(Node node) {

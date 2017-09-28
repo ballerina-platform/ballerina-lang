@@ -357,9 +357,9 @@ class BallerinaFileEditor extends React.Component {
                     parseFile(file)
                         .then((jsonTree) => {
                             // something went wrong with the parser
-                            if (_.isNil(jsonTree.kind)) {
+                            if (_.isNil(jsonTree.model.kind)) {
                                 log.error('Error while parsing the file: ' + file.name
-                                    + ' Error:' + jsonTree.errorMessage || jsonTree);
+                                    + ' Error:' + jsonTree.diagnostics || jsonTree);
                                 // cannot be in a view which depends on AST
                                 // hence forward to source view
                                 newState.activeView = SOURCE_VIEW;
@@ -374,7 +374,7 @@ class BallerinaFileEditor extends React.Component {
                                 return;
                             }
                             // get ast from json
-                            const ast = TreeBuilder.build(jsonTree /* , this.props.file*/);
+                            const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
 
                             // Populate the tree with a package declaration node
                             TreeBuilder.populateDefaultPackageDeclaration(ast);
