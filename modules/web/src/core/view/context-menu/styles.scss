@@ -1,15 +1,14 @@
 .react-contextmenu {
     z-index: 10000000;
     min-width: 160px;
-    padding: 5px 0;
+    padding:0;
     margin: 2px 0 0;
-    font-size: 14px;
+    font-size: 13px;
     color: #373a3c;
     text-align: left;
     background-color: #fff;
     background-clip: padding-box;
     border: 1px solid rgba(0,0,0,.15);
-    border-radius: .25rem;
     outline: none;
     opacity: 0;
     pointer-events: none;
@@ -22,7 +21,7 @@
 }
 
 .react-contextmenu-item {
-    padding: 3px 20px;
+    padding: 1px 20px;
     font-weight: 400;
     line-height: 1.5;
     color: #373a3c;

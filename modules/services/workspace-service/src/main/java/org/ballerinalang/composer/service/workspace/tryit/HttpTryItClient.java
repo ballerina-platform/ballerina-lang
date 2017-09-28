@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -81,7 +82,10 @@ public class HttpTryItClient extends TryItClient {
                     JsonArray getHeaders = this.clientArgs.getAsJsonArray(TryItConstants.REQUEST_HEADERS);
                     for (JsonElement getHeader : getHeaders) {
                         JsonObject header = getHeader.getAsJsonObject();
-                        httpRequest.setHeader(header.get("key").getAsString(), header.get("value").getAsString());
+                        if (StringUtils.isNotBlank(header.get("key").getAsString()) &&
+                                                            StringUtils.isNotBlank(header.get("value").getAsString())) {
+                            httpRequest.setHeader(header.get("key").getAsString(), header.get("value").getAsString());
+                        }
                     }
                     
                     // Setting the content type.
@@ -110,7 +114,11 @@ public class HttpTryItClient extends TryItClient {
                     JsonArray getEntityHeaders = this.clientArgs.getAsJsonArray(TryItConstants.REQUEST_HEADERS);
                     for (JsonElement getHeader : getEntityHeaders) {
                         JsonObject header = getHeader.getAsJsonObject();
-                        httpEntityRequest.setHeader(header.get("key").getAsString(), header.get("value").getAsString());
+                        if (StringUtils.isNotBlank(header.get("key").getAsString()) &&
+                                                            StringUtils.isNotBlank(header.get("value").getAsString())) {
+                            httpEntityRequest.setHeader(header.get("key").getAsString(),
+                                                                                    header.get("value").getAsString());
+                        }
                     }
                     
                     // Setting the body of the request.

@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import View from 'core/view/view';
-import { VIEWS } from './../constants';
+import { VIEWS, COMMANDS } from './../constants';
 import './DebuggerPanel.css';
 import Toolbar from '../views/Toolbar';
 import Frames from '../views/Frames';
@@ -85,14 +85,14 @@ class DebuggerPanel extends View {
     }
 
     startApplication() {
-        this.props.commandProxy.dispatch('run');
+        this.props.commandProxy.dispatch(COMMANDS.RUN);
     }
     startDebug() {
-        this.props.commandProxy.dispatch('run', true);
+        this.props.commandProxy.dispatch(COMMANDS.RUN_WITH_DEBUG);
     }
 
     stopApplication() {
-        this.props.commandProxy.dispatch('stop');
+        this.props.commandProxy.dispatch(COMMANDS.STOP);
     }
 
     /**
@@ -103,7 +103,7 @@ class DebuggerPanel extends View {
             return (
                 <div>
                     <div className="btn-group col-xs-12">
-                        <Toolbar navigation={this.state.navigation} />
+                        <Toolbar navigation={this.state.navigation} dispatch={this.props.commandProxy.dispatch} />
                     </div>
                     <div>
                         <Frames message={this.state.message} />

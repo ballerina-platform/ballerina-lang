@@ -1080,8 +1080,8 @@ class TransformExpanded extends React.Component {
     }
 
     markConnectedEndpoints() {
-        $('.variable-endpoint').removeClass('fw-circle').addClass('fw-circle-outline');
-        $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle');
+        $('.variable-endpoint').removeClass('fw-circle-in-circle').addClass('fw-circle-outline');
+        $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle-in-circle');
     }
 
     render() {

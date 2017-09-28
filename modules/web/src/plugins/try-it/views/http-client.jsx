@@ -66,19 +66,43 @@ class HttpClient extends React.Component {
         this.onHeaderDelete = this.onHeaderDelete.bind(this);
         this.onHeaderKeyChange = this.onHeaderKeyChange.bind(this);
         this.onHeaderValueChange = this.onHeaderValueChange.bind(this);
+        this.onHeaderValueKeyDown = this.onHeaderValueKeyDown.bind(this);
         this.onHttpMethodSelected = this.onHttpMethodSelected.bind(this);
         this.onInvoke = this.onInvoke.bind(this);
         this.onInvokeCancel = this.onInvokeCancel.bind(this);
         this.onRequestBodyChange = this.onRequestBodyChange.bind(this);
+
+        this.headerKey = undefined;
+        this.focusOnHeaderKey = false;
+    }
+
+    /**
+     * On component is mount for the first time.
+     * @memberof HttpClient
+     */
+    componentDidMount() {
+        this.onAddNewHeader(false);
+    }
+
+    /**
+     * On component did update event.
+     * @memberof HttpClient
+     */
+    componentDidUpdate() {
+        if (this.headerKey && this.focusOnHeaderKey) {
+            this.headerKey.focus();
+        }
+        this.focusOnHeaderKey = false;
     }
 
     /**
      * Event handler when a new header is added.
+     * @param {boolean} [focus=true] True to focus on empty header key.
      * @memberof HttpClient
      */
-    onAddNewHeader() {
+    onAddNewHeader(focus = true) {
         const emptyHeaderIndex = this.state.requestHeaders.findIndex((header) => {
-            return header.key === '' && header.value === '';
+            return header.key.trim() === '' && header.value.trim() === '';
         });
 
         if (emptyHeaderIndex === -1) {
@@ -87,6 +111,13 @@ class HttpClient extends React.Component {
             this.setState({
                 requestHeaders: headerClone,
             });
+        }
+
+        if (focus === true) {
+            this.focusOnHeaderKey = true;
+            if (this.headerKey) {
+                this.headerKey.focus();
+            }
         }
     }
 
@@ -165,6 +196,17 @@ class HttpClient extends React.Component {
     }
 
     /**
+     * Event handler when a key is pressed in a header value.
+     * @param {Object} e The keypress event.
+     * @memberof HttpClient
+     */
+    onHeaderValueKeyDown(e) {
+        if (e.charCode === 13 || e.key === 'Enter') {
+            this.onAddNewHeader(true);
+        }
+    }
+
+    /**
      * Event handler when the body of the request is changed.
      * @param {string} newValue The new content.
      * @memberof HttpClient
@@ -178,7 +220,7 @@ class HttpClient extends React.Component {
     /**
      * Event handler when an http method is selected.
      * @param {Object} event The select event.
-     * @param {string} { suggestionValue } The selected value.
+     * @param {string} suggestionValue The selected value.
      * @memberof HttpClient
      */
     onHttpMethodSelected(event, { suggestionValue }) {
@@ -208,7 +250,7 @@ class HttpClient extends React.Component {
                         waitingForResponse: false,
                     });
                 }
-            }).catch((error) => {
+            }).catch(() => {
                 this.setState({
                     waitingForResponse: false,
                 });
@@ -291,8 +333,14 @@ class HttpClient extends React.Component {
             return (<div key={`${header.id}`}>
                 <input
                     key={`key-${header.id}`}
-                    placeholder='Field'
+                    ref={(ref) => {
+                        if (header.key === '' && header.value === '') {
+                            this.headerKey = ref;
+                        }
+                    }}
+                    placeholder='Key'
                     type='text'
+                    className="header-input"
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -302,9 +350,11 @@ class HttpClient extends React.Component {
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
+                    className="header-input"
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
+                    onKeyDown={this.onHeaderValueKeyDown}
                 />
                 <i className='fw fw-delete' onClick={() => this.onHeaderDelete(header.key)} />
             </div>);
@@ -357,7 +407,7 @@ class HttpClient extends React.Component {
                     {sendOrCancelButton}
                 </div>
                 <div className='http-client-content-type-wrapper'>
-                    Content-Type
+                    <strong>Content-Type</strong> :
                     <input
                         className='http-client-content-type'
                         placeholder='application/json'
@@ -367,9 +417,10 @@ class HttpClient extends React.Component {
                     />
                 </div>
                 <div className='http-client-headers-wrapper'>
-                    Headers
-                    <span className='add-header-button'>
-                        <i className='fw fw-add' onClick={this.onAddNewHeader} />
+                    <span className="section-header">Headers</span>
+                    <span className='add-header-button' onClick={() => this.onAddNewHeader(true)}>
+                        <i className='fw fw-add' />
+                        Add New
                     </span>
                     <hr />
                     <div className='current-headers'>
@@ -377,7 +428,8 @@ class HttpClient extends React.Component {
                     </div>
                 </div>
                 <div className='http-client-body-wrapper'>
-                    Body
+                    <span className="section-header">Body</span>
+                    <hr />
                     <div>
                         <AceEditor
                             mode={this.getRequestBodyMode()}
@@ -402,11 +454,11 @@ class HttpClient extends React.Component {
                 <h3>Response</h3>
                 <hr />
                 <div className='http-client-response-attributes'>
-                    Reponse Code: {this.state.responseCode}
+                    <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
                     <br />
-                    Time Consumed: {this.state.timeConsumed} milliseconds
+                    <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
                     <br />
-                    Request URL: {this.state.requestUrl}
+                    <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
                 </div>
                 <div className='http-client-response-content'>
                     <ul className='nav nav-pills'>
@@ -421,12 +473,12 @@ class HttpClient extends React.Component {
                         <div role="tabpanel" className="tab-pane active" id="headers">
                             <div className='header-content'>
                                 <div className='response-headers'>
-                                    Response Headers
+                                    <span className="section-header">Response Headers</span>
                                     <hr />
                                     {this.state.responseHeaders}
                                 </div>
                                 <div className='request-headers'>
-                                    Request Headers
+                                    <span className="section-header">Request Headers</span>
                                     <hr />
                                     {this.state.returnedRequestHeaders}
                                 </div>
