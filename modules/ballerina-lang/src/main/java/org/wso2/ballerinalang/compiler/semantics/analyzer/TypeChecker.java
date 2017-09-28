@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -571,6 +572,11 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = Lists.of(types.checkType(bLangXMLQuotedString, symTable.stringType, expTypes.get(0)));
     }
 
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        stringTemplateLiteral.concatExpr = getStringTemplateConcatExpr(stringTemplateLiteral.exprs);
+        resultTypes = Lists.of(types.checkType(stringTemplateLiteral, symTable.stringType, expTypes.get(0)));
+    }
+
     // Private methods
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
@@ -889,15 +895,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 concatExpr = expr;
                 continue;
             }
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
-            if (opSymbol == symTable.notFoundSymbol) {
-                if (expr.type != symTable.errType) {
-                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
-                }
 
-                return concatExpr;
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
+            if (opSymbol == symTable.notFoundSymbol && expr.type != symTable.errType) {
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
             }
-            concatExpr = getBinaryAddExppression(concatExpr, expr);
+
+            concatExpr = getBinaryAddExppression(concatExpr, expr, opSymbol);
         }
 
         return concatExpr;
@@ -925,18 +929,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, exprType);
-            if (opSymbol == symTable.notFoundSymbol) {
-                if (exprType != symTable.errType) {
-                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
-                }
-                return newChildren;
+            if (opSymbol == symTable.notFoundSymbol && exprType != symTable.errType) {
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
             }
 
             if (strConcatExpr == null) {
                 strConcatExpr = expr;
                 continue;
             }
-            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr);
+            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr, opSymbol);
         }
 
         // Add remaining concatenated text nodes as children
@@ -947,13 +948,20 @@ public class TypeChecker extends BLangNodeVisitor {
         return newChildren;
     }
 
-    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr) {
+    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr, BSymbol opSymbol) {
         BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         binaryExpressionNode.lhsExpr = lExpr;
         binaryExpressionNode.rhsExpr = rExpr;
         binaryExpressionNode.pos = rExpr.pos;
         binaryExpressionNode.opKind = OperatorKind.ADD;
-        checkExpr(binaryExpressionNode, env);
+        if (opSymbol != symTable.notFoundSymbol) {
+            binaryExpressionNode.type = opSymbol.type.getReturnTypes().get(0);
+            binaryExpressionNode.opSymbol = (BOperatorSymbol) opSymbol;
+        } else {
+            binaryExpressionNode.type = symTable.errType;
+        }
+
+        types.checkType(binaryExpressionNode, binaryExpressionNode.type, symTable.stringType);
         return binaryExpressionNode;
     }
 

@@ -2051,7 +2051,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        /* ignore */
+        genNode(stringTemplateLiteral.concatExpr, env);
+        stringTemplateLiteral.regIndex = stringTemplateLiteral.concatExpr.regIndex;
     }
 
     private int getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol) {
