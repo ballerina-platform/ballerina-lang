@@ -18,7 +18,7 @@
 
 import _ from 'lodash';
 import log from 'log';
-import BallerinaASTFactory from '../../../../../ast/ast-factory';
+import TreeUtil from '../../../../../model/tree-util';
 import Mapper from './transform-node-mapper';
 
 /**
@@ -390,7 +390,7 @@ class TransformNodeManager {
      */
     getResolvedExpression(expression, statement) {
         const mapExp = this._mapper.getMappableExpression(expression);
-        if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)
+        if (TreeUtil.isSimpleVariableRef(expression)
             && this._mapper.isTempVariable(mapExp, statement)) {
             return {
                 exp: this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp)),

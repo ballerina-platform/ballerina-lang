@@ -86,8 +86,7 @@ public class WorkspaceUtils {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
-        options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
-
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         return getBallerinaFile(fileName, context);
     }
 
@@ -102,7 +101,7 @@ public class WorkspaceUtils {
     public static BallerinaFile getBallerinaFileForContent(String fileName, String source){
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
 
         return getBallerinaFile(fileName, context);
     }

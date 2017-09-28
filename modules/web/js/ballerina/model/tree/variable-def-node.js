@@ -20,6 +20,10 @@ import VariableDefNodeAbstract from './abstract-tree/variable-def-node';
 
 class VariableDefNode extends VariableDefNodeAbstract {
 
+    getVariableName() {
+        return this.getVariable().getName();
+    }
+
 }
 
 export default VariableDefNode;
