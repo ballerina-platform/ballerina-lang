@@ -53,7 +53,7 @@ class TransformRender {
             Container: container.attr('id'),
             PaintStyle: {
                 strokeWidth: 1,
-            // todo : load colors from css
+                // todo : load colors from css
                 stroke: '#ff9900',
                 cssClass: 'plumbConnect',
                 outlineStroke: '#ffe0b3',
@@ -96,8 +96,7 @@ class TransformRender {
             this.setConnectionMenu(params.connection);
         });
 
-        this.jsPlumbInstanceNewConnections.bind('connectionDrag', conn => {
-
+        this.jsPlumbInstanceNewConnections.bind('connectionDrag', (conn) => {
             this.jsPlumbInstance.importDefaults(
             { Connector: this.getDrawingConnectorConfig() });
             this.jsPlumbInstanceNewConnections.repaintEverything();
@@ -106,9 +105,8 @@ class TransformRender {
     }
 
     /**
-    * Disconnects the connection created.
-    *
-    * @param connection
+    * Disconnects the specified connection.
+    * @param {object} connection connection needs to be disconnected
     */
     disconnect(connection) {
         const propertyConnection = this.getConnectionObject(
@@ -132,9 +130,9 @@ class TransformRender {
 
     /**
     * Created the connection object from the sourceId and targetId of the connection elements
-    * @param sourceId Id of the source element of the connection
-    * @param targetId Id of the target element of the connection
-    * @returns connectionObject
+    * @param {object} source source object of the connection
+    * @param {object} target target object of the connection
+    * @returns {object} connectionObject
     */
     getConnectionObject(source, target) {
         if (source.isField) {
@@ -151,10 +149,20 @@ class TransformRender {
         };
     }
 
+    /**
+     * Remove specified connection
+     * @param  {string} elementId element identified
+     */
     remove(elementId) {
         this.jsPlumbInstanceNewConnections.remove(elementId);
     }
 
+    /**
+     * Connect specified source and target
+     * @param {string}  sourceId source identifier
+     * @param {string}  targetId target identifier
+     * @param {Boolean} [folded=false] connection is folded
+     */
     addConnection(sourceId, targetId, folded = false) {
         this.jsPlumbInstance.importDefaults(
           { Connector: this.getConnectorConfig(this.midpointOnAddConnection(sourceId)) });
@@ -206,7 +214,7 @@ class TransformRender {
     }
 
     onConnectionAborted(callback) {
-        this.jsPlumbInstanceNewConnections.bind('connectionAborted', callback)
+        this.jsPlumbInstanceNewConnections.bind('connectionAborted', callback);
     }
 
     getDraggingConnection() {
@@ -257,11 +265,12 @@ class TransformRender {
      * Make source property
      * @param {any} element element
      * @param {any} input input
-     * @memberof TransformRender
+     * @param {boolean} existingConnectionsAdded is connection added
+     * @memberof {object} TransformRender
      */
     addSource(element, input, existingConnectionsAdded) {
         const jsPlumbInstance = existingConnectionsAdded ? this.jsPlumbInstanceNewConnections : this.jsPlumbInstance;
-        if(jsPlumbInstance.isSource(element)) {
+        if (jsPlumbInstance.isSource(element)) {
             return;
         }
 
@@ -281,7 +290,7 @@ class TransformRender {
      */
     addTarget(element, output, existingConnectionsAdded, validateCallback) {
         const jsPlumbInstance = existingConnectionsAdded ? this.jsPlumbInstanceNewConnections : this.jsPlumbInstance;
-        if(jsPlumbInstance.isTarget(element)) {
+        if (jsPlumbInstance.isTarget(element)) {
             return;
         }
 
@@ -298,11 +307,11 @@ class TransformRender {
         });
     }
 
-/**
- * Reposition function nodes and redraw connections accordingly
- * @param {string} viewId type mapper view identifier
- * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
- */
+    /**
+     * Reposition function nodes and redraw connections accordingly
+     * @param {string} viewId type mapper view identifier
+     * @param {object} jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
+     */
     reposition(viewId) {
         this.viewId = viewId;
         const funcs = this.container
@@ -325,18 +334,18 @@ class TransformRender {
         _.forEach(funcs, (func) => {
             // Position functions and increase yFunctionPointer with gaps
             this.container.find(func).css('left',
-                (this.container.find('.middle-content').width() - this.container.find(func).width())/2 + 'px');
+                ((this.container.find('.middle-content').width() - this.container.find(func).width()) / 2) + 'px');
             this.container.find(func).css('top', yFunctionPointer + 'px');
             yFunctionPointer += this.container.find(func).height() + functionGap;
         });
         this.jsPlumbInstance.repaintEverything();
     }
 
-/**
- * Give the flow chart object array for given midpoint
- * @param {int} midPoint point which flow chart connection should bend
- * @returns {*[]} flow chart object array
- */
+  /**
+   * Give the flow chart object array for given midpoint
+   * @param {int} midPoint point which flow chart connection should bend
+   * @returns {*[]} flow chart object array
+   */
     getConnectorConfig(midPoint) {
         return ['Flowchart', {
             midpoint: midPoint,
@@ -344,6 +353,10 @@ class TransformRender {
         }];
     }
 
+  /**
+   * Give the straight chart object array for given midpointn
+   * @return {*[]} straight chart object array
+   */
     getDrawingConnectorConfig() {
         return ['Straight'];
     }
@@ -352,7 +365,7 @@ class TransformRender {
         this._droppingTarget = endpoint;
     }
 
-    getDroppingTarget(endpoint) {
+    getDroppingTarget() {
         return this._droppingTarget;
     }
 
@@ -376,7 +389,7 @@ class TransformRender {
         this.jsPlumbInstance.repaintEverything();
     }
 
-    recalculateOffsets(element) {
+    recalculateOffsets() {
         this.jsPlumbInstanceNewConnections.recalculateOffsets(
             this.jsPlumbInstanceNewConnections.getSelector('.transform-dragging-connections'));
     }
@@ -385,6 +398,10 @@ class TransformRender {
         this.jsPlumbInstanceNewConnections.repaintEverything();
     }
 
+    /**
+     * Specifies connection is dragging
+     * @return {Boolean} is dragging
+     */
     isConnectionDragging() {
         return this.jsPlumbInstanceNewConnections.isConnectionBeingDragged();
     }
