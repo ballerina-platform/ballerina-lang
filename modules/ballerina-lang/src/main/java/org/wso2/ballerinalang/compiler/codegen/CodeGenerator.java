@@ -21,6 +21,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -750,14 +751,86 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
+        if (binaryExpr.opKind == OperatorKind.AND) {
+            visitAndExpression(binaryExpr);
+        } else if (binaryExpr.opKind == OperatorKind.OR) {
+            visitOrExpression(binaryExpr);
+        } else {
+            genNode(binaryExpr.lhsExpr, this.env);
+            genNode(binaryExpr.rhsExpr, this.env);
+
+            int opcode = binaryExpr.opSymbol.opcode;
+            int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
+
+            binaryExpr.regIndex = exprIndex;
+            emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
+        }
+    }
+
+    private void visitAndExpression(BLangBinaryExpr binaryExpr) {
+        // Generate code for the left hand side
         genNode(binaryExpr.lhsExpr, this.env);
+
+        // Last operand will be filled later.
+        Instruction lEvalInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
+                binaryExpr.lhsExpr.regIndex, -1);
+        emit(lEvalInstruction);
+
+        // Generate code for the right hand side
         genNode(binaryExpr.rhsExpr, this.env);
 
-        int opcode = binaryExpr.opSymbol.opcode;
-        int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
+        // Last operand will be filled later.
+        Instruction rEvalInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
+                binaryExpr.rhsExpr.regIndex, -1);
+        emit(rEvalInstruction);
 
-        binaryExpr.regIndex = exprIndex;
-        emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
+        // If both l and r conditions are true, then load 'true'
+        int exprRegIndex = ++regIndexes.tBoolean;
+        binaryExpr.regIndex = exprRegIndex;
+        emit(InstructionCodes.BCONST_1, exprRegIndex);
+
+        Instruction goToIns = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        emit(goToIns);
+
+        int loadFalseIP = nextIP();
+        lEvalInstruction.setOperand(1, loadFalseIP);
+        rEvalInstruction.setOperand(1, loadFalseIP);
+
+        // Load 'false' if the both conditions are false;
+        emit(InstructionCodes.BCONST_0, exprRegIndex);
+        goToIns.setOperand(0, nextIP());
+    }
+
+    private void visitOrExpression (BLangBinaryExpr binaryExpr) {
+        // Generate code for the left hand side
+        genNode(binaryExpr.lhsExpr, this.env);
+
+        // Last operand will be filled later.
+        Instruction lEvalInstruction = InstructionFactory.get(InstructionCodes.BR_TRUE,
+                binaryExpr.lhsExpr.regIndex, -1);
+        emit(lEvalInstruction);
+
+        // Generate code for the right hand side
+        genNode(binaryExpr.rhsExpr, this.env);
+
+        // Last operand will be filled later.
+        Instruction rEvalInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
+                binaryExpr.rhsExpr.regIndex, -1);
+        emit(rEvalInstruction);
+
+        // If either l and r conditions are true, then load 'true'
+        lEvalInstruction.setOperand(1, nextIP());
+        int exprRegIndex = ++regIndexes.tBoolean;
+        binaryExpr.regIndex = exprRegIndex;
+        emit(InstructionCodes.BCONST_1, exprRegIndex);
+
+        Instruction goToIns = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        emit(goToIns);
+        rEvalInstruction.setOperand(1, nextIP());
+
+        // Load 'false' if the both conditions are false;
+        emit(InstructionCodes.BCONST_0, exprRegIndex);
+        goToIns.setOperand(0, nextIP());
     }
 
     public void visit(BLangInvocation iExpr) {
