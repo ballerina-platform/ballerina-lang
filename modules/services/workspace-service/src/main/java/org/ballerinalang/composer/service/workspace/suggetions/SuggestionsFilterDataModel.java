@@ -25,6 +25,8 @@ import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.SymbolScope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 import java.util.Map;
@@ -41,8 +43,9 @@ public class SuggestionsFilterDataModel {
     private Vocabulary vocabulary;
     private int tokenIndex;
     private BallerinaFile ballerinaFile;
-    private SymbolScope closestScope;
+    private BLangNode symbolEnvNode;
     private Set<Map.Entry<String, ModelPackage>> packages;
+    private SymbolTable symbolTable;
 
     /**
      * Constructor for SuggestionsFilterDataModel
@@ -50,20 +53,18 @@ public class SuggestionsFilterDataModel {
     public SuggestionsFilterDataModel(){
     }
 
-    /**
-     * Constructor for SuggestionsFilterDataModel
-     * @param parser - parser instance
-     * @param parserRuleContext - Parser rule parserRuleContext
-     * @param possibleTokenList - List of possible tokens
-     */
-    public SuggestionsFilterDataModel(Parser parser, ParserRuleContext parserRuleContext,
-                                      List<PossibleToken> possibleTokenList) {
-        this.parserRuleContext = parserRuleContext;
-        this.possibleTokens = possibleTokenList;
-        this.init(parser);
+    private void init(Parser parser) {
+        if (parser != null) {
+            this.tokenStream = parser.getTokenStream();
+            this.vocabulary = parser.getVocabulary();
+            this.tokenIndex = parser.getCurrentToken().getTokenIndex();
+        }
     }
 
-    private void init(Parser parser) {
+    public void initParserContext (Parser parser, ParserRuleContext parserRuleContext,
+                                   List<PossibleToken> possibleTokenList) {
+        this.parserRuleContext = parserRuleContext;
+        this.possibleTokens = possibleTokenList;
         if (parser != null) {
             this.tokenStream = parser.getTokenStream();
             this.vocabulary = parser.getVocabulary();
@@ -127,19 +128,27 @@ public class SuggestionsFilterDataModel {
         this.ballerinaFile = ballerinaFile;
     }
 
-    public SymbolScope getClosestScope() {
-        return closestScope;
-    }
-
-    public void setClosestScope(SymbolScope closestScope) {
-        this.closestScope = closestScope;
-    }
-
     public Set<Map.Entry<String, ModelPackage>> getPackages() {
         return packages;
     }
 
     public void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
         this.packages = packages;
+    }
+
+    public BLangNode getSymbolEnvNode() {
+        return symbolEnvNode;
+    }
+
+    public void setSymbolEnvNode(BLangNode symbolEnvNode) {
+        this.symbolEnvNode = symbolEnvNode;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public void setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
     }
 }

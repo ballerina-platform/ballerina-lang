@@ -29,7 +29,7 @@ const getSeperator = id => ({
 const addOpTool = {
     id: 'add',
     name: 'Add',
-    cssClass: 'icon fw fw-add',
+    icon: 'add',
     title: 'Add',
     meta: {
         defaultExpression: '0 + 0',
@@ -40,7 +40,7 @@ const addOpTool = {
 const subtractOpTool = {
     id: 'subtract',
     name: 'Subtract',
-    cssClass: 'icon fw fw-minus',
+    icon: 'minus',
     title: 'Subtract',
     meta: {
         defaultExpression: '0 - 0',
@@ -51,7 +51,7 @@ const subtractOpTool = {
 const divideOpTool = {
     id: 'divide',
     name: 'Divide',
-    cssClass: 'icon fw fw-divide',
+    icon: 'divide',
     title: 'Divide',
     meta: {
         defaultExpression: '0 / 1',
@@ -62,7 +62,7 @@ const divideOpTool = {
 const multiplyOpTool = {
     id: 'multiply',
     name: 'Multiply',
-    cssClass: 'icon fw fw-cancel',
+    icon: 'cancel',
     title: 'Multiply',
     meta: {
         defaultExpression: '0 * 0',
@@ -73,7 +73,7 @@ const multiplyOpTool = {
 const powerOpTool = {
     id: 'power',
     name: 'Power',
-    cssClass: 'icon fw fw-power',
+    icon: 'power',
     title: 'Power',
     meta: {
         defaultExpression: '1 ^ 1',
@@ -84,7 +84,7 @@ const powerOpTool = {
 const lessThanOpTool = {
     id: 'lessThan',
     name: 'Less Than',
-    cssClass: 'icon fw fw-less-than',
+    icon: 'less-than',
     title: 'Less Than',
     meta: {
         defaultExpression: '0 < 0',
@@ -95,7 +95,7 @@ const lessThanOpTool = {
 const greaterThanOpTool = {
     id: 'greaterThan',
     name: 'Greater Than',
-    cssClass: 'icon fw fw-greater-than',
+    icon: 'greater-than',
     title: 'Greater Than',
     meta: {
         defaultExpression: '0 > 0',
@@ -106,7 +106,7 @@ const greaterThanOpTool = {
 const lessThanOrEqualOpTool = {
     id: 'lessThanOrEqual',
     name: 'LT Or Equal To',
-    cssClass: 'icon fw fw-less-than-equals',
+    icon: 'less-than-equals',
     title: 'LT Or Equal To',
     meta: {
         defaultExpression: '0 <= 0',
@@ -117,7 +117,7 @@ const lessThanOrEqualOpTool = {
 const greaterThanOrEqualOpTool = {
     id: 'greaterThanOrEqual',
     name: 'GT Or Equal To',
-    cssClass: 'icon fw fw-greater-than-equals',
+    icon: 'greater-than-equals',
     title: 'GT Or Equal To',
     meta: {
         defaultExpression: '0 >= 0',
@@ -128,7 +128,7 @@ const greaterThanOrEqualOpTool = {
 const equalOpTool = {
     id: 'equal',
     name: 'Equal To',
-    cssClass: 'icon fw fw-equals',
+    icon: 'equals',
     title: 'Equal To',
     meta: {
         defaultExpression: '0 == 0',
@@ -139,7 +139,7 @@ const equalOpTool = {
 const notEqualOpTool = {
     id: 'notEqual',
     name: 'Not Equal To',
-    cssClass: 'icon fw fw-not-equal',
+    icon: 'not-equal',
     title: 'Not Equal To',
     meta: {
         defaultExpression: '0 != 0',
@@ -150,7 +150,7 @@ const notEqualOpTool = {
 const andOpTool = {
     id: 'and',
     name: 'And',
-    cssClass: 'icon fw fw-and',
+    icon: 'and',
     title: 'And',
     meta: {
         defaultExpression: 'true && true',
@@ -161,7 +161,7 @@ const andOpTool = {
 const orOpTool = {
     id: 'or',
     name: 'Or',
-    cssClass: 'icon fw fw-or',
+    icon: 'or',
     title: 'Or',
     meta: {
         defaultExpression: 'true || true',
@@ -190,7 +190,7 @@ export const binaryOpTools = [
 const plusOpTool = {
     id: 'plus',
     name: 'Plus',
-    cssClass: 'icon fw fw-add',
+    icon: 'add',
     title: 'Plus',
     meta: {
         defaultExpression: '+ 1',
@@ -201,7 +201,7 @@ const plusOpTool = {
 const minusOpTool = {
     id: 'minus',
     name: 'Minus',
-    cssClass: 'icon fw fw-minus',
+    icon: 'minus',
     title: 'Minus',
     meta: {
         defaultExpression: '- 1',
@@ -212,7 +212,7 @@ const minusOpTool = {
 const notOpTool = {
     id: 'not',
     name: 'Not',
-    cssClass: 'icon fw fw-not',
+    icon: 'not',
     title: 'Not',
     meta: {
         defaultExpression: '! false',
@@ -223,7 +223,7 @@ const notOpTool = {
 const lengthOfOpTool = {
     id: 'lengthof',
     name: 'Length Of',
-    cssClass: 'icon fw fw-lengthof',
+    icon: 'lengthof',
     title: 'Length Of',
     meta: {
         defaultExpression: 'lengthof a',
@@ -234,7 +234,7 @@ const lengthOfOpTool = {
 const typeOfOpTool = {
     id: 'typeof',
     name: 'Type Of',
-    cssClass: 'icon fw fw-typeof',
+    icon: 'typeof',
     title: 'Type Of',
     meta: {
         defaultExpression: 'typeof a',

@@ -76,17 +76,17 @@ public class AnnotationAttributeValue {
                                             org.ballerinalang.model.AnnotationAttributeValue annotationAttributeValue) {
         if (null != annotationAttributeValue) {
             AnnotationAttributeValue tempAnnotationAttributeValue = new AnnotationAttributeValue();
-            tempAnnotationAttributeValue.setBValue(annotationAttributeValue.getLiteralValue().stringValue());
-            tempAnnotationAttributeValue.setAnnotationValue(AnnotationAttachment.convertToPackageModel(
-                                                                        annotationAttributeValue.getAnnotationValue()));
-            
-            if (null != annotationAttributeValue.getValueArray()) {
-                for (org.ballerinalang.model.AnnotationAttributeValue attributeValue :
-                                                                            annotationAttributeValue.getValueArray()) {
-                    tempAnnotationAttributeValue.addToValueArray(AnnotationAttributeValue.convertToPackageModel(
-                                                                                                    attributeValue));
-                }
-            }
+//            tempAnnotationAttributeValue.setBValue(annotationAttributeValue.getLiteralValue().stringValue());
+//            tempAnnotationAttributeValue.setAnnotationValue(AnnotationAttachment.convertToPackageModel(
+//                                                                        annotationAttributeValue.getAnnotationValue()));
+//
+//            if (null != annotationAttributeValue.getValueArray()) {
+//                for (org.ballerinalang.model.AnnotationAttributeValue attributeValue :
+//                                                                            annotationAttributeValue.getValueArray()) {
+//                    tempAnnotationAttributeValue.addToValueArray(AnnotationAttributeValue.convertToPackageModel(
+//                                                                                                    attributeValue));
+//                }
+//            }
     
             return tempAnnotationAttributeValue;
         } else {

@@ -26,9 +26,9 @@ import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import ToolGroup from './../tool-palette/tool-group';
 import DefaultASTFactory from '../ast/default-ast-factory';
-import BallerinaASTRoot from '../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
-import {binaryOpTools, unaryOpTools} from './operator-tools'
+import {binaryOpTools, unaryOpTools} from './operator-tools';
+import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 class ToolsPanel extends React.Component {
 
@@ -449,8 +449,8 @@ class ToolPaletteView extends React.Component {
         // get the environment
         const environment = this.context.environment;
         // get the current package
-        const currentPackage = environment.createCurrentPackageFromAST(model);
-        let currentTools = this.package2ToolGroup(currentPackage, 'both', this.props.isTransformActive);
+        // TODOX const currentPackage = environment.createCurrentPackageFromAST(model);
+        let currentTools = []; // TODOX this.package2ToolGroup(currentPackage, 'both', this.props.isTransformActive);
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
@@ -458,14 +458,14 @@ class ToolPaletteView extends React.Component {
         // get the constructs
         let constructs = _.cloneDeep(InitialTools[0]);
         // get imported packages
-        const imports = model.getImportDeclarations();
+        const imports = []; // TODOX model.getImportDeclarations();
         // convert imports to tool groups
         const connectors = [];
         const library = [];
 
         if (state === 'tools') {
             imports.forEach((item) => {
-                const pkg = environment.getPackageByName(item.getPackageName());
+                const pkg = undefined; // TODOX environment.getPackageByName(item.getPackageName());
                 if (!_.isNil(pkg)) {
                     let group = this.package2ToolGroup(pkg, 'connectors');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
@@ -478,7 +478,7 @@ class ToolPaletteView extends React.Component {
                         />);
                     }
 
-                    group = this.package2ToolGroup(pkg, 'functions', this.props.isTransformActive);
+                    group = undefined ; // TODOX this.package2ToolGroup(pkg, 'functions', this.props.isTransformActive);
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -579,7 +579,7 @@ ToolPaletteView.propTypes = {
 };
 
 ToolPaletteView.contextTypes = {
-    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };
 

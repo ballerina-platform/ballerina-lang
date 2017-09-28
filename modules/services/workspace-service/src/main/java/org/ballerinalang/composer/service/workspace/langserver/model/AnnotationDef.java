@@ -17,6 +17,7 @@
 package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import org.ballerinalang.model.AnnotationAttachmentPoint;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +59,8 @@ public class AnnotationDef {
             tempAnnotation.getAnnotationAttributeDefs().add(tempAnnotationAttributeDef);
         }
         //Annotation Attachments
-        for (org.ballerinalang.model.AnnotationAttachment annotationAttachment
-                : annotationDef.getAnnotations()) {
+        for (AnnotationAttachmentPoint annotationAttachment
+                : annotationDef.getAttachmentPoints()) {
             AnnotationAttachment tempAnnotationAttachment = AnnotationAttachment.convertToPackageModel(
                     annotationAttachment);
             tempAnnotation.getAnnotationAttachments().add(tempAnnotationAttachment);

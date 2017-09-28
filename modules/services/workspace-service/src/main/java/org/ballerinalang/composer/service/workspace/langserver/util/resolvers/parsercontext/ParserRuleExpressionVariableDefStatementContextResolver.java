@@ -125,9 +125,11 @@ public class ParserRuleExpressionVariableDefStatementContextResolver extends Abs
         });
 
         PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
-        List<CompletionItem> functionsAndActions =  actionAndFunctionFilter.getCompletionItems(packageSymbolInfos,
-                dataModel);
-        return functionsAndActions.stream()
+        List<SymbolInfo> functionsAndActions =  actionAndFunctionFilter
+                .getCompletionItems(packageSymbolInfos.get(0),dataModel);
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        this.populateCompletionItemList(functionsAndActions, completionItems);
+        return completionItems.stream()
                 .filter(completionItem -> completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE))
                 .collect(Collectors.toList());
     }

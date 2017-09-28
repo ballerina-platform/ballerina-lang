@@ -75,12 +75,12 @@ const config = [{
     plugins: [
         new ProgressBarPlugin(),
         extractCSSBundle,
-        new UnusedFilesWebpackPlugin({
-            pattern: 'js/**/*.*',
-            globOptions: {
-                ignore: 'js/tests/**/*.*',
-            },
-        }),
+        //new UnusedFilesWebpackPlugin({
+        //    pattern: 'js/**/*.*',
+        //    globOptions: {
+        //        ignore: 'js/tests/**/*.*',
+        //    },
+        //}),
         // https://github.com/fronteed/icheck/issues/322
         new webpack.ProvidePlugin({
             $: 'jquery',
@@ -131,27 +131,15 @@ const config = [{
             // third party modules //
             // //////////////////////
             theme_wso2: 'theme-wso2-2.0.0/js/theme-wso2',
-            mcustom_scroller: 'malihu-custom-scrollbar-plugin',
-            underscore: 'lodash',
-            ace: 'ace-builds/src-noconflict',
             // /////////////////////
             // custom modules ////
             // ////////////////////
             log: 'log/log',
             event_channel: 'event/channel',
-            tool_bar: 'tool-bar/tool-bar',
+            ace: 'ace-builds/src-noconflict',
             alerts: 'utils/alerts',
             expression_editor_utils: 'expression-editor/expression-editor-utils',
-            constants: 'constants/constants',
-            typeMapper: 'type-mapper/type-mapper-renderer',
-            environment_content: 'ballerina/env/environment-content',
-            bal_utils: 'ballerina/utils',
-            bal_configs: 'ballerina/configs',
-            console: 'launcher/console',
             images: 'public/images',
-            workspace$: 'workspace/module',
-            ballerina$: 'ballerina/module',
-            'welcome-page$': 'welcome-page/module',
         },
     },
 

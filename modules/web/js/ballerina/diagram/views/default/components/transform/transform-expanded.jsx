@@ -33,7 +33,7 @@ import FunctionInv from './function';
 import Operator from './operator';
 import { getLangServerClientInstance } from './../../../../../../langserver/lang-server-client-controller';
 import { getResolvedTypeData } from './../../../../../../langserver/lang-server-utils';
-import ASTFactory from '../../../../../ast/ast-factory';
+import TreeUtil from '../../../../../model/tree-util';
 import './transform-expanded.css';
 
 /**
@@ -161,29 +161,24 @@ class TransformExpanded extends React.Component {
     createConnection(statement) {
         const viewId = this.props.model.getID();
 
-        if (ASTFactory.isCommentStatement(statement)) {
+        if (TreeUtil.isComment(statement)) {
             return;
         }
 
-        if (ASTFactory.isVariableDefinitionStatement(statement)) {
-            // TODO: handle this
-            return;
-        }
-
-        if (!ASTFactory.isAssignmentStatement(statement)) {
-            log.error('Invalid statement type in transform statement');
+        if (!TreeUtil.isVariableDef(statement) && !TreeUtil.isAssignment(statement)) {
+            log.error('Invalid statement type in transformer');
             return;
         }
 
         // There can be multiple left expressions.
         // E.g. : e.name, e.username = p.first_name;
-        const leftExpression = statement.getLeftExpression();
-        const { exp: rightExpression, isTemp } = this.transformNodeManager
-                        .getResolvedExpression(statement.getRightExpression(), statement);
-        if (!isTemp && (ASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
-              ASTFactory.isSimpleVariableReferenceExpression(rightExpression))) {
-            _.forEach(leftExpression.getChildren(), (leftExpr) => {
-                const sourceExprString = rightExpression.getExpressionString().trim();
+        const variables = statement.getVariables();
+        const { exp: expression, isTemp } = this.transformNodeManager
+                        .getResolvedExpression(statement.getExpression(), statement);
+        if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
+            TreeUtil.isSimpleVariableRef(expression))) {
+            _.forEach(variables, (variable) => {
+                const sourceExprString = expression.getSource().trim();
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
@@ -191,7 +186,7 @@ class TransformExpanded extends React.Component {
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
 
-                const targetExprString = leftExpr.getExpressionString().trim();
+                const targetExprString = variable.getSource().trim();
                 let targetId = `${targetExprString}:${viewId}`;
                 if (!this.targetElements[targetId]) {
                     folded = true;
@@ -202,10 +197,10 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        if (ASTFactory.isFunctionInvocationExpression(rightExpression)
-                    || ASTFactory.isBinaryExpression(rightExpression)
-                    || ASTFactory.isUnaryExpression(rightExpression)) {
-            this.drawIntermediateNode(leftExpression, rightExpression, statement, isTemp);
+        if (TreeUtil.isInvocation(expression)
+                    || TreeUtil.isBinaryExpr(expression)
+                    || TreeUtil.isUnaryExpr(expression)) {
+            this.drawIntermediateNode(variables, expression, statement, isTemp);
         }
     }
 
@@ -554,7 +549,7 @@ class TransformExpanded extends React.Component {
                     this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
         });
 
-        _.forEach(this.props.model.getChildren(), (statement) => {
+        this.props.model.getBody().getStatements().forEach((statement) => {
             this.createConnection(statement);
         });
 
@@ -741,7 +736,7 @@ class TransformExpanded extends React.Component {
 
     onTransformDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
+        const dropTarget = this.props.model.parent;
         if (dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 dragDropManager.clearActivatedDropTarget();
@@ -872,8 +867,8 @@ class TransformExpanded extends React.Component {
             const options = {
                 textDocument: fileData.content,
                 position: {
-                    line: position.stopLine,
-                    character: position.stopOffset,
+                    line: position.endLine,
+                    character: position.endColumn,
                 },
                 fileName: fileData.name,
                 filePath: fileData.path,
@@ -897,7 +892,7 @@ class TransformExpanded extends React.Component {
                         constraint: typeData.constraint,
                     });
                 });
-                const varDefinations = this.props.model.filterChildren(ASTFactory.isVariableDefinitionStatement);
+                const varDefinitions = this.props.model.getBody().filterStatements(TreeUtil.isVariableDef);
                 _.forEach(transformVars, (arg) => {
                     const structDef = this.transformNodeManager.getStructDefinition(arg.pkgName, arg.type);
 
@@ -913,9 +908,9 @@ class TransformExpanded extends React.Component {
                         variableType.name = arg.name;
                         variableType.displayName = arg.name;
                         variableType.varDeclarationString = '';
-                        _.forEach(varDefinations, (varDef) => {
-                            if (variableType.name === varDef.getLeftExpression().getVariableName()) {
-                                variableType.varDeclarationString = varDef.getStatementString();
+                        _.forEach(varDefinitions, (varDef) => {
+                            if (variableType.name === varDef.getVariableName().getValue()) {
+                                variableType.varDeclarationString = varDef.getSource();
                             }
                         });
 
@@ -1104,15 +1099,15 @@ class TransformExpanded extends React.Component {
 
     render() {
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
-        const inputNodes = this.props.model.getInput();
-        const outputNodes = this.props.model.getOutput();
+        const inputNodes = this.props.model.getInputExpressions();
+        const outputNodes = this.props.model.getOutputExpressions();
         const inputs = [];
         const outputs = [];
         const intermediateNodes = [];
 
         if (this.state.vertices.length > 0) {
             inputNodes.forEach((inputNode) => {
-                const name = inputNode.getVariableName();
+                const name = inputNode.getVariableName().getValue();
                 const sourceSelection = _.find(vertices, { name });
                 if (_.isUndefined(sourceSelection)) {
                     // alerts.error('Mapping source "' + name + '" cannot be found');
@@ -1124,7 +1119,7 @@ class TransformExpanded extends React.Component {
             });
 
             outputNodes.forEach((outputNode) => {
-                const name = outputNode.getVariableName();
+                const name = outputNode.getVariableName().getValue();
                 const targetSelection = _.find(vertices, { name });
                 if (_.isUndefined(targetSelection)) {
                     // alerts.error('Mapping target "' + name + '" cannot be found');
@@ -1135,21 +1130,19 @@ class TransformExpanded extends React.Component {
                 outputs.push(targetSelection);
             });
 
-            this.props.model.getChildren().forEach((child) => {
-                if (!ASTFactory.isAssignmentStatement(child)) {
-                    return; // TODO: handle var def stmts as well
-                }
-                const { exp: rightExpression, isTemp } = this.transformNodeManager
-                                                    .getResolvedExpression(child.getRightExpression(), child);
+            this.props.model.getBody().getStatements().forEach((stmt) => {
+                const { exp: expression, isTemp } = this.transformNodeManager
+                                                    .getResolvedExpression(stmt.getExpression(), stmt);
 
-                if (ASTFactory.isFunctionInvocationExpression(rightExpression)
-                    || ASTFactory.isBinaryExpression(rightExpression)
-                    || ASTFactory.isUnaryExpression(rightExpression)) {
+                if (TreeUtil.isInvocation(expression)
+                    || TreeUtil.isBinaryExpr(expression)
+                    || TreeUtil.isUnaryExpr(expression)
+                    || TreeUtil.isTernaryExpr(expression)) {
                     if (!isTemp) {
                         // only add if the function invocation is not pre available.
                         // this check is required for instances where the function invocations
                         // are used via temporary variables
-                        intermediateNodes.push(...this.getIntermediateNodes(rightExpression, child));
+                        intermediateNodes.push(...this.getIntermediateNodes(expression, stmt));
                     }
                 }
             });

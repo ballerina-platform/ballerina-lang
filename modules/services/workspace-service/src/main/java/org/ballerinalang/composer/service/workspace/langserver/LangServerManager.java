@@ -25,8 +25,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.BLangASTBuilder;
-import org.ballerinalang.composer.service.workspace.Constants;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
@@ -45,31 +45,34 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentP
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
-import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggester;
-import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggesterImpl;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
 /**
  * Language server Manager which manage langServer requests from the clients.
@@ -79,6 +82,8 @@ public class LangServerManager {
     private static final Logger logger = LoggerFactory.getLogger(LangServerManager.class);
 
     private static LangServerManager langServerManagerInstance;
+
+    private static CompilerOptions options;
 
     private LangServer langserver;
 
@@ -95,9 +100,11 @@ public class LangServerManager {
     private WorkspaceSymbolProvider symbolProvider = new WorkspaceSymbolProvider();
 
     private Set<Map.Entry<String, ModelPackage>> packages;
+
     private Map<Path, Map<String, ModelPackage>> programPackagesMap;
+
     private Map<Path, BLangProgram> programMap;
-    
+
     /**
      * Caching the built in packages.
      */
@@ -173,7 +180,7 @@ public class LangServerManager {
                     this.getCompletionItems(message);
                     break;
                 case LangServerConstants.PROGRAM_DIRECTORY_PACKAGES:
-                    this.getProgramPackages(message);
+                    //this.getProgramPackages(message);
                     break;
                 case LangServerConstants.BUILT_IN_PACKAGES:
                     this.getBuiltInPackages(message);
@@ -437,41 +444,41 @@ public class LangServerManager {
      *
      * @param message Request Message
      */
-    private void getProgramPackages(Message message) {
-        if (message instanceof RequestMessage) {
-            JsonObject response = new JsonObject();
-            Map<String, ModelPackage> packages;
-            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
-                    TextDocumentPositionParams.class);
-            String fileName = textDocumentPositionParams.getFileName();
-            String filePath = textDocumentPositionParams.getFilePath();
-            String packageName = textDocumentPositionParams.getPackageName();
-            if ("temp".equals(filePath) || ".".equals(packageName)) {
-                // No need to resolve packages if the package is not defined or if the file is not saved
-                return;
-            }
-            Path file = Paths.get(filePath + File.separator + fileName);
-            packages = resolveProgramPackages(Paths.get(filePath), packageName);
-            programPackagesMap.put(file, packages);
-            LangServerManager.this.setPackages(packages.entrySet());
-
-            // add package info into response
-            Gson gson = new Gson();
-            String json = gson.toJson(packages.values());
-            JsonParser parser = new JsonParser();
-            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
-            response.add("packages", packagesArray);
-
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setId(((RequestMessage) message).getId());
-            responseMessage.setResult(response);
-            pushMessageToClient(langServerSession, responseMessage);
-
-        } else {
-            logger.warn("Invalid Message type found");
-        }
-    }
+//    private void getProgramPackages(Message message) {
+//        if (message instanceof RequestMessage) {
+//            JsonObject response = new JsonObject();
+//            Map<String, ModelPackage> packages;
+//            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
+//            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
+//                    TextDocumentPositionParams.class);
+//            String fileName = textDocumentPositionParams.getFileName();
+//            String filePath = textDocumentPositionParams.getFilePath();
+//            String packageName = textDocumentPositionParams.getPackageName();
+//            if ("temp".equals(filePath) || ".".equals(packageName)) {
+//                // No need to resolve packages if the package is not defined or if the file is not saved
+//                return;
+//            }
+//            Path file = Paths.get(filePath + File.separator + fileName);
+//            packages = resolveProgramPackages(Paths.get(filePath), packageName);
+//            programPackagesMap.put(file, packages);
+//            LangServerManager.this.setPackages(packages.entrySet());
+//
+//            // add package info into response
+//            Gson gson = new Gson();
+//            String json = gson.toJson(packages.values());
+//            JsonParser parser = new JsonParser();
+//            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+//            response.add("packages", packagesArray);
+//
+//            ResponseMessage responseMessage = new ResponseMessage();
+//            responseMessage.setId(((RequestMessage) message).getId());
+//            responseMessage.setResult(response);
+//            pushMessageToClient(langServerSession, responseMessage);
+//
+//        } else {
+//            logger.warn("Invalid Message type found");
+//        }
+//    }
 
     /**
      * Get all the built-in packages.
@@ -511,42 +518,54 @@ public class LangServerManager {
      */
     private void getCompletionItems(Message message) {
         if (message instanceof RequestMessage) {
+            ArrayList<CompletionItem> completionItems;
+            ArrayList<SymbolInfo> symbols = new ArrayList<>();
+
             JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
-            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
-                    TextDocumentPositionParams.class);
-            String textContent = textDocumentPositionParams.getText();
-            Position position = textDocumentPositionParams.getPosition();
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+            TextDocumentPositionParams posParams = gson.fromJson(params.toString(), TextDocumentPositionParams.class);
 
-            BFile bFile = new BFile();
-            bFile.setContent(textContent);
-            bFile.setFilePath("/temp");
-            bFile.setFileName("temp.bal");
-            bFile.setPackageName(".");
+            Position position = posParams.getPosition();
+            String textContent = posParams.getText();
+            CompilerContext compilerContext = new CompilerContext();
 
-            AutoCompleteSuggester autoCompleteSuggester = new AutoCompleteSuggesterImpl();
-            CapturePossibleTokenStrategy capturePossibleTokenStrategy = new CapturePossibleTokenStrategy(position);
-            try {
-                ArrayList symbols = new ArrayList<>();
-                CompletionItemAccumulator completionItemAccumulator = new CompletionItemAccumulator(symbols, position);
-                BallerinaFile ballerinaFile =
-                        autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
-                capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
-                ballerinaFile.accept(completionItemAccumulator);
+            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
+            // HashMap<String, byte[]> contentMap = new HashMap<>();
+            // contentMap.put("test.bal", textContent.getBytes(StandardCharsets.UTF_8));
 
-                SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
-                SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
-                dm.setClosestScope(completionItemAccumulator.getClosestScope());
-                // set all the packages associated with the runtime. "this.getPackages()" might return null as process
-                // of loading packages is running in a separate thread. See initBackgroundJobs() method.
-                dm.setPackages(this.getPackages());
+             options = CompilerOptions.getInstance(compilerContext);
+             options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
 
-                completionItems = suggestionsFilter.getCompletionItems(dm, symbols);
-            } catch (IOException e) {
-                this.sendErrorResponse(LangServerConstants.INTERNAL_ERROR_LINE,
-                        LangServerConstants.INTERNAL_ERROR, message, null);
-            }
+            // TODO: Disabling the LangServer Package Repository and. Enable after adding package support to LangServer
+            // LangServerPackageRepository pkgRepo =
+            //        new LangServerPackageRepository(Paths.get(options.get(SOURCE_ROOT)), contentMap);
+            SuggestionsFilterDataModel filterDataModel = new SuggestionsFilterDataModel();
 
+            List<Name> names = new ArrayList<>();
+            names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
+            PackageID tempPackageID = new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+            InMemoryPackageRepository inMemoryPackageRepository = new InMemoryPackageRepository(tempPackageID, "",
+                    "temp.bal", textContent.getBytes(StandardCharsets.UTF_8));
+            compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
+
+            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
+            compilerContext.put(DefaultErrorStrategy.class, errStrategy);
+
+            Compiler compiler = Compiler.getInstance(compilerContext);
+            // here we need to compile the whole package
+            BLangPackage bLangPackage = compiler.compile("temp.bal");
+
+            // Visit the package to resolve the symbols
+            TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
+            bLangPackage.accept(treeVisitor);
+            // Set the symbol table
+            filterDataModel.setSymbolTable(treeVisitor.getSymTable());
+
+            // Filter the suggestions
+            SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
+            filterDataModel.setPackages(this.getPackages());
+            completionItems = suggestionsFilter.getCompletionItems(filterDataModel, symbols);
+
+            // Create the response message for client request
             ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setId(((RequestMessage) message).getId());
             responseMessage.setResult(completionItems.toArray(new CompletionItem[0]));
@@ -580,31 +599,31 @@ public class LangServerManager {
      * @param filePath    - file path to parent directory of the .bal file
      * @param packageName - package name
      */
-    private Map<String, ModelPackage> resolveProgramPackages(java.nio.file.Path filePath, String packageName) {
-        // Filter out Default package scenario
-        if (!".".equals(packageName)) {
-            // find nested directory count using package name
-            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
-                    : 1;
-
-            // find program directory
-            java.nio.file.Path parentDir = filePath;
-            for (int i = 0; i < directoryCount; ++i) {
-                if (parentDir != null) {
-                    parentDir = parentDir.getParent();
-                }
-            }
-
-            // we shouldn't proceed if the parent directory is null
-            if (parentDir == null) {
-                return null;
-            }
-
-            // get packages in program directory
-            return getPackagesInProgramDirectory(parentDir);
-        }
-        return null;
-    }
+//    private Map<String, ModelPackage> resolveProgramPackages(java.nio.file.Path filePath, String packageName) {
+//        // Filter out Default package scenario
+//        if (!".".equals(packageName)) {
+//            // find nested directory count using package name
+//            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
+//                    : 1;
+//
+//            // find program directory
+//            java.nio.file.Path parentDir = filePath;
+//            for (int i = 0; i < directoryCount; ++i) {
+//                if (parentDir != null) {
+//                    parentDir = parentDir.getParent();
+//                }
+//            }
+//
+//            // we shouldn't proceed if the parent directory is null
+//            if (parentDir == null) {
+//                return null;
+//            }
+//
+//            // get packages in program directory
+//            return getPackagesInProgramDirectory(parentDir);
+//        }
+//        return null;
+//    }
 
 
     /**
@@ -614,39 +633,39 @@ public class LangServerManager {
      * @return a map contains package details
      * @throws BallerinaException
      */
-    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath) {
-        Map<String, ModelPackage> modelPackageMap = new HashMap();
-
-        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
-        List<java.nio.file.Path> filePaths = new ArrayList<>();
-        searchFilePathsForBalFiles(programDirPath, filePaths, Constants.DIRECTORY_DEPTH);
-
-        // add resolved packages into map
-        for (java.nio.file.Path filePath : filePaths) {
-            int compare = filePath.compareTo(programDirPath);
-            String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
-                    filePath.toString().length());
-            try {
-                BLangProgram bLangProgram = new BLangASTBuilder()
-                        .build(programDirPath, Paths.get(sourcePath));
-
-                //
-                java.nio.file.Path path = programDirPath.resolve(sourcePath);
-                programMap.put(path, bLangProgram);
-
-                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
-                modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
-            } catch (BallerinaException e) {
-                logger.warn(e.getMessage());
-                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
-
-                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
-                // those scenarios we still needs to proceed even without package resolving for that particular package.
-                // Hence ignoring the exception.
-            }
-        }
-        return modelPackageMap;
-    }
+//    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath) {
+//        Map<String, ModelPackage> modelPackageMap = new HashMap();
+//
+//        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
+//        List<java.nio.file.Path> filePaths = new ArrayList<>();
+//        searchFilePathsForBalFiles(programDirPath, filePaths, Constants.DIRECTORY_DEPTH);
+//
+//        // add resolved packages into map
+//        for (java.nio.file.Path filePath : filePaths) {
+//            int compare = filePath.compareTo(programDirPath);
+//            String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
+//                    filePath.toString().length());
+//            try {
+//                BLangProgram bLangProgram = new BLangASTBuilder()
+//                        .build(programDirPath, Paths.get(sourcePath));
+//
+//                //
+//                java.nio.file.Path path = programDirPath.resolve(sourcePath);
+//                programMap.put(path, bLangProgram);
+//
+//                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
+//                modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
+//            } catch (BallerinaException e) {
+//                logger.warn(e.getMessage());
+//                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
+//
+//                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
+//                // those scenarios we still needs to proceed even without package resolving for that particular package.
+//                // Hence ignoring the exception.
+//            }
+//        }
+//        return modelPackageMap;
+//    }
 
     /**
      * Recursive method to search for .bal files and add their parent directory paths to the provided List
