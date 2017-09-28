@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,7 +49,6 @@ public class Compiler {
     private DiagnosticLog dlog;
     private PackageLoader pkgLoader;
     private SymbolTable symbolTable;
-    private SymbolEnter symbolEnter;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
     private Desugar desugar;
@@ -77,7 +75,6 @@ public class Compiler {
         this.options = CompilerOptions.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
@@ -137,6 +134,7 @@ public class Compiler {
         if (stopCompilation(CompilerPhase.DEFINE)) {
             return null;
         }
+
         return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
     }
 
