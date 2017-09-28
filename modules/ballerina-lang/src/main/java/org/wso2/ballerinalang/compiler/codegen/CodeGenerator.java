@@ -63,11 +63,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
@@ -571,8 +573,48 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangJSONLiteral jsonLiteral) {
+    public void visit(BLangJSONArrayLiteral arrayLiteral) {
+        int jsonVarRegIndex = ++regIndexes.tRef;
+        arrayLiteral.regIndex = jsonVarRegIndex;
+        List<BLangExpression> argExprs = arrayLiteral.exprs;
 
+        BLangLiteral arraySizeLiteral = new BLangLiteral();
+        arraySizeLiteral.pos = arrayLiteral.pos;
+        arraySizeLiteral.value = new Long(argExprs.size());
+        arraySizeLiteral.type = symTable.intType;
+        arraySizeLiteral.accept(this);
+
+        emit(InstructionCodes.JSONNEWARRAY, jsonVarRegIndex, arraySizeLiteral.regIndex);
+
+        for (int i = 0; i < argExprs.size(); i++) {
+            BLangExpression argExpr = argExprs.get(i);
+            genNode(argExpr, this.env);
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = arrayLiteral.pos;
+            indexLiteral.value = new Long(i);
+            indexLiteral.type = symTable.intType;
+            genNode(indexLiteral, this.env);
+
+            emit(InstructionCodes.JSONASTORE, jsonVarRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+        }
+    }
+
+    @Override
+    public void visit(BLangJSONLiteral jsonLiteral) {
+        int jsonVarRegIndex = ++regIndexes.tRef;
+        jsonLiteral.regIndex = jsonVarRegIndex;
+        emit(InstructionCodes.NEWJSON, jsonVarRegIndex);
+
+        for (BLangRecordKeyValue keyValue : jsonLiteral.keyValuePairs) {
+            BLangExpression keyExpr = keyValue.key.expr;
+            genNode(keyExpr, this.env);
+
+            BLangExpression valueExpr = keyValue.valueExpr;
+            genNode(valueExpr, this.env);
+
+            emit(InstructionCodes.JSONSTORE, jsonVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+        }
     }
 
     @Override
@@ -733,6 +775,28 @@ public class CodeGenerator extends BLangNodeVisitor {
             int mapValueRegIndex = ++regIndexes.tRef;
             emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
             mapKeyAccessExpr.regIndex = mapValueRegIndex;
+        }
+
+        this.varAssignment = variableStore;
+    }
+
+    @Override
+    public void visit(BLangJSONAccessExpr jsonAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        genNode(jsonAccessExpr.expr, this.env);
+        int varRefRegIndex = jsonAccessExpr.expr.regIndex;
+
+        genNode(jsonAccessExpr.indexExpr, this.env);
+        int keyRegIndex = jsonAccessExpr.indexExpr.regIndex;
+
+        if (variableStore) {
+            emit(InstructionCodes.JSONSTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+        } else {
+            int mapValueRegIndex = ++regIndexes.tRef;
+            emit(InstructionCodes.JSONLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
+            jsonAccessExpr.regIndex = mapValueRegIndex;
         }
 
         this.varAssignment = variableStore;
