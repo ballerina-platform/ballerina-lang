@@ -17,8 +17,12 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -117,6 +121,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private int failedBlockCount;
     private boolean statementReturns;
+    private SymbolEnter symbolEnter;
     private DiagnosticLog dlog;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -129,6 +134,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
+        this.symbolEnter = SymbolEnter.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
@@ -147,7 +153,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
+            return;
+        }
+        pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
+
         pkgNode.compUnits.forEach(e -> e.accept(this));
+        pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
     
     @Override
@@ -158,6 +170,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         this.resetFunction();
+        if (Symbols.isNative(funcNode.symbol)) {
+            return;
+        }
         boolean functionReturns = funcNode.retParams.size() > 0;
         if (funcNode.workers.isEmpty()) {
             funcNode.body.accept(this);
@@ -295,7 +310,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangImportPackage importPkgNode) {
-        /* ignore */
+        BPackageSymbol pkgSymbol = importPkgNode.symbol;
+        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        pkgEnv.node.accept(this);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
