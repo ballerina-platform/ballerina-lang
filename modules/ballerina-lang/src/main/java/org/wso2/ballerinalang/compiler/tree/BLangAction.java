@@ -25,12 +25,6 @@ import org.ballerinalang.model.tree.NodeKind;
  */
 public class BLangAction extends BLangInvokableNode implements ActionNode {
 
-    public BLangVariable connector;
-
-    public void setConnector(BLangVariable connector) {
-        this.connector = connector;
-    }
-
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

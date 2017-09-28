@@ -2561,53 +2561,6 @@ public class BLangVM {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-//    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-//        int[] argRegs = funcCallCPEntry.getArgRegs();
-//        BType[] paramTypes = callableUnitInfo.getParamTypes();
-//        StackFrame callerSF = controlStack.getCurrentFrame();
-//        //BType connectorType = paramTypes[0];
-//        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
-//        ActionInfo newActionInfo = null;
-//        ConnectorInfo connectorInfoIncoming;
-//        if (connector != null && connector.getConnectorType() != null &&
-//                !(callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-//            connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
-//            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-//                    (BConnectorType) connector.getConnectorType());
-//            if (connectorInfoFilter != null) {
-//                newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
-//            } else {
-//                String errorMsg = BLangExceptionHelper.getErrorMessage(
-//                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-//                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-//                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-//                handleError();
-//                return;
-//            }
-//        }
-//
-//        WorkerInfo defaultWorkerInfo;
-//        if (newActionInfo != null) {
-//            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-//        } else {
-//            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-//        }
-//        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-//        controlStack.pushFrame(calleeSF);
-//
-//        // Copy arg values from the current StackFrame to the new StackFrame
-//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-//
-//        // TODO Improve following two lines
-//        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-//        this.code = calleeSF.packageInfo.getInstructions();
-//        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-//
-//        // Invoke other workers
-//        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-//
-//    }
-
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
@@ -3020,34 +2973,6 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
-
-//        BConnector connector = (BConnector) callerSF.refRegs[funcCallCPEntry.getArgRegs()[0]];
-//        ActionInfo newActionInfo = null;
-//        ConnectorInfo connectorInfoIncoming;
-//        if (connector != null && connector.getConnectorType() != null &&
-//                !(actionInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-//            connectorInfoIncoming = actionInfo.getConnectorInfo();
-//            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-//                    (BConnectorType) connector.getConnectorType());
-//            if (connectorInfoFilter != null) {
-//                newActionInfo = connectorInfoFilter.getActionInfo(actionInfo.getName());
-//            } else {
-//                String errorMsg = BLangExceptionHelper.getErrorMessage(
-//                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-//                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-//                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-//                handleError();
-//                return;
-//            }
-//        }
-//
-//        WorkerInfo defaultWorkerInfo;
-//        if (newActionInfo != null) {
-//            actionInfo = newActionInfo;
-//            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-//        } else {
-//            defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
-//        }
 
         WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();

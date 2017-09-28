@@ -330,8 +330,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        BSymbol pkgSymbol = resolvePkgSymbol(userDefinedTypeNode.pos, this.env, names
-                .fromIdNode(userDefinedTypeNode.pkgAlias));
+        BSymbol pkgSymbol = resolvePkgSymbol(userDefinedTypeNode.pos, this.env,
+                names.fromIdNode(userDefinedTypeNode.pkgAlias));
         if (pkgSymbol == symTable.notFoundSymbol) {
             resultType = symTable.errType;
             return;

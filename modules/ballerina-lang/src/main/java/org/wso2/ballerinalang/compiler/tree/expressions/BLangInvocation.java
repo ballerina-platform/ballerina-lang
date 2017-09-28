@@ -168,12 +168,10 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
 
         public BLangActionInvocation(DiagnosticPos pos,
                                        List<BLangExpression> argExprs,
-                                       BLangVariableReference expr,
                                        BSymbol symbol,
                                        List<BType> types) {
             this.pos = pos;
             this.argExprs = argExprs;
-            this.expr = expr;
             this.symbol = symbol;
             this.types = types;
             if (types.size() > 0) {

@@ -430,20 +430,6 @@ public class ProgramFileReader {
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
 
-//            Map<Integer, Integer> methodTableInteger = new HashMap<>();
-//            int count = dataInStream.readInt();
-//
-//            for (int k = 0; k < count; k++) {
-//                int key = dataInStream.readInt();
-//                int value = dataInStream.readInt();
-//                methodTableInteger.put(new Integer(key), new Integer(value));
-//            }
-//
-//            connectorInfo.setMethodTableIndex(methodTableInteger);
-//
-//            boolean isFilterConnector = dataInStream.readBoolean();
-//            connectorInfo.setFilterConnector(isFilterConnector);
-
             // Read action info entries
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {

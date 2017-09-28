@@ -210,12 +210,12 @@ public class Desugar extends BLangNodeVisitor {
         actionNode.body = rewrite(actionNode.body);
         actionNode.workers = rewrite(actionNode.workers);
 
-        // we rewrite it's parameter list to have the connector variable as the first parameter
+        // we rewrite it's parameter list to have the receiver variable as the first parameter
         BInvokableSymbol actionSymbol = actionNode.symbol;
         List<BVarSymbol> params = actionSymbol.params;
-        params.add(0, actionNode.connector.symbol);
+        params.add(0, actionNode.symbol.receiverSymbol);
         BInvokableType actionType = (BInvokableType) actionSymbol.type;
-        actionType.paramTypes.add(0, actionNode.connector.type);
+        actionType.paramTypes.add(0, actionNode.symbol.receiverSymbol.type);
         result = actionNode;
     }
 
@@ -414,7 +414,7 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ||
                 (ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
-            // Field variable in a struct or a connector
+            // Field variable in a struct or a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -499,16 +499,14 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.CONNECTOR:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
                 actionArgExprs.add(0, iExpr.expr);
-                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.expr, iExpr.symbol, iExpr.types);
+                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);
                 break;
         }
     }
 
     public void visit(BLangConnectorInit connectorInitExpr) {
-        BLangConnectorInit genCIExpr = connectorInitExpr;
         connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
-        genCIExpr.impCastExpr = connectorInitExpr.impCastExpr;
-        result = genCIExpr;
+        result = connectorInitExpr;
     }
 
     @Override

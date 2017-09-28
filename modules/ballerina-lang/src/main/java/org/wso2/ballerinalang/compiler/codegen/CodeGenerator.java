@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -787,25 +788,27 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 emit(InstructionCodes.CALL, funcRefCPIndex, funcCallCPIndex);
             }
-        } else if (iExpr.expr != null) {
-            BInvokableSymbol actionSymbol = (BInvokableSymbol) iExpr.symbol;
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, actionSymbol.pkgID);
-            int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
+        }
+    }
 
-            int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.owner.name.value);
-            StructureRefCPEntry connectorRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connectorNameCPIndex);
-            int connectorRefCPIndex = currentPkgInfo.addCPEntry(connectorRefCPEntry);
+    public void visit(BLangActionInvocation aIExpr) {
+        BInvokableSymbol actionSymbol = (BInvokableSymbol) aIExpr.symbol;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, actionSymbol.pkgID);
+        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
 
-            ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
-                    connectorRefCPIndex, actionNameCPIndex);
-            int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-            int actionCallIndex = getFunctionCallCPIndex(iExpr);
+        int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.owner.name.value);
+        StructureRefCPEntry connectorRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connectorNameCPIndex);
+        int connectorRefCPIndex = currentPkgInfo.addCPEntry(connectorRefCPEntry);
 
-            if (Symbols.isNative(iExpr.symbol)) {
-                emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
-            } else {
-                emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
-            }
+        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
+                connectorRefCPIndex, actionNameCPIndex);
+        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
+        int actionCallIndex = getFunctionCallCPIndex(aIExpr);
+
+        if (Symbols.isNative(aIExpr.symbol)) {
+            emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
+        } else {
+            emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
         }
     }
 
