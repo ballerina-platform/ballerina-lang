@@ -96,12 +96,13 @@ public class WorkspaceUtils {
      *
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
      * @param source - Ballerina source content that needs to be parsed.
+     * @param compilerPhase - This will tell up to which point(compiler phase) we should process the model
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFileForContent(String fileName, String source){
+    public static BallerinaFile getBallerinaFileForContent(String fileName, String source, CompilerPhase compilerPhase){
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
 
         return getBallerinaFile(fileName, context);
     }
