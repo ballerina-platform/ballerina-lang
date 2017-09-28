@@ -73,15 +73,6 @@ function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) (int,int,in
     return (lengthof arr), (lengthof brr), (lengthof crr);
 }
 
-function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) (int) {
-    int[] arr = [];
-    arr[0] = x;
-    arr[1] = y;
-    arr[2] = arr[0] + arr[1];
-    int length = (int) (lengthof arr);
-    return length;
-}
-
 function arrayLengthAccessTestIfConditionCase(int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
@@ -126,16 +117,3 @@ struct Person {
     int[] days;
 }
 
-function arrayLengthAccessTestJSONArrayCase(int x, int y) (int) {
-    json arr = [x,y,5,5,6,6];
-    int length;
-    length = (lengthof arr);
-    return length;
-}
-
-function arrayLengthAccessTestJSONArrayNegativeNonArrayCase(int x, int y) (int) {
-    json arr = {"number1":x, "number2":y};
-    int length;
-    length = (lengthof arr);
-    return length;
-}

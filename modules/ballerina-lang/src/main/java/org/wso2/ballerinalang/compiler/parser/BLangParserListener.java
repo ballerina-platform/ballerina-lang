@@ -1955,9 +1955,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         DiagnosticPos pos = getCurrentPos(ctx);
         if ((node = ctx.IntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, TypeTags.INT, Long.parseLong(node.getText()));
+            this.pkgBuilder.addLiteralValue(pos, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, TypeTags.FLOAT, Double.parseDouble(node.getText()));
+            this.pkgBuilder.addLiteralValue(pos, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()));
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
@@ -2410,5 +2410,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private String getTemplateEndingStr(TerminalNode node) {
         return node == null ? null : node.getText();
+    }
+
+    private String getNodeValue(BallerinaParser.SimpleLiteralContext ctx, TerminalNode node) {
+        String op = ctx.getChild(0).getText();
+        String value = node.getText();
+        if (op != null && "-".equals(op)) {
+            value = "-" + value;
+        }
+        return value;
     }
 }

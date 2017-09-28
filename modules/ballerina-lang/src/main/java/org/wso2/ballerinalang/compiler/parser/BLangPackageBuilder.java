@@ -1352,11 +1352,9 @@ public class BLangPackageBuilder {
                                                            String endingText, NodeKind targetStrExprKind) {
         List<BLangExpression> expressions = new ArrayList<BLangExpression>();
 
-        if (endingText != null && !endingText.isEmpty()) {
-            endingText = StringEscapeUtils.unescapeJava(endingText);
-            addLiteralValue(pos, TypeTags.STRING, endingText);
-            expressions.add((BLangExpression) exprNodeStack.pop());
-        }
+        endingText = endingText == null ? "" : StringEscapeUtils.unescapeJava(endingText);
+        addLiteralValue(pos, TypeTags.STRING, endingText);
+        expressions.add((BLangExpression) exprNodeStack.pop());
 
         while (!precedingTextFragments.isEmpty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());
