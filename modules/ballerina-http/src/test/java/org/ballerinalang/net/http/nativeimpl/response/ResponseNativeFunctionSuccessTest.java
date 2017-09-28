@@ -60,7 +60,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testAddHeader() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
 
         HttpUtil.addCarbonMsg(response, cMsg);
 
@@ -81,7 +81,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testCloneMethod() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -108,7 +108,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test(enabled = false)
     public void testGetBinaryPayloadMethod() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         //TODO add payload properly and enable test
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -128,7 +128,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetContentLength() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -148,7 +148,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetHeader() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         cMsg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);
         HttpUtil.addCarbonMsg(response, cMsg);
 
@@ -165,7 +165,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetJsonPayload() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "{'code':'123'}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -185,7 +185,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetProperty() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
         cMsg.setProperty(propertyName, propertyValue);
@@ -203,7 +203,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetStringPayload() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -222,7 +222,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetXmlPayload() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String payload = "<name>ballerina</name>";
         BallerinaMessageDataSource dataSource = new BXMLItem(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -241,7 +241,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testRemoveHeader() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
         HttpUtil.addCarbonMsg(response, cMsg);
@@ -260,7 +260,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testRemoveAllHeaders() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         String expect = "Expect";
         String range = "Range";
         cMsg.setHeader(expect, "100-continue");
@@ -291,7 +291,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetContentLength() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         Context ctx = new Context(programFile);
@@ -308,7 +308,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetHeader() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         Context ctx = new Context(programFile);
@@ -328,7 +328,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetJsonPayload() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         Context ctx = new Context(programFile);
@@ -346,7 +346,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetProperty() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         Context ctx = new Context(programFile);
@@ -387,7 +387,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetStringPayload() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         Context ctx = new Context(programFile);
@@ -405,7 +405,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testSetXmlPayload() {
         BStruct response = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, responseStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpUtil.addCarbonMsg(response, cMsg);
 
         Context ctx = new Context(programFile);
