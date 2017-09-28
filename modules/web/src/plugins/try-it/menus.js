@@ -17,7 +17,7 @@
  */
 
 import { MENU_DEF_TYPES } from 'core/menu/constants';
-import { MENUS as DEBUG_MENU } from 'plugins/debugger/constants';
+import { MENUS as VIEW_MENU} from 'core/layout/constants';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
 /**
@@ -28,7 +28,7 @@ export function getMenuDefinitions(plugin) {
     return [
         {
             id: MENUS.TRY_IT_MENU,
-            parent: DEBUG_MENU.DEBUG_MENU,
+            parent: VIEW_MENU.VIEW_MENU,
             label: LABELS.TRY_IT_HEADING,
             isActive: (appContext) => {
                 return true;
