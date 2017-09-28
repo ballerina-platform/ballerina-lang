@@ -25,6 +25,8 @@ import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackag
 import org.ballerinalang.composer.service.workspace.langserver.model.Parameter;
 import org.ballerinalang.composer.service.workspace.langserver.model.Struct;
 import org.ballerinalang.composer.service.workspace.langserver.model.StructField;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagnosticListener;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeScope;
@@ -35,6 +37,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.NativeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -72,41 +76,42 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 public class WorkspaceUtils {
 
     /**
-     * This method is designed to generate the Ballerina model for a given Ballerina file saved in the file-system.
+     * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file
+     * saved in the file-system.
      * @param filePath - Path to Ballerina file.
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
-     * @return BLangPackage - Ballerina model
+     * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BLangPackage getBLangPackage(String filePath, String fileName){
+    public static BallerinaFile getBallerinaFile(String filePath, String fileName){
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
         options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
-        Compiler compiler = Compiler.getInstance(context);
-        return compiler.compile(fileName);
+
+        return getBallerinaFile(fileName, context);
     }
 
     /**
-     * This method is designed to generate the Ballerina model for a given Ballerina content. Ideal use case is
-     * generating Ballerina model for unsaved Ballerina files.
+     * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina content.
+     * Ideal use case is generating Ballerina model and Diagnostic information for unsaved Ballerina files.
      *
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
      * @param source - Ballerina source content that needs to be parsed.
-     * @return BLangPackage - Ballerina model
+     * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BLangPackage getBLangPackageForContent(String fileName, String source){
+    public static BallerinaFile getBallerinaFileForContent(String fileName, String source){
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
-        Compiler compiler = Compiler.getInstance(context);
-        return compiler.compile(fileName);
+
+        return getBallerinaFile(fileName, context);
     }
 
     /**
      * Returns a CompilerContext for the provided fileName and Ballerina source content.
      *
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
-     * @param source- Ballerina source content that needs to be parsed.
+     * @param source - Ballerina source content that needs to be parsed.
      * @return CompilerContext
      */
     private static CompilerContext prepareCompilerContext(String fileName, String source){
@@ -118,6 +123,24 @@ public class WorkspaceUtils {
                 new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
                 "", fileName, source.getBytes(StandardCharsets.UTF_8)));
         return context;
+    }
+
+    /**
+     * Returns an object which contains Ballerina model and Diagnostic information
+     * @param fileName - File name
+     * @param context - CompilerContext
+     * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
+     */
+    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context){
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        ComposerDiagnosticListener composerDiagnosticListener = new ComposerDiagnosticListener(diagnostics);
+        context.put(DiagnosticListener.class, composerDiagnosticListener);
+        Compiler compiler = Compiler.getInstance(context);
+
+        BallerinaFile ballerinaFile = new BallerinaFile();
+        ballerinaFile.setBLangPackage(compiler.compile(fileName));
+        ballerinaFile.setDiagnostics(diagnostics);
+        return ballerinaFile;
     }
 
     /**

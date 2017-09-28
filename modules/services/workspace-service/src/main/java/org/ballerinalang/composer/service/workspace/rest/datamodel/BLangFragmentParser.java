@@ -116,7 +116,7 @@ public class BLangFragmentParser {
 
     protected static JsonElement getJsonModel(String source) throws IOException {
         String fileName = "untitled";
-        BLangPackage model = WorkspaceUtils.getBLangPackageForContent(fileName, source);
+        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source).getBLangPackage();
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
 

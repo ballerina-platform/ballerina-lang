@@ -19,18 +19,14 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import com.google.common.base.CaseFormat;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -38,32 +34,21 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.parser.BallerinaLexer;
-import org.ballerinalang.util.parser.BallerinaParser;
-import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -77,8 +62,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Basic classes which exposes ballerina language object model over REST service.
@@ -109,9 +92,8 @@ public class BLangFileRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateBallerinaSource(BFile bFile) throws IOException {
-        InputStream stream = new ByteArrayInputStream(bFile.getContent().getBytes(StandardCharsets.UTF_8));
         return Response.status(Response.Status.OK)
-                .entity(validate(stream, deriveFilePath(bFile.getFileName(), bFile.getFilePath())))
+                .entity(validate(bFile))
                 .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
     }
 
@@ -180,9 +162,9 @@ public class BLangFileRestService {
         org.wso2.ballerinalang.compiler.tree.BLangPackage model;
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
-            model = WorkspaceUtils.getBLangPackageForContent(fileName, content);
+            model = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getBLangPackage();
         }else{
-            model = WorkspaceUtils.getBLangPackage(filePath, fileName);
+            model = WorkspaceUtils.getBallerinaFile(filePath, fileName).getBLangPackage();
         }
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
@@ -312,44 +294,19 @@ public class BLangFileRestService {
     /**
      * Validates a given ballerina input
      *
-     * @param stream - The input stream.
+     * @param bFile - Object which holds data about Ballerina content.
      * @return List of errors if any
-     * @throws IOException
      */
-    private JsonObject validate(InputStream stream, java.nio.file.Path filePath) throws IOException {
+    private JsonObject validate(BFile bFile){
+        String fileName = "untitled";
+        String content = bFile.getContent();
+        List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getDiagnostics();
 
-        ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
-        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
-        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
-        ballerinaParser.setErrorHandler(errorStrategy);
-
-        GlobalScope globalScope = GlobalScope.getInstance();
-        BTypes.loadBuiltInTypes(globalScope);
-        BLangPackage bLangPackage = new BLangPackage(globalScope);
-        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-
-        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
-                StringUtils.EMPTY);
-        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, filePath);
-        ballerinaParser.addParseListener(ballerinaBaseListener);
-        try {
-            ballerinaParser.compilationUnit();
-        } catch (Exception e) {
-            logger.debug("Model building error", e);
-        }
-
-        JsonArray errors = new JsonArray();
-
-        for (SyntaxError error : errorStrategy.getErrorTokens()) {
-            errors.add(error.toJson());
-        }
+        Gson gson = new Gson();
+        JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
 
         JsonObject result = new JsonObject();
-        result.add("errors", errors);
-
+        result.add("errors", diagnosticsJson);
         return result;
     }
 
