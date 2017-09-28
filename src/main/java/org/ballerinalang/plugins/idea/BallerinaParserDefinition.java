@@ -157,7 +157,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             PACKAGE, PARAMETER, PUBLIC, REPLY, RESOURCE, RETRY, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORM, TRY, TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT,
             TYPE_FLOAT, TYPE_STRING, TYPE_BLOB, TYPE_MESSAGE, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE,
-            TYPE_ANY, TYPE_TYPE, WITH, BooleanLiteral, NullLiteral);
+            TYPE_ANY, TYPE_TYPE, VERSION, WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON);
