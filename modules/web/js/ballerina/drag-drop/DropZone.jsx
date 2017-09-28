@@ -32,7 +32,7 @@ class DropZone extends React.Component {
                 {...restProps}
                 className={
                     cn(baseComponent, className, 'drop-zone',
-                        { active: isOverCurrent && canDrop },
+                        { active: isOverCurrent },
                         { blocked: !canDrop },
                         { possible: isDragging && !isOverCurrent && canDrop }
                     )

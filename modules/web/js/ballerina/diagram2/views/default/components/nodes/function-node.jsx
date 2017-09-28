@@ -26,24 +26,18 @@ import LifeLine from '../decorators/lifeline';
 import StatementContainer from '../decorators/statement-container';
 
 import { getComponentForNodeArray } from './../../../../diagram-util';
-/* TODOX
-import ASTFactory from '../../../../ast/ast-factory.js';
-*/
+import TreeUtil from '../../../../../model/tree-util';
+
 class FunctionNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.canDropToPanelBody = this.canDropToPanelBody.bind(this);
     }
 
-    canDropToPanelBody(nodeBeingDragged) {
-        /*TODOX
-        const nodeFactory = ASTFactory;
-        // IMPORTANT: override default validation logic
-        // Panel's drop zone is for worker and connector declarations only.
-        // Statements should only be allowed on top of function worker's dropzone.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
-            */
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorInitExpr(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     render() {
@@ -111,10 +105,9 @@ class FunctionNode extends React.Component {
                     title={name}
                     model={this.props.model}
                     icon={icons}
-                    /*
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-                    titleComponentData={titleComponentData}*/
+                    canDrop={this.canDropToPanelBody}
+                    /**titleComponentData={titleComponentData}*/
                 >
                     <LifeLine
                         title="default"

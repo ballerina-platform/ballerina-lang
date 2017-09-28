@@ -27,11 +27,11 @@ import PanelDecoratorButton from './panel-decorator-button';
 import EditableText from './editable-text';
 import { util } from '../../sizing-util_bk';
 import { getComponentForNodeArray } from './../../../../diagram-util';
+import Node from '../../../../../model/tree/node';
+import DropZone from '../../../../../drag-drop/DropZone';
 import './panel-decorator.css';
 
 /* TODOX
-import ASTNode from '../../../../ast/node';
-import DragDropManager from '../../../../tool-palette/drag-drop-manager';
 import ASTFactory from '../../../../ast/ast-factory';
 import SuggestionsText from './suggestions-text';
 */
@@ -42,8 +42,6 @@ class PanelDecorator extends React.Component {
         super(props);
         
         this.state = {
-            dropZoneActivated: false,
-            dropZoneDropNotAllowed: false,
             titleEditing: false,
             editingTitle: this.props.title,
             showProtocolSelect: false
@@ -180,16 +178,10 @@ class PanelDecorator extends React.Component {
         const iconSize = 14;
         const collapsed = this.props.model.viewState.collapsed || false;
         const annotationViewCollapsed = this.props.model.viewState.annotationViewCollapsed || false;
-        const dropZoneActivated = this.state.dropZoneActivated;
-        const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
-        const dropZoneClassName = ((!dropZoneActivated) ? 'panel-body-rect drop-zone' : 'panel-body-rect drop-zone active')
-            + ((dropZoneDropNotAllowed) ? ' block' : '');
-        const panelBodyClassName = `panel-body${(dropZoneActivated) ? ' drop-zone active' : ''}`;
 
         const annotationBodyClassName = 'annotation-body';
         let annotationBodyHeight = 0;
 
-        
         // TODO: Fix Me
         if (!_.isNil(this.props.model.viewState.components.annotation)) {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
@@ -202,7 +194,7 @@ class PanelDecorator extends React.Component {
         const annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
         const titleWidth = util.getTextWidth(this.state.editingTitle);
-        
+
         // calculate the panel bBox;
         const panelBBox = new SimpleBBox();
         panelBBox.x = bBox.x;
@@ -280,7 +272,7 @@ class PanelDecorator extends React.Component {
                 {titleComponents}*/}
                 {rightHeadingButtons}
             </g>
-            <g className={panelBodyClassName}>
+            <g className="panel-body">
                 <CSSTransitionGroup
                     component="g"
                     transitionName="panel-slide"
@@ -288,76 +280,22 @@ class PanelDecorator extends React.Component {
                     transitionLeaveTimeout={300}
                 >
                     {!collapsed &&
-                    <rect
+                    <DropZone
                         x={panelBBox.x}
                         y={panelBBox.y}
                         width={panelBBox.w}
                         height={panelBBox.h}
-                        rx="0" ry="0" fill="#fff"
-                        className={dropZoneClassName}
-                        onMouseOver={e => this.onDropZoneActivate(e)}
-                        onMouseOut={e => this.onDropZoneDeactivate(e)}
+                        className="panel-body-rect"
                         style={panelRectStyles}
+                        baseComponent="rect"
+                        dropTarget={this.props.dropTarget}
+                        canDrop={this.props.canDrop}
                     />
                     }
                     {!collapsed && this.props.children}
                 </CSSTransitionGroup>
             </g>
         </g>);
-    }
-
-    onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.dropTarget;
-        const dropSourceValidateCB = this.props.dropSourceValidateCB;
-        const droppedNodeIndexCallBack = function () {
-            /*if (ASTFactory.isConnectorDeclaration(dragDropManager.getNodeBeingDragged())) {
-                const nodes = _.filter(dropTarget.getChildren(), (child) => {
-                    return ASTFactory.isConnectorDeclaration(child)
-                       || ASTFactory.isStatement(child) || ASTFactory.isWorkerDeclaration(child);
-                });
-
-                if (nodes.length > 0) {
-                    return _.indexOf(dropTarget.getChildren(), nodes[0]);
-                } else {
-                    return undefined;
-                }
-            } else {*/
-                return undefined;
-            //}
-        };
-
-        if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            if (_.isNil(dropSourceValidateCB)) {
-                dragDropManager.setActivatedDropTarget(dropTarget, droppedNodeIndexCallBack);
-            } else if (_.isFunction(dropSourceValidateCB)) {
-                dragDropManager.setActivatedDropTarget(dropTarget, dropSourceValidateCB, droppedNodeIndexCallBack);
-            }
-
-            this.setState({
-                dropZoneActivated: true,
-                dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-            dragDropManager.once('drop-target-changed', () => {
-                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
-            });
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model;
-        /* if (!_.isNil(dropTarget) && dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
-            }
-        } */
-        e.stopPropagation();
     }
 
     getTitleComponents(titleComponentData) {
@@ -408,30 +346,30 @@ class PanelDecorator extends React.Component {
 }
 
 
-PanelDecorator.propTypes = {/*
+PanelDecorator.propTypes = {
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
-    model: PropTypes.instanceOf(ASTNode).isRequired,
-    dropTarget: PropTypes.instanceOf(ASTNode),
-    dropSourceValidateCB: PropTypes.func,
-    droppedNodeIndexCallBack: PropTypes.func,
+    model: PropTypes.instanceOf(Node).isRequired,
+    dropTarget: PropTypes.instanceOf(Node),
+    canDrop: PropTypes.func,
     rightComponents: PropTypes.arrayOf(PropTypes.shape({
         component: PropTypes.func.isRequired,
         props: PropTypes.object.isRequired,
-    })),*/
+    })),
 };
 
 PanelDecorator.defaultProps = {
     rightComponents: [],
+    dropTarget: undefined,
+    canDrop: undefined,
 };
 
 PanelDecorator.contextTypes = {
  //   editor: PropTypes.instanceOf(Object).isRequired,
-//    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 };
 
 export default PanelDecorator;

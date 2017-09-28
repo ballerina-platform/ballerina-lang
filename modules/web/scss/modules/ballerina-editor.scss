@@ -693,21 +693,6 @@
                 stroke-width: 0;
             }
         }
-    
-        & .panel-body {
-            & .panel-body-rect {
-                fill: $panel-body-bgcolor;
-                fill-opacity: 0.4;
-                stroke-width: 2px;
-                //shape-rendering: crispEdges;
-                stroke: $panel-body-border-color;
-    
-                &.rect.drop-zone {
-                   fill: $panel-body-dropzone-bgcolor;
-                   fill-opacity: 0;
-                }
-            }
-        }
     }
 
     .statement-container .inner-drop-zone{

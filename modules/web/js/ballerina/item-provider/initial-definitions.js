@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTFactory from '../ast/ast-factory';
+import NodeFactory from './../model/node-factory';
 import ToolGroup from './../tool-palette/tool-group';
 import DefaultASTFactory from '../ast/default-ast-factory';
 
@@ -45,7 +46,7 @@ const createhttpServiceDefTool = {
     },
     icon: 'http',
     title: 'HTTP Service',
-    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    nodeFactoryMethod: NodeFactory.createService,
     definition: 'Http container of resources, each of which defines the logic for handling one type of request',
 };
 
@@ -169,7 +170,7 @@ const createFunctionDefTool = {
     name: 'Function',
     icon: 'function',
     title: 'Function',
-    nodeFactoryMethod: ASTFactory.createFunctionDefinition,
+    nodeFactoryMethod: NodeFactory.createFunction,
     definition: 'Single operation that is intended to be a unit of reusable functionality',
 };
 
@@ -205,7 +206,7 @@ const createWorkerDecTool = {
     name: 'Worker',
     icon: 'worker',
     title: 'Worker',
-    nodeFactoryMethod: ASTFactory.createWorkerDeclaration,
+    nodeFactoryMethod: NodeFactory.createWorker,
     definition: 'Programmable actor which is represented on a sequence diagram as a vertical lifeline of logic to be executed.',
 };
 

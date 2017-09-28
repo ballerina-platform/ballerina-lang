@@ -24,10 +24,6 @@ import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import { lifeLine } from './../../designer-defaults';
 import ExpressionEditor from 'expression_editor_utils';
 import * as DesignerDefaults from './../../designer-defaults';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
-import ReactDOM from 'react-dom';
-import ActionBox from './action-box';
-import ActiveArbiter from './active-arbiter';
 
 
 class LifeLine extends React.Component {
@@ -54,29 +50,6 @@ class LifeLine extends React.Component {
     }
 
     onUpdate(text) {
-    }
-
-    setActionVisibility(show, e) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            let elm = e.target;
-            const myRoot = ReactDOM.findDOMNode(this);
-            const regex = new RegExp('(^|\\s)unhoverable(\\s|$)');
-            let isUnhighliable = false;
-            while (elm && elm !== myRoot && elm.getAttribute) {
-                if (regex.test(elm.getAttribute('class'))) {
-                    isUnhighliable = true;
-                }
-                elm = elm.parentNode;
-            }
-
-            if (!isUnhighliable && show) {
-                this.context.activeArbiter.readyToActivate(this);
-            } else {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-            if (isUnhighliable) {
-            }
-        }
     }
 
     openExpressionEditor(e) {
@@ -137,8 +110,6 @@ class LifeLine extends React.Component {
         }*/
         return (<g
             className="life-line-group"
-            onMouseOut={this.setActionVisibility.bind(this, false)}
-            onMouseOver={this.setActionVisibility.bind(this, true)}
         >
 
             <title> {tooltip} </title>
@@ -251,8 +222,6 @@ LifeLine.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-    // TODOX activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 
 export default LifeLine;
