@@ -138,7 +138,8 @@ public class Types {
     public boolean isAnnotationFieldType(BType type) {
         return this.isValueType(type) ||
                 (type.tag == TypeTags.ANNOTATION) ||
-                (type.tag == TypeTags.ARRAY && ((BArrayType) type).eType.tag == TypeTags.ANNOTATION);
+                (type.tag == TypeTags.ARRAY && ((BArrayType) type).eType.tag == TypeTags.ANNOTATION) ||
+                (type.tag == TypeTags.ARRAY && isValueType(((BArrayType) type).eType));
     }
 
     public boolean isAssignable(BType actualType, BType expType) {

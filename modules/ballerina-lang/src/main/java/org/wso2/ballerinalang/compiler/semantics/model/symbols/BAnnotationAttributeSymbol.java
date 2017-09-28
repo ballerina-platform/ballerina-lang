@@ -39,4 +39,5 @@ public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAtt
     public BLangExpression getDefaultValue() {
         return expr;
     }
+
 }

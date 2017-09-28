@@ -199,14 +199,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotSymbol = annotationNode.symbol;
-        SymbolEnv annotationEnv = SymbolEnv.createPkgLevelSymbolEnv(annotationNode, annotSymbol.scope, env);
-
+        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
         annotationNode.attributes.forEach(attribute -> {
             analyzeNode(attribute, annotationEnv);
         });
-
-        annotationNode.attributes.forEach(att -> this.symbolEnter.defineNode(att, annotationEnv));
 
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
@@ -215,25 +211,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
-
     public void visit(BLangAnnotAttribute annotationAttribute) {
-        BType targetType = this.symResolver.resolveTypeNode(annotationAttribute.typeNode, env);
-
         if (annotationAttribute.expr != null) {
             // Default value exists case, default value should be of simpleLiteral
             BType actualType = this.typeChecker.checkExpr(annotationAttribute.expr, env,
-                    Lists.of(targetType), DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES).get(0);
+                    Lists.of(annotationAttribute.symbol.type),
+                    DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES).get(0);
 
-            if (!(this.types.isValueType(targetType) && this.types.isValueType(actualType))) {
+            if (!(this.types.isValueType(annotationAttribute.symbol.type) && this.types.isValueType(actualType))) {
                 this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_DEFAULT_VALUE);
             }
         } else {
-            if (!this.types.isAnnotationFieldType(targetType)) {
-                this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES,
-                        targetType);
+            if (!this.types.isAnnotationFieldType(annotationAttribute.symbol.type)) {
+                this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_ATTRIBUTE_TYPE,
+                        annotationAttribute.symbol.type);
             }
         }
-        annotationAttribute.type = targetType;
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
@@ -338,7 +331,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void populateDefaultValues(BLangAnnotationAttachment annAttachmentNode,
                                        BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
-
             if (annAttachmentNode.geAttributes().size() > 0) {
                 BLangAnnotAttachmentAttribute[] attributeArrray =
                         new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
@@ -370,6 +362,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 // Recursively populate default values for this Array of Annotation Attachments
                 if (matchingAttribute.get().value.arrayValues.size() > 0) {
                     for (BLangAnnotAttachmentAttributeValue attr : matchingAttribute.get().value.arrayValues) {
+                        // Default values are not populated for BLangLiteral arrays
+                        if (attr.value != null &&
+                                !(attr.value instanceof BLangAnnotationAttachment)) {
+                            continue;
+                        }
                         BLangAnnotationAttachment attachment =
                                 (BLangAnnotationAttachment) attr.value;
                         if (attachment != null) {

@@ -203,7 +203,7 @@ public class BLangPackageBuilder {
     public void addAttachPoint(String attachPoint, String pkgPath) {
         BLangAnnotationAttachmentPoint attachmentPoint =
                 new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint
-                        .AttachmentPoint.valueOf(attachPoint.toUpperCase()), pkgPath);
+                        .AttachmentPoint.valueOf(attachPoint.trim().toUpperCase()), pkgPath);
         attachmentPointStack.push(attachmentPoint);
     }
 

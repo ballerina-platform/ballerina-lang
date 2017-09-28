@@ -179,9 +179,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
+        resolveAnnotationAttributeTypes(pkgNode.annotations, pkgEnv);
+
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         definePackageInitFunction(pkgNode, pkgEnv);
+    }
+
+    private void resolveAnnotationAttributeTypes(List<BLangAnnotation> annotations, SymbolEnv pkgEnv) {
+        annotations.forEach(annotation -> {
+            annotation.attributes.forEach(attribute -> {
+                SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotation, annotation.symbol.scope, pkgEnv);
+                BType actualType = this.symResolver.resolveTypeNode(attribute.typeNode, annotationEnv);
+                attribute.symbol.type = actualType;
+            });
+        });
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -192,15 +204,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 ((BAnnotationSymbol) annotationSymbol).attachmentPoints.add(point));
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.pos, annotationSymbol);
+        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
+        annotationNode.attributes.forEach(att -> this.defineNode(att, annotationEnv));
     }
 
     public void visit(BLangAnnotAttribute annotationAttribute) {
-        BSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
-                fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
-                annotationAttribute.type, env.scope.owner);
-        ((BAnnotationAttributeSymbol) annotationAttributeSymbol).expr = annotationAttribute.expr;
+        BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
+                        fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
+                null, env.scope.owner);
+        annotationAttributeSymbol.expr = annotationAttribute.expr;
         annotationAttribute.symbol = annotationAttributeSymbol;
-        ((BAnnotationSymbol) env.scope.owner).attributes.add((BAnnotationAttributeSymbol) annotationAttributeSymbol);
+        ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
         defineSymbol(annotationAttribute.pos, annotationAttributeSymbol);
     }
 
