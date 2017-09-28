@@ -37,8 +37,6 @@ import java.io.PrintStream;
 /**
  * Test Native functions in ballerina.model.system.
  */
-// TODO: Enable test case after changes are done
-@Test(enabled = false)
 public class SystemTest {
 
     private CompileResult bLangProgram;

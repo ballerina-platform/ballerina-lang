@@ -33,7 +33,7 @@ import java.util.List;
  * Test Cases for ballerina.utils native functions.
  */
 // TODO: Enable test case after changes are done
-@Test(enabled = false)
+//@Test(enabled = false)
 public class BallerinaUtilsTest {
 
     private CompileResult compileResult;
@@ -86,7 +86,8 @@ public class BallerinaUtilsTest {
     public void testHmacNagativeInvalidAlgo() {
         final String key = "abcdefghijk";
         BValue[] returnVals = BTestUtils.invoke(compileResult, "testHmac",
-                                                new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA124")});
+                                                new BValue[]{new BString("Ballerina HMAC test"), new BString(key),
+                                                        new BString("SHA124")});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values for");
 
@@ -96,7 +97,8 @@ public class BallerinaUtilsTest {
     public void testHmacNagativeInvalidKey() {
         final String key = "";
         BValue[] returnVals = BTestUtils.invoke(compileResult, "testHmac",
-                                                new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA1")});
+                                                new BValue[]{new BString("Ballerina HMAC test"), new BString(key),
+                                                        new BString("SHA1")});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values for");
 
