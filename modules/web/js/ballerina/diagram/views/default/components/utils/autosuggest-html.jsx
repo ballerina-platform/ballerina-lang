@@ -153,7 +153,7 @@ class AutoSuggestHtml extends React.Component {
         const itemsMap = this.props.items.map(item => ({
             name: item,
         }));
-        return itemsMap.filter(item => item.name.includes(escapedValue));
+        return itemsMap.filter(item => item.name.toLowerCase().includes(escapedValue.toLowerCase()));
     }
 
     /**
@@ -230,8 +230,16 @@ class AutoSuggestHtml extends React.Component {
                 });
             },
             onClick: (e) => { e.stopPropagation(); },
-            onBlur: this.props.onBlur,
-            // style: { width: util.getTextWidth(this.state.inputValue, this.props.minWidth, this.props.maxWidth).w + 5 },
+            onBlur: (e) => {
+                if (this.props.onBlur) {
+                    this.props.onBlur(e);
+                }
+                if (this.props.showAllAtStart === true) {
+                    this.setState({
+                        showAllAtStart: true,
+                    });
+                }
+            },
         };
 
         return (
@@ -239,7 +247,15 @@ class AutoSuggestHtml extends React.Component {
                 suggestions={this.state.suggestions}
                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                 onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                onSuggestionSelected={this.props.onSuggestionSelected}
+                onSuggestionSelected={(event, { suggestionValue }) => {
+                    this.props.onSuggestionSelected(event, { suggestionValue });
+                    if (this.props.showAllAtStart === true) {
+                        this.setState({
+                            showAllAtStart: true,
+                        });
+                    }
+                }
+                }
                 getSuggestionValue={this.getSuggestionValue}
                 renderSuggestion={this.renderSuggestion}
                 shouldRenderSuggestions={() => true}
