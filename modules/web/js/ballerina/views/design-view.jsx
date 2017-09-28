@@ -174,29 +174,29 @@ class DesignView extends React.Component {
                     </div>
                 </div>
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
-                    <div className="view-source-btn btn-icon">
+                    <div
+                        className="view-source-btn btn-icon"
+                        onClick={() => {
+                            this.context.editor.setActiveView('SOURCE_VIEW');
+                        }}
+                    >
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
-                        <div
-                            className="bottom-view-label"
-                            onClick={() => {
-                                this.context.editor.setActiveView('SOURCE_VIEW');
-                            }}
-                        >
+                        <div className="bottom-view-label" >
                             Source View
                         </div>
                     </div>
-                    <div className="view-split-view-btn btn-icon">
+                    <div
+                        className="view-split-view-btn btn-icon"
+                        onClick={() => {
+                            this.props.commandProxy.dispatch('show-split-view', true);
+                        }}
+                    >
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code fw-inverse" />
                         </div>
-                        <div
-                            className="bottom-view-label"
-                            onClick={() => {
-                                this.props.commandProxy.dispatch('show-split-view', true);
-                            }}
-                        >
+                        <div className="bottom-view-label" >
                             Split View
                         </div>
                     </div>
