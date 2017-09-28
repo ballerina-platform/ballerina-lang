@@ -93,7 +93,7 @@ public class HttpDispatcher {
         BStruct request = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.REQUEST);
         BStruct response = ConnectorUtils.createStruct(resource, Constants.PROTOCOL_PACKAGE_HTTP, Constants.RESPONSE);
         HttpUtil.addCarbonMsg(request, httpCarbonMessage);
-        HttpUtil.addCarbonMsg(response, new HTTPCarbonMessage());
+        HttpUtil.addCarbonMsg(response, HttpUtil.createHttpCarbonMessage(false));
 
         List<ParamDetail> paramDetails = resource.getParamDetails();
         Map<String, String> resourceArgumentValues =

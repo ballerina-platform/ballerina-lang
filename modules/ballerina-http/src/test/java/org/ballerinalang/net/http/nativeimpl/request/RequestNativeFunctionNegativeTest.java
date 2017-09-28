@@ -53,7 +53,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test when the content length header is not set")
     public void testGetContentLength() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -70,7 +70,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testGetHeader() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -83,7 +83,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test method without json payload")
     public void testGetJsonPayloadWithoutPayload() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -101,7 +101,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -124,7 +124,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testGetProperty() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -139,7 +139,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -153,7 +153,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
         dataSource.setOutputStream(new HttpMessageDataStreamer(cMsg).getOutputStream());
@@ -172,7 +172,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testGetXmlPayloadNegative() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -190,7 +190,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testRemoveHeaderNegative() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
         HttpUtil.addCarbonMsg(request, cMsg);
@@ -209,7 +209,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testRemoveAllHeadersNegative() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -225,7 +225,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testGetMethodNegative() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
@@ -239,7 +239,7 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     public void testGetRequestURL() {
         BStruct request = BTestUtils.createAndGetStruct(programFile, protocolPackageHttp, requestStruct);
-        HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
+        HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
         Context ctx = new Context(programFile);
