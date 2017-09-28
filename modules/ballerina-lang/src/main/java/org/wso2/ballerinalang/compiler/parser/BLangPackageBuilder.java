@@ -783,6 +783,7 @@ public class BLangPackageBuilder {
                                   boolean exprAvailable,
                                   boolean publicVar) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        var.flagSet.add(Flag.GLOBAL);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
