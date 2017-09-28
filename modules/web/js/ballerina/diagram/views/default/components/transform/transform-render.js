@@ -39,22 +39,24 @@ class TransformRender {
         this.viewIdSeperator = ':';
         this.idNameSeperator = '.';
         this.onConnection = onConnectionCallback;
-        this.midpoint = 0.1;
+        this.midpoint = 0.01;
+        this.midpointIntermediate = 0.6;
         this.midpointVariance = 0.01;
+        this.midpointIntermediateVariance = 0.02;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
 
         this.draggingContainer = `transformOverlay-content-dragging-${this.viewId}`;
 
         const jsPlumbOptions = {
-            Connector: this.getConnectorConfig(this.midpoint),
+            Connector: this.getDrawingConnectorConfig(),
             Container: container.attr('id'),
             PaintStyle: {
                 strokeWidth: 1,
             // todo : load colors from css
-                stroke: '#666769',
+                stroke: '#ff9900',
                 cssClass: 'plumbConnect',
-                outlineStroke: '#F7F7F7',
+                outlineStroke: '#ffe0b3',
                 outlineWidth: 2,
             },
             HoverPaintStyle: {
@@ -88,13 +90,16 @@ class TransformRender {
             const input = params.connection.getParameters().input;
             const output = this.getDroppingTarget();
             const connection = this.getConnectionObject(input, output);
-            this.midpoint += this.midpointVariance;
-            this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+            this.jsPlumbInstance.importDefaults(
+              { Connector: this.getDrawingConnectorConfig() });
             this.onConnection(connection);
             this.setConnectionMenu(params.connection);
         });
 
         this.jsPlumbInstanceNewConnections.bind('connectionDrag', conn => {
+
+            this.jsPlumbInstance.importDefaults(
+            { Connector: this.getDrawingConnectorConfig() });
             this.jsPlumbInstanceNewConnections.repaintEverything();
             this._draggingConnection = conn;
         });
@@ -108,8 +113,8 @@ class TransformRender {
     disconnect(connection) {
         const propertyConnection = this.getConnectionObject(
             connection.getParameter('input'), connection.getParameter('output'));
-        this.midpoint = this.midpoint - this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+        this.jsPlumbInstance.importDefaults(
+          { Connector: this.getDrawingConnectorConfig() });
         this.jsPlumbInstance.detach(connection);
         this.disconnectCallback(propertyConnection);
     }
@@ -119,7 +124,8 @@ class TransformRender {
     * This does not remove the associated children from the model
     */
     disconnectAll() {
-        this.midpoint = 0.1;
+        this.midpoint = 0.01;
+        this.midpointIntermediate = 0.6;
         this.jsPlumbInstance.deleteEveryEndpoint();
         this.jsPlumbInstanceNewConnections.deleteEveryEndpoint();
     }
@@ -150,8 +156,8 @@ class TransformRender {
     }
 
     addConnection(sourceId, targetId, folded = false) {
-        this.midpoint += this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector: this.getConnectorConfig(this.midpoint) });
+        this.jsPlumbInstance.importDefaults(
+          { Connector: this.getConnectorConfig(this.midpointOnAddConnection(sourceId)) });
         const options = {
             source: sourceId,
             target: targetId,
@@ -171,9 +177,25 @@ class TransformRender {
             };
             options.parameters = options.parameters || {};
             options.parameters.isFolded = true;
+        } else {
+            options.paintStyle = {
+                strokeWidth: 1,
+                stroke: '#666769',
+                cssClass: 'plumbConnect',
+                outlineStroke: '#F7F7F7',
+                outlineWidth: 2,
+            };
+            options.hoverPaintStyle = {
+                strokeWidth: 2,
+                stroke: '#ff9900',
+                outlineWidth: 2,
+                outlineStroke: '#ffe0b3',
+            };
         }
 
         this.jsPlumbInstance.connect(options);
+        this.jsPlumbInstance.importDefaults(
+          { Connector: this.getDrawingConnectorConfig() });
         this.hideConnectContextMenu(this.container.find('#' + this.contextMenu));
         this.setConnectionMenu(this.jsPlumbInstance.getConnections({ source: sourceId, target: targetId })[0]);
     }
@@ -322,6 +344,10 @@ class TransformRender {
         }];
     }
 
+    getDrawingConnectorConfig() {
+        return ['Straight'];
+    }
+
     setDroppingTarget(endpoint) {
         this._droppingTarget = endpoint;
     }
@@ -363,6 +389,22 @@ class TransformRender {
         return this.jsPlumbInstanceNewConnections.isConnectionBeingDragged();
     }
 
+    /**
+     * Calculate midpoint new connections
+     * @param  {string} sourceId source Identifier
+     * @return {number} calculated mid point value
+     */
+    midpointOnAddConnection(sourceId) {
+        let midpoint;
+        if (sourceId.includes('return')) {
+            this.midpointIntermediate += this.midpointIntermediateVariance;
+            midpoint = this.midpointIntermediate;
+        } else {
+            this.midpoint += this.midpointVariance;
+            midpoint = this.midpoint;
+        }
+        return midpoint;
+    }
 }
 
 export default TransformRender;
