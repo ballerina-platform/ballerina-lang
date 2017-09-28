@@ -29,10 +29,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -40,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -341,7 +344,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
             case TypeTags.CONNECTOR:
-                // TODO handle action invocation
+                checkActionInvocationExpr(iExpr);
                 break;
             default:
                 // TODO Handle this condition
@@ -351,6 +354,32 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
 
+    }
+
+    public void visit(BLangConnectorInit cIExpr) {
+        Name connectorName = names.fromIdNode(cIExpr.connectorType.getTypeName());
+        BSymbol symbol = symResolver.resolveConnector(cIExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR,
+                this.env, names.fromIdNode(cIExpr.connectorType.pkgAlias), connectorName);
+        if (symbol == symTable.errSymbol || symbol == symTable.notFoundSymbol) {
+            resultTypes = getListWithErrorTypes(expTypes.size());;
+            return;
+        }
+
+        BTypeSymbol connSymbol = (BTypeSymbol) symbol;
+        List<BType> paramTypes = ((BConnectorType) connSymbol.type).paramTypes;
+
+        if (paramTypes.size() > cIExpr.argsExpr.size()) {
+            dlog.error(cIExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, connectorName);
+            return;
+        } else if (paramTypes.size() < cIExpr.argsExpr.size()) {
+            dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, connectorName);
+            return;
+        } else {
+            for (int i = 0; i < cIExpr.argsExpr.size(); i++) {
+                checkExpr(cIExpr.argsExpr.get(i), this.env, Lists.of(paramTypes.get(i)));
+            }
+        }
+        checkConnectorInitTypes(cIExpr, connSymbol.type, connectorName);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -722,6 +751,32 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
+    private void checkActionInvocationExpr(BLangInvocation iExpr) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) iExpr.expr;
+        Name varName = names.fromIdNode(varRef.variableName);
+        BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.value);
+            resultTypes = getListWithErrorTypes(expTypes.size());;
+            return;
+        }
+        iExpr.expr.symbol = (BVarSymbol) symbol;
+
+        Name actionName = names.fromIdNode(iExpr.name);
+        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, symbol.type.tsymbol.scope,
+                env, actionName, SymTag.ACTION);
+        if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName.value);
+            resultTypes = actualTypes;
+            return;
+        }
+
+        iExpr.symbol = actionSym;
+
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
     private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes) {
         List<BType> newActualTypes = actualTypes;
         List<BType> newExpTypes = this.expTypes;
@@ -747,6 +802,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private Name getFuncSymbolName(BLangInvocation iExpr, BStructType structType) {
         return names.fromString(structType + Names.DOT.value + iExpr.name);
+    }
+
+    private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name connName) {
+        int expected = expTypes.size();
+        if (expTypes.size() > 1) {
+            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, connName);
+            resultTypes = getListWithErrorTypes(expected);
+            return;
+        }
+        resultTypes = types.checkTypes(iExpr, Lists.of(actualType), expTypes);
     }
 
     private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {

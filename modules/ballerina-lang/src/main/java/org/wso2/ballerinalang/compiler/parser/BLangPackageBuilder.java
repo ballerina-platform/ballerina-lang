@@ -394,16 +394,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    public void addConnectorVarDeclaration(DiagnosticPos pos, String identifier, boolean exprAvailable) {
-        addVariableDefStatement(pos, identifier, exprAvailable);
-    }
-
     public void addConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {
         BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
@@ -417,7 +414,8 @@ public class BLangPackageBuilder {
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         this.connectorInitNodeStack.push(connectorInitNode);
     }
@@ -546,7 +544,7 @@ public class BLangPackageBuilder {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.packageIdentifier = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         varRef.variableName = (BLangIdentifier) nameReference.name;
         this.exprNodeStack.push(varRef);
     }
@@ -722,15 +720,13 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addTimeoutCause(String paramName) {
-        BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
-        variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
-        variableNode.name = (BLangIdentifier) createIdentifier(paramName);
-
+    public void addTimeoutCause(String identifier, Set<Whitespace> ws) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
         forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
-        forkJoin.timeoutVariable = variableNode;
+        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
+        forkJoin.timeoutVariable = resultVar;
     }
 
     public void endCallableUnitBody(Set<Whitespace> ws) {

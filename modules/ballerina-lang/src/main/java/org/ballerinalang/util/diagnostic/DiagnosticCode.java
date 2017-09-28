@@ -45,6 +45,7 @@ public enum DiagnosticCode {
     INVALID_WORKER_RECEIVE_POSITION("invalid.worker.receive.position"),
     UNDEFINED_WORKER("undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
+    INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
 
     FUNCTION_MUST_RETURN("function.must.return"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
