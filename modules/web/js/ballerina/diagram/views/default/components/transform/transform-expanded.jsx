@@ -1086,16 +1086,15 @@ class TransformExpanded extends React.Component {
 
     render() {
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
-        const inputNodes = this.props.model.getInputExpressions();
-        const outputNodes = this.props.model.getOutputExpressions();
+        const inputNodes = this.props.model.inputs;
+        const outputNodes = this.props.model.outputs;
         const inputs = [];
         const outputs = [];
         const intermediateNodes = [];
 
         if (this.state.vertices.length > 0) {
-            inputNodes.forEach((inputNode) => {
-                const name = inputNode.getVariableName().getValue();
-                const sourceSelection = _.find(vertices, { name });
+            inputNodes.forEach((input) => {
+                const sourceSelection = _.find(vertices, { name: input });
                 if (_.isUndefined(sourceSelection)) {
                     // alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
@@ -1105,9 +1104,8 @@ class TransformExpanded extends React.Component {
                 inputs.push(sourceSelection);
             });
 
-            outputNodes.forEach((outputNode) => {
-                const name = outputNode.getVariableName().getValue();
-                const targetSelection = _.find(vertices, { name });
+            outputNodes.forEach((output) => {
+                const targetSelection = _.find(vertices, { name: output });
                 if (_.isUndefined(targetSelection)) {
                     // alerts.error('Mapping target "' + name + '" cannot be found');
                     return;

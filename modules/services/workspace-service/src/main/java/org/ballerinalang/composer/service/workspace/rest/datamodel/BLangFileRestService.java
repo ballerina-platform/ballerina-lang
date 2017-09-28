@@ -268,13 +268,20 @@ public class BLangFileRestService {
                         if (listPropItem instanceof Node) {
                             listPropJson.add(generateJSON((Node) listPropItem));
                         } else {
-                            throw new AssertionError("Assuming all lists are of type Node.");
+                            // throw new AssertionError("Assuming all lists are of type Node.");
                         }
                     }
                 } else if (prop instanceof Set && jsonName.equals("flags")) {
                     Set flags = (Set) prop;
                     for (Flag flag : Flag.values()) {
                         nodeJson.addProperty(flag.toString().toLowerCase(), flags.contains(flag));
+                    }
+                } else if (prop instanceof Set) {
+                    Set vars = (Set) prop;
+                    JsonArray listVarJson = new JsonArray();
+                    nodeJson.add(jsonName, listVarJson);
+                    for (Object obj : vars) {
+                        listVarJson.add(obj.toString());
                     }
                 } else if (prop instanceof PackageID) {
                     PackageID id = (PackageID) prop;
