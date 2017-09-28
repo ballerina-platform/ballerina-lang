@@ -75,12 +75,12 @@ const config = [{
     plugins: [
         new ProgressBarPlugin(),
         extractCSSBundle,
-        //new UnusedFilesWebpackPlugin({
+        // new UnusedFilesWebpackPlugin({
         //    pattern: 'js/**/*.*',
         //    globOptions: {
         //        ignore: 'js/tests/**/*.*',
         //    },
-        //}),
+        // }),
         // https://github.com/fronteed/icheck/issues/322
         new webpack.ProvidePlugin({
             $: 'jquery',
@@ -115,7 +115,7 @@ const config = [{
         contentBase: './public',
     },
     externals: {
-        'jsdom': 'window',
+        jsdom: 'window',
         'react-addons-test-utils': true,
         'react/addons': true,
         'react/lib/ExecutionEnvironment': true,
@@ -192,12 +192,12 @@ if (process.env.NODE_ENV === 'production') {
 
   // Add UglifyJsPlugin only when we build for production.
   // uglyfying slows down webpack build so we avoid in when in development
-    config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
+    /* config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         mangle: {
             keep_fnames: true
         },
-    }));
+    }));*/
 } else {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(false),

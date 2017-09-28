@@ -433,9 +433,9 @@ class TagController extends React.Component {
         const modelComponents = this.props.modelComponents;
         const componentData = this.props.componentData;
         defaultInputValue = componentData.defaultText;
-       /* if (this.props.isSelectBox) {
+        if (this.props.isSelectBox) {
             return this.getSelectBoxController(componentData, modelComponents);
-        }*/
+        }
         // If parameter is a return type
         if (componentData.components.typesIcon) {
             return this.getReturnParameterController(componentData, modelComponents);

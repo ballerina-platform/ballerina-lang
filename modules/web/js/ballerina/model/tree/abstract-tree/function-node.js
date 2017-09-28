@@ -129,6 +129,17 @@ class FunctionNodeAbstract extends Node {
     replaceReturnParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfReturnParameters(oldChild);
         this.returnParameters[index] = newChild;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfReturnParameters(child) {
@@ -365,6 +376,17 @@ class FunctionNodeAbstract extends Node {
     replaceParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfParameters(oldChild);
         this.parameters[index] = newChild;
+        if(!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfParameters(child) {

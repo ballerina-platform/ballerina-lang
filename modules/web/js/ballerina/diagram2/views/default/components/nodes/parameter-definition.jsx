@@ -23,10 +23,8 @@ import Alerts from 'alerts';
 import ImageUtil from './../../../../image-util';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
-import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
 import FragmentUtils from './../../../../../utils/fragment-utils';
-import NodeFactory from './../../../../../model/node-factory';
 
 class ParameterDefinition extends React.Component {
     /**
@@ -56,8 +54,11 @@ class ParameterDefinition extends React.Component {
     }
 
     onDelete() {
-        // console.log(this.props.model);
-        this.props.model.parent.removeParameters(this.props.model);
+        if (this.props.model.parent.filterParameters({ id: this.id }).length > 0) {
+            this.props.model.parent.removeParameters(this.props.model);
+        } else {
+            this.props.model.parent.removeReturnParameters(this.props.model);
+        }
     }
 
     onEditRequest() {
@@ -74,43 +75,40 @@ class ParameterDefinition extends React.Component {
         const options = this.editorOptions;
         const packageScope = this.context.environment;
         if (options) {
-            new ExpressionEditor(this.state.inputBox,
-                text => this.onUpdate(text), options, packageScope).render(this.context.getOverlayContainer());
+            new ExpressionEditor(this.state.inputBox, (s) => {} /* no-op */, options, packageScope)
+                .render(this.context.getOverlayContainer());
         }
-    }
-
-    onUpdate(text) {
-        // TODO: Implement the on update function.
     }
 
     setEditedSource(value) {
         const oldNode = this;
         value = value.replace(';', '');
         let fragment = '';
+        let type;
         // Check if the parameter is an argument parameter
-        if (this.parent.filterParameters({ id: this.id })) {
+        if (this.parent.filterParameters({ id: this.id }).length > 0) {
+            type = 'argumentParameter';
             fragment = FragmentUtils.createArgumentParameterFragment(value);
         } else {
+            type = 'returnParameter';
             fragment = FragmentUtils.createReturnParameterFragment(value);
         }
         const parsedJson = FragmentUtils.parseFragment(fragment);
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
-            if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                const newNode = NodeFactory.createVariable(parsedJson);
-                const identifierAlreadyExists = _.findIndex(this.parent.getParameters()
-                            .concat(this.parent.getReturnParameters()), (parameter) => {
-                    return parameter.getName().value === this.getName().value;
+            if (_.isEqual(parsedJson.kind, 'Variable')) {
+                const newNode = TreeBuilder.build(parsedJson);
+                const argumentsArr = this.parent.getParameters().concat(this.parent.getReturnParameters());
+                const identifierAlreadyExists = _.findIndex(argumentsArr, (parameter) => {
+                    return parameter.getName().value === newNode.getName().value;
                 }) !== -1;
                 if (identifierAlreadyExists) {
-                    const errorString = `A variable with identifier ${this.getName().value} already exists.`;
+                    const errorString = `A variable with identifier ${newNode.getName().value} already exists.`;
                     Alerts.error(errorString);
                     throw errorString;
-                }
-                if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
+                } else if (type === 'argumentParameter') {
                     this.parent.replaceParameters(oldNode, newNode);
                 } else {
-                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
-                    Alerts.error(errorString);
+                    this.parent.replaceReturnParameters(oldNode, newNode);
                 }
             } else {
                 log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
