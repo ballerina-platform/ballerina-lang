@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 // TODOX import ASTNode from '../../../../../ast/node';
 import ActionBox from './../decorators/action-box';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
+// import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from '../../designer-defaults';
 import ActiveArbiter from '../decorators/active-arbiter';
@@ -30,10 +30,10 @@ class TransformStatementDecorator extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.startDropZones = this.startDropZones.bind(this);
-        this.stopDragZones = this.stopDragZones.bind(this);
-        this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
-        this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
+        // this.startDropZones = this.startDropZones.bind(this);
+        // this.stopDragZones = this.stopDragZones.bind(this);
+        // this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
+        // this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.state = {
             innerDropZoneActivated: false,
             innerDropZoneDropNotAllowed: false,
@@ -50,15 +50,15 @@ class TransformStatementDecorator extends React.Component {
     }
 
     componentDidMount() {
-        const { dragDropManager } = this.context;
-        dragDropManager.on('drag-start', this.startDropZones);
-        dragDropManager.on('drag-stop', this.stopDragZones);
+        // const { dragDropManager } = this.context;
+        // dragDropManager.on('drag-start', this.startDropZones);
+        // dragDropManager.on('drag-stop', this.stopDragZones);
     }
 
     componentWillUnmount() {
-        const { dragDropManager } = this.context;
-        dragDropManager.off('drag-start', this.startDropZones);
-        dragDropManager.off('drag-stop', this.stopDragZones);
+        // const { dragDropManager } = this.context;
+        // dragDropManager.off('drag-start', this.startDropZones);
+        // dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
     startDropZones() {
@@ -69,54 +69,54 @@ class TransformStatementDecorator extends React.Component {
         this.setState({ innerDropZoneExist: false });
     }
 
-    /**
-     * Called when a tool from tool pallet is dragged into the inner drop zone above this transform statement
-     * @param {Object} e - The drag event
-     */
-    onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
-        const model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-                (nodeBeingDragged) => {
-                    // IMPORTANT: override node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-                    // return ASTFactory.isStatement(nodeBeingDragged);
-                },
-                () => {
-                    return dropTarget.getIndexOfChild(model);
-                });
-            this.setState({
-                innerDropZoneActivated: true,
-                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-            dragDropManager.once('drop-target-changed', function () {
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }, this);
-        }
-        e.stopPropagation();
-    }
+    // /**
+    //  * Called when a tool from tool pallet is dragged into the inner drop zone above this transform statement
+    //  * @param {Object} e - The drag event
+    //  */
+    // onDropZoneActivate(e) {
+    //     const dragDropManager = this.context.dragDropManager;
+    //     const dropTarget = this.props.model.getParent();
+    //     const model = this.props.model;
+    //     if (dragDropManager.isOnDrag()) {
+    //         if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+    //             return;
+    //         }
+    //         dragDropManager.setActivatedDropTarget(dropTarget,
+    //             (nodeBeingDragged) => {
+    //                 // IMPORTANT: override node's default validation logic
+    //                 // This drop zone is for statements only.
+    //                 // Statements should only be allowed here.
+    //                 // return ASTFactory.isStatement(nodeBeingDragged);
+    //             },
+    //             () => {
+    //                 return dropTarget.getIndexOfChild(model);
+    //             });
+    //         this.setState({
+    //             innerDropZoneActivated: true,
+    //             innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+    //         });
+    //         dragDropManager.once('drop-target-changed', function () {
+    //             this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+    //         }, this);
+    //     }
+    //     e.stopPropagation();
+    // }
 
-    /**
-     * Called when a tool from tool pallet is dragged out of the inner drop zone above this transform statement
-     * @param {Object} e - The drag event
-     */
-    onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
-    }
+    // /**
+    //  * Called when a tool from tool pallet is dragged out of the inner drop zone above this transform statement
+    //  * @param {Object} e - The drag event
+    //  */
+    // onDropZoneDeactivate(e) {
+    //     const dragDropManager = this.context.dragDropManager;
+    //     const dropTarget = this.props.model.getParent();
+    //     if (dragDropManager.isOnDrag()) {
+    //         if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+    //             dragDropManager.clearActivatedDropTarget();
+    //             this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+    //         }
+    //     }
+    //     e.stopPropagation();
+    // }
 
 
     onDelete() {
@@ -284,7 +284,7 @@ TransformStatementDecorator.propTypes = {
 TransformStatementDecorator.contextTypes = {
     designView: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    // dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
