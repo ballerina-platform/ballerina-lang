@@ -25,6 +25,19 @@ class PositioningUtil {
         this.config = config;
     }
 
+    positionStatementComponents(node) {
+        const viewState = node.viewState;
+
+        viewState.components['drop-zone'].x = viewState.bBox.x;
+        viewState.components['drop-zone'].y = viewState.bBox.y;
+        viewState.components['statement-box'].x = viewState.bBox.x;
+        viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
+        viewState.components.text.x = viewState.components['statement-box'].x +
+                                    (viewState.components['statement-box'].w / 2);
+        viewState.components.text.y = viewState.components['statement-box'].y +
+                                    (viewState.components['statement-box'].h / 2);
+    }
+
 
     /**
      * Calculate position of Action nodes.
@@ -673,6 +686,7 @@ class PositioningUtil {
      */
     positionVariableDefNode(node) {
         // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 

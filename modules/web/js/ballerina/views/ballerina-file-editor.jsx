@@ -374,6 +374,7 @@ class BallerinaFileEditor extends React.Component {
                                 return;
                             }
                             // get ast from json
+
                             const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
 
                             // Populate the tree with a package declaration node

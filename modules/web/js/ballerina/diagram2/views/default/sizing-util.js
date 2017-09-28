@@ -99,14 +99,18 @@ class SizingUtil {
         const textViewState = this.getTextWidth(expression);
         const dropZoneHeight = this.config.statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
-        // Set statement box as an opaque element to prevent conflicts with arrows.
         viewState.components['statement-box'] = new SimpleBBox();
+        viewState.components.text = new SimpleBBox();
+
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = textViewState.w;
         viewState.components['statement-box'].h = this.config.statement.height;
         viewState.components['statement-box'].w = textViewState.w;
+        viewState.components['statement-box'].w = textViewState.w;
+
         // set the component as a vertical block.
         // the following value will be used by arrow conflict resolver.
+        // Set statement box as an opaque element to prevent conflicts with arrows.
         viewState.components['statement-box'].setOpaque(true);
 
         viewState.bBox.w = textViewState.w;
@@ -946,7 +950,8 @@ class SizingUtil {
      * 
      */
     sizeVariableDefNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
