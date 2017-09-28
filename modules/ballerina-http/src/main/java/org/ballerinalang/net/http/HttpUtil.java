@@ -627,7 +627,7 @@ public class HttpUtil {
         return listenerConfigurationSet;
     }
 
-    public HTTPCarbonMessage getHttpCarbonMessage(boolean isRequest) {
+    public HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage;
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
