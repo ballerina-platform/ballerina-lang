@@ -341,61 +341,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void populateDefaultValues(BLangAnnotationAttachment annAttachmentNode,
                                        BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
-            if (annAttachmentNode.geAttributes().size() > 0) {
-                BLangAnnotAttachmentAttribute[] attributeArrray =
-                        new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
-                // Traverse through Annotation Attachment attributes and find whether current
-                // Annotation Definition attribute is present
-                Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
-                        .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
-                        .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
-                        .findAny();
-                // If no matching attribute is present populate with default value
-                if (!matchingAttribute.isPresent()) {
-                    if (defAttribute.expr != null) {
-                        BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
-                        value.value = defAttribute.expr;
-                        annAttachmentNode.addAttribute(defAttribute.name.getValue(), value);
-                    }
-                    continue;
+            BLangAnnotAttachmentAttribute[] attributeArrray =
+                    new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
+            // Traverse through Annotation Attachment attributes and find whether current
+            // Annotation Definition attribute is present
+            Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
+                    .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
+                    .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
+                    .findAny();
+            // If no matching attribute is present populate with default value
+            if (!matchingAttribute.isPresent()) {
+                if (defAttribute.expr != null) {
+                    BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
+                    value.value = defAttribute.expr;
+                    annAttachmentNode.addAttribute(defAttribute.name.getValue(), value);
                 }
+                continue;
+            }
 
-                // Annotation Definition attribute is basic literal and it is included in current
-                // Annotation Attachment attribute, so continue to next Annotation Definition attribute
-                if (matchingAttribute.get().value.value != null &&
-                        !(matchingAttribute.get().value.value instanceof BLangAnnotationAttachment)) {
-                    continue;
-                }
+            // Annotation Definition attribute is basic literal and it is included in current
+            // Annotation Attachment attribute, so continue to next Annotation Definition attribute
+            if (matchingAttribute.get().value.value != null &&
+                    !(matchingAttribute.get().value.value instanceof BLangAnnotationAttachment)) {
+                continue;
+            }
 
-                // Annotation Definition attribute is an Array of Annotation Attachments and it is included in current
-                // Annotation Attachment attribute,
-                // Recursively populate default values for this Array of Annotation Attachments
-                if (matchingAttribute.get().value.arrayValues.size() > 0) {
-                    for (BLangAnnotAttachmentAttributeValue attr : matchingAttribute.get().value.arrayValues) {
-                        // Default values are not populated for BLangLiteral arrays
-                        if (attr.value != null &&
-                                !(attr.value instanceof BLangAnnotationAttachment)) {
-                            continue;
-                        }
-                        BLangAnnotationAttachment attachment =
-                                (BLangAnnotationAttachment) attr.value;
-                        if (attachment != null) {
-                            BSymbol symbol = this.symResolver.lookupSymbol(env,
-                                    new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
-                            if (symbol == this.symTable.notFoundSymbol) {
-                                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
-                                        attachment.getAnnotationName().getValue());
-                                return;
-                            }
-                            populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
-                        }
+            // Annotation Definition attribute is an Array of Annotation Attachments and it is included in current
+            // Annotation Attachment attribute,
+            // Recursively populate default values for this Array of Annotation Attachments
+            if (matchingAttribute.get().value.arrayValues.size() > 0) {
+                for (BLangAnnotAttachmentAttributeValue attr : matchingAttribute.get().value.arrayValues) {
+                    // Default values are not populated for BLangLiteral arrays
+                    if (attr.value != null &&
+                            !(attr.value instanceof BLangAnnotationAttachment)) {
+                        continue;
                     }
-                } else {
-                    // Annotation Definition attribute it self is Annotation Attachment and it is included in current
-                    // Annotation Attachment attribute,
-                    // Recursively populate default values for this Annotation Attachment
                     BLangAnnotationAttachment attachment =
-                            (BLangAnnotationAttachment) matchingAttribute.get().value.value;
+                            (BLangAnnotationAttachment) attr.value;
                     if (attachment != null) {
                         BSymbol symbol = this.symResolver.lookupSymbol(env,
                                 new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
@@ -406,6 +388,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         }
                         populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
                     }
+                }
+            } else {
+                // Annotation Definition attribute it self is Annotation Attachment and it is included in current
+                // Annotation Attachment attribute,
+                // Recursively populate default values for this Annotation Attachment
+                BLangAnnotationAttachment attachment =
+                        (BLangAnnotationAttachment) matchingAttribute.get().value.value;
+                if (attachment != null) {
+                    BSymbol symbol = this.symResolver.lookupSymbol(env,
+                            new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                    if (symbol == this.symTable.notFoundSymbol) {
+                        this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                attachment.getAnnotationName().getValue());
+                        return;
+                    }
+                    populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
                 }
             }
         }
