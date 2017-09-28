@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -554,11 +555,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      */
     private void validateTransformStatementBody(BLangBlockStmt blockStmt,
             Map<String, BLangExpression> inputs, Map<String, BLangExpression> outputs) {
+        Set<String> innerVars = new HashSet<>();
         for (BLangStatement statement : blockStmt.getStatements()) {
-            if (statement.getKind() == NodeKind.VARIABLE) {
+            if (statement.getKind() == NodeKind.VARIABLE_DEF) {
                 BLangVariableDef variableDefStmt = (BLangVariableDef) statement;
                 BLangVariable variable = variableDefStmt.var;
                 String varName = variable.getName().getValue();
+
+                if (!(variable.getInitialExpression() instanceof BLangLiteral)) {
+                    // if the variable does not hold a constant value, it is a temporary variable and hence not an input
+                    innerVars.add(varName);
+                }
+
                 //variables defined in transform scope, cannot be used as output
                 if (outputs.get(varName) != null) {
                     this.dlog.error(variableDefStmt.pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
@@ -574,7 +582,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (BLangExpression exp : varRefExpressions) {
                         String varName = ((BLangSimpleVarRef) exp).variableName.getValue();
-                        if (!assignStmt.isDeclaredWithVar()) {
+                        if (assignStmt.isDeclaredWithVar()) {
+                            innerVars.add(varName);
+                        } else {
                             // if lhs is declared with var, they not considered as output variables since they are
                             // only available in transform statement scope
                             if (inputs.get(varName) != null) {
@@ -601,6 +611,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
+        innerVars.forEach(var -> inputs.remove(var));
     }
 
     private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
@@ -621,6 +632,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.BINARY_EXPR) {
+                List<BLangExpression> expList = new ArrayList<>();
+                expList.addAll(Arrays.asList(
+                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
+                expList.addAll(Arrays.asList(
+                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
+                return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.UNARY_EXPR) {
+                return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {
