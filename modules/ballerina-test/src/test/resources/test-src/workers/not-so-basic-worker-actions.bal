@@ -35,3 +35,23 @@ function forkJoinWithTimeoutTest2() (map) {
     } join (all) (map results) { m["x"] = 25; } timeout (5) (map results) { m["x"] = 15; }
     return m;
 }
+
+function complexForkJoinWorkerSendReceive() (map) {
+    map m = {};
+    m["x"] = 10;
+    fork {
+	   worker w1 {
+	     int a = 5;
+	     int b = 0;
+	     a -> w2;
+	     b <- w2;
+	   }
+	   worker w2 {
+	     int a = 0;
+	     int b = 15;
+	     a <- w1;
+	     b -> w1;
+	   }
+    } join (all) (map results) { m["x"] = 17; }
+    return m;
+}

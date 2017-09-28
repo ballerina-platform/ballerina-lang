@@ -66,9 +66,13 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+    
+    public String toActionString() {
+        return Arrays.toString(this.exprs.toArray()) + " <- " + this.workerIdentifier;
+    }
 
     @Override
     public String toString() {
-        return "BLangWorkerReceive: " + Arrays.toString(this.exprs.toArray()) + " <- " + workerIdentifier;
+        return "BLangWorkerReceive: " + this.toActionString();
     }
 }

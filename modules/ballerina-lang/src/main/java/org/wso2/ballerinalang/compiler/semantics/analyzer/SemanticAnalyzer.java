@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -168,7 +170,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
-
+        
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeStmt(funcNode.body, funcEnv);
 
@@ -422,6 +424,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.env = this.env;
         workerSendNode.exprs.forEach(e -> this.typeChecker.checkExpr(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
@@ -585,4 +588,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(simpleVarRef, env);
         });
     }
+
 }
