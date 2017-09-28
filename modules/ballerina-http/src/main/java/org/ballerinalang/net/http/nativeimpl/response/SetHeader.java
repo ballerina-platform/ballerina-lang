@@ -44,6 +44,6 @@ public class SetHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setHeader(context, this);
+        return HttpUtil.setHeader(context, this, false);
     }
 }

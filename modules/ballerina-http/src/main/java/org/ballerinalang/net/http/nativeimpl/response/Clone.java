@@ -44,6 +44,6 @@ public class Clone extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.clone(context, this);
+        return HttpUtil.clone(context, this, false);
     }
 }

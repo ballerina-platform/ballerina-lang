@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -43,7 +44,7 @@ public class WebSocketServicesRegistry {
     // Map<interface, Map<uri, service>>
     private final Map<String, Map<String, WebSocketService>> serviceEndpoints = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
-    private final Map<String, ClientServiceInfo> clientServices = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
 
     private WebSocketServicesRegistry() {
     }
@@ -57,34 +58,36 @@ public class WebSocketServicesRegistry {
      *
      * @param service service to register.
      */
-    public void registerServiceEndpoint(WebSocketService service) {
-        boolean isClientService = isWebSocketClientService(service);
-        if (isClientService) {
+    public void registerService(WebSocketService service) {
+        if (WebSocketServiceValidator.isWebSocketClientService(service)
+                && WebSocketServiceValidator.validateClientService(service)) {
             registerClientService(service);
         } else {
+            if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
+                String upgradePath = findFullWebSocketUpgradePath(service);
+                Annotation configAnnotation =
+                        service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
+                Set<ListenerConfiguration> listenerConfigurationSet =
+                        HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
 
-            String upgradePath = findFullWebSocketUpgradePath(service);
-            Annotation configAnnotation =
-                    service.getAnnotation(Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_CONFIGURATION);
-            Set<ListenerConfiguration> listenerConfigurationSet =
-                    HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
+                for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+                    String entryListenerInterface =
+                            listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
+                    Map<String, WebSocketService> servicesOnInterface = serviceEndpoints
+                            .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
 
-            for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-                String entryListenerInterface = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-                Map<String, WebSocketService> servicesOnInterface = serviceEndpoints
-                        .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
-
-                HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
-                // Assumption : this is always sequential, no two simultaneous calls can get here
-                if (servicesOnInterface.containsKey(upgradePath)) {
-                    throw new BallerinaConnectorException(
-                            "service with base path :" + upgradePath + " already exists in listener : "
-                                    + entryListenerInterface);
+                    HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
+                    // Assumption : this is always sequential, no two simultaneous calls can get here
+                    if (servicesOnInterface.containsKey(upgradePath)) {
+                        throw new BallerinaConnectorException(
+                                "service with base path :" + upgradePath + " already exists in listener : "
+                                        + entryListenerInterface);
+                    }
+                    servicesOnInterface.put(upgradePath, service);
                 }
-                servicesOnInterface.put(upgradePath, service);
-            }
 
-            logger.info("Service deployed : " + service.getName() + " with context " + upgradePath);
+                logger.info("Service deployed : " + service.getName() + " with context " + upgradePath);
+            }
         }
     }
 
@@ -93,18 +96,11 @@ public class WebSocketServicesRegistry {
      *
      * @param clientService {@link WebSocketService} of the client service.
      */
-    public void registerClientService(WebSocketService clientService) {
-        boolean isClientService = isWebSocketClientService(clientService);
-        if (isClientService) {
-
-            if (clientServices.containsKey(clientService.getName())) {
-                clientServices.get(clientService.getName()).setClientService(clientService);
-            } else {
-                ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientService);
-                clientServices.put(clientService.getName(), clientServiceInfo);
-            }
+    private void registerClientService(WebSocketService clientService) {
+        if (clientServices.containsKey(clientService.getName())) {
+            throw new BallerinaException("Already contains a client service with name " + clientService.getName());
         } else {
-            throw new BallerinaConnectorException("Cannot register as a client service");
+            clientServices.put(clientService.getName(), clientService);
         }
     }
 
@@ -114,6 +110,7 @@ public class WebSocketServicesRegistry {
      * @param service service to unregister.
      */
     public void unregisterService(WebSocketService service) {
+        // TODO: Recorrect the logic behind unregistering service.
         String upgradePath = findFullWebSocketUpgradePath(service);
         String listenerInterface = getListenerInterface(service);
         if (serviceEndpoints.containsKey(listenerInterface)) {
@@ -139,11 +136,7 @@ public class WebSocketServicesRegistry {
      * @return the service by service name if exists. Else return null.
      */
     public WebSocketService getClientService(String serviceName) {
-        if (clientServices.containsKey(serviceName)) {
-            return clientServices.get(serviceName).getClientService();
-        }
-
-        return null;
+        return clientServices.get(serviceName);
     }
 
     /**
@@ -199,18 +192,6 @@ public class WebSocketServicesRegistry {
     }
 
     /**
-     * Find out the given service is a WebSocket client service or not.
-     *
-     * @param service {@link WebSocketService} which should be identified.
-     * @return true if the given service is a client service.
-     */
-    private boolean isWebSocketClientService(WebSocketService service) {
-        Annotation annotation = service.getAnnotation(
-                Constants.WEBSOCKET_PACKAGE_NAME, Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
-        return !(annotation == null);
-    }
-
-    /**
      * Find the listener interface of a given service.
      *
      * @param service {@link WebSocketService} which the listener interface should be found.
@@ -220,38 +201,6 @@ public class WebSocketServicesRegistry {
         // TODO : Handle correct interface addition to default interface.
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         return listenerInterface;
-    }
-
-    /**
-     * This class holds the necessary details of a WebSocket client service.
-     */
-    private static class ClientServiceInfo {
-        private WebSocketService clientService;
-        private WebSocketService parentService;
-
-        private ClientServiceInfo() {
-        }
-
-        private ClientServiceInfo(WebSocketService clientService) {
-            this.clientService = clientService;
-        }
-
-        private WebSocketService getClientService() {
-            return clientService;
-        }
-
-        private void setClientService(WebSocketService clientService) {
-            this.clientService = clientService;
-        }
-
-        private void setParentService(WebSocketService parentService) {
-            this.parentService = parentService;
-        }
-
-        private WebSocketService getParentService() {
-            return parentService;
-        }
-
     }
 
 }
