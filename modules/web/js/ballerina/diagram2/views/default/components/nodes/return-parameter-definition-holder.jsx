@@ -35,21 +35,6 @@ class ReturnParameterDefinitionHolder extends React.Component {
     }
 
     /**
-     * Get types of ballerina to which can be applied when declaring variables.
-     * @return {object} dropdown data.
-     * */
-    getTypeDropdownValues() {
-        const { environment } = this.context;
-        const dropdownData = [];
-        const bTypes = environment.getTypes();
-        _.forEach(bTypes, (bType) => {
-            dropdownData.push({ id: bType, text: bType });
-        });
-
-        return dropdownData;
-    }
-
-    /**
      * Setter to add return parameters.
      * @param {string} input - input from tag-controller.
      * @return {boolean} true||false
