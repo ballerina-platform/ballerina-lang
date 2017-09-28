@@ -1347,7 +1347,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        this.pkgBuilder.addTimeoutCause(ctx.Identifier().getText());
+        this.pkgBuilder.addTimeoutCause(ctx.Identifier().getText(), this.getWS(ctx));
     }
 
     @Override

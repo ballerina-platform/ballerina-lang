@@ -710,15 +710,13 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addTimeoutCause(String paramName) {
-        BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
-        variableNode.typeNode = (BLangType) this.typeNodeStack.pop();
-        variableNode.name = (BLangIdentifier) createIdentifier(paramName);
-
+    public void addTimeoutCause(String identifier, Set<Whitespace> ws) {
         BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
         forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
         forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
-        forkJoin.timeoutVariable = variableNode;
+        BLangVariable resultVar = (BLangVariable) this.generateBasicVarNode(
+                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), ws, identifier, false);
+        forkJoin.timeoutVariable = resultVar;
     }
 
     public void endCallableUnitBody(Set<Whitespace> ws) {

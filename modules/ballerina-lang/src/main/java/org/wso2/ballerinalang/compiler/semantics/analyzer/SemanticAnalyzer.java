@@ -389,6 +389,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
 
         if (forkJoin.timeoutExpression != null) {
+            if (!this.isJoinResultType(forkJoin.timeoutVariable)) {
+                this.dlog.error(forkJoin.timeoutVariable.pos, DiagnosticCode.INVALID_WORKER_TIMEOUT_RESULT_TYPE);
+            }
             /* create code black and environment for timeout section */
             BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
             SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
