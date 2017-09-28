@@ -112,6 +112,13 @@ import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
 
+    private static List<String> builtInFiles = new LinkedList<>();
+
+    static {
+        builtInFiles.add("/ballerina/builtin/source.bal");
+        builtInFiles.add("/ballerina/builtin/core/source.bal");
+    }
+
     private BallerinaPsiImplUtil() {
 
     }
@@ -532,19 +539,40 @@ public class BallerinaPsiImplUtil {
             if (!(psiFile instanceof BallerinaFile)) {
                 continue;
             }
+            results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
+        }
 
-            Collection<T> definitions = PsiTreeUtil.findChildrenOfType(psiFile, clazz);
-            for (T definition : definitions) {
-                PsiElement firstChild = definition.getFirstChild();
-                if (!includePrivate && firstChild instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
-                    if (elementType != BallerinaTypes.PUBLIC) {
-                        continue;
-                    }
-                }
-                IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(definition, IdentifierPSINode.class);
-                results.add(identifier);
+        // Add elements from built-in packages
+        for (String builtInFile : builtInFiles) {
+            VirtualFile file = BallerinaPsiImplUtil.findFileInSDK(project, directory, builtInFile);
+            if (file == null) {
+                return results;
             }
+            // Find the file.
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+            if (psiFile == null) {
+                return results;
+            }
+            results.addAll(getMatchingElementsFromAFile(psiFile, clazz, includePrivate));
+        }
+        return results;
+    }
+
+    private static <T extends PsiElement>
+    List<IdentifierPSINode> getMatchingElementsFromAFile(@NotNull PsiFile psiFile, @NotNull Class<T> clazz,
+                                                         boolean includePrivate) {
+        List<IdentifierPSINode> results = new ArrayList<>();
+        Collection<T> definitions = PsiTreeUtil.findChildrenOfType(psiFile, clazz);
+        for (T definition : definitions) {
+            PsiElement firstChild = definition.getFirstChild();
+            if (!includePrivate && firstChild instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+                if (elementType != BallerinaTypes.PUBLIC) {
+                    continue;
+                }
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(definition, IdentifierPSINode.class);
+            results.add(identifier);
         }
         return results;
     }
@@ -1604,19 +1632,16 @@ public class BallerinaPsiImplUtil {
     /**
      * Finds a file in project or module SDK.
      *
-     * @param identifier an identifier element
-     * @param path       relative file path in the SDK
+     * @param project a project element
+     * @param element a PsiElement
+     * @param path    relative file path in the SDK
      * @return {@code null} if the file cannot be found, otherwise returns the corresponding {@link VirtualFile}.
      */
     @Nullable
-    public static VirtualFile findFileInSDK(@NotNull IdentifierPSINode identifier, @NotNull String path) {
-        Project project = identifier.getProject();
-        PsiFile containingFile = identifier.getContainingFile();
-        PsiFile originalFile = containingFile.getOriginalFile();
-        VirtualFile virtualFile = originalFile.getVirtualFile();
-
+    public static VirtualFile findFileInSDK(@NotNull Project project, @NotNull PsiElement element,
+                                            @NotNull String path) {
         // First we check the sources of module SDK.
-        VirtualFile file = findFileInModuleSDK(project, virtualFile, path);
+        VirtualFile file = findFileInModuleSDK(element, path);
         if (file == null) {
             // Then we check the sources of project SDK.
             file = findFileInProjectSDK(project, path);
@@ -1627,15 +1652,13 @@ public class BallerinaPsiImplUtil {
     /**
      * Finds a file in the module SDK.
      *
-     * @param project     current project
-     * @param virtualFile a file in the current module
-     * @param path        relative file path in the SDK
+     * @param element a PsiElement
+     * @param path    relative file path in the SDK
      * @return {@code null} if the file cannot be found, otherwise returns the corresponding {@link VirtualFile}.
      */
     @Nullable
-    public static VirtualFile findFileInModuleSDK(@NotNull Project project, @NotNull VirtualFile virtualFile,
-                                                  @NotNull String path) {
-        Module module = ModuleUtilCore.findModuleForFile(virtualFile, project);
+    public static VirtualFile findFileInModuleSDK(@NotNull PsiElement element, @NotNull String path) {
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
         if (module == null) {
             return null;
         }
@@ -1880,11 +1903,12 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         // Now we need to find the error.bal file which contains the definition of these error structs.
-        VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(referenceNode, "/ballerina/lang/errors/error.bal");
+        Project project = referenceNode.getProject();
+        VirtualFile errorFile = BallerinaPsiImplUtil.findFileInSDK(project, referenceNode,
+                "/ballerina/lang/errors/error.bal");
         if (errorFile == null) {
             return null;
         }
-        Project project = referenceNode.getProject();
         // Find the file.
         PsiFile psiFile = PsiManager.getInstance(project).findFile(errorFile);
         if (psiFile == null) {
