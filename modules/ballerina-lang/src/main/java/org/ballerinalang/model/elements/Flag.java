@@ -30,6 +30,10 @@ public enum Flag {
      */
     NATIVE,
     /**
+     * Indicates Flagged node is a global node.
+     */
+    GLOBAL,
+    /**
      * Indicates Flagged node is a constant node.
      */
     CONST,

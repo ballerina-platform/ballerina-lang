@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.codegen;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -232,6 +233,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private LineNumberTableAttributeInfo lineNoAttrInfo;
     private CallableUnitInfo currentCallableUnitInfo;
     private LocalVariableAttributeInfo localVarAttrInfo;
+    private LocalVariableAttributeInfo globalVarAttrInfo;
     private WorkerInfo currentWorkerInfo;
     private ServiceInfo currentServiceInfo;
     private ConnectorInfo currentConnectorInfo;
@@ -315,8 +317,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // This attribute keep package-level variable information
         int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
-        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
-                new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
+        globalVarAttrInfo = new LocalVariableAttributeInfo(pkgVarAttrNameIndex);
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, globalVarAttrInfo);
 
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.structs.forEach(this::createStructInfoEntry);
@@ -343,6 +345,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
+        globalVarAttrInfo = null;
         pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
     }
 
@@ -415,7 +418,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        if (varNode.flagSet.contains(Flag.GLOBAL) || varNode.flagSet.contains(Flag.CONST)) {
+            OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(varSymbol.type.tag,
+                    InstructionCodes.IGSTORE, pvIndexes);
+            opcode = opcodeAndIndex.opcode;
+            lvIndex = opcodeAndIndex.index;
+            varSymbol.varIndex = lvIndex;
+            if (rhsExpr != null) {
+                emit(opcode, rhsExprRegIndex, lvIndex);
+            }
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
+            globalVarAttrInfo.localVars.add(localVarInfo);
+        } else if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(varSymbol.type.tag,
                     InstructionCodes.ISTORE, lvIndexes);
             opcode = opcodeAndIndex.opcode;
