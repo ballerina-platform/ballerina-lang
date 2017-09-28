@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
+import log from 'log';
 import { DragSource } from 'react-dnd';
 import { ITEM_TYPES } from './constants';
 
@@ -30,12 +32,24 @@ export function withDragEnabled(ToolView) {
         beginDrag: (props, monitor, component) => {
             const { meta = {}, nodeFactoryMethod, icon } = props.tool.attributes;
             return {
-                node: nodeFactoryMethod(meta),
+                dragSource: nodeFactoryMethod(meta),
                 icon,
             };
         },
         endDrag: (props, monitor, component) => {
-
+            if (monitor.didDrop()) {
+                const { dragSource } = monitor.getItem();
+                const { dropTarget } = monitor.getDropResult();
+                if (_.isFunction(dropTarget.acceptDrop)) {
+                    try {
+                        dropTarget.acceptDrop(dragSource);
+                    } catch (error) {
+                        log.error(`Error while adding dropped node. ${error}`);
+                    }
+                } else {
+                    log.error('Cannot find accept method to add dropped node.');
+                }
+            }
         },
     };
 
