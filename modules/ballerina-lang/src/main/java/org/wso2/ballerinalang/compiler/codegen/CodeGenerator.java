@@ -182,6 +182,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
@@ -252,8 +253,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
-
-    private Stack<BLangStatement> statementsStack = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -464,7 +463,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 i++;
             }
         }
-        generateFinallyInstructions(NodeKind.CALLABLE_UNIT);
+        generateFinallyInstructions(returnNode);
         emit(InstructionCodes.RET);
     }
 
@@ -1132,12 +1131,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
 
     // private methods
-
-    private void genNode(BLangStatement statement, SymbolEnv env) {
-        this.statementsStack.push(statement);
-        genNode((BLangNode) statement, env);
-        this.statementsStack.pop();
-    }
 
     private void genNode(BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
@@ -2129,12 +2122,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangContinue continueNode) {
-        generateFinallyInstructions(NodeKind.WHILE);
+        generateFinallyInstructions(continueNode, NodeKind.WHILE);
         this.emit(this.loopResetInstructionStack.peek());
     }
 
     public void visit(BLangBreak breakNode) {
-        generateFinallyInstructions(NodeKind.WHILE);
+        generateFinallyInstructions(breakNode, NodeKind.WHILE);
         this.emit(this.loopExitInstructionStack.peek());
     }
 
@@ -2254,7 +2247,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
-        generateFinallyInstructions(NodeKind.TRANSACTION);
+        generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
     }
 
@@ -2598,28 +2591,28 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
     }
 
+    private void generateFinallyInstructions(BLangStatement statement) {
+        generateFinallyInstructions(statement, null);
+    }
 
-    private void generateFinallyInstructions(NodeKind targetStatementKind) {
+    private void generateFinallyInstructions(BLangStatement statement, NodeKind targetStatementKind) {
         VariableIndex regIndexesOriginal = this.regIndexes.copy();
-        BLangStatement statement;
-        int i = statementsStack.size() - 1;
-        while (i >= 0) {
-            statement = statementsStack.get(i--);
-            if (statement.getKind() == targetStatementKind) {
+        BLangStatement current = statement;
+        while (current != null && current.statementLink.parent != null) {
+            BLangStatement parent = current.statementLink.parent.statement;
+            if (targetStatementKind != null && targetStatementKind == parent.getKind()) {
                 return;
             }
-            BLangTryCatchFinally tryCatchFinallyStmt;
-            if (NodeKind.TRY == statement.getKind()) {
-                tryCatchFinallyStmt = (BLangTryCatchFinally) statement;
-            } else if (NodeKind.CATCH == statement.getKind()) {
-                tryCatchFinallyStmt = ((BLangCatch) statement).parent;
-            } else {
-                continue;
+            if (NodeKind.TRY == parent.getKind()) {
+                BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
+                final BLangStatement body = current;
+                if (tryCatchFinally.finallyBody != null && (current == tryCatchFinally.tryBody
+                        || tryCatchFinally.catchBlocks.stream().anyMatch(c -> c.body == body))) {
+                    this.regIndexes = new VariableIndex();
+                    genNode(tryCatchFinally.finallyBody, env);
+                }
             }
-            if (tryCatchFinallyStmt.finallyBody != null) {
-                this.regIndexes = new VariableIndex();
-                genNode(tryCatchFinallyStmt.finallyBody, env);
-            }
+            current = parent;
         }
         this.regIndexes = regIndexesOriginal;
     }
