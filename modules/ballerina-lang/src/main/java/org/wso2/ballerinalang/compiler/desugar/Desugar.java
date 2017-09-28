@@ -20,9 +20,11 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -104,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +120,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
+    private SymbolResolver symResolver;
     private SymbolEnter symbolEnter;
 
     private BLangNode result;
@@ -134,6 +138,7 @@ public class Desugar extends BLangNodeVisitor {
         context.put(DESUGAR_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
     }
 
@@ -529,6 +534,22 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
+
+        // Check lhs and rhs type compatibility
+        if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
+            return;
+        }
+
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.STRING) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+        }
     }
 
     @Override
@@ -735,5 +756,17 @@ public class Desugar extends BLangNodeVisitor {
         stringLit.value = value;
         stringLit.type = symTable.stringType;
         return stringLit;
+    }
+
+    private BLangExpression createTypeConversionExpr(BLangExpression expr, BType sourceType, BType targetType) {
+        BConversionOperatorSymbol symbol = (BConversionOperatorSymbol)
+                symResolver.resolveConversionOperator(sourceType, targetType);
+        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        conversionExpr.pos = expr.pos;
+        conversionExpr.expr = expr;
+        conversionExpr.type = targetType;
+        conversionExpr.types = Lists.of(targetType);
+        conversionExpr.conversionSymbol = symbol;
+        return conversionExpr;
     }
 }
