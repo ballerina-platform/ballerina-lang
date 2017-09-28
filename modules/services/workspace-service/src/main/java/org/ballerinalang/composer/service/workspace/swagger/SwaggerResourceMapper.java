@@ -224,7 +224,7 @@ public class SwaggerResourceMapper {
             Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
                     this.listToMap(responsesAnnotation.get());
             if (configAttributes.containsKey("methods") && configAttributes.get("methods").getValueArray().size() > 0) {
-                List<AnnotationAttachmentAttributeValueNode> methodsValues =
+                List<? extends  AnnotationAttachmentAttributeValueNode> methodsValues =
                         configAttributes.get("methods").getValueArray();
                 // Since there is only one http method.
                 operationAdaptor.setHttpOperation(this.getStringLiteralValue(methodsValues.get(0)));
@@ -237,7 +237,7 @@ public class SwaggerResourceMapper {
             if (configAttributes.containsKey("produces") &&
                                                         configAttributes.get("produces").getValueArray().size() > 0) {
                 List<String> produces = new LinkedList<>();
-                List<AnnotationAttachmentAttributeValueNode> producesValues =
+                List<? extends  AnnotationAttachmentAttributeValueNode> producesValues =
                         configAttributes.get("produces").getValueArray();
                 for (AnnotationAttachmentAttributeValueNode producesValue : producesValues) {
                     produces.add(this.getStringLiteralValue(producesValue));
@@ -248,7 +248,7 @@ public class SwaggerResourceMapper {
             if (configAttributes.containsKey("consumes") &&
                                                         configAttributes.get("consumes").getValueArray().size() > 0) {
                 List<String> consumes = new LinkedList<>();
-                List<AnnotationAttachmentAttributeValueNode> consumesValues =
+                List<? extends  AnnotationAttachmentAttributeValueNode> consumesValues =
                         configAttributes.get("consumes").getValueArray();
                 for (AnnotationAttachmentAttributeValueNode consumesValue : consumesValues) {
                     consumes.add(this.getStringLiteralValue(consumesValue));
@@ -272,7 +272,7 @@ public class SwaggerResourceMapper {
             Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
                     this.listToMap(responsesAnnotation.get());
             if (responsesAttributes.containsKey("value")) {
-                List<AnnotationAttachmentAttributeValueNode> responsesValues =
+                List<? extends  AnnotationAttachmentAttributeValueNode> responsesValues =
                                                                     responsesAttributes.get("value").getValueArray();
                 if (responsesValues.size() > 0) {
                     Map<String, Response> responses = new HashMap<>();
@@ -308,7 +308,7 @@ public class SwaggerResourceMapper {
     private void createHeadersModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
                                     Response response) {
         if (null != annotationAttributeValue) {
-            List<AnnotationAttachmentAttributeValueNode> headersValueArray = annotationAttributeValue.getValueArray();
+            List<? extends  AnnotationAttachmentAttributeValueNode> headersValueArray = annotationAttributeValue.getValueArray();
             for (AnnotationAttachmentAttributeValueNode headersValue : headersValueArray) {
                 AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode)headersValue;
                 Map<String, Property> headers = new HashMap<>();
@@ -436,7 +436,7 @@ public class SwaggerResourceMapper {
             Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
                     this.listToMap(parametersInfoAnnotation.get());
             if (infoAttributes.containsKey("value")) {
-                List<AnnotationAttachmentAttributeValueNode> parametersInfoValues =
+                List<? extends  AnnotationAttachmentAttributeValueNode> parametersInfoValues =
                         infoAttributes.get("value").getValueArray();
                 for (AnnotationAttachmentAttributeValueNode parametersInfoValue : parametersInfoValues) {
                     AnnotationAttachmentNode parameterInfoAnnotation = (AnnotationAttachmentNode)parametersInfoValue;

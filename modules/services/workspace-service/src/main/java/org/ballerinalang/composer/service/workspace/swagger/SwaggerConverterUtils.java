@@ -118,7 +118,7 @@ public class SwaggerConverterUtils {
                 ballerinaFile.getContent().getBytes(StandardCharsets.UTF_8)));
     
         Compiler compiler = Compiler.getInstance(context);
-        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.getModel(ballerinaFile.getFileName());
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.compile(ballerinaFile.getFileName());
         return model.getCompilationUnits().stream().
                 filter(compUnit -> ballerinaFile.getFileName().equals(compUnit.getName())).findFirst().get();
     }
