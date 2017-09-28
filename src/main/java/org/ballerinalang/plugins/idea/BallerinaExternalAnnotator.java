@@ -27,7 +27,11 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,7 +100,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
                 e.printStackTrace();
             }
         }
-        return new Data(editor, virtualFile);
+        return new Data(editor, file);
     }
 
     /**
@@ -113,25 +117,42 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         List<Issue> issues = new ArrayList<>();
         if (method != null) {
             try {
-                VirtualFile virtualFile = data.virtualFile;
+                VirtualFile virtualFile = data.psiFile.getVirtualFile();
                 List<Diagnostic> diagnostics = (List<Diagnostic>) method.invoke(null, virtualFile.getParent().getPath(),
                         virtualFile.getName());
                 Editor editor = data.editor;
                 if (editor == null) {
                     return issues;
                 }
+                ApplicationManager.getApplication().runWriteAction(
+                        () -> PsiDocumentManager.getInstance(data.psiFile.getProject())
+                                .commitDocument(editor.getDocument())
+                );
                 for (Diagnostic diagnostic : diagnostics) {
+
                     ApplicationManager.getApplication().runReadAction(() -> {
-                        LogicalPosition startPosition = new LogicalPosition(diagnostic.getPosition()
-                                .getStartLine() - 1, diagnostic.getPosition().startColumn());
+                        Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
+                        LogicalPosition startPosition = new LogicalPosition(position
+                                .getStartLine() - 1, position.startColumn());
+
                         int startOffset = editor.logicalPositionToOffset(startPosition);
+                        PsiElement elementAtOffset = data.psiFile.findElementAt(startOffset);
+                        if (elementAtOffset instanceof PsiWhiteSpace) {
+                            elementAtOffset = PsiTreeUtil.nextVisibleLeaf(elementAtOffset);
+                        }
+                        TextRange textRange;
+                        if (elementAtOffset == null) {
+                            int endColumn = position.startColumn() == position.endColumn() ?
+                                    position.endColumn() + 1 : position.endColumn();
 
-                        LogicalPosition endPosition = new LogicalPosition(diagnostic.getPosition().getEndLine() - 1,
-                                diagnostic.getPosition().endColumn() + 1);
-                        int endOffset = editor.logicalPositionToOffset(endPosition);
-
-                        TextRange textRange = new TextRange(startOffset, endOffset);
-                        Issue issue = new Issue(diagnostic.getMessage(), textRange);
+                            LogicalPosition endPosition = new LogicalPosition(position.getEndLine() - 1, endColumn);
+                            int endOffset = editor.logicalPositionToOffset(endPosition);
+                            textRange = new TextRange(startOffset, endOffset);
+                        } else {
+                            int endOffset = elementAtOffset.getTextOffset() + elementAtOffset.getTextLength();
+                            textRange = new TextRange(elementAtOffset.getTextOffset(), endOffset);
+                        }
+                        Issue issue = new Issue(diagnostic, textRange);
                         issues.add(issue);
                     });
                 }
@@ -140,8 +161,6 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-
-
         }
         return issues;
     }
@@ -153,28 +172,34 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     public void apply(@NotNull PsiFile file, List<Issue> issues, @NotNull AnnotationHolder holder) {
         for (Issue issue : issues) {
             TextRange range = issue.textRange;
-            holder.createErrorAnnotation(range, issue.msg);
+            if (issue.diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                holder.createErrorAnnotation(range, issue.diagnostic.getMessage());
+            } else if (issue.diagnostic.getKind() == Diagnostic.Kind.WARNING) {
+                holder.createWarningAnnotation(range, issue.diagnostic.getMessage());
+            } else if (issue.diagnostic.getKind() == Diagnostic.Kind.NOTE) {
+                holder.createInfoAnnotation(range, issue.diagnostic.getMessage());
+            }
         }
     }
 
     public static class Data {
 
         Editor editor;
-        VirtualFile virtualFile;
+        PsiFile psiFile;
 
-        public Data(Editor editor, VirtualFile virtualFile) {
+        public Data(@NotNull Editor editor, @NotNull PsiFile psiFile) {
             this.editor = editor;
-            this.virtualFile = virtualFile;
+            this.psiFile = psiFile;
         }
     }
 
     public static class Issue {
 
-        String msg;
+        Diagnostic diagnostic;
         TextRange textRange;
 
-        public Issue(String msg, TextRange textRange) {
-            this.msg = msg;
+        public Issue(@NotNull Diagnostic diagnostic, @NotNull TextRange textRange) {
+            this.diagnostic = diagnostic;
             this.textRange = textRange;
         }
     }
