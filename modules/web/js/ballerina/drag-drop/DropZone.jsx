@@ -19,29 +19,31 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { withDropEnabled } from './drop-target';
+import Node from './../model/tree/node';
 
 class DropZone extends React.Component {
     render() {
-        const { x, y, width, height, className, isOver, connectDropTarget } = this.props;
-        const rectProps = {
-            x, y, width, height,
-        };
+        const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
+            dropTarget, canDrop, ...restProps } = this.props;
+        const Component = baseComponent;
         return connectDropTarget(
-            <rect {...rectProps} className={cn(className, { active: isOver })} />
+            <Component {...restProps} className={cn(className, { active: isOver })} />
         );
     }
 }
 
 DropZone.propTypes = {
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
+    baseComponent: PropTypes.string.isRequired,
+    dropTarget: PropTypes.instanceOf(Node).isRequired,
     className: PropTypes.string,
     connectDropTarget: PropTypes.func.isRequired,
     isOver: PropTypes.bool,
     isOverCurrent: PropTypes.bool,
     canDrop: PropTypes.bool,
+};
+
+DropZone.defaultProps = {
+    className: '',
 };
 
 export default withDropEnabled(DropZone);
