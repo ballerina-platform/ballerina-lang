@@ -151,6 +151,15 @@ class SourceView extends React.Component {
                     <div
                         className={classNames('bottom-right-controls-container',
                                         { disabled: hasSyntaxErrors })}
+                        onClick={
+                            () => {
+                                if (!hasSyntaxErrors) {
+                                    this.context.editor.setActiveView(DESIGN_VIEW);
+                                } else {
+                                    this.toggleErrorListPopover();
+                                }
+                            }
+                        }
                     >
                         <div className={classNames('view-design-btn btn-icon',
                                     { target: this.state.displayErrorList })}
@@ -163,15 +172,6 @@ class SourceView extends React.Component {
                                 ref={(ref) => {
                                     this.errorListPopoverTarget = ref;
                                 }}
-                                onClick={
-                                () => {
-                                    if (!hasSyntaxErrors) {
-                                        this.context.editor.setActiveView(DESIGN_VIEW);
-                                    } else {
-                                        this.toggleErrorListPopover();
-                                    }
-                                }
-                            }
                             >
                                 Design View
                             </div>

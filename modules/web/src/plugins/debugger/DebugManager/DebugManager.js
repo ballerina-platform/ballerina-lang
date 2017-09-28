@@ -38,13 +38,26 @@ class DebugManager extends EventChannel {
         super();
         this.debugPoints = [];
         this.channel = undefined;
+        this.active = false;
 
         this.on('breakpoint-added', () => { this.publishBreakpoints(); });
         this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
 
         LaunchManager.on('debug-active', () => {
+            this.active = true;
             this.startDebugger(this.endpoint);
         });
+        this.on('execution-ended', () => {
+            this.active = false;
+        });
+    }
+
+    get active() {
+        return this._active;
+    }
+
+    set active(active) {
+        this._active = active;
     }
 
     /**

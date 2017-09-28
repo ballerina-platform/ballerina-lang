@@ -20,6 +20,7 @@ import './toolbar.css';
 import DebugManager from './../../DebugManager';
 import ToolSetView from './tool-set';
 import ToolItemView from './tool-item-view';
+import { COMMANDS } from './../../constants';
 
 /**
  * Tool Component which render a tool in toolbar.
@@ -40,21 +41,22 @@ class DebugToolbarView extends React.Component {
      * @param tool
      */
     onToolClickHandler(id) {
+        const dispatch = this.props.dispatch;
         switch (id) {
             case 'debugStop':
-                DebugManager.stop();
+                dispatch(COMMANDS.STOP);
                 break;
             case 'debugResume':
-                DebugManager.resume();
+                dispatch(COMMANDS.RESUME);
                 break;
             case 'debugStepOver':
-                DebugManager.stepOver();
+                dispatch(COMMANDS.STEP_OVER);
                 break;
             case 'debugStepIn':
-                DebugManager.stepIn();
+                dispatch(COMMANDS.STEP_IN);
                 break;
             case 'debugStepOut':
-                DebugManager.stepOut();
+                dispatch(COMMANDS.STEP_OUT);
                 break;
         }
         DebugManager.trigger('resume-execution');

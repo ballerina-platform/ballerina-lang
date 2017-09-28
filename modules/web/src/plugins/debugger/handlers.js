@@ -19,6 +19,7 @@
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import { COMMANDS, DIALOG_IDS } from './constants';
 import LaunchManager from './LaunchManager';
+import DebugManager from './DebugManager';
 
 /**
  * Provides command handler definitions of debugger plugin.
@@ -29,9 +30,12 @@ import LaunchManager from './LaunchManager';
 export function getHandlerDefinitions(debuggerPlugin) {
     return [
         {
-            cmdID: COMMANDS.DEBUG,
+            cmdID: COMMANDS.RUN_WITH_DEBUG,
             handler: () => {
-                // TODO
+                const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                if (activeEditor && activeEditor.file) {
+                    LaunchManager.run(activeEditor.file, true, debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                }
             },
         },
         {
@@ -42,10 +46,10 @@ export function getHandlerDefinitions(debuggerPlugin) {
         },
         {
             cmdID: COMMANDS.RUN,
-            handler: (debug = false) => {
+            handler: () => {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
                 if (activeEditor && activeEditor.file) {
-                    LaunchManager.run(activeEditor.file, debug, debuggerPlugin.getArgumentConfigs(activeEditor.file));
+                    LaunchManager.run(activeEditor.file, false, debuggerPlugin.getArgumentConfigs(activeEditor.file));
                 }
             },
         },
@@ -55,6 +59,30 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 const id = DIALOG_IDS.LAUNCHER_CONFIG;
                 const { command: { dispatch } } = debuggerPlugin.appContext;
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+            },
+        },
+        {
+            cmdID: COMMANDS.RESUME,
+            handler: () => {
+                DebugManager.resume();
+            },
+        },
+        {
+            cmdID: COMMANDS.STEP_OVER,
+            handler: () => {
+                DebugManager.stepOver();
+            },
+        },
+        {
+            cmdID: COMMANDS.STEP_IN,
+            handler: () => {
+                DebugManager.stepIn();
+            },
+        },
+        {
+            cmdID: COMMANDS.STEP_OUT,
+            handler: () => {
+                DebugManager.stepOut();
             },
         },
     ];

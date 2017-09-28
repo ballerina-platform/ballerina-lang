@@ -50,4 +50,17 @@ export const DIALOG_IDS = {
     LAUNCHER_CONFIG: 'composer.dialog.laucher-config',
 };
 
+export const TOOLS = {
+    GROUP: 'composer.tool.group.debugger',
+    RUN: 'composer.tool.debugger.run',
+    STOP: 'composer.tool.debugger.stop-launcher',
+    DEBUG: 'composer.tool.debugger.debug',
+    DEBUG_STOP: 'composer.tool.debugger.stop-debugger',
+    STEP_OVER: 'composer.tool.debugger.step-over',
+    RESUME: 'composer.tool.debugger.resume',
+    STEP_IN: 'composer.tool.debugger.step-in',
+    STEP_OUT: 'composer.tool.debugger.step-out',
+    SHOW_LAUNCHER_CONFIG_DIALOG: 'show-launcher-config-dialog',
+};
+
 export const PLUGIN_ID = 'composer.plugin.debugger';

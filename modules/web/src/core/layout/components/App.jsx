@@ -169,6 +169,9 @@ class App extends React.Component {
                     pane2Style={
                         this.state.showLeftPanel ? {} : { position: 'relative', left: '42px' }
                     }
+                    style={{
+                        height: this.state.documentHeight - (headerHeight + toolAreaHeight),
+                    }}
                 >
                     <LeftPanel
                         width={this.state.leftPanelSize}
