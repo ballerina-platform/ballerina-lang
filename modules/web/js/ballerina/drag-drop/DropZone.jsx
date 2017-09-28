@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { withDropEnabled } from './drop-target';
 
-class SVGRectDropZone extends React.Component {
+class DropZone extends React.Component {
     render() {
         const { x, y, width, height, className, isOver, connectDropTarget } = this.props;
         const rectProps = {
@@ -15,7 +15,7 @@ class SVGRectDropZone extends React.Component {
     }
 }
 
-SVGRectDropZone.propTypes = {
+DropZone.propTypes = {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
@@ -27,4 +27,4 @@ SVGRectDropZone.propTypes = {
     canDrop: PropTypes.bool,
 };
 
-export default withDropEnabled(SVGRectDropZone);
+export default withDropEnabled(DropZone);

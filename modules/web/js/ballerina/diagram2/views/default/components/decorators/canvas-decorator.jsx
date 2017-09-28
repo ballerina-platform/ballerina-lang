@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Node from '../../../../../model/tree/node';
-import SVGRectDropZone from '../../../../../drag-drop/SVGRectDropZone';
+import DropZone from '../../../../../drag-drop/DropZone';
 import MessageManager from './../../../../../visitors/message-manager';
 import './canvas-decorator.css';
 import { setCanvasOverlay } from './../../../../../configs/app-context';
@@ -72,7 +72,7 @@ class CanvasDecorator extends React.Component {
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
-                    <SVGRectDropZone
+                    <DropZone
                         x="0"
                         y="0"
                         width="100%"
