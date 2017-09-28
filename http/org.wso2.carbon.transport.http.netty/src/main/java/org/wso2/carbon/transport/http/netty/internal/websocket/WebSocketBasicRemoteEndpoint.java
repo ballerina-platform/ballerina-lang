@@ -101,13 +101,13 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void sendPing(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
-        ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData.array());
+        ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData);
         ctx.channel().writeAndFlush(new PingWebSocketFrame(applicationDataBuf));
     }
 
     @Override
     public void sendPong(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
-        ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData.array());
+        ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData);
         ctx.channel().writeAndFlush(new PongWebSocketFrame(applicationDataBuf));
     }
 }

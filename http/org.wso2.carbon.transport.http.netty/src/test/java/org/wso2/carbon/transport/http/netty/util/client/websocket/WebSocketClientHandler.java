@@ -42,7 +42,7 @@ import java.nio.ByteBuffer;
  */
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
@@ -50,10 +50,11 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
-    private boolean isOpen = false;
+    private boolean isOpen;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
+        this.isOpen = true;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -69,7 +70,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         handshaker.handshake(ctx.channel());
-        isOpen = true;
     }
 
     @Override
@@ -112,6 +112,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
             ch.close();
+            isOpen = false;
         }
     }
 
@@ -129,10 +130,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         return bufferReceived;
     }
 
+    /**
+     * Check whether the connection is still open or not.
+     *
+     * @return true if connection is still open.
+     */
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
-            logger.error("Handshake failed : " + cause.getMessage(), cause);
             handshakeFuture.setFailure(cause);
         }
         ctx.close();
@@ -143,7 +152,5 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         ctx.channel().closeFuture().sync();
     }
 
-    public boolean isOpen() {
-        return isOpen;
-    }
+
 }

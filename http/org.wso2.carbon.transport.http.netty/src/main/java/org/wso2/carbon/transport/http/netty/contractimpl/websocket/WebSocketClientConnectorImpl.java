@@ -19,16 +19,15 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
 
 import java.net.URISyntaxException;
 import java.util.Map;
 import javax.net.ssl.SSLException;
-import javax.websocket.Session;
 
 /**
  * Implementation of WebSocket client connector.
@@ -36,34 +35,29 @@ import javax.websocket.Session;
 public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
 
     private final String remoteUrl;
-    private final String subProtocol;
+    private final String subProtocols;
     private final String target;
-    private final WebSocketSourceHandler sourceHandler;
-    private final boolean allowExtensions;
+    private final int idleTimeout;
+    private final Map<String, String> customHeaders;
 
-    public WebSocketClientConnectorImpl(String remoteUrl, String target, String subProtocol, boolean allowExtensions,
-                                        WebSocketSourceHandler sourceHandler) {
-        this.remoteUrl = remoteUrl;
-        this.target = target;
-        this.subProtocol = subProtocol;
-        this.sourceHandler = sourceHandler;
-        this.allowExtensions = allowExtensions;
+    public WebSocketClientConnectorImpl(WsClientConnectorConfig clientConnectorConfig) {
+        this.remoteUrl = clientConnectorConfig.getRemoteAddress();
+        this.target = clientConnectorConfig.getTarget();
+        this.subProtocols = clientConnectorConfig.getSubProtocolsAsCSV();
+        this.customHeaders = clientConnectorConfig.getHeaders();
+        this.idleTimeout = clientConnectorConfig.getIdleTimeoutInMillis();
     }
 
     @Override
-    public Session connect(WebSocketConnectorListener connectorListener, Map<String, String> customHeaders)
-            throws ClientConnectorException {
-
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocol, allowExtensions,
-                                                              customHeaders, sourceHandler, connectorListener);
+    public HandshakeFuture connect(WebSocketConnectorListener connectorListener) {
+        HandshakeFuture handshakeFuture = new HandshakeFutureImpl();
+        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, idleTimeout,
+                                                              customHeaders, connectorListener);
         try {
-            return webSocketClient.handshake();
-        } catch (InterruptedException e) {
-            throw new ClientConnectorException("Handshake interrupted", e);
-        } catch (URISyntaxException e) {
-            throw new ClientConnectorException("SSL Exception occurred during handshake", e);
-        } catch (SSLException e) {
-            throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
+            webSocketClient.handshake(handshakeFuture);
+        } catch (InterruptedException | URISyntaxException | SSLException e) {
+            handshakeFuture.notifyError(e);
         }
+        return handshakeFuture;
     }
 }

@@ -29,8 +29,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.net.ProtocolException;
-
 /**
  * WebSocket connector listener to identify the properties of a message.
  */
@@ -48,20 +46,11 @@ public class WebSocketMessagePropertiesConnectorListener implements WebSocketCon
         String checkSubProtocol = initMessage.getHeader("check-sub-protocol");
         Assert.assertEquals(initMessage.getHeader("message-type"), "websocket");
         Assert.assertEquals(initMessage.getHeader("message-sender"), "wso2");
-        try {
-            if ("true".equals(checkSubProtocol)) {
-                if (initMessage.getSubProtocol().equals("xml")) {
-                    initMessage.handshake();
-                } else {
-                    initMessage.cancelHandShake(1003, "Cannot accept the handshake since the " +
-                            "Sub-Protocol is not valid.");
-                }
-            } else {
-                initMessage.handshake();
-            }
-        } catch (ProtocolException e) {
-            logger.error("Protocol error occurred during handshake", e);
+        if ("true".equals(checkSubProtocol)) {
+            String[] subProtocols = {"xml"};
+            initMessage.handshake(subProtocols, true);
         }
+
     }
 
     @Override
@@ -93,6 +82,11 @@ public class WebSocketMessagePropertiesConnectorListener implements WebSocketCon
 
     @Override
     public void onError(Throwable throwable) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         // Do nothing.
     }
 }

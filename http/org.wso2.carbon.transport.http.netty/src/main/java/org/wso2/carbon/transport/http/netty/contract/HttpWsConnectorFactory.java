@@ -22,6 +22,7 @@ package org.wso2.carbon.transport.http.netty.contract;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 
 import java.util.Map;
@@ -53,8 +54,8 @@ public interface HttpWsConnectorFactory {
     /**
      * This method is used to get WebSocket client connector.
      *
-     * @param senderProperties Properties to create a client connector.
+     * @param clientConnectorConfig Properties to create a client connector.
      * @return WebSocketClientConnector.
      */
-    WebSocketClientConnector createWsClientConnector(Map<String, Object> senderProperties);
+    WebSocketClientConnector createWsClientConnector(WsClientConnectorConfig clientConnectorConfig);
 }

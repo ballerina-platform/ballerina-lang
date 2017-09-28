@@ -102,12 +102,11 @@ public class Util {
 
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        Headers headers = msg.getHeaders();
         if (connectionCloseAfterResponse) {
-            headers.set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+            msg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         }
 
-        Util.setHeaders(outgoingResponse, headers);
+        outgoingResponse.headers().setAll(msg.getHeaders());
 
         return outgoingResponse;
     }
@@ -131,15 +130,15 @@ public class Util {
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) msg.getProperty(Constants.TO), false);
-        Headers headers = msg.getHeaders();
-        Util.setHeaders(outgoingRequest, headers);
+        HttpHeaders headers = msg.getHeaders();
+        outgoingRequest.headers().setAll(headers);
         return outgoingRequest;
     }
 
     /**
      * Prepare request message with Transfer-Encoding/Content-Length
      *
-     * @param cMsg CarbonMessage
+     * @param cMsg HTTPCarbonMessage
      */
     public static void setupTransferEncodingForRequest(HTTPCarbonMessage cMsg) {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
@@ -198,8 +197,12 @@ public class Util {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
         } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
-            int contentLength = cMsg.getFullMessageLength();
-            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            if (!cMsg.isEmpty()) {
+                int contentLength = cMsg.getFullMessageLength();
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            } else {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(0));
+            }
         }
 
     }

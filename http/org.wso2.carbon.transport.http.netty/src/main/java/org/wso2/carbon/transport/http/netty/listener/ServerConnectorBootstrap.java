@@ -22,17 +22,17 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.HandlerExecutor;
 
 import java.net.InetSocketAddress;
 
@@ -137,14 +137,16 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setIdleTimeout(socketIdleTimeout);
     }
 
-    public void addThreadPools(int parentSize, int childSize) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(parentSize);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(childSize);
+    public void addThreadPools(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
 
     public void addHttpTraceLogHandler(Boolean isHttpTraceLogEnabled) {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
+    }
+
+    public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfiguration requestSizeValidationConfig) {
+        httpServerChannelInitializer.setRequestSizeValidationConfig(requestSizeValidationConfig);
     }
 
     class HTTPServerConnector implements ServerConnector {
