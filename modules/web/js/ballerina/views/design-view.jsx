@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import HTML5Backend from 'react-dnd-html5-backend';
-import { DragDropContextProvider } from 'react-dnd';
+import { DragDropContext } from 'react-dnd';
 import DragLayer from './../drag-drop/drag-layer';
 import BallerinaDiagram from './../diagram2/diagram';
 import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
@@ -124,87 +124,85 @@ class DesignView extends React.Component {
         const { isTransformActive, activeTransformModel } = this.state;
 
         return (
-            <DragDropContextProvider backend={HTML5Backend}>
-                <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
-                    <div className="outerCanvasDiv">
-                        <DragLayer />
-                        <div className="canvas-container">
-                            <div className="canvas-top-controls-container" />
-                            <div className="html-overlay" ref={this.setOverlayContainer} />
-                            <div className="diagram root" ref={this.setDiagramContainer} >
-                                <BallerinaDiagram
-                                    model={this.props.model}
-                                    mode={this.state.mode}
-                                />
-                            </div>
-                        </div>
-                        {isTransformActive &&
-                            <TransformExpanded
-                                model={activeTransformModel}
+            <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
+                <div className="outerCanvasDiv">
+                    <DragLayer />
+                    <div className="canvas-container">
+                        <div className="canvas-top-controls-container" />
+                        <div className="html-overlay" ref={this.setOverlayContainer} />
+                        <div className="diagram root" ref={this.setDiagramContainer} >
+                            <BallerinaDiagram
+                                model={this.props.model}
+                                mode={this.state.mode}
                             />
-                        }
+                        </div>
                     </div>
-                    <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
-                        <ToolPaletteView
-                            getContainer={this.getToolPaletteContainer}
-                            isTransformActive={isTransformActive}
-                            mode={this.state.mode}
+                    {isTransformActive &&
+                        <TransformExpanded
+                            model={activeTransformModel}
                         />
+                    }
+                </div>
+                <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
+                    <ToolPaletteView
+                        getContainer={this.getToolPaletteContainer}
+                        isTransformActive={isTransformActive}
+                        mode={this.state.mode}
+                    />
+                </div>
+                { /* TODOX REMOVE <div className="top-right-controls-container">
+                    <div className={`top-right-controls-container-editor-pane
+                            main-action-wrapper import-packages-pane`}
+                    >
+                        <div className="action-content-wrapper">
+                            <div className="action-content-wrapper-heading import-wrapper-heading">
+                                <span>Import :</span>
+                                <input id="import-package-text" type="text" />
+                                <div className="action-icon-wrapper">
+                                    <span className="fw-stack fw-lg">
+                                        <i className="fw fw-square fw-stack-2x" />
+                                        <i className="fw fw-add fw-stack-1x fw-inverse" />
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="action-content-wrapper-body">
+                                <div className="imports-wrapper">
+                                    <span className="font-bold">Current Imports </span>
+                                    <hr />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    { /* TODOX REMOVE <div className="top-right-controls-container">
-                        <div className={`top-right-controls-container-editor-pane
-                                main-action-wrapper import-packages-pane`}
+                </div> */}
+                <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
+                    <div className="view-source-btn btn-icon">
+                        <div className="bottom-label-icon-wrapper">
+                            <i className="fw fw-code-view fw-inverse" />
+                        </div>
+                        <div
+                            className="bottom-view-label"
+                            onClick={() => {
+                                this.context.editor.setActiveView('SOURCE_VIEW');
+                            }}
                         >
-                            <div className="action-content-wrapper">
-                                <div className="action-content-wrapper-heading import-wrapper-heading">
-                                    <span>Import :</span>
-                                    <input id="import-package-text" type="text" />
-                                    <div className="action-icon-wrapper">
-                                        <span className="fw-stack fw-lg">
-                                            <i className="fw fw-square fw-stack-2x" />
-                                            <i className="fw fw-add fw-stack-1x fw-inverse" />
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="action-content-wrapper-body">
-                                    <div className="imports-wrapper">
-                                        <span className="font-bold">Current Imports </span>
-                                        <hr />
-                                    </div>
-                                </div>
-                            </div>
+                            Source View
                         </div>
-                    </div> */}
-                    <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
-                        <div className="view-source-btn btn-icon">
-                            <div className="bottom-label-icon-wrapper">
-                                <i className="fw fw-code-view fw-inverse" />
-                            </div>
-                            <div
-                                className="bottom-view-label"
-                                onClick={() => {
-                                    this.context.editor.setActiveView('SOURCE_VIEW');
-                                }}
-                            >
-                                Source View
-                            </div>
+                    </div>
+                    <div className="view-split-view-btn btn-icon">
+                        <div className="bottom-label-icon-wrapper">
+                            <i className="fw fw-code fw-inverse" />
                         </div>
-                        <div className="view-split-view-btn btn-icon">
-                            <div className="bottom-label-icon-wrapper">
-                                <i className="fw fw-code fw-inverse" />
-                            </div>
-                            <div
-                                className="bottom-view-label"
-                                onClick={() => {
-                                    this.props.commandProxy.dispatch('show-split-view', true);
-                                }}
-                            >
-                                Split View
-                            </div>
+                        <div
+                            className="bottom-view-label"
+                            onClick={() => {
+                                this.props.commandProxy.dispatch('show-split-view', true);
+                            }}
+                        >
+                            Split View
                         </div>
                     </div>
                 </div>
-            </DragDropContextProvider>
+            </div>
         );
     }
 }
@@ -230,4 +228,4 @@ DesignView.childContextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default DesignView;
+export default DragDropContext(HTML5Backend)(DesignView);
