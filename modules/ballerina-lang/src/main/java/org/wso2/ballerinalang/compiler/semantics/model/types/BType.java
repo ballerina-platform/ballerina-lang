@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -90,12 +89,6 @@ public class BType implements ValueType {
     }
 
     protected String getQualifiedTypeName() {
-        String typeName;
-        if (tsymbol.pkgID == PackageID.DEFAULT) {
-            typeName = tsymbol.name.value;
-        } else {
-            typeName = tsymbol.pkgID.name + ":" + tsymbol.name;
-        }
-        return typeName;
+        return tsymbol.pkgID.name + ":" + tsymbol.name;
     }
 }
