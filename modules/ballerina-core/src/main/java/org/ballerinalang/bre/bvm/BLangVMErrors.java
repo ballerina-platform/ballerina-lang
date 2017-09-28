@@ -370,7 +370,7 @@ public class BLangVMErrors {
             BStruct item = (BStruct) stackFrame.get(i);
 
             // Append function/action/resource name with package path (if any)
-            if (item.getStringField(1).isEmpty()) {
+            if (item.getStringField(1).isEmpty() || item.getStringField(1).equals(BUILTIN_PACKAGE)) {
                 sb.append(item.getStringField(0));
             } else {
                 sb.append(item.getStringField(1)).append(":").append(item.getStringField(0));
@@ -397,7 +397,8 @@ public class BLangVMErrors {
 
     public static String getErrorMessage(BStruct error) {
         String errorMsg = error.getType().getName();
-        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(".")) {
+        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(".")
+                && !error.getType().getPackagePath().equals(BUILTIN_PACKAGE)) {
             errorMsg = error.getType().getPackagePath() + ":" + errorMsg;
         }
 
