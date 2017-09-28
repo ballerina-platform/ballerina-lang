@@ -19,7 +19,6 @@
 import _ from 'lodash';
 
 export function processFrames(message) {
-    return message;
     message.frames = _.uniqWith(message.frames, (obj, other) => {
         if (_.isEqual(obj.frameName, other.frameName) && _.isEqual(obj.packageName, other.packageName)) {
             return true;
