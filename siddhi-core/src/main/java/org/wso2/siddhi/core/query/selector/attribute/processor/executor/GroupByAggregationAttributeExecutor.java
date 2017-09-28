@@ -22,9 +22,13 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Executor class for aggregations with group by configuration.
@@ -33,7 +37,10 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private final ConfigReader configReader;
+    private final TimestampGenerator timestampGenerator;
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
+    protected Set<String> obsoleteAggregatorKeys = new HashSet<>();
+    protected long lastCleanupTimestamp = 0;
 
     public GroupByAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                                ExpressionExecutor[] attributeExpressionExecutors,
@@ -41,31 +48,61 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
                                                String queryName) {
         super(attributeAggregator, attributeExpressionExecutors, siddhiAppContext, queryName);
         this.configReader = configReader;
+        timestampGenerator = siddhiAppContext.getTimestampGenerator();
+        lastCleanupTimestamp = timestampGenerator.currentTime();
+    }
+
+    public static ThreadLocal<String> getKeyThreadLocal() {
+        return keyThreadLocal;
     }
 
     @Override
     public Object execute(ComplexEvent event) {
+
+        long currentTime = timestampGenerator.currentTime();
+        boolean canClean = false;
+        if (lastCleanupTimestamp + 5000 < currentTime || obsoleteAggregatorKeys.size() > 25) {
+            lastCleanupTimestamp = currentTime;
+            canClean = true;
+        }
+
         if (event.getType() == ComplexEvent.Type.RESET) {
             Object aOutput = null;
-            for (AttributeAggregator attributeAggregator : aggregatorMap.values()) {
-                aOutput = attributeAggregator.process(event);
+            if (canClean) {
+                Iterator<AttributeAggregator> iterator = aggregatorMap.values().iterator();
+                if (iterator.hasNext()) {
+                    aOutput = iterator.next().process(event);
+                }
+                aggregatorMap.clear();
+                obsoleteAggregatorKeys.clear();
+            } else {
+                for (Map.Entry<String, AttributeAggregator> attributeAggregatorEntry : aggregatorMap.entrySet()) {
+                    aOutput = attributeAggregatorEntry.getValue().process(event);
+                }
             }
             return aOutput;
         }
+
         String key = keyThreadLocal.get();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
         }
-        return currentAttributeAggregator.process(event);
+        Object results = currentAttributeAggregator.process(event);
+        if (event.getType() == ComplexEvent.Type.EXPIRED && currentAttributeAggregator.canDestroy()) {
+            obsoleteAggregatorKeys.add(key);
+        }
+        if (canClean) {
+            destroyObsoleteAggregators();
+        }
+        return results;
     }
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                                                       attributeExpressionExecutors, configReader, siddhiAppContext,
-                                                       queryName);
+                attributeExpressionExecutors, configReader, siddhiAppContext,
+                queryName);
     }
 
     @Override
@@ -86,13 +123,18 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
             String key = entry.getKey();
             AttributeAggregator aAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            aAttributeAggregator.start();
             aAttributeAggregator.restoreState(entry.getValue());
             aggregatorMap.put(key, aAttributeAggregator);
         }
     }
 
-    public static ThreadLocal<String> getKeyThreadLocal() {
-        return keyThreadLocal;
+    private void destroyObsoleteAggregators() {
+        for (String obsoleteKey : obsoleteAggregatorKeys) {
+            AttributeAggregator attributeAggregator = aggregatorMap.get(obsoleteKey);
+            if (attributeAggregator != null && attributeAggregator.canDestroy()) {
+                aggregatorMap.remove(obsoleteKey);
+            }
+        }
+        obsoleteAggregatorKeys.clear();
     }
 }

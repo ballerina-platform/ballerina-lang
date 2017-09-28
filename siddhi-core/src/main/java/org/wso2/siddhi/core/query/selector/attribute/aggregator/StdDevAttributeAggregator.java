@@ -63,8 +63,8 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
      * The initialization method for FunctionExecutor
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link StdDevAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     * @param configReader                 this hold the {@link StdDevAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -121,6 +121,11 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return stdDevOutputAttributeAggregator.canDestroy();
+    }
+
+    @Override
     public Object reset() {
         return stdDevOutputAttributeAggregator.reset();
     }
@@ -128,14 +133,6 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     @Override
     public Map<String, Object> currentState() {
         return stdDevOutputAttributeAggregator.currentState();
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
     }
 
     @Override
@@ -148,7 +145,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
      */
     private abstract class StdDevAbstractAttributeAggregatorDouble extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private double mean, oldMean, stdDeviation, sum;
+        private double mean, stdDeviation, sum;
         private int count = 0;
 
         @Override
@@ -162,11 +159,11 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
             if (count == 0) {
                 return null;
             } else if (count == 1) {
-                sum = mean = oldMean = value;
+                sum = mean = value;
                 stdDeviation = 0.0;
                 return 0.0;
             } else {
-                oldMean = mean;
+                double oldMean = mean;
                 sum += value;
                 mean = sum / count;
                 stdDeviation += (value - oldMean) * (value - mean);
@@ -181,7 +178,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
                 stdDeviation = 0.0;
                 return null;
             } else {
-                oldMean = mean;
+                double oldMean = mean;
                 sum -= value;
                 mean = sum / count;
                 stdDeviation -= (value - oldMean) * (value - mean);
@@ -195,10 +192,15 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object reset() {
-            sum = mean = oldMean = 0.0;
+            sum = mean = 0.0;
             stdDeviation = 0.0;
             count = 0;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return count == 0 && sum == 0.0 && mean == 0.0 && stdDeviation == 0.0;
         }
 
         @Override
@@ -206,7 +208,6 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
             Map<String, Object> state = new HashMap<>();
             state.put("Sum", sum);
             state.put("Mean", mean);
-            state.put("OldMean", oldMean);
             state.put("stdDeviation", stdDeviation);
             state.put("Count", count);
             return state;
@@ -216,7 +217,6 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
         public void restoreState(Map<String, Object> state) {
             sum = (Long) state.get("Sum");
             mean = (Long) state.get("Mean");
-            oldMean = (Long) state.get("OldMean");
             stdDeviation = (Long) state.get("stdDeviation");
             count = (int) state.get("Count");
         }

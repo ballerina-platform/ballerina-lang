@@ -138,16 +138,6 @@ public class MinimumFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    @Override
     public Attribute.Type getReturnType() {
         return returnType;
     }

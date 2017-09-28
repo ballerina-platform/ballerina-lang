@@ -64,9 +64,10 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link MaxAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader                 this hold the {@link MaxAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -121,18 +122,13 @@ public class MaxAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return maxOutputAttributeAggregator.canDestroy();
+    }
+
+    @Override
     public Object reset() {
         return maxOutputAttributeAggregator.reset();
-    }
-
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //nothing to stop
     }
 
     @Override
@@ -184,6 +180,11 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxDeque.clear();
             maxValue = null;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return maxDeque.size() == 0 && maxValue == null;
         }
 
         @Override
@@ -242,6 +243,11 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxDeque.clear();
             maxValue = null;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return maxDeque.size() == 0 && maxValue == null;
         }
 
         @Override
@@ -304,6 +310,11 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
+        public boolean canDestroy() {
+            return maxDeque.size() == 0 && maxValue == null;
+        }
+
+        @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
             synchronized (this) {
@@ -360,6 +371,11 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxDeque.clear();
             maxValue = null;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return maxDeque.size() == 0 && maxValue == null;
         }
 
         @Override

@@ -237,16 +237,6 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //nothing to stop
-    }
-
-    @Override
     public Map<String, Object> currentState() {
         //No states
         return null;

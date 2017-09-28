@@ -25,14 +25,13 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.ExceptionUtil;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
 /**
  * Parent abstract class for Function Executors. Function executor will have one or more input parameters and single
  * return value.
  */
-public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder, Snapshotable {
+public abstract class FunctionExecutor implements ExpressionExecutor, Snapshotable {
 
     private static final Logger log = Logger.getLogger(FunctionExecutor.class);
     protected ExpressionExecutor[] attributeExpressionExecutors;
@@ -51,7 +50,6 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
             this.attributeExpressionExecutors = attributeExpressionExecutors;
             attributeSize = attributeExpressionExecutors.length;
             this.queryName = queryName;
-            siddhiAppContext.addEternalReferencedHolder(this);
             if (elementId == null) {
                 elementId = "FunctionExecutor-" + siddhiAppContext.getElementIdGenerator().createNewId();
             }
@@ -73,7 +71,6 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
             functionExecutor.elementId = elementId + "-" + key;
             functionExecutor.functionId = functionId;
             functionExecutor.initExecutor(innerExpressionExecutors, siddhiAppContext, queryName, configReader);
-            functionExecutor.start();
             return functionExecutor;
         } catch (Exception e) {
             throw new SiddhiAppRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);

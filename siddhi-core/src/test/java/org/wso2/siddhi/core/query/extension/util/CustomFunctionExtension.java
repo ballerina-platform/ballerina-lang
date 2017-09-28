@@ -124,16 +124,6 @@ public class CustomFunctionExtension extends FunctionExecutor {
     }
 
     @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //Nothing to stop
-    }
-
-    @Override
     public Map<String, Object> currentState() {
         //No state
         return null;

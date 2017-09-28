@@ -60,8 +60,8 @@ public class StringConcatAggregatorString extends AttributeAggregator {
      * The initialization method for FunctionExecutor
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link StringConcatAggregatorString} configuration reader.
-     * @param siddhiAppContext         SiddhiContext
+     * @param configReader                 this hold the {@link StringConcatAggregatorString} configuration reader.
+     * @param siddhiAppContext             SiddhiContext
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -122,20 +122,14 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return aggregatedStringValue != null && aggregatedStringValue.equals("");
+    }
+
+    @Override
     public Object reset() {
         aggregatedStringValue = "";
         return aggregatedStringValue;
-    }
-
-
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

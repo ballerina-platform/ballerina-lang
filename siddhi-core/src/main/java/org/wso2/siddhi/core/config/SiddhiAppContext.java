@@ -65,7 +65,7 @@ public class SiddhiAppContext {
     private String siddhiAppString;
 
     public SiddhiAppContext() {
-        this.eternalReferencedHolders = new LinkedList<>();
+        this.eternalReferencedHolders = Collections.synchronizedList(new LinkedList<>());
         this.scriptFunctionMap = new HashMap<String, Script>();
     }
 

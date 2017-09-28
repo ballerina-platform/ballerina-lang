@@ -41,8 +41,8 @@ import java.util.Map;
         description = "Returns the sum for all the events.",
         parameters = {
                 @Parameter(name = "arg",
-                           description = "The value that needs to be summed.",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                        description = "The value that needs to be summed.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns long if the input parameter type is int or long, and returns double if the " +
@@ -66,16 +66,16 @@ public class SumAttributeAggregator extends AttributeAggregator {
      * The initialization method for FunctionExecutor
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link SumAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     * @param configReader                 this hold the {@link SumAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Sum aggregator has to have exactly 1 parameter, currently " +
-                                                             attributeExpressionExecutors.length
-                                                             + " parameters provided");
+                    attributeExpressionExecutors.length
+                    + " parameters provided");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
         switch (type) {
@@ -124,18 +124,13 @@ public class SumAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return sumOutputAttributeAggregator.canDestroy();
+    }
+
+    @Override
     public Object reset() {
         return sumOutputAttributeAggregator.reset();
-    }
-
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //Nothing to stop
     }
 
     @Override
@@ -189,6 +184,11 @@ public class SumAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             sum = 0.0;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return count == 0 && sum == 0.0;
         }
 
         @Override
@@ -263,6 +263,12 @@ public class SumAttributeAggregator extends AttributeAggregator {
             sum = 0L;
             return sum;
         }
+
+        @Override
+        public boolean canDestroy() {
+            return count == 0 && sum == 0L;
+        }
+
 
         @Override
         public Map<String, Object> currentState() {
