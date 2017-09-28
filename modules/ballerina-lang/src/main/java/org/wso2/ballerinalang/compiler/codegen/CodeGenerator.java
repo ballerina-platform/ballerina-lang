@@ -21,7 +21,6 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -751,20 +750,14 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr.opKind == OperatorKind.AND) {
-            visitAndExpression(binaryExpr);
-        } else if (binaryExpr.opKind == OperatorKind.OR) {
-            visitOrExpression(binaryExpr);
-        } else {
-            genNode(binaryExpr.lhsExpr, this.env);
-            genNode(binaryExpr.rhsExpr, this.env);
+        genNode(binaryExpr.lhsExpr, this.env);
+        genNode(binaryExpr.rhsExpr, this.env);
 
-            int opcode = binaryExpr.opSymbol.opcode;
-            int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
+        int opcode = binaryExpr.opSymbol.opcode;
+        int exprIndex = getNextIndex(binaryExpr.type.tag, regIndexes);
 
-            binaryExpr.regIndex = exprIndex;
-            emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
-        }
+        binaryExpr.regIndex = exprIndex;
+        emit(opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, exprIndex);
     }
 
     private void visitAndExpression(BLangBinaryExpr binaryExpr) {
