@@ -21,7 +21,7 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import DebugManager from './../../debugger/debug-manager';
+import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';

@@ -15,36 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
-import './toolbar.css';
-
-/**
- * Tool Component which render a tool in toolbar.
- *
- * @class Tool
- * @extends {React.Component}
- */
-class ToolSetView extends React.Component {
-
-    /**
-     * Render tool view.
-     *
-     * @returns {ReactElement} render tool view.
-     *
-     * @memberof Tool
-     */
-    render() {
-        return (
-            <div
-                id={this.props.id}
-                className='section-separator'
-                style={{ display: this.props.state }}
-            >
-                {this.props.children}
-            </div>
-
-        );
-    }
-}
-
-export default ToolSetView;
+export const ITEM_TYPES = {
+    NODE: 'node',
+};

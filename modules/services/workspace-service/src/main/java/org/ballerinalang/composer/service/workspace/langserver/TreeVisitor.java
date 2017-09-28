@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -217,6 +218,15 @@ public class TreeVisitor extends BLangNodeVisitor {
 
             this.blockOwnerStack.push(whileNode);
             this.acceptNode(whileNode.body, symbolEnv);
+            this.blockOwnerStack.pop();
+        }
+    }
+
+    public void visit(BLangTransform transformNode) {
+        if (!isCursorBeforeStatement(transformNode.getPosition(), transformNode)) {
+
+            this.blockOwnerStack.push(transformNode);
+            this.acceptNode(transformNode.body, symbolEnv);
             this.blockOwnerStack.pop();
         }
     }
@@ -442,7 +452,7 @@ public class TreeVisitor extends BLangNodeVisitor {
         boolean isLastStatement = (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
 
         if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) ||
-                (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col < blockOwnerECol)) &&
+                (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                         (line > nodeELine || (line == nodeELine && col > nodeECol)))) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
             System.out.println(Collections.singletonList(visibleSymbolEntries));
