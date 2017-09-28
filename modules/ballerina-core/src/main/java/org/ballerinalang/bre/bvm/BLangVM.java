@@ -2504,6 +2504,10 @@ public class BLangVM {
         BConnector bConnector = new BConnector(connectorInfo.getType());
 //        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
+        if (connectorInfo.getInitAction() != null) {
+            FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(new int[] {0}, new int[0]);
+            invokeNativeAction(connectorInfo.getInitAction(), funcCallCPEntry);
+        }
     }
 
     private void createNewStruct(int[] operands, StackFrame sf) {

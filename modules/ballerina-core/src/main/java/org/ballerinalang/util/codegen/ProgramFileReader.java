@@ -477,6 +477,8 @@ public class ProgramFileReader {
                 readAttributeInfoEntries(dataInStream, packageInfo, actionInfo);
             }
 
+            loadNativeInitActionIfAny(connectorInfo);
+
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
@@ -493,6 +495,43 @@ public class ProgramFileReader {
                 break;
             }
         }
+    }
+
+    private void loadNativeInitActionIfAny(ConnectorInfo connectorInfo) {
+        ActionInfo actionInfo = new ActionInfo(-1, connectorInfo.getPackagePath(),
+                -1, "<init>", connectorInfo);
+        actionInfo.setPackageInfo(connectorInfo.getPackageInfo());
+        AbstractNativeAction nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
+                actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
+        if (nativeActionObj == null) {
+            return;
+        }
+        WorkerInfo defaultWorkerInfo = new WorkerInfo(-1, "default");
+        CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
+        codeAttributeInfo.setAttributeNameIndex(-1);
+        codeAttributeInfo.setCodeAddrs(-1);
+
+        codeAttributeInfo.setMaxLongLocalVars(0);
+        codeAttributeInfo.setMaxDoubleLocalVars(0);
+        codeAttributeInfo.setMaxStringLocalVars(0);
+        codeAttributeInfo.setMaxIntLocalVars(0);
+        codeAttributeInfo.setMaxByteLocalVars(0);
+        codeAttributeInfo.setMaxRefLocalVars(1); //Only connector object will be copied to the stack
+
+        codeAttributeInfo.setMaxLongRegs(0);
+        codeAttributeInfo.setMaxDoubleRegs(0);
+        codeAttributeInfo.setMaxStringRegs(0);
+        codeAttributeInfo.setMaxIntRegs(0);
+        codeAttributeInfo.setMaxByteRegs(0);
+        codeAttributeInfo.setMaxRefRegs(0);
+        defaultWorkerInfo.setCodeAttributeInfo(codeAttributeInfo);
+
+        BType type = new BConnectorType(connectorInfo.name, connectorInfo.packagePath);
+        actionInfo.paramTypes = new BType[] {type};
+        actionInfo.setRetParamTypes(new BType[0]);
+        actionInfo.setDefaultWorkerInfo(defaultWorkerInfo);
+        actionInfo.setNativeAction(nativeActionObj);
+        connectorInfo.setInitAction(actionInfo);
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
