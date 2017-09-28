@@ -20,6 +20,7 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +117,8 @@ public class BLangFragmentParser {
 
     protected static JsonElement getJsonModel(String source) throws IOException {
         String fileName = "untitled";
-        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source).getBLangPackage();
+        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.TYPE_CHECK)
+                .getBLangPackage();
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
 

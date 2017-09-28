@@ -26,6 +26,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
@@ -166,8 +167,10 @@ public class BLangFileRestService {
 
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
-            model = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getBLangPackage();
-            diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getDiagnostics();
+            model = WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE)
+                    .getBLangPackage();
+            diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE)
+                    .getDiagnostics();
 
         }else{
             model = WorkspaceUtils.getBallerinaFile(filePath, fileName).getBLangPackage();
@@ -317,7 +320,8 @@ public class BLangFileRestService {
     private JsonObject validate(BFile bFile){
         String fileName = "untitled";
         String content = bFile.getContent();
-        List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content).getDiagnostics();
+        List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
+                CompilerPhase.CODE_ANALYZE).getDiagnostics();
 
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
