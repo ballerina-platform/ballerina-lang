@@ -37,7 +37,7 @@ public class UnaryExprTest {
         resultNegative = BTestUtils.compile("test-src/expressions/unaryoperations/unary-operation-negative.bal");
     }
 
-    //@Test(description = "Test unary negative expression")
+    @Test(description = "Test unary negative expression")
     public void integerUnaryExprTest() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "negativeIntTest", args);
@@ -53,7 +53,7 @@ public class UnaryExprTest {
         Assert.assertEquals(y.intValue(), 5, "Invalid value returned.");
     }
 
-    //@Test(description = "Test int positive unary expression")
+    @Test(description = "Test int positive unary expression")
     public void positiveIntegerUnaryExprTest() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "positiveIntTest", args);
@@ -69,7 +69,7 @@ public class UnaryExprTest {
         Assert.assertEquals(y.intValue(), +5, "Invalid value returned.");
     }
 
-    //@Test(description = "Test float unary negative expression")
+    @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "negativeFloatTest", args);
@@ -85,7 +85,7 @@ public class UnaryExprTest {
         Assert.assertEquals(y.floatValue(), 5.0D, "Invalid value returned.");
     }
 
-    //@Test(description = "Test float positive unary expression")
+    @Test(description = "Test float positive unary expression")
     public void positiveFloatUnaryExprTest() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "positiveFloatTest", args);
@@ -101,7 +101,7 @@ public class UnaryExprTest {
         Assert.assertEquals(y.floatValue(), +5D, "Invalid value returned.");
     }
 
-    //@Test(description = "Test unary boolean not expression")
+    @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "booleanNotTest", args);
@@ -121,7 +121,7 @@ public class UnaryExprTest {
         Assert.assertEquals(z.booleanValue(), true, "Invalid value returned.");
     }
 
-    //@Test(description = "Test unary boolean not expression in if else")
+    @Test(description = "Test unary boolean not expression in if else")
     public void unaryExprInIfConditionTest() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "unaryExprInIfConditionTest", args);
@@ -133,7 +133,7 @@ public class UnaryExprTest {
         Assert.assertEquals(x.booleanValue(), true, "Invalid value returned.");
     }
 
-    //@Test(description = "Test unary negation expression")
+    @Test(description = "Test unary negation expression")
     public void unaryNegationTest() {
         long a = 3;
         long b = 2;
@@ -153,7 +153,7 @@ public class UnaryExprTest {
 
     }
 
-    //@Test(description = "Test unary positive negation expression")
+    @Test(description = "Test unary positive negation expression")
     public void unaryPositiveNegationTest() {
         long a = 3;
 

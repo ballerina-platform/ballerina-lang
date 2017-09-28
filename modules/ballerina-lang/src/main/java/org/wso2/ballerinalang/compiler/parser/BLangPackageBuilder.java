@@ -384,16 +384,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    public void addConnectorVarDeclaration(DiagnosticPos pos, String identifier, boolean exprAvailable) {
-        addVariableDefStatement(pos, identifier, exprAvailable);
-    }
-
     public void addConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {
         BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
@@ -407,7 +404,8 @@ public class BLangPackageBuilder {
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         this.connectorInitNodeStack.push(connectorInitNode);
     }
@@ -536,7 +534,7 @@ public class BLangPackageBuilder {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.packageIdentifier = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         varRef.variableName = (BLangIdentifier) nameReference.name;
         this.exprNodeStack.push(varRef);
     }
@@ -1354,11 +1352,9 @@ public class BLangPackageBuilder {
                                                            String endingText, NodeKind targetStrExprKind) {
         List<BLangExpression> expressions = new ArrayList<BLangExpression>();
 
-        if (endingText != null && !endingText.isEmpty()) {
-            endingText = StringEscapeUtils.unescapeJava(endingText);
-            addLiteralValue(pos, TypeTags.STRING, endingText);
-            expressions.add((BLangExpression) exprNodeStack.pop());
-        }
+        endingText = endingText == null ? "" : StringEscapeUtils.unescapeJava(endingText);
+        addLiteralValue(pos, TypeTags.STRING, endingText);
+        expressions.add((BLangExpression) exprNodeStack.pop());
 
         while (!precedingTextFragments.isEmpty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());
