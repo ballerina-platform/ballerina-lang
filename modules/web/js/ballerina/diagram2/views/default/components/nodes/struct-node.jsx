@@ -96,8 +96,8 @@ class StructNode extends React.Component {
         }
         parseContent(statement)
             .then((jsonTree) => {
-                if (jsonTree.topLevelNodes[0]) {
-                    this.props.model.addFields(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                if (jsonTree.model.topLevelNodes[0]) {
+                    this.props.model.addFields(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
                 }
             })
             .catch(log.error);
