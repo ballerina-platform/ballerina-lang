@@ -78,6 +78,7 @@ class CanvasDecorator extends React.Component {
                         width="100%"
                         height="100%"
                         className={dropZoneClassName}
+                        baseComponent="rect"
                         dropTarget={this.props.dropTarget}
                     />
                     {this.props.children}
