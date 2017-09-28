@@ -18,6 +18,11 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
@@ -620,5 +625,17 @@ public class HttpUtil {
             listenerConfigurationSet.add(listenerConfiguration);
         }
         return listenerConfigurationSet;
+    }
+
+    private HTTPCarbonMessage getHttpCarbonMessage(boolean isRequest) {
+        HTTPCarbonMessage httpCarbonMessage;
+        if (isRequest) {
+            httpCarbonMessage = new HTTPCarbonMessage(
+                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+        } else {
+            httpCarbonMessage = new HTTPCarbonMessage(
+                    new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+        }
+        return httpCarbonMessage;
     }
 }
