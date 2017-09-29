@@ -141,7 +141,6 @@ public class HttpConnectionManager {
     /**
      * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
-     * @return the list of started server connectors.
      * @throws ServerConnectorException if exception occurs while starting at least one connector.
      */
     public void startPendingHTTPConnectors() throws ServerConnectorException {
@@ -154,7 +153,8 @@ public class HttpConnectionManager {
             ServerConnectorFuture connectorFuture = serverConnector.start();
             connectorFuture.setHttpConnectorListener(
                     new BallerinaHTTPConnectorListener(startupSyncer, serverConnector.getConnectorID()));
-            connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener());
+            connectorFuture.setWSConnectorListener(
+                    new BallerinaWsServerConnectorListener(startupSyncer, serverConnector.getConnectorID()));
             connectorFuture.setLifeCycleEventListener(new HttpConnectorLifeCycleListener(startupSyncer));
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }

@@ -26,7 +26,6 @@ import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.BindException;
