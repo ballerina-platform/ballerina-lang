@@ -77,7 +77,7 @@ public class HttpUtil {
     private static final String TRANSPORT_MESSAGE = "transport_message";
 
     public static BValue[] addHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                     AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = ((BStruct) abstractNativeFunction.getRefArgument(context, 0));
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -110,7 +110,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getBinaryPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BBlob result;
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
@@ -132,7 +132,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                     AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -148,7 +148,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getJsonPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                          AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BJSON result = null;
         try {
             // Accessing First Parameter Value.
@@ -178,7 +178,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getProperty(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                       AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -198,7 +198,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getStringPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BString result;
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
@@ -207,7 +207,7 @@ public class HttpUtil {
             if (httpCarbonMessage.isAlreadyRead()) {
                 result = new BString(httpCarbonMessage.getMessageDataSource().getMessageAsString());
             } else {
-                if (httpCarbonMessage.isEmpty()) {
+                if (httpCarbonMessage.isEmpty() && httpCarbonMessage.isEndOfMsgAdded()) {
                     return abstractNativeFunction.getBValues(new BString(""));
                 }
                 String payload = MessageUtils.getStringFromInputStream(new HttpMessageDataStreamer(httpCarbonMessage)
@@ -226,7 +226,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getXMLPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                         AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BXML result = null;
         try {
             // Accessing First Parameter Value.
@@ -287,7 +287,7 @@ public class HttpUtil {
     }
 
     public static BValue[] removeAllHeaders(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -296,7 +296,7 @@ public class HttpUtil {
     }
 
     public static BValue[] removeHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                        AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
 
@@ -310,7 +310,7 @@ public class HttpUtil {
     }
 
     public static BValue[] setHeader(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                     AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         String headerName = abstractNativeFunction.getStringArgument(context, 0);
         String headerValue = abstractNativeFunction.getStringArgument(context, 1);
@@ -326,7 +326,7 @@ public class HttpUtil {
     }
 
     public static BValue[] setJsonPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                          AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         BJSON payload = (BJSON) abstractNativeFunction.getRefArgument(context, 1);
 
@@ -340,7 +340,7 @@ public class HttpUtil {
     }
 
     public static BValue[] setProperty(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                       AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         String propertyName = abstractNativeFunction.getStringArgument(context, 0);
         String propertyValue = abstractNativeFunction.getStringArgument(context, 1);
@@ -354,7 +354,7 @@ public class HttpUtil {
     }
 
     public static BValue[] setStringPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(isRequest));
@@ -372,7 +372,7 @@ public class HttpUtil {
     }
 
     public static BValue[] setXMLPayload(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                         AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         BXML payload = (BXML) abstractNativeFunction.getRefArgument(context, 1);
 
@@ -384,7 +384,7 @@ public class HttpUtil {
     }
 
     public static BValue[] getContentLength(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         int contentLength = -1;
         BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
@@ -400,7 +400,7 @@ public class HttpUtil {
     }
 
     public static BValue[] setContentLength(Context context,
-            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
+                                            AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
         try {
             BStruct requestStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
@@ -519,6 +519,7 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
+        httpCarbonMessage.setEndOfMsgAdded(true);
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
