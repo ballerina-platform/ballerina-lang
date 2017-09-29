@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -143,6 +144,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        analyzeDef(pkgNode.initFunction, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
@@ -236,6 +239,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+            if (varRef instanceof  BLangSimpleVarRef && ((BLangVariableReference) varRef).symbol.flags == Flags.CONST
+                    && env.enclInvokable != env.enclPkg.initFunction) {
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+                expTypes.add(symTable.errType);
+                continue;
+            }
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }

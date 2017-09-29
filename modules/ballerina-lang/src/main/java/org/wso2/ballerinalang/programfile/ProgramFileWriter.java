@@ -303,15 +303,6 @@ public class ProgramFileWriter {
         // TODO write property flags  e.g. public
         dataOutStream.writeInt(connectorInfo.signatureCPIndex);
 
-//        Map<Integer, Integer> methodTable = connectorInfo.getMethodTableIndex();
-//        dataOutStream.writeInt(methodTable.size());
-//        for (Integer s : methodTable.keySet()) {
-//            dataOutStream.writeInt(s);
-//            dataOutStream.writeInt(methodTable.get(s));
-//        }
-//
-//        dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
-
         ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);
         for (ActionInfo actionInfo : actionInfoEntries) {

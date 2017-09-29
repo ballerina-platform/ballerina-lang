@@ -510,20 +510,7 @@ public class ProgramFileReader {
         CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
         codeAttributeInfo.setAttributeNameIndex(-1);
         codeAttributeInfo.setCodeAddrs(-1);
-
-        codeAttributeInfo.setMaxLongLocalVars(0);
-        codeAttributeInfo.setMaxDoubleLocalVars(0);
-        codeAttributeInfo.setMaxStringLocalVars(0);
-        codeAttributeInfo.setMaxIntLocalVars(0);
-        codeAttributeInfo.setMaxByteLocalVars(0);
         codeAttributeInfo.setMaxRefLocalVars(1); //Only connector object will be copied to the stack
-
-        codeAttributeInfo.setMaxLongRegs(0);
-        codeAttributeInfo.setMaxDoubleRegs(0);
-        codeAttributeInfo.setMaxStringRegs(0);
-        codeAttributeInfo.setMaxIntRegs(0);
-        codeAttributeInfo.setMaxByteRegs(0);
-        codeAttributeInfo.setMaxRefRegs(0);
         defaultWorkerInfo.setCodeAttributeInfo(codeAttributeInfo);
 
         BType type = new BConnectorType(connectorInfo.name, connectorInfo.packagePath);
