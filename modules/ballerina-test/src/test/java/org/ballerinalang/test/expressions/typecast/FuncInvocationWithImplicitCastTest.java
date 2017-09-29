@@ -15,14 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.test.expressions.typecast;
 
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,16 +33,17 @@ import org.testng.annotations.Test;
  */
 public class FuncInvocationWithImplicitCastTest {
 
-    private ProgramFile bLangProgram;
+    private CompileResult result;
+
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/expressions/func-invocation-with-implicit-cast.bal");
+        result = BTestUtils.compile("test-src/expressions/typecast/func-invocation-with-implicit-cast.bal");
     }
 
     @Test(description = "Test Function invocation with implicit cast")
     public void testFuncInvocationWithImplicitCast() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testImplicitCastInvocation");
+        BValue[] returns = BTestUtils.invoke(result, "testImplicitCastInvocation", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -55,7 +55,7 @@ public class FuncInvocationWithImplicitCastTest {
 
     @Test(description = "Test Function invocation with implicit cast, multiple params")
     public void testFunctionInvocationWithImplicitCastMultiParam() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testImplicitCastInvocationWithMultipleParams");
+        BValue[] returns = BTestUtils.invoke(result, "testImplicitCastInvocationWithMultipleParams", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

@@ -117,7 +117,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BFloat(v1), new BFloat(v2)};
-            BLangFunctions.invokeNew(bLangProgram, printFuncName + "Float", args);
+            BLangFunctions.invokeNew(bLangProgram, printFuncName + "floattype", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
