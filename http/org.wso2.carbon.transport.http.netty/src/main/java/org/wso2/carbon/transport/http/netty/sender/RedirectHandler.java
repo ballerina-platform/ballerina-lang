@@ -23,10 +23,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -254,8 +257,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             throws UnsupportedEncodingException {
 
         String location = URLDecoder.decode(msg.headers().get(HttpHeaderNames.LOCATION), Constants.UTF8);
-        if (location != null && (location.toLowerCase().startsWith(Constants.HTTP_SCHEME + Constants.URL_AUTHORITY) ||
-                location.toLowerCase().startsWith(Constants.HTTPS_SCHEME + Constants.URL_AUTHORITY))) {
+        if (location != null && (location.toLowerCase().startsWith(Constants.HTTP_SCHEME + Constants.URL_AUTHORITY)
+                || location.toLowerCase().startsWith(Constants.HTTPS_SCHEME + Constants.URL_AUTHORITY))) {
             try {
                 URL locationUrl = new URL(location);
                 String protocol =
@@ -263,7 +266,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HOST) : null;
                 String port = originalRequest != null ?
                         originalRequest.getProperty(Constants.PORT) != null ?
-                                Integer.toString((Integer) originalRequest.getProperty(Constants.PORT)) : null : null;
+                                Integer.toString((Integer) originalRequest.getProperty(Constants.PORT)) :
+                                null :
+                        null;
 
                 if (locationUrl.getProtocol().equals(protocol) && locationUrl.getHost().equals(host)
                         && locationUrl.getPort() == Integer.parseInt(port)) {
@@ -280,14 +285,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     *
      * @return
      * @throws MalformedURLException
      */
     private HTTPCarbonMessage createHttpCarbonRequest() throws MalformedURLException {
         URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
 
-        HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage();
+        HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
+        HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
         httpCarbonRequest.setProperty(Constants.PORT, locationUrl.getPort());
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HOST, locationUrl.getHost());
@@ -302,7 +308,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     *
      * @param locationUrl
      * @param httpCarbonRequest
      * @param httpRequest

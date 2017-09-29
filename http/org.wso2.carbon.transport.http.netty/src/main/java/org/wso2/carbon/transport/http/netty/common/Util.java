@@ -102,12 +102,11 @@ public class Util {
 
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        Headers headers = msg.getHeaders();
         if (connectionCloseAfterResponse) {
-            headers.set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+            msg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
         }
 
-        Util.setHeaders(outgoingResponse, headers);
+        outgoingResponse.headers().setAll(msg.getHeaders());
 
         return outgoingResponse;
     }
@@ -131,8 +130,8 @@ public class Util {
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) msg.getProperty(Constants.TO), false);
-        Headers headers = msg.getHeaders();
-        Util.setHeaders(outgoingRequest, headers);
+        HttpHeaders headers = msg.getHeaders();
+        outgoingRequest.headers().setAll(headers);
         return outgoingRequest;
     }
 
