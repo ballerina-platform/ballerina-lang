@@ -196,7 +196,6 @@ class TransformStatementDecorator extends React.Component {
 
         const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
-        const iconSize = 14;
         actionBbox.w = DesignerDefaults.actionBox.width;
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
@@ -236,13 +235,13 @@ class TransformStatementDecorator extends React.Component {
                     <g className="transform-button" onClick={e => this.onExpand()}>
                         <rect x={expand_button_x - 8}
                               y={expand_button_y - 8}
-                              width={iconSize}
-                              height={iconSize}
+                              width={28}
+                              height={30}
                               className="transform-action-button"/>
                         <image className="transform-action-icon"
                                x={expand_button_x} y={expand_button_y}
-                               width={iconSize}
-                               height={iconSize}
+                               width={14}
+                               height={14}
                                xlinkHref={ImageUtil.getSVGIconString('expand')}>
                             <title>Expand</title>
                         </image>

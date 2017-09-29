@@ -69,7 +69,6 @@ class LifeLine extends React.Component {
         }*/
     }
     render() {
-        console.log(this.props.bBox);
         const bBox = this.props.bBox;
         const iconSize = 13;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
