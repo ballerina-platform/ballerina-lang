@@ -244,6 +244,9 @@ class SizingUtil {
         // calculate statement container
         cmp.statementContainer.w = this.config.statement.width;
         cmp.statementContainer.h = this.config.statementContainer.height;
+        if (node.getBody().getStatements().length > 0) {
+            cmp.statementContainer.h = this.getStatementHeight(node.getBody().getStatements()) + 30;
+        }
         // calculate defult worker
         cmp.defaultWorker.w = this.config.lifeLine.width;
         cmp.defaultWorker.h = cmp.statementContainer.h + (this.config.lifeLine.head.height * 2);
@@ -274,7 +277,7 @@ class SizingUtil {
 
             cmp.heading.w += cmp.argParameterHolder.openingParameter.w
                 + cmp.argParameterHolder.closingParameter.w
-                + this.getParameterTypeWidth(node) + 120;
+                + this.getParameterTypeWidth(node.getParameters()) + 120;
         }
 
         // Creating components for return types
@@ -294,7 +297,7 @@ class SizingUtil {
             cmp.heading.w += cmp.returnParameterHolder.returnTypesIcon.w
                 + cmp.returnParameterHolder.openingReturnType.w
                 + cmp.returnParameterHolder.closingReturnType.w
-                + this.getReturnTypeWidth(node) + 120;
+                + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
         }
         cmp.heading.w += viewState.titleWidth + 100;
 
@@ -308,11 +311,11 @@ class SizingUtil {
      * Calculate Parameters' text width for the node.
      * width - return sum of widths of parameter texts.
      * */
-    getParameterTypeWidth(node) {
+    getParameterTypeWidth(parameters) {
         let width = 0;
-        if (node.getParameters().length > 0) {
-            for (let i = 0; i < node.getParameters().length; i++) {
-                width += this.getTextWidth(node.getParameters()[i].getSource(), 0).w + 21;
+        if (parameters.length > 0) {
+            for (let i = 0; i < parameters.length; i++) {
+                width += this.getTextWidth(parameters[i].getSource(), 0).w + 21;
             }
         }
 
@@ -320,17 +323,18 @@ class SizingUtil {
     }
 
     /**
-     * Calculate Return Parameters' text width for node.
-     *
+     * Calculate parameters' height for the node.
+     * height - return sum of height of parameters.
      * */
-    getReturnTypeWidth(node) {
-        let width = 0;
-        if (node.getReturnParameters().length > 0) {
-            for (let i = 0; i < node.getReturnParameters().length; i++) {
-                width += this.getTextWidth(node.getReturnParameters()[i].getSource(), 0).w + 21;
+    getStatementHeight(statements) {
+        let height = 0;
+        if (statements.length > 0) {
+            for (let i = 0; i < statements.length; i++) {
+                height += statements[i].viewState.bBox.h;
             }
         }
-        return width;
+
+        return height;
     }
 
     /**
