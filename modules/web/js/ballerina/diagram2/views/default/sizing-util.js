@@ -238,8 +238,6 @@ class SizingUtil {
         cmp.statementContainer = new SimpleBBox();
         cmp.defaultWorker = new SimpleBBox();
         cmp.body = new SimpleBBox();
-        cmp.argParameters = new SimpleBBox();
-        cmp.returnParameters = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
@@ -263,33 +261,6 @@ class SizingUtil {
 
         cmp.parametersPrefixContainer = {};
         cmp.parametersPrefixContainer.w = this.getTextWidth('Parameters: ').w;
-
-        // Argument parameter definition holder
-        for (let i = 0; i < node.getParameters().length; i++) {
-            const parameterDefinition = node.getParameters()[i];
-            const paramViewState = parameterDefinition.viewState;
-            paramViewState.w = this.getTextWidth(parameterDefinition.getSource(), 0).w;
-            paramViewState.h = this.config.panelHeading.heading.height - 7;
-
-            // Creating component for delete icon.
-            paramViewState.components.deleteIcon = {};
-            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
-            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
-        }
-
-        // Return parameter definition holder
-        for (let i = 0; i < node.getReturnParameters().length; i++) {
-            const parameterDefinition = node.getReturnParameters()[i];
-            const paramViewState = parameterDefinition.viewState;
-
-            paramViewState.w = this.getTextWidth(parameterDefinition.getSource(), 0).w;
-            paramViewState.h = this.config.panelHeading.heading.height - 7;
-
-            // Creating component for delete icon.
-            paramViewState.components.deleteIcon = {};
-            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
-            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
-        }
 
         // Creating components for argument parameters
         if (node.getParameters()) {
@@ -331,30 +302,6 @@ class SizingUtil {
         const componentWidth = cmp.heading.w > cmp.body.w ? cmp.heading.w : cmp.body.w;
 
         viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
-
-        // Set the width to the parameter definitions
-        if (node.getParameters().length > 0) {
-            for (let i = 0; i < node.getParameters().length; i++) {
-                const parameter = node.getParameters()[i];
-                const viewStateOfParam = parameter.viewState;
-                // Set the height
-                viewStateOfParam.bBox.h = 20;
-                // Set the width
-                viewStateOfParam.bBox.w = this.getTextWidth(parameter.getSource(), 0).w + 21;
-            }
-        }
-
-        // Set the width to the parameter definitions
-        if (node.getReturnParameters().length > 0) {
-            for (let i = 0; i < node.getReturnParameters().length; i++) {
-                const parameter = node.getReturnParameters()[i];
-                const viewStateOfParam = parameter.viewState;
-                // Set the height
-                viewStateOfParam.bBox.h = 20;
-                // Set the width
-                viewStateOfParam.bBox.w = this.getTextWidth(parameter.getSource(), 0).w + 21;
-            }
-        }
     }
 
     /**
@@ -624,7 +571,19 @@ class SizingUtil {
      *
      */
     sizeVariableNode(node) {
-        // Not implemented.
+        // For argument parameters and return types in the panel decorator
+        if (TreeUtil.isFunction(node.parent) || TreeUtil.isResource(node.parent)) {
+            const paramViewState = node.viewState;
+            paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
+            paramViewState.h = this.config.panelHeading.heading.height - 7;
+
+            // Creating component for delete icon.
+            paramViewState.components.deleteIcon = {};
+            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
+            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
+        } else {
+            // For variable nodes inside the body of a top level node
+        }
     }
 
 
