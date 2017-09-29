@@ -33,7 +33,6 @@ import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -293,7 +292,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testStructToStruct() {
-        BValue[] returns = BTestUtils.invoke(result, "testStructToStruct",new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testStructToStruct", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct student = (BStruct) returns[0];
 
@@ -440,7 +439,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'map' " +
                     "cannot be cast to 'json'.*")
     public void testAnyMapToJson() {
-        BTestUtils.invoke(result, "testAnyMapToJson" ,new BValue[]{});
+        BTestUtils.invoke(result, "testAnyMapToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a struct as any type to json",
@@ -448,7 +447,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'Address' cannot be cast to 'json'.*")
     public void testAnyStructToJson() {
-        BTestUtils.invoke(result,"testAnyStructToJson", new BValue[]{});
+        BTestUtils.invoke(result, "testAnyStructToJson", new BValue[]{});
     }
 
     @Test(description = "Test casting a json as any type to json")
@@ -557,7 +556,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a null stored as any to struct")
     public void testAnyNullToStruct() {
-        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToStruct",new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testAnyNullToStruct", new BValue[]{});
         Assert.assertNull(returns[0]);
     }
 
@@ -609,7 +608,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
         result = BTestUtils.compile("lang/expressions/btype/cast/foo");
-        BValue[] returns = BTestUtils.invoke(result,"testCastToStructInDifferentPkg", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testCastToStructInDifferentPkg", new BValue[]{});
     }
 
     // Casting with errors returned

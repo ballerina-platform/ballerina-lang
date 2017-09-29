@@ -57,7 +57,7 @@ public class AssignStmtTest {
         long expected = 100;
         Assert.assertEquals(actual, expected);
 
-        // Float assignment test
+        // floattype assignment test
         args = new BValue[] { new BFloat(2.3f) };
         returns = BLangFunctions.invokeNew(programFile, "testFloatAssignStmt", args);
 

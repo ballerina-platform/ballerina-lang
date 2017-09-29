@@ -75,7 +75,7 @@ public class MessageUtils {
 //            Long value = (Long) orgBValue.getValue();
 //            bValue = new LongValue(value);
 //        } else if (orgBValue instanceof FloatValue) {
-//            Float value = (Float) orgBValue.getValue();
+//            floattype value = (floattype) orgBValue.getValue();
 //            bValue = new FloatValue(value);
 //        } else if (orgBValue instanceof DoubleValue) {
 //            Double value = (Double) orgBValue.getValue();

@@ -55,7 +55,7 @@ public class FuncInvocationWithImplicitCastTest {
 
     @Test(description = "Test Function invocation with implicit cast, multiple params")
     public void testFunctionInvocationWithImplicitCastMultiParam() {
-        BValue[] returns = BTestUtils.invoke(result, "testImplicitCastInvocationWithMultipleParams",new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testImplicitCastInvocationWithMultipleParams", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

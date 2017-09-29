@@ -17,12 +17,11 @@
 */
 package org.ballerinalang.test.types.integer;
 
-import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,12 +42,13 @@ public class BIntegerValueTest {
     private CompileResult result;
 
     @BeforeClass
-    public void setup() { result = BTestUtils.compile("test-src/types/integer/integer-value.bal");
+    public void setup() {
+        result = BTestUtils.compile("test-src/types/integer/integer-value.bal");
     }
 
     @Test(description = "Test long value assignment")
     public void testIntegerValue() {
-        BValue[] returns = BTestUtils.invoke(result, "testIntegerValue",new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testIntegerValue", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];

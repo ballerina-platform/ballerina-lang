@@ -15,11 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.types.Float;
+package org.ballerinalang.test.types.floattype;
 
-import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;

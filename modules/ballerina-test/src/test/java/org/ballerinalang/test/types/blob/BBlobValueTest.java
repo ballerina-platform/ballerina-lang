@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.test.types.blob;
 
-import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
@@ -36,7 +36,8 @@ public class BBlobValueTest {
     private final String funcName = "testIfStmt";
 
     @BeforeClass
-    public void setup() { result = BTestUtils.compile("test-src/types/blob/blob-value.bal");
+    public void setup() {
+        result = BTestUtils.compile("test-src/types/blob/blob-value.bal");
     }
 
     @Test(description = "Test blob value assignment")
