@@ -303,7 +303,7 @@ class PositioningUtil {
      * @param {object} node Retry object
      */
     positionRetryNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -593,7 +593,7 @@ class PositioningUtil {
      * @param {object} node Abort object
      */
     positionAbortNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -603,7 +603,7 @@ class PositioningUtil {
      * @param {object} node Assignment object
      */
     positionAssignmentNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -630,7 +630,7 @@ class PositioningUtil {
      * @param {object} node Break object
      */
     positionBreakNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -640,7 +640,7 @@ class PositioningUtil {
      * @param {object} node Continue object
      */
     positionContinueNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -690,7 +690,7 @@ class PositioningUtil {
      * @param {object} node Return object
      */
     positionReturnNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -710,7 +710,7 @@ class PositioningUtil {
      * @param {object} node Throw object
      */
     positionThrowNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -771,7 +771,7 @@ class PositioningUtil {
      * @param {object} node WorkerReceive object
      */
     positionWorkerReceiveNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 
@@ -781,7 +781,7 @@ class PositioningUtil {
      * @param {object} node WorkerSend object
      */
     positionWorkerSendNode(node) {
-        // Not implemented.
+        this.positionStatementComponents(node);
     }
 
 

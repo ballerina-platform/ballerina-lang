@@ -34,9 +34,15 @@ class VariableDefNode extends React.Component {
             propertyType: 'text',
             key: 'VariableDefinition',
             model: this.props.model,
-            getterMethod: this.props.model.getStatementString,
-            setterMethod: this.props.model.setStatementFromString,
+            getterMethod: this.props.model.getSource,
+            setterMethod: this.updateExpression,
         };
+    }
+
+    /**
+     * TODO Update the edited expression
+     */
+    updateExpression(value) {
     }
 
     /**
