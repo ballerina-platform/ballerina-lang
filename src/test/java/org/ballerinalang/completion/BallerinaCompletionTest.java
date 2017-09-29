@@ -136,6 +136,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("struct");
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
+        expectedLookups.add("enum");
         doTest("package test; \n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -158,6 +159,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("struct");
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
+        expectedLookups.add("enum");
         doTest("package test; \n<caret>\nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -210,6 +212,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("struct");
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
+        expectedLookups.add("enum");
         expectedLookups.add("test");
         myFixture.addFileToProject("test/file.bal", "string s = \"\";");
         doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
