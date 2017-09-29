@@ -222,7 +222,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
             }
             old = lineNumberInfo;
         }
-        return null;
+        return old;
     }
 
     public ProgramFile getProgramFile() {

@@ -18,7 +18,6 @@
 package org.ballerinalang.testutils;
 
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.services.dispatchers.http.Constants;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;

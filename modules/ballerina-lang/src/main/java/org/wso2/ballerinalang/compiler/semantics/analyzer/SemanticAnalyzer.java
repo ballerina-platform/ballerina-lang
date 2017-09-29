@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -785,6 +786,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBreak breakNode) {
         /* ignore */
+    }
+
+    @Override
+    public void visit(BLangThrow throwNode) {
+        this.typeChecker.checkExpr(throwNode.expr, env, Lists.of(symTable.errStructType));
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {

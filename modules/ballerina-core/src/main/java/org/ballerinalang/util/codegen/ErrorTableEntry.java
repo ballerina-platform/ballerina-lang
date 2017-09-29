@@ -22,7 +22,6 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
-import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -80,13 +79,6 @@ public class ErrorTableEntry {
 
     public void setPackageInfo(PackageInfo packageInfo) {
         this.packageInfo = packageInfo;
-        // Load Cache values.
-        if (errorStructCPIndex < 0) {
-            return;
-        }
-        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
-                packageInfo.getCPEntry(errorStructCPIndex);
-        this.error = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
     }
 
     public StructInfo getError() {

@@ -18,9 +18,10 @@
 package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -56,7 +57,7 @@ import java.util.Map;
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "The file which the blob should be written to") })
 public class Write extends AbstractFtpAction {
-    @Override public BValue execute(Context context) {
+    @Override public ConnectorFuture execute(Context context) {
 
         byte[] content = getBlobArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
@@ -75,6 +76,8 @@ public class Write extends AbstractFtpAction {
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         }
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 }

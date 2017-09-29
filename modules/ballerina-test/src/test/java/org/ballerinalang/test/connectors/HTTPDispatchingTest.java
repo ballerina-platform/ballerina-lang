@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.test.connectors;
 
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
-import org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher;
-import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,8 +31,6 @@ public class HTTPDispatchingTest {
     @BeforeClass
     public void setup() {
         // Resister HTTP Dispatchers
-        DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
-        DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
     }
 
     @Test

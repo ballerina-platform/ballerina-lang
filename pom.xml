@@ -80,6 +80,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -177,7 +182,8 @@
                                 <excludes>**org/wso2/ballerinalang/compiler/parser/antlr4/*,
                                     **/util/parser/*,
                                     **/${native.constructs.provider.class}.java,
-                                    **/${ballerina.package.repository.provider.class}.java
+                                    **/${ballerina.package.repository.provider.class}.java,
+                                    **/generated/**
                                 </excludes>
                             </configuration>
                             <goals>
@@ -234,6 +240,7 @@
         <module>modules/ballerina-logging</module>
         <module>modules/packerina</module>
         <module>modules/ballerina-test</module>
+        <module>modules/ballerina-http</module>
     </modules>
 
 </project>
