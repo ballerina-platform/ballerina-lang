@@ -1786,17 +1786,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             return result;
         }
 
-        VariableIndex copy() {
-            VariableIndex variableIndex = new VariableIndex();
-            variableIndex.tInt = this.tInt;
-            variableIndex.tFloat = this.tFloat;
-            variableIndex.tString = this.tString;
-            variableIndex.tBoolean = this.tBoolean;
-            variableIndex.tBlob = this.tBlob;
-            variableIndex.tRef = this.tRef;
-            return variableIndex;
-        }
-
     }
 
     /**
@@ -2596,7 +2585,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void generateFinallyInstructions(BLangStatement statement, NodeKind targetStatementKind) {
-        VariableIndex regIndexesOriginal = this.regIndexes.copy();
         BLangStatement current = statement;
         while (current != null && current.statementLink.parent != null) {
             BLangStatement parent = current.statementLink.parent.statement;
@@ -2608,12 +2596,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 final BLangStatement body = current;
                 if (tryCatchFinally.finallyBody != null && (current == tryCatchFinally.tryBody
                         || tryCatchFinally.catchBlocks.stream().anyMatch(c -> c.body == body))) {
-                    this.regIndexes = new VariableIndex();
                     genNode(tryCatchFinally.finallyBody, env);
                 }
             }
             current = parent;
         }
-        this.regIndexes = regIndexesOriginal;
     }
 }
