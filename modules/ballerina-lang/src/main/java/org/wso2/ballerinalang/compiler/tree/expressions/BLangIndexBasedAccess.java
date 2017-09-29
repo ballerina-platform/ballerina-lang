@@ -90,4 +90,21 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
             visitor.visit(this);
         }
     }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangJSONAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangJSONAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr) {
+            this.pos = pos;
+            this.expr = varExpr;
+            this.indexExpr = keyExpr;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

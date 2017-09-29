@@ -46,6 +46,9 @@ public enum DiagnosticCode {
     UNDEFINED_WORKER("undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("invalid.worker.join.result.type"),
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
+    INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
+    WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
+    INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
 
     FUNCTION_MUST_RETURN("function.must.return"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
@@ -91,7 +94,16 @@ public enum DiagnosticCode {
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
-    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags")
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
+
+    UNDEFINED_ANNOTATION("undefined.annotation"),
+    ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
+    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
+    INVALID_DEFAULT_VALUE("invalid.default.value"),
+    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
+    NO_SUCH_ATTRIBUTE("no.such.attribute"),
+    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found")
     ;
 
     private String value;

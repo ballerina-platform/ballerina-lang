@@ -13,7 +13,7 @@ function checkEqulalityOfUnsupportedType() (boolean){
     return j1 == j2;
 }
 
-function checkEqulalityOfUnsupportedType() (boolean){
+function checkNotEqulalityOfUnsupportedType() (boolean){
     json j1;
     json j2;
     j1 = {"name":"Jack"};

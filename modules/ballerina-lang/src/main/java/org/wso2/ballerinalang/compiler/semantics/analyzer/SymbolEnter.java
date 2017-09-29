@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -38,12 +40,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -183,10 +188,47 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define service resource nodes.
         defineServiceMembers(pkgNode.services, pkgEnv);
 
+        // Define annotation nodes.
+        pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
+
+        resolveAnnotationAttributeTypes(pkgNode.annotations, pkgEnv);
+
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         definePackageInitFunction(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+    }
+
+    private void resolveAnnotationAttributeTypes(List<BLangAnnotation> annotations, SymbolEnv pkgEnv) {
+        annotations.forEach(annotation -> {
+            annotation.attributes.forEach(attribute -> {
+                SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotation, annotation.symbol.scope, pkgEnv);
+                BType actualType = this.symResolver.resolveTypeNode(attribute.typeNode, annotationEnv);
+                attribute.symbol.type = actualType;
+            });
+        });
+    }
+
+    public void visit(BLangAnnotation annotationNode) {
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(names.
+                fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
+        annotationNode.attachmentPoints.forEach(point ->
+                ((BAnnotationSymbol) annotationSymbol).attachmentPoints.add(point));
+        annotationNode.symbol = annotationSymbol;
+        defineSymbol(annotationNode.pos, annotationSymbol);
+        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
+        annotationNode.attributes.forEach(att -> this.defineNode(att, annotationEnv));
+    }
+
+    public void visit(BLangAnnotAttribute annotationAttribute) {
+        BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
+                        fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
+                null, env.scope.owner);
+        annotationAttributeSymbol.expr = annotationAttribute.expr;
+        annotationAttribute.symbol = annotationAttributeSymbol;
+        ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
+        defineSymbol(annotationAttribute.pos, annotationAttributeSymbol);
     }
 
     @Override
@@ -213,7 +255,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
-    
+
     @Override
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = Symbols.createStructSymbol(Flags.asMask(structNode.flagSet),
@@ -438,6 +480,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case ANNOTATION:
                 // TODO
+                pkgNode.annotations.add((BLangAnnotation) node);
                 break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
@@ -671,7 +714,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         xmlnsStmt.pos = xmlns.pos;
         return xmlnsStmt;
     }
-  
+
     private void validateFuncReceiver(BLangFunction funcNode) {
         if (funcNode.receiver == null) {
             return;
