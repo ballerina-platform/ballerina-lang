@@ -380,7 +380,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean nativeAction = KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        boolean nativeAction = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         this.pkgBuilder.endActionDef(getCurrentPos(ctx), ctx.annotationAttachment().size(), nativeAction, bodyExists);
     }
