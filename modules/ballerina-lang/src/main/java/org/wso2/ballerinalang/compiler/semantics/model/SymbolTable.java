@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -86,10 +85,11 @@ public class SymbolTable {
     public final BTypeSymbol errSymbol;
     public final BType errType;
 
-    public final BStructType errStructType;
-    public final BTypeSymbol errStructSymbol;
-    public final BStructType stackFrameType;
-    public final BTypeSymbol stackFrameSymbol;
+    public BStructType errStructType;
+    public BStructType errTypeConversionType;
+    public BStructType errTypeCastType;
+
+    public BPackageSymbol builtInPackageSymbol;
 
     private Names names;
 
@@ -113,7 +113,7 @@ public class SymbolTable {
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(BUILTIN, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
-        this.rootScope = new Scope(rootPkgSymbol);
+        this.rootScope = new BuiltInScope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
@@ -137,29 +137,15 @@ public class SymbolTable {
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
+    }
 
-        // Initialize builtin error struct type and stackFrame struct.
-        BStructType.BStructField callerField = new BStructType.BStructField(Names.CALLER, stringType);
-        BStructType.BStructField packageField = new BStructType.BStructField(Names.PACKAGE, stringType);
-        BStructType.BStructField fileNameField = new BStructType.BStructField(Names.FILE_NAME, stringType);
-        BStructType.BStructField lineNumberField = new BStructType.BStructField(Names.LINE_NUMBER, intType);
-        this.stackFrameType = new BStructType(null,
-                Lists.of(callerField, packageField, fileNameField, lineNumberField));
-        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME, this.rootPkgSymbol.pkgID,
-                this.stackFrameType, rootPkgSymbol);
-        defineType(stackFrameType, stackFrameSymbol);
+    public void createErrorTypes() {
+        this.errStructType = (BStructType) rootScope.lookup(Names.ERROR).symbol.type;
+        this.errTypeCastType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CAST).symbol.type;
+        this.errTypeConversionType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CONVERSION).symbol.type;
+    }
 
-
-        BStructType.BStructField msgField = new BStructType.BStructField(Names.MSG, stringType);
-        this.errStructType = new BStructType(null, Lists.of(msgField));
-        BStructType.BStructField causeField = new BStructType.BStructField(Names.CAUSE, this.errStructType);
-        BStructType.BStructField stackTraceField = new BStructType.BStructField(Names.STACK_TRACE,
-                new BArrayType(stackFrameType));
-        this.errStructType.fields = Lists.of(msgField, causeField, stackTraceField);
-        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.rootPkgSymbol.pkgID,
-                this.errStructType, rootPkgSymbol);
-        defineType(errStructType, errStructSymbol);
-
+    public void loadOperators() {
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
     }
@@ -366,7 +352,7 @@ public class SymbolTable {
                                     boolean safe,
                                     int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType, this.errStructType);
+        List<BType> retTypes = Lists.of(targetType, this.errTypeCastType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.rootPkgSymbol,
                 implicit, safe, opcode);
@@ -378,7 +364,7 @@ public class SymbolTable {
                                           boolean safe,
                                           int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType, this.errStructType);
+        List<BType> retTypes = Lists.of(targetType, this.errTypeConversionType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,
                 this.rootPkgSymbol, safe, opcode);

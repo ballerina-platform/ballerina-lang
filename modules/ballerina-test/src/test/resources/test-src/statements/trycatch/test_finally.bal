@@ -1,17 +1,15 @@
-import ballerina.lang.errors;
-
 function test1 ()(string, string){
     string data;
     try{
         try {
-            errors:Error test = { msg: "try block error"};
+            error test = { msg: "try block error"};
             data = "assigned";
             throw test;
         } finally {
-            errors:Error err = { msg : "finally block error"};
+            error err = { msg : "finally block error"};
             throw err;
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         return e.msg, data;
     }
     return "Function end", data;
@@ -20,14 +18,14 @@ function test1 ()(string, string){
 function test2(int a)(string){
     try{
         try {
-            errors:Error test = { msg: "try block error"};
+            error test = { msg: "try block error"};
             throw test;
         } finally {
             if(a > 10) {
                 return "finally block";
             }
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         return e.msg;
     }
     return "Function end";
@@ -42,7 +40,7 @@ function test3()(string){
         } finally {
             data = data + " innerFinally";
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         return e.msg;
     }finally {
         data = data + " outerFinally";
@@ -63,7 +61,7 @@ function test4()(Test4Val){
         } finally {
             data.value = data.value + " innerFinally";
         }
-    } catch (errors:Error e) {
+    } catch (error e) {
         return data;
     } finally {
          data.value = data.value + " outerFinally";
@@ -103,7 +101,7 @@ function test6 () (Test4Val) {
               data.value = data.value + " innerFinally";
               return data;
           }
-    } catch (errors:Error e) {
+    } catch (error e) {
         return data;
     } finally {
         data.value = data.value + " outerFinally";

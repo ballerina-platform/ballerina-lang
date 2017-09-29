@@ -409,7 +409,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
-        pSymbol.scope = new Scope(pSymbol);
+        if (Names.BUILTIN_PACKAGE.value.equals(pSymbol.name.value) ||
+                Names.BUILTIN_PACKAGE_CORE.value.equals(pSymbol.name.value)) {
+            pSymbol.scope = symTable.rootScope;
+        } else {
+            pSymbol.scope = new Scope(pSymbol);
+        }
         return pSymbol;
     }
 
