@@ -947,7 +947,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
-        this.pkgBuilder.setAnnotationAttachmentName(ctx.nameReference().getText());
+        this.pkgBuilder.setAnnotationAttachmentName();
     }
 
     /**

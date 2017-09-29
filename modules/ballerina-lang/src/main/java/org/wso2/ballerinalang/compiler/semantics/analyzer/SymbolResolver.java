@@ -175,6 +175,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
     }
 
+    public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, annotationName, SymTag.ANNOTATION);
+    }
+
     public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
                                     Name pkgAlias, Name connectorName) {
         BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
