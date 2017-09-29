@@ -43,6 +43,6 @@ public class SetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setProperty(context, this);
+        return HttpUtil.setProperty(context, this, false);
     }
 }

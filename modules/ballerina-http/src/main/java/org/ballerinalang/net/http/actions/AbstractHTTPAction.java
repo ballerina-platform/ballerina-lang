@@ -71,11 +71,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         validateParams(connector);
 
-        // Handle operations for empty content messages initiated from the Ballerina core itself
-        if (cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
-            cMsg.setEndOfMsgAdded(true);
-        }
-
         String uri = null;
         try {
             uri = connector.getStringField(0) + path;
@@ -148,9 +143,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 httpRequestMsg.setProperty(Constants.SRC_HANDLER,
                         context.getProperty(Constants.SRC_HANDLER));
             }
-
+            BConnector bConnector = (BConnector) getRefArgument(context, 0);
+            String scheme = (String) httpRequestMsg.getProperty(Constants.PROTOCOL);
             HttpClientConnector clientConnector =
-                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector();
+                    HttpConnectionManager.getInstance().getHTTPHttpClientConnector(scheme, bConnector);
             HttpResponseFuture future = clientConnector.send(httpRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
         } catch (Exception e) {
@@ -213,9 +209,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         String path = getStringArgument(context, 0);
         BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
         //TODO check below line
-        HTTPCarbonMessage cMsg = HttpUtil.getCarbonMsg(requestStruct, new HTTPCarbonMessage());
-        prepareRequest(bConnector, path, cMsg);
-        return cMsg;
+        HTTPCarbonMessage requestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+        prepareRequest(bConnector, path, requestMsg);
+        return requestMsg;
     }
 
 }

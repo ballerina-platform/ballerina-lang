@@ -44,6 +44,6 @@ public class GetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getProperty(context, this);
+        return HttpUtil.getProperty(context, this, true);
     }
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testutils;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -69,13 +70,16 @@ public class MessageUtils {
                                   Constants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
+        carbonMessage.setProperty(Constants.REQUEST_URL, path);
 
         // Set method
         carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
 
-        // Set Headers
+        HttpHeaders httpHeaders = carbonMessage.getHeaders();
         if (headers != null) {
-            carbonMessage.setHeaders(headers);
+            for (Header header : headers) {
+                httpHeaders.set(header.getName(), header.getValue());
+            }
         }
 
         // Set message body

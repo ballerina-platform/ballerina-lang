@@ -8,8 +8,11 @@ public annotation configuration attach service<>, service<ws> {
     int httpsPort;
     string basePath;
     string keyStoreFile;
-    string keyStorePass;
-    string certPass;
+    string keyStorePassword;
+    string trustStoreFile;
+    string trustStorePassword;
+    string sslVerifyClient;
+    string certPassword;
     string[] allowOrigins;
     boolean allowCredentials;
     string[] allowMethods;

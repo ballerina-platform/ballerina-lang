@@ -338,23 +338,22 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("echo13").asText(), "1"
                 , "Resource dispatched to wrong template");
 
-//        path = "/hello/echo13?foo=";
-//        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-//        response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        bJson = ((BJSON) response.getMessageDataSource());
-//        Assert.assertEquals(bJson.value().get("echo13").asText(), "0"
-//                , "Resource dispatched to wrong template");
+        path = "/hello/echo13?foo=";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(cMsg);
 
-//        path = "/hello/echo13";
-//        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-//        response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        bJson = ((BJSON) response.getMessageDataSource());
-//        Assert.assertEquals(bJson.value().get("echo13").asText(), "0"
-//                , "Resource dispatched to wrong template");
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo13").asText(), "0"
+                , "Resource dispatched to wrong template");
+
+        path = "/hello/echo13";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString().substring(87, 111),
+                "query params unavailable");
     }
 
     @Test(description = "Test suitable method with URL. /echo14?foo=1.11 ")
@@ -368,23 +367,22 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("echo14").asText(), "1.11"
                 , "Resource dispatched to wrong template");
 
-//        path = "/hello/echo14?foo=";
-//        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-//        response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        bJson = ((BJSON) response.getMessageDataSource());
-//        Assert.assertEquals(bJson.value().get("echo14").asText(), "0.0"
-//                , "Resource dispatched to wrong template");
+        path = "/hello/echo14?foo=";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(cMsg);
 
-//        path = "/hello/echo14";
-//        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-//        response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        bJson = ((BJSON) response.getMessageDataSource());
-//        Assert.assertEquals(bJson.value().get("echo14").asText(), "0.0"
-//                , "Resource dispatched to wrong template");
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo14").asText(), "0.0"
+                , "Resource dispatched to wrong template");
+
+        path = "/hello/echo14";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString().substring(87, 111),
+                "query params unavailable");
     }
 
     @Test(description = "Test suitable method with URL. /echo15?foo=1.11 ")
@@ -398,23 +396,22 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("echo15").asText(), "true"
                 , "Resource dispatched to wrong template");
 
-//        path = "/hello/echo15?foo=";
-//        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-//        response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        bJson = ((BJSON) response.getMessageDataSource());
-//        Assert.assertEquals(bJson.value().get("echo15").asText(), "false"
-//                , "Resource dispatched to wrong template");
+        path = "/hello/echo15?foo=";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(cMsg);
 
-//        path = "/hello/echo15";
-//        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-//        response = Services.invokeNew(cMsg);
-//
-//        Assert.assertNotNull(response, "Response message not found");
-//        bJson = ((BJSON) response.getMessageDataSource());
-//        Assert.assertEquals(bJson.value().get("echo15").asText(), "false"
-//                , "Resource dispatched to wrong template");
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo15").asText(), "false"
+                , "Resource dispatched to wrong template");
+
+        path = "/hello/echo15";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getMessageDataSource().getMessageAsString().substring(87, 111),
+                "query params unavailable");
     }
 
     @Test(description = "Test dispatching without verbs")

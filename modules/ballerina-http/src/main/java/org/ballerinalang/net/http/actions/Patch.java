@@ -44,7 +44,9 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING)
+                @Argument(name = "serviceUri", type = TypeKind.STRING),
+                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
+                          structPackage = "ballerina.net.http")
         }
 )
 public class Patch extends AbstractHTTPAction {

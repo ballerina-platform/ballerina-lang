@@ -87,7 +87,7 @@ public class HTTPResourceDispatcher {
 
     private static void handleOptionsRequest(HTTPCarbonMessage cMsg, Service service)
             throws URITemplateException {
-        HTTPCarbonMessage response = new HTTPCarbonMessage();
+        HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         if (cMsg.getHeader(Constants.ALLOW) != null) {
             response.setHeader(Constants.ALLOW, cMsg.getHeader(Constants.ALLOW));
         } else if (DispatcherUtil.getServiceBasePath(service).equals(cMsg.getProperty(Constants.TO))) {

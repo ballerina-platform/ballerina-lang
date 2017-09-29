@@ -8,7 +8,12 @@ struct Request {
 struct Response {
 }
 
-connector ClientConnector (string serviceUri) {
+struct Options{
+    boolean followRedirect = false;
+    int maximumRedirectCount = 5;
+}
+
+connector ClientConnector (string serviceUri, Options connectorOptions) {
 
 	@doc:Description { value:"The POST action implementation of the HTTP Connector."}
 	@doc:Param { value:"path: Resource path " }
