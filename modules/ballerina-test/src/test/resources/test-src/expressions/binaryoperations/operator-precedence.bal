@@ -47,3 +47,8 @@ function intMultiplicationAndDivisionPrecedence(int a, int b, int c, int d) (int
     int z = a + b / c - d + a * b;
     return x + y + z;
 }
+
+function comparatorPrecedence (int a, int b, int c, int d, int e, int f) (boolean result) {
+    result = (a > b) && (c < d) || (e > f);
+    return result;
+}

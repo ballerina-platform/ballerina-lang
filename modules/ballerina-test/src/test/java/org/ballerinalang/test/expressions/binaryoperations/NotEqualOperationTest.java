@@ -35,8 +35,7 @@ public class NotEqualOperationTest {
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/expressions/binaryoperations/not-equal-operation.bal");
-        /*resultNegative = BTestUtils.
-         compile("test-src/expressions/binaryoperations/not-equal-operation-negative.bal");*/
+        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/not-equal-operation-negative.bal");
     }
 
     @Test(description = "Test two int equality")
@@ -124,8 +123,11 @@ public class NotEqualOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test not equal expression statement with errors")
+    @Test(description = "Test not equal expression statement with errors")
     public void testNotEqualStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        BTestUtils.validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 4, 11);
+        BTestUtils.validateError(resultNegative, 1, "operator '==' not defined for 'json' and 'json'", 13, 11);
+        BTestUtils.validateError(resultNegative, 2, "operator '!=' not defined for 'json' and 'json'", 22, 11);
     }
 }

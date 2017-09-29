@@ -56,4 +56,54 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 25);
     }
     
+//    function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {
+//        map m = {};
+//        fork {
+//           worker w1 {
+//             int a = 5;
+//             a -> w2;
+//             int b = 0;
+//             b <- w2;
+//             b -> fork;
+//           }
+//           worker w2 {
+//             int a = 0;
+//             a <- w1;
+//             int b = 15;
+//             b -> w1;
+//             a -> fork;
+//           }
+//        } join (all) (map results) {
+//            any[] anyArray;
+//            int b;
+//            anyArray, _ = (any[]) m["w1"];
+//            b, _ = (int) anyArray[0];
+//            int a;
+//            anyArray, _ = (any[]) m["w2"];
+//            a, _ = (int) anyArray[0];
+//            m["x"] = (a + 1) * b;
+//        } timeout (5) (map results) { 
+//            m["x"] = 15; 
+//        }
+//        return m;
+//    }
+    
+    @Test (enabled = false)
+    public void forkJoinWithMessagePassingTimeoutNotTriggered() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMessagePassingTimeoutNotTriggered", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 90);
+    }
+    
+    @Test
+    public void chainedWorkerSendReceive() {
+        BValue[] vals = BTestUtils.invoke(result, "chainedWorkerSendReceive", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 12);
+    }
+    
 }

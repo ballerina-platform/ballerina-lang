@@ -29,17 +29,21 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -50,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -183,6 +188,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expTypeTag == TypeTags.NONE) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
 
+        } else if (expTypeTag == TypeTags.JSON) {
+            checkExprs(arrayLiteral.exprs, this.env, expTypes.get(0));
+            actualType = expTypes.get(0);
+
         } else if (expTypeTag != TypeTags.ARRAY && expTypeTag != TypeTags.ERROR) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
 
@@ -210,6 +219,8 @@ public class TypeChecker extends BLangNodeVisitor {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
             actualType = expTypes.get(0);
+        } else if (expTypeTag != TypeTags.ERROR) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
         }
 
         resultTypes = types.checkTypes(recordLiteral, Lists.of(actualType), expTypes);
@@ -250,16 +261,22 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(fieldAccessExpr.expr, this.env, Lists.of(symTable.noType));
 
         BType varRefType = fieldAccessExpr.expr.type;
+        Name fieldName;
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
-                Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+                fieldName = names.fromIdNode(fieldAccessExpr.field);
                 actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
                 break;
             case TypeTags.MAP:
                 actualType = ((BMapType) varRefType).getConstraint();
                 break;
             case TypeTags.JSON:
-                // TODO with constrained json
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    fieldName = names.fromIdNode(fieldAccessExpr.field);
+                    checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
+                }
+                actualType = symTable.jsonType;
                 break;
             case TypeTags.ERROR:
                 // Do nothing
@@ -296,7 +313,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.JSON:
-                // TODO with constrained json
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                    if (indexExprType.tag != TypeTags.STRING) {
+                        break;
+                    }
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+                }
+                actualType = symTable.jsonType;
                 break;
             case TypeTags.ARRAY:
                 indexExprType = checkExpr(indexExpr, this.env,
@@ -341,7 +367,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
             case TypeTags.CONNECTOR:
-                // TODO handle action invocation
+                checkActionInvocationExpr(iExpr);
                 break;
             default:
                 // TODO Handle this condition
@@ -351,6 +377,32 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
 
+    }
+
+    public void visit(BLangConnectorInit cIExpr) {
+        Name connectorName = names.fromIdNode(cIExpr.connectorType.getTypeName());
+        BSymbol symbol = symResolver.resolveConnector(cIExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR,
+                this.env, names.fromIdNode(cIExpr.connectorType.pkgAlias), connectorName);
+        if (symbol == symTable.errSymbol || symbol == symTable.notFoundSymbol) {
+            resultTypes = getListWithErrorTypes(expTypes.size());;
+            return;
+        }
+
+        BTypeSymbol connSymbol = (BTypeSymbol) symbol;
+        List<BType> paramTypes = ((BConnectorType) connSymbol.type).paramTypes;
+
+        if (paramTypes.size() > cIExpr.argsExpr.size()) {
+            dlog.error(cIExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, connectorName);
+            return;
+        } else if (paramTypes.size() < cIExpr.argsExpr.size()) {
+            dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, connectorName);
+            return;
+        } else {
+            for (int i = 0; i < cIExpr.argsExpr.size(); i++) {
+                checkExpr(cIExpr.argsExpr.get(i), this.env, Lists.of(paramTypes.get(i)));
+            }
+        }
+        checkConnectorInitTypes(cIExpr, connSymbol.type, connectorName);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -571,6 +623,11 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = Lists.of(types.checkType(bLangXMLQuotedString, symTable.stringType, expTypes.get(0)));
     }
 
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        stringTemplateLiteral.concatExpr = getStringTemplateConcatExpr(stringTemplateLiteral.exprs);
+        resultTypes = Lists.of(types.checkType(stringTemplateLiteral, symTable.stringType, expTypes.get(0)));
+    }
+
     // Private methods
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
@@ -722,6 +779,32 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
+    private void checkActionInvocationExpr(BLangInvocation iExpr) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) iExpr.expr;
+        Name varName = names.fromIdNode(varRef.variableName);
+        BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.value);
+            resultTypes = getListWithErrorTypes(expTypes.size());;
+            return;
+        }
+        iExpr.expr.symbol = (BVarSymbol) symbol;
+
+        Name actionName = names.fromIdNode(iExpr.name);
+        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, symbol.type.tsymbol.scope,
+                env, actionName, SymTag.ACTION);
+        if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName.value);
+            resultTypes = actualTypes;
+            return;
+        }
+
+        iExpr.symbol = actionSym;
+
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
     private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes) {
         List<BType> newActualTypes = actualTypes;
         List<BType> newExpTypes = this.expTypes;
@@ -749,8 +832,19 @@ public class TypeChecker extends BLangNodeVisitor {
         return names.fromString(structType + Names.DOT.value + iExpr.name);
     }
 
+    private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name connName) {
+        int expected = expTypes.size();
+        if (expTypes.size() > 1) {
+            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, connName);
+            resultTypes = getListWithErrorTypes(expected);
+            return;
+        }
+        resultTypes = types.checkTypes(iExpr, Lists.of(actualType), expTypes);
+    }
+
     private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
         BType fieldType = symTable.errType;
+        BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
             case TypeTags.STRUCT:
                 fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
@@ -759,10 +853,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.STRUCT);
+                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
+
+                // First visit the expression having field type, as the expected type.
+                checkExpr(valueExpr, this.env, Lists.of(fieldType)).get(0);
+
+                // Again check the type compatibility with JSON
+                if (valueExpr.impCastExpr == null) {
+                    types.checkTypes(valueExpr, Lists.of(valueExpr.type), Lists.of(symTable.jsonType));
+                } else {
+                    BType valueType = valueExpr.type;
+                    types.checkTypes(valueExpr, valueExpr.impCastExpr.types, Lists.of(symTable.jsonType));
+                    valueExpr.type = valueType;
+                }
+                resultTypes = Lists.of(valueExpr.type);
+                return;
         }
 
-        BLangExpression valueExpr = keyValuePair.valueExpr;
         checkExpr(valueExpr, this.env, Lists.of(fieldType));
     }
 
@@ -799,12 +906,19 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkJSONLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
-        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
+    private BType checkJSONLiteralKeyExpr(BLangRecordKey key, BType recordType, RecordKind recKind) {
+        BJSONType type = (BJSONType) recordType;
+        
+        // If the JSON is constrained with a struct, get the field type from the struct
+        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.ERROR) {
+            return checkStructLiteralKeyExpr(key, type.constraint, recKind);
+        }
+
+        if (checkRecLiteralKeyExpr(key.expr, recKind).tag != TypeTags.STRING) {
             return symTable.errType;
         }
 
-        // TODO constrained json
+        // If the JSON is not constrained, field type is always JSON.
         return symTable.jsonType;
     }
 
@@ -889,15 +1003,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 concatExpr = expr;
                 continue;
             }
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
-            if (opSymbol == symTable.notFoundSymbol) {
-                if (expr.type != symTable.errType) {
-                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
-                }
 
-                return concatExpr;
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
+            if (opSymbol == symTable.notFoundSymbol && expr.type != symTable.errType) {
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
             }
-            concatExpr = getBinaryAddExppression(concatExpr, expr);
+
+            concatExpr = getBinaryAddExppression(concatExpr, expr, opSymbol);
         }
 
         return concatExpr;
@@ -925,18 +1037,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, exprType);
-            if (opSymbol == symTable.notFoundSymbol) {
-                if (exprType != symTable.errType) {
-                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
-                }
-                return newChildren;
+            if (opSymbol == symTable.notFoundSymbol && exprType != symTable.errType) {
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
             }
 
             if (strConcatExpr == null) {
                 strConcatExpr = expr;
                 continue;
             }
-            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr);
+            strConcatExpr = getBinaryAddExppression(strConcatExpr, expr, opSymbol);
         }
 
         // Add remaining concatenated text nodes as children
@@ -947,13 +1056,20 @@ public class TypeChecker extends BLangNodeVisitor {
         return newChildren;
     }
 
-    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr) {
+    private BLangExpression getBinaryAddExppression(BLangExpression lExpr, BLangExpression rExpr, BSymbol opSymbol) {
         BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         binaryExpressionNode.lhsExpr = lExpr;
         binaryExpressionNode.rhsExpr = rExpr;
         binaryExpressionNode.pos = rExpr.pos;
         binaryExpressionNode.opKind = OperatorKind.ADD;
-        checkExpr(binaryExpressionNode, env);
+        if (opSymbol != symTable.notFoundSymbol) {
+            binaryExpressionNode.type = opSymbol.type.getReturnTypes().get(0);
+            binaryExpressionNode.opSymbol = (BOperatorSymbol) opSymbol;
+        } else {
+            binaryExpressionNode.type = symTable.errType;
+        }
+
+        types.checkType(binaryExpressionNode, binaryExpressionNode.type, symTable.stringType);
         return binaryExpressionNode;
     }
 

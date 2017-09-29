@@ -26,6 +26,7 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
+            <package name="org.ballerinalang.test.types.*"/>
         </packages>
     </test>
 </suite>
