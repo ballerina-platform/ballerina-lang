@@ -109,13 +109,6 @@ class FunctionNode extends React.Component {
                     canDrop={this.canDropToPanelBody}
                     /**titleComponentData={titleComponentData}*/
                 >
-                    <LifeLine
-                        title="default"
-                        bBox={this.props.model.viewState.components.defaultWorker}
-                        classes={classes}
-                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                        iconColor='#025482'
-                    />
                     <StatementContainer
                         dropTarget={this.props.model}
                         title="StatementContainer"
@@ -123,6 +116,13 @@ class FunctionNode extends React.Component {
                     >
                         {body}
                     </StatementContainer>
+                    <LifeLine
+                        title="default"
+                        bBox={this.props.model.viewState.components.defaultWorker}
+                        classes={classes}
+                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                        iconColor='#025482'
+                    />
                 </PanelDecorator>);
                 
        // TODOX }

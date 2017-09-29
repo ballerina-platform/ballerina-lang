@@ -290,6 +290,7 @@ class PanelDecorator extends React.Component {
                         baseComponent="rect"
                         dropTarget={this.props.dropTarget}
                         canDrop={this.props.canDrop}
+                        enableDragBg
                     />
                     }
                     {!collapsed && this.props.children}

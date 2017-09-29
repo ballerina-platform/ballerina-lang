@@ -50,6 +50,7 @@ class StatementContainer extends React.Component {
                     height={bBox.h}
                     baseComponent="rect"
                     dropTarget={this.props.dropTarget}
+                    enableDragBg
                 />
                 {this.props.children}
             </g>

@@ -22,23 +22,53 @@ import { withDropEnabled } from './drop-target';
 import Node from './../model/tree/node';
 import './drop-zone.scss';
 
+const BASE_TYPES = {
+    DIV: 'div',
+    RECT: 'rect',
+};
+
 class DropZone extends React.Component {
     render() {
         const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
-            isDragging, dropTarget, canDrop, ...restProps } = this.props;
+            isDragging, dropTarget, canDrop, enableDragBg, ...restProps } = this.props;
         const Component = baseComponent;
-        return connectDropTarget(
-            <Component
-                {...restProps}
-                className={
-                    cn(baseComponent, className, 'drop-zone',
-                        { active: isOverCurrent },
-                        { blocked: !canDrop },
-                        { possible: isDragging && !isOverCurrent && canDrop }
-                    )
-                }
-            />
-        );
+        let result;
+        if (isDragging && enableDragBg && BASE_TYPES.RECT === baseComponent) {
+            // only get position info for background rect while dragging
+            const positionProps = (({ x, y, width, height }) => ({ x, y, width, height }))(restProps);
+            result = (
+                <g>
+                    <Component
+                        {...positionProps}
+                        className="drop-zone-background"
+                    />
+                    <Component
+                        {...restProps}
+                        className={
+                            cn(baseComponent, className, 'drop-zone',
+                                { active: isOverCurrent },
+                                { blocked: !canDrop },
+                                { possible: isDragging && !isOverCurrent && canDrop }
+                            )
+                        }
+                    />
+                </g>
+            );
+        } else {
+            result = (
+                <Component
+                    {...restProps}
+                    className={
+                        cn(baseComponent, className, 'drop-zone',
+                            { active: isOverCurrent },
+                            { blocked: !canDrop },
+                            { possible: isDragging && !isOverCurrent && canDrop }
+                        )
+                    }
+                />
+            );
+        }
+        return connectDropTarget(result);
     }
 }
 
@@ -47,6 +77,7 @@ DropZone.propTypes = {
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     className: PropTypes.string,
     connectDropTarget: PropTypes.func.isRequired,
+    enableDragBg: PropTypes.bool,
     isOver: PropTypes.bool,
     isOverCurrent: PropTypes.bool,
     canDrop: PropTypes.bool,
@@ -54,6 +85,7 @@ DropZone.propTypes = {
 };
 
 DropZone.defaultProps = {
+    enableDragBg: false,
     className: '',
 };
 
