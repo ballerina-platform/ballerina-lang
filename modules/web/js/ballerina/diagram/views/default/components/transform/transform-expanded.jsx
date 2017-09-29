@@ -348,14 +348,19 @@ class TransformExpanded extends React.Component {
         if (TreeUtil.isInvocation(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
-            paramExpressions = nodeExpression.getChildren();
-        } else {
+            paramExpressions = nodeExpression.argumentExpressions;
+        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
-            if (TreeUtil.isBinaryExpr(nodeExpression)) {
-                paramExpressions.push(nodeExpression.getLeftExpression());
-            }
+            paramExpressions.push(nodeExpression.getLeftExpression());
             paramExpressions.push(nodeExpression.getRightExpression());
+        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            nodeName = nodeExpression.getOperatorKind();
+            paramExpressions.push(nodeExpression.getExpression());
+        } else {
+            log.error('Invalid node type ' + nodeExpression.kind);
+            return;
         }
 
         if (_.isUndefined(nodeDef)) {
@@ -1076,6 +1081,7 @@ class TransformExpanded extends React.Component {
             });
             return intermediateNodes;
         } else {
+            log.error('Invalid node type ' + nodeExpression.kind);
             return [];
         }
     }
