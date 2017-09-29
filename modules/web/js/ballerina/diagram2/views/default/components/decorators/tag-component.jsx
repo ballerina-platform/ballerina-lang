@@ -360,7 +360,7 @@ class TagController extends React.Component {
                     </text>
                 </g>
                 <text
-                    x={componentData.components.closingBracket.x}
+                    x={componentData.components.closingBracket.x - 10}
                     y={componentData.components.closingBracket.y + 5}
                     className={componentData.closingBracketClassName}
                 >)
@@ -416,7 +416,7 @@ class TagController extends React.Component {
                     </text>
                 </g>
                 <text
-                    x={componentData.components.closingBracket.x}
+                    x={componentData.components.closingBracket.x - 10}
                     y={componentData.components.closingBracket.y + 5}
                     className={componentData.closingBracketClassName}
                 >)
