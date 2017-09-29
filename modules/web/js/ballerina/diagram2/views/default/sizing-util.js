@@ -330,7 +330,7 @@ class SizingUtil {
         // Get the largest among component heading width and component body width.
         const componentWidth = cmp.heading.w > cmp.body.w ? cmp.heading.w : cmp.body.w;
 
-        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2);
+        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
 
         // Set the width to the parameter definitions
         if (node.getParameters().length > 0) {
