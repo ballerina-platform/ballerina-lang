@@ -945,12 +945,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAnnotationAttachment(BallerinaParser.AnnotationAttachmentContext ctx) {
-//        boolean pkgAliasAvailable;
-//        if (ctx.nameReference() != null) {
-//            pkgAliasAvailable = true;
-//        } else {
-//            pkgAliasAvailable = false;
-//        }
         this.pkgBuilder.setAnnotationAttachmentName();
     }
 
