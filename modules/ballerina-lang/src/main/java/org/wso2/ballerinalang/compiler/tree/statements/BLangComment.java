@@ -27,10 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangComment extends BLangStatement implements CommentNode {
     public String value;
 
-    public BLangComment(String value) {
-        this.value = value;
-    }
-
     @Override
     public String getComment() {
         return value;

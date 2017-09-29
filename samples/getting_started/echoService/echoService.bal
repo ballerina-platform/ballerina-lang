@@ -1,4 +1,6 @@
 import ballerina.net.http;
+import ballerina.net.http.response;
+import ballerina.net.http.request;
 
 @http:configuration {basePath:"/echo"}
 service<http> echo {
@@ -7,10 +9,10 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (message m) {
-        http:convertToResponse(m);
-        reply m;
-    
+    resource echo (http:Request req, http:Response res) {
+        string payload = request:getStringPayload(req);
+        response:setStringPayload(res, payload);
+        response:send(res);
     }
     
 }

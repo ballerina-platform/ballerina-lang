@@ -271,4 +271,22 @@ public class ServerConnectorMessageHandler {
 
     }
 
+    public static void handleError(String protocol, Throwable throwable) {
+        String errorMsg = throwable.getMessage();
+
+        // bre log should contain bre stack trace, not the ballerina stack trace
+        breLog.error("error: " + errorMsg, throwable);
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause()), null, null);
+        } catch (Exception e) {
+            breLog.error("Cannot handle error using the error handler for: " + protocol, e);
+        }
+
+    }
+
 }

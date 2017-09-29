@@ -17,9 +17,13 @@
 */
 package org.ballerinalang.model.symbols;
 
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
 /**
  * @since 0.94
  */
 public interface AnnotationAttributeSymbol extends Symbol {
+
+    ExpressionNode getDefaultValue();
 
 }

@@ -50,7 +50,7 @@ public class AssignStmtTest {
         long expected = 100;
         Assert.assertEquals(actual, expected);
 
-        // Float assignment test
+        // floattype assignment test
         args = new BValue[] { new BFloat(2.3f) };
         returns = BTestUtils.invoke(result, "testFloatAssignStmt", args);
 
@@ -122,7 +122,7 @@ public class AssignStmtTest {
 
     @Test(description = "Test assignment statement with errors")
     public void testAssignmentNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         //testIncompatibleTypeAssign
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 8);
         //testAssignCountMismatch1
@@ -130,12 +130,16 @@ public class AssignStmtTest {
         //testAssignCountMismatch2
         BTestUtils.validateError(resultNegative, 2, "assignment count mismatch: 4 != 3", 21, 20);
         //testAssignTypeMismatch1
-        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 16);
+        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 17);
         BTestUtils.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 11);
         //testAssignTypeMismatch2
         BTestUtils.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 17);
         BTestUtils.validateError(resultNegative, 6, "incompatible types: expected 'string', found 'int'", 44, 14);
-
-
+        //testVarRepeatedReturn1
+        BTestUtils.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 17);
+        BTestUtils.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 20);
+        //testVarRepeatedReturn2
+        BTestUtils.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 17);
+        BTestUtils.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 20);
     }
 }

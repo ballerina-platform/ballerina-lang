@@ -97,4 +97,13 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 90);
     }
     
+    @Test
+    public void chainedWorkerSendReceive() {
+        BValue[] vals = BTestUtils.invoke(result, "chainedWorkerSendReceive", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 12);
+    }
+    
 }

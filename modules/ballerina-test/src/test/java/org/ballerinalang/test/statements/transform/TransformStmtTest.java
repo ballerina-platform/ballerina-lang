@@ -28,12 +28,10 @@ import org.testng.annotations.Test;
 public class TransformStmtTest {
 
     CompileResult result;
-    CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/statements/transform/transform-stmt.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/transform/transform-stmt-negative.bal");
     }
 
     @Test(description = "Test one to one simple transformation")
@@ -104,14 +102,61 @@ public class TransformStmtTest {
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
+    @Test(description = "Test one to one simple transformation with type cast and conversion")
+    public void testCastAndConversionInTransform() {
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "castAndConversionInTransform", args);
+
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Mr.John");
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "New York");
+
+        Assert.assertTrue(returns[3] instanceof BInteger);
+        Assert.assertEquals(returns[3].stringValue(), "30");
+    }
+
     @Test(description = "Test transform statement with errors")
     public void testTransformNegativeCases() {
+        CompileResult resultNegative = BTestUtils.compile("test-src/statements/transform/transform-stmt-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
-        //testIncompatibleTypeAssign
         BTestUtils.validateError(resultNegative, 0,
                 "input and output variables cannot be interchanged in transform statement", 19, 8);
         BTestUtils.validateError(resultNegative, 1,
                 "input and output variables cannot be interchanged in transform statement", 19, 22);
         BTestUtils.validateError(resultNegative, 2, "no statements found in the transform statement body", 28, 4);
+
+        resultNegative = BTestUtils
+                .compile("test-src/statements/transform/transform-stmt-negative-cast-and-conversion.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'string', found 'int'", 25, 14);
+        BTestUtils.validateError(resultNegative, 1,
+                "input and output variables cannot be interchanged in transform statement", 22, 8);
+        BTestUtils.validateError(resultNegative, 2,
+                "input and output variables cannot be interchanged in transform statement", 25, 8);
+
+        resultNegative = BTestUtils
+                .compile("test-src/statements/transform/transform-stmt-negative-function-invocations.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "input and output variables cannot be interchanged in transform statement", 20, 8);
+
+        resultNegative = BTestUtils
+                .compile("test-src/statements/transform/transform-stmt-negative-with-var.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "input and output variables cannot be interchanged in transform statement", 21, 8);
+
+        resultNegative = BTestUtils
+                .compile("test-src/statements/transform/transform-stmt-negative-with-var-def.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "input and output variables cannot be interchanged in transform statement", 21, 8);
     }
 }

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.WorkerSendNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -38,6 +39,7 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public List<BLangExpression> exprs;
     public BLangIdentifier workerIdentifier;
     public boolean isForkJoinSend;
+    public SymbolEnv env;
 
     public BLangWorkerSend() {
         this.exprs = new ArrayList<>();
@@ -72,9 +74,13 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+    
+    public String toActionString() {
+        return Arrays.toString(this.exprs.toArray()) + " -> " + this.workerIdentifier;
+    }
 
     @Override
     public String toString() {
-        return "BLangWorkerSend: " + Arrays.toString(this.exprs.toArray()) + " -> " + workerIdentifier;
+        return "BLangWorkerSend: " + this.toActionString();
     }
 }

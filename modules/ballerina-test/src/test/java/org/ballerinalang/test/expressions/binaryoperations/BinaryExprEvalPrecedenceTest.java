@@ -23,7 +23,7 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 public class BinaryExprEvalPrecedenceTest {
 
@@ -31,10 +31,10 @@ public class BinaryExprEvalPrecedenceTest {
 
     @BeforeClass
     public void setup() {
-        //result = BTestUtils.compile("test-src/expressions/binaryoperations/binary-expr-precedence.bal");
+        result = BTestUtils.compile("test-src/expressions/binaryoperations/binary-expr-precedence.bal");
     }
 
-    //@Test(description = "Test binary OR expression with left most expr evaluated to true expression.")
+    @Test(description = "Test binary OR expression with left most expr evaluated to true expression.")
     public void testBinaryOrExprWithLeftMostExprTrue() {
         boolean one = true;
         boolean two = false;
@@ -63,7 +63,7 @@ public class BinaryExprEvalPrecedenceTest {
         BTestUtils.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
     }
 
-    //@Test(description = "Test binary AND expression with left most expr evaluated to false expression.")
+    @Test(description = "Test binary AND expression with left most expr evaluated to false expression.")
     public void testBinaryAndExprWithLeftMostExprTrue() {
         boolean one = false;
         boolean two = false;
@@ -92,7 +92,7 @@ public class BinaryExprEvalPrecedenceTest {
         BTestUtils.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
     }
 
-    //@Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
+    @Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
     public void testMultiBinaryORExpr() {
         boolean one = false;
         boolean two = false;
@@ -109,7 +109,7 @@ public class BinaryExprEvalPrecedenceTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
+    @Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
     public void testMultiBinaryORExprNegative() {
         boolean one = false;
         boolean two = false;
@@ -126,7 +126,7 @@ public class BinaryExprEvalPrecedenceTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
+    @Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
     public void testMultiBinaryANDExpr() {
         boolean one = true;
         boolean two = true;
@@ -143,7 +143,7 @@ public class BinaryExprEvalPrecedenceTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
+    @Test(description = "Test multi binary expression with OR sub expressions inside If condition.")
     public void testMultiBinaryANDExprNegative() {
         boolean one = true;
         boolean two = false;

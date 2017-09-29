@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -135,6 +136,13 @@ public class Types {
         return type.tag <= TypeTags.TYPE;
     }
 
+    public boolean isAnnotationFieldType(BType type) {
+        return this.isValueType(type) ||
+                (type.tag == TypeTags.ANNOTATION) ||
+                (type.tag == TypeTags.ARRAY && ((BArrayType) type).eType.tag == TypeTags.ANNOTATION) ||
+                (type.tag == TypeTags.ARRAY && isValueType(((BArrayType) type).eType));
+    }
+
     public boolean isAssignable(BType actualType, BType expType) {
         // First check whether both references points to the same object.
         if (actualType == expType) {
@@ -156,6 +164,8 @@ public class Types {
         } else if (actualType.tag == expType.tag &&
                 !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
             return true;
+        } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.ARRAY) {
+            return checkArrayEquivalent(actualType, expType);
         }
 
         // If both types are structs then check for their equivalency
@@ -163,9 +173,13 @@ public class Types {
             return true;
         }
 
+        // If both types are constrained types, then check whether they are assignable
+        if (isConstrainedTypeAssignable(actualType, expType)) {
+            return true;
+        }
+
         // TODO Check connector equivalency
         // TODO Check enums
-        // TODO JSON and constrained JSON assignability
         return false;
     }
 
@@ -189,6 +203,10 @@ public class Types {
      * @return true if there exist an implicit cast from the actual type to the expected type.
      */
     public boolean isImplicitCastPossible(BType actualType, BType expType) {
+        if (isConstrainedType(expType) && ((ConstrainedType) expType).getConstraint() != symTable.noType) {
+            return false;
+        }
+
         BSymbol symbol = symResolver.resolveImplicitCastOperator(actualType, expType);
         if (symbol != symTable.notFoundSymbol) {
             return true;
@@ -229,6 +247,21 @@ public class Types {
         return expType.tag == TypeTags.ANY && !isValueType(actualType);
     }
 
+    public boolean checkArrayEquivalent(BType actualType, BType expType) {
+        if (expType.tag == TypeTags.ARRAY && actualType.tag == TypeTags.ARRAY) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) expType;
+            BArrayType rhsArrayType = (BArrayType) actualType;
+            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+
+        }
+        // Now one or both types are not array types and they have to be equal
+        if (expType == actualType) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean checkStructEquivalency(BType actualType, BType expType) {
         if (actualType.tag != TypeTags.STRUCT || expType.tag != TypeTags.STRUCT) {
             return false;
@@ -253,10 +286,30 @@ public class Types {
         return true;
     }
 
+    public boolean checkStructToJSONCompatibility(BType type) {
+        if (type.tag != TypeTags.STRUCT) {
+            return false;
+        }
 
-    // private methods
+        List<BStructField> fields = ((BStructType) type).fields;
+        for (int i = 0; i < fields.size(); i++) {
+            BType fieldType = fields.get(i).type;
+            if (fieldType.tag == TypeTags.STRUCT && checkStructToJSONCompatibility(fieldType)) {
+                continue;
+            }
 
-    private void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
+            if (fieldType.tag != TypeTags.STRUCT && (isAssignable(fieldType, symTable.jsonType)
+                    || isImplicitCastPossible(fieldType, symTable.jsonType))) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
         BSymbol symbol = symResolver.resolveImplicitCastOperator(actualType, expType);
         if (symbol == symTable.notFoundSymbol) {
             return;
@@ -266,10 +319,36 @@ public class Types {
 
         BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
         implicitCastExpr.pos = expr.pos;
-        implicitCastExpr.expr = expr;
+        implicitCastExpr.expr = expr.impCastExpr == null ? expr : expr.impCastExpr;
         implicitCastExpr.type = expType;
         implicitCastExpr.types = Lists.of(expType);
         implicitCastExpr.castSymbol = castSymbol;
         expr.impCastExpr = implicitCastExpr;
+    }
+    
+
+    // private methods
+
+    private boolean isConstrainedTypeAssignable(BType actualType, BType expType) {
+        if (!isConstrainedType(actualType) || !isConstrainedType(expType)) {
+            return false;
+        }
+
+        if (actualType.tag != expType.tag) {
+            return false;
+        }
+
+        ConstrainedType expConstrainedType = (ConstrainedType) expType;
+        ConstrainedType actualConstrainedType = (ConstrainedType) actualType;
+
+        if (((BType) expConstrainedType.getConstraint()).tag == TypeTags.NONE) {
+            return true;
+        }
+
+        if (expConstrainedType.getConstraint() == actualConstrainedType.getConstraint()) {
+            return true;
+        }
+
+        return false;
     }
 }

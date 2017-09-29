@@ -57,6 +57,21 @@ function varDefInTransform() (string, int, string){
     return e.name, e.age, e.address;
 }
 
+function castAndConversionInTransform() (string, int, string, any){
+    Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
+    Employee e = {};
+    any ageAny = "";
+    any defaultAddress = "New York";
+    transform {
+        string age = "20";
+        e.address, _ = (string) defaultAddress; //unsafe explicit cast
+        e.name = getPrefixedName(p.firstName);
+        e.age, _ = <int> age; //unsafe conversion
+        ageAny = p.age; // implicit cast
+    }
+    return e.name, e.age, e.address, ageAny;
+}
+
 function getPrefixedName(string name)(string){
     return "Mr." + name;
 }
