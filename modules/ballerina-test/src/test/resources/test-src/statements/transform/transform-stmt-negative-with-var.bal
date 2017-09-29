@@ -23,3 +23,7 @@ function varInTransform() (string, int, string){
     }
     return e.name, e.age, e.address;
 }
+
+function getPrefixedName(string a) (string) {
+    return "";
+}

@@ -20,10 +20,15 @@ function castAndConversionInTransform() (string, int, string, any){
         string age = "20";
         e.address, _ = (string) defaultAddress; //unsafe explicit cast
         defaultAddress = p.city;
-        e.name = getPrefixedName(p.firstName);
+        e.name = p.firstName;
         e.age, _ = <int> age; //unsafe conversion
         age = p.age;
         ageAny = p.age; // implicit cast
     }
     return e.name, e.age, e.address, ageAny;
 }
+
+function getPrefixedName(string a) (string) {
+    return "";
+}
+

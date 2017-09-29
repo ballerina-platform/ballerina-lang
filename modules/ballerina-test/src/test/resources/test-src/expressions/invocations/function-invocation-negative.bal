@@ -7,5 +7,6 @@ function ambiguousFuncTest(int val) {
     string result = val + "abc";
 }
 
-
-
+function testUndefinedFunction() {
+    foo();
+}
