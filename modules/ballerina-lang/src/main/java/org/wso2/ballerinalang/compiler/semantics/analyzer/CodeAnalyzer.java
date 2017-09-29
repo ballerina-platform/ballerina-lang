@@ -102,7 +102,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -318,11 +318,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(transformNode.pos, DiagnosticCode.TRANSFORM_STATEMENT_EMPTY_BODY);
         }
         this.checkStatementExecutionValidity(transformNode);
-        Map<String, BLangExpression> inputs = new HashMap<>(); // right hand expressions by variable
-        Map<String, BLangExpression> outputs = new HashMap<>(); //left hand expressions by variable
+        Set<String> inputs = new HashSet<>();
+        Set<String> outputs = new HashSet<>();
         validateTransformStatementBody(transformNode.body, inputs, outputs);
-        inputs.forEach((k, v) -> transformNode.addInputExpression(v));
-        outputs.forEach((k, v) -> transformNode.addOutputExpression(v));
+        inputs.forEach((k) -> transformNode.addInput(k));
+        outputs.forEach((k) -> transformNode.addOutput(k));
     }
 
     public void visit(BLangPackageDeclaration pkgDclNode) {
@@ -552,20 +552,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @param inputs    input variable reference expressions map
      * @param outputs   output variable reference expressions map
      */
-    private void validateTransformStatementBody(BLangBlockStmt blockStmt,
-            Map<String, BLangExpression> inputs, Map<String, BLangExpression> outputs) {
+    private void validateTransformStatementBody(BLangBlockStmt blockStmt, Set<String> inputs, Set<String> outputs) {
+        Set<String> innerVars = new HashSet<>();
         for (BLangStatement statement : blockStmt.getStatements()) {
-            if (statement.getKind() == NodeKind.VARIABLE) {
+            if (statement.getKind() == NodeKind.VARIABLE_DEF) {
                 BLangVariableDef variableDefStmt = (BLangVariableDef) statement;
                 BLangVariable variable = variableDefStmt.var;
-                String varName = variable.getName().getValue();
+                String varName = variable.name.value;
+
                 //variables defined in transform scope, cannot be used as output
-                if (outputs.get(varName) != null) {
+                if (outputs.contains(varName)) {
                     this.dlog.error(variableDefStmt.pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
                     continue;
                 }
+
+                if (variable.expr.getKind() != NodeKind.LITERAL) {
+                    // if the variable does not hold a constant value, it is a temporary variable and hence not an input
+                    innerVars.add(varName);
+                }
+
                 //if variable has not been used as an output before
-                inputs.putIfAbsent(varName, variable.expr);
+                inputs.add(varName);
+
                 continue;
             }
             if (statement.getKind() == NodeKind.ASSIGNMENT) {
@@ -573,17 +581,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression lExpr : assignStmt.varRefs) {
                     BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (BLangExpression exp : varRefExpressions) {
-                        String varName = ((BLangSimpleVarRef) exp).variableName.getValue();
-                        if (!assignStmt.isDeclaredWithVar()) {
+                        String varName = ((BLangSimpleVarRef) exp).variableName.value;
+                        if (assignStmt.declaredWithVar) {
+                            innerVars.add(varName);
+                        } else {
                             // if lhs is declared with var, they not considered as output variables since they are
                             // only available in transform statement scope
-                            if (inputs.get(varName) != null) {
+                            if (inputs.contains(varName)) {
                                 this.dlog
                                         .error(assignStmt.pos, DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
                                 continue;
                             }
                             //if variable has not been used as an input before
-                            outputs.putIfAbsent(varName, exp);
+                            outputs.add(varName);
                         }
                     }
                 }
@@ -591,16 +601,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangExpression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (BLangExpression exp : varRefExpressions) {
                     String varName = ((BLangSimpleVarRef) exp).variableName.getValue();
-                    if (outputs.get(varName) != null) {
+                    if (outputs.contains(varName)) {
                         this.dlog.error(((BLangSimpleVarRef) exp).pos,
                                 DiagnosticCode.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT);
                         continue;
                     }
                     //if variable has not been used as an output before
-                    inputs.putIfAbsent(varName, exp);
+                    inputs.add(varName);
                 }
             }
         }
+        innerVars.forEach(var -> inputs.remove(var));
     }
 
     private BLangExpression[] getVariableReferencesFromExpression(BLangExpression expression) {
@@ -621,6 +632,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.BINARY_EXPR) {
+                List<BLangExpression> expList = new ArrayList<>();
+                expList.addAll(Arrays.asList(
+                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).rhsExpr)));
+                expList.addAll(Arrays.asList(
+                        getVariableReferencesFromExpression(((BLangBinaryExpr) expression).lhsExpr)));
+                return expList.toArray(new BLangExpression[expList.size()]);
+        } else if (expression.getKind() == NodeKind.UNARY_EXPR) {
+                return getVariableReferencesFromExpression(((BLangUnaryExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             return getVariableReferencesFromExpression(((BLangTypeConversionExpr) expression).expr);
         } else if (expression.getKind() == NodeKind.TYPE_CAST_EXPR) {

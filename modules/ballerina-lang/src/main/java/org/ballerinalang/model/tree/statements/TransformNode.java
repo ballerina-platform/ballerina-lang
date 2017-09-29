@@ -17,9 +17,7 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.List;
+import java.util.Set;
 
 /**
  * transform {
@@ -30,8 +28,8 @@ import java.util.List;
 public interface TransformNode extends StatementNode {
     BlockNode getBody();
     void setBody(BlockNode body);
-    List<? extends ExpressionNode> getInputExpressions();
-    List<? extends ExpressionNode> getOutputExpressions();
-    void addInputExpression(ExpressionNode expressionNode);
-    void addOutputExpression(ExpressionNode expressionNode);
+    Set<String> getInputs();
+    Set<String> getOutputs();
+    void addInput(String name);
+    void addOutput(String name);
 }

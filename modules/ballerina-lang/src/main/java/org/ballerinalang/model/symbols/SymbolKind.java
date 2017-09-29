@@ -31,6 +31,7 @@ public enum SymbolKind {
     FUNCTION,
     WORKER,
     ANNOTATION,
+    ANNOTATION_ATTRIBUTE,
     CONSTANT,
     PACKAGE_VARIABLE,
 

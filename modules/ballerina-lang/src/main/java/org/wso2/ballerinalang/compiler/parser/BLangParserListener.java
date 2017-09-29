@@ -27,6 +27,7 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -548,6 +549,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, null);
     }
 
     /**
@@ -566,6 +572,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
     }
 
     /**
@@ -584,6 +595,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
     }
 
     /**
@@ -602,6 +618,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
     }
 
     /**
@@ -620,6 +641,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
     }
 
     /**
@@ -638,6 +664,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TYPEMAPPER, null);
     }
 
     /**
@@ -656,6 +687,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
     }
 
     /**
@@ -674,6 +710,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST, null);
     }
 
     /**
@@ -692,6 +733,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.PARAMETER, null);
     }
 
     /**
@@ -710,6 +756,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION, null);
     }
 
     /**
