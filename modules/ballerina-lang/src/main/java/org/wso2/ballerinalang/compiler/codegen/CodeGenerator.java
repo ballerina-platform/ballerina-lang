@@ -1683,7 +1683,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void addLineNumberInfo(BLangStatement statement) {
         DiagnosticPos pos = statement.pos;
-        if (pos == null || NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
+        if (NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
             return;
         }
         LineNumberInfo lineNumInfo = createLineNumberInfo(pos, currentPkgInfo, currentPkgInfo.instructionList.size());
