@@ -260,13 +260,13 @@ class TransformStatementDecorator extends React.Component {
     }
 
     setActionVisibility(show) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            if (show) {
-                this.context.activeArbiter.readyToActivate(this);
-            } else {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-        }
+        // if (!this.context.dragDropManager.isOnDrag()) {
+        //     if (show) {
+        //         this.context.activeArbiter.readyToActivate(this);
+        //     } else {
+        //         this.context.activeArbiter.readyToDeactivate(this);
+        //     }
+        // }
     }
 }
 
