@@ -23,7 +23,7 @@ import ReactJson from 'react-json-view';
 import JSON5 from 'json5';
 import HTMLTree from 'react-htmltree';
 import 'react-treeview/react-treeview.css';
-import './frames.css';
+import './frames.scss';
 /**
  *
  *
@@ -61,13 +61,11 @@ class Frames extends React.Component {
         return (
             <div key={i}>
                 {frame.variables.map((variable, j) => {
-                    const { type = '', name, value, scope } = variable;
-                    const label = <span className="node"><strong>{name}</strong>{` = (${type})`}</span>;
-                    if (type === 'json' || type === 'struct' || type === 'map') {
+                    const { type = '', name, value } = variable;
+                    const label = <span className="node"><strong>{name}</strong>{` (${type})`}</span>;
+                    if (type.toLowerCase().includes('json') || type.toLowerCase().includes('struct') || type.toLowerCase().includes('map')) {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
-                                <div className="node">Type: {type}</div>
-                                <div className="node">Scope: {scope}</div>
                                 <div className="node">Value:</div>
                                 <ReactJson
                                     src={this.getObject(variable.value)}
@@ -81,8 +79,6 @@ class Frames extends React.Component {
                     } else if (type.toLowerCase().includes('array')) {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
-                                <div className="node">Type: {type}</div>
-                                <div className="node">Scope: {scope}</div>
                                 <div className="node">Value:</div>
                                 <ReactJson
                                     src={this.getArray(variable.value)}
@@ -97,18 +93,14 @@ class Frames extends React.Component {
                     } else if (type.toLowerCase().includes('xml')) {
                         return (
                             <TreeView key={j} nodeLabel={label} defaultCollapsed>
-                                <div className="node">Type: {type}</div>
-                                <div className="node">Scope: {scope}</div>
                                 <div className="node">Value:</div>
                                 <HTMLTree source={variable.value} theme="firefox-devtools.dark" />
                             </TreeView>
                         );
                     } else {
-                        const varLabel = <span className="node"><strong>{name}</strong>{` = (${type}) ${value}`}</span>;
+                        const varLabel = <span className="node"><strong>{name}</strong>{` (${type})`}</span>;
                         return (
                             <TreeView key={j} nodeLabel={varLabel} defaultCollapsed>
-                                <div className="node">Type: {type}</div>
-                                <div className="node">Scope: {scope}</div>
                                 <div className="node">Value: {value}</div>
                             </TreeView>
                         );
@@ -137,16 +129,12 @@ class Frames extends React.Component {
                             <div className="" key={frame.frameName}>
                                 <div className="">
                                     <h4 className="panel-title">
-                                        <a
-                                            data-toggle="collapse"
-                                            data-parent={`#debugger-frame-${frame.frameName}`}
-                                            href={`#${frame.frameName}`}
-                                        >
+                
                                             {`${frame.frameName}`}
-                                            <span className="debug-frame-pkg-name">
+                                            <div className="debug-frame-pkg-name">
                                                 <i className="fw fw-package"></i>{`${frame.packageName}`}
-                                            </span>
-                                        </a>
+                                            </div>
+
                                     </h4>
                                 </div>
                                 <div className="clearfix"> </div>

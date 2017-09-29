@@ -137,6 +137,9 @@ class App extends React.Component {
      * @inheritdoc
      */
     render() {
+        const {showBottomPanel, bottomPanelSize} = this.state;
+        const renderedBottomPanelSize = showBottomPanel ? bottomPanelSize : 0;
+
         return (
             <div className="" onContextMenu={() => false}>
                 <Header
@@ -196,7 +199,7 @@ class App extends React.Component {
                         primary="second"
                         minSize={this.state.showBottomPanel ? bottomPanelDefaultSize : 0}
                         maxSize={bottomPanelMaxSize}
-                        defaultSize={this.state.showBottomPanel ? this.state.bottomPanelSize : 0}
+                        defaultSize={renderedBottomPanelSize}
                         onDragFinished={(size) => {
                             if (!_.isNil(this.topBottomSplitPane)) {
                                 this.topBottomSplitPane.setState({
@@ -208,14 +211,14 @@ class App extends React.Component {
                         }
                         }
                         pane1Style={{
-                            height: this.state.documentHeight - (headerHeight + toolAreaHeight
-                                + this.state.bottomPanelSize),
+                            height: this.state.documentHeight - (headerHeight + toolAreaHeight +
+                                renderedBottomPanelSize),
                         }}
                     >
                         <EditorArea
                             width={this.state.documentWidth - this.state.leftPanelSize}
                             height={this.state.documentHeight - (headerHeight + toolAreaHeight
-                                    + this.state.bottomPanelSize)}
+                                    + renderedBottomPanelSize)}
                             views={this.getViewsForRegion(REGIONS.EDITOR_AREA)}
                         />
                         <BottomPanel
