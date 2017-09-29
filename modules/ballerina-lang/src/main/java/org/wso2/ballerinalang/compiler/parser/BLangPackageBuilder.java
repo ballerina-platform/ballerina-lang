@@ -339,6 +339,18 @@ public class BLangPackageBuilder {
         addVar(pos, ws, identifier, exprAvailable, annotCount);
     }
 
+    public void addVarToAnnotation(DiagnosticPos pos,
+                                   Set<Whitespace> ws,
+                                   String identifier,
+                                   boolean exprAvailable,
+                                   int annotCount) {
+
+        Set<Whitespace> wsForSemiColon = removeLast(ws);
+        AnnotationNode annotNode = this.annotationStack.peek();
+        annotNode.addWS(wsForSemiColon);
+        addVar(pos, ws, identifier, exprAvailable, annotCount);
+    }
+
 
     public void addVar(DiagnosticPos pos,
                        Set<Whitespace> ws,

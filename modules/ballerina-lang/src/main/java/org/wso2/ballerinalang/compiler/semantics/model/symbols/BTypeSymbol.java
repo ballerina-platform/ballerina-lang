@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     @Override
     public String toString() {
-        if (this.pkgID == PackageID.DEFAULT) {
+        if (this.pkgID == PackageID.DEFAULT || this.pkgID.name == Names.BUILTIN_PACKAGE) {
             return this.name.value;
         }
         return this.pkgID + ":" + this.name;

@@ -164,6 +164,8 @@ public class Types {
         } else if (actualType.tag == expType.tag &&
                 !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
             return true;
+        } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.ARRAY) {
+            return checkArrayEquivalent(actualType, expType);
         }
 
         // If both types are structs then check for their equivalency
@@ -243,6 +245,21 @@ public class Types {
 
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
         return expType.tag == TypeTags.ANY && !isValueType(actualType);
+    }
+
+    public boolean checkArrayEquivalent(BType actualType, BType expType) {
+        if (expType.tag == TypeTags.ARRAY && actualType.tag == TypeTags.ARRAY) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) expType;
+            BArrayType rhsArrayType = (BArrayType) actualType;
+            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+
+        }
+        // Now one or both types are not array types and they have to be equal
+        if (expType == actualType) {
+            return true;
+        }
+        return false;
     }
 
     public boolean checkStructEquivalency(BType actualType, BType expType) {

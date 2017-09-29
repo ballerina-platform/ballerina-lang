@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -67,6 +68,8 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgSource.getPackageSourceEntries()
                 .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgSource.getPackageId(),
+                pkgSource.getPackageSourceEntries().get(0).getEntryName()), 1, 1, 1, 1);
         return pkgNode;
     }
 

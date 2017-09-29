@@ -24,4 +24,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
  * @since 0.94
  */
 public abstract class BLangStatement extends BLangNode implements StatementNode {
+
+    public BLangStatementLink statementLink;
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangStatementLink {
+        public BLangStatement statement;
+        public BLangStatementLink parent;
+    }
 }

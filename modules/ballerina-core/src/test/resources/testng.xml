@@ -35,14 +35,14 @@ under the License.
     </test>-->
 
     <!-- Parser Level Test Cases -->
-    <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
-        <classes>
+    <!--<test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">-->
+        <!--<classes>-->
             <!-- Negative Test cases -->
             <!--<class name="org.ballerinalang.core.parser.negative.InvalidSyntaxParserTest"/>-->
             <!-- whitespace capture test cases -->
             <!--<class name="org.ballerinalang.core.parser.whitespace.WhiteSpaceCaptureTest"/>-->
-        </classes>
-    </test>
+        <!--</classes>-->
+    <!--</test>-->
 
     <!-- Native Function Related Test Cases. -->
     <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">

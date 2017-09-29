@@ -380,7 +380,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean nativeAction = KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        boolean nativeAction = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         this.pkgBuilder.endActionDef(
                 getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size(), nativeAction, bodyExists);
@@ -1987,8 +1987,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
+        if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
         this.pkgBuilder.addVarToStruct(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 ctx.simpleLiteral() != null, 0);
+        } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
+            this.pkgBuilder.addVarToAnnotation(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                    ctx.simpleLiteral() != null, 0);
+        }
     }
 
     /**

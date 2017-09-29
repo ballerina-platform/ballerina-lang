@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -469,14 +471,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
-            if (varRef instanceof  BLangSimpleVarRef && ((BLangVariableReference) varRef).symbol.flags == Flags.CONST
-                    && env.enclInvokable != env.enclPkg.initFunction) {
-                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
-                expTypes.add(symTable.errType);
-                continue;
-            }
+            checkConstantAssignment(varRef, expTypes);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    private void checkConstantAssignment(BLangExpression varRef, List<BType> expTypes) {
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+        Name varName = names.fromIdNode(simpleVarRef.variableName);
+        if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
+                && env.enclInvokable != env.enclPkg.initFunction) {
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+            expTypes.add(symTable.errType);
+        }
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -779,6 +789,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangThrow throwNode) {
+        this.typeChecker.checkExpr(throwNode.expr, env, Lists.of(symTable.errStructType));
+    }
+
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
@@ -850,4 +865,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    @Override
+    public void visit(BLangComment commentNode) {
+        // do nothing
+    }
 }

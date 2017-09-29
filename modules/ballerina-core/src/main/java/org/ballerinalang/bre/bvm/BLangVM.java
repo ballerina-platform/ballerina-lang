@@ -3168,7 +3168,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i < tFields.length; i++) {
-            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
+            if (isAssignable(tFields[i].getFieldType(), sFields[i].getFieldType()) &&
                     tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
                 continue;
             }
@@ -3176,6 +3176,55 @@ public class BLangVM {
         }
 
         return true;
+    }
+
+    private static boolean isAssignable(BType actualType, BType expType) {
+        // First check whether both references points to the same object.
+        if (actualType == expType) {
+            return true;
+        }
+
+        // If the both type tags are equal, then perform following checks.
+        if (actualType.getTag() == expType.getTag() && isValueType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() &&
+                !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayEquivalent(actualType, expType);
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) actualType, (BStructType) expType)) {
+            // If both types are structs then check for their equivalency
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isValueType(BType type) {
+        return type.getTag() <= TypeTags.BLOB_TAG;
+    }
+
+    private static boolean isUserDefinedType(BType type) {
+        return type.getTag() == TypeTags.STRUCT_TAG || type.getTag() == TypeTags.CONNECTOR_TAG ||
+                type.getTag() == TypeTags.ENUM_TAG || type.getTag() == TypeTags.ARRAY_TAG;
+    }
+
+    private static boolean isConstrainedType(BType type) {
+        return type.getTag() == TypeTags.JSON_TAG;
+    }
+
+    private static boolean checkArrayEquivalent(BType actualType, BType expType) {
+        if (expType.getTag() == TypeTags.ARRAY_TAG && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) expType;
+            BArrayType rhsArrayType = (BArrayType) actualType;
+            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+        }
+        // Now one or both types are not array types and they have to be equal
+        if (expType == actualType) {
+            return true;
+        }
+        return false;
     }
 
     private void convertJSONToInt(int[] operands, StackFrame sf) {
