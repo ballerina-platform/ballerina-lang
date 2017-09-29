@@ -1987,8 +1987,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
+        if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
         this.pkgBuilder.addVarToStruct(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 ctx.simpleLiteral() != null, 0);
+        } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
+            this.pkgBuilder.addVarToAnnotation(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                    ctx.simpleLiteral() != null, 0);
+        }
     }
 
     /**
