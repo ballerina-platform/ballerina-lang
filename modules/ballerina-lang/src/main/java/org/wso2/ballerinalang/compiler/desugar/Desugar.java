@@ -548,7 +548,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
     }

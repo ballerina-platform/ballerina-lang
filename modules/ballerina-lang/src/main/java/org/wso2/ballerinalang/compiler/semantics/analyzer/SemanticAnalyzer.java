@@ -471,7 +471,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
             if (varRef instanceof  BLangSimpleVarRef && ((BLangVariableReference) varRef).symbol.flags == Flags.CONST
                     && env.enclInvokable != env.enclPkg.initFunction) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
                 expTypes.add(symTable.errType);
                 continue;
             }

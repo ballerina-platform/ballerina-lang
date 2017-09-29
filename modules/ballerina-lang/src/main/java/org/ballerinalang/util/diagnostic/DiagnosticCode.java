@@ -88,6 +88,7 @@ public enum DiagnosticCode {
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
+    CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.to.constant"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),

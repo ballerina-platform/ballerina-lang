@@ -517,7 +517,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
             service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
             defineServiceInitFunction(service, serviceEnv);
-//            service.symbol.initFunctionSymbol = service.initFunction.symbol;
             service.resources.stream()
                     .peek(action -> action.flagSet.add(Flag.PUBLIC))
                     .forEach(resource -> defineNode(resource, serviceEnv));
@@ -666,10 +665,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         //Add global variables to the init function
         pkgNode.globalVars.stream().filter(f -> f.expr != null)
                 .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v)));
-//        for (BLangVariable variable : pkgNode.getGlobalVariables()) {
-//            initFunction.body.addStatement(createVariableDefStatement(variable.pos, variable));
-//        }
-        
+
         addInitReturnStatement(initFunction.body);
         pkgNode.initFunction = initFunction;
         defineNode(pkgNode.initFunction, env);
