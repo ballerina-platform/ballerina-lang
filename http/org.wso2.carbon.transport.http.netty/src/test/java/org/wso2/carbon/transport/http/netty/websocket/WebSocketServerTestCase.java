@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 
 import static org.testng.AssertJUnit.assertTrue;
@@ -50,9 +52,8 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerTestCase.class);
 
+    private final int latchCountDownInSecs = 10;
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
-    private WebSocketTestClient primaryClient = new WebSocketTestClient();
-    private WebSocketTestClient secondaryClient = new WebSocketTestClient();
     private ServerConnector serverConnector;
 
     @BeforeClass
@@ -64,30 +65,37 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
                 listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
         connectorFuture.setWSConnectorListener(new WebSocketTestServerConnectorListener());
-        connectorFuture.sync();
     }
 
     @Test
     public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException, ProtocolException {
+        WebSocketTestClient primaryClient = new WebSocketTestClient();
         assertTrue(primaryClient.handhshake());
+        primaryClient.shutDown();
     }
 
     @Test
     public void testText() throws URISyntaxException, InterruptedException, SSLException, ProtocolException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient primaryClient = new WebSocketTestClient(latch);
         primaryClient.handhshake();
         String textSent = "test";
         primaryClient.sendText(textSent);
-        assertWebSocketClientTextMessage(primaryClient, textSent);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(primaryClient.getTextReceived(), textSent);
         primaryClient.shutDown();
     }
 
     @Test
     public void testBinary() throws InterruptedException, URISyntaxException, IOException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient primaryClient = new WebSocketTestClient(latch);
         primaryClient.handhshake();
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         primaryClient.sendBinary(bufferSent);
-        assertWebSocketClientBinaryMessage(primaryClient, bufferSent);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(primaryClient.getBufferReceived(), bufferSent);
         primaryClient.shutDown();
     }
 
@@ -98,9 +106,13 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
      */
     @Test
     public void testClientConnected() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient primaryClient = new WebSocketTestClient(latch);
+        WebSocketTestClient secondaryClient = new WebSocketTestClient();
         primaryClient.handhshake();
         secondaryClient.handhshake();
-        assertWebSocketClientTextMessage(primaryClient, WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(primaryClient.getTextReceived(), WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
         secondaryClient.shutDown();
         primaryClient.shutDown();
     }
@@ -113,21 +125,27 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
     @Test
     public void testClientCloseConnection()
             throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
+        CountDownLatch latch = new CountDownLatch(2);
+        WebSocketTestClient primaryClient = new WebSocketTestClient(latch);
+        WebSocketTestClient secondaryClient = new WebSocketTestClient();
         primaryClient.handhshake();
         secondaryClient.handhshake();
         secondaryClient.shutDown();
-        assertWebSocketClientTextMessage(primaryClient, WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(primaryClient.getTextReceived(), WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
         primaryClient.shutDown();
-        secondaryClient.shutDown();
     }
 
     @Test
     public void testPingPongMessage() throws InterruptedException, IOException, URISyntaxException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient primaryClient = new WebSocketTestClient(latch);
         primaryClient.handhshake();
         byte[] bytes = {6, 7, 8, 9, 10, 11};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         primaryClient.sendPing(bufferSent);
-        assertWebSocketClientBinaryMessage(primaryClient, bufferSent);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(primaryClient.getBufferReceived(), bufferSent);
         primaryClient.shutDown();
     }
 
@@ -142,15 +160,15 @@ public class WebSocketServerTestCase extends WebSocketTestCase {
         ServerConnectorFuture connectorFuture = alterServerConnector.start();
         WebSocketTestServerConnectorListener listener = new WebSocketTestServerConnectorListener();
         connectorFuture.setWSConnectorListener(listener);
-        connectorFuture.sync();
         String url = System.getProperty("url", String.format("ws://%s:%d/%s",
                                                              TestUtil.TEST_HOST, TestUtil.TEST_ALTER_INTERFACE_PORT,
                                                              "test"));
-        primaryClient = new WebSocketTestClient(url);
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient primaryClient = new WebSocketTestClient(url, latch);
         primaryClient.handhshake();
-        Thread.sleep(5000);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertFalse(primaryClient.isOpen());
-        Assert.assertFalse(listener.isIdleTimeout());
+        Assert.assertTrue(listener.isIdleTimeout());
         alterServerConnector.stop();
     }
 

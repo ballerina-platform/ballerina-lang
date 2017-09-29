@@ -53,7 +53,6 @@ public class WebSocketClientTestCase extends WebSocketTestCase {
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.TEST_REMOTE_WS_SERVER_PORT, "websocket");
-    private final int threadSleepTime = 5000;
     private final int latchWaitTimeInSeconds = 10;
     private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
