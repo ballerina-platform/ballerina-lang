@@ -26,24 +26,18 @@ import LifeLine from '../decorators/lifeline';
 import StatementContainer from '../decorators/statement-container';
 
 import { getComponentForNodeArray } from './../../../../diagram-util';
-/* TODOX
-import ASTFactory from '../../../../ast/ast-factory.js';
-*/
+import TreeUtil from '../../../../../model/tree-util';
+
 class FunctionNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.canDropToPanelBody = this.canDropToPanelBody.bind(this);
     }
 
-    canDropToPanelBody(nodeBeingDragged) {
-        /* TODOX
-        const nodeFactory = ASTFactory;
-        // IMPORTANT: override default validation logic
-        // Panel's drop zone is for worker and connector declarations only.
-        // Statements should only be allowed on top of function worker's dropzone.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
-            */
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorInitExpr(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     render() {
@@ -106,31 +100,31 @@ class FunctionNode extends React.Component {
                 {statemnts}
             </g>);
         } else {*/
-        return (
-            <PanelDecorator
-                bBox={bBox}
-                title={name}
-                model={this.props.model}
-                icon={icons}
-                argumentParams={argumentParameters}
-                returnParams={returnParameters}
-            >
-                <LifeLine
-                    title="default"
-                    bBox={this.props.model.viewState.components.defaultWorker}
-                    classes={classes}
-                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                    iconColor='#025482'
-                />
-                <StatementContainer
+            return (
+                <PanelDecorator
+                    bBox={bBox}
+                    title={name}
+                    model={this.props.model}
+                    icon={icons}
                     dropTarget={this.props.model}
-                    title="StatementContainer"
-                    bBox={this.props.model.viewState.components.statementContainer}
+                    canDrop={this.canDropToPanelBody}
+                    /**titleComponentData={titleComponentData}*/
                 >
-                    {body}
-                </StatementContainer>
-            </PanelDecorator>);
-
+                    <StatementContainer
+                        dropTarget={this.props.model}
+                        title="StatementContainer"
+                        bBox={this.props.model.viewState.components.statementContainer}
+                    >
+                        {body}
+                    </StatementContainer>
+                    <LifeLine
+                        title="default"
+                        bBox={this.props.model.viewState.components.defaultWorker}
+                        classes={classes}
+                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                        iconColor='#025482'
+                    />
+                </PanelDecorator>);
        // TODOX }
     }
 }

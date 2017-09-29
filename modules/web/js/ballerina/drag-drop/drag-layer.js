@@ -38,7 +38,7 @@ function getItemStyles(props) {
     }
 
     const { x, y } = currentOffset;
-    const transform = `translate(${x - 15}px, ${y - 30}px)`;
+    const transform = `translate(${x - 24}px, ${y - 48}px)`;
     return {
         transform,
         WebkitTransform: transform,
@@ -54,7 +54,7 @@ class SVGIconDragLayer extends React.Component {
         return (
             <div style={layerStyles}>
                 <div style={getItemStyles(this.props)}>
-                    <i style={{ color: 'black' }} className={`fw fw-2x fw-${icon}`} />
+                    <i style={{ color: 'black' }} className={`fw fw-3x fw-${icon}`} />
                 </div>
             </div>
         );

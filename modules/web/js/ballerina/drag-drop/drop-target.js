@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import { DropTarget } from 'react-dnd';
 import { ITEM_TYPES } from './constants';
 
@@ -28,13 +29,27 @@ export function withDropEnabled(DropArea) {
     // drop target spec
     const dropSpec = {
         drop: (props, monitor, component) => {
-
+            return {
+                dropTarget: props.dropTarget,
+            };
         },
         hover: (props, monitor, component) => {
 
         },
         canDrop: (props, monitor, component) => {
-
+            const { dropTarget, canDrop } = props;
+            const { dragSource } = monitor.getItem();
+            let validDrop = false;
+            // Try to validate drop throguh node methods
+            if (_.isFunction(dropTarget.canAcceptDrop)) {
+                validDrop = dropTarget.canAcceptDrop(dragSource);
+            }
+            // give priority to validate callback 
+            // directly given to DropZone
+            if (_.isFunction(canDrop)) {
+                validDrop = canDrop(dragSource);
+            }
+            return validDrop;
         },
     };
 
@@ -45,6 +60,7 @@ export function withDropEnabled(DropArea) {
             isOver: monitor.isOver(),
             isOverCurrent: monitor.isOver({ shallow: true }),
             canDrop: monitor.canDrop(),
+            isDragging: monitor.getItem() !== null,
         };
     }
     return DropTarget(ITEM_TYPES.NODE, dropSpec, collect)(DropArea);

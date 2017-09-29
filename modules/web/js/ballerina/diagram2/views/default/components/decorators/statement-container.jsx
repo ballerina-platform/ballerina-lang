@@ -17,146 +17,40 @@
  */
 
 import React from 'react';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
-// TODOX import ASTNode from '../../../../ast/node';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
+import DropZone from './../../../../../drag-drop/DropZone';
+import Node from './../../../../../model/tree/node';
 // TODOX import MessageManager from './../../../../visitors/';
 import './statement-container.css';
 // TODOX import ASTFactory from '../../../../ast/ast-factory.js';
 
 class StatementContainer extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-        this.startDropZones = this.startDropZones.bind(this);
-        this.stopDragZones = this.stopDragZones.bind(this);
-        this.state = {
-            dropZoneExist: false,
-            statementDropZoneActivated: false,
-            dropZoneDropNotAllowed: false,
-        };
-    }
-
     componentDidMount() {
-        /* TODOX const { dragDropManager, messageManager } = this.context;
-        dragDropManager.on('drag-start', this.startDropZones);
-        dragDropManager.on('drag-stop', this.stopDragZones);
+        /* TODOX const { messageManager } = this.context;
         messageManager.on('message-draw-start', this.startDropZones);
         messageManager.on('message-draw-stop', this.stopDragZones);*/
     }
 
     componentWillUnmount() {
-        /* TODOX const { dragDropManager, messageManager } = this.context;
-        dragDropManager.off('drag-start', this.startDropZones);
-        dragDropManager.off('drag-stop', this.stopDragZones);
+        /* TODOX const { messageManager } = this.context;
         messageManager.off('message-draw-start', this.startDropZones);
         messageManager.off('message-draw-stop', this.stopDragZones);*/
     }
 
-    onDropZoneActivate(e) {
-        /* TODOX const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.dropTarget;
-        const messageManager = this.context.messageManager;
-
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-
-            /* TODOX dragDropManager.setActivatedDropTarget(dropTarget, (nodeBeingDragged) => {
-                // IMPORTANT: override node's default validation logic
-                // This drop zone is for statements only.
-                // Unless it's in a Fork, in that case only Worker are allowed.
-                const factory = ASTFactory;
-                const callback = this.props.draggable;
-                return callback ? callback(nodeBeingDragged, dropTarget) :
-                    (factory.isStatement(nodeBeingDragged) || factory.isConnectorDeclaration(nodeBeingDragged));
-            });*/
-/*
-            this.setState({
-                statementDropZoneActivated: true,
-                dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-
-            dragDropManager.once('drop-target-changed', () => {
-                this.setState({ statementDropZoneActivated: false, dropZoneDropNotAllowed: false });
-            });
-
-            e.stopPropagation();
-        } else if (messageManager.isOnDrag()) {
-            /**
-             * Hover on a worker declaration while drawing an arrow starting from a worker invocation
-             *//*
-            messageManager.setDestination(dropTarget);
-            this.setState({
-                statementDropZoneActivated: true,
-                dropZoneDropNotAllowed: !messageManager.isAtValidDestination(),
-            });
-            e.stopPropagation();
-        }*/
-    }
-
-    onDropZoneDeactivate(e) {
-        /*const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.dropTarget;
-        const messageManager = this.context.messageManager;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({
-                    statementDropZoneActivated: false,
-                    dropZoneDropNotAllowed: false,
-                });
-            }
-
-            e.stopPropagation();
-        } else if (messageManager.isOnDrag()) {
-            this.setState({ statementDropZoneActivated: false, dropZoneDropNotAllowed: false });
-            messageManager.setDestination(undefined);
-            e.stopPropagation();
-        }*/
-    }
-
-    onDropZoneMouseUp(e) {
-        this.setState({
-            statementDropZoneActivated: false,
-            dropZoneDropNotAllowed: false,
-        });
-        e.stopPropagation();
-    }
-
-    startDropZones() {
-        this.setState({ dropZoneExist: true });
-    }
-
-    stopDragZones() {
-        this.setState({ dropZoneExist: false });
-    }
 
     render() {
         const bBox = this.props.bBox;
-        const dropZoneActivated = this.state.statementDropZoneActivated;
-        const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
-        const dropZoneClassName = ((!dropZoneActivated) ? 'drop-zone' : 'drop-zone active')
-            + ((dropZoneDropNotAllowed) ? ' block' : '');
-        const containerClassName = ((dropZoneActivated) ?
-            'statement-container drop-zone active' : 'statement-container');
-
-        const fill = this.state.dropZoneExist ? {} : { fill: 'none' };
-
         return (
-            <g className={containerClassName}>
-                <rect
+            <g className="statement-container">
+                <DropZone
                     x={bBox.x}
                     y={bBox.y}
                     width={bBox.w}
                     height={bBox.h}
-                    {...fill}
-                    className={dropZoneClassName}
-                    onMouseOver={e => this.onDropZoneActivate(e)}
-                    onMouseOut={e => this.onDropZoneDeactivate(e)}
-                    onMouseUp={e => this.onDropZoneMouseUp(e)}
+                    baseComponent="rect"
+                    dropTarget={this.props.dropTarget}
+                    enableDragBg
                 />
                 {this.props.children}
             </g>
@@ -171,7 +65,7 @@ StatementContainer.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }).isRequired,
-    // TODOX dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
+    dropTarget: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(PropTypes.element),
     draggable: PropTypes.func,
 };
@@ -182,7 +76,6 @@ StatementContainer.defaultProps = {
 };
 
 StatementContainer.contextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     // TODOX messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 };
 

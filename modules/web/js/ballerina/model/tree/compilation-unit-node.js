@@ -124,6 +124,32 @@ class CompilationUnitNode extends CompilationUnitNodeAbstract {
         this.addTopLevelNodes(globalNode, index);
     }
 
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return TreeUtils.isFunction(node)
+            || TreeUtils.isConnector(node)
+            || TreeUtils.isService(node)
+            || TreeUtils.isStruct(node)
+            || TreeUtils.isAnnotation(node);
+    }
+
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     */
+    acceptDrop(node) {
+        // TODO
+        this.addTopLevelNodes(node);
+    }
+
 }
 
 export default CompilationUnitNode;

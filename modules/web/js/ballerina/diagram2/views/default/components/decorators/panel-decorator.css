@@ -27,14 +27,7 @@
 .panel-header-controls-wrapper{
     fill: #666769;
 }
-.panel .panel-body .panel-body-rect.drop-zone.active {
-    fill: green;
-    fill-opacity: 0.2;
-}
 
-.panel .panel-body .panel-body-rect.drop-zone.active.block {
-    fill: red;
-}
 .headingRectTitle{
     fill: #666769;
     stroke: #666769;

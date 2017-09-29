@@ -35,25 +35,12 @@ import BackwardArrowDecorator from './backward-arrow-decorator';
 class CanvasDecorator extends React.Component {
 
     /**
-     * Creates an instance of CanvasDecorator.
-     * @param {Object} props React properites.
-     * @memberof CanvasDecorator
-     */
-    constructor(props) {
-        super(props);
-        this.state = { dropZoneActivated: false, dropZoneDropNotAllowed: false };
-    }
-
-    /**
      * Renders view for a canvas.
      *
      * @returns {ReactElement} The view.
      * @memberof CanvasDecorator
      */
     render() {
-        const dropZoneActivated = this.state.dropZoneActivated;
-        const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
-        const canvasClassName = `svg-container${dropZoneActivated ? ' drop-zone active' : ''}`;
         const arrowStart = {
             x: 0,
             y: 0,
@@ -62,22 +49,18 @@ class CanvasDecorator extends React.Component {
             x: 0,
             y: 0,
         };
-
-        const dropZoneClassName = (dropZoneActivated ? 'drop-zone active' : 'drop-zone ')
-                        + (dropZoneDropNotAllowed ? ' blocked' : '');
         return (
             <div className="grid-background" style={{ width: this.props.bBox.w }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg*/ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
-                <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
+                <svg className="svg-container" width={this.props.bBox.w} height={this.props.bBox.h}>
                     <DropZone
                         x="0"
                         y="0"
                         width="100%"
                         height="100%"
-                        className={dropZoneClassName}
                         baseComponent="rect"
                         dropTarget={this.props.dropTarget}
                     />
