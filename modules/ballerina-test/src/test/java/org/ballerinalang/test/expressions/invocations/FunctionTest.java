@@ -15,12 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.functions;
+package org.ballerinalang.test.expressions.invocations;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,22 +29,34 @@ import org.testng.annotations.Test;
  */
 public class FunctionTest {
 
-    private ProgramFile programFile;
+    CompileResult result;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/functions/function-with-no-return-stmt.bal");
+        result = BTestUtils.compile("test-src/expressions/invocations/function-stmt.bal");
     }
 
     @Test(description = "Test empty function scenario")
     public void testEmptyFunction() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "emptyFunction");
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "emptyFunction", args);
         Assert.assertEquals(returns.length, 0);
     }
 
     @Test(description = "Test function with empty default worker")
     public void testFunctionWithEmptyDefaultWorker() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "funcEmptyDefaultWorker");
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "funcEmptyDefaultWorker", args);
         Assert.assertEquals(returns.length, 0);
+    }
+
+    @Test
+    public void testNoReturnFunctions() {
+        BValue[] args = {};
+        BTestUtils.invoke(result, "test1", args);
+        BTestUtils.invoke(result, "test2", args);
+        BTestUtils.invoke(result, "test3", args);
+       // BTestUtils.invoke(result, "test4", args);
+       // BTestUtils.invoke(result, "test5", args);
     }
 }

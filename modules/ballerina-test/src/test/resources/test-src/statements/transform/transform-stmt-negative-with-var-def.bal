@@ -23,3 +23,7 @@ function varDefInTransform() (string, int, string){
     }
     return e.name, e.age, e.address;
 }
+
+function getNameWithPrefix(string a, string b) (string) {
+    return "";
+}

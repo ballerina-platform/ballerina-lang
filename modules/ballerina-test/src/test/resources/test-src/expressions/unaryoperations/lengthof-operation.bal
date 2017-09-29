@@ -1,4 +1,4 @@
-function arrayLengthAccessTestAssignmentCase(int x, int y) (int) {
+function arrayLengthAccessTestAssignmentCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -8,7 +8,7 @@ function arrayLengthAccessTestAssignmentCase(int x, int y) (int) {
     return length;
 }
 
-function arrayLengthAccessTestFunctionInvocationCase(int x, int y) (int) {
+function arrayLengthAccessTestFunctionInvocationCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -18,12 +18,11 @@ function arrayLengthAccessTestFunctionInvocationCase(int x, int y) (int) {
     return length;
 }
 
-
-function arrayLength(int x) (int) {
+function arrayLength (int x) (int) {
     return x;
 }
 
-function arrayLengthAccessTestVariableDefinitionCase(int x, int y) (int) {
+function arrayLengthAccessTestVariableDefinitionCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -32,27 +31,27 @@ function arrayLengthAccessTestVariableDefinitionCase(int x, int y) (int) {
     return length;
 }
 
-function arrayLengthAccessTestArrayInitializerCase(int x, int y) (int) {
+function arrayLengthAccessTestArrayInitializerCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int[] tempArr = [(lengthof arr),(x+y)];
+    int[] tempArr = [(lengthof arr), (x + y)];
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase(int x, int y) (int) {
+function arrayLengthAccessTestMapInitializerCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":(lengthof arr)};
     int length;
-    length, _ = (int) tempMap["length"];
+    length, _ = (int)tempMap["length"];
     return length;
 }
 
-function arrayLengthAccessTestReturnStatementCase(int x, int y) (int) {
+function arrayLengthAccessTestReturnStatementCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -60,7 +59,7 @@ function arrayLengthAccessTestReturnStatementCase(int x, int y) (int) {
     return (lengthof arr);
 }
 
-function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) (int,int,int) {
+function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) (int, int, int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -73,31 +72,31 @@ function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) (int,int,in
     return (lengthof arr), (lengthof brr), (lengthof crr);
 }
 
-function arrayLengthAccessTestIfConditionCase(int x, int y) (int) {
+function arrayLengthAccessTestIfConditionCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    if( (lengthof arr) == 3 ) {
+    if ((lengthof arr) == 3) {
         return 3;
-    } else{
+    } else {
         return 0;
     }
 }
 
-function arrayLengthAccessTestBinaryExpressionCase(int x, int y) (int) {
+function arrayLengthAccessTestBinaryExpressionCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    if((lengthof arr) == (lengthof arr)) {
+    if ((lengthof arr) == (lengthof arr)) {
         return 3;
-    } else{
+    } else {
         return 0;
     }
 }
 
-function arrayLengthAccessTestStructFieldAccessCase(int x, int y) (int) {
+function arrayLengthAccessTestStructFieldAccessCase (int x, int y) (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -105,7 +104,7 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) (int) {
     Person jack;
     jack = {name:"Jack", days:arr};
 
-    if ((lengthof jack.days) == 3 ) {
+    if ((lengthof jack.days) == 3) {
         return 3;
     } else {
         return 0;
@@ -117,3 +116,17 @@ struct Person {
     int[] days;
 }
 
+
+function arrayLengthAccessTestJSONArrayCase (int x, int y) (int) {
+    json arr = [x, y, 5, 5, 6, 6];
+    int length;
+    length = (lengthof arr);
+    return length;
+}
+
+function arrayLengthAccessTestJSONArrayNegativeNonArrayCase (int x, int y) (int) {
+    json arr = {"number1":x, "number2":y};
+    int length;
+    length = (lengthof arr);
+    return length;
+}

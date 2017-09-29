@@ -35,10 +35,13 @@ import org.testng.annotations.Test;
 public class FuncInvocationExprTest {
 
     CompileResult funcInvocationExpResult;
+    CompileResult funcInvocationNegative;
 
     @BeforeClass
     public void setup() {
-        funcInvocationExpResult = BTestUtils.compile("test-src/expressions/invocations/function-Invocation-expr.bal");
+        funcInvocationExpResult = BTestUtils.compile("test-src/expressions/invocations/function-invocation-expr.bal");
+        funcInvocationNegative = BTestUtils
+                .compile("test-src/expressions/invocations/function-invocation-negative.bal");
     }
 
     @Test
@@ -99,5 +102,13 @@ public class FuncInvocationExprTest {
         double actual = ((BFloat) returns[0]).floatValue();
         double expected = 4;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test uanry statement with errors")
+    public void testUnaryStmtNegativeCases() {
+        Assert.assertEquals(funcInvocationNegative.getErrorCount(), 2);
+        BTestUtils
+                .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 22);
+        BTestUtils.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 4);
     }
 }

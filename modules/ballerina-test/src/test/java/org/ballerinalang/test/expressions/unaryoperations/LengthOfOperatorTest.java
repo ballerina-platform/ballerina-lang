@@ -187,7 +187,7 @@ public class LengthOfOperatorTest {
     }
 
 
-    //@Test(description = "Test lengthof unary expression when reference point to JSON array.")
+    @Test(description = "Test lengthof unary expression when reference point to JSON array.")
     public void testArrayLengthAccessJSONArrayCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestJSONArrayCase", args);
@@ -200,7 +200,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test lengthof unary expression when reference point to JSON Object.")
+    @Test(description = "Test lengthof unary expression when reference point to JSON Object.")
     public void testArrayLengthAccessJSONArrayNegativeNonArrayCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BTestUtils.invoke(result, "arrayLengthAccessTestJSONArrayNegativeNonArrayCase", args);

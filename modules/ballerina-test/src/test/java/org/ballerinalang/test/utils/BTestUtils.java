@@ -113,6 +113,22 @@ public class BTestUtils {
     }
 
     /**
+     * Invoke a ballerina function.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName Name of the function to invoke
+     * @return return values of the function
+     */
+    public static BValue[] invoke(CompileResult compileResult, String functionName) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        BValue[] args = {};
+        ProgramFile programFile = compileResult.getProgFile();
+        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
+    }
+
+    /**
      * Compile and run a ballerina file.
      * 
      * @param sourceFilePath Path to the ballerina file.
