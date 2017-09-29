@@ -15,32 +15,35 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.symbols;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.util.List;
+import org.ballerinalang.model.types.ConstrainedType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * @since 0.94
  */
-public class BTypeSymbol extends BSymbol implements TypeSymbol {
+public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
-    public List<BVarSymbol> params;
-    public BInvokableSymbol initFunctionSymbol;
+    public BType constraint;
 
-    public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(kind, flags, name, pkgID, type, owner);
+    public BJSONType(int tag, BType constraint, BTypeSymbol tsymbol) {
+        super(tag, tsymbol);
+        this.constraint = constraint;
     }
 
     @Override
+    public BType getConstraint() {
+        return constraint;
+    }
+    
+    @Override
     public String toString() {
-        if (this.pkgID == PackageID.DEFAULT) {
-            return this.name.value;
+        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
+            return super.toString();
         }
-        return this.pkgID + ":" + this.name;
+
+        return super.toString() + "<" + constraint + ">";
     }
 }

@@ -15,23 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import java.util.List;
+import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * @since 0.94
  */
-public interface AnnotationAttachmentNode extends Node {
+public class BAnnotationType extends BType {
 
-    IdentifierNode getAnnotationName();
+    public BAnnotationType(BAnnotationSymbol symbol) {
+        super(TypeTags.ANNOTATION, symbol);
+        this.tsymbol = symbol;
+    }
 
-    void setAnnotationName(IdentifierNode name);
-
-    List<? extends AnnotationAttachmentAttributeNode> geAttributes();
-
-    void addAttribute(String attrName, AnnotationAttachmentAttributeValueNode value);
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.ANNOTATION;
+    }
 }

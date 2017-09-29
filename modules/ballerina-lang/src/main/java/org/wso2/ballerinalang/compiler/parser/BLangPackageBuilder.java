@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -191,10 +192,19 @@ public class BLangPackageBuilder {
 
     private Stack<ConnectorInitNode> connectorInitNodeStack = new Stack<>();
 
+    private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+
     protected int lambdaFunctionCount = 0;
 
     public BLangPackageBuilder(CompilationUnitNode compUnit) {
         this.compUnit = compUnit;
+    }
+
+    public void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint,
+                               String pkgPath) {
+        BLangAnnotationAttachmentPoint attachmentPoint =
+                new BLangAnnotationAttachmentPoint(attachPoint, pkgPath);
+        attachmentPointStack.push(attachmentPoint);
     }
 
     public void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -384,16 +394,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    public void addConnectorVarDeclaration(DiagnosticPos pos, String identifier, boolean exprAvailable) {
-        addVariableDefStatement(pos, identifier, exprAvailable);
-    }
-
     public void addConnectorInitExpression(DiagnosticPos pos, boolean exprAvailable) {
         BLangConnectorInit connectorInitNode = (BLangConnectorInit) TreeBuilder.createConnectorInitNode();
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
@@ -407,7 +414,8 @@ public class BLangPackageBuilder {
         connectorInitNode.pos = pos;
         connectorInitNode.connectorType = (BLangUserDefinedType) typeNodeStack.pop();
         if (exprAvailable) {
-            connectorInitNode.argsExpressions = this.exprNodeListStack.pop();
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
         }
         this.connectorInitNodeStack.push(connectorInitNode);
     }
@@ -536,7 +544,7 @@ public class BLangPackageBuilder {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.packageIdentifier = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         varRef.variableName = (BLangIdentifier) nameReference.name;
         this.exprNodeStack.push(varRef);
     }
@@ -937,6 +945,9 @@ public class BLangPackageBuilder {
 
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
+        }
+        while (!attachmentPointStack.empty()) {
+            ((BLangAnnotation) annotationNode).attachmentPoints.add(attachmentPointStack.pop());
         }
         this.compUnit.addTopLevelNode(annotationNode);
     }
@@ -1354,11 +1365,9 @@ public class BLangPackageBuilder {
                                                            String endingText, NodeKind targetStrExprKind) {
         List<BLangExpression> expressions = new ArrayList<BLangExpression>();
 
-        if (endingText != null && !endingText.isEmpty()) {
-            endingText = StringEscapeUtils.unescapeJava(endingText);
-            addLiteralValue(pos, TypeTags.STRING, endingText);
-            expressions.add((BLangExpression) exprNodeStack.pop());
-        }
+        endingText = endingText == null ? "" : StringEscapeUtils.unescapeJava(endingText);
+        addLiteralValue(pos, TypeTags.STRING, endingText);
+        expressions.add((BLangExpression) exprNodeStack.pop());
 
         while (!precedingTextFragments.isEmpty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());

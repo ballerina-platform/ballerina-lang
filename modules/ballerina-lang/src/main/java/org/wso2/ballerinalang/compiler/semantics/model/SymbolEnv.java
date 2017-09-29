@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -44,6 +45,8 @@ public class SymbolEnv {
 
     public BLangConnector enclConnector;
 
+    public BLangAnnotation enclAnnotation;
+
     public BLangService enclService;
 
     public BLangInvokableNode enclInvokable;
@@ -59,6 +62,7 @@ public class SymbolEnv {
         this.node = node;
         this.enclPkg = null;
         this.enclConnector = null;
+        this.enclAnnotation = null;
         this.enclService = null;
         this.enclInvokable = null;
         this.forkJoin = null;
@@ -69,6 +73,7 @@ public class SymbolEnv {
     public void copyTo(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
         target.enclConnector = this.enclConnector;
+        target.enclAnnotation = this.enclAnnotation;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
         target.forkJoin = this.forkJoin;
@@ -85,7 +90,7 @@ public class SymbolEnv {
     public static SymbolEnv createPkgLevelSymbolEnv(BLangNode node,
                                                     Scope scope, SymbolEnv pkgEnv) {
         SymbolEnv symbolEnv = duplicate(node, scope, pkgEnv);
-        symbolEnv.enclPkg = (BLangPackage) pkgEnv.node;
+        symbolEnv.enclPkg = pkgEnv.enclPkg;
         return symbolEnv;
     }
 
@@ -99,6 +104,12 @@ public class SymbolEnv {
         SymbolEnv connectorEnv = createPkgLevelSymbolEnv(node, scope, env);
         connectorEnv.enclConnector = node;
         return connectorEnv;
+    }
+
+    public static SymbolEnv createAnnotationEnv(BLangAnnotation node, Scope scope, SymbolEnv env) {
+        SymbolEnv annotationEnv = createPkgLevelSymbolEnv(node, scope, env);
+        annotationEnv.enclAnnotation = node;
+        return annotationEnv;
     }
 
     public static SymbolEnv createServiceEnv(BLangService node, Scope scope, SymbolEnv env) {

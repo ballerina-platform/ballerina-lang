@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,55 +34,20 @@ public class ConnectorInfo extends StructureTypeInfo {
     // Connector constructor signature
     public int signatureCPIndex;
 
+    public BType[] paramTypes;
+
     public BConnectorType connectorType;
 
     public Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
     private boolean isFilterConnector = false;
 
-    // This variable holds the method table for this type.
-    protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
-    protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
-
-    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex, int signatureCPIndex) {
+    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex) {
         super(pkgPathCPIndex, nameCPIndex);
-        this.signatureCPIndex = signatureCPIndex;
-    }
-
-    public Map<Integer, Integer> getMethodTableIndex() {
-        return methodTableIndex;
-    }
-
-    public void setMethodTableIndex(Map<Integer, Integer> methodTable) {
-        this.methodTableIndex = methodTable;
-    }
-
-    public void addMethodIndex(int methodNameCPIndex, int ip) {
-        methodTableIndex.put(methodNameCPIndex, new Integer(ip));
-    }
-
-    public void addMethodType(BConnectorType connectorType, ConnectorInfo connectorInfo) {
-        methodTableType.put(connectorType, connectorInfo);
-    }
-
-    public void setMethodTableType(Map<BConnectorType, ConnectorInfo> methodTable) {
-        this.methodTableType = methodTable;
-    }
-
-    public ConnectorInfo getMethodTypeStructure(BConnectorType connectorType) {
-        if (methodTableType.containsKey(connectorType)) {
-            return methodTableType.get(connectorType);
-        } else {
-            return null;
-        }
     }
 
     public boolean isFilterConnector() {
         return isFilterConnector;
-    }
-
-    public void setFilterConnector(boolean filterConnector) {
-        isFilterConnector = filterConnector;
     }
 
     @Override

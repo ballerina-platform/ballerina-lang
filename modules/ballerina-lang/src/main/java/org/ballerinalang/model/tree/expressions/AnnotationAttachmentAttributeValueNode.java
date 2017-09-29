@@ -28,7 +28,7 @@ public interface AnnotationAttachmentAttributeValueNode extends ExpressionNode {
 
     Node getValue();
 
-    List<AnnotationAttachmentAttributeValueNode> getValueArray();
+    List<? extends AnnotationAttachmentAttributeValueNode> getValueArray();
 
     void setValue(Node value);
 
