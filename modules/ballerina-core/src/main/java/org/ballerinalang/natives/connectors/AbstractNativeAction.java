@@ -17,6 +17,7 @@ package org.ballerinalang.natives.connectors;
 
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Identifier;
@@ -118,17 +119,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public abstract BValue execute(Context context);
-
-    /**
-     * Invoke Non Blocking Native Action.
-     *
-     * @param context           Ballerina context.
-     * @param connectorCallback Callback instance to notify completion of the action invocation.
-     */
-    public void execute(Context context, BalConnectorCallback connectorCallback) {
-        throw new BallerinaException("not implemented native action");
-    }
+    public abstract ConnectorFuture execute(Context context);
 
     /**
      * Validate Native Action invocation. This method will be invoked when callback.done().

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -24,12 +25,19 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -42,6 +50,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -50,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -57,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -69,7 +81,9 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -78,6 +92,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -131,6 +146,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
 
         // Visit all the imported packages
@@ -138,6 +156,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        analyzeDef(pkgNode.initFunction, pkgEnv);
+
+        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -168,15 +190,235 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Process workers
         funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
         funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
+
+        funcNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
+            annotationAttachment.accept(this);
+        });
     }
 
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
         SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, env);
         structNode.fields.forEach(field -> analyzeDef(field, structEnv));
+
+        structNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
+            annotationAttachment.accept(this);
+        });
     }
 
     public void visit(BLangAnnotation annotationNode) {
+        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
+        annotationNode.attributes.forEach(attribute -> {
+            analyzeNode(attribute, annotationEnv);
+        });
+
+        annotationNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION, null);
+            annotationAttachment.accept(this);
+        });
+    }
+
+    public void visit(BLangAnnotAttribute annotationAttribute) {
+        if (annotationAttribute.expr != null) {
+            // Default value exists case, default value should be of simpleLiteral
+            BType actualType = this.typeChecker.checkExpr(annotationAttribute.expr, env,
+                    Lists.of(annotationAttribute.symbol.type),
+                    DiagnosticCode.INVALID_OPERATION_INCOMPATIBLE_TYPES).get(0);
+
+            if (!(this.types.isValueType(annotationAttribute.symbol.type) && this.types.isValueType(actualType))) {
+                this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_DEFAULT_VALUE);
+            }
+        } else {
+            if (!this.types.isAnnotationFieldType(annotationAttribute.symbol.type)) {
+                this.dlog.error(annotationAttribute.pos, DiagnosticCode.INVALID_ATTRIBUTE_TYPE,
+                        annotationAttribute.symbol.type);
+            }
+        }
+    }
+
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        BSymbol symbol = this.symResolver.lookupSymbol(env,
+                new Name(annAttachmentNode.getAnnotationName().getValue()), SymTag.ANNOTATION);
+        if (symbol == this.symTable.notFoundSymbol) {
+            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                    annAttachmentNode.getAnnotationName().getValue());
+            return;
+        }
+        // Validate Attachment Point against the Annotation Definition.
+        BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
+        if (annotationSymbol.getAttachmentPoints() != null && annotationSymbol.getAttachmentPoints().size() > 0) {
+            BLangAnnotationAttachmentPoint[] attachmentPointsArrray =
+                    new BLangAnnotationAttachmentPoint[annotationSymbol.getAttachmentPoints().size()];
+            Optional<BLangAnnotationAttachmentPoint> matchingAttachmentPoint = Arrays
+                    .stream(annotationSymbol.getAttachmentPoints().toArray(attachmentPointsArrray))
+                    .filter(attachmentPoint -> attachmentPoint.equals(annAttachmentNode.attachmentPoint))
+                    .findAny();
+            if (!matchingAttachmentPoint.isPresent()) {
+                String msg = annAttachmentNode.attachmentPoint.getAttachmentPoint().getValue();
+                if (annAttachmentNode.attachmentPoint.getPkgPath() != null) {
+                    msg = annAttachmentNode.attachmentPoint.getAttachmentPoint().getValue() +
+                            "<" + annAttachmentNode.attachmentPoint.getPkgPath() + ">";
+                }
+                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
+                        annAttachmentNode.attachmentPoint.getAttachmentPoint(), annotationSymbol.name, msg);
+            }
+        }
+        // Validate Annotation Attachment Attributes against Annotation Definition.
+        validateAttributes(annAttachmentNode, annotationSymbol);
+        // Populate default values for Annotation Attachment from Annotation Definition.
+        populateDefaultValues(annAttachmentNode, annotationSymbol);
+    }
+
+    private void validateAttributes(BLangAnnotationAttachment annAttachmentNode, BAnnotationSymbol annotationSymbol) {
+        annAttachmentNode.attributes.forEach(annotAttachmentAttribute -> {
+            BAnnotationAttributeSymbol attributeSymbol = (BAnnotationAttributeSymbol)
+                    annotationSymbol.scope.lookup(new Name(annotAttachmentAttribute.getName())).symbol;
+            // Resolve Attribute against the Annotation Definition
+            if (attributeSymbol == null) {
+                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.NO_SUCH_ATTRIBUTE,
+                        annotAttachmentAttribute.getName(), annotationSymbol.name);
+                return;
+            }
+
+            if (annotAttachmentAttribute.value.value != null
+                    && annotAttachmentAttribute.value.value instanceof BLangExpression) {
+                //TODO : ADD check for ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST
+                this.typeChecker.checkExpr((BLangExpression) annotAttachmentAttribute.value.value,
+                        env, Lists.of(attributeSymbol.type), DiagnosticCode.INCOMPATIBLE_TYPES);
+                return;
+            } else {
+                if (attributeSymbol.type.tag == TypeTags.ARRAY) {
+                    // Attachment Attribute is Non Array Type as opposed to
+                    // Annotation Definition Attribute is of Array Type
+                    if (annotAttachmentAttribute.value.value != null) {
+                        this.types.checkType(annotAttachmentAttribute.pos, annotAttachmentAttribute.type,
+                                attributeSymbol.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+                    }
+                    annotAttachmentAttribute.value.arrayValues.forEach(value -> {
+                        if (value.value instanceof BLangAnnotationAttachment) {
+                            BLangAnnotationAttachment childAttachment =
+                                    (BLangAnnotationAttachment) value.value;
+                            if (childAttachment != null) {
+                                BSymbol symbol = this.symResolver.lookupSymbol(env,
+                                        new Name(childAttachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                                childAttachment.type = symbol.type;
+                                this.types.checkType(childAttachment.pos, childAttachment.type,
+                                        ((BArrayType) attributeSymbol.type).eType, DiagnosticCode.INCOMPATIBLE_TYPES);
+                                if (symbol == this.symTable.notFoundSymbol) {
+                                    this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                            childAttachment.getAnnotationName().getValue());
+                                    return;
+                                }
+                                validateAttributes(childAttachment, (BAnnotationSymbol) symbol);
+                            }
+                        } else {
+                            this.typeChecker.checkExpr((BLangExpression) value.value,
+                                    env, Lists.of(((BArrayType) attributeSymbol.type).eType),
+                                    DiagnosticCode.INCOMPATIBLE_TYPES);
+                        }
+                    });
+                } else {
+                    // Attachment Attribute is Array Type as opposed to
+                    // Annotation Definition Attribute is Non Array Type
+                    if (annotAttachmentAttribute.value.value == null) {
+                        this.dlog.error(annAttachmentNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_ARRAY_FOUND,
+                                annotAttachmentAttribute.getName(), attributeSymbol.type);
+                    }
+
+                    BLangAnnotationAttachment childAttachment =
+                            (BLangAnnotationAttachment) annotAttachmentAttribute.value.value;
+                    if (childAttachment != null) {
+                        BSymbol symbol = this.symResolver.lookupSymbol(env,
+                                new Name(childAttachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                        childAttachment.type = symbol.type;
+                        this.types.checkType(childAttachment.pos, childAttachment.type,
+                                attributeSymbol.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+                        if (symbol == this.symTable.notFoundSymbol) {
+                            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                    childAttachment.getAnnotationName().getValue());
+                            return;
+                        }
+                        validateAttributes(childAttachment, (BAnnotationSymbol) symbol);
+                    }
+                }
+            }
+        });
+    }
+
+    private void populateDefaultValues(BLangAnnotationAttachment annAttachmentNode,
+                                       BAnnotationSymbol annotationSymbol) {
+        for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
+            BLangAnnotAttachmentAttribute[] attributeArrray =
+                    new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
+            // Traverse through Annotation Attachment attributes and find whether current
+            // Annotation Definition attribute is present
+            Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
+                    .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
+                    .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
+                    .findAny();
+            // If no matching attribute is present populate with default value
+            if (!matchingAttribute.isPresent()) {
+                if (defAttribute.expr != null) {
+                    BLangAnnotAttachmentAttributeValue value = new BLangAnnotAttachmentAttributeValue();
+                    value.value = defAttribute.expr;
+                    annAttachmentNode.addAttribute(defAttribute.name.getValue(), value);
+                }
+                continue;
+            }
+
+            // Annotation Definition attribute is basic literal and it is included in current
+            // Annotation Attachment attribute, so continue to next Annotation Definition attribute
+            if (matchingAttribute.get().value.value != null &&
+                    !(matchingAttribute.get().value.value instanceof BLangAnnotationAttachment)) {
+                continue;
+            }
+
+            // Annotation Definition attribute is an Array of Annotation Attachments and it is included in current
+            // Annotation Attachment attribute,
+            // Recursively populate default values for this Array of Annotation Attachments
+            if (matchingAttribute.get().value.arrayValues.size() > 0) {
+                for (BLangAnnotAttachmentAttributeValue attr : matchingAttribute.get().value.arrayValues) {
+                    // Default values are not populated for BLangLiteral arrays
+                    if (attr.value != null &&
+                            !(attr.value instanceof BLangAnnotationAttachment)) {
+                        continue;
+                    }
+                    BLangAnnotationAttachment attachment =
+                            (BLangAnnotationAttachment) attr.value;
+                    if (attachment != null) {
+                        BSymbol symbol = this.symResolver.lookupSymbol(env,
+                                new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                        if (symbol == this.symTable.notFoundSymbol) {
+                            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                    attachment.getAnnotationName().getValue());
+                            return;
+                        }
+                        populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
+                    }
+                }
+            } else {
+                // Annotation Definition attribute it self is Annotation Attachment and it is included in current
+                // Annotation Attachment attribute,
+                // Recursively populate default values for this Annotation Attachment
+                BLangAnnotationAttachment attachment =
+                        (BLangAnnotationAttachment) matchingAttribute.get().value.value;
+                if (attachment != null) {
+                    BSymbol symbol = this.symResolver.lookupSymbol(env,
+                            new Name(attachment.getAnnotationName().getValue()), SymTag.ANNOTATION);
+                    if (symbol == this.symTable.notFoundSymbol) {
+                        this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
+                                attachment.getAnnotationName().getValue());
+                        return;
+                    }
+                    populateDefaultValues(attachment, (BAnnotationSymbol) symbol);
+                }
+            }
+        }
     }
 
     public void visit(BLangVariable varNode) {
@@ -229,8 +471,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+            checkConstantAssignment(varRef, expTypes);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    private void checkConstantAssignment(BLangExpression varRef, List<BType> expTypes) {
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+        Name varName = names.fromIdNode(simpleVarRef.variableName);
+        if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
+                && env.enclInvokable != env.enclPkg.initFunction) {
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+            expTypes.add(symTable.errType);
+        }
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -259,6 +515,39 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
+        BSymbol connectorSymbol = connectorNode.symbol;
+        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
+        connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
+        connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
+        connectorNode.annAttachments.forEach(annotation -> this.analyzeDef(annotation, connectorEnv));
+        this.analyzeDef(connectorNode.initFunction, connectorEnv);
+        connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
+
+        connectorNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
+            annotationAttachment.accept(this);
+        });
+    }
+
+    public void visit(BLangAction actionNode) {
+        BSymbol actionSymbol = actionNode.symbol;
+        if (Symbols.isNative(actionSymbol)) {
+            return;
+        }
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
+        actionNode.annAttachments.forEach(a -> this.analyzeDef(a, actionEnv));
+        actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
+        analyzeStmt(actionNode.body, actionEnv);
+        // Process workers
+        actionNode.workers.forEach(e -> this.symbolEnter.defineNode(e, actionEnv));
+        actionNode.workers.forEach(e -> analyzeNode(e, actionEnv));
+
+        actionNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
+            annotationAttachment.accept(this);
+        });
     }
 
     public void visit(BLangService serviceNode) {
@@ -266,7 +555,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
+        this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
+
+        serviceNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, null);
+            annotationAttachment.accept(this);
+        });
     }
 
     public void visit(BLangResource resourceNode) {
@@ -276,6 +572,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
         resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
+
+        resourceNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
+            annotationAttachment.accept(this);
+        });
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
@@ -393,6 +695,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        workerSendNode.env = this.env;
         workerSendNode.exprs.forEach(e -> this.typeChecker.checkExpr(e, this.env));
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
@@ -486,6 +789,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangThrow throwNode) {
+        this.typeChecker.checkExpr(throwNode.expr, env, Lists.of(symTable.errStructType));
+    }
+
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
@@ -555,5 +863,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), actualType, varName, env);
             typeChecker.checkExpr(simpleVarRef, env);
         });
+    }
+
+    @Override
+    public void visit(BLangComment commentNode) {
+        // do nothing
     }
 }

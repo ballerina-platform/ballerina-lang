@@ -30,13 +30,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleVarRef extends BLangVariableReference implements SimpleVariableReferenceNode {
 
-    public BLangIdentifier packageIdentifier;
+    public BLangIdentifier pkgAlias;
 
     public BLangIdentifier variableName;
 
     @Override
-    public BLangIdentifier getPackageIdentifier() {
-        return packageIdentifier;
+    public BLangIdentifier getPackageAlias() {
+        return pkgAlias;
     }
 
     @Override
@@ -47,8 +47,8 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     @Override
     public String toString() {
         StringBuilder br = new StringBuilder();
-        if (packageIdentifier != null && !packageIdentifier.getValue().isEmpty()) {
-            br.append(String.valueOf(packageIdentifier)).append(":");
+        if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
+            br.append(String.valueOf(pkgAlias)).append(":");
         }
         br.append(String.valueOf(variableName));
         return br.toString();

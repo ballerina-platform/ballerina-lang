@@ -40,6 +40,8 @@ public class ConnectorInfo extends StructureTypeInfo {
 
     private boolean isFilterConnector = false;
 
+    private ActionInfo initAction;
+
     // This variable holds the method table for this type.
     protected Map<Integer, Integer> methodTableIndex = new HashMap<>();
     protected Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
@@ -85,6 +87,14 @@ public class ConnectorInfo extends StructureTypeInfo {
 
     public void setFilterConnector(boolean filterConnector) {
         isFilterConnector = filterConnector;
+    }
+
+    public ActionInfo getInitAction() {
+        return initAction;
+    }
+
+    public void setInitAction(ActionInfo initAction) {
+        this.initAction = initAction;
     }
 
     public int getSignatureCPIndex() {

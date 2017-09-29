@@ -430,20 +430,6 @@ public class ProgramFileReader {
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
 
-            Map<Integer, Integer> methodTableInteger = new HashMap<>();
-            int count = dataInStream.readInt();
-
-            for (int k = 0; k < count; k++) {
-                int key = dataInStream.readInt();
-                int value = dataInStream.readInt();
-                methodTableInteger.put(new Integer(key), new Integer(value));
-            }
-
-            connectorInfo.setMethodTableIndex(methodTableInteger);
-
-            boolean isFilterConnector = dataInStream.readBoolean();
-            connectorInfo.setFilterConnector(isFilterConnector);
-
             // Read action info entries
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
@@ -461,6 +447,8 @@ public class ProgramFileReader {
                 UTF8CPEntry actionSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(actionSigCPIndex);
                 actionInfo.setSignatureCPIndex(actionSigCPIndex);
                 actionInfo.setSignature(actionSigUTF8Entry.getValue());
+                int flags = dataInStream.readInt();
+//                actionInfo.setflags(flags);
                 setCallableUnitSignature(actionInfo, actionSigUTF8Entry.getValue(), packageInfo);
 
                 // TODO Temp solution.
@@ -489,6 +477,8 @@ public class ProgramFileReader {
                 readAttributeInfoEntries(dataInStream, packageInfo, actionInfo);
             }
 
+            loadNativeInitActionIfAny(connectorInfo);
+
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
@@ -505,6 +495,30 @@ public class ProgramFileReader {
                 break;
             }
         }
+    }
+
+    private void loadNativeInitActionIfAny(ConnectorInfo connectorInfo) {
+        ActionInfo actionInfo = new ActionInfo(-1, connectorInfo.getPackagePath(),
+                -1, "<init>", connectorInfo);
+        actionInfo.setPackageInfo(connectorInfo.getPackageInfo());
+        AbstractNativeAction nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
+                actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
+        if (nativeActionObj == null) {
+            return;
+        }
+        WorkerInfo defaultWorkerInfo = new WorkerInfo(-1, "default");
+        CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
+        codeAttributeInfo.setAttributeNameIndex(-1);
+        codeAttributeInfo.setCodeAddrs(-1);
+        codeAttributeInfo.setMaxRefLocalVars(1); //Only connector object will be copied to the stack
+        defaultWorkerInfo.setCodeAttributeInfo(codeAttributeInfo);
+
+        BType type = new BConnectorType(connectorInfo.name, connectorInfo.packagePath);
+        actionInfo.paramTypes = new BType[] {type};
+        actionInfo.setRetParamTypes(new BType[0]);
+        actionInfo.setDefaultWorkerInfo(defaultWorkerInfo);
+        actionInfo.setNativeAction(nativeActionObj);
+        connectorInfo.setInitAction(actionInfo);
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,

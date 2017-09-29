@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * Dump Ballerina program model to a file.
@@ -304,15 +303,6 @@ public class ProgramFileWriter {
         // TODO write property flags  e.g. public
         dataOutStream.writeInt(connectorInfo.signatureCPIndex);
 
-        Map<Integer, Integer> methodTable = connectorInfo.getMethodTableIndex();
-        dataOutStream.writeInt(methodTable.size());
-        for (Integer s : methodTable.keySet()) {
-            dataOutStream.writeInt(s);
-            dataOutStream.writeInt(methodTable.get(s));
-        }
-
-        dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
-
         ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);
         for (ActionInfo actionInfo : actionInfoEntries) {
@@ -343,6 +333,10 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(actionInfo.nameCPIndex);
         dataOutStream.writeInt(actionInfo.signatureCPIndex);
         dataOutStream.writeInt(actionInfo.flags);
+
+        // TODO Temp solution
+        boolean b = (actionInfo.flags & Flags.NATIVE) == Flags.NATIVE;
+        dataOutStream.writeByte(b ? 1 : 0);
 
         WorkerDataChannelInfo[] workerDataChannelInfos = actionInfo.getWorkerDataChannelInfo();
         dataOutStream.writeShort(workerDataChannelInfos.length);

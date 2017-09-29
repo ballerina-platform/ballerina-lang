@@ -18,26 +18,24 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.TransformNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @since 0.94
  */
 public class BLangTransform extends BLangStatement implements TransformNode {
     public BLangBlockStmt body;
-    public List<BLangExpression> inputExprs;
-    public List<BLangExpression> outputExprs;
+    public Set<String> inputs;
+    public Set<String> outputs;
 
     public BLangTransform() {
-        this.inputExprs = new ArrayList<>();
-        this.outputExprs = new ArrayList<>();
+        this.inputs = new HashSet<>();
+        this.outputs = new HashSet<>();
     }
 
     @Override
@@ -51,23 +49,23 @@ public class BLangTransform extends BLangStatement implements TransformNode {
     }
 
     @Override
-    public List<BLangExpression> getInputExpressions() {
-        return inputExprs;
+    public Set<String> getInputs() {
+        return inputs;
     }
 
     @Override
-    public void addInputExpression(ExpressionNode expressionNode) {
-        this.inputExprs.add((BLangExpression) expressionNode);
+    public void addInput(String name) {
+        this.inputs.add(name);
     }
 
     @Override
-    public List<BLangExpression> getOutputExpressions() {
-        return outputExprs;
+    public Set<String> getOutputs() {
+        return outputs;
     }
 
     @Override
-    public void addOutputExpression(ExpressionNode expressionNode) {
-        this.outputExprs.add((BLangExpression) expressionNode);
+    public void addOutput(String name) {
+        this.outputs.add(name);
     }
 
     @Override

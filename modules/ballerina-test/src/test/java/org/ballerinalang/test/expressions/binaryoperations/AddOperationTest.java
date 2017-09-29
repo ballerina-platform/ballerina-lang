@@ -34,8 +34,7 @@ public class AddOperationTest {
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/expressions/binaryoperations/add-operation.bal");
-        //resultNegative = BTestUtils.
-        // compile("test-src/expressions/binaryoperations/add-operation-negative.bal");
+        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/add-operation-negative.bal");
     }
 
     @Test(description = "Test two int add expression")
@@ -91,7 +90,7 @@ public class AddOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test two int add expression")
+    @Test(description = "Test string and int add expression")
     public void testStringAndIntAddExpr() {
         String a = "test";
         int b = 10;
@@ -107,8 +106,10 @@ public class AddOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test binary statement with errors")
+    @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BTestUtils.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 9);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 14, 8);
     }
 }

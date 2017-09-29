@@ -33,8 +33,7 @@ public class MultiplyOperationTest {
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/expressions/binaryoperations/multiply-operation.bal");
-        /*resultNegative = BTestUtils.
-         compile("test-src/expressions/binaryoperations/multiply-operation-negative.bal");*/
+        resultNegative = BTestUtils.compile("test-src/expressions/binaryoperations/multiply-operation-negative.bal");
     }
 
     @Test(description = "Test two int multiply expression")
@@ -63,8 +62,10 @@ public class MultiplyOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test binary statement with errors")
+    @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BTestUtils.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 9);
+        BTestUtils.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 8);
     }
 }
