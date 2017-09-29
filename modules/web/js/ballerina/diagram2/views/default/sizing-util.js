@@ -532,7 +532,8 @@ class SizingUtil {
      *
      */
     sizeRetryNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -909,7 +910,8 @@ class SizingUtil {
      *
      */
     sizeAbortNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -920,7 +922,8 @@ class SizingUtil {
      *
      */
     sizeAssignmentNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -944,7 +947,8 @@ class SizingUtil {
      *
      */
     sizeBreakNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -955,7 +959,8 @@ class SizingUtil {
      *
      */
     sizeContinueNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -1010,7 +1015,8 @@ class SizingUtil {
      *
      */
     sizeReturnNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -1032,7 +1038,8 @@ class SizingUtil {
      *
      */
     sizeThrowNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -1100,7 +1107,8 @@ class SizingUtil {
      *
      */
     sizeWorkerReceiveNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
@@ -1111,7 +1119,8 @@ class SizingUtil {
      *
      */
     sizeWorkerSendNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(), viewState);
     }
 
 
