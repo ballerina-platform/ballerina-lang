@@ -453,11 +453,7 @@ public class HttpUtil {
     public static void startPendingHttpConnectors() throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors
-            PrintStream outStream = System.out;
-            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
-                    .startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
-                    "server connector " + serverConnector));
+            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
