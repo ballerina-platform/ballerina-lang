@@ -42,7 +42,7 @@ const toolIdOperatorMap = {
 const opClassMap = {};
 
 [...unaryOpTools, ...binaryOpTools].forEach(tool => {
-    opClassMap[toolIdOperatorMap[tool.id]] = tool.cssClass;
+    opClassMap[toolIdOperatorMap[tool.id]] = tool.icon;
 })
 
 export default opClassMap;
