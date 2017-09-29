@@ -161,7 +161,7 @@ public class JMSUtils {
 
             try {
                 jmsMessage = new JMSConnectorFactoryImpl().createClientConnector(propertyMap)
-                        .createJMSMessage(messageType);
+                        .createMessage(messageType);
             } catch (JMSConnectorException e) {
                 throw new BallerinaException("Failed to send message. " + e.getMessage(), e);
             }

@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.services.dispatchers.jms.JMSUtils;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ import javax.jms.Message;
                    returnType = {@ReturnType(type = TypeEnum.STRUCT, structPackage = "ballerina.net.jms", structType = "JMSMessage")},
                    isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Session commit action implementation for jms connector when using jms session transaction mode") })
+        value = "Create JMS Text message") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "JMSMessage",
                                                                          value = "Created JMS text message") })
 public class CreateTextMessage extends AbstractNativeFunction {
@@ -71,9 +71,9 @@ public class CreateTextMessage extends AbstractNativeFunction {
 
         try {
             jmsMessage = new JMSConnectorFactoryImpl().createClientConnector(propertyMap)
-                    .createJMSMessage("TextMessage");
+                    .createMessage("TextMessage");
         } catch (JMSConnectorException e) {
-            throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
+            throw new BallerinaException("Failed to create message. " + e.getMessage(), e, context);
         }
 
         BStruct bStruct = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_JMS, "JMSMessage");

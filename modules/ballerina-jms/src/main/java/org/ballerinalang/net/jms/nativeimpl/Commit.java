@@ -22,12 +22,12 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +50,7 @@ public class Commit extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         BMessage msg = (BMessage) getRefArgument(ctx, 0);
         CarbonMessage carbonMessage = msg.value();
-        Object jmsSessionAcknowledgementMode = carbonMessage
-                .getProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
+        Object jmsSessionAcknowledgementMode = carbonMessage.getProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
 
         if (null == jmsSessionAcknowledgementMode) {
             log.warn("JMS Commit function can only be used with JMS Messages. "
@@ -59,12 +58,11 @@ public class Commit extends AbstractNativeFunction {
             return VOID_RETURN;
         }
         if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
-            throw new BallerinaException(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
-                    + "integer value. ");
+            throw new BallerinaException(
+                    Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a " + "integer value. ");
         }
         if (Session.SESSION_TRANSACTED == (Integer) jmsSessionAcknowledgementMode) {
-            carbonMessage
-                    .setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, Constants.JMS_MESSAGE_DELIVERY_SUCCESS);
+            carbonMessage.setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, Constants.JMS_MESSAGE_DELIVERY_SUCCESS);
             ctx.getBalCallback().done(carbonMessage);
 
         } else {

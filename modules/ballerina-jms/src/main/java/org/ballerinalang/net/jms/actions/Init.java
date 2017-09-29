@@ -30,13 +30,9 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.ClientConnector;
 
-import java.util.ServiceLoader;
 import java.util.UUID;
 
 /**
@@ -44,36 +40,39 @@ import java.util.UUID;
  *
  * @since 0.9
  */
-@BallerinaAction(
-        packageName = "ballerina.net.jms",
-        actionName = "<init>",
-        connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
-        },
-        connectorArgs = {
-                @Argument(name = "properties", type = TypeEnum.MAP)
-        }
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "The init action implementation for JMS connector.") })
-@Component(
-        name = "action.net.jms.init",
-        immediate = true,
-        service = AbstractNativeAction.class)
+@BallerinaAction(packageName = "ballerina.net.jms",
+                 actionName = "<init>",
+                 connectorName = Constants.CONNECTOR_NAME,
+                 args = {
+                         @Argument(name = "c",
+                                   type = TypeEnum.CONNECTOR)
+                 },
+                 connectorArgs = {
+                         @Argument(name = "properties",
+                                   type = TypeEnum.MAP)
+                 })
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = {
+                             @Attribute(name = "value",
+                                        value = "The init action implementation for JMS connector.")
+                     })
+@Component(name = "action.net.jms.init",
+           immediate = true,
+           service = AbstractNativeAction.class)
 public class Init extends AbstractJMSAction {
 
     @Override
     public ConnectorFuture execute(Context context) {
-//        if (BallerinaConnectorManager.getInstance().
-//                getClientConnector(Constants.PROTOCOL_JMS) == null) {
-//            CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
-//                    .getMessageProcessor();
-//            ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
-//            clientConnectorLoader.forEach((clientConnector) -> {
-//                clientConnector.setMessageProcessor(carbonMessageProcessor);
-//                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
-//            });
-//        }
+        //        if (BallerinaConnectorManager.getInstance().
+        //                getClientConnector(Constants.PROTOCOL_JMS) == null) {
+        //            CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
+        //                    .getMessageProcessor();
+        //            ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
+        //            clientConnectorLoader.forEach((clientConnector) -> {
+        //                clientConnector.setMessageProcessor(carbonMessageProcessor);
+        //                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
+        //            });
+        //        }
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         BMap sharedMap = (BMap) bConnector.getRefField(0);
         sharedMap.put(Constants.JMS_CONNECTOR_KEY, new BString(UUID.randomUUID().toString()));

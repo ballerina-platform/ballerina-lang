@@ -80,6 +80,11 @@ public class Constants {
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
 
+    /**
+     * Alias for caching
+     */
+    public static final String ALIAS_CLIENT_CACHING = "clientCaching";
+
     private static Map<String, String> mappingParameters;
 
     static {
@@ -92,6 +97,7 @@ public class Constants {
         mappingParameters.put(ALIAS_ACK_MODE, JMSConstants.PARAM_ACK_MODE);
         mappingParameters.put(ALIAS_CLIENT_ID, JMSConstants.PARAM_CLIENT_ID);
         mappingParameters.put(ALIAS_DURABLE_SUBSCRIBER_ID, JMSConstants.PARAM_DURABLE_SUB_ID);
+        mappingParameters.put(ALIAS_CLIENT_CACHING, JMSConstants.PARAM_JMS_CACHING);
     }
 
     public static final Map<String, String> MAPPING_PARAMETERS = Collections.unmodifiableMap(mappingParameters);
