@@ -365,9 +365,15 @@ div.operator-expanded-func {
 }
 
 .operator-name {
-    font-size: 25px;
     display: block;
     text-align: center;
+}
+
+.operator-name i {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 16px;
 }
 
 .operator-remove {

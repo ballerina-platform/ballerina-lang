@@ -20,6 +20,7 @@ import React from 'react';
 import Tree from './tree.jsx';
 import './function.css';
 import ASTFactory from '../../../../../ast/ast-factory';
+import opClassMap from './op-class-map';
 
 export default class Operator extends React.Component {
     render() {
@@ -48,11 +49,17 @@ export default class Operator extends React.Component {
 
         let opBody;
 
+        const opCellComp = (
+            <div className='operator-cell operator-name'>
+                <i className={`fw fw-${opClassMap[opExp.operatorKind]}`}/>
+            </div>
+        );
+
         if(isCollapsed) {
             opBody = (
                 <div className='folded-op-body' id={`${opExp.getID()}:${viewId}`}>
                     <div className='operator-col'>
-                        <div className='operator-cell operator-name'><span>{opExp.operatorKind}</span></div>
+                        { opCellComp }
                     </div>
                     <div className='operator-col'>
                         <div className='operator-cell'>
@@ -80,7 +87,7 @@ export default class Operator extends React.Component {
                                 onConnectPointMouseEnter={onConnectPointMouseEnter}
                             />
                         </div>
-                        <div className='operator-cell'><span className='operator-name'>{opExp.operatorKind}</span></div>
+                        { opCellComp }
                         <div className='operator-cell'>
                             <Tree
                                 type='param'

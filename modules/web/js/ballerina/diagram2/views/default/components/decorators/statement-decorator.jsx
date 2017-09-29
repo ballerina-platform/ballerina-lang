@@ -75,8 +75,8 @@ class StatementDecorator extends React.Component {
      */
     componentDidMount() {
         const { dragDropManager } = this.context;
-        dragDropManager.on('drag-start', this.startDropZones);
-        dragDropManager.on('drag-stop', this.stopDragZones);
+        // dragDropManager.on('drag-start', this.startDropZones);
+        // dragDropManager.on('drag-stop', this.stopDragZones);
     }
 
     /**
@@ -93,8 +93,8 @@ class StatementDecorator extends React.Component {
      */
     componentWillUnmount() {
         const { dragDropManager } = this.context;
-        dragDropManager.off('drag-start', this.startDropZones);
-        dragDropManager.off('drag-stop', this.stopDragZones);
+        // dragDropManager.off('drag-start', this.startDropZones);
+        // dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
     /**
