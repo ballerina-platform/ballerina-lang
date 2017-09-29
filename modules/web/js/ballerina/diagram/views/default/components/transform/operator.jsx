@@ -52,7 +52,7 @@ export default class Operator extends React.Component {
             opBody = (
                 <div className='folded-op-body' id={`${opExp.getID()}:${viewId}`}>
                     <div className='operator-col'>
-                        <div className='operator-cell operator-name'><span>{opExp.getOperator()}</span></div>
+                        <div className='operator-cell operator-name'><span>{opExp.operatorKind}</span></div>
                     </div>
                     <div className='operator-col'>
                         <div className='operator-cell'>
@@ -80,7 +80,7 @@ export default class Operator extends React.Component {
                                 onConnectPointMouseEnter={onConnectPointMouseEnter}
                             />
                         </div>
-                        <div className='operator-cell'><span className='operator-name'>{opExp.getOperator()}</span></div>
+                        <div className='operator-cell'><span className='operator-name'>{opExp.operatorKind}</span></div>
                         <div className='operator-cell'>
                             <Tree
                                 type='param'
