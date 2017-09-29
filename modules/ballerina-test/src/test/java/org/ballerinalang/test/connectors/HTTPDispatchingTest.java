@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.natives.connectors;
+package org.ballerinalang.test.connectors;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
