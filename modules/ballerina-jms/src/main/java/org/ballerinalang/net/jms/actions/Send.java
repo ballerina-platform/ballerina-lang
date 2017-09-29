@@ -38,10 +38,11 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.net.jms.JMSTransactionContext;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.services.dispatchers.jms.JMSUtils;
+import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,14 +50,20 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
 import org.wso2.carbon.transport.jms.contract.JMSClientConnector;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
 import org.wso2.carbon.transport.jms.utils.JMSConstants;
+import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
+import org.wso2.carbon.transport.jms.wrappers.XASessionWrapper;
 
 import java.util.Map;
 import javax.jms.Message;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -116,36 +123,43 @@ public class Send extends AbstractJMSAction {
         if (propertyMap.get(JMSConstants.PARAM_ACK_MODE) != null) {
             //Todo: do we need this?
             //if the JMS transacted send is outside of the Ballerina transaction block, make it non-jms-transaction
-//            if((JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE))) && !context
-//                    .isInTransaction()) {
-//                propertyMap.put(JMSConstants.PARAM_ACK_MODE, JMSConstants.AUTO_ACKNOWLEDGE_MODE);
-//            }
-            isTransacted =
-                    (JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE)))
-                            && context.isInTransaction();
+            //           if((JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE)))
+            // && !context
+            //                    .isInTransaction()) {
+            //                propertyMap.put(JMSConstants.PARAM_ACK_MODE, JMSConstants.AUTO_ACKNOWLEDGE_MODE);
+            //            }
+            isTransacted = (JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE)))
+                    && context.isInTransaction();
         }
 
         try {
+            JMSClientConnector jmsClientConnector = new JMSConnectorFactoryImpl()
+                    .createClientConnector(propertyMap);
             if (log.isDebugEnabled()) {
                 log.debug("Sending JMS Message to " + propertyMap.get(JMSConstants.PARAM_DESTINATION_NAME));
             }
-            if (isTransacted) {
-                JMSClientConnector jmsClientConnector = new JMSConnectorFactoryImpl()
-                        .createClientConnector(propertyMap);
+            if (!isTransacted) {
+                jmsClientConnector.send(jmsMessage, destination);
+            } else {
                 SessionWrapper sessionWrapper;
                 BallerinaTransactionManager ballerinaTxManager = context.getBallerinaTransactionManager();
                 BallerinaTransactionContext txContext = ballerinaTxManager.getTransactionContext(connectorKey);
+                // if transaction initialization has not yet been done
+                // (if this is the first transacted action happens from this particular connector with this
+                // transaction block)
                 if (txContext == null) {
                     sessionWrapper = jmsClientConnector.acquireSession();
                     txContext = new JMSTransactionContext(sessionWrapper, jmsClientConnector, false);
                     ballerinaTxManager.registerTransactionContext(connectorKey, txContext);
+
+                    //Handle XA initialization
+                    if (sessionWrapper instanceof XASessionWrapper) {
+                        initializeXATransaction(ballerinaTxManager, sessionWrapper);
+                    }
                 } else {
                     sessionWrapper = ((JMSTransactionContext) txContext).getSessionWrapper();
                 }
                 jmsClientConnector.sendTransactedMessage(jmsMessage, destination, sessionWrapper);
-            } else {
-                //Todo:handle non-cached sends by bypassing the session pool
-                new JMSConnectorFactoryImpl().createClientConnector(propertyMap).send(jmsMessage, destination);
             }
         } catch (JMSConnectorException e) {
             throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
@@ -153,6 +167,28 @@ public class Send extends AbstractJMSAction {
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();
         return future;
+    }
+
+    private void initializeXATransaction(BallerinaTransactionManager ballerinaTxManager,
+            SessionWrapper sessionWrapper) {
+        /* Atomikos transaction manager initialize only distributed transaction is present.*/
+        if (!ballerinaTxManager.hasXATransactionManager()) {
+            TransactionManager transactionManager = DistributedTxManagerProvider.getInstance().getTransactionManager();
+            ballerinaTxManager.setXATransactionManager(transactionManager);
+        }
+        if (!ballerinaTxManager.isInXATransaction()) {
+            ballerinaTxManager.beginXATransaction();
+        }
+        Transaction tx = ballerinaTxManager.getXATransaction();
+        try {
+            if (tx != null) {
+                XAResource xaResource = ((XASessionWrapper) sessionWrapper).getXASession().getXAResource();
+                tx.enlistResource(xaResource);
+            }
+        } catch (SystemException | RollbackException e) {
+            throw new BallerinaException(
+                    "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
+        }
     }
 
     private CarbonMessage getBlobCarbonMessage(BMessage bMessage, Context context) {
