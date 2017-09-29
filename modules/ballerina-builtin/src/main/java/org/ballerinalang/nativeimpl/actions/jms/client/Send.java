@@ -17,6 +17,7 @@
 package org.ballerinalang.nativeimpl.actions.jms.client;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
@@ -26,6 +27,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -78,7 +80,7 @@ public class Send extends AbstractJMSAction {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
 
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
 
         // Extract argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
@@ -128,7 +130,9 @@ public class Send extends AbstractJMSAction {
         } catch (JMSConnectorException e) {
             throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
         }
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 
     private CarbonMessage getBlobCarbonMessage(BMessage bMessage, Context context) {
@@ -172,11 +176,11 @@ public class Send extends AbstractJMSAction {
         return carbonMessage;
     }
 
-    @Override public void execute(Context context, BalConnectorCallback connectorCallback) {
+    public void execute(Context context, BalConnectorCallback connectorCallback) {
         //Not needed for jms.
     }
 
-    @Override public void validate(BalConnectorCallback connectorCallback) {
+    public void validate(BalConnectorCallback connectorCallback) {
         //Not needed for jms.
     }
 
