@@ -238,14 +238,15 @@ class SizingUtil {
         cmp.statementContainer = new SimpleBBox();
         cmp.defaultWorker = new SimpleBBox();
         cmp.body = new SimpleBBox();
-        cmp.argParameters = new SimpleBBox();
-        cmp.returnParameters = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
         // calculate statement container
         cmp.statementContainer.w = this.config.statement.width;
         cmp.statementContainer.h = this.config.statementContainer.height;
+        if (node.getBody().getStatements().length > 0) {
+            cmp.statementContainer.h = this.getStatementHeight(node.getBody().getStatements()) + 30;
+        }
         // calculate defult worker
         cmp.defaultWorker.w = this.config.lifeLine.width;
         cmp.defaultWorker.h = cmp.statementContainer.h + (this.config.lifeLine.head.height * 2);
@@ -264,33 +265,6 @@ class SizingUtil {
         cmp.parametersPrefixContainer = {};
         cmp.parametersPrefixContainer.w = this.getTextWidth('Parameters: ').w;
 
-        // Argument parameter definition holder
-        for (let i = 0; i < node.getParameters().length; i++) {
-            const parameterDefinition = node.getParameters()[i];
-            const paramViewState = parameterDefinition.viewState;
-            paramViewState.w = this.getTextWidth(parameterDefinition.getSource(), 0).w;
-            paramViewState.h = this.config.panelHeading.heading.height - 7;
-
-            // Creating component for delete icon.
-            paramViewState.components.deleteIcon = {};
-            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
-            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
-        }
-
-        // Return parameter definition holder
-        for (let i = 0; i < node.getReturnParameters().length; i++) {
-            const parameterDefinition = node.getReturnParameters()[i];
-            const paramViewState = parameterDefinition.viewState;
-
-            paramViewState.w = this.getTextWidth(parameterDefinition.getSource(), 0).w;
-            paramViewState.h = this.config.panelHeading.heading.height - 7;
-
-            // Creating component for delete icon.
-            paramViewState.components.deleteIcon = {};
-            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
-            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
-        }
-
         // Creating components for argument parameters
         if (node.getParameters()) {
             // Creating component for opening bracket of the parameters view.
@@ -303,7 +277,7 @@ class SizingUtil {
 
             cmp.heading.w += cmp.argParameterHolder.openingParameter.w
                 + cmp.argParameterHolder.closingParameter.w
-                + this.getParameterTypeWidth(node) + 120;
+                + this.getParameterTypeWidth(node.getParameters()) + 120;
         }
 
         // Creating components for return types
@@ -323,7 +297,7 @@ class SizingUtil {
             cmp.heading.w += cmp.returnParameterHolder.returnTypesIcon.w
                 + cmp.returnParameterHolder.openingReturnType.w
                 + cmp.returnParameterHolder.closingReturnType.w
-                + this.getReturnTypeWidth(node) + 120;
+                + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
         }
         cmp.heading.w += viewState.titleWidth + 100;
 
@@ -331,41 +305,17 @@ class SizingUtil {
         const componentWidth = cmp.heading.w > cmp.body.w ? cmp.heading.w : cmp.body.w;
 
         viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
-
-        // Set the width to the parameter definitions
-        if (node.getParameters().length > 0) {
-            for (let i = 0; i < node.getParameters().length; i++) {
-                const parameter = node.getParameters()[i];
-                const viewStateOfParam = parameter.viewState;
-                // Set the height
-                viewStateOfParam.bBox.h = 20;
-                // Set the width
-                viewStateOfParam.bBox.w = this.getTextWidth(parameter.getSource(), 0).w + 21;
-            }
-        }
-
-        // Set the width to the parameter definitions
-        if (node.getReturnParameters().length > 0) {
-            for (let i = 0; i < node.getReturnParameters().length; i++) {
-                const parameter = node.getReturnParameters()[i];
-                const viewStateOfParam = parameter.viewState;
-                // Set the height
-                viewStateOfParam.bBox.h = 20;
-                // Set the width
-                viewStateOfParam.bBox.w = this.getTextWidth(parameter.getSource(), 0).w + 21;
-            }
-        }
     }
 
     /**
      * Calculate Parameters' text width for the node.
      * width - return sum of widths of parameter texts.
      * */
-    getParameterTypeWidth(node) {
+    getParameterTypeWidth(parameters) {
         let width = 0;
-        if (node.getParameters().length > 0) {
-            for (let i = 0; i < node.getParameters().length; i++) {
-                width += this.getTextWidth(node.getParameters()[i].getSource(), 0).w + 21;
+        if (parameters.length > 0) {
+            for (let i = 0; i < parameters.length; i++) {
+                width += this.getTextWidth(parameters[i].getSource(), 0).w + 21;
             }
         }
 
@@ -373,17 +323,18 @@ class SizingUtil {
     }
 
     /**
-     * Calculate Return Parameters' text width for node.
-     *
+     * Calculate parameters' height for the node.
+     * height - return sum of height of parameters.
      * */
-    getReturnTypeWidth(node) {
-        let width = 0;
-        if (node.getReturnParameters().length > 0) {
-            for (let i = 0; i < node.getReturnParameters().length; i++) {
-                width += this.getTextWidth(node.getReturnParameters()[i].getSource(), 0).w + 21;
+    getStatementHeight(statements) {
+        let height = 0;
+        if (statements.length > 0) {
+            for (let i = 0; i < statements.length; i++) {
+                height += statements[i].viewState.bBox.h;
             }
         }
-        return width;
+
+        return height;
     }
 
     /**
@@ -624,7 +575,19 @@ class SizingUtil {
      *
      */
     sizeVariableNode(node) {
-        // Not implemented.
+        // For argument parameters and return types in the panel decorator
+        if (TreeUtil.isFunction(node.parent) || TreeUtil.isResource(node.parent)) {
+            const paramViewState = node.viewState;
+            paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
+            paramViewState.h = this.config.panelHeading.heading.height - 7;
+
+            // Creating component for delete icon.
+            paramViewState.components.deleteIcon = {};
+            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
+            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
+        } else {
+            // For variable nodes inside the body of a top level node
+        }
     }
 
 
