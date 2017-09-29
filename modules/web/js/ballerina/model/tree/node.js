@@ -509,6 +509,19 @@ class Node extends EventChannel {
     }
 
     /**
+     * Get root of the node which is the compilation unit
+     * @returns {Node} root node
+     * @memberof Node
+     */
+    getRoot() {
+        if (this.kind === 'CompilationUnit' || !this.parent) {
+            return this;
+        } else {
+            return this.parent.getRoot();
+        }
+    }
+
+    /**
      * Checks if an string is valid as an identifier.
      * @param {string} identifier - The string value.
      * @return {boolean} - True if valid, else false.
