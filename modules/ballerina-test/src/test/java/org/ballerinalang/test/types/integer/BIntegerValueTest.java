@@ -76,7 +76,7 @@ public class BIntegerValueTest {
     @Test(description = "Test long value assignment")
     public void testIntegerParameter() {
         BValue[] args = {new BInteger(20)};
-        BValue[] returns = BTestUtils.invoke(result, "testIntegerParameter", new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testIntegerParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];

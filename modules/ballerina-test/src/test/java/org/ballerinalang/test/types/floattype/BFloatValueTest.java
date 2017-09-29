@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+//import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,18 +49,18 @@ public class BFloatValueTest {
         result = BTestUtils.compile("test-src/types/Float/float-value.bal");
     }
 
-    @Test(description = "Test double value assignment")
-    public void testFloatValue() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatValue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        BFloat floatValue = (BFloat) returns[0];
-        Assert.assertEquals(floatValue.floatValue(), 10.1f, DELTA, "Invalid float value returned.");
-    }
+//    @Test(description = "Test double value assignment")
+//    public void testFloatValue() {
+//        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatValue");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BFloat.class);
+//        BFloat floatValue = (BFloat) returns[0];
+//        Assert.assertEquals(floatValue.floatValue(), 10.1f, DELTA, "Invalid float value returned.");
+//    }
 
     @Test(description = "Test negative double value assignment")
     public void testNegativeFloatValue() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testNegativeFloatValue");
+        BValue[] returns = BTestUtils.invoke(result, "testNegativeFloatValue", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
@@ -69,7 +69,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value assignment from a value returned by function")
     public void testFloatValueAssignmentByReturnValue() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatValueAssignmentByReturnValue");
+        BValue[] returns = BTestUtils.invoke(result, "testFloatValueAssignmentByReturnValue", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
@@ -79,7 +79,7 @@ public class BFloatValueTest {
     @Test(description = "Test double value assignment")
     public void testFloatParameter() {
         BValue[] args = {new BFloat(3.3f)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatParameter", args);
+        BValue[] returns = BTestUtils.invoke(result, "testFloatParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
@@ -88,7 +88,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Addition")
     public void testFloatValueAddition() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatAddition");
+        BValue[] returns = BTestUtils.invoke(result, "testFloatAddition", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
@@ -97,7 +97,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Subtraction")
     public void testFloatValueSubtraction() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatSubtraction");
+        BValue[] returns = BTestUtils.invoke(result, "testFloatSubtraction", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
@@ -106,7 +106,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Multiplication")
     public void testFloatValueMultiplication() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatMultiplication");
+        BValue[] returns = BTestUtils.invoke(result, "testFloatMultiplication", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
@@ -115,7 +115,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Division")
     public void testFloatValueDivision() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatDivision");
+        BValue[] returns = BTestUtils.invoke(result, "testFloatDivision", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat floatValue = (BFloat) returns[0];
