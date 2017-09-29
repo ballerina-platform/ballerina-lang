@@ -252,8 +252,8 @@ class TransformNodeManager {
     }
 
     getFunctionVertices(functionInvocationExpression) {
-        const root = functionInvocationExpression.getRoot();
-        const funPackage = this._environment.getPackageByName(functionInvocationExpression.getPackageAlias().getValue());
+        const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
+        const funPackage = this._environment.getPackageByName(fullPackageName);
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
         const parameters = [];
         const returnParams = [];

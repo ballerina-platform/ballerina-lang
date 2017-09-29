@@ -20,6 +20,26 @@ import AbstractTreeUtil from './abstract-tree-util';
 
 class TreeUtil extends AbstractTreeUtil {
 
+    getFullPackageName(node) {
+        const root = node.getRoot();
+        if (!root) {
+            return '';
+        }
+        const packageAlias = node.getPackageAlias().getValue();
+        if (!packageAlias) {
+            return '';
+        }
+        const importNode = root.filterTopLevelNodes(this.isImport).find((im) => {
+            return im.getAlias().getValue() === packageAlias;
+        });
+        let fullPackageName = '';
+        if (importNode) {
+            fullPackageName = importNode.getPackageName().map((pkgName) => {
+                return pkgName.value;
+            }).join('.');
+        }
+        return fullPackageName;
+    }
 }
 
 export default new TreeUtil();
