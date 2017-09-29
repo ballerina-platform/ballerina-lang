@@ -15,6 +15,11 @@
 
 package org.wso2.carbon.transport.http.netty.common;
 
+import io.netty.util.AttributeKey;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Common Constants used by gate way.
  */
@@ -174,6 +179,12 @@ public final class Constants {
 
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
 
+    public static final String LOCATION = "Location";
+
+    public static final String HTTP_GET_METHOD = "GET";
+
+    public static final String HTTP_HEAD_METHOD = "HEAD";
+
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
     public static final String HTTP_PORT = "port";
@@ -249,9 +260,16 @@ public final class Constants {
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String TARGET_HANDLER = "targetHandler";
+    public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
+
+    public static final AttributeKey<AtomicInteger> REDIRECT_COUNT = AttributeKey.<AtomicInteger>valueOf("REDIRECT_COUNT");
+    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.<HTTPCarbonMessage>valueOf("ORIGINAL_REQUEST");
+
+    public static final String UTF8 = "UTF-8";
+    public static final String URL_AUTHORITY = "://";
 
     private Constants() {
     }

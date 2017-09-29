@@ -44,15 +44,17 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private HttpRoute httpRoute;
     private SSLConfig sslConfig;
     private boolean httpTraceLogEnabled;
+    private boolean followRedirect;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
                                         Class eventLoopClass, SSLConfig sslConfig,
-                                        boolean httpTraceLogEnabled) {
+                                        boolean httpTraceLogEnabled, boolean followRedirect) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
         this.sslConfig = sslConfig;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+        this.followRedirect = followRedirect;
     }
 
 
@@ -129,7 +131,8 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     private HTTPClientInitializer instantiateAndConfigClientInitializer(Bootstrap clientBootstrap,
             SSLEngine sslEngine) {
-        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled);
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(sslEngine, httpTraceLogEnabled,
+                followRedirect);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);

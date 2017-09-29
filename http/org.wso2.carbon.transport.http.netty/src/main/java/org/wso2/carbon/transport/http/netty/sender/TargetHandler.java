@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A class responsible for handling responses coming from BE.
@@ -100,6 +101,16 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 //                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
 //                                    executeAtTargetResponseSending(targetRespMsg);
 //                        }
+
+                        AtomicInteger redirectCount = ctx.channel().attr(Constants.REDIRECT_COUNT).get();
+                        if (redirectCount != null) {
+                            redirectCount.set(0);
+                            ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+                        }
+                        if (ctx.channel().attr(Constants.ORIGINAL_REQUEST).get() != null) {
+                            ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
+                        }
+
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                         connectionManager.returnChannel(targetChannel);
                     }
@@ -205,7 +216,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (ctx != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            httpResponseFuture.notifyHttpListener(cause);
+            ctx.close();
         }
     }
 

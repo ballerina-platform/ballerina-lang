@@ -91,7 +91,7 @@ public class ConnectionManager {
      * @throws Exception    to notify any errors occur during retrieving the target channel
      */
     public TargetChannel borrowTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler, SSLConfig sslConfig,
-                                             boolean httpTraceLogEnabled)
+                                             boolean httpTraceLogEnabled, boolean followRedirect)
             throws Exception {
         GenericObjectPool trgHlrConnPool;
 
@@ -109,7 +109,8 @@ public class ConnectionManager {
                 trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
                 if (trgHlrConnPool == null) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled);
+                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled,
+                                    followRedirect);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
@@ -121,7 +122,7 @@ public class ConnectionManager {
                         if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                             PoolableTargetChannelFactory poolableTargetChannelFactory =
                                     new PoolableTargetChannelFactory(
-                                            httpRoute, group, cl, sslConfig, httpTraceLogEnabled);
+                                            httpRoute, group, cl, sslConfig, httpTraceLogEnabled, followRedirect);
                             trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                             this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                         }
@@ -137,7 +138,8 @@ public class ConnectionManager {
             synchronized (this) {
                 if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled);
+                            new PoolableTargetChannelFactory(httpRoute, group, cl, sslConfig, httpTraceLogEnabled,
+                                    followRedirect);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                 }

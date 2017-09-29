@@ -46,13 +46,16 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
+    private boolean followRedirect;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager,
-                                   SSLConfig sslConfig, int socketIdleTimeout, boolean httpTraceLogEnabled) {
+                                   SSLConfig sslConfig, int socketIdleTimeout, boolean httpTraceLogEnabled, boolean
+            followRedirect) {
         this.connectionManager = connectionManager;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.sslConfig = sslConfig;
         this.socketIdleTimeout = socketIdleTimeout;
+        this.followRedirect = followRedirect;
     }
 
     @Override
@@ -75,13 +78,14 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager
-                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled);
+                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, followRedirect);
             targetChannel.getChannelFuture()
                     .addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture channelFuture) throws Exception {
                             if (isValidateChannel(channelFuture)) {
                                 targetChannel.setChannel(channelFuture.channel());
+                                channelFuture.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
 
                                 targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
                                 targetChannel.setEndPointTimeout(socketIdleTimeout);

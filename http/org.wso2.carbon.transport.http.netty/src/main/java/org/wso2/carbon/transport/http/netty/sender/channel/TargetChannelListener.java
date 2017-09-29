@@ -22,6 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -54,6 +55,7 @@ public class TargetChannelListener implements ChannelFutureListener {
     public void operationComplete(ChannelFuture channelFuture) throws Exception {
         if (isValidateChannel(channelFuture)) {
             targetChannel.setChannel(channelFuture.channel());
+            channelFuture.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
 
             targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
             targetChannel.setEndPointTimeout(socketIdleTimeout);
