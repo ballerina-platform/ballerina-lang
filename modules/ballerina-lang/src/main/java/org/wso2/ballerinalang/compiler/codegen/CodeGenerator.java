@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -229,7 +228,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     // TODO Remove this dependency from the code generator
     private SymbolEnter symEnter;
     private SymbolTable symTable;
-    private Compiler compiler;
 
     private ProgramFile programFile;
 
@@ -271,14 +269,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         this.symEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        this.compiler = Compiler.getInstance(context);
     }
 
     public ProgramFile generate(BLangPackage pkgNode) {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        if (compiler.builtInPkg.symbol != null) {
-            genPackage(compiler.builtInPkg.symbol);
+        if (this.symTable.builtInPackageSymbol != null) {
+            genPackage(this.symTable.builtInPackageSymbol);
         }
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         genPackage(pkgSymbol);

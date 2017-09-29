@@ -89,6 +89,8 @@ public class SymbolTable {
     public BStructType errTypeConversionType;
     public BStructType errTypeCastType;
 
+    public BPackageSymbol builtInPackageSymbol;
+
     private Names names;
 
     private CompilerContext context;
@@ -137,12 +139,13 @@ public class SymbolTable {
         defineType(errType, errSymbol);
     }
 
-    public void loadOperators() {
-        // Create dummy builtin error struct and required types.
+    public void createErrorTypes() {
         this.errStructType = (BStructType) rootScope.lookup(Names.ERROR).symbol.type;
         this.errTypeCastType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CAST).symbol.type;
         this.errTypeConversionType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CONVERSION).symbol.type;
+    }
 
+    public void loadOperators() {
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
     }

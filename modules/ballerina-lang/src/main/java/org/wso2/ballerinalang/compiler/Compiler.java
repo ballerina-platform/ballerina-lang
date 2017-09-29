@@ -58,9 +58,6 @@ public class Compiler {
     private ProgramFile programFile;
     private BLangPackage pkgNode;
 
-    // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-    public BLangPackage builtInPkg;
-
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
         if (compiler == null) {
@@ -108,10 +105,12 @@ public class Compiler {
     private void loadBuiltInPackage() {
         BLangPackage builtInCorePkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
                 this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+        symbolTable.createErrorTypes();
         symbolTable.loadOperators();
-        builtInPkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
+        BLangPackage builtInPkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
                 this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
         builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
     }
 
     public ProgramFile getCompiledProgram() {
