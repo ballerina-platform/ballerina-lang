@@ -170,14 +170,19 @@ public class WebSocketClient {
             handler.handshakeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) {
-                    WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
-                    String actualSubProtocol = websocketHandshaker.actualSubprotocol();
-                    handler.setActualSubProtocol(actualSubProtocol);
-                    session.setNegotiatedSubProtocol(actualSubProtocol);
-                    session.setIsOpen(true);
-                    handshakeFuture.notifySuccess(session);
+                    Throwable cause = future.cause();
+                    if (future.isSuccess() && cause == null) {
+                        WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
+                        String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+                        handler.setActualSubProtocol(actualSubProtocol);
+                        session.setNegotiatedSubProtocol(actualSubProtocol);
+                        session.setIsOpen(true);
+                        handshakeFuture.notifySuccess(session);
+                    } else {
+                        handshakeFuture.notifyError(cause);
+                    }
                 }
-            }).sync();
+            });
         } catch (Throwable t) {
             handshakeFuture.notifyError(t);
         }

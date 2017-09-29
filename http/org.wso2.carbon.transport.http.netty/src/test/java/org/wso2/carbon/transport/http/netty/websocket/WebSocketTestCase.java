@@ -54,7 +54,7 @@ public class WebSocketTestCase {
     }
 
     protected void assertWebSocketClientTextMessage(WebSocketTestClientConnectorListener clientConnectorListener,
-                                                    String expected) throws InterruptedException {
+                                                    String expected) throws Throwable {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
             String textReceived = clientConnectorListener.getReceivedTextToClient();
@@ -93,7 +93,7 @@ public class WebSocketTestCase {
     }
 
     protected void assertWebSocketClientBinaryMessage(WebSocketTestClientConnectorListener clientConnectorListener,
-                                                      ByteBuffer bufferExpected) throws InterruptedException {
+                                                      ByteBuffer bufferExpected) throws Throwable {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
             ByteBuffer bufferReceived = clientConnectorListener.getReceivedByteBufferToClient();
@@ -119,7 +119,7 @@ public class WebSocketTestCase {
     }
 
     protected void assertWebSocketClientPongMessage(WebSocketTestClientConnectorListener clientConnectorListener)
-            throws InterruptedException {
+            throws Throwable {
         for (int j = 0; j < messageDeliveryCountDown; j++) {
             Thread.sleep(threadSleepTime);
             if (clientConnectorListener.isPongReceived()) {
