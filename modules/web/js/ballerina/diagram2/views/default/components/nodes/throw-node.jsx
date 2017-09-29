@@ -26,6 +26,23 @@ import ActiveArbiter from '../decorators/active-arbiter';
  * */
 class ThrowNode extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'Throw',
+            model: this.props.model,
+            getterMethod: this.props.model.getSource,
+            setterMethod: this.updateExpression,
+        };
+    }
+
+    /**
+     * TODO Update the edited expression
+     */
+    updateExpression(value) {
+    }
+
     /**
      * Render Function for the throw statement.
      * */
@@ -38,6 +55,7 @@ class ThrowNode extends React.Component {
                 model={model}
                 viewState={model.viewState}
                 expression={expression}
+                editorOptions={this.editorOptions}
             />);
     }
 }
