@@ -51,7 +51,7 @@ export default class Operator extends React.Component {
 
         const opCellComp = (
             <div className='operator-cell operator-name'>
-                <i className={opClassMap[opExp.operatorKind]}/>
+                <i className={`fw fw-${opClassMap[opExp.operatorKind]}`}/>
             </div>
         );
 
