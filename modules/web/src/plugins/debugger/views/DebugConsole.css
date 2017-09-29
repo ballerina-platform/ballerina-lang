@@ -1,8 +1,9 @@
 #console{
-    height: calc(100% - 25px );
     padding: 10px;
     overflow: auto;
     font-family: "Lucida Console", Monaco, monospace;
+    display: flex;
+    flex-direction: column;
 }
 
 #console pre{

@@ -22,8 +22,6 @@ import log from 'log';
 import _ from 'lodash';
 import './global-item.css';
 import { variablesPane as variablesPaneDefaults } from '../../designer-defaults';
-import { util } from '../../sizing-util';
-import * as DesignerDefaults from '../../designer-defaults';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import { parseContent } from './../../../../../../api-client/api-client';
 import TreeBuilder from './../../../../../model/tree-builder';
@@ -163,8 +161,7 @@ export default class GlobalDefinitionItem extends React.Component {
                         ry="0"
                         className="global-definition-text"
                     >
-                        {util.getTextWidth(this.props.getValue(this.props.globalDec), 0,
-                            DesignerDefaults.globalDeclarationWidth).text}
+                        {this.props.getValue(this.props.globalDec)}
                     </text>
                 </g>
                 <rect

@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
+import NodeFactory from '../../../../../model/node-factory';
 import Mapper from './transform-node-mapper';
 
 /**
@@ -429,21 +430,27 @@ class TransformNodeManager {
         });
     }
 
+    /**
+     * Add a new variable in transform scope or outer scope
+     * @param {target|source} type type of the variable
+     * @returns new variable identifier
+     * @memberof TransformNodeManager
+     */
     addNewVariable(type) {
         let variableName = 'tempVar';
-        let node = this._transformStmt;
+        let node = this._transformStmt.getBody();
         let newVarIndex = 0;
         if (type === 'target') {
-            node = this._transformStmt.getParent();
+            node = this._transformStmt.parent;
             variableName = 'var';
-            newVarIndex = this._transformStmt.getParent().getIndexOfChild(this._transformStmt);
+            newVarIndex = this._transformStmt.parent.getIndexOfChild(this._transformStmt);
         }
         const varNameRegex = new RegExp(variableName + '[\\d]*');
-        const varDefStmts = node.filterChildren(BallerinaASTFactory.isVariableDefinitionStatement);
+        const varDefStmts = node.filterStatements(TreeUtil.isVariableDef);
         const tempVarIdentifiers = varDefStmts.filter((varDef) => {
-            return varNameRegex.test(varDef.getIdentifier());
+            return varNameRegex.test(varDef.getVariableName().getValue());
         }).map((varDef) => {
-            return varDef.getIdentifier();
+            return varDef.getVariableName().getValue();
         }).sort();
 
         let index = 0;
@@ -452,10 +459,23 @@ class TransformNodeManager {
                     .substring(variableName.length), 10) + 1;
         }
         const varName = variableName + index;
-        const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
-        variableDefinitionStatement.setStatementFromString('string ' + varName + ' = ""');
-        node.addChild(variableDefinitionStatement, newVarIndex);
-        return variableDefinitionStatement;
+
+        const variableDef = NodeFactory.createVariableDef({});
+        const variable = NodeFactory.createVariable({});
+        const initialExpression = NodeFactory.createLiteral({});
+        initialExpression.setValue('');
+        variable.setInitialExpression(initialExpression);
+        const typeNode = NodeFactory.createValueType({});
+        typeNode.setTypeKind('string');
+        const identifierNode = NodeFactory.createIdentifier({});
+        identifierNode.setValue(varName);
+        variable.setName(identifierNode);
+        variable.setTypeNode(typeNode);
+        variableDef.setVariable(variable);
+
+        // variableDef.setStatementFromString('string ' + varName + ' = ""');
+        node.addStatements(variableDef, newVarIndex);
+        return variableDef;
     }
 
     updateVariable(node, varName, statementString, type) {

@@ -18,8 +18,6 @@
 
 import React from 'react';
 import './import-declaration-item.css';
-import * as DesignerDefaults from '../../designer-defaults';
-import { util } from '../../sizing-util';
 
 export default class importDeclarationItem extends React.Component {
     constructor() {
@@ -69,8 +67,7 @@ export default class importDeclarationItem extends React.Component {
                 <title> {importPkgName}</title>
                 <rect x={x} y={y} height={h} width={w} className="background" />
                 <text x={x + leftPadding} y={y + h / 2} rx="0" ry="0" className="import-definition-text">
-
-                    {util.getTextWidth(importPkgName, 0, DesignerDefaults.globalDeclarationWidth).text}
+                    {importPkgName}
                 </text>
                 <rect
                     x={x + w - 30}

@@ -169,9 +169,74 @@ class PositioningUtil {
         body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
         body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
                                 this.config.lifeLine.head.height;
+
+        // Positioning argument parameters
+        if (node.getParameters()) {
+            cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
+                this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
+                + this.config.panelHeading.iconSize.padding;
+            cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
+
+            // Positioning the resource parameters
+            let nextXPositionOfParameter = cmp.argParameterHolder.openingParameter.x
+                + cmp.argParameterHolder.openingParameter.w;
+            if (node.getParameters().length > 0) {
+                for (let i = 0; i < node.getParameters().length; i++) {
+                    const argument = node.getParameters()[i];
+                    nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
+                        (viewState.bBox.y + viewState.components.annotation.h));
+                }
+            }
+
+            // Positioning the closing bracket component of the parameters.
+            cmp.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
+            cmp.argParameterHolder.closingParameter.y = viewState.bBox.y + cmp.annotation.h;
+        }
+
+        // Positioning return types
+        if (node.getReturnParameters()) {
+            cmp.returnParameterHolder.returnTypesIcon.x = cmp.argParameterHolder.closingParameter.x
+                + cmp.argParameterHolder.closingParameter.w + 10;
+            cmp.returnParameterHolder.returnTypesIcon.y = viewState.bBox.y + viewState.components.annotation.h + 18;
+
+            // Positioning the opening bracket component of the return types.
+            cmp.returnParameterHolder.openingReturnType.x = cmp.returnParameterHolder.returnTypesIcon.x
+                + cmp.returnParameterHolder.returnTypesIcon.w;
+            cmp.returnParameterHolder.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
+
+            // Positioning the resource parameters
+            let nextXPositionOfReturnType = cmp.returnParameterHolder.openingReturnType.x
+                + cmp.returnParameterHolder.openingReturnType.w;
+            if (node.getReturnParameters().length > 0) {
+                for (let i = 0; i < node.getReturnParameters().length; i++) {
+                    const returnType = node.getReturnParameters()[i];
+                    nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType,
+                        (viewState.bBox.y + viewState.components.annotation.h));
+                }
+            }
+
+            // Positioning the closing bracket component of the parameters.
+            cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
+            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
+        }
     }
 
+    /**
+     * Sets positioning for a parameter.
+     *
+     */
+    createPositionForTitleNode(parameter, x, y) {
+        const viewState = parameter.viewState;
+        // Positioning the parameter
+        viewState.bBox.x = x;
+        viewState.bBox.y = y;
 
+        // Positioning the delete icon
+        viewState.components.deleteIcon.x = x + viewState.w;
+        viewState.components.deleteIcon.y = y;
+
+        return viewState.components.deleteIcon.x + viewState.components.deleteIcon.w;
+    }
     /**
      * Calculate position of Identifier nodes.
      *

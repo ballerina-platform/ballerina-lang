@@ -75,8 +75,9 @@ class DebuggerConsole extends View {
      * @inheritdoc
      */
     render() {
+        const { width, height } = this.props;
         return (
-            <div id="console">
+            <div id="console" style={{height: height}}>
                 {this.state.messages.map((message, i) => {
                     return (
                         <div className={message.type} key={i}><pre>{message.message}</pre></div>

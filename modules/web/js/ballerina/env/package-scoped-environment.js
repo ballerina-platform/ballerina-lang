@@ -61,6 +61,10 @@ class PackageScopedEnvironment {
 
     setCurrentPackage(pkg) {
         this._currentPackage = pkg;
+        this._packages = this._packages.filter(item => {
+             return item.getName() !== 'Current Package'; 
+            });
+        this._packages.push(pkg);
     }
 
     /**

@@ -21,7 +21,18 @@ import EventChannel from 'event_channel';
 import LaunchChannel from './LaunchChannel';
 
 class LaunchManager extends EventChannel {
+    constructor() {
+        super();
+        this.active = false;
+    }
 
+    set active(active) {
+        this._active = active;
+    }
+    
+    get active(){
+        return this._active;
+    }
     init(endpoint) {
         this.endpoint = endpoint;
     }

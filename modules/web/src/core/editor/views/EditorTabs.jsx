@@ -116,6 +116,32 @@ class EditorTabs extends View {
     }
 
     /**
+     * Get 'right' style value for the bottom controls.
+     * @returns {integer} The value for 'right' style attribute.
+     * @memberof EditorTabs
+     */
+    getBottomControlsRightPos() {
+        const previewSize = this.getPreviewViewSize(this.state.previewViewEnabled);
+        const firstPaneWidth = this.previewSplitRef.splitPane.getElementsByClassName('Pane vertical')[0].offsetWidth;
+        const secondPaneWidth = this.previewSplitRef.splitPane.getElementsByClassName('Pane vertical')[1].offsetWidth;
+        let rightPos;
+        if (_.isString(previewSize)) {
+            rightPos = firstPaneWidth;
+        } else {
+            rightPos = previewSize;
+        }
+
+        // Padding
+        rightPos += 50;
+        if (secondPaneWidth - firstPaneWidth < 200) {
+            // Hide the button if the right pane is smaller.
+            return 0;
+        } else {
+            return rightPos;
+        }
+    }
+
+    /**
      * On split view button/icon is clicked.
      * @memberof EditorTabs
      */
@@ -231,6 +257,7 @@ class EditorTabs extends View {
         if (!_.isNil(editor) && !(editor instanceof CustomEditor)) {
             const { file, definition } = editor;
             const previewDefinition = definition.previewView;
+            const bottomControlsRightPos = this.getBottomControlsRightPos();
             return (
                 <TabPane
                     tab={
@@ -246,6 +273,21 @@ class EditorTabs extends View {
                             {...previewDefinition.customPropsProvider()}
                             {...dimensions}
                         />
+                        <div
+                            className='bottom-right-controls-container split-view-controls-container'
+                            style={{
+                                right: `${bottomControlsRightPos}px`,
+                            }}
+                        >
+                            <div className="view-split-view-btn btn-icon" onClick={this.onPreviewViewTabClose}>
+                                <div className="bottom-label-icon-wrapper">
+                                    <i className="fw fw-code fw-inverse" />
+                                </div>
+                                <div className="bottom-view-label">
+                                    Close Split View
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </TabPane>
             );
@@ -279,6 +321,9 @@ class EditorTabs extends View {
                             draggedSize: undefined,
                         });
                     }
+                }}
+                pane2Style={{
+                    width: '100%',
                 }}
             >
                 <Tabs

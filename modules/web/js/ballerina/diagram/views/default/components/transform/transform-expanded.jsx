@@ -213,25 +213,19 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     drawIntermediateNode(argumentExpressions, nodeExpression, statement, nodeExpIsTemp = false) {
-        if (!ASTFactory.isFunctionInvocationExpression(nodeExpression)
-            && !ASTFactory.isBinaryExpression(nodeExpression)
-            && !ASTFactory.isUnaryExpression(nodeExpression)) {
-            return;
-        }
-
         const viewId = this.props.model.getID();
         let nodeDef;
         let nodeName;
         let paramExpressions = [];
 
-        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+        if (TreeUtil.isInvocation(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
             paramExpressions = nodeExpression.getChildren();
         } else {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperator();
-            if (ASTFactory.isBinaryExpression(nodeExpression)) {
+            if (TreeUtil.isBinaryExpr(nodeExpression)) {
                 paramExpressions.push(nodeExpression.getLeftExpression());
             }
             paramExpressions.push(nodeExpression.getRightExpression());
@@ -254,16 +248,15 @@ class TransformExpanded extends React.Component {
             paramExpressions.forEach((expression, i) => {
                 const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
                 expression = exp;
-                if (ASTFactory.isFunctionInvocationExpression(expression)
-                        || ASTFactory.isBinaryExpression(expression)
-                        || ASTFactory.isUnaryExpression(expression)) {
+                if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
+                    || TreeUtil.isUnaryExpr(expression)) {
                     this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
                 } else if (!isTemp) {
                     let target;
                     let source;
-                    if (ASTFactory.isBasicLiteralExpression(expression)) {
+                    if (TreeUtil.isLiteral(expression)) {
                         // TODO: implement default value logic
-                    } else if (ASTFactory.isKeyValueExpression(expression.children[0])) {
+                    } else if (TreeUtil.isKeyValueExpression(expression.children[0])) {
                         // if parameter is a key value expression, iterate each expression and draw connections
                         _.forEach(expression.children, (propParam) => {
                             source = this.getConnectionProperties('source', propParam.children[1]);
@@ -278,12 +271,12 @@ class TransformExpanded extends React.Component {
                         });
                     } else {
                         // expression = this.transformNodeManager.getResolvedExpression(expression);
-                        let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                        let sourceId = `${expression.getSource().trim()}:${viewId}`;
                         let folded = false;
                         if (!this.sourceElements[sourceId]) {
                             folded = true;
                             sourceId = this.getFoldedEndpointId(
-                                expression.getExpressionString().trim(), viewId, 'source');
+                                expression.getSource().trim(), viewId, 'source');
                         }
 
                         let targetId = `${nodeExpID}:${i}:${viewId}`;
@@ -344,25 +337,20 @@ class TransformExpanded extends React.Component {
      */
     drawInnerIntermediateNode(parentNodeExpression, nodeExpression, parentNodeDefinition,
                                       parentParameterIndex, statement, nodeExpIsTemp = false) {
-        if (!ASTFactory.isFunctionInvocationExpression(nodeExpression)
-                && !ASTFactory.isBinaryExpression(nodeExpression)
-                && !ASTFactory.isUnaryExpression(nodeExpression)) {
-            return;
-        }
         const viewId = this.props.model.getID();
         const nodeExpID = nodeExpression.getID();
         let nodeDef;
         let nodeName;
         let paramExpressions = [];
 
-        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+        if (TreeUtil.isInvocation(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
             paramExpressions = nodeExpression.getChildren();
         } else {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperator();
-            if (ASTFactory.isBinaryExpression(nodeExpression)) {
+            if (TreeUtil.isBinaryExpr(nodeExpression)) {
                 paramExpressions.push(nodeExpression.getLeftExpression());
             }
             paramExpressions.push(nodeExpression.getRightExpression());
@@ -380,16 +368,15 @@ class TransformExpanded extends React.Component {
         paramExpressions.forEach((expression, i) => {
             const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
             expression = exp;
-            if (ASTFactory.isFunctionInvocationExpression(expression)
-                || ASTFactory.isBinaryExpression(expression)
-                || ASTFactory.isUnaryExpression(expression)) {
+            if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
+                    || TreeUtil.isUnaryExpr(expression)) {
                 this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
             } else {
-                let sourceId = `${expression.getExpressionString().trim()}:${viewId}`;
+                let sourceId = `${expression.getSource().trim()}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
                     folded = true;
-                    sourceId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'source');
+                    sourceId = this.getFoldedEndpointId(expression.getSource().trim(), viewId, 'source');
                 }
 
                 let targetId = `${nodeExpID}:${i}:${viewId}`;
@@ -760,15 +747,15 @@ class TransformExpanded extends React.Component {
 
     onSourceSelect(e, { suggestionValue }) {
         if (suggestionValue === '') {
-            const variableDefinitionStatement = this.transformNodeManager.addNewVariable('source');
+            const varDef = this.transformNodeManager.addNewVariable('source');
             const varVertex = ({
-                name: variableDefinitionStatement.getVariableDef().getName(),
-                displayName: variableDefinitionStatement.getVariableDef().getName(),
-                type: variableDefinitionStatement.getVariableDef().getTypeName(),
-                varDeclarationString: variableDefinitionStatement.getStatementString(),
+                name: varDef.getVariable().getVariableName().getValue(),
+                displayName: varDef.getVariable().getVariableName().getValue(),
+                type: varDef.getVariable().getTypeNode().getValue(),
+                varDeclarationString: varDef.getSource(),
             });
             this.state.vertices.push(varVertex);
-            this.addSource(variableDefinitionStatement.getVariableDef().getName());
+            this.addSource(varDef.getVariable().getVariableName());
         } else {
             this.setState({
                 selectedSource: suggestionValue,
@@ -893,7 +880,7 @@ class TransformExpanded extends React.Component {
                     });
                 });
                 const varDefinitions = this.props.model.getBody().filterStatements(TreeUtil.isVariableDef);
-                _.forEach(transformVars, (arg) => {
+                transformVars.forEach((arg) => {
                     const structDef = this.transformNodeManager.getStructDefinition(arg.pkgName, arg.type);
 
                     if (structDef) {
@@ -1093,8 +1080,8 @@ class TransformExpanded extends React.Component {
     }
 
     markConnectedEndpoints() {
-        $('.variable-endpoint').removeClass('fw-circle').addClass('fw-circle-outline');
-        $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle');
+        $('.variable-endpoint').removeClass('fw-circle-in-circle').addClass('fw-circle-outline');
+        $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle-in-circle');
     }
 
     render() {
@@ -1131,6 +1118,9 @@ class TransformExpanded extends React.Component {
             });
 
             this.props.model.getBody().getStatements().forEach((stmt) => {
+                if (!TreeUtil.isAssignment(stmt)) {
+                    return;
+                }
                 const { exp: expression, isTemp } = this.transformNodeManager
                                                     .getResolvedExpression(stmt.getExpression(), stmt);
 

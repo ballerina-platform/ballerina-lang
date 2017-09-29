@@ -19,6 +19,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import $ from 'jquery';
 import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
+import hardcodedTypeLattice from './hardcoded-type-lattice'
 
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
@@ -263,12 +264,16 @@ export function getTypeLattice() {
         'content-type': 'application/json; charset=utf-8',
     };
 
-    return new Promise((resolve, reject) => {
-        axios.get(endpoint, { headers })
-            .then((response) => {
-                resolve(response.data);
-            }).catch(error => reject(error));
-    });
+    // Hard coding type lattice temporary
+    return Promise.resolve(hardcodedTypeLattice);
+
+    // TODO: Uncomment when typeLattice endpoint starts working
+    // return new Promise((resolve, reject) => {
+    //     axios.get(endpoint, { headers })
+    //         .then((response) => {
+    //             resolve(response.data);
+    //         }).catch(error => reject(error));
+    // });
 }
 
 /**

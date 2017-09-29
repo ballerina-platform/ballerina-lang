@@ -121,8 +121,8 @@ class PackageDeclarationNode extends React.Component {
         value += ';\n';
         parseContent(value)
             .then((jsonTree) => {
-                if (jsonTree.topLevelNodes[0]) {
-                    this.props.model.parent.addGlobal(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                if (jsonTree.model.topLevelNodes[0]) {
+                    this.props.model.parent.addGlobal(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
                 }
             })
             .catch(log.error);
@@ -144,8 +144,8 @@ class PackageDeclarationNode extends React.Component {
         value = 'import ' + value + ';\n';
         parseContent(value)
             .then((jsonTree) => {
-                if (jsonTree.topLevelNodes[0]) {
-                    this.props.model.parent.addImport(TreeBuilder.build(jsonTree.topLevelNodes[0]));
+                if (jsonTree.model.topLevelNodes[0]) {
+                    this.props.model.parent.addImport(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
                 }
             })
             .catch(log.error);

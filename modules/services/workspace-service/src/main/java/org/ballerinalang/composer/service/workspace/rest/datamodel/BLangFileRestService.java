@@ -27,6 +27,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
@@ -39,7 +40,10 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
@@ -51,7 +55,9 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
@@ -177,8 +183,12 @@ public class BLangFileRestService {
             diagnostics = WorkspaceUtils.getBallerinaFile(fileName, content).getDiagnostics();
         }
 
+        final Map<String, ModelPackage> modelPackage = new HashMap<>();
+        WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
+
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
+        JsonElement packageInfo = gson.toJsonTree(modelPackage.values().stream().findFirst().get());
 
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
@@ -186,6 +196,7 @@ public class BLangFileRestService {
         JsonObject result = new JsonObject();
         result.add("model", modelElement);
         result.add("diagnostics", diagnosticsJson);
+        result.add("packageInfo", packageInfo);
 
         return result.toString();
 

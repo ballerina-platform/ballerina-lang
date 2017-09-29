@@ -379,6 +379,10 @@ div.operator-expanded-func {
     z-index: 0 !important;
 }
 
+.operator-cell .transform-endpoint-details {
+    overflow-x: hidden;
+}
+
 .folded-op-body {
     color: #3d3d3d;
     background-color: #dedede;

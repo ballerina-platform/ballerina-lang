@@ -394,32 +394,22 @@ class BallerinaFileEditor extends React.Component {
                             // update package name of the file
                             // TODOX file.packageName = pkgName || '.';
                             // init bal env in background
-                            /* BallerinaEnvironment.initialize()
+                            BallerinaEnvironment.initialize()
                                 .then(() => {
                                     this.environment.init();
 
                                     // Resolve now and let rest happen in background
                                     resolve(newState);
 
-                                    // fetch program packages
-                                    getProgramPackages(file)
-                                        .then((data) => {
-                                            // if any packages were found
-                                            const packages = data.result.packages;
-                                            if (!_.isNil(packages)) {
-                                                const pkges = [];
-                                                packages.forEach((pkgNode) => {
-                                                    const pkg = BallerinaEnvFactory.createPackage();
-                                                    pkg.initFromJson(pkgNode);
-                                                    pkges.push(pkg);
-                                                });
-                                                this.environment.addPackages(pkges);
-                                            }
-                                            this.update();
-                                        })
-                                        .catch(error => log.error(error));
+                                    const pkgNode = jsonTree.packageInfo;
+                                    if (!_.isNil(pkgNode)) {
+                                        const pkg = BallerinaEnvFactory.createPackage();
+                                        pkg.initFromJson(pkgNode);
+                                        this.environment.setCurrentPackage(pkg);
+                                    }
+                                    this.update();
                                 })
-                                .catch(reject);*/
+                                .catch(reject);
                         })
                         .catch(reject);
                 })
@@ -480,13 +470,21 @@ class BallerinaFileEditor extends React.Component {
             || ((!this.state.parseFailed)
                                             && _.isEmpty(this.state.syntaxErrors)
                                                 && this.state.activeView === DESIGN_VIEW);
-        const showSourceView = this.state.parseFailed
+        const showSourceView = !this.props.isPreviewViewEnabled && (this.state.parseFailed
             || !_.isEmpty(this.state.syntaxErrors)
-            || this.state.activeView === SOURCE_VIEW;
+            || this.state.activeView === SOURCE_VIEW);
         const showSwaggerView = (!this.state.parseFailed
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW);
-        const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
+
+        let showLoadingOverlay;
+        if (this.props.isPreviewViewEnabled) {
+            if (showDesignView === true) {
+                showLoadingOverlay = false;
+            } else {
+                showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
+            }
+        }
 
         return (
             <div
