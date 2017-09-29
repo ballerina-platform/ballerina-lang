@@ -25,9 +25,7 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnecto
 import org.wso2.carbon.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClient;
 
-import java.net.URISyntaxException;
 import java.util.Map;
-import javax.net.ssl.SSLException;
 
 /**
  * Implementation of WebSocket client connector.
@@ -50,14 +48,8 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
 
     @Override
     public HandshakeFuture connect(WebSocketConnectorListener connectorListener) {
-        HandshakeFuture handshakeFuture = new HandshakeFutureImpl();
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, idleTimeout,
                                                               customHeaders, connectorListener);
-        try {
-            webSocketClient.handshake(handshakeFuture);
-        } catch (InterruptedException | URISyntaxException | SSLException e) {
-            handshakeFuture.notifyError(e);
-        }
-        return handshakeFuture;
+        return webSocketClient.handshake();
     }
 }
