@@ -153,7 +153,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
 
-        if (pkgAlias == Names.EMPTY) {
+        if (pkgAlias.equals(Names.EMPTY)) {
             // Return the current package symbol
             return env.enclPkg.symbol;
         }
@@ -173,6 +173,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             return pkgSymbol;
         }
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
+    }
+
+    public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, annotationName, SymTag.ANNOTATION);
     }
 
     public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,

@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -60,24 +61,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangFunctionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -87,20 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -125,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.ActionInfo;
@@ -1237,18 +1216,106 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private AnnAttachmentInfo getAnnotationAttachmentInfo(BLangAnnotationAttachment attachment) {
         int attachmentNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachment.getAnnotationName().getValue());
-        AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(currentPackageRefCPIndex, "", attachmentNameCPIndex,
+        //TODO add package path
+        AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(currentPackageRefCPIndex,
+                attachment.pkgAlias.getValue(), attachmentNameCPIndex,
                 attachment.getAnnotationName().getValue());
-        attachment.attributes.forEach(attr -> getAnnotationAttributeValue(attr, annAttachmentInfo));
+        attachment.attributes.forEach(attr -> {
+            AnnAttributeValue attribValue = getAnnotationAttributeValue(attr.value);
+            int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attr.getName());
+            annAttachmentInfo.addAttributeValue(attributeNameCPIndex, attr.getName(), attribValue);
+        });
         return annAttachmentInfo;
     }
 
-    private void getAnnotationAttributeValue(AnnotationAttachmentAttributeNode attributeNode,
-                                             AnnAttachmentInfo annAttachmentInfo) {
-        int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attributeNode.getName());
+    private AnnAttributeValue getAnnotationAttributeValue(BLangAnnotAttachmentAttributeValue attributeNode) {
         AnnAttributeValue attribValue = null;
+        if (attributeNode.value != null
+                && attributeNode.value instanceof BLangLiteral) {
+            // Annotation attribute value is a literal value
+            BLangLiteral literalValue = (BLangLiteral) attributeNode.value;
+            String typeDesc = literalValue.type.getDesc();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
+
+            int valueCPIndex;
+            int typeTag = literalValue.type.tag;
+            switch (typeTag) {
+                case TypeTags.INT:
+                    long intValue = (long) literalValue.value;
+                    attribValue.setIntValue(intValue);
+                    valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(intValue));
+                    attribValue.setValueCPIndex(valueCPIndex);
+
+                    break;
+                case TypeTags.FLOAT:
+                    double floatValue = (double) literalValue.value;
+                    attribValue.setFloatValue(floatValue);
+                    valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(floatValue));
+                    attribValue.setValueCPIndex(valueCPIndex);
+
+                    break;
+                case TypeTags.STRING:
+                    String stringValue = (String) literalValue.value;
+                    attribValue.setStringValue(stringValue);
+                    valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(stringValue));
+                    attribValue.setValueCPIndex(valueCPIndex);
+
+                    break;
+                case TypeTags.BOOLEAN:
+                    boolean boolValue = (boolean) literalValue.value;
+                    attribValue.setBooleanValue(boolValue);
+                    break;
+            }
+
+        } else if (attributeNode.value != null) {
+            // Annotation attribute value is another annotation attachment
+            BLangAnnotationAttachment attachment = (BLangAnnotationAttachment) attributeNode.value;
+            AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(attachment);
+
+            String typeDesc = TypeDescriptor.SIG_ANNOTATION;
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
+
+        } else if (attributeNode.value != null
+                && attributeNode.value instanceof BLangSimpleVarRef) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) attributeNode.value;
+            String typeDesc = simpleVarRef.type.getDesc();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+
+
+            String constPkg = simpleVarRef.symbol.pkgID.getName().getValue();
+            UTF8CPEntry constPkgCPEntry = new UTF8CPEntry(constPkg);
+            int constPkgCPIndex = currentPkgInfo.addCPEntry(constPkgCPEntry);
+
+            String constName = simpleVarRef.symbol.name.getValue();
+            UTF8CPEntry constNameCPEntry = new UTF8CPEntry(constName);
+            int constNameCPIndex = currentPkgInfo.addCPEntry(constNameCPEntry);
+
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkg, constNameCPIndex, constName);
+            attribValue.setConstVarExpr(true);
+
+            programFile.addUnresolvedAnnAttrValue(attribValue);
+        } else {
+            List<BLangAnnotAttachmentAttributeValue> attributeValues =
+                    attributeNode.arrayValues;
+            AnnAttributeValue[] annotationAttribValues = new AnnAttributeValue[attributeValues.size()];
+            for (int i = 0; i < attributeValues.size(); i++) {
+                annotationAttribValues[i] = getAnnotationAttributeValue(attributeValues.get(i));
+            }
+
+            String typeDesc = TypeDescriptor.SIG_ARRAY;
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, annotationAttribValues);
+        }
+
         //TODO:create AnnAttributeValue
-        annAttachmentInfo.addAttributeValue(attributeNameCPIndex, attributeNode.getName(), attribValue);
+        return attribValue;
     }
 
     private void visitInvokableNode(BLangInvokableNode invokableNode,

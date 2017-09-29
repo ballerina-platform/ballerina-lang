@@ -237,8 +237,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env,
-                new Name(annAttachmentNode.getAnnotationName().getValue()), SymTag.ANNOTATION);
+        BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, env,
+                new Name(annAttachmentNode.pkgAlias.getValue()),
+                new Name(annAttachmentNode.getAnnotationName().getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
@@ -535,7 +536,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
 

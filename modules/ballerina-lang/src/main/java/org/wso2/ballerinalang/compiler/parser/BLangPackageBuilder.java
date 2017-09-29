@@ -959,8 +959,10 @@ public class BLangPackageBuilder {
         annotAttachmentStack.push(annotAttachmentNode);
     }
 
-    public void setAnnotationAttachmentName(String annotationName) {
-        annotAttachmentStack.peek().setAnnotationName(createIdentifier(annotationName));
+    public void setAnnotationAttachmentName() {
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        annotAttachmentStack.peek().setAnnotationName(createIdentifier(nameReference.name.getValue()));
+        annotAttachmentStack.peek().setPackageAlias(createIdentifier(nameReference.pkgAlias.getValue()));
     }
 
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos) {
@@ -968,7 +970,7 @@ public class BLangPackageBuilder {
     }
 
     public void createVarRefTypeAttributeValue(DiagnosticPos currentPos) {
-        createAnnotAttribValueFromExpr(currentPos);
+        createAnnotAttribValueFromSimpleVarRefExpr(currentPos);
     }
 
     public void createAnnotationTypeAttributeValue(DiagnosticPos currentPos) {
@@ -997,6 +999,15 @@ public class BLangPackageBuilder {
         BLangAnnotAttachmentAttributeValue annotAttrVal =
                 (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
+        annotAttrVal.setValue(exprNodeStack.pop());
+        annotAttribValStack.push(annotAttrVal);
+    }
+
+    private void createAnnotAttribValueFromSimpleVarRefExpr(DiagnosticPos currentPos) {
+        BLangAnnotAttachmentAttributeValue annotAttrVal =
+                (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.pos = currentPos;
+        createSimpleVariableReference(currentPos);
         annotAttrVal.setValue(exprNodeStack.pop());
         annotAttribValStack.push(annotAttrVal);
     }
