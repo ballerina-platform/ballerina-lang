@@ -339,6 +339,18 @@ public class BLangPackageBuilder {
         addVar(pos, ws, identifier, exprAvailable, annotCount);
     }
 
+    public void addVarToAnnotation(DiagnosticPos pos,
+                                   Set<Whitespace> ws,
+                                   String identifier,
+                                   boolean exprAvailable,
+                                   int annotCount) {
+
+        Set<Whitespace> wsForSemiColon = removeLast(ws);
+        AnnotationNode annotNode = this.annotationStack.peek();
+        annotNode.addWS(wsForSemiColon);
+        addVar(pos, ws, identifier, exprAvailable, annotCount);
+    }
+
 
     public void addVar(DiagnosticPos pos,
                        Set<Whitespace> ws,
@@ -1021,8 +1033,10 @@ public class BLangPackageBuilder {
         annotAttachmentStack.push(annotAttachmentNode);
     }
 
-    public void setAnnotationAttachmentName(String annotationName) {
-        annotAttachmentStack.peek().setAnnotationName(createIdentifier(annotationName));
+    public void setAnnotationAttachmentName() {
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        annotAttachmentStack.peek().setAnnotationName(createIdentifier(nameReference.name.getValue()));
+        annotAttachmentStack.peek().setPackageAlias(createIdentifier(nameReference.pkgAlias.getValue()));
     }
 
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos, Set<Whitespace> ws) {
@@ -1030,7 +1044,7 @@ public class BLangPackageBuilder {
     }
 
     public void createVarRefTypeAttributeValue(DiagnosticPos currentPos, Set<Whitespace> ws) {
-        createAnnotAttribValueFromExpr(currentPos, ws);
+        createAnnotAttribValueFromSimpleVarRefExpr(currentPos, ws);
     }
 
     public void createAnnotationTypeAttributeValue(DiagnosticPos currentPos, Set<Whitespace> ws) {
@@ -1064,6 +1078,16 @@ public class BLangPackageBuilder {
                 (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
         annotAttrVal.pos = currentPos;
         annotAttrVal.addWS(ws);
+        annotAttrVal.setValue(exprNodeStack.pop());
+        annotAttribValStack.push(annotAttrVal);
+    }
+
+    private void createAnnotAttribValueFromSimpleVarRefExpr(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        BLangAnnotAttachmentAttributeValue annotAttrVal =
+                (BLangAnnotAttachmentAttributeValue) TreeBuilder.createAnnotAttributeValueNode();
+        annotAttrVal.pos = currentPos;
+        annotAttrVal.addWS(ws);
+        createSimpleVariableReference(currentPos, ws);
         annotAttrVal.setValue(exprNodeStack.pop());
         annotAttribValStack.push(annotAttrVal);
     }

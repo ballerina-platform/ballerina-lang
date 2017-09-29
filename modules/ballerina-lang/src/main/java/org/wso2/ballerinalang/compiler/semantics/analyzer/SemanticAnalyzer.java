@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -241,8 +242,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env,
-                new Name(annAttachmentNode.getAnnotationName().getValue()), SymTag.ANNOTATION);
+        BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, env,
+                names.fromString(annAttachmentNode.pkgAlias.getValue()),
+                names.fromString(annAttachmentNode.getAnnotationName().getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
@@ -553,7 +555,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
 
@@ -864,4 +865,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    @Override
+    public void visit(BLangComment commentNode) {
+        // do nothing
+    }
 }

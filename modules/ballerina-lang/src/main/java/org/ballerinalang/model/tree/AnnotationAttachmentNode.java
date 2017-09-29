@@ -27,6 +27,10 @@ import java.util.List;
  */
 public interface AnnotationAttachmentNode extends Node {
 
+    IdentifierNode getPackageAlias();
+
+    void setPackageAlias(IdentifierNode pkgAlias);
+
     IdentifierNode getAnnotationName();
 
     void setAnnotationName(IdentifierNode name);
