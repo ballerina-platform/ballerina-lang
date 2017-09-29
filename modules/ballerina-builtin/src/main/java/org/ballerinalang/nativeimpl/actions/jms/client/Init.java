@@ -19,8 +19,9 @@
 package org.ballerinalang.nativeimpl.actions.jms.client;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -58,7 +59,7 @@ import java.util.ServiceLoader;
 public class Init extends AbstractJMSAction {
 
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         if (BallerinaConnectorManager.getInstance().
                 getClientConnector(Constants.PROTOCOL_JMS) == null) {
             CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
@@ -69,7 +70,9 @@ public class Init extends AbstractJMSAction {
                 BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
             });
         }
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 
     @Override

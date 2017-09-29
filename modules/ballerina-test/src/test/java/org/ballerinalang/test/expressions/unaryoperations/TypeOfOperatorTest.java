@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -23,7 +23,7 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 public class TypeOfOperatorTest {
 
@@ -34,7 +34,7 @@ public class TypeOfOperatorTest {
         result = BTestUtils.compile("test-src/expressions/unaryoperations/typeof-operation.bal");
     }
 
-    //@Test(description = "Test reference type access expression trivial equality positive case")
+    @Test(description = "Test reference type access expression trivial equality positive case")
     public void testRefTypeAccessExprTrivialEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestTrivialEqualityPositiveCase", args);
@@ -75,7 +75,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression trivial equality negative case")
+    @Test(description = "Test reference type access expression trivial equality negative case")
     public void testRefTypeAccessExprTrivialEqualityNegativeCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestTrivialEqualityNegativeCase", args);
@@ -88,7 +88,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression trivial not equality case")
+    @Test(description = "Test reference type access expression trivial not equality case")
     public void testRefTypeAccessExprTrivialNotEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestTrivialNotEqualityCase", args);
@@ -102,7 +102,7 @@ public class TypeOfOperatorTest {
     }
 
 
-    //@Test(description = "Test reference type access expression Any type negative case")
+    @Test(description = "Test reference type access expression Any type negative case")
     public void testRefTypeAccessExprAnyTypeNegativeCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestAnyTypeNegativeCase", args);
@@ -115,7 +115,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Any type positive case")
+    @Test(description = "Test reference type access expression Any type positive case")
     public void testRefTypeAccessExprAnyTypePositiveCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestAnyTypePositiveCase", args);
@@ -128,7 +128,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Map access case")
+    @Test(description = "Test reference type access expression Map access case")
     public void testRefTypeAccessExprMapAccessCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestMapAccessCase", args);
@@ -142,7 +142,7 @@ public class TypeOfOperatorTest {
     }
 
 
-    //@Test(description = "Test reference type access expression Array access case")
+    @Test(description = "Test reference type access expression Array access case")
     public void testRefTypeAccessExprArrayAccessCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestArrayAccessCase", args);
@@ -155,7 +155,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Array equality case")
+    @Test(description = "Test reference type access expression Array equality case")
     public void testRefTypeAccessTestArrayEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestArrayEqualityCase", args);
@@ -168,7 +168,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Array equality positive case")
+    @Test(description = "Test reference type access expression Array equality positive case")
     public void testRefTypeAccessTestArrayEqualityPositiveCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestArrayEqualityPositiveCase", args);
@@ -181,7 +181,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct access case")
+    @Test(description = "Test reference type access expression Struct access case")
     public void testRefTypeAccessExprStructAccessCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructAccessCase", args);
@@ -194,7 +194,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct equality case")
+    @Test(description = "Test reference type access expression Struct equality case")
     public void testRefTypeAccessTestStructTypeEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructTypeEqualityCase", args);
@@ -207,7 +207,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct not equality case")
+    @Test(description = "Test reference type access expression Struct not equality case")
     public void testRefTypeAccessTestStructTypeNotEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructTypeNotEqualityCase", args);
@@ -220,7 +220,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct equality negative case")
+    @Test(description = "Test reference type access expression Struct equality negative case")
     public void testRefTypeAccessTestStructTypeNegativeEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructTypeNegativeEqualityCase", args);
@@ -233,7 +233,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct not equality negative case")
+    @Test(description = "Test reference type access expression Struct not equality negative case")
     public void testRefTypeAccessTestStructTypeNegativeNotEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructTypeNegativeNotEqualityCase", args);
@@ -246,7 +246,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct field equality case")
+    @Test(description = "Test reference type access expression Struct field equality case")
     public void testRefTypeAccessTestStructFieldTypeEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructFieldTypeEqualityCase", args);
@@ -259,7 +259,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression Struct field not equality case")
+    @Test(description = "Test reference type access expression Struct field not equality case")
     public void testRefTypeAccessTestStructFieldTypeNotEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestStructFieldTypeNotEqualityCase", args);
@@ -272,7 +272,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression JSON equality case")
+    @Test(description = "Test reference type access expression JSON equality case")
     public void testRefTypeAccessTestJSONEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestJSONEqualityCase", args);
@@ -298,7 +298,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression type of multi dimensional array negative case")
+    @Test(description = "Test reference type access expression type of multi dimensional array negative case")
     public void testRefTypeAccessTestMultiArrayNegativeCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestMultiArrayNegativeCase", args);
@@ -311,7 +311,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression type of multi dimensional array positive case")
+    @Test(description = "Test reference type access expression type of multi dimensional array positive case")
     public void testRefTypeAccessTestMultiArrayPositiveCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestMultiArrayPositiveCase", args);
@@ -324,7 +324,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression type of different dimensional arrays case")
+    @Test(description = "Test reference type access expression type of different dimensional arrays case")
     public void testRefTypeAccessTestMultiArrayDifferentDimensionCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestMultiArrayDifferentDimensionCase", args);
@@ -337,7 +337,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression type of different dimensional two type arrays case")
+    @Test(description = "Test reference type access expression type of different dimensional two type arrays case")
     public void testRefTypeAccessTestMultiArrayDifferentDimensionCaseTwo() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestMultiArrayDifferentDimensionCaseTwo", args);
@@ -350,8 +350,8 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    /*@Test(description = "Test reference type access expression type of different dimensional two type arrays " +
-            "check not quality case")*/
+    @Test(description = "Test reference type access expression type of different dimensional two type arrays " +
+            "check not quality case")
     public void testRefTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result,
