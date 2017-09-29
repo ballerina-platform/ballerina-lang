@@ -241,8 +241,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, env,
-                new Name(annAttachmentNode.pkgAlias.getValue()),
-                new Name(annAttachmentNode.getAnnotationName().getValue()));
+                names.fromString(annAttachmentNode.pkgAlias.getValue()),
+                names.fromString(annAttachmentNode.getAnnotationName().getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());

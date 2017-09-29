@@ -153,7 +153,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
 
-        if (pkgAlias.equals(Names.EMPTY)) {
+        if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
             return env.enclPkg.symbol;
         }
