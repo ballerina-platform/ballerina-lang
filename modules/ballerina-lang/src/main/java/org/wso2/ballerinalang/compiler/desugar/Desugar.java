@@ -159,6 +159,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
+        pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -547,7 +548,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
     }
