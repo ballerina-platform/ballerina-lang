@@ -17,7 +17,11 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.symbols.Symbol;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -36,15 +40,11 @@ public interface XMLElementLiteralNode extends XMLLiteralNode {
 
     void addAttribute(XMLAttributeNode attribute);
 
-    List<ExpressionNode> getContent();
+    List<? extends ExpressionNode> getContent();
 
     void addChild(ExpressionNode content);
     
-    List<XMLAttributeNode> getNamespaces();
+    Map<? extends Name, ? extends Symbol> getNamespaces();
     
-    void addNamespace(XMLAttributeNode namespace);
-    
-    ExpressionNode getDefaultNamespaceUri();
-    
-    void setDefaultNamespaceUri(ExpressionNode defaultNamespaceUri);
+    void addNamespace(Name prefix, Symbol namespaceUri);
 }

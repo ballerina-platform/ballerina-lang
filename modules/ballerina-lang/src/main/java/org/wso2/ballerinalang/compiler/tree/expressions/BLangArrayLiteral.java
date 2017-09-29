@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.Arrays;
@@ -53,5 +54,21 @@ public class BLangArrayLiteral extends BLangExpression implements ArrayLiteralNo
     public String toString() {
         String s = Arrays.toString(exprs.toArray());
         return "[" + s.substring(1, s.length() - 1) + ']';
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangJSONArrayLiteral extends BLangArrayLiteral {
+
+        public BLangJSONArrayLiteral(List<BLangExpression> exprs, BType jsonType) {
+            this.exprs = exprs;
+            this.type = jsonType;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

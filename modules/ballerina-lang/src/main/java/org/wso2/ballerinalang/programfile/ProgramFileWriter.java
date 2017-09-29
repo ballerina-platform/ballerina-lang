@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * Dump Ballerina program model to a file.
@@ -162,7 +161,7 @@ public class ProgramFileWriter {
                     break;
                 case CP_ENTRY_FORK_JOIN:
                     ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;
-                    dataOutStream.writeInt(forkJoinCPEntry.getForkJoinCPIndex());
+                    dataOutStream.writeInt(forkJoinCPEntry.forkJoinInfoIndex);
                     break;
                 case CP_ENTRY_WRKR_INTERACTION:
                     WrkrInteractionArgsCPEntry workerInvokeCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
@@ -304,14 +303,14 @@ public class ProgramFileWriter {
         // TODO write property flags  e.g. public
         dataOutStream.writeInt(connectorInfo.signatureCPIndex);
 
-        Map<Integer, Integer> methodTable = connectorInfo.getMethodTableIndex();
-        dataOutStream.writeInt(methodTable.size());
-        for (Integer s : methodTable.keySet()) {
-            dataOutStream.writeInt(s);
-            dataOutStream.writeInt(methodTable.get(s));
-        }
-
-        dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
+//        Map<Integer, Integer> methodTable = connectorInfo.getMethodTableIndex();
+//        dataOutStream.writeInt(methodTable.size());
+//        for (Integer s : methodTable.keySet()) {
+//            dataOutStream.writeInt(s);
+//            dataOutStream.writeInt(methodTable.get(s));
+//        }
+//
+//        dataOutStream.writeBoolean(connectorInfo.isFilterConnector());
 
         ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);
@@ -343,6 +342,10 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(actionInfo.nameCPIndex);
         dataOutStream.writeInt(actionInfo.signatureCPIndex);
         dataOutStream.writeInt(actionInfo.flags);
+
+        // TODO Temp solution
+        boolean b = (actionInfo.flags & Flags.NATIVE) == Flags.NATIVE;
+        dataOutStream.writeByte(b ? 1 : 0);
 
         WorkerDataChannelInfo[] workerDataChannelInfos = actionInfo.getWorkerDataChannelInfo();
         dataOutStream.writeShort(workerDataChannelInfos.length);

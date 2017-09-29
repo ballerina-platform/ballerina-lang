@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
@@ -57,25 +59,29 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
+    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
+
+
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
     public final Scope rootScope;
 
+    public final BType noType = new BNoType(TypeTags.NONE);
     public final BType intType = new BType(TypeTags.INT, null);
     public final BType floatType = new BType(TypeTags.FLOAT, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
     public final BType blobType = new BType(TypeTags.BLOB, null);
     public final BType typeType = new BType(TypeTags.TYPE, null);
-    public final BType jsonType = new BBuiltInRefType(TypeTags.JSON, null);
+    public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
     public final BType xmlType = new BBuiltInRefType(TypeTags.XML, null);
     public final BType datatableType = new BBuiltInRefType(TypeTags.DATATABLE, null);
     public final BType anyType = new BBuiltInRefType(TypeTags.ANY, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
-    public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nullType = new BNullType();
     public final BType voidType = new BNoType(TypeTags.VOID);
+    public final BType messageType = new BBuiltInRefType(TypeTags.MESSAGE, null);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
@@ -105,11 +111,12 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(Names.EMPTY, Names.EMPTY, null);
+        this.rootPkgSymbol = new BPackageSymbol(BUILTIN, null);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
         this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
-        this.notFoundSymbol = new BSymbol(SymTag.NIL, 0, Names.INVALID, noType, rootPkgSymbol);
+        this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
+                rootPkgSymbol.pkgID, noType, rootPkgSymbol);
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
@@ -123,10 +130,12 @@ public class SymbolTable {
         initializeType(datatableType, TypeKind.DATATABLE.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
+        initializeType(messageType, TypeKind.MESSAGE.typeName());
 
         // Initialize error type;
         this.errType = new BErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.ERROR, 0, Names.INVALID, errType, rootPkgSymbol);
+        this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
+                rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
 
         // Initialize builtin error struct type and stackFrame struct.
@@ -136,7 +145,7 @@ public class SymbolTable {
         BStructType.BStructField lineNumberField = new BStructType.BStructField(Names.LINE_NUMBER, intType);
         this.stackFrameType = new BStructType(null,
                 Lists.of(callerField, packageField, fileNameField, lineNumberField));
-        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME,
+        this.stackFrameSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.STACK_FRAME, this.rootPkgSymbol.pkgID,
                 this.stackFrameType, rootPkgSymbol);
         defineType(stackFrameType, stackFrameSymbol);
 
@@ -147,7 +156,8 @@ public class SymbolTable {
         BStructType.BStructField stackTraceField = new BStructType.BStructField(Names.STACK_TRACE,
                 new BArrayType(stackFrameType));
         this.errStructType.fields = Lists.of(msgField, causeField, stackTraceField);
-        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.errStructType, rootPkgSymbol);
+        this.errStructSymbol = Symbols.createStructSymbol(Flags.PUBLIC, Names.ERROR, this.rootPkgSymbol.pkgID,
+                this.errStructType, rootPkgSymbol);
         defineType(errStructType, errStructSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
@@ -184,7 +194,7 @@ public class SymbolTable {
     }
 
     private void initializeType(BType type, Name name) {
-        defineType(type, new BTypeSymbol(SymTag.TYPE, 0, name, type, rootPkgSymbol));
+        defineType(type, new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, null, type, rootPkgSymbol));
     }
 
     private void defineType(BType type, BTypeSymbol tSymbol) {
@@ -206,24 +216,53 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, InstructionCodes.ISUB);
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType, InstructionCodes.FDIV);
         defineBinaryOperator(OperatorKind.DIV, intType, intType, intType, InstructionCodes.IDIV);
+        defineBinaryOperator(OperatorKind.DIV, intType, floatType, floatType, InstructionCodes.FDIV);
+        defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType, InstructionCodes.FDIV);
         defineBinaryOperator(OperatorKind.MUL, floatType, floatType, floatType, InstructionCodes.FMUL);
         defineBinaryOperator(OperatorKind.MUL, intType, intType, intType, InstructionCodes.IMUL);
+        defineBinaryOperator(OperatorKind.MOD, floatType, floatType, floatType, InstructionCodes.FMOD);
+        defineBinaryOperator(OperatorKind.MOD, intType, intType, intType, InstructionCodes.IMOD);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, typeType, typeType, booleanType, InstructionCodes.TEQ);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, typeType, typeType, booleanType, InstructionCodes.TNE);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType, InstructionCodes.ILE);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType, InstructionCodes.IGT);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType, InstructionCodes.IGE);
+        defineBinaryOperator(OperatorKind.LESS_THAN, intType, floatType, booleanType, InstructionCodes.FLT);
+        defineBinaryOperator(OperatorKind.LESS_THAN, floatType, intType, booleanType, InstructionCodes.FLT);
+        defineBinaryOperator(OperatorKind.LESS_THAN, floatType, floatType, booleanType, InstructionCodes.FLT);
 
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType, InstructionCodes.ILE);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, intType, booleanType, InstructionCodes.FLE);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, floatType, booleanType, InstructionCodes.FLE);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, floatType, booleanType, InstructionCodes.FLE);
+
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType, InstructionCodes.IGT);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, intType, booleanType, InstructionCodes.FGT);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, floatType, booleanType, InstructionCodes.FGT);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, floatType, booleanType, InstructionCodes.FGT);
+
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType, InstructionCodes.IGE);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType, InstructionCodes.FGE);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType, InstructionCodes.FGE);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType, InstructionCodes.FGE);
+
+        defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
+        defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);
         // Unary operator symbols
         defineUnaryOperator(OperatorKind.ADD, floatType, floatType, -1);
         defineUnaryOperator(OperatorKind.ADD, intType, intType, -1);
 
-        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, InstructionCodes.INEG);
+        defineUnaryOperator(OperatorKind.SUB, floatType, floatType, InstructionCodes.FNEG);
         defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
@@ -239,6 +278,7 @@ public class SymbolTable {
         // Define both implicit and explicit cast operators
         defineCastOperator(intType, jsonType, true, InstructionCodes.I2JSON);
         defineCastOperator(intType, anyType, true, InstructionCodes.I2ANY);
+        defineCastOperator(intType, floatType, true, InstructionCodes.I2F);
         defineCastOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
         defineCastOperator(floatType, anyType, true, InstructionCodes.F2ANY);
         defineCastOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
@@ -247,7 +287,7 @@ public class SymbolTable {
         defineCastOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
         defineCastOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineCastOperator(typeType, anyType, true, -1);
-        defineCastOperator(nullType, jsonType, true, -1);
+        defineCastOperator(nullType, jsonType, true, InstructionCodes.NULL2JSON);
 
         // Define explicit cast operators
         defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);
@@ -310,27 +350,26 @@ public class SymbolTable {
                                             BType targetType,
                                             boolean safe,
                                             int opcode) {
-        defineCastOperator(sourceType, targetType, false, true, safe, opcode);
+        defineCastOperator(sourceType, targetType, false, safe, opcode);
     }
 
     private void defineCastOperator(BType sourceType,
                                     BType targetType,
                                     boolean safe,
                                     int opcode) {
-        defineCastOperator(sourceType, targetType, true, true, safe, opcode);
+        defineCastOperator(sourceType, targetType, true, safe, opcode);
     }
 
     private void defineCastOperator(BType sourceType,
                                     BType targetType,
                                     boolean implicit,
-                                    boolean explicit,
                                     boolean safe,
                                     int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BCastOperatorSymbol symbol = new BCastOperatorSymbol(opType, rootPkgSymbol,
-                implicit, explicit, safe, opcode);
+        BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.rootPkgSymbol,
+                implicit, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 
@@ -341,7 +380,8 @@ public class SymbolTable {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(opType, rootPkgSymbol, safe, opcode);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,
+                this.rootPkgSymbol, safe, opcode);
         rootScope.define(symbol.name, symbol);
     }
 
@@ -350,7 +390,7 @@ public class SymbolTable {
                                 List<BType> retTypes,
                                 int opcode) {
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        BOperatorSymbol symbol = new BOperatorSymbol(name, opType, rootPkgSymbol, opcode);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, opcode);
         rootScope.define(name, symbol);
     }
 }

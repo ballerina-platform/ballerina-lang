@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -26,13 +27,14 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BConversionOperatorSymbol extends BOperatorSymbol {
 
-  public boolean safe;
+    public boolean safe;
 
-  public BConversionOperatorSymbol(BType type,
-                             BSymbol owner,
-                             boolean safe,
-                             int opcode) {
-    super(Names.CONVERSION_OP, type, owner, opcode);
-    this.safe = safe;
-  }
+    public BConversionOperatorSymbol(PackageID pkgID,
+                                     BType type,
+                                     BSymbol owner,
+                                     boolean safe,
+                                     int opcode) {
+        super(Names.CONVERSION_OP, pkgID, type, owner, opcode);
+        this.safe = safe;
+    }
 }

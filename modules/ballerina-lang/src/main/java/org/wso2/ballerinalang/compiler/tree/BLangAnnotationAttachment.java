@@ -20,9 +20,9 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,9 @@ import java.util.List;
  */
 public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 
-    public List<AnnotationAttachmentAttributeNode> attributes;
-    BLangIdentifier annotationName;
+    public List<BLangAnnotAttachmentAttribute> attributes;
+    public BLangIdentifier annotationName;
+    public BLangAnnotationAttachmentPoint attachmentPoint;
 
     public BLangAnnotationAttachment() {
         this.attributes = new ArrayList<>();
@@ -41,11 +42,11 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
 
     @Override
     public void addAttribute(String attrName, AnnotationAttachmentAttributeValueNode value) {
-        attributes.add(new BLangAnnotAttachmentAttribute(attrName, value));
+        attributes.add(new BLangAnnotAttachmentAttribute(attrName, (BLangAnnotAttachmentAttributeValue) value));
     }
 
     @Override
-    public List<AnnotationAttachmentAttributeNode> geAttributes() {
+    public List<BLangAnnotAttachmentAttribute> geAttributes() {
         return attributes;
     }
 
@@ -73,4 +74,5 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     public String toString() {
         return "BLangAnnotationAttachment: " + annotationName + " " + attributes;
     }
+
 }

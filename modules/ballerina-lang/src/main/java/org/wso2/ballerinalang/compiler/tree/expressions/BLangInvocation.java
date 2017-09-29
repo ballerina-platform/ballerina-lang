@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,6 +129,54 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.regIndexes = parent.regIndexes;
             this.symbol = parent.symbol;
             this.expr = varRef;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangFunctionInvocation extends BLangInvocation {
+
+        public BLangFunctionInvocation(DiagnosticPos pos,
+                                       List<BLangExpression> argExprs,
+                                       BSymbol symbol,
+                                       List<BType> types) {
+            this.pos = pos;
+            this.argExprs = argExprs;
+            this.symbol = symbol;
+            this.types = types;
+            if (types.size() > 0) {
+                this.type = types.get(0);
+            }
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangActionInvocation extends BLangInvocation {
+
+        public BLangActionInvocation(DiagnosticPos pos,
+                                       List<BLangExpression> argExprs,
+                                       BSymbol symbol,
+                                       List<BType> types) {
+            this.pos = pos;
+            this.argExprs = argExprs;
+            this.symbol = symbol;
+            this.types = types;
+            if (types.size() > 0) {
+                this.type = types.get(0);
+            }
         }
 
         @Override

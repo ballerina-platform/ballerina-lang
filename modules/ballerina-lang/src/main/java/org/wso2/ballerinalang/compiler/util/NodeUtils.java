@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.util.List;
@@ -40,5 +41,19 @@ public class NodeUtils {
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
         return names.fromString(pkgName);
+    }
+
+    public static Name getName(String localname, String namespaceURI) {
+        String qname = (namespaceURI == null ? "" : "{" + namespaceURI + "}") + localname;
+        return new Name(qname);
+    }
+
+    public static PackageID getPackageID(Names names, List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
+        List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).collect(Collectors.toList());
+        Name version = names.fromIdNode(versionNode);
+        if (version == Names.EMPTY) {
+            version = Names.DEFAULT_VERSION;
+        }
+        return new PackageID(nameList, version);
     }
 }

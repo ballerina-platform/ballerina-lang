@@ -37,12 +37,15 @@ public class TypeTags {
     public static final int CONNECTOR = STRUCT + 1;
     public static final int ENUM = CONNECTOR + 1;
     public static final int ARRAY = ENUM + 1;
-    public static final int PACKAGE = ARRAY + 1;
+    public static final int NULL = ARRAY + 1;
+    public static final int PACKAGE = NULL + 1;
     public static final int INVOKABLE = PACKAGE + 1;
-    public static final int NULL = INVOKABLE + 1;
-    public static final int NONE = NULL + 1;
+    public static final int NONE = INVOKABLE + 1;
     public static final int VOID = NONE + 1;
-    public static final int ERROR = VOID + 1;
+    public static final int XMLNS = VOID + 1;
+    public static final int MESSAGE = XMLNS + 1;
+    public static final int ANNOTATION = MESSAGE + 1;
+    public static final int ERROR = ANNOTATION + 1;
 
     private TypeTags() {
     }

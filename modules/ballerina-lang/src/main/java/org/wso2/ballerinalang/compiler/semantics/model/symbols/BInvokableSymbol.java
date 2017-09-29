@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -32,12 +33,16 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> params;
     public List<BVarSymbol> retParams;
 
+    // This field is only applicable for functions at the moment.
+    public BVarSymbol receiverSymbol;
+
     public BInvokableSymbol(int tag,
                             int flags,
                             Name name,
+                            PackageID pkgID,
                             BType type,
                             BSymbol owner) {
-        super(flags, name, type, owner);
+        super(flags, name, pkgID, type, owner);
         this.tag = tag;
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();

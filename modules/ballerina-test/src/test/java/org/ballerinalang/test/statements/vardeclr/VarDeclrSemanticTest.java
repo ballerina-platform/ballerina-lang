@@ -30,7 +30,7 @@ public class VarDeclrSemanticTest {
 
     @Test
     public void varDeclrTest() {
-        CompileResult result = BTestUtils.compile("org/ballerinalang/test/statements/vardeclr/varDef-negative.bal");
+        CompileResult result = BTestUtils.compile("test-src/statements/vardeclr/varDef-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(result.getWarnCount(), 0);
         BTestUtils.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 12);
