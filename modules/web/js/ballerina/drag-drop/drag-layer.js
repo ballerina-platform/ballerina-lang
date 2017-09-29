@@ -29,7 +29,12 @@ const layerStyles = {
     height: '100%',
 };
 
-function getItemStyles(props) {
+const blockStyles = {
+    position: 'relative',
+    left: -24,
+};
+
+function getItemStyles(props, canDrop) {
     const { currentOffset } = props;
     if (!currentOffset) {
         return {
@@ -42,6 +47,9 @@ function getItemStyles(props) {
     return {
         transform,
         WebkitTransform: transform,
+        opacity: canDrop ? 1 : 0.8,
+        color: canDrop ? 'black' : 'red',
+        cursor: canDrop ? 'pointer' : 'no-drop',
     };
 }
 
@@ -50,11 +58,18 @@ class SVGIconDragLayer extends React.Component {
         if (!this.props.isDragging) {
             return null;
         }
+        const canDrop = this.props.canDrop();
         const { item: { icon } } = this.props;
         return (
             <div style={layerStyles}>
-                <div style={getItemStyles(this.props)}>
-                    <i style={{ color: 'black' }} className={`fw fw-3x fw-${icon}`} />
+                <div style={getItemStyles(this.props, canDrop)}>
+                    {canDrop && <i className={`fw fw-3x fw-${icon}`} />}
+                    {!canDrop &&
+                        <span className="fw-stack fw-lg fw-2x">
+                            <i className={`fw fw-${icon} fw-stack-1x`} />
+                            <i className="fw fw-block fw-stack-2x text-danger"></i>
+                        </span>
+                    }
                 </div>
             </div>
         );
@@ -68,6 +83,7 @@ SVGIconDragLayer.propTypes = {
         y: PropTypes.number.isRequired,
     }),
     isDragging: PropTypes.bool.isRequired,
+    canDrop: PropTypes.func.isRequired,
 };
 
 function collect(monitor) {
@@ -75,6 +91,15 @@ function collect(monitor) {
         item: monitor.getItem(),
         currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
+        canDrop: () => {
+            const targetIds = monitor.isDragging() ? monitor.getTargetIds() : [];
+            for (let i = targetIds.length - 1; i >= 0; i--) {
+                if (monitor.isOverTarget(targetIds[i])) {
+                    return monitor.canDropOnTarget(targetIds[i]);
+                }
+            }
+            return true;
+        },
     };
 }
 
