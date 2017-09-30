@@ -39,10 +39,10 @@ export function withDragEnabled(ToolView) {
         endDrag: (props, monitor, component) => {
             if (monitor.didDrop()) {
                 const { dragSource } = monitor.getItem();
-                const { dropTarget } = monitor.getDropResult();
+                const { dropTarget, dropBefore } = monitor.getDropResult();
                 if (_.isFunction(dropTarget.acceptDrop)) {
                     try {
-                        dropTarget.acceptDrop(dragSource);
+                        dropTarget.acceptDrop(dragSource, dropBefore);
                     } catch (error) {
                         log.error(`Error while adding dropped node. ${error}`);
                     }

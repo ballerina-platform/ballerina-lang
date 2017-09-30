@@ -35,7 +35,7 @@ const blockStyles = {
     left: -24,
 };
 
-function getItemStyles(props, canDrop) {
+function getItemStyles(props, isOverTarget, canDropToTarget) {
     const { currentOffset } = props;
     if (!currentOffset) {
         return {
@@ -48,8 +48,8 @@ function getItemStyles(props, canDrop) {
     return {
         transform,
         WebkitTransform: transform,
-        opacity: canDrop ? 1 : 1,
-        cursor: canDrop ? 'pointer' : 'no-drop',
+        opacity: isOverTarget ? 1 : 0.5,
+        cursor: canDropToTarget ? 'pointer' : 'no-drop',
     };
 }
 
@@ -58,13 +58,13 @@ class SVGIconDragLayer extends React.Component {
         if (!this.props.isDragging) {
             return null;
         }
-        const canDrop = this.props.canDrop();
+        const { isOverTarget, canDropToTarget } = this.props.getCurrentTargetInfo();
         const { item: { icon } } = this.props;
         return (
             <div style={layerStyles}>
-                <div style={getItemStyles(this.props, canDrop)}>
-                    {canDrop && <i className={`fw fw-3x fw-${icon}`} />}
-                    {!canDrop &&
+                <div style={getItemStyles(this.props, isOverTarget, canDropToTarget)}>
+                    {(!isOverTarget || canDropToTarget) && <i className={`fw fw-3x fw-${icon}`} />}
+                    {(isOverTarget && !canDropToTarget) &&
                         <span className="fw-stack fw-lg fw-2x">
                             <i className={`fw fw-${icon} fw-stack-1x`} />
                             <i style={{ color: 'red' }} className="fw fw-block fw-stack-2x" />
@@ -83,7 +83,7 @@ SVGIconDragLayer.propTypes = {
         y: PropTypes.number.isRequired,
     }),
     isDragging: PropTypes.bool.isRequired,
-    canDrop: PropTypes.func.isRequired,
+    getCurrentTargetInfo: PropTypes.func.isRequired,
 };
 
 function collect(monitor) {
@@ -91,14 +91,20 @@ function collect(monitor) {
         item: monitor.getItem(),
         currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
-        canDrop: () => {
+        getCurrentTargetInfo: () => {
             const targetIds = monitor.isDragging() ? monitor.getTargetIds() : [];
+            let isOverTarget = false;
+            let canDropToTarget = false;
             for (let i = targetIds.length - 1; i >= 0; i--) {
                 if (monitor.isOverTarget(targetIds[i])) {
-                    return monitor.canDropOnTarget(targetIds[i]);
+                    isOverTarget = true;
+                    canDropToTarget = monitor.canDropOnTarget(targetIds[i]);
                 }
             }
-            return true;
+            return {
+                isOverTarget,
+                canDropToTarget,
+            };
         },
     };
 }
