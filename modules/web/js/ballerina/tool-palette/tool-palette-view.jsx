@@ -20,7 +20,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import $ from 'jquery';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import DragDropManager from '../tool-palette/drag-drop-manager';
 import InitialTools from '../item-provider/initial-definitions';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';

@@ -18,26 +18,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// TODOX import ASTNode from '../../../../../ast/node';
 import ActionBox from './../decorators/action-box';
-// import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from '../../designer-defaults';
 import ActiveArbiter from '../decorators/active-arbiter';
 import ImageUtil from './../../../../image-util';
+import Node from '../../../../../model/tree/node';
+import DropZone from '../../../../../drag-drop/DropZone';
 
 class TransformStatementDecorator extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        // this.startDropZones = this.startDropZones.bind(this);
-        // this.stopDragZones = this.stopDragZones.bind(this);
-        // this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
-        // this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.state = {
-            innerDropZoneActivated: false,
-            innerDropZoneDropNotAllowed: false,
-            innerDropZoneExist: false,
             active: 'hidden',
         };
     }
@@ -48,76 +41,6 @@ class TransformStatementDecorator extends React.Component {
             designView.setTransformActive(true, this.props.model);
         }
     }
-
-    componentDidMount() {
-        // const { dragDropManager } = this.context;
-        // dragDropManager.on('drag-start', this.startDropZones);
-        // dragDropManager.on('drag-stop', this.stopDragZones);
-    }
-
-    componentWillUnmount() {
-        // const { dragDropManager } = this.context;
-        // dragDropManager.off('drag-start', this.startDropZones);
-        // dragDropManager.off('drag-stop', this.stopDragZones);
-    }
-
-    startDropZones() {
-        this.setState({ innerDropZoneExist: true });
-    }
-
-    stopDragZones() {
-        this.setState({ innerDropZoneExist: false });
-    }
-
-    // /**
-    //  * Called when a tool from tool pallet is dragged into the inner drop zone above this transform statement
-    //  * @param {Object} e - The drag event
-    //  */
-    // onDropZoneActivate(e) {
-    //     const dragDropManager = this.context.dragDropManager;
-    //     const dropTarget = this.props.model.getParent();
-    //     const model = this.props.model;
-    //     if (dragDropManager.isOnDrag()) {
-    //         if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-    //             return;
-    //         }
-    //         dragDropManager.setActivatedDropTarget(dropTarget,
-    //             (nodeBeingDragged) => {
-    //                 // IMPORTANT: override node's default validation logic
-    //                 // This drop zone is for statements only.
-    //                 // Statements should only be allowed here.
-    //                 // return ASTFactory.isStatement(nodeBeingDragged);
-    //             },
-    //             () => {
-    //                 return dropTarget.getIndexOfChild(model);
-    //             });
-    //         this.setState({
-    //             innerDropZoneActivated: true,
-    //             innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-    //         });
-    //         dragDropManager.once('drop-target-changed', function () {
-    //             this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-    //         }, this);
-    //     }
-    //     e.stopPropagation();
-    // }
-
-    // /**
-    //  * Called when a tool from tool pallet is dragged out of the inner drop zone above this transform statement
-    //  * @param {Object} e - The drag event
-    //  */
-    // onDropZoneDeactivate(e) {
-    //     const dragDropManager = this.context.dragDropManager;
-    //     const dropTarget = this.props.model.getParent();
-    //     if (dragDropManager.isOnDrag()) {
-    //         if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-    //             dragDropManager.clearActivatedDropTarget();
-    //             this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-    //         }
-    //     }
-    //     e.stopPropagation();
-    // }
-
 
     onDelete() {
         this.props.model.remove();
@@ -189,10 +112,6 @@ class TransformStatementDecorator extends React.Component {
         const expand_button_x = bBox.x + (bBox.w / 2) + 40;
         const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 7;
         const drop_zone_x = bBox.x + (bBox.w - DesignerDefaults.lifeLine.width) / 2;
-        const innerDropZoneActivated = this.state.innerDropZoneActivated;
-        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
 
         const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
@@ -211,15 +130,15 @@ class TransformStatementDecorator extends React.Component {
                 onMouseOut={this.setActionVisibility.bind(this, false)}
                 onMouseOver={this.setActionVisibility.bind(this, true)}
             >
-                <rect
+                <DropZone
                     x={drop_zone_x}
                     y={bBox.y}
                     width={DesignerDefaults.lifeLine.width}
                     height={innerZoneHeight}
-                    className={dropZoneClassName}
-                    {...fill}
-                    onMouseOver={this.onDropZoneActivate}
-                    onMouseOut={this.onDropZoneDeactivate}
+                    baseComponent="rect"
+                    dropTarget={this.props.model.parent}
+                    dropBefore={this.props.model}
+                    enableDragBg
                 />
                 <rect
                     x={bBox.x}
@@ -259,13 +178,11 @@ class TransformStatementDecorator extends React.Component {
     }
 
     setActionVisibility(show) {
-        // if (!this.context.dragDropManager.isOnDrag()) {
-        //     if (show) {
-        //         this.context.activeArbiter.readyToActivate(this);
-        //     } else {
-        //         this.context.activeArbiter.readyToDeactivate(this);
-        //     }
-        // }
+        if (show) {
+            this.context.activeArbiter.readyToActivate(this);
+        } else {
+            this.context.activeArbiter.readyToDeactivate(this);
+        }
     }
 }
 
@@ -276,14 +193,13 @@ TransformStatementDecorator.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
-    // TODOX model: PropTypes.instanceOf(ASTNode).isRequired,
+    model: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.string.isRequired,
 };
 
 TransformStatementDecorator.contextTypes = {
     designView: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
-    // dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,

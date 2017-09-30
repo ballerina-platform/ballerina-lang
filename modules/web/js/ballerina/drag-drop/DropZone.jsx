@@ -30,7 +30,7 @@ const BASE_TYPES = {
 class DropZone extends React.Component {
     render() {
         const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
-            isDragging, dropTarget, canDrop, enableDragBg, ...restProps } = this.props;
+            isDragging, dropTarget, dropBefore, canDrop, enableDragBg, ...restProps } = this.props;
         const Component = baseComponent;
         let result;
         if (isDragging && enableDragBg && BASE_TYPES.RECT === baseComponent) {
@@ -75,6 +75,7 @@ class DropZone extends React.Component {
 DropZone.propTypes = {
     baseComponent: PropTypes.string.isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
+    dropBefore: PropTypes.instanceOf(Node),
     className: PropTypes.string,
     connectDropTarget: PropTypes.func.isRequired,
     enableDragBg: PropTypes.bool,
@@ -85,6 +86,7 @@ DropZone.propTypes = {
 };
 
 DropZone.defaultProps = {
+    dropBefore: undefined,
     enableDragBg: false,
     className: '',
 };
