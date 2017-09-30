@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListenerManager;
-import org.wso2.carbon.messaging.handler.MessagingHandler;
 
 /**
  * Declarative service component for the Netty transport. This handles registration &amp; unregistration of relevant

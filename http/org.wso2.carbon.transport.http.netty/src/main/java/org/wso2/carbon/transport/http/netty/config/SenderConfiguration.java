@@ -75,6 +75,10 @@ public class SenderConfiguration {
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
 
+    private boolean followRedirect;
+
+    private int maxRedirectCount;
+
     public SenderConfiguration() {
     }
 
@@ -172,5 +176,21 @@ public class SenderConfiguration {
 
     public void setHttpTraceLogEnabled(boolean httpTraceLogEnabled) {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
+    }
+
+    public boolean isFollowRedirect() {
+        return followRedirect;
+    }
+
+    public void setFollowRedirect(boolean followRedirect) {
+        this.followRedirect = followRedirect;
+    }
+
+    public int getMaxRedirectCount() {
+        return maxRedirectCount;
+    }
+
+    public void setMaxRedirectCount(int maxRedirectCount) {
+        this.maxRedirectCount = maxRedirectCount;
     }
 }
