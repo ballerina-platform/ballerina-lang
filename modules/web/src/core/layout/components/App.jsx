@@ -12,6 +12,7 @@ import { withReRenderEnabled } from './utils';
 
 const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
+const leftPanelClosedSize = 42;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
 const headerHeight = 24;
@@ -156,9 +157,10 @@ class App extends React.Component {
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split="vertical"
                     className="left-right-split-pane"
-                    minSize={this.state.showLeftPanel ? leftPanelDefaultSize : 0}
+                    allowResize={this.state.showLeftPanel}
+                    minSize={this.state.showLeftPanel ? leftPanelDefaultSize : leftPanelClosedSize}
                     maxSize={leftPanelMaxSize}
-                    defaultSize={this.state.showLeftPanel ? this.state.leftPanelSize : 0}
+                    defaultSize={this.state.showLeftPanel ? this.state.leftPanelSize : leftPanelClosedSize}
                     onDragFinished={(size) => {
                         this.setLeftPanelState(true, size);
                         if (!_.isNil(this.leftRightSplitPane)) {
@@ -168,9 +170,6 @@ class App extends React.Component {
                             });
                         }
                     }
-                    }
-                    pane2Style={
-                        this.state.showLeftPanel ? {} : { position: 'relative', left: '42px' }
                     }
                     style={{
                         height: this.state.documentHeight - (headerHeight + toolAreaHeight),
