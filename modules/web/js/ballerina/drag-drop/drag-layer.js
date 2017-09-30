@@ -27,6 +27,7 @@ const layerStyles = {
     top: 0,
     width: '100%',
     height: '100%',
+    color: 'black',
 };
 
 const blockStyles = {
@@ -47,8 +48,7 @@ function getItemStyles(props, canDrop) {
     return {
         transform,
         WebkitTransform: transform,
-        opacity: canDrop ? 1 : 0.8,
-        color: canDrop ? 'black' : 'red',
+        opacity: canDrop ? 1 : 1,
         cursor: canDrop ? 'pointer' : 'no-drop',
     };
 }
@@ -67,7 +67,7 @@ class SVGIconDragLayer extends React.Component {
                     {!canDrop &&
                         <span className="fw-stack fw-lg fw-2x">
                             <i className={`fw fw-${icon} fw-stack-1x`} />
-                            <i className="fw fw-block fw-stack-2x text-danger"></i>
+                            <i style={{ color: 'red' }} className="fw fw-block fw-stack-2x" />
                         </span>
                     }
                 </div>
