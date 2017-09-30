@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttrib
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -185,17 +186,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        funcNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
+            this.analyzeDef(annotationAttachment, funcEnv);
+        });
+
         analyzeStmt(funcNode.body, funcEnv);
 
         // Process workers
         funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
         funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
-
-        funcNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
-            annotationAttachment.accept(this);
-        });
     }
 
     public void visit(BLangStruct structNode) {
@@ -518,17 +519,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConnector connectorNode) {
         BSymbol connectorSymbol = connectorNode.symbol;
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
+        connectorNode.annAttachments.forEach(a -> {
+            a.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
+            this.analyzeDef(a, connectorEnv);
+        });
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
-        connectorNode.annAttachments.forEach(annotation -> this.analyzeDef(annotation, connectorEnv));
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
-
-        connectorNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
-            annotationAttachment.accept(this);
-        });
     }
 
     public void visit(BLangAction actionNode) {
@@ -537,47 +536,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        actionNode.annAttachments.forEach(a -> this.analyzeDef(a, actionEnv));
+        actionNode.annAttachments.forEach(a -> {
+            a.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
+            this.analyzeDef(a, actionEnv);
+        });
         actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
         analyzeStmt(actionNode.body, actionEnv);
         // Process workers
         actionNode.workers.forEach(e -> this.symbolEnter.defineNode(e, actionEnv));
         actionNode.workers.forEach(e -> analyzeNode(e, actionEnv));
-
-        actionNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
-            annotationAttachment.accept(this);
-        });
     }
 
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
+        BSymbol protocolPkg = symResolver.resolvePkgSymbol(serviceNode.pos,
+                serviceEnv, names.fromIdNode(serviceNode.protocolPkgIdentifier));
+        //TODO validate protocol package existance
+        ((BTypeSymbol) serviceSymbol).protocolPkgId = protocolPkg.pkgID;
+        serviceNode.annAttachments.forEach(a -> {
+            a.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, null);
+            this.analyzeDef(a, serviceEnv);
+        });
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
-
-        serviceNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, null);
-            annotationAttachment.accept(this);
-        });
     }
 
     public void visit(BLangResource resourceNode) {
         BSymbol resourceSymbol = resourceNode.symbol;
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
-        resourceNode.annAttachments.forEach(a -> this.analyzeDef(a, resourceEnv));
+        resourceNode.annAttachments.forEach(a -> {
+            a.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
+            this.analyzeDef(a, resourceEnv);
+        });
+
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
         resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
-
-        resourceNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
-            annotationAttachment.accept(this);
-        });
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {

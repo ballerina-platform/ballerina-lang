@@ -269,6 +269,19 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
 
+    public BSymbol lookupSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name name, int expSymTag) {
+        if (pkgAlias != Names.EMPTY) {
+            BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+            if (pkgSymbol == symTable.notFoundSymbol) {
+                dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias);
+                return pkgSymbol;
+            }
+            return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
+        }
+        return lookupSymbol(env, name, expSymTag);
+    }
+
+
     /**
      * Return the symbol with the given name.
      * This method only looks at the symbol defined in the given scope.

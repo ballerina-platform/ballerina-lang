@@ -1717,7 +1717,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        String protocolPkg = serviceNode.getProtocolPackageIdentifier().value;
+        PackageID protocolPkgId = ((BTypeSymbol) serviceNode.symbol).protocolPkgId;
+        String protocolPkg = protocolPkgId.getName().value;
         int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
         ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
         // Add service level variables

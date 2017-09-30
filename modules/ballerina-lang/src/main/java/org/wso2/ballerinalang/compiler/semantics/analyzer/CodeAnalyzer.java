@@ -168,7 +168,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
 
-        pkgNode.compUnits.forEach(e -> e.accept(this));
+        pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
     

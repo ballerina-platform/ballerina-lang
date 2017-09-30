@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>annotation-processor</artifactId>
+            <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -136,8 +136,8 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.generated.providers</nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
+                        <nativeEntityProviderPackage>org.ballerinalang.net.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeNetElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
                 <executions>

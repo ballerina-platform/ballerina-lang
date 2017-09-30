@@ -198,6 +198,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         serviceNode.resources = rewrite(serviceNode.resources);
         serviceNode.vars = rewrite(serviceNode.vars);
+        serviceNode.initFunction = rewrite(serviceNode.initFunction);
         result = serviceNode;
     }
 

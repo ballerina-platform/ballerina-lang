@@ -32,6 +32,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public List<BVarSymbol> params;
     public BInvokableSymbol initFunctionSymbol;
+    public PackageID protocolPkgId;
 
     public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(kind, flags, name, pkgID, type, owner);
