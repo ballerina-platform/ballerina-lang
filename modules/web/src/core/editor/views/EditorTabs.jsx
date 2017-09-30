@@ -311,6 +311,7 @@ class EditorTabs extends View {
             <SplitPane
                 ref={(ref) => { this.previewSplitRef = ref; }}
                 split="vertical"
+                allowResize={this.state.previewViewEnabled}
                 minSize={this.state.previewViewEnabled ? MINIMUM_PREVIEW_VIEW_SIZE : 0}
                 defaultSize={this.getPreviewViewSize(this.state.previewViewEnabled)}
                 onDragFinished={(previewViewSize) => {
