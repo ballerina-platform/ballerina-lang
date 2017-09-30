@@ -1,8 +1,9 @@
 package servicechaining.samples;
 
-import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.lang.system;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/ABCBank"}
 service<http> ATMLocator {
@@ -10,30 +11,30 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (message m) {
+    resource locator (http:Request req, http:Response res) {
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo/product");
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator/product");
         
-        message backendServiceReq = {};
-        json jsonLocatorReq = messages:getJsonPayload(m);
+        http:Request backendServiceReq = {};
+        json jsonLocatorReq = request:getJsonPayload(req);
         string zipCode;
         zipCode, _ = (string) jsonLocatorReq["ATMLocator"]["ZipCode"];
         system:println("Zip Code " + zipCode);
         json branchLocatorReq = {"BranchLocator": {"ZipCode":""}};
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
-        messages:setJsonPayload(backendServiceReq, branchLocatorReq);
+        request:setJsonPayload(backendServiceReq, branchLocatorReq);
         
-        message response = branchLocatorService.post("", backendServiceReq);
-        json branchLocatorRes = messages:getJsonPayload(response);
+        res = branchLocatorService.post("", backendServiceReq);
+        json branchLocatorRes = response:getJsonPayload(res);
         string branchCode;
         branchCode, _ = (string) branchLocatorRes.ABCBank.BranchCode;
         system:println("Branch Code " + branchCode);
         json bankInfoReq = {"BranchInfo": {"BranchCode":""}};
         bankInfoReq.BranchInfo.BranchCode = branchCode;
-        messages:setJsonPayload(backendServiceReq, bankInfoReq);
-        response = bankInfoService.post("", backendServiceReq);
+        request:setJsonPayload(backendServiceReq, bankInfoReq);
+        res = bankInfoService.post("", backendServiceReq);
         
-        reply response;
+        response:send(res);
     
     }    
 }

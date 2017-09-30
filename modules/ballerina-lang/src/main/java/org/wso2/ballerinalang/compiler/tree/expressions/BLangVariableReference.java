@@ -28,5 +28,5 @@ public abstract class BLangVariableReference extends BLangExpression implements 
 
     public BVarSymbol symbol;
     public boolean lhsVar = false;
-    public BSymbol importSymbol;
+    public BSymbol pkgSymbol;
 }

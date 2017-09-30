@@ -38,6 +38,24 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
+                                                                             PackageID pkgID,
+                                                                             BType type,
+                                                                             BSymbol owner) {
+        BAnnotationAttributeSymbol annotationAttributeSymbol = new BAnnotationAttributeSymbol(name, pkgID, type, owner);
+        annotationAttributeSymbol.kind = SymbolKind.ANNOTATION_ATTRIBUTE;
+        return annotationAttributeSymbol;
+    }
+
+    public static BAnnotationSymbol createAnnotationSymbol(Name name,
+                                                           PackageID pkgID,
+                                                           BType type,
+                                                           BSymbol owner) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, pkgID, type, owner);
+        annotationSymbol.kind = SymbolKind.ANNOTATION;
+        return annotationSymbol;
+    }
+
     public static BInvokableSymbol createWorkerSymbol(int flags,
                                                       Name name,
                                                       PackageID pkgID,

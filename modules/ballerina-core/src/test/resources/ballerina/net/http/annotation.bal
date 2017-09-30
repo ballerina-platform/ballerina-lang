@@ -16,8 +16,11 @@ annotation config attach service {
     string basePath;
     string schema;
     string keyStoreFile;
-    string keyStorePass;
-    string certPass;
+    string keyStorePassword;
+    string trustStoreFile;
+    string trustStorePassword;
+    string sslVerifyClient;
+    string certPassword;
     string version;
 }
 

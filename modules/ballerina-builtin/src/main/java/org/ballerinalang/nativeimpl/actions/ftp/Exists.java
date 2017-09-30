@@ -18,10 +18,11 @@
 package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -56,7 +57,7 @@ import java.util.Map;
         value = "Boolean representing  whether the file exists") })
 public class Exists extends AbstractFtpAction {
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
 
         // Extracting Argument values
         BStruct file = (BStruct) getRefArgument(context, 1);
@@ -71,6 +72,8 @@ public class Exists extends AbstractFtpAction {
         CarbonMessage responseMessage = executeCallbackAction(null, propertyMap, context);
         boolean b = Boolean.parseBoolean(((TextCarbonMessage) responseMessage).getText());
         context.getControlStackNew().currentFrame.returnValues[0] = new BBoolean(b);
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 }

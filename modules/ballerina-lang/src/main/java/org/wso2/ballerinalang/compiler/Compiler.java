@@ -24,9 +24,11 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.programfile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
@@ -46,6 +48,7 @@ public class Compiler {
     private CompilerOptions options;
     private DiagnosticLog dlog;
     private PackageLoader pkgLoader;
+    private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
     private Desugar desugar;
@@ -69,6 +72,7 @@ public class Compiler {
         this.options = CompilerOptions.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.desugar = Desugar.getInstance(context);
@@ -78,6 +82,7 @@ public class Compiler {
     }
 
     public void compile(String sourcePkg) {
+        loadBuiltInPackage();
         switch (compilerPhase) {
             case DEFINE:
                 define(sourcePkg);
@@ -95,6 +100,17 @@ public class Compiler {
                 gen(desugar(codeAnalyze(typeCheck(define(sourcePkg)))));
                 break;
         }
+    }
+
+    private void loadBuiltInPackage() {
+        BLangPackage builtInCorePkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
+                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE_CORE.value))));
+        symbolTable.createErrorTypes();
+        symbolTable.loadOperators();
+        BLangPackage builtInPkg = this.desugar(this.codeAnalyze(this.semAnalyzer.analyze(
+                this.pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
+        builtInCorePkg.getStructs().forEach(s -> builtInPkg.getStructs().add(s));
+        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
     }
 
     public ProgramFile getCompiledProgram() {

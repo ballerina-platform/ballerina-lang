@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -67,6 +69,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolTable symTable;
     private Names names;
     private DiagnosticLog dlog;
+    private Types types;
 
     private SymbolEnv env;
     private BType resultType;
@@ -87,6 +90,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
@@ -179,6 +183,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
     }
 
+    public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, annotationName, SymTag.ANNOTATION);
+    }
+
+    public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
+                                    Name pkgAlias, Name connectorName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(pos, code, connectorName);
+        }
+        return symbol;
+    }
 
     public BSymbol resolveInvokable(DiagnosticPos pos,
                                     DiagnosticCode code,
@@ -316,7 +340,14 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {
-        throw new AssertionError();
+        BType type = resolveTypeNode(constrainedTypeNode.type, env);
+        BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
+        if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
+            dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+            resultType = symTable.errType;
+            return;
+        }
+        resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {
@@ -333,12 +364,24 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        // 2) Lookup the current package scope.
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
-        BSymbol symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                this.env, typeName, SymTag.TYPE);
+        BSymbol symbol = symTable.notFoundSymbol;
+
+        // 2) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
+        // Only valued types and ANNOTATION type allowed.
+        if (env.scope.owner.tag == SymTag.ANNOTATION) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
+                    this.env, typeName, SymTag.ANNOTATION);
+        }
+
+        // 3) Lookup the current package scope.
         if (symbol == symTable.notFoundSymbol) {
-            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
+                    this.env, typeName, SymTag.TYPE);
+        }
+
+        if (symbol == symTable.notFoundSymbol) {
+            // 4) Lookup the root scope for types such as 'error'
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
                     this.env, typeName, SymTag.TYPE);
         }

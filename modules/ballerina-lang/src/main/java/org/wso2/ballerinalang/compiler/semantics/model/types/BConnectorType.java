@@ -23,13 +23,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.List;
+
 /**
  * @since 0.94
  */
 public class BConnectorType extends BType implements ConnectorType {
+    public List<BType> paramTypes;
 
-    public BConnectorType(BTypeSymbol tsymbol) {
+    public BConnectorType(List<BType> paramTypes, BTypeSymbol tsymbol) {
         super(TypeTags.CONNECTOR, tsymbol);
+        this.paramTypes = paramTypes;
     }
 
     public String getDesc() {

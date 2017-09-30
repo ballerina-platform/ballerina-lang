@@ -43,8 +43,10 @@ public class TypeTags {
     public static final int NONE = INVOKABLE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;
-    public static final int XML_ATTRIBUTES = XMLNS + 1;
-    public static final int ERROR = XMLNS + 1;
+    public static final int MESSAGE = XMLNS + 1;
+    public static final int ANNOTATION = MESSAGE + 1;
+    public static final int XML_ATTRIBUTES = ANNOTATION + 1;
+    public static final int ERROR = XML_ATTRIBUTES + 1;
 
     private TypeTags() {
     }
