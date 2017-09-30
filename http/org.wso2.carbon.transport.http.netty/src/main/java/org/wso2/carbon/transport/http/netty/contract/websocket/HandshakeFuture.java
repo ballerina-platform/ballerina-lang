@@ -11,8 +11,9 @@ public interface HandshakeFuture {
      * Set the listener for WebSocket handshake.
      *
      * @param handshakeListener Listener for WebSocket handshake.
+     * @return the same handshake future.
      */
-    public void setHandshakeListener(HandshakeListener handshakeListener);
+    public HandshakeFuture setHandshakeListener(HandshakeListener handshakeListener);
 
     /**
      * Notify the success of the WebSocket handshake.
@@ -27,4 +28,11 @@ public interface HandshakeFuture {
      * @param throwable error occurred during handshake.
      */
     public void notifyError(Throwable throwable);
+
+    /**
+     * Sync the future.
+     *
+     * @throws InterruptedException if interruption happens during sync time.
+     */
+    public void sync() throws InterruptedException;
 }

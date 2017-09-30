@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import javax.websocket.CloseReason;
 import javax.websocket.Session;
 
 /**
@@ -144,7 +145,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         this.isIdleTimeout = true;
         try {
             Session session = controlMessage.getChannelSession();
-            session.close();
+            session.close(new CloseReason(() -> 1001, "Connection timeout"));
         } catch (IOException e) {
             log.error("Error occurred while closing the connection: " + e.getMessage());
         }

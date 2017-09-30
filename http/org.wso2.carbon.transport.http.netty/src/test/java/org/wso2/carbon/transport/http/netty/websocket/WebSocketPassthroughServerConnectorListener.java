@@ -37,8 +37,6 @@ import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsConnectorFactoryI
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
 
 /**
@@ -49,7 +47,6 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
 
     private final HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
-    private final Map<String, Session> sessionsMap = new ConcurrentHashMap<>();
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
@@ -58,33 +55,36 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
         WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
         configuration.setTarget("myService");
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
+        WebSocketConnectorListener clientConnectorListener = new WebSocketPassthroughClientConnectorListener();
 
-        WebSocketConnectorListener connectorListener = new WebSocketPassthroughClientConnectorListener();
-        HandshakeFuture clientFuture = clientConnector.connect(connectorListener);
-        clientFuture.setHandshakeListener(new HandshakeListener() {
-            @Override
-            public void onSuccess(Session clientSession) {
-                HandshakeFuture serverFuture = initMessage.handshake();
-                serverFuture.setHandshakeListener(new HandshakeListener() {
-                    @Override
-                    public void onSuccess(Session serverSession) {
-                        WebSocketPassThroughTestSessionManager.getInstance().
-                                interRelateSessions(serverSession, clientSession);
-                    }
+        try {
+            clientConnector.connect(clientConnectorListener).setHandshakeListener(new HandshakeListener() {
+                @Override
+                public void onSuccess(Session clientSession) {
+                    HandshakeFuture serverFuture = initMessage.handshake();
+                    serverFuture.setHandshakeListener(new HandshakeListener() {
+                        @Override
+                        public void onSuccess(Session serverSession) {
+                            WebSocketPassThroughTestSessionManager.getInstance().
+                                    interRelateSessions(serverSession, clientSession);
+                        }
 
-                    @Override
-                    public void onError(Throwable t) {
-                        logger.error(t.getMessage());
-                        Assert.assertTrue(false, "Error: " + t.getMessage());
-                    }
-                });
-            }
+                        @Override
+                        public void onError(Throwable t) {
+                            logger.error(t.getMessage());
+                            Assert.assertTrue(false, "Error: " + t.getMessage());
+                        }
+                    });
+                }
 
-            @Override
-            public void onError(Throwable t) {
-                Assert.assertTrue(false, t.getMessage());
-            }
-        });
+                @Override
+                public void onError(Throwable t) {
+                    Assert.assertTrue(false, t.getMessage());
+                }
+            }).sync();
+        } catch (InterruptedException e) {
+            Assert.assertTrue(false, e.getMessage());
+        }
     }
 
     @Override
@@ -101,7 +101,8 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         try {
-            Session clientSession = sessionsMap.get(binaryMessage.getChannelSession().getId());
+            Session clientSession = WebSocketPassThroughTestSessionManager.getInstance()
+                    .getClientSession(binaryMessage.getChannelSession());
             clientSession.getBasicRemote().sendBinary(binaryMessage.getByteBuffer());
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());
@@ -116,7 +117,8 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
         try {
-            Session clientSession = sessionsMap.get(closeMessage.getChannelSession().getId());
+            Session clientSession = WebSocketPassThroughTestSessionManager.getInstance()
+                    .getClientSession(closeMessage.getChannelSession());
             clientSession.close();
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());
