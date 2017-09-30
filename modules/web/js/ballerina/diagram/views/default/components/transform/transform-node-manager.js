@@ -252,7 +252,8 @@ class TransformNodeManager {
     }
 
     getFunctionVertices(functionInvocationExpression) {
-        const funPackage = this._environment.getPackageByName(functionInvocationExpression.getFullPackageName());
+        const root = functionInvocationExpression.getRoot();
+        const funPackage = this._environment.getPackageByName(functionInvocationExpression.getPackageAlias().getValue());
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
         const parameters = [];
         const returnParams = [];
@@ -294,6 +295,12 @@ class TransformNodeManager {
         };
     }
 
+    /**
+     * Get operator input and output vertices
+     * @param {any} operatorExpression operator expression
+     * @returns vertices
+     * @memberof TransformNodeManager
+     */
     getOperatorVertices(operatorExpression) {
         const parameters = [];
         const returnParams = [];
@@ -306,7 +313,7 @@ class TransformNodeManager {
             index: 0,
         };
 
-        if (BallerinaASTFactory.isBinaryExpression(operatorExpression)) {
+        if (TreeUtil.isBinaryExpr(operatorExpression)) {
             parameters[1] = {
                 name: operatorExpression.getID() + ':1',
                 displayName: '',

@@ -44,7 +44,8 @@ class WelcomeTabPlugin extends Plugin {
      * @memberof WelcomeTabPlugin
      */
     createNewHandler() {
-        console.log(this);
+        const { command } = this.appContext;
+        command.dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE, '');
     }
 
     /**

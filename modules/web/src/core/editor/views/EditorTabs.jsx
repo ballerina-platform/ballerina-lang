@@ -133,7 +133,7 @@ class EditorTabs extends View {
 
         // Padding
         rightPos += 50;
-        if (secondPaneWidth - firstPaneWidth < 200) {
+        if (secondPaneWidth - rightPos < 200) {
             // Hide the button if the right pane is smaller.
             return 0;
         } else {

@@ -1094,10 +1094,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     isInTransformInputOutput(expression) {
-        const inputOutput = [...this._transformStmt.getInputExpressions(),
-            ...this._transformStmt.getOutputExpressions()];
+        const inputOutput = [...this._transformStmt.inputs, ...this._transformStmt.outputs];
         const ioReference = inputOutput.find((io) => {
-            return io.getSource().trim() === expression.getSource().trim();
+            return io === expression.getSource().trim();
         });
         return (ioReference !== undefined);
     }

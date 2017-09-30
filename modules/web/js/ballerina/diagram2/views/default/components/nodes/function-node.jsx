@@ -108,7 +108,8 @@ class FunctionNode extends React.Component {
                     icon={icons}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
-                    /**titleComponentData={titleComponentData}*/
+                    argumentParams={argumentParameters}
+                    returnParams={returnParameters}
                 >
                     <StatementContainer
                         dropTarget={this.props.model}

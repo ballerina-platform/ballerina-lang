@@ -221,14 +221,16 @@ class TransformExpanded extends React.Component {
         if (TreeUtil.isInvocation(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
-            paramExpressions = nodeExpression.getChildren();
-        } else {
+            paramExpressions = nodeExpression.argumentExpressions;
+        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            nodeName = nodeExpression.getOperator();
-            if (TreeUtil.isBinaryExpr(nodeExpression)) {
-                paramExpressions.push(nodeExpression.getLeftExpression());
-            }
+            nodeName = nodeExpression.getOperatorKind();
+            paramExpressions.push(nodeExpression.getLeftExpression());
             paramExpressions.push(nodeExpression.getRightExpression());
+        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            nodeName = nodeExpression.getOperatorKind();
+            paramExpressions.push(nodeExpression.getExpression());
         }
 
         if (_.isUndefined(nodeDef)) {
@@ -256,19 +258,19 @@ class TransformExpanded extends React.Component {
                     let source;
                     if (TreeUtil.isLiteral(expression)) {
                         // TODO: implement default value logic
-                    } else if (TreeUtil.isKeyValueExpression(expression.children[0])) {
-                        // if parameter is a key value expression, iterate each expression and draw connections
-                        _.forEach(expression.children, (propParam) => {
-                            source = this.getConnectionProperties('source', propParam.children[1]);
-                            target = this.getConnectionProperties('target', nodeDef.getParameters()[i]);
-                            target.targetProperty.push(propParam.children[0].getVariableName());
-                            const typeDef = _.find(this.state.vertices,
-                                { typeName: nodeDef.getParameters()[i].type });
-                            const propType = _.find(typeDef.properties,
-                                { name: propParam.children[0].getVariableName() });
-                            target.targetType.push(propType.type);
-                            this.drawConnection(statement.getID() + nodeExpression.getID(), source, target);
-                        });
+                    // } else if (TreeUtil.isKeyValueExpression(expression.children[0])) {
+                    //     // if parameter is a key value expression, iterate each expression and draw connections
+                    //     _.forEach(expression.children, (propParam) => {
+                    //         source = this.getConnectionProperties('source', propParam.children[1]);
+                    //         target = this.getConnectionProperties('target', nodeDef.getParameters()[i]);
+                    //         target.targetProperty.push(propParam.children[0].getVariableName());
+                    //         const typeDef = _.find(this.state.vertices,
+                    //             { typeName: nodeDef.getParameters()[i].type });
+                    //         const propType = _.find(typeDef.properties,
+                    //             { name: propParam.children[0].getVariableName() });
+                    //         target.targetType.push(propType.type);
+                    //         this.drawConnection(statement.getID() + nodeExpression.getID(), source, target);
+                    //     });
                     } else {
                         // expression = this.transformNodeManager.getResolvedExpression(expression);
                         let sourceId = `${expression.getSource().trim()}:${viewId}`;
@@ -293,10 +295,10 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        if (nodeDef.returnParams.length !== argumentExpressions.getChildren().length) {
+        if (nodeDef.returnParams.length !== argumentExpressions.length) {
             // alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         }
-        _.forEach(argumentExpressions.getChildren(), (expression, i) => {
+        argumentExpressions.forEach((expression, i) => {
             const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
             if (isTemp) {
                 return;
@@ -315,10 +317,10 @@ class TransformExpanded extends React.Component {
             }
 
 
-            let targetId = `${expression.getExpressionString().trim()}:${viewId}`;
+            let targetId = `${expression.getSource().trim()}:${viewId}`;
             if (!this.targetElements[targetId]) {
                 folded = true;
-                targetId = this.getFoldedEndpointId(expression.getExpressionString().trim(), viewId, 'target');
+                targetId = this.getFoldedEndpointId(expression.getSource().trim(), viewId, 'target');
             }
 
             this.drawConnection(sourceId, targetId, folded);
@@ -349,7 +351,7 @@ class TransformExpanded extends React.Component {
             paramExpressions = nodeExpression.getChildren();
         } else {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            nodeName = nodeExpression.getOperator();
+            nodeName = nodeExpression.getOperatorKind();
             if (TreeUtil.isBinaryExpr(nodeExpression)) {
                 paramExpressions.push(nodeExpression.getLeftExpression());
             }
@@ -701,35 +703,35 @@ class TransformExpanded extends React.Component {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model;
 
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-                (nodeBeingDragged) => {
-                    // This drop zone is for assignment statements only.
-                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
-                    // is an Assignment Statement, that implies there is a return parameter . If there is no
-                    // return parameter, then it is a Function Invocation Statement,
-                    // which is validated with below check.
-                    return ASTFactory.isAssignmentStatement(nodeBeingDragged);
-                },
-                () => {
-                    return dropTarget.getChildren().length;
-                });
-        }
+        // if (dragDropManager.isOnDrag()) {
+        //     if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+        //         return;
+        //     }
+        //     dragDropManager.setActivatedDropTarget(dropTarget,
+        //         (nodeBeingDragged) => {
+        //             // This drop zone is for assignment statements only.
+        //             // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
+        //             // is an Assignment Statement, that implies there is a return parameter . If there is no
+        //             // return parameter, then it is a Function Invocation Statement,
+        //             // which is validated with below check.
+        //             return ASTFactory.isAssignmentStatement(nodeBeingDragged);
+        //         },
+        //         () => {
+        //             return dropTarget.getChildren().length;
+        //         });
+        // }
         e.stopPropagation();
     }
 
     onTransformDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.parent;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
+        // if (dragDropManager.isOnDrag()) {
+        //     if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+        //         dragDropManager.clearActivatedDropTarget();
+        //         this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+        //     }
+        // }
         e.stopPropagation();
     }
 
@@ -1029,15 +1031,15 @@ class TransformExpanded extends React.Component {
     }
 
     getIntermediateNodes(nodeExpression, statement, intermediateNodes = [], parentNode) {
-        if (ASTFactory.isFunctionInvocationExpression(nodeExpression)) {
+        if (TreeUtil.isInvocation(nodeExpression)) {
             const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
             if (_.isUndefined(func)) {
                 // alerts.error('Function definition for "' +
                 //     functionInvocationExpression.getFunctionName() + '" cannot be found');
                 return [];
             }
-            nodeExpression.getChildren().forEach((child) => {
-                this.getIntermediateNodes(child, statement, intermediateNodes, nodeExpression);
+            nodeExpression.argumentExpressions.forEach((arg) => {
+                this.getIntermediateNodes(arg, statement, intermediateNodes, nodeExpression);
             });
             intermediateNodes.push({
                 type: 'function',
@@ -1047,15 +1049,24 @@ class TransformExpanded extends React.Component {
                 funcInv: nodeExpression,
             });
             return intermediateNodes;
-        } else if (ASTFactory.isBinaryExpression(nodeExpression)
-                      || ASTFactory.isUnaryExpression(nodeExpression)) {
+        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            if (ASTFactory.isBinaryExpression(nodeExpression)) {
-                this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
+            this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
                                                             intermediateNodes, nodeExpression);
-            }
             this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
                                                 intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                statement,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getExpression(), statement,
+                                                            intermediateNodes, nodeExpression);
             intermediateNodes.push({
                 type: 'operator',
                 operator,
@@ -1086,16 +1097,15 @@ class TransformExpanded extends React.Component {
 
     render() {
         const vertices = this.state.vertices.filter(vertex => (!vertex.isInner));
-        const inputNodes = this.props.model.getInputExpressions();
-        const outputNodes = this.props.model.getOutputExpressions();
+        const inputNodes = this.props.model.inputs;
+        const outputNodes = this.props.model.outputs;
         const inputs = [];
         const outputs = [];
         const intermediateNodes = [];
 
         if (this.state.vertices.length > 0) {
-            inputNodes.forEach((inputNode) => {
-                const name = inputNode.getVariableName().getValue();
-                const sourceSelection = _.find(vertices, { name });
+            inputNodes.forEach((input) => {
+                const sourceSelection = _.find(vertices, { name: input });
                 if (_.isUndefined(sourceSelection)) {
                     // alerts.error('Mapping source "' + name + '" cannot be found');
                     return;
@@ -1105,9 +1115,8 @@ class TransformExpanded extends React.Component {
                 inputs.push(sourceSelection);
             });
 
-            outputNodes.forEach((outputNode) => {
-                const name = outputNode.getVariableName().getValue();
-                const targetSelection = _.find(vertices, { name });
+            outputNodes.forEach((output) => {
+                const targetSelection = _.find(vertices, { name: output });
                 if (_.isUndefined(targetSelection)) {
                     // alerts.error('Mapping target "' + name + '" cannot be found');
                     return;

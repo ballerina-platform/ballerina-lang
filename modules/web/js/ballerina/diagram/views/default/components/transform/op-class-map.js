@@ -16,13 +16,33 @@
  * under the License.
  */
 
-import InvocationNodeAbstract from './abstract-tree/invocation-node';
+import {unaryOpTools, binaryOpTools} from "../../../../../tool-palette/operator-tools";
 
-class InvocationNode extends InvocationNodeAbstract {
-
-    getFunctionName() {
-        return this.name.value;
-    }
+const toolIdOperatorMap = {
+    add: '+',
+    subtract: '-',
+    divide: '/',
+    multiply: '*',
+    power: '^',
+    lessThan: '<',
+    greaterThan: '>',
+    lessThanOrEqual: '<=',
+    greaterThanOrEqual: '>=',
+    equal: '=',
+    notEqual: '!=',
+    and: '&',
+    or: '||',
+    plus: '+',
+    minus: '-',
+    not: '!',
+    lengthof: 'lengthof',
+    typeof: 'typeof',
 }
 
-export default InvocationNode;
+const opClassMap = {};
+
+[...unaryOpTools, ...binaryOpTools].forEach(tool => {
+    opClassMap[toolIdOperatorMap[tool.id]] = tool.icon;
+})
+
+export default opClassMap;

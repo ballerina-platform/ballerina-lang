@@ -75,8 +75,8 @@ class StatementDecorator extends React.Component {
      */
     componentDidMount() {
         const { dragDropManager } = this.context;
-        dragDropManager.on('drag-start', this.startDropZones);
-        dragDropManager.on('drag-stop', this.stopDragZones);
+        // dragDropManager.on('drag-start', this.startDropZones);
+        // dragDropManager.on('drag-stop', this.stopDragZones);
     }
 
     /**
@@ -93,8 +93,8 @@ class StatementDecorator extends React.Component {
      */
     componentWillUnmount() {
         const { dragDropManager } = this.context;
-        dragDropManager.off('drag-start', this.startDropZones);
-        dragDropManager.off('drag-stop', this.stopDragZones);
+        // dragDropManager.off('drag-start', this.startDropZones);
+        // dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
     /**
@@ -108,7 +108,7 @@ class StatementDecorator extends React.Component {
     /**
      * Activates the drop zone.
      */
-    /*onDropZoneActivate() {
+    /* onDropZoneActivate() {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         const model = this.props.model;
@@ -168,13 +168,13 @@ class StatementDecorator extends React.Component {
      * @param {boolean} show - Display action box if true or else hide.
      */
     setActionVisibility(show) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            if (show) {
-                this.context.activeArbiter.readyToActivate(this);
-            } else {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-        }
+        // if (!this.context.dragDropManager.isOnDrag()) {
+        //     if (show) {
+        //         this.context.activeArbiter.readyToActivate(this);
+        //     } else {
+        //         this.context.activeArbiter.readyToDeactivate(this);
+        //     }
+        // }
     }
 
     /**

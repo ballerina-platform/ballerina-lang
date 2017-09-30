@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
@@ -167,39 +168,43 @@ public class BLangFileRestService {
         String filePath = bFile.getFilePath();
         String fileName = bFile.getFileName();
         String content = bFile.getContent();
-
+    
         org.wso2.ballerinalang.compiler.tree.BLangPackage model;
         List<Diagnostic> diagnostics;
-
+    
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
             model = WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE)
                     .getBLangPackage();
             diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE)
                     .getDiagnostics();
-
-        }else{
+        
+        } else {
             model = WorkspaceUtils.getBallerinaFile(filePath, fileName).getBLangPackage();
             diagnostics = WorkspaceUtils.getBallerinaFile(fileName, content).getDiagnostics();
         }
-
+    
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
-
+    
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
-        JsonElement packageInfo = gson.toJsonTree(modelPackage.values().stream().findFirst().get());
-
+    
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
         JsonElement modelElement = generateJSON(compilationUnit);
         JsonObject result = new JsonObject();
         result.add("model", modelElement);
         result.add("diagnostics", diagnosticsJson);
-        result.add("packageInfo", packageInfo);
-
+    
+        // Add 'packageInfo' only if there are any packages.
+        Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
+        if (packageInfoJson.isPresent()) {
+            JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
+            result.add("packageInfo", packageInfo);
+        }
+    
         return result.toString();
-
     }
 
     private static String generateJSONString(Node node) {
@@ -268,13 +273,20 @@ public class BLangFileRestService {
                         if (listPropItem instanceof Node) {
                             listPropJson.add(generateJSON((Node) listPropItem));
                         } else {
-                            throw new AssertionError("Assuming all lists are of type Node.");
+                            // throw new AssertionError("Assuming all lists are of type Node.");
                         }
                     }
                 } else if (prop instanceof Set && jsonName.equals("flags")) {
                     Set flags = (Set) prop;
                     for (Flag flag : Flag.values()) {
                         nodeJson.addProperty(flag.toString().toLowerCase(), flags.contains(flag));
+                    }
+                } else if (prop instanceof Set) {
+                    Set vars = (Set) prop;
+                    JsonArray listVarJson = new JsonArray();
+                    nodeJson.add(jsonName, listVarJson);
+                    for (Object obj : vars) {
+                        listVarJson.add(obj.toString());
                     }
                 } else if (prop instanceof PackageID) {
                     PackageID id = (PackageID) prop;
