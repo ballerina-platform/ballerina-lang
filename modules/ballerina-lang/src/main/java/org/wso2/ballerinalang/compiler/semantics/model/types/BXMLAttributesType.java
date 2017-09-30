@@ -15,18 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.expressions;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.ballerinalang.model.types.NoType;
 
 /**
  * @since 0.94
  */
-public abstract class BLangVariableReference extends BLangExpression implements VariableReferenceNode {
+public class BXMLAttributesType extends BType implements NoType {
 
-    public BVarSymbol symbol;
-    public boolean lhsVar = false;
-    public BSymbol importSymbol;
+    public BXMLAttributesType(int tag) {
+        super(tag, null);
+    }
 }

@@ -193,7 +193,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         xmlnsSymbol.definedInline = false;
         xmlnsNode.symbol = xmlnsSymbol;
 
-        // Define it in the enclosing scope
+        // First check for package-imports with the same alias.
+        // Here we do not check for owner equality, since package import is always at the package
+        // level, but the namespace declaration can be at any level.
+        BSymbol foundSym = symResolver.lookupSymbol(env, xmlnsSymbol.name, SymTag.PACKAGE);
+        if (foundSym != symTable.notFoundSymbol) {
+            dlog.error(xmlnsNode.pos, DiagnosticCode.REDECLARED_SYMBOL, xmlnsSymbol.name);
+            return;
+        }
+        
+        // Define it in the enclosing scope. Here we check for the owner equality,
+        // to support overriding of namespace declarations defined at package level. 
         defineSymbol(xmlnsNode.pos, xmlnsSymbol);
     }
 

@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -2052,6 +2053,45 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         /* ignore */
+    }
+
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+        
+        genNode(xmlAttributeAccessExpr.expr, this.env);
+        int varRefRegIndex = xmlAttributeAccessExpr.expr.regIndex;
+        
+        if (xmlAttributeAccessExpr.indexExpr == null) {
+            int xmlValueRegIndex = ++regIndexes.tRef;
+            emit(InstructionCodes.XML2XMLATTRS, varRefRegIndex, xmlValueRegIndex);
+            xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
+            return;
+        }
+        
+        BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
+        genNode(xmlAttributeAccessExpr.indexExpr, this.env);
+        int qnameRegIndex = xmlAttributeAccessExpr.indexExpr.regIndex;
+
+        // If this is a string representation of qname
+        if (indexExpr.getKind() != NodeKind.XML_QNAME) {
+            int localNameRegIndex = ++regIndexes.tString;
+            int uriRegIndex = ++regIndexes.tString;
+            emit(InstructionCodes.S2QNAME, qnameRegIndex, localNameRegIndex, uriRegIndex);
+
+            qnameRegIndex = ++regIndexes.tRef;
+            generateURILookupInstructions(xmlAttributeAccessExpr.namespaces, localNameRegIndex,
+                    uriRegIndex, qnameRegIndex, indexExpr.pos);
+        }
+
+        if (variableStore) {
+            emit(InstructionCodes.XMLATTRSTORE, varRefRegIndex, qnameRegIndex, rhsExprRegIndex);
+        } else {
+            int xmlValueRegIndex = ++regIndexes.tRef;
+            emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
+            xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
+        }
     }
 
     private int getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol) {

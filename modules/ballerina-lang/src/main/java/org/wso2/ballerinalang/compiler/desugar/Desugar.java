@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -379,6 +381,19 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
+
+        // XML qualified name reference. e.g: ns0:foo
+        if (varRefExpr.importSymbol != null && varRefExpr.importSymbol.tag == SymTag.XMLNS) {
+            BLangXMLQName qnameExpr = new BLangXMLQName(varRefExpr.variableName);
+            qnameExpr.nsSymbol = (BXMLNSSymbol) varRefExpr.importSymbol;
+            qnameExpr.isUsedInXML = false;
+            qnameExpr.namespaceURI = qnameExpr.nsSymbol.namespaceURI;
+            qnameExpr.pos = varRefExpr.pos;
+            qnameExpr.type = symTable.stringType;
+            result = qnameExpr;
+            return;
+        }
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 varRefExpr.symbol.type.tag == TypeTags.INVOKABLE) {
@@ -578,6 +593,12 @@ public class Desugar extends BLangNodeVisitor {
         result = workerReceiveNode;
     }
 
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        xmlAttributeAccessExpr.indexExpr = rewrite(xmlAttributeAccessExpr.indexExpr);
+        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
+        result = xmlAttributeAccessExpr;
+    }
 
     // Generated expressions. Following expressions are not part of the original syntax
     // tree which is coming out of the parser

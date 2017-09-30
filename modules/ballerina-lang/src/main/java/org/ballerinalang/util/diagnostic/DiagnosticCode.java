@@ -91,7 +91,8 @@ public enum DiagnosticCode {
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
-    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags")
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
+    XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed")
     ;
 
     private String value;
