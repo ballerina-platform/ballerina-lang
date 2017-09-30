@@ -16,7 +16,7 @@
 
 package org.ballerinalang.composer.service.workspace.swagger;
 
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.net.http.Constants;
 
 /**
  * This class will hold all constants related to swagger ballerina conversion.

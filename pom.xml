@@ -91,6 +91,11 @@
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.msf4j.example</groupId>
                 <artifactId>stockquote-fatjar</artifactId>
                 <version>${msf4j.examples.version}</version>
