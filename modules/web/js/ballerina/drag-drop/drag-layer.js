@@ -48,7 +48,7 @@ function getItemStyles(props, isOverTarget, canDropToTarget) {
     return {
         transform,
         WebkitTransform: transform,
-        opacity: isOverTarget ? 1 : 0.5,
+        opacity: isOverTarget && canDropToTarget ? 1 : 0.5,
         cursor: canDropToTarget ? 'pointer' : 'no-drop',
     };
 }

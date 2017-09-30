@@ -310,7 +310,7 @@ class TreeNode extends React.Component {
 TreeNode.propTypes = {
     node: PropTypes.shape({
         id: PropTypes.string.isRequired,
-        parent: PropTypes.string.isRequired,
+        parent: PropTypes.string,
         collapsed: PropTypes.bool.isRequired,
         type: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
