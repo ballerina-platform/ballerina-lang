@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import ImageUtil from '../../../../image-util';
 import './action-box.css';
 import Breakpoint from './breakpoint';
+import { withDragStateKnowledge } from '../../../../../drag-drop/util';
 
 /**
  * React component for Actionbox
@@ -66,7 +67,8 @@ class ActionBox extends React.Component {
         const y = bBox.y + ((bBox.h - iconSize) / 2);
         const horizontalGap = (bBox.w - (iconSize * numIcons)) / (numIcons + 1);
         let className;
-        if (this.props.show === 'hidden') {
+        // hide action box when mouse moved away or when a drag-drop is happening
+        if (this.props.show === 'hidden' || this.props.dragState.isDragging) {
             className = 'hide-action';
         } else if (this.props.show === 'visible') {
             className = 'show-action';
@@ -137,6 +139,9 @@ ActionBox.propTypes = {
         delete: PropTypes.bool.isRequired,
         jump: PropTypes.bool.isRequired,
     }),
+    dragState: PropTypes.shape({
+        isDragging: PropTypes.bool.isRequired,
+    }).isRequired,
 };
 
 ActionBox.defaultProps = {
@@ -151,4 +156,4 @@ ActionBox.defaultProps = {
 };
 
 
-export default ActionBox;
+export default withDragStateKnowledge(ActionBox);
