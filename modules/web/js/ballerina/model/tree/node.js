@@ -48,6 +48,9 @@ class Node extends EventChannel {
             dimensionsSynced: false,
             hidden: false,
         };
+
+        this.isStatement = false;
+        this.isExpression = false;
     }
 
     /**
@@ -554,6 +557,26 @@ class Node extends EventChannel {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check if the node is a statement node.
+     *
+     * @returns {boolean} return true if node is a statement.
+     * @memberof Node
+     */
+    isStatement() {
+        return this.isStatement;
+    }
+
+    /**
+     * Check if the node is a expression node.
+     *
+     * @returns {boolean} return true if node is an expression.
+     * @memberof Node
+     */
+    isExpression() {
+        return this.isExpression;
     }
 }
 

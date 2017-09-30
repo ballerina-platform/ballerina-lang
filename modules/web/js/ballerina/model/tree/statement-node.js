@@ -15,11 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import Node from './node';
 
-import Abstract{{name}} from './abstract-tree/{{fileName}}';
+/**
+ * Base of all statement nodes.
+ *
+ * @class Node
+ */
+class StatementNode extends Node {
 
-class {{name}} extends Abstract{{name}} {
-
+    constructor() {
+        super();
+        this.isStatement = true;
+    }
 }
 
-export default {{name}};
+export default StatementNode;

@@ -14,14 +14,18 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.model.tree.Node;
@@ -99,6 +103,24 @@ public class ModelGenerator {
                 nodeObj.addProperty("name", nodeClassName);
                 nodeObj.addProperty("fileName", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, nodeClassName));
                 JsonArray attr = new JsonArray();
+                JsonArray imports = new JsonArray();
+                List<String> parents = Arrays.asList(clazz.getInterfaces()).stream().map(
+                        parent -> parent.getSimpleName()
+                ).collect(Collectors.toList());
+
+                // tag object with supper type
+                if(parents.contains("StatementNode")){
+                    nodeObj.addProperty("isStatement", true);
+                }else{
+                    nodeObj.addProperty("isStatement", false);
+                }
+
+                if(parents.contains("ExpressionNode")){
+                    nodeObj.addProperty("isExpression", true);
+                }else{
+                    nodeObj.addProperty("isExpression", false);
+                }
+
                 Method[] methods = clazz.getMethods();
                 for (Method m : methods) {
                     String methodName = m.getName();
@@ -107,14 +129,28 @@ public class ModelGenerator {
                     }
                     if (methodName.startsWith("get")) {
                         JsonObject attribute = new JsonObject();
+                        JsonObject imp = new JsonObject();
                         attribute.addProperty("property", toJsonName(m.getName(), 3));
                         attribute.addProperty("methodSuffix", m.getName().substring(3));
                         attribute.addProperty("list", List.class.isAssignableFrom(m.getReturnType()));
                         attribute.addProperty("isNode", Node.class.isAssignableFrom(m.getReturnType()));
+                        if(Node.class.isAssignableFrom(m.getReturnType())){
+                            String returnClass = m.getReturnType().getSimpleName();
+                            if(alias.containsValue(m.getReturnType().getSimpleName())){
+                                returnClass = getKindForAliasClass(m.getReturnType().getSimpleName());
+                            }
+                            imp.addProperty("returnType", m.getReturnType().getSimpleName());
+                            attribute.addProperty("returnType", m.getReturnType().getSimpleName());
+                            imp.addProperty("returnTypeFile", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
+                        }
                         attr.add(attribute);
+                        if (!imports.contains(imp)) {
+                            imports.add(imp);
+                        }
                     }
                 }
                 nodeObj.add("attributes", attr);
+                nodeObj.add("imports", imports);
                 nodes.add(nodeClassName, nodeObj);
             } catch (NoSuchElementException e) {
                 out.println("alias.put(\"" + nodeClassName + "\", \"\");");
@@ -122,6 +158,16 @@ public class ModelGenerator {
         }
         out.println(nodes);
         return nodes;
+    }
+
+    private static String getKindForAliasClass(String simpleName) {
+        for (Map.Entry<String, String> entry : alias.entrySet())
+        {
+            if (simpleName == entry.getValue())
+                return entry.getKey();
+        }
+
+        throw new AssertionError("Undefined entry :" + simpleName );
     }
 
     public static void generateSourceFiles(JsonObject node, String tpl , String name) {

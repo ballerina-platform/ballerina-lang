@@ -15,11 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import Node from './node';
 
-import Abstract{{name}} from './abstract-tree/{{fileName}}';
+/**
+ * Base of all expression nodes.
+ *
+ * @class Node
+ */
+class ExpressionNode extends Node {
 
-class {{name}} extends Abstract{{name}} {
-
+    constructor() {
+        super();
+        this.isExpression = true;
+    }
 }
 
-export default {{name}};
+export default ExpressionNode;
