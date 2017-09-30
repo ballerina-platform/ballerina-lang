@@ -23,6 +23,7 @@ import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ASTFactory from '../../../../../ast/ast-factory';
 import TreeUtil from './../../../../../model/tree-util';
+import SimpleBBox from './../../../../../ast/simple-bounding-box';
 import './if-node.css';
 
 class IfNode extends React.Component {
@@ -35,6 +36,13 @@ class IfNode extends React.Component {
             model: props.model,
             getterMethod: props.model.getConditionString,
             setterMethod: props.model.setConditionFromString,
+        };
+
+        this.state = {
+            innerDropZoneActivated: false,
+            innerDropZoneDropNotAllowed: false,
+            innerDropZoneExist: false,
+            active: 'hidden',
         };
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }
@@ -64,16 +72,36 @@ class IfNode extends React.Component {
         const isElseIfNode = TreeUtil.isIf(model.parent);
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
+        const statementBox = model.viewState.components['statement-box'];
+        const dropZone = model.viewState.components['drop-zone'];
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
+        const IfBBox = new SimpleBBox(statementBox.x, statementBox.y, bBox.w, bBox.h);
+
+        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
 
         return (
             <g>
+                {!isElseIfNode && <rect
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    className={dropZoneClassName}
+                    {...fill}
+                    onMouseOver={this.onDropZoneActivate}
+                    onMouseOut={this.onDropZoneDeactivate}
+                />
+                }
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
                     title={title}
                     expression={expression}
                     editorOptions={this.editorOptions}
-                    model={model.parent}
+                    model={model}
                 />
 
                 {elseComp && TreeUtil.isIf(elseComp) &&

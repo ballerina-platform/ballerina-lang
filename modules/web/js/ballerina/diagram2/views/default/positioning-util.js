@@ -39,6 +39,15 @@ class PositioningUtil {
                                     (viewState.components['statement-box'].h / 2);
     }
 
+    positionCompoundStatementComponents(node) {
+        const viewState = node.viewState;
+
+        viewState.components['drop-zone'].x = viewState.bBox.x;
+        viewState.components['drop-zone'].y = viewState.bBox.y;
+        viewState.components['statement-box'].x = viewState.bBox.x;
+        viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
+    }
+
 
     /**
      * Calculate position of Action nodes.
@@ -677,9 +686,17 @@ class PositioningUtil {
         const bBox = viewState.bBox;
         const elseStatement = node.elseStatement;
 
+        this.positionCompoundStatementComponents(node);
+
         // Set the position of the else statement
         elseStatement.viewState.bBox.x = bBox.x;
-        elseStatement.viewState.bBox.y = bBox.y + bBox.h;
+        elseStatement.viewState.bBox.y = viewState.components['statement-box'].y
+            + viewState.components['statement-box'].h;
+        this.positionCompoundStatementComponents(elseStatement);
+        // elseStatement.viewState.components['drop-zone'].x = elseStatement.viewState.bBox.x;
+        // elseStatement.viewState.components['drop-zone'].y = elseStatement.viewState.bBox.y;
+        // elseStatement.viewState.components['statement-box'].x = elseStatement.viewState.bBox.x;
+        // elseStatement.viewState.components['statement-box'].y = elseStatement.viewState.bBox.y;
     }
 
     /**
@@ -739,29 +756,44 @@ class PositioningUtil {
         const abortedBody = node.abortedBody;
         const committedBody = node.committedBody;
         const failedBody = node.failedBody;
-
+        const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
-        let nextComponentY = bBox.y + bBox.h;
+
+        this.positionCompoundStatementComponents(node);
+
+        let nextComponentY = node.viewState.components['drop-zone'].y
+            + node.viewState.components['drop-zone'].h;
+
+        // Set the position of the transaction body
+        if (transactionBody) {
+            transactionBody.viewState.bBox.x = bBox.x;
+            transactionBody.viewState.bBox.y = nextComponentY;
+            this.positionCompoundStatementComponents(transactionBody);
+            nextComponentY += transactionBody.viewState.components['statement-box'].h;
+        }
 
         // Set the position of the failed body
         if (failedBody) {
             failedBody.viewState.bBox.x = bBox.x;
             failedBody.viewState.bBox.y = nextComponentY;
-            nextComponentY += failedBody.viewState.bBox.h;
+            this.positionCompoundStatementComponents(failedBody);
+            nextComponentY += failedBody.viewState.components['statement-box'].h;
         }
 
         // Set the position of the aborted body
         if (abortedBody) {
             abortedBody.viewState.bBox.x = bBox.x;
             abortedBody.viewState.bBox.y = nextComponentY;
-            nextComponentY += abortedBody.viewState.bBox.h;
+            this.positionCompoundStatementComponents(abortedBody);
+            nextComponentY += abortedBody.viewState.components['statement-box'].h;
         }
 
         // Set the position of the aborted body
         if (committedBody) {
             committedBody.viewState.bBox.x = bBox.x;
             committedBody.viewState.bBox.y = nextComponentY;
+            this.positionCompoundStatementComponents(committedBody);
         }
     }
 
@@ -809,6 +841,9 @@ class PositioningUtil {
      * @param {object} node Try object
      */
     positionTryNode(node) {
+        // Position the try node
+        this.positionCompoundStatementComponents(node);
+
         const catchBlocks = node.catchBlocks;
         const finallyBody = node.finallyBody;
 
@@ -819,13 +854,15 @@ class PositioningUtil {
 
             if (itr === 0) {
                 // If the catch block is the first block, we position it with respect to the try node
-                y = node.viewState.bBox.y + node.viewState.bBox.h;
+                y = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
             } else {
                 // Position the catch block, with respect to the previous catch block
-                y = (catchBlocks[itr - 1]).viewState.bBox.y + (catchBlocks[itr - 1]).viewState.bBox.h;
+                y = (catchBlocks[itr - 1]).viewState.components['statement-box'].y
+                    + (catchBlocks[itr - 1]).viewState.components['statement-box'].h;
             }
             catchBlockBBox.x = x;
             catchBlockBBox.y = y;
+            this.positionCompoundStatementComponents(catchBlocks[itr]);
         }
 
         const finallyX = node.viewState.bBox.x;
@@ -833,14 +870,16 @@ class PositioningUtil {
         // If there are no catch blocks, position the finally block wrt the try node
         if (catchBlocks.length) {
             // Position based on the last catch block
-            finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.bBox.y
-                + (catchBlocks[catchBlocks.length - 1]).viewState.bBox.h;
+            finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
+                + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
         } else {
-            finallyY = node.viewState.bBox.y + node.viewState.bBox.h;
+            finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
         }
 
         finallyBody.viewState.bBox.x = finallyX;
         finallyBody.viewState.bBox.y = finallyY;
+
+        this.positionCompoundStatementComponents(finallyBody);
     }
 
 

@@ -27,20 +27,48 @@ import './if-node.css';
 
 class TransactionNode extends React.Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            innerDropZoneActivated: false,
+            innerDropZoneDropNotAllowed: false,
+            innerDropZoneExist: false,
+            active: 'hidden',
+        };
+    }
+
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
+        const transactionBody = model.transactionBody;
         const failedBody = model.failedBody;
         const abortedBody = model.abortedBody;
         const committedBody = model.committedBody;
+        const dropZone = model.viewState.components['drop-zone'];
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
+        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
 
         return (
             <g>
+                <rect
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    className={dropZoneClassName}
+                    {...fill}
+                    onMouseOver={this.onDropZoneActivate}
+                    onMouseOut={this.onDropZoneDeactivate}
+                />
                 <CompoundStatementDecorator
                     dropTarget={model}
-                    bBox={bBox}
+                    bBox={transactionBody.viewState.bBox}
                     title={'Transaction'}
-                    model={model}
+                    model={transactionBody}
                 />
                 {failedBody &&
                     <CompoundStatementDecorator

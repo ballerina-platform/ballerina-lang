@@ -194,21 +194,20 @@ class BlockStatementDecorator extends React.Component {
     render() {
         const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit} = this.props;
         const model = this.props.model;
+        const viewState = model.viewState;
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
+        const statementBBox = viewState.components['statement-box'];
 
-        const p1X = bBox.x;
-        const p1Y = bBox.y + titleH;
-        const p2X = bBox.x + titleW;
-        const p2Y = bBox.y + titleH;
-        const p3X = bBox.x + titleW + 10;
-        const p3Y = bBox.y;
+        const p1X = statementBBox.x;
+        const p1Y = statementBBox.y + titleH;
+        const p2X = statementBBox.x + titleW;
+        const p2Y = statementBBox.y + titleH;
+        const p3X = statementBBox.x + titleW + 10;
+        const p3Y = statementBBox.y;
 
-        const stcY = bBox.y + titleH;
-        const stcH = bBox.h - titleH;
-
-        const titleX = bBox.x + (titleW / 2);
-        const titleY = bBox.y + (titleH / 2);
+        const titleX = statementBBox.x + (titleW / 2);
+        const titleY = statementBBox.y + (titleH / 2);
 
         let expressionX = 0;
         if (expression) {
@@ -235,7 +234,6 @@ class BlockStatementDecorator extends React.Component {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         const separatorGapV = titleH / 3;
-        const maxWidth = bBox.w + bBox.expansionW;
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -244,11 +242,17 @@ class BlockStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <rect x={bBox.x} y={bBox.y} width={maxWidth} height={bBox.h} className="background-empty-rect" />
                 <rect
-                    x={bBox.x}
-                    y={bBox.y}
-                    width={maxWidth}
+                    x={statementBBox.x}
+                    y={statementBBox.y}
+                    width={statementBBox.w}
+                    height={statementBBox.h}
+                    className="background-empty-rect"
+                />
+                <rect
+                    x={statementBBox.x}
+                    y={statementBBox.y}
+                    width={statementBBox.w}
                     height={titleH}
                     rx="0"
                     ry="0"

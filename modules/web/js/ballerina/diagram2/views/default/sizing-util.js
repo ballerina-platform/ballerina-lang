@@ -969,13 +969,19 @@ class SizingUtil {
         // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
         let nodeHeight = node.viewState.bBox.h;
         let elseStmt = node.elseStatement;
+        let proceed = true;
         if (TreeUtil.isBlock(node.parent)) {
-            while (!TreeUtil.isBlock(elseStmt)) {
+            while (elseStmt && proceed) {
                 nodeHeight += elseStmt.viewState.bBox.h;
-                elseStmt = elseStmt.elseStatement;
+                // If the current else statement is for an else if only, we proceed
+                if (TreeUtil.isBlock(elseStmt)) {
+                    proceed = false;
+                } else {
+                    elseStmt = elseStmt.elseStatement;
+                }
             }
         }
-        node.viewState.compoundHeight = nodeHeight;
+        node.viewState.bBox.h = nodeHeight;
     }
 
     /**
@@ -1031,16 +1037,19 @@ class SizingUtil {
     sizeTransactionNode(node) {
         this.sizeCompoundNode(node);
 
-        // Set the compound height of the transaction node
-        node.viewState.compoundHeight = node.viewState.bBox.h;
+        node.viewState.components['statement-box'].h = 0;
+
+        if (node.transactionBody) {
+            node.viewState.bBox.h += node.transactionBody.viewState.bBox.h;
+        }
         if (node.failedBody) {
-            node.viewState.compoundHeight += node.failedBody.viewState.bBox.h;
+            node.viewState.bBox.h += node.failedBody.viewState.bBox.h;
         }
         if (node.abortedBody) {
-            node.viewState.compoundHeight += node.abortedBody.viewState.bBox.h;
+            node.viewState.bBox.h += node.abortedBody.viewState.bBox.h;
         }
         if (node.committedBody) {
-            node.viewState.compoundHeight += node.committedBody.viewState.bBox.h;
+            node.viewState.bBox.h += node.committedBody.viewState.bBox.h;
         }
     }
 
@@ -1063,6 +1072,17 @@ class SizingUtil {
      */
     sizeTryNode(node) {
         this.sizeCompoundNode(node);
+        const catchBlocks = node.catchBlocks || [];
+        let height = node.viewState.bBox.h;
+        const finallyBody = node.finallyBody;
+
+        catchBlocks.forEach((catchBlock) => {
+            height += catchBlock.viewState.bBox.h;
+        });
+
+        height += finallyBody ? finallyBody.viewState.bBox.h : 0;
+
+        node.viewState.bBox.h = height;
     }
 
     /**
@@ -1084,7 +1104,7 @@ class SizingUtil {
      *
      */
     sizeWhileNode(node) {
-        // Not implemented.
+        this.sizeCompoundNode(node);
     }
 
 
@@ -1182,14 +1202,34 @@ class SizingUtil {
      * @param {object} node compound statement node
      */
     sizeCompoundNode(node) {
-        const expression = "";
+        const expression = '';
         const viewState = node.viewState;
         const components = viewState.components;
+        const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
         const nodeBodyViewState = TreeUtil.isBlock(node) ? node.viewState :
             (TreeUtil.isTransaction(node) ? node.transactionBody.viewState : node.body.viewState);
         components.body = new SimpleBBox();
+
+        viewState.components['drop-zone'] = new SimpleBBox();
+        viewState.components['statement-box'] = new SimpleBBox();
+        // Set the block header as an opaque box to prevent conflicts with arrows.
+        components['block-header'] = new SimpleBBox();
+        viewState.components.text = new SimpleBBox();
+
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
+
+        components['block-header'].h = this.config.blockStatement.heading.height;
+
+        viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
+        viewState.components['drop-zone'].w = bodyWidth;
+        viewState.components['statement-box'].h = bodyHeight + this.config.blockStatement.heading.height;
+        viewState.components['statement-box'].w = bodyWidth;
+        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h;
+        viewState.bBox.w = bodyWidth;
+        components.body.w = bodyWidth;
+
+        components['block-header'].setOpaque(true);
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
@@ -1198,20 +1238,6 @@ class SizingUtil {
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
             components.expression = this.getTextWidth(expression, 0, available);
         }
-
-        components.body.h = bodyHeight;
-        components.body.w = bodyWidth;
-
-        // Total height of the compound statement is the addition of both the body height and the heading height
-        viewState.bBox.h = bodyHeight + this.config.blockStatement.heading.height;
-
-        // Set the block header as an opaque box to prevent conflicts with arrows.
-        components['block-header'] = new SimpleBBox();
-        components['block-header'].setOpaque(true);
-        components['block-header'].h = this.config.blockStatement.heading.height;
-
-        // Total width of the compound statement equals to the width of the compound statement body width
-        viewState.bBox.w = bodyWidth;
     }
 }
 

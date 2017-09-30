@@ -48,8 +48,11 @@ class TransactionNodeAbstract extends Node {
     }
 
     setChildrenAlias() {
-        if (this.abortedBody) {
+        if (this.transactionBody) {
             this.abortedBody.viewState.alias = 'Aborted';
+        }
+        if (this.transactionBody) {
+            this.transactionBody.viewState.alias = 'Transaction';
         }
         if (this.committedBody) {
             this.committedBody.viewState.alias = 'Committed';
