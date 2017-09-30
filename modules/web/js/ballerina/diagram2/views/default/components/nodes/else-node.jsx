@@ -15,40 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import StatementContainer from '../decorators/statement-container';
-import './block-node.css';
+import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 
-
-class BlockNode extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
+class ElseNode extends React.Component {
 
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const statements = getComponentForNodeArray(model.getStatements(), this.context.mode);
-        return <g>
-            <rect
-                x={bBox.x}
-                y={bBox.y}
-                width={bBox.w}
-                height={bBox.h}
-                className="block-node drop-zone"
-            />
-            {statements}
-        </g>;
+        // const children = getComponentForNodeArray(this.props.model.getChildren(), this.context.mode);
+        return (
+            <CompoundStatementDecorator
+                dropTarget={model}
+                model={model}
+                bBox={bBox}
+                title={'Else'}
+            >
+            </CompoundStatementDecorator>
+        );
     }
 }
 
-BlockNode.contextTypes = {
+ElseNode.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+};
+
+ElseNode.contextTypes = {
     mode: PropTypes.string,
 };
 
-export default BlockNode;
+export default ElseNode;

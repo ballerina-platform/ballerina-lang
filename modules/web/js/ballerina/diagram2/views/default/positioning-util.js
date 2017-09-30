@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import TreeUtil from './../../../model/tree-util';
+import SimpleBBox from './../../../ast/simple-bounding-box';
 
 class PositioningUtil {
 
@@ -36,6 +37,15 @@ class PositioningUtil {
                                     (viewState.components['statement-box'].w / 2);
         viewState.components.text.y = viewState.components['statement-box'].y +
                                     (viewState.components['statement-box'].h / 2);
+    }
+
+    positionCompoundStatementComponents(node) {
+        const viewState = node.viewState;
+
+        viewState.components['drop-zone'].x = viewState.bBox.x;
+        viewState.components['drop-zone'].y = viewState.bBox.y;
+        viewState.components['statement-box'].x = viewState.bBox.x;
+        viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
     }
 
 
@@ -154,15 +164,17 @@ class PositioningUtil {
      */
     positionFunctionNode(node) {
         const viewState = node.viewState;
+        const functionBody = node.body;
+        const funcBodyViewState = functionBody.viewState;
         const cmp = viewState.components;
 
         // position the components.
-        cmp.statementContainer.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        cmp.statementContainer.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
-                                   this.config.lifeLine.head.height;
+        funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top
+            + this.config.lifeLine.head.height;
 
-        cmp.defaultWorker.x = cmp.statementContainer.x + ((cmp.statementContainer.w - this.config.lifeLine.width) / 2);
-        cmp.defaultWorker.y = cmp.statementContainer.y - this.config.lifeLine.head.height;
+        cmp.defaultWorker.x = funcBodyViewState.bBox.x + ((funcBodyViewState.bBox.w - this.config.lifeLine.width) / 2);
+        cmp.defaultWorker.y = funcBodyViewState.bBox.y - this.config.lifeLine.head.height;
 
         // position the children
         const body = node.getBody();
@@ -670,9 +682,30 @@ class PositioningUtil {
      * @param {object} node If object
      */
     positionIfNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        const bBox = viewState.bBox;
+        const elseStatement = node.elseStatement;
+
+        this.positionCompoundStatementComponents(node);
+
+        // Set the position of the else statement
+        elseStatement.viewState.bBox.x = bBox.x;
+        elseStatement.viewState.bBox.y = viewState.components['statement-box'].y
+            + viewState.components['statement-box'].h;
+        this.positionCompoundStatementComponents(elseStatement);
+        // elseStatement.viewState.components['drop-zone'].x = elseStatement.viewState.bBox.x;
+        // elseStatement.viewState.components['drop-zone'].y = elseStatement.viewState.bBox.y;
+        // elseStatement.viewState.components['statement-box'].x = elseStatement.viewState.bBox.x;
+        // elseStatement.viewState.components['statement-box'].y = elseStatement.viewState.bBox.y;
     }
 
+    /**
+     * Position the Else node
+     * @param {object} node - else node
+     */
+    positionElseNode(node) {
+        // Not Implemented
+    }
 
     /**
      * Calculate position of Reply nodes.
@@ -720,6 +753,74 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
+        const abortedBody = node.abortedBody;
+        const committedBody = node.committedBody;
+        const failedBody = node.failedBody;
+        const transactionBody = node.transactionBody;
+        const viewState = node.viewState;
+        const bBox = viewState.bBox;
+
+        this.positionCompoundStatementComponents(node);
+
+        let nextComponentY = node.viewState.components['drop-zone'].y
+            + node.viewState.components['drop-zone'].h;
+
+        // Set the position of the transaction body
+        if (transactionBody) {
+            transactionBody.viewState.bBox.x = bBox.x;
+            transactionBody.viewState.bBox.y = nextComponentY;
+            this.positionCompoundStatementComponents(transactionBody);
+            nextComponentY += transactionBody.viewState.components['statement-box'].h;
+        }
+
+        // Set the position of the failed body
+        if (failedBody) {
+            failedBody.viewState.bBox.x = bBox.x;
+            failedBody.viewState.bBox.y = nextComponentY;
+            this.positionCompoundStatementComponents(failedBody);
+            nextComponentY += failedBody.viewState.components['statement-box'].h;
+        }
+
+        // Set the position of the aborted body
+        if (abortedBody) {
+            abortedBody.viewState.bBox.x = bBox.x;
+            abortedBody.viewState.bBox.y = nextComponentY;
+            this.positionCompoundStatementComponents(abortedBody);
+            nextComponentY += abortedBody.viewState.components['statement-box'].h;
+        }
+
+        // Set the position of the aborted body
+        if (committedBody) {
+            committedBody.viewState.bBox.x = bBox.x;
+            committedBody.viewState.bBox.y = nextComponentY;
+            this.positionCompoundStatementComponents(committedBody);
+        }
+    }
+
+    /**
+     * Calculate position of Transaction Failed nodes.
+     *
+     * @param {object} node Transaction Failed object
+     */
+    positionFailedNode(node) {
+        // Not implemented.
+    }
+
+    /**
+     * Calculate position of Transaction Aborted nodes.
+     *
+     * @param {object} node Transaction Aborted object
+     */
+    positionAbortedNode(node) {
+        // Not implemented.
+    }
+
+    /**
+     * Calculate position of Transaction Committed nodes.
+     *
+     * @param {object} node Transaction Committed object
+     */
+    positionCommittedNode(node) {
         // Not implemented.
     }
 
@@ -740,7 +841,45 @@ class PositioningUtil {
      * @param {object} node Try object
      */
     positionTryNode(node) {
-        // Not implemented.
+        // Position the try node
+        this.positionCompoundStatementComponents(node);
+
+        const catchBlocks = node.catchBlocks;
+        const finallyBody = node.finallyBody;
+
+        for (let itr = 0; itr < catchBlocks.length; itr++) {
+            const catchBlockBBox = (catchBlocks[itr]).viewState.bBox;
+            const x = node.viewState.bBox.x;
+            let y;
+
+            if (itr === 0) {
+                // If the catch block is the first block, we position it with respect to the try node
+                y = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
+            } else {
+                // Position the catch block, with respect to the previous catch block
+                y = (catchBlocks[itr - 1]).viewState.components['statement-box'].y
+                    + (catchBlocks[itr - 1]).viewState.components['statement-box'].h;
+            }
+            catchBlockBBox.x = x;
+            catchBlockBBox.y = y;
+            this.positionCompoundStatementComponents(catchBlocks[itr]);
+        }
+
+        const finallyX = node.viewState.bBox.x;
+        let finallyY;
+        // If there are no catch blocks, position the finally block wrt the try node
+        if (catchBlocks.length) {
+            // Position based on the last catch block
+            finallyY = (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].y
+                + (catchBlocks[catchBlocks.length - 1]).viewState.components['statement-box'].h;
+        } else {
+            finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
+        }
+
+        finallyBody.viewState.bBox.x = finallyX;
+        finallyBody.viewState.bBox.y = finallyY;
+
+        this.positionCompoundStatementComponents(finallyBody);
     }
 
 
@@ -842,6 +981,14 @@ class PositioningUtil {
      */
     positionValueTypeNode(node) {
         // Not implemented.
+    }
+
+    /**
+     * Calculate the position of Compound nodes. (If, Else, ElseIf, etc..)
+     * @param {object} node compound node
+     */
+    positionCompoundNode(node) {
+
     }
 
 
