@@ -25,12 +25,12 @@ class TreeUtil extends AbstractTreeUtil {
         if (!root) {
             return '';
         }
-        const packageAlias = node.getPackageAlias().getValue();
+        const packageAlias = node.getPackageAlias();
         if (!packageAlias) {
             return '';
         }
         const importNode = root.filterTopLevelNodes(this.isImport).find((im) => {
-            return im.getAlias().getValue() === packageAlias;
+            return im.getAlias().value === packageAlias.value;
         });
         let fullPackageName = '';
         if (importNode) {
