@@ -47,7 +47,17 @@ class TransactionNodeAbstract extends Node {
         return this.condition;
     }
 
-
+    setChildrenAlias() {
+        if (this.abortedBody) {
+            this.abortedBody.viewState.alias = 'Aborted';
+        }
+        if (this.committedBody) {
+            this.committedBody.viewState.alias = 'Committed';
+        }
+        if (this.failedBody) {
+            this.failedBody.viewState.alias = 'Failed';
+        }
+    }
 
     setTransactionBody(newValue, silent, title) {
         const oldValue = this.transactionBody;

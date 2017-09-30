@@ -47,7 +47,11 @@ class TryNodeAbstract extends Node {
         return this.body;
     }
 
-
+    setChildrenAlias() {
+        if (this.finallyBody) {
+            this.finallyBody.viewState.alias = 'Finally';
+        }
+    }
 
     setCatchBlocks(newValue, silent, title) {
         const oldValue = this.catchBlocks;

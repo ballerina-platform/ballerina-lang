@@ -120,7 +120,17 @@ class SizingUtil {
         viewState.fullExpression = expression;
     }
 
+    /**
+     * Set the container size of a particular node
+     * @param {Array} nodes child nodes of the node
+     * @param {object} viewState - view state of the node
+     * @param {number} width - default width
+     * @param {number} height - default height
+     */
     setContainerSize(nodes, viewState, width = 0, height = 0) {
+        // Set the default block node height
+        height = this.config.blockNode.height;
+        width = this.config.blockNode.width;
         let stH = 0;
         nodes.forEach((element) => {
             if (element.viewState.bBox.w > width) {
@@ -172,23 +182,28 @@ class SizingUtil {
      * Calculate dimention of AnnotationAttribute nodes.
      *
      * @param {object} node
-     *
      */
     sizeAnnotationAttributeNode(node) {
         // Not implemented.
     }
 
-
     /**
      * Calculate dimention of Catch nodes.
      *
      * @param {object} node
-     *
      */
     sizeCatchNode(node) {
-        // Not implemented.
+        this.sizeCompoundNode(node);
     }
 
+    /**
+     * Calculate dimension of Finally nodes.
+     *
+     * @param {object} node - finally node
+     */
+    sizeFinallyNode(node) {
+        this.sizeCompoundNode(node);
+    }
 
     /**
      * Calculate dimention of CompilationUnit nodes.
@@ -226,36 +241,33 @@ class SizingUtil {
     /**
      * Calculate dimention of Function nodes.
      *
-     * @param {object} node
-     *
+     * @param {object} node function node
      */
     sizeFunctionNode(node) {
         const viewState = node.viewState;
+        const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
 
         /* Define the sub components */
         cmp.heading = new SimpleBBox();
-        cmp.statementContainer = new SimpleBBox();
         cmp.defaultWorker = new SimpleBBox();
-        cmp.body = new SimpleBBox();
+        cmp.panelBody = new SimpleBBox();
         cmp.argParameters = new SimpleBBox();
         cmp.returnParameters = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
-        // calculate statement container
-        cmp.statementContainer.w = this.config.statement.width;
-        cmp.statementContainer.h = this.config.statementContainer.height;
         // calculate defult worker
         cmp.defaultWorker.w = this.config.lifeLine.width;
-        cmp.defaultWorker.h = cmp.statementContainer.h + (this.config.lifeLine.head.height * 2);
-        // calculate body
-        cmp.body.h = cmp.defaultWorker.h + this.config.panel.body.padding.top + this.config.panel.body.padding.bottom;
+        cmp.defaultWorker.h = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2);
+        // calculate panel body
+        cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
+            + this.config.panel.body.padding.bottom;
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
         // calculate annotations
 
-        viewState.bBox.h = cmp.heading.h + cmp.body.h + cmp.annotation.h;
+        viewState.bBox.h = cmp.heading.h + cmp.panelBody.h + cmp.annotation.h;
 
         const textWidth = this.getTextWidth(node.getName().value);
         viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
@@ -328,7 +340,7 @@ class SizingUtil {
         cmp.heading.w += viewState.titleWidth + 100;
 
         // Get the largest among component heading width and component body width.
-        const componentWidth = cmp.heading.w > cmp.body.w ? cmp.heading.w : cmp.body.w;
+        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
 
         viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
 
@@ -934,19 +946,19 @@ class SizingUtil {
         const viewState = node.viewState;
         const statements = node.getStatements();
         this.setContainerSize(statements, viewState, this.config.statement.width);
+        if (viewState.alias) {
+            this.sizeCompoundNode(node);
+        }
     }
-
 
     /**
      * Calculate dimention of Break nodes.
      *
      * @param {object} node
-     *
      */
     sizeBreakNode(node) {
         // Not implemented.
     }
-
 
     /**
      * Calculate dimention of Continue nodes.
@@ -980,28 +992,33 @@ class SizingUtil {
         // Not implemented.
     }
 
-
     /**
-     * Calculate dimention of If nodes.
+     * Calculate dimension of If nodes.
      *
-     * @param {object} node
-     *
+     * @param {object} node If Object
      */
     sizeIfNode(node) {
-        // Not implemented.
+        this.sizeCompoundNode(node);
+        // If the parent of the if node is a block node, then it is only a if statement. Otherwise it is an else-if
+        let nodeHeight = node.viewState.bBox.h;
+        let elseStmt = node.elseStatement;
+        if (TreeUtil.isBlock(node.parent)) {
+            while (!TreeUtil.isBlock(elseStmt)) {
+                nodeHeight += elseStmt.viewState.bBox.h;
+                elseStmt = elseStmt.elseStatement;
+            }
+        }
+        node.viewState.compoundHeight = nodeHeight;
     }
-
 
     /**
      * Calculate dimention of Reply nodes.
      *
      * @param {object} node
-     *
      */
     sizeReplyNode(node) {
         // Not implemented.
     }
-
 
     /**
      * Calculate dimention of Return nodes.
@@ -1043,9 +1060,20 @@ class SizingUtil {
      *
      */
     sizeTransactionNode(node) {
-        // Not implemented.
-    }
+        this.sizeCompoundNode(node);
 
+        // Set the compound height of the transaction node
+        node.viewState.compoundHeight = node.viewState.bBox.h;
+        if (node.failedBody) {
+            node.viewState.compoundHeight += node.failedBody.viewState.bBox.h;
+        }
+        if (node.abortedBody) {
+            node.viewState.compoundHeight += node.abortedBody.viewState.bBox.h;
+        }
+        if (node.committedBody) {
+            node.viewState.compoundHeight += node.committedBody.viewState.bBox.h;
+        }
+    }
 
     /**
      * Calculate dimention of Transform nodes.
@@ -1060,15 +1088,13 @@ class SizingUtil {
 
 
     /**
-     * Calculate dimention of Try nodes.
+     * Calculate dimension of Try nodes.
      *
-     * @param {object} node
-     *
+     * @param {object} node - try node
      */
     sizeTryNode(node) {
-        // Not implemented.
+        this.sizeCompoundNode(node);
     }
-
 
     /**
      * Calculate dimention of VariableDef nodes.
@@ -1180,7 +1206,42 @@ class SizingUtil {
         // Not implemented.
     }
 
+    /**
+     * Set the sizing of the compound statement node (eg: IF, ElseIF, Try, Catch, etc.)
+     * @param {object} node compound statement node
+     */
+    sizeCompoundNode(node) {
+        const expression = "";
+        const viewState = node.viewState;
+        const components = viewState.components;
+        const nodeBodyViewState = TreeUtil.isBlock(node) ? node.viewState :
+            (TreeUtil.isTransaction(node) ? node.transactionBody.viewState : node.body.viewState);
+        components.body = new SimpleBBox();
+        const bodyWidth = nodeBodyViewState.bBox.w;
+        const bodyHeight = nodeBodyViewState.bBox.h;
 
+        // for compound statement like if , while we need to render condition expression
+        // we will calculate the width of the expression and adjust the block statement
+        if (expression !== undefined) {
+            // see how much space we have to draw the condition
+            const available = bodyWidth - this.config.blockStatement.heading.width - 10;
+            components.expression = this.getTextWidth(expression, 0, available);
+        }
+
+        components.body.h = bodyHeight;
+        components.body.w = bodyWidth;
+
+        // Total height of the compound statement is the addition of both the body height and the heading height
+        viewState.bBox.h = bodyHeight + this.config.blockStatement.heading.height;
+
+        // Set the block header as an opaque box to prevent conflicts with arrows.
+        components['block-header'] = new SimpleBBox();
+        components['block-header'].setOpaque(true);
+        components['block-header'].h = this.config.blockStatement.heading.height;
+
+        // Total width of the compound statement equals to the width of the compound statement body width
+        viewState.bBox.w = bodyWidth;
+    }
 }
 
 export default SizingUtil;

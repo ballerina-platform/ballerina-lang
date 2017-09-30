@@ -161,10 +161,22 @@ export const canvas = {
     },
 };
 
+// TODO: Need to remove statement container, using the block node with the new implementation
 export const statementContainer = {
     width: 120,
     // Default statement container height is the height of two simple statements
     height: 135,
+    padding: {
+        top: 0,
+        right: 20,
+        bottom: 0,
+        left: 20,
+    },
+};
+
+export const blockNode = {
+    width: 120,
+    height: 115,
     padding: {
         top: 0,
         right: 20,

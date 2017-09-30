@@ -51,6 +51,13 @@ class Node extends EventChannel {
     }
 
     /**
+     * If there are child nodes to be aliased, this should carry the implementation accordingly
+     */
+    setChildrenAlias() {
+        // Will implement by the particular node
+    }
+
+    /**
      *
      * @param {NodeVisitor} visitor
      */

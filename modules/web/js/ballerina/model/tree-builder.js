@@ -84,7 +84,9 @@ class TreeBuilder {
         }
         // TODO: Special case node creation with kind.
         json.parent = parent;
-        return Object.assign(node, json);
+        Object.assign(node, json);
+        node.setChildrenAlias();
+        return node;
     }
 
     static populateDefaultPackageDeclaration(ast) {

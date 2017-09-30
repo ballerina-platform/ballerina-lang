@@ -18,37 +18,51 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import StatementContainer from '../decorators/statement-container';
-import './block-node.css';
+import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
+import './try-node.css';
 
-
-class BlockNode extends React.Component {
+class FinallyNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onAddElseClick = this.onAddElseClick.bind(this);
+    }
+
+    onAddElseClick() {
     }
 
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const statements = getComponentForNodeArray(model.getStatements(), this.context.mode);
-        return <g>
-            <rect
-                x={bBox.x}
-                y={bBox.y}
-                width={bBox.w}
-                height={bBox.h}
-                className="block-node drop-zone"
-            />
-            {statements}
-        </g>;
+        const expression = model.viewState.components.expression;
+
+        return (
+            <g>
+                <CompoundStatementDecorator
+                    dropTarget={model}
+                    bBox={bBox}
+                    title={'Finally'}
+                    expression={expression}
+                    model={model.parent}
+                >
+                </CompoundStatementDecorator>
+            </g>
+        );
     }
 }
 
-BlockNode.contextTypes = {
+FinallyNode.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+};
+
+FinallyNode.contextTypes = {
     mode: PropTypes.string,
 };
 
-export default BlockNode;
+export default FinallyNode;
