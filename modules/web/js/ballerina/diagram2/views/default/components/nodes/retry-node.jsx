@@ -17,22 +17,20 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import StatementDecorator from '../decorators/statement-decorator';
 import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
- * Variable Definition Statement Decorator.
+ * Retry Statement Decorator.
  * */
-class VariableDefNode extends React.Component {
-
+class RetryNode extends React.Component {
 
     constructor(props) {
         super(props);
         this.editorOptions = {
             propertyType: 'text',
-            key: 'VariableDefinition',
+            key: 'Retry',
             model: this.props.model,
             getterMethod: this.props.model.getSource,
             setterMethod: this.updateExpression,
@@ -40,13 +38,12 @@ class VariableDefNode extends React.Component {
     }
 
     /**
-     * TODO Update the edited expression
+     * ToDo Update the edited expression
      */
     updateExpression(value) {
     }
-
     /**
-     * Render Function for the variable statement.
+     * Render Function for the retry statement.
      * */
     render() {
         const model = this.props.model;
@@ -62,14 +59,14 @@ class VariableDefNode extends React.Component {
     }
 }
 
-VariableDefNode.propTypes = {
+RetryNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-VariableDefNode.contextTypes = {
+RetryNode.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default VariableDefNode;
+export default RetryNode;

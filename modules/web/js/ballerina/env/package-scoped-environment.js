@@ -89,7 +89,7 @@ class PackageScopedEnvironment {
     }
 
     getPackageByName(packageName) {
-        if (_.isEqual(packageName, 'Current Package')) {
+        if (!packageName) {
             return this._currentPackage;
         }
         return _.find(this._packages, pckg => pckg.getName() === packageName);

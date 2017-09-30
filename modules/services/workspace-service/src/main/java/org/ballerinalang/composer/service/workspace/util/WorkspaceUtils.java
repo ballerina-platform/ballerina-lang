@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -381,8 +382,9 @@ public class WorkspaceUtils {
      * */
     private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
+            // TODO : support other TypeNodes
             argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
-                    item.getTypeNode().getKind())));
+                  ((BLangValueType)item.getTypeNode()).getTypeKind().typeName())));
         }
     }
 
@@ -445,12 +447,12 @@ public class WorkspaceUtils {
     /**
      * Create new parameter
      * @param name parameter name
-     * @param nodeKind parameter node kind
+     * @param type parameter type
      * @return {Parameter} parameter
      * */
-    private static Parameter createNewParameter(String name, NodeKind nodeKind) {
+    private static Parameter createNewParameter(String name, String type) {
         Parameter parameter = new Parameter();
-        parameter.setType(nodeKind.name());
+        parameter.setType(type);
         parameter.setName(name);
         return parameter;
     }

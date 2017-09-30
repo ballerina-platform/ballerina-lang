@@ -20,6 +20,9 @@ import InvocationNodeAbstract from './abstract-tree/invocation-node';
 
 class InvocationNode extends InvocationNodeAbstract {
 
+    getFunctionName() {
+        return this.name.value;
+    }
 }
 
 export default InvocationNode;

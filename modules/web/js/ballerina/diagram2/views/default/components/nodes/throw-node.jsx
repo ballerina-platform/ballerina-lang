@@ -17,22 +17,20 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import StatementDecorator from '../decorators/statement-decorator';
 import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
- * Variable Definition Statement Decorator.
+ * Throw Statement Decorator.
  * */
-class VariableDefNode extends React.Component {
-
+class ThrowNode extends React.Component {
 
     constructor(props) {
         super(props);
         this.editorOptions = {
             propertyType: 'text',
-            key: 'VariableDefinition',
+            key: 'Throw',
             model: this.props.model,
             getterMethod: this.props.model.getSource,
             setterMethod: this.updateExpression,
@@ -46,7 +44,7 @@ class VariableDefNode extends React.Component {
     }
 
     /**
-     * Render Function for the variable statement.
+     * Render Function for the throw statement.
      * */
     render() {
         const model = this.props.model;
@@ -62,14 +60,14 @@ class VariableDefNode extends React.Component {
     }
 }
 
-VariableDefNode.propTypes = {
+ThrowNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-VariableDefNode.contextTypes = {
+ThrowNode.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default VariableDefNode;
+export default ThrowNode;

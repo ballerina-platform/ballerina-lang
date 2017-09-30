@@ -17,36 +17,17 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import StatementDecorator from '../decorators/statement-decorator';
 import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
- * Variable Definition Statement Decorator.
+ * Continue Statement Decorator.
  * */
-class VariableDefNode extends React.Component {
-
-
-    constructor(props) {
-        super(props);
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'VariableDefinition',
-            model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
-        };
-    }
+class ContinueNode extends React.Component {
 
     /**
-     * TODO Update the edited expression
-     */
-    updateExpression(value) {
-    }
-
-    /**
-     * Render Function for the variable statement.
+     * Render Function for the continue statement.
      * */
     render() {
         const model = this.props.model;
@@ -57,19 +38,18 @@ class VariableDefNode extends React.Component {
                 model={model}
                 viewState={model.viewState}
                 expression={expression}
-                editorOptions={this.editorOptions}
             />);
     }
 }
 
-VariableDefNode.propTypes = {
+ContinueNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-VariableDefNode.contextTypes = {
+ContinueNode.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default VariableDefNode;
+export default ContinueNode;
