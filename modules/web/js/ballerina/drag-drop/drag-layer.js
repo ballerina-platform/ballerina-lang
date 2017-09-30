@@ -99,6 +99,7 @@ function collect(monitor) {
                 if (monitor.isOverTarget(targetIds[i])) {
                     isOverTarget = true;
                     canDropToTarget = monitor.canDropOnTarget(targetIds[i]);
+                    break;
                 }
             }
             return {
