@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import StatementDecorator from '../decorators/statement-decorator';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
@@ -67,7 +66,6 @@ VariableDefNode.propTypes = {
 };
 
 VariableDefNode.contextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
