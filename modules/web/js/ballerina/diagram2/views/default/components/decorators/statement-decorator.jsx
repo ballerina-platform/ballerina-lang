@@ -20,12 +20,13 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import ActionBox from './action-box';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
+import Node from '../../../../../model/tree/node';
+import DropZone from '../../../../../drag-drop/DropZone';
 
 
 /**
@@ -53,30 +54,13 @@ class StatementDecorator extends React.Component {
      */
     constructor(props) {
         super();
-
-        this.startDropZones = this.startDropZones.bind(this);
-        this.stopDragZones = this.stopDragZones.bind(this);
-        //this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
-        //this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
 
         this.state = {
-            innerDropZoneActivated: false,
-            innerDropZoneDropNotAllowed: false,
-            innerDropZoneExist: false,
             active: 'hidden',
             statementBox: StatementDecorator.calculateStatementBox(props),
         };
-    }
-
-    /**
-     * registers drag drop call backs on mount.
-     */
-    componentDidMount() {
-        const { dragDropManager } = this.context;
-        // dragDropManager.on('drag-start', this.startDropZones);
-        // dragDropManager.on('drag-stop', this.stopDragZones);
     }
 
     /**
@@ -87,16 +71,6 @@ class StatementDecorator extends React.Component {
         this.setState({ statementBox: StatementDecorator.calculateStatementBox(props) });
     }
 
-
-    /**
-     * un-registers drag drop call backs on mount.
-     */
-    componentWillUnmount() {
-        const { dragDropManager } = this.context;
-        // dragDropManager.off('drag-start', this.startDropZones);
-        // dragDropManager.off('drag-stop', this.stopDragZones);
-    }
-
     /**
      * Removes self on delete button click.
      * @returns {void}
@@ -104,49 +78,6 @@ class StatementDecorator extends React.Component {
     onDelete() {
         this.props.model.remove();
     }
-
-    /**
-     * Activates the drop zone.
-     */
-    /* onDropZoneActivate() {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
-        const model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-                nodeBeingDragged =>
-                    // IMPORTANT: override node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-                    ASTFactory.isStatement(nodeBeingDragged)
-                    || ASTFactory.isConnectorDeclaration(nodeBeingDragged),
-                () => dropTarget.getIndexOfChild(model));
-            this.setState({
-                innerDropZoneActivated: true,
-                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-            dragDropManager.once('drop-target-changed', function () {
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }, this);
-        }
-    }*/
-
-    /**
-     * Deactivates the drop zone.
-     */
-    /*onDropZoneDeactivate() {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-    }*/
 
     /**
      * Navigates to code line in the source view from the design view node
@@ -168,13 +99,11 @@ class StatementDecorator extends React.Component {
      * @param {boolean} show - Display action box if true or else hide.
      */
     setActionVisibility(show) {
-        // if (!this.context.dragDropManager.isOnDrag()) {
-        //     if (show) {
-        //         this.context.activeArbiter.readyToActivate(this);
-        //     } else {
-        //         this.context.activeArbiter.readyToDeactivate(this);
-        //     }
-        // }
+        if (show) {
+            this.context.activeArbiter.readyToActivate(this);
+        } else {
+            this.context.activeArbiter.readyToDeactivate(this);
+        }
     }
 
     /**
@@ -187,20 +116,6 @@ class StatementDecorator extends React.Component {
             new ExpressionEditor(this.state.statementBox,
                 text => this.onUpdate(text), options, packageScope).render(this.context.getOverlayContainer());
         }
-    }
-
-    /**
-     * Call back for drop manager.
-     */
-    startDropZones() {
-        this.setState({ innerDropZoneExist: true });
-    }
-
-    /**
-     * Call back for drop manager.
-     */
-    stopDragZones() {
-        this.setState({ innerDropZoneExist: false });
     }
 
     /**
@@ -235,13 +150,6 @@ class StatementDecorator extends React.Component {
         const text = viewState.components.text;
 
         const textClassName = 'statement-text';
-
-        const innerDropZoneActivated = this.state.innerDropZoneActivated;
-        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
-
-        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
         const actionBoxBbox = new SimpleBBox();
         let statementRectClass = 'statement-rect';
         if (isDebugHit) {
@@ -261,15 +169,15 @@ class StatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <rect
+                <DropZone
                     x={dropZone.x}
                     y={dropZone.y}
                     width={dropZone.w}
                     height={dropZone.h}
-                    className={dropZoneClassName}
-                    {...fill}
-                    onMouseOver={this.onDropZoneActivate}
-                    onMouseOut={this.onDropZoneDeactivate}
+                    baseComponent="rect"
+                    dropTarget={this.props.model.parent}
+                    dropBefore={this.props.model}
+                    enableDragBg
                 />
                 <rect
                     x={statementBox.x}
@@ -314,7 +222,7 @@ StatementDecorator.propTypes = {
         components: PropTypes.objectOf(PropTypes.instanceOf(SimpleBBox)),
     }).isRequired,
     children: PropTypes.node,
-    model: PropTypes.instanceOf(Object).isRequired,
+    model: PropTypes.instanceOf(Node).isRequired,
     expression: PropTypes.string.isRequired,
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
@@ -329,7 +237,6 @@ StatementDecorator.propTypes = {
 };
 
 StatementDecorator.contextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
