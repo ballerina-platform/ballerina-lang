@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * WebSocket Client Handler for Testing.
@@ -51,9 +52,11 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
     private boolean isOpen;
+    private CountDownLatch latch;
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
+    public WebSocketClientHandler(WebSocketClientHandshaker handshaker, CountDownLatch latch) {
         this.handshaker = handshaker;
+        this.latch = latch;
         this.isOpen = true;
     }
 
@@ -111,9 +114,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
-            ch.close();
             isOpen = false;
         }
+        countDownLatch();
     }
 
     /**
@@ -150,6 +153,13 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void shutDown() throws InterruptedException {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame());
         ctx.channel().closeFuture().sync();
+    }
+
+    private void countDownLatch() {
+        if (this.latch == null) {
+            return;
+        }
+        latch.countDown();
     }
 
 
