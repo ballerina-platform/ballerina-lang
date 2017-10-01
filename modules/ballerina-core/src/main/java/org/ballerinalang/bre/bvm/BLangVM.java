@@ -516,6 +516,9 @@ public class BLangVM {
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
                     break;
+                case InstructionCodes.WRKSTART:
+                    startWorkers();
+                    break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -2589,9 +2592,6 @@ public class BLangVM {
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
@@ -2745,6 +2745,13 @@ public class BLangVM {
         return result;
     }
 
+    private void startWorkers() {
+        CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, this.controlStack.currentFrame);
+        // TODO : Handle Return.
+        ip = -1;
+    }
+
     public void replyWorker(WorkerDataChannelInfo workerDataChannel,
                             WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
 
@@ -2854,42 +2861,13 @@ public class BLangVM {
 
     }
 
-    public static void copyArgValuesWorker(StackFrame callerSF, StackFrame calleeSF,
-                                           int[] argRegs, BType[] paramTypes) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
-                    break;
-                default:
-                    if (callerSF.refRegs[argReg] instanceof BMessage) {
-                        calleeSF.refLocalVars[++refRegIndex] = ((BMessage) callerSF.refRegs[argReg]).clone();
-                    } else {
-                        calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
-                    }
-            }
-        }
+    public static void copyValues(StackFrame parent, StackFrame workerSF) {
+        System.arraycopy(parent.longLocalVars, 0, workerSF.longLocalVars, 0, parent.longLocalVars.length);
+        System.arraycopy(parent.doubleLocalVars, 0, workerSF.doubleLocalVars, 0, parent.doubleLocalVars.length);
+        System.arraycopy(parent.intLocalVars, 0, workerSF.intLocalVars, 0, parent.intLocalVars.length);
+        System.arraycopy(parent.stringLocalVars, 0, workerSF.stringLocalVars, 0, parent.stringLocalVars.length);
+        System.arraycopy(parent.byteLocalVars, 0, workerSF.byteLocalVars, 0, parent.byteLocalVars.length);
+        System.arraycopy(parent.refLocalVars, 0, workerSF.refLocalVars, 0, parent.refLocalVars.length);
     }
 
 

@@ -52,8 +52,7 @@ import java.util.concurrent.ExecutorService;
 public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                              StackFrame callerSF, int[] argRegs, Map<String, Object> properties) {
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
+                              StackFrame callerSF, Map<String, Object> properties) {
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
             Context workerContext = new Context(programFile);
@@ -62,16 +61,15 @@ public class BLangVMWorkers {
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
 
             if (properties != null) {
-                properties.forEach((property, value) -> workerContext.setProperty(property, value));
+                properties.forEach(workerContext::setProperty);
             }
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
             StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
             controlStack.pushFrame(calleeSF);
 
-            // Copy arg values from the current StackFrame to the new StackFrame
-            // TODO fix this. Move the copyArgValues method to another util function
-            BLangVM.copyArgValuesWorker(callerSF, calleeSF, argRegs, paramTypes);
+            // Copy values from the current StackFrame to the new StackFrame
+            BLangVM.copyValues(callerSF, calleeSF);
 
             BLangVM bLangVM = new BLangVM(programFile);
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
@@ -81,9 +79,8 @@ public class BLangVMWorkers {
 
     }
 
-    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF,
-                                                                                                    int[] argRegs) {
-        invoke(programFile, callableUnitInfo, callerSF, argRegs, null);
+    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF) {
+        invoke(programFile, callableUnitInfo, callerSF, null);
     }
 
     static class WorkerExecutor implements Callable<WorkerResult> {

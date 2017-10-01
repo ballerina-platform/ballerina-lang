@@ -201,9 +201,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeStmt(funcNode.body, funcEnv);
 
-        // Process workers
-        funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
-        funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
+        if (funcNode.workers.size() > 0) {
+            // Process workers
+            funcEnv.scope.entries.putAll(funcNode.body.scope.entries);
+            funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
+            funcNode.workers.forEach(e -> analyzeNode(e, funcEnv));
+        }
     }
 
     public void visit(BLangStruct structNode) {

@@ -213,6 +213,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
+        mnemonics[InstructionCodes.WRKSTART] = "wrkstart";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";

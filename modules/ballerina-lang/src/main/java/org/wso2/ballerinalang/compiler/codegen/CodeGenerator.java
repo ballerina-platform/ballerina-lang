@@ -446,7 +446,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(stmt, blockEnv);
 
             // Update the maxRegIndexes structure
-            setMaxRegIndexes();
+            setMaxRegIndexes(regIndexes, maxRegIndexes);
 
             // Reset the regIndexes structure for every statement
             regIndexes = new VariableIndex();
@@ -1417,7 +1417,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                     localVarAttributeInfo, invokableSymbolEnv, true, lvIndexCopy);
             for (BLangWorker worker : invokableNode.getWorkers()) {
                 this.processWorker(invokableNode, callableUnitInfo.getWorkerInfo(worker.name.value),
-                        worker.body, localVarAttributeInfo, invokableSymbolEnv, false, lvIndexCopy);
+                        worker.body, localVarAttributeInfo, invokableSymbolEnv, false, this.copyVarIndex(lvIndexCopy));
             }
         }
     }
@@ -1432,13 +1432,17 @@ public class CodeGenerator extends BLangNodeVisitor {
             localVarAttrInfo = new LocalVariableAttributeInfo(localVarAttributeInfo.attributeNameIndex);
             localVarAttrInfo.localVars = new ArrayList<>(localVarAttributeInfo.localVars);
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
-            this.lvIndexes = this.copyVarIndex(lvIndexCopy);
+            this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (invokableNode.retParams.isEmpty() && defaultWorker) {
+            if (defaultWorker) {
+                if (invokableNode.workers.size() == 0 && invokableNode.retParams.isEmpty()) {
                 /* for functions that has no return values, we must provide a default
                  * return statement to stop the execution and jump to the caller */
-                this.emit(InstructionCodes.RET);
+                    this.emit(InstructionCodes.RET);
+                } else if (invokableNode.workers.size() > 0) {
+                    this.emit(InstructionCodes.WRKSTART);
+                }
             }
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
@@ -1516,19 +1520,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         maxRegIndexes = new VariableIndex();
     }
 
-    private void setMaxRegIndexes() {
-        maxRegIndexes.tInt = (maxRegIndexes.tInt > regIndexes.tInt) ?
-                maxRegIndexes.tInt : regIndexes.tInt;
-        maxRegIndexes.tFloat = (maxRegIndexes.tFloat > regIndexes.tFloat) ?
-                maxRegIndexes.tFloat : regIndexes.tFloat;
-        maxRegIndexes.tString = (maxRegIndexes.tString > regIndexes.tString) ?
-                maxRegIndexes.tString : regIndexes.tString;
-        maxRegIndexes.tBoolean = (maxRegIndexes.tBoolean > regIndexes.tBoolean) ?
-                maxRegIndexes.tBoolean : regIndexes.tBoolean;
-        maxRegIndexes.tBlob = (maxRegIndexes.tBlob > regIndexes.tBlob) ?
-                maxRegIndexes.tBlob : regIndexes.tBlob;
-        maxRegIndexes.tRef = (maxRegIndexes.tRef > regIndexes.tRef) ?
-                maxRegIndexes.tRef : regIndexes.tRef;
+    private void setMaxRegIndexes(VariableIndex current, VariableIndex max) {
+        max.tInt = (max.tInt > current.tInt) ? max.tInt : current.tInt;
+        max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
+        max.tString = (max.tString > current.tString) ? max.tString : current.tString;
+        max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
+        max.tBlob = (max.tBlob > current.tBlob) ? max.tBlob : current.tBlob;
+        max.tRef = (max.tRef > current.tRef) ? max.tRef : current.tRef;
     }
 
     private void prepareIndexes(VariableIndex indexes) {

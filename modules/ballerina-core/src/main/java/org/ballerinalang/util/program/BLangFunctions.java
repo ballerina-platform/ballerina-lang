@@ -20,7 +20,6 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.BLangProgram;
@@ -227,8 +226,6 @@ public class BLangFunctions {
         calleeSF.setByteLocalVars(byteLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
-        // Execute workers
-        BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
         context.setStartIP(codeAttribInfo.getCodeAddrs());

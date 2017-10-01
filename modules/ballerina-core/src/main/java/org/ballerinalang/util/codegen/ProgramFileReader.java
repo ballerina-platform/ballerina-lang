@@ -1234,6 +1234,7 @@ public class ProgramFileReader {
             switch (opcode) {
                 case InstructionCodes.HALT:
                 case InstructionCodes.RET:
+                case InstructionCodes.WRKSTART:
                     packageInfo.addInstruction(InstructionFactory.get(opcode));
                     break;
 
