@@ -19,7 +19,9 @@
 import AbstractTransformNode from './abstract-tree/transform-node';
 
 class TransformNode extends AbstractTransformNode {
-
+    acceptDrop(node) {
+        this.getBody().addStatements(node);
+    }
 }
 
 export default TransformNode;

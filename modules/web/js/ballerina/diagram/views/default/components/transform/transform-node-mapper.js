@@ -1139,9 +1139,6 @@ class TransformNodeMapper {
         if (TreeUtil.isFieldBasedAccessExpr(expression)) {
             return [expression];
         }
-        if (TreeUtil.isReferenceTypeInitExpression(expression)) {
-            log.error('not implemented reference type init expression');
-        }
         if (TreeUtil.isTypeCastExpr(expression) || TreeUtil.isTypeConversionExpr(expression)) {
             return [...this.getVerticesFromExpression(expression.getExpression())];
         }
@@ -1156,6 +1153,12 @@ class TransformNodeMapper {
         }
         if (TreeUtil.isUnaryExpr(expression)) {
             return this.getVerticesFromExpression(expression.getExpression());
+        }
+        if (TreeUtil.isLiteral(expression)) {
+            return [];
+        }
+        if (TreeUtil.isReferenceTypeInitExpression(expression)) {
+            log.error('not implemented reference type init expression');
         }
         if (TreeUtil.isTernaryExpr(expression)) {
             log.error('not implemented reference type init expression');
