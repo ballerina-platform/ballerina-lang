@@ -371,9 +371,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransform transformNode) {
-        if (transformNode.body.getStatements().size() == 0) {
-            this.dlog.error(transformNode.pos, DiagnosticCode.TRANSFORM_STATEMENT_EMPTY_BODY);
-        }
         this.checkStatementExecutionValidity(transformNode);
         Set<String> inputs = new HashSet<>();
         Set<String> outputs = new HashSet<>();
