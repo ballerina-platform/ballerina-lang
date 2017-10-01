@@ -27,13 +27,13 @@ import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
 import ASTNode from '../../../../../ast/node';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 import Tree from './tree';
 import FunctionInv from './function';
 import Operator from './operator';
 import { getLangServerClientInstance } from './../../../../../../langserver/lang-server-client-controller';
 import { getResolvedTypeData } from './../../../../../../langserver/lang-server-utils';
 import TreeUtil from '../../../../../model/tree-util';
+import DropZone from '../../../../../drag-drop/DropZone';
 import './transform-expanded.css';
 
 /**
@@ -71,8 +71,6 @@ class TransformExpanded extends React.Component {
         this.onSourceAdd = this.onSourceAdd.bind(this);
         this.onTargetAdd = this.onTargetAdd.bind(this);
         this.onClose = this.onClose.bind(this);
-        this.onTransformDropZoneActivate = this.onTransformDropZoneActivate.bind(this);
-        this.onTransformDropZoneDeactivate = this.onTransformDropZoneDeactivate.bind(this);
         this.onSourceInputChange = this.onSourceInputChange.bind(this);
         this.onTargetInputChange = this.onTargetInputChange.bind(this);
         this.onSourceInputEnter = this.onSourceInputEnter.bind(this);
@@ -704,40 +702,8 @@ class TransformExpanded extends React.Component {
         }
     }
 
-    onTransformDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model;
-
-        // if (dragDropManager.isOnDrag()) {
-        //     if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-        //         return;
-        //     }
-        //     dragDropManager.setActivatedDropTarget(dropTarget,
-        //         (nodeBeingDragged) => {
-        //             // This drop zone is for assignment statements only.
-        //             // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
-        //             // is an Assignment Statement, that implies there is a return parameter . If there is no
-        //             // return parameter, then it is a Function Invocation Statement,
-        //             // which is validated with below check.
-        //             return ASTFactory.isAssignmentStatement(nodeBeingDragged);
-        //         },
-        //         () => {
-        //             return dropTarget.getChildren().length;
-        //         });
-        // }
-        e.stopPropagation();
-    }
-
-    onTransformDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.parent;
-        // if (dragDropManager.isOnDrag()) {
-        //     if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-        //         dragDropManager.clearActivatedDropTarget();
-        //         this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-        //     }
-        // }
-        e.stopPropagation();
+    canDrop(dragSource) {
+        return TreeUtil.isAssignment(dragSource);
     }
 
     onSourceInputChange(e, { newValue }) {
@@ -1156,8 +1122,6 @@ class TransformExpanded extends React.Component {
         return (
             <div
                 className='transformOverlay'
-                onMouseOver={this.onTransformDropZoneActivate}
-                onMouseOut={this.onTransformDropZoneDeactivate}
             >
                 <div id='transformHeader' className='transform-header'>
                     <i onClick={this.onClose} className='fw fw-left icon close-transform' />
@@ -1222,7 +1186,12 @@ class TransformExpanded extends React.Component {
                                     />
                                 </div>
                             </div>
-                            <div className="middle-content">
+                            <DropZone
+                                baseComponent='div'
+                                className='middle-content'
+                                dropTarget={this.props.model}
+                                canDrop={this.canDrop}
+                            >
                                 {
                                     intermediateNodes.map((node) => {
                                         if (node.type === 'function') {
@@ -1261,7 +1230,7 @@ class TransformExpanded extends React.Component {
                                         />);
                                     })
                                 }
-                            </div>
+                            </DropZone>
                             <div className='right-content'>
                                 <div className='rightType'>
                                     <Tree
@@ -1292,7 +1261,6 @@ TransformExpanded.propTypes = {
 };
 
 TransformExpanded.contextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     designView: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
