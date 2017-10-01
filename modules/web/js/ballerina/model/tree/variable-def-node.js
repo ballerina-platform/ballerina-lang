@@ -24,6 +24,10 @@ class VariableDefNode extends AbstractVariableDefNode {
         return this.getVariable().getName();
     }
 
+    getTypeNode() {
+        return this.getVariable().getTypeNode();
+    }
+
 }
 
 export default VariableDefNode;
