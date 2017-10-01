@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import UserDefinedTypeNodeAbstract from './abstract-tree/user-defined-type-node';
+import AbstractUserDefinedTypeNode from './abstract-tree/user-defined-type-node';
 
-class UserDefinedTypeNode extends UserDefinedTypeNodeAbstract {
+class UserDefinedTypeNode extends AbstractUserDefinedTypeNode {
 
 }
 

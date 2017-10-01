@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import TransformNodeAbstract from './abstract-tree/transform-node';
+import AbstractTransformNode from './abstract-tree/transform-node';
 
-class TransformNode extends TransformNodeAbstract {
+class TransformNode extends AbstractTransformNode {
 
 }
 

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ImportNodeAbstract from './abstract-tree/import-node';
+import AbstractImportNode from './abstract-tree/import-node';
 
-class ImportNode extends ImportNodeAbstract {
+class ImportNode extends AbstractImportNode {
 
 }
 

@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class IndexBasedAccessExprNodeAbstract extends Node {
+import Node from '../node';
+import ExpressionNode from '../expression-node';
+import VariableReferenceNode from '../variable-reference-node';
+
+class AbstractIndexBasedAccessExprNode extends Node {
+
+    constructor() {
+        super();
+
+        this.index = new ExpressionNode();
+        this.expression = new VariableReferenceNode();
+    }
 
 
     setIndex(newValue, silent, title) {
@@ -78,4 +88,4 @@ class IndexBasedAccessExprNodeAbstract extends Node {
 
 }
 
-export default IndexBasedAccessExprNodeAbstract;
+export default AbstractIndexBasedAccessExprNode;

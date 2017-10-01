@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class WhileNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import BlockNode from '../block-node';
+import ExpressionNode from '../expression-node';
+
+class AbstractWhileNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.body = new BlockNode();
+        this.condition = new ExpressionNode();
+    }
 
 
     setBody(newValue, silent, title) {
@@ -78,4 +88,4 @@ class WhileNodeAbstract extends Node {
 
 }
 
-export default WhileNodeAbstract;
+export default AbstractWhileNode;

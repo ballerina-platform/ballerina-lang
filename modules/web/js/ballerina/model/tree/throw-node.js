@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ThrowNodeAbstract from './abstract-tree/throw-node';
+import AbstractThrowNode from './abstract-tree/throw-node';
 
-class ThrowNode extends ThrowNodeAbstract {
+class ThrowNode extends AbstractThrowNode {
 
 }
 

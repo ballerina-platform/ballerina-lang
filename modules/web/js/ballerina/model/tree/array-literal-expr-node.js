@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ArrayLiteralExprNodeAbstract from './abstract-tree/array-literal-expr-node';
+import AbstractArrayLiteralExprNode from './abstract-tree/array-literal-expr-node';
 
-class ArrayLiteralExprNode extends ArrayLiteralExprNodeAbstract {
+class ArrayLiteralExprNode extends AbstractArrayLiteralExprNode {
 
 }
 

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ReturnNodeAbstract from './abstract-tree/return-node';
+import AbstractReturnNode from './abstract-tree/return-node';
 
-class ReturnNode extends ReturnNodeAbstract {
+class ReturnNode extends AbstractReturnNode {
 
 }
 

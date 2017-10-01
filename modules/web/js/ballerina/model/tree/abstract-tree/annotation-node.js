@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class AnnotationNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractAnnotationNode extends Node {
+
+    constructor() {
+        super();
+
+        this.name = new IdentifierNode();
+        this.attributes = [];
+        this.annotationAttachments = [];
+    }
 
 
     setName(newValue, silent, title) {
@@ -73,7 +83,7 @@ class AnnotationNodeAbstract extends Node {
     }
 
 
-    addAttributes(node, i = -1, silent){
+    addAttributes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -82,7 +92,7 @@ class AnnotationNodeAbstract extends Node {
         } else {
             this.attributes.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -95,10 +105,10 @@ class AnnotationNodeAbstract extends Node {
         }
     }
 
-    removeAttributes(node, silent){
+    removeAttributes(node, silent) {
         const index = this.getIndexOfAttributes(node);
         this.removeAttributesByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -108,12 +118,12 @@ class AnnotationNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAttributesByIndex(index, silent){
+    removeAttributesByIndex(index, silent) {
         this.attributes.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -129,6 +139,17 @@ class AnnotationNodeAbstract extends Node {
     replaceAttributes(oldChild, newChild, silent) {
         const index = this.getIndexOfAttributes(oldChild);
         this.attributes[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAttributes(child) {
@@ -189,7 +210,7 @@ class AnnotationNodeAbstract extends Node {
     }
 
 
-    addAnnotationAttachments(node, i = -1, silent){
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -198,7 +219,7 @@ class AnnotationNodeAbstract extends Node {
         } else {
             this.annotationAttachments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -211,10 +232,10 @@ class AnnotationNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
+    removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
         this.removeAnnotationAttachmentsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -224,12 +245,12 @@ class AnnotationNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
+    removeAnnotationAttachmentsByIndex(index, silent) {
         this.annotationAttachments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -245,6 +266,17 @@ class AnnotationNodeAbstract extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAnnotationAttachments(child) {
@@ -258,4 +290,4 @@ class AnnotationNodeAbstract extends Node {
 
 }
 
-export default AnnotationNodeAbstract;
+export default AbstractAnnotationNode;

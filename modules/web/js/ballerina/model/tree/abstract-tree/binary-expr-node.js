@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class BinaryExprNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+
+class AbstractBinaryExprNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.leftExpression = new ExpressionNode();
+        this.rightExpression = new ExpressionNode();
+    }
 
 
     setOperatorKind(newValue, silent, title) {
@@ -103,4 +111,4 @@ class BinaryExprNodeAbstract extends Node {
 
 }
 
-export default BinaryExprNodeAbstract;
+export default AbstractBinaryExprNode;

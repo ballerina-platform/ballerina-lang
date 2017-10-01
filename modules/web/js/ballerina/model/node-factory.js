@@ -54,13 +54,13 @@ import TernaryExprNode from './tree/ternary-expr-node';
 import TypeCastExprNode from './tree/type-cast-expr-node';
 import TypeConversionExprNode from './tree/type-conversion-expr-node';
 import UnaryExprNode from './tree/unary-expr-node';
-import XmlAttributeNode from './tree/xml-attribute-node';
-import XmlCommentLiteralNode from './tree/xml-comment-literal-node';
-import XmlElementLiteralNode from './tree/xml-element-literal-node';
-import XmlPiLiteralNode from './tree/xml-pi-literal-node';
 import XmlQnameNode from './tree/xml-qname-node';
+import XmlAttributeNode from './tree/xml-attribute-node';
 import XmlQuotedStringNode from './tree/xml-quoted-string-node';
+import XmlElementLiteralNode from './tree/xml-element-literal-node';
 import XmlTextLiteralNode from './tree/xml-text-literal-node';
+import XmlCommentLiteralNode from './tree/xml-comment-literal-node';
+import XmlPiLiteralNode from './tree/xml-pi-literal-node';
 import AbortNode from './tree/abort-node';
 import AssignmentNode from './tree/assignment-node';
 import BlockNode from './tree/block-node';
@@ -386,41 +386,17 @@ class NodeFactory {
         return node;
     }
 
-    createXmlAttribute(json){
-        json.kind = 'XmlAttribute';
-        let node = new XmlAttributeNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below. 
-        return node;
-    }
-
-    createXmlCommentLiteral(json){
-        json.kind = 'XmlCommentLiteral';
-        let node = new XmlCommentLiteralNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below. 
-        return node;
-    }
-
-    createXmlElementLiteral(json){
-        json.kind = 'XmlElementLiteral';
-        let node = new XmlElementLiteralNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below. 
-        return node;
-    }
-
-    createXmlPiLiteral(json){
-        json.kind = 'XmlPiLiteral';
-        let node = new XmlPiLiteralNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below. 
-        return node;
-    }
-
     createXmlQname(json){
         json.kind = 'XmlQname';
         let node = new XmlQnameNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlAttribute(json){
+        json.kind = 'XmlAttribute';
+        let node = new XmlAttributeNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
@@ -434,9 +410,33 @@ class NodeFactory {
         return node;
     }
 
+    createXmlElementLiteral(json){
+        json.kind = 'XmlElementLiteral';
+        let node = new XmlElementLiteralNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
     createXmlTextLiteral(json){
         json.kind = 'XmlTextLiteral';
         let node = new XmlTextLiteralNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlCommentLiteral(json){
+        json.kind = 'XmlCommentLiteral';
+        let node = new XmlCommentLiteralNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createXmlPiLiteral(json){
+        json.kind = 'XmlPiLiteral';
+        let node = new XmlPiLiteralNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import IfNodeAbstract from './abstract-tree/if-node';
+import AbstractIfNode from './abstract-tree/if-node';
 
-class IfNode extends IfNodeAbstract {
+class IfNode extends AbstractIfNode {
 
 }
 

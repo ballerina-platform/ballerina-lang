@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ResourceNodeAbstract from './abstract-tree/resource-node';
+import AbstractResourceNode from './abstract-tree/resource-node';
 
-class ResourceNode extends ResourceNodeAbstract {
+class ResourceNode extends AbstractResourceNode {
 
 }
 

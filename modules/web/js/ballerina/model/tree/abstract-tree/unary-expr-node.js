@@ -16,10 +16,17 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class UnaryExprNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+
+class AbstractUnaryExprNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.expression = new ExpressionNode();
+    }
 
 
     setExpression(newValue, silent, title) {
@@ -76,4 +83,4 @@ class UnaryExprNodeAbstract extends Node {
 
 }
 
-export default UnaryExprNodeAbstract;
+export default AbstractUnaryExprNode;

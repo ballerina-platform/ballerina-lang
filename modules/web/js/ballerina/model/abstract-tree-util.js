@@ -167,32 +167,32 @@ class AbstractTreeUtil {
         return node.kind === 'UnaryExpr';
     }
 
-    isXmlAttribute(node) {
-        return node.kind === 'XmlAttribute';
-    }
-
-    isXmlCommentLiteral(node) {
-        return node.kind === 'XmlCommentLiteral';
-    }
-
-    isXmlElementLiteral(node) {
-        return node.kind === 'XmlElementLiteral';
-    }
-
-    isXmlPiLiteral(node) {
-        return node.kind === 'XmlPiLiteral';
-    }
-
     isXmlQname(node) {
         return node.kind === 'XmlQname';
+    }
+
+    isXmlAttribute(node) {
+        return node.kind === 'XmlAttribute';
     }
 
     isXmlQuotedString(node) {
         return node.kind === 'XmlQuotedString';
     }
 
+    isXmlElementLiteral(node) {
+        return node.kind === 'XmlElementLiteral';
+    }
+
     isXmlTextLiteral(node) {
         return node.kind === 'XmlTextLiteral';
+    }
+
+    isXmlCommentLiteral(node) {
+        return node.kind === 'XmlCommentLiteral';
+    }
+
+    isXmlPiLiteral(node) {
+        return node.kind === 'XmlPiLiteral';
     }
 
     isAbort(node) {

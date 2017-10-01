@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import WorkerNodeAbstract from './abstract-tree/worker-node';
+import AbstractWorkerNode from './abstract-tree/worker-node';
 
-class WorkerNode extends WorkerNodeAbstract {
+class WorkerNode extends AbstractWorkerNode {
 
 }
 

@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class XmlAttributeNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+
+class AbstractXmlAttributeNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.name = new ExpressionNode();
+        this.value = new ExpressionNode();
+    }
 
 
     setName(newValue, silent, title) {
@@ -78,4 +86,4 @@ class XmlAttributeNodeAbstract extends Node {
 
 }
 
-export default XmlAttributeNodeAbstract;
+export default AbstractXmlAttributeNode;

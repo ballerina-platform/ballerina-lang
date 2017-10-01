@@ -111,13 +111,6 @@ class FunctionNode extends React.Component {
                     argumentParams={argumentParameters}
                     returnParams={returnParameters}
                 >
-                    <StatementContainer
-                        dropTarget={this.props.model}
-                        title="StatementContainer"
-                        bBox={this.props.model.body.viewState.bBox}
-                    >
-                        {body}
-                    </StatementContainer>
                     <LifeLine
                         title="default"
                         bBox={this.props.model.viewState.components.defaultWorker}
@@ -125,6 +118,13 @@ class FunctionNode extends React.Component {
                         icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                         iconColor='#025482'
                     />
+                    <StatementContainer
+                        dropTarget={this.props.model}
+                        title="StatementContainer"
+                        bBox={this.props.model.body.viewState.bBox}
+                    >
+                        {body}
+                    </StatementContainer>
                 </PanelDecorator>);
        // TODOX }
     }

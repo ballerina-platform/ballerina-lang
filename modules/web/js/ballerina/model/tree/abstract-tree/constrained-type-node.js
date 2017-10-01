@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ConstrainedTypeNodeAbstract extends Node {
+import Node from '../node';
+import TypeNode from '../type-node';
+
+class AbstractConstrainedTypeNode extends Node {
+
+    constructor() {
+        super();
+
+        this.constraint = new TypeNode();
+        this.type = new TypeNode();
+    }
 
 
     setConstraint(newValue, silent, title) {
@@ -78,4 +87,4 @@ class ConstrainedTypeNodeAbstract extends Node {
 
 }
 
-export default ConstrainedTypeNodeAbstract;
+export default AbstractConstrainedTypeNode;

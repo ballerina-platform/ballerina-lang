@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import WorkerSendNodeAbstract from './abstract-tree/worker-send-node';
+import AbstractWorkerSendNode from './abstract-tree/worker-send-node';
 
-class WorkerSendNode extends WorkerSendNodeAbstract {
+class WorkerSendNode extends AbstractWorkerSendNode {
 
 }
 

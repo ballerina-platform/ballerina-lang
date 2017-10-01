@@ -801,56 +801,23 @@ class SizingUtil {
 
 
     /**
+     * Calculate dimention of XmlQname nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlQnameNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate dimention of XmlAttribute nodes.
      *
      * @param {object} node
      *
      */
     sizeXmlAttributeNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlCommentLiteral nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlCommentLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlElementLiteral nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlElementLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlPiLiteral nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlPiLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlQname nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlQnameNode(node) {
         // Not implemented.
     }
 
@@ -867,12 +834,45 @@ class SizingUtil {
 
 
     /**
+     * Calculate dimention of XmlElementLiteral nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeXmlElementLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate dimention of XmlTextLiteral nodes.
      *
      * @param {object} node
      *
      */
     sizeXmlTextLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate dimention of XmlCommentLiteral nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeXmlCommentLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate dimention of XmlPiLiteral nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeXmlPiLiteralNode(node) {
         // Not implemented.
     }
 

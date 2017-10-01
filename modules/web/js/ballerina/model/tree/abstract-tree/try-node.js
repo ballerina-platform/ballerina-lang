@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class TryNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import BlockNode from '../block-node';
+
+class AbstractTryNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.body = new BlockNode();
+        this.catchBlocks = [];
+        this.finallyBody = new BlockNode();
+    }
 
 
     setBody(newValue, silent, title) {
@@ -77,7 +87,7 @@ class TryNodeAbstract extends Node {
     }
 
 
-    addCatchBlocks(node, i = -1, silent){
+    addCatchBlocks(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -86,7 +96,7 @@ class TryNodeAbstract extends Node {
         } else {
             this.catchBlocks.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -99,10 +109,10 @@ class TryNodeAbstract extends Node {
         }
     }
 
-    removeCatchBlocks(node, silent){
+    removeCatchBlocks(node, silent) {
         const index = this.getIndexOfCatchBlocks(node);
         this.removeCatchBlocksByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -112,12 +122,12 @@ class TryNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeCatchBlocksByIndex(index, silent){
+    removeCatchBlocksByIndex(index, silent) {
         this.catchBlocks.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -133,6 +143,17 @@ class TryNodeAbstract extends Node {
     replaceCatchBlocks(oldChild, newChild, silent) {
         const index = this.getIndexOfCatchBlocks(oldChild);
         this.catchBlocks[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfCatchBlocks(child) {
@@ -173,4 +194,4 @@ class TryNodeAbstract extends Node {
 
 }
 
-export default TryNodeAbstract;
+export default AbstractTryNode;

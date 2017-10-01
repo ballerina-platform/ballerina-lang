@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import FunctionNodeAbstract from './abstract-tree/function-node';
+import AbstractFunctionNode from './abstract-tree/function-node';
 
-class FunctionNode extends FunctionNodeAbstract {
+class FunctionNode extends AbstractFunctionNode {
 
 }
 

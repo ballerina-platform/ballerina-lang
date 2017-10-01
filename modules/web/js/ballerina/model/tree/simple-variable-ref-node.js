@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import SimpleVariableRefNodeAbstract from './abstract-tree/simple-variable-ref-node';
+import AbstractSimpleVariableRefNode from './abstract-tree/simple-variable-ref-node';
 
-class SimpleVariableRefNode extends SimpleVariableRefNodeAbstract {
+class SimpleVariableRefNode extends AbstractSimpleVariableRefNode {
 
 }
 

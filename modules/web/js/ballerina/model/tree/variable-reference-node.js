@@ -15,11 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import ExpressionNode from './expression-node';
 
-import AbstractActionNode from './abstract-tree/action-node';
-
-class ActionNode extends AbstractActionNode {
+/**
+ * Base of all statement nodes.
+ *
+ * @class Node
+ */
+class VariableReferenceNode extends ExpressionNode {
 
 }
 
-export default ActionNode;
+export default VariableReferenceNode;

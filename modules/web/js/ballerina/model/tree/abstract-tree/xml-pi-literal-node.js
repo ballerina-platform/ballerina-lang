@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class XmlPiLiteralNodeAbstract extends Node {
+import Node from '../node';
+import LiteralNode from '../literal-node';
+
+class AbstractXmlPiLiteralNode extends Node {
+
+    constructor() {
+        super();
+
+        this.dataTextFragments = [];
+        this.target = new LiteralNode();
+    }
 
 
     setDataTextFragments(newValue, silent, title) {
@@ -46,7 +55,7 @@ class XmlPiLiteralNodeAbstract extends Node {
     }
 
 
-    addDataTextFragments(node, i = -1, silent){
+    addDataTextFragments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +64,7 @@ class XmlPiLiteralNodeAbstract extends Node {
         } else {
             this.dataTextFragments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +77,10 @@ class XmlPiLiteralNodeAbstract extends Node {
         }
     }
 
-    removeDataTextFragments(node, silent){
+    removeDataTextFragments(node, silent) {
         const index = this.getIndexOfDataTextFragments(node);
         this.removeDataTextFragmentsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +90,12 @@ class XmlPiLiteralNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeDataTextFragmentsByIndex(index, silent){
+    removeDataTextFragmentsByIndex(index, silent) {
         this.dataTextFragments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +111,17 @@ class XmlPiLiteralNodeAbstract extends Node {
     replaceDataTextFragments(oldChild, newChild, silent) {
         const index = this.getIndexOfDataTextFragments(oldChild);
         this.dataTextFragments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfDataTextFragments(child) {
@@ -142,4 +162,4 @@ class XmlPiLiteralNodeAbstract extends Node {
 
 }
 
-export default XmlPiLiteralNodeAbstract;
+export default AbstractXmlPiLiteralNode;

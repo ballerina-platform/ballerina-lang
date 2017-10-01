@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import TransactionNodeAbstract from './abstract-tree/transaction-node';
+import AbstractTransactionNode from './abstract-tree/transaction-node';
 
-class TransactionNode extends TransactionNodeAbstract {
+class TransactionNode extends AbstractTransactionNode {
 
 }
 

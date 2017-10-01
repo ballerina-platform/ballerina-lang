@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlCommentLiteralNodeAbstract from './abstract-tree/xml-comment-literal-node';
+import AbstractXmlCommentLiteralNode from './abstract-tree/xml-comment-literal-node';
 
-class XmlCommentLiteralNode extends XmlCommentLiteralNodeAbstract {
+class XmlCommentLiteralNode extends AbstractXmlCommentLiteralNode {
 
 }
 

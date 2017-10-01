@@ -16,10 +16,16 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class IdentifierNodeAbstract extends Node {
+import Node from '../node';
+
+class AbstractIdentifierNode extends Node {
+
+    constructor() {
+        super();
+
+    }
 
 
     setValue(newValue, silent, title) {
@@ -49,4 +55,4 @@ class IdentifierNodeAbstract extends Node {
 
 }
 
-export default IdentifierNodeAbstract;
+export default AbstractIdentifierNode;

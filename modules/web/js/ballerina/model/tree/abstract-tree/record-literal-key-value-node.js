@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class RecordLiteralKeyValueNodeAbstract extends Node {
+import Node from '../node';
+import ExpressionNode from '../expression-node';
+
+class AbstractRecordLiteralKeyValueNode extends Node {
+
+    constructor() {
+        super();
+
+        this.value = new ExpressionNode();
+        this.key = new ExpressionNode();
+    }
 
 
     setValue(newValue, silent, title) {
@@ -78,4 +87,4 @@ class RecordLiteralKeyValueNodeAbstract extends Node {
 
 }
 
-export default RecordLiteralKeyValueNodeAbstract;
+export default AbstractRecordLiteralKeyValueNode;

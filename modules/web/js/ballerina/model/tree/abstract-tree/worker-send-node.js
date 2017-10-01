@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class WorkerSendNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractWorkerSendNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.expressions = [];
+        this.workerName = new IdentifierNode();
+    }
 
 
     setExpressions(newValue, silent, title) {
@@ -46,7 +55,7 @@ class WorkerSendNodeAbstract extends Node {
     }
 
 
-    addExpressions(node, i = -1, silent){
+    addExpressions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +64,7 @@ class WorkerSendNodeAbstract extends Node {
         } else {
             this.expressions.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +77,10 @@ class WorkerSendNodeAbstract extends Node {
         }
     }
 
-    removeExpressions(node, silent){
+    removeExpressions(node, silent) {
         const index = this.getIndexOfExpressions(node);
         this.removeExpressionsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +90,12 @@ class WorkerSendNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeExpressionsByIndex(index, silent){
+    removeExpressionsByIndex(index, silent) {
         this.expressions.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +111,17 @@ class WorkerSendNodeAbstract extends Node {
     replaceExpressions(oldChild, newChild, silent) {
         const index = this.getIndexOfExpressions(oldChild);
         this.expressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfExpressions(child) {
@@ -142,4 +162,4 @@ class WorkerSendNodeAbstract extends Node {
 
 }
 
-export default WorkerSendNodeAbstract;
+export default AbstractWorkerSendNode;

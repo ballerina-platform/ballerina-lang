@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import AssignmentNodeAbstract from './abstract-tree/assignment-node';
+import AbstractAssignmentNode from './abstract-tree/assignment-node';
 
-class AssignmentNode extends AssignmentNodeAbstract {
+class AssignmentNode extends AbstractAssignmentNode {
 
 }
 

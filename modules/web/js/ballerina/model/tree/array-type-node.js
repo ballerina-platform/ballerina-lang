@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ArrayTypeNodeAbstract from './abstract-tree/array-type-node';
+import AbstractArrayTypeNode from './abstract-tree/array-type-node';
 
-class ArrayTypeNode extends ArrayTypeNodeAbstract {
+class ArrayTypeNode extends AbstractArrayTypeNode {
 
 }
 

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlPiLiteralNodeAbstract from './abstract-tree/xml-pi-literal-node';
+import AbstractXmlPiLiteralNode from './abstract-tree/xml-pi-literal-node';
 
-class XmlPiLiteralNode extends XmlPiLiteralNodeAbstract {
+class XmlPiLiteralNode extends AbstractXmlPiLiteralNode {
 
 }
 

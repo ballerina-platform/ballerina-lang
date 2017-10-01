@@ -16,10 +16,16 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class BuiltInRefTypeNodeAbstract extends Node {
+import Node from '../node';
+
+class AbstractBuiltInRefTypeNode extends Node {
+
+    constructor() {
+        super();
+
+    }
 
 
     setTypeKind(newValue, silent, title) {
@@ -49,4 +55,4 @@ class BuiltInRefTypeNodeAbstract extends Node {
 
 }
 
-export default BuiltInRefTypeNodeAbstract;
+export default AbstractBuiltInRefTypeNode;

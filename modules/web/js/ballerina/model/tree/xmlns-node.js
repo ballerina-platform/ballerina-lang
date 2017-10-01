@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlnsNodeAbstract from './abstract-tree/xmlns-node';
+import AbstractXmlnsNode from './abstract-tree/xmlns-node';
 
-class XmlnsNode extends XmlnsNodeAbstract {
+class XmlnsNode extends AbstractXmlnsNode {
 
 }
 

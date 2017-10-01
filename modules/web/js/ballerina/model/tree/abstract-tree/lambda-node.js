@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class LambdaNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+import FunctionNode from '../function-node';
+
+class AbstractLambdaNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.functionNode = new FunctionNode();
+    }
 
 
     setFunctionNode(newValue, silent, title) {
@@ -51,4 +59,4 @@ class LambdaNodeAbstract extends Node {
 
 }
 
-export default LambdaNodeAbstract;
+export default AbstractLambdaNode;

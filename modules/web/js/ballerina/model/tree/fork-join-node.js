@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ForkJoinNodeAbstract from './abstract-tree/fork-join-node';
+import AbstractForkJoinNode from './abstract-tree/fork-join-node';
 
-class ForkJoinNode extends ForkJoinNodeAbstract {
+class ForkJoinNode extends AbstractForkJoinNode {
 
 }
 

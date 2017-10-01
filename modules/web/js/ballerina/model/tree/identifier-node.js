@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import IdentifierNodeAbstract from './abstract-tree/identifier-node';
+import AbstractIdentifierNode from './abstract-tree/identifier-node';
 
-class IdentifierNode extends IdentifierNodeAbstract {
+class IdentifierNode extends AbstractIdentifierNode {
 
 }
 

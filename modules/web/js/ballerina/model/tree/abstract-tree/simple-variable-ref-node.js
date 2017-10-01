@@ -16,18 +16,27 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class SimpleVariableRefNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractSimpleVariableRefNode extends Node {
+
+    constructor() {
+        super();
+
+        this.packageAlias = new IdentifierNode();
+        this.variableName = new IdentifierNode();
+    }
 
 
-    setPackageIdentifier(newValue, silent, title) {
-        const oldValue = this.packageIdentifier;
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageIdentifier = newValue;
+        this.packageAlias = newValue;
 
-        this.packageIdentifier.parent = this;
+        this.packageAlias.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +44,7 @@ class SimpleVariableRefNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'packageIdentifier',
+                    attributeName: 'packageAlias',
                     newValue,
                     oldValue,
                 },
@@ -43,8 +52,8 @@ class SimpleVariableRefNodeAbstract extends Node {
         }
     }
 
-    getPackageIdentifier() {
-        return this.packageIdentifier;
+    getPackageAlias() {
+        return this.packageAlias;
     }
 
 
@@ -78,4 +87,4 @@ class SimpleVariableRefNodeAbstract extends Node {
 
 }
 
-export default SimpleVariableRefNodeAbstract;
+export default AbstractSimpleVariableRefNode;

@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ArrayTypeNodeAbstract extends Node {
+import Node from '../node';
+import TypeNode from '../type-node';
+
+class AbstractArrayTypeNode extends Node {
+
+    constructor() {
+        super();
+
+        this.elementType = new TypeNode();
+    }
 
 
     setElementType(newValue, silent, title) {
@@ -76,4 +84,4 @@ class ArrayTypeNodeAbstract extends Node {
 
 }
 
-export default ArrayTypeNodeAbstract;
+export default AbstractArrayTypeNode;

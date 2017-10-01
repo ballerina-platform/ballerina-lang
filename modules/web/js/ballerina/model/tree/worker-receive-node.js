@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import WorkerReceiveNodeAbstract from './abstract-tree/worker-receive-node';
+import AbstractWorkerReceiveNode from './abstract-tree/worker-receive-node';
 
-class WorkerReceiveNode extends WorkerReceiveNodeAbstract {
+class WorkerReceiveNode extends AbstractWorkerReceiveNode {
 
 }
 

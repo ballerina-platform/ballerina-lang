@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import WhileNodeAbstract from './abstract-tree/while-node';
+import AbstractWhileNode from './abstract-tree/while-node';
 
-class WhileNode extends WhileNodeAbstract {
+class WhileNode extends AbstractWhileNode {
 
 }
 

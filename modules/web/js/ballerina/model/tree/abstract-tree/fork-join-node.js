@@ -16,10 +16,26 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ForkJoinNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import BlockNode from '../block-node';
+import ExpressionNode from '../expression-node';
+import VariableNode from '../variable-node';
+
+class AbstractForkJoinNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.workers = [];
+        this.joinedWorkerIdentifiers = [];
+        this.joinBody = new BlockNode();
+        this.timeOutExpression = new ExpressionNode();
+        this.timeOutVariable = new VariableNode();
+        this.timeoutBody = new BlockNode();
+        this.joinResultVar = new VariableNode();
+    }
 
 
     setWorkers(newValue, silent, title) {
@@ -46,7 +62,7 @@ class ForkJoinNodeAbstract extends Node {
     }
 
 
-    addWorkers(node, i = -1, silent){
+    addWorkers(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +71,7 @@ class ForkJoinNodeAbstract extends Node {
         } else {
             this.workers.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +84,10 @@ class ForkJoinNodeAbstract extends Node {
         }
     }
 
-    removeWorkers(node, silent){
+    removeWorkers(node, silent) {
         const index = this.getIndexOfWorkers(node);
         this.removeWorkersByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +97,12 @@ class ForkJoinNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeWorkersByIndex(index, silent){
+    removeWorkersByIndex(index, silent) {
         this.workers.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +118,17 @@ class ForkJoinNodeAbstract extends Node {
     replaceWorkers(oldChild, newChild, silent) {
         const index = this.getIndexOfWorkers(oldChild);
         this.workers[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfWorkers(child) {
@@ -137,7 +164,7 @@ class ForkJoinNodeAbstract extends Node {
     }
 
 
-    addJoinedWorkerIdentifiers(node, i = -1, silent){
+    addJoinedWorkerIdentifiers(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -146,7 +173,7 @@ class ForkJoinNodeAbstract extends Node {
         } else {
             this.joinedWorkerIdentifiers.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -159,10 +186,10 @@ class ForkJoinNodeAbstract extends Node {
         }
     }
 
-    removeJoinedWorkerIdentifiers(node, silent){
+    removeJoinedWorkerIdentifiers(node, silent) {
         const index = this.getIndexOfJoinedWorkerIdentifiers(node);
         this.removeJoinedWorkerIdentifiersByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -172,12 +199,12 @@ class ForkJoinNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeJoinedWorkerIdentifiersByIndex(index, silent){
+    removeJoinedWorkerIdentifiersByIndex(index, silent) {
         this.joinedWorkerIdentifiers.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -193,6 +220,17 @@ class ForkJoinNodeAbstract extends Node {
     replaceJoinedWorkerIdentifiers(oldChild, newChild, silent) {
         const index = this.getIndexOfJoinedWorkerIdentifiers(oldChild);
         this.joinedWorkerIdentifiers[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfJoinedWorkerIdentifiers(child) {
@@ -391,4 +429,4 @@ class ForkJoinNodeAbstract extends Node {
 
 }
 
-export default ForkJoinNodeAbstract;
+export default AbstractForkJoinNode;

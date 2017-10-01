@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import BinaryExprNodeAbstract from './abstract-tree/binary-expr-node';
+import AbstractBinaryExprNode from './abstract-tree/binary-expr-node';
 
-class BinaryExprNode extends BinaryExprNodeAbstract {
+class BinaryExprNode extends AbstractBinaryExprNode {
 
 }
 
