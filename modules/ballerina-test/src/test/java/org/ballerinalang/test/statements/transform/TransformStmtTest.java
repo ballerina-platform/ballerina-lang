@@ -34,6 +34,12 @@ public class TransformStmtTest {
         result = BTestUtils.compile("test-src/statements/transform/transform-stmt.bal");
     }
 
+    @Test(description = "Test empty transformation")
+    public void testEmptyTransform() {
+        CompileResult resultNegative = BTestUtils.compile("test-src/statements/transform/transform-stmt-empty.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 0);
+    }
+
     @Test(description = "Test one to one simple transformation")
     public void testOneToOneTransform() {
         BValue[] args = {};
@@ -125,12 +131,11 @@ public class TransformStmtTest {
     @Test(description = "Test transform statement with errors")
     public void testTransformNegativeCases() {
         CompileResult resultNegative = BTestUtils.compile("test-src/statements/transform/transform-stmt-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BTestUtils.validateError(resultNegative, 0,
                 "input and output variables cannot be interchanged in transform statement", 19, 9);
         BTestUtils.validateError(resultNegative, 1,
                 "input and output variables cannot be interchanged in transform statement", 19, 23);
-        BTestUtils.validateError(resultNegative, 2, "no statements found in the transform statement body", 28, 5);
 
         resultNegative = BTestUtils
                 .compile("test-src/statements/transform/transform-stmt-cast-and-conversion-negative.bal");
