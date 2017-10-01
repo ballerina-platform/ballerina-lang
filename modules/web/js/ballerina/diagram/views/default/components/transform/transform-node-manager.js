@@ -19,8 +19,8 @@
 import _ from 'lodash';
 import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
-import NodeFactory from '../../../../../model/node-factory';
 import Mapper from './transform-node-mapper';
+import TransformFactory from './transform-factory';
 
 /**
  * Transform node manager
@@ -252,8 +252,8 @@ class TransformNodeManager {
     }
 
     getFunctionVertices(functionInvocationExpression) {
-        const root = functionInvocationExpression.getRoot();
-        const funPackage = this._environment.getPackageByName(functionInvocationExpression.getPackageAlias().getValue());
+        const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
+        const funPackage = this._environment.getPackageByName(fullPackageName);
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
         const parameters = [];
         const returnParams = [];
@@ -467,21 +467,8 @@ class TransformNodeManager {
         }
         const varName = variableName + index;
 
-        const variableDef = NodeFactory.createVariableDef({});
-        const variable = NodeFactory.createVariable({});
-        const initialExpression = NodeFactory.createLiteral({});
-        initialExpression.setValue('');
-        variable.setInitialExpression(initialExpression);
-        const typeNode = NodeFactory.createValueType({});
-        typeNode.setTypeKind('string');
-        const identifierNode = NodeFactory.createIdentifier({});
-        identifierNode.setValue(varName);
-        variable.setName(identifierNode);
-        variable.setTypeNode(typeNode);
-        variableDef.setVariable(variable);
-
-        // variableDef.setStatementFromString('string ' + varName + ' = ""');
-        node.addStatements(variableDef, newVarIndex);
+        const variableDef = TransformFactory.createVariableDef(varName, 'string', '');
+        node.addStatements(variableDef, newVarIndex, true);
         return variableDef;
     }
 
