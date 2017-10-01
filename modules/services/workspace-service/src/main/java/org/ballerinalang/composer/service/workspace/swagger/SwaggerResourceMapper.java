@@ -38,7 +38,7 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.net.http.Constants;
 
 import java.util.Arrays;
 import java.util.HashMap;
