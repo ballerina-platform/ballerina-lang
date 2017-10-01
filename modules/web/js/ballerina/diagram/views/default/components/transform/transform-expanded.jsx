@@ -221,14 +221,16 @@ class TransformExpanded extends React.Component {
         if (TreeUtil.isInvocation(nodeExpression)) {
             nodeDef = this.transformNodeManager.getFunctionVertices(nodeExpression);
             nodeName = nodeExpression.getFunctionName();
-            paramExpressions = nodeExpression.getChildren();
-        } else {
+            paramExpressions = nodeExpression.argumentExpressions;
+        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
-            if (TreeUtil.isBinaryExpr(nodeExpression)) {
-                paramExpressions.push(nodeExpression.getLeftExpression());
-            }
+            paramExpressions.push(nodeExpression.getLeftExpression());
             paramExpressions.push(nodeExpression.getRightExpression());
+        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            nodeName = nodeExpression.getOperatorKind();
+            paramExpressions.push(nodeExpression.getExpression());
         }
 
         if (_.isUndefined(nodeDef)) {
@@ -701,35 +703,35 @@ class TransformExpanded extends React.Component {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model;
 
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-                (nodeBeingDragged) => {
-                    // This drop zone is for assignment statements only.
-                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
-                    // is an Assignment Statement, that implies there is a return parameter . If there is no
-                    // return parameter, then it is a Function Invocation Statement,
-                    // which is validated with below check.
-                    return ASTFactory.isAssignmentStatement(nodeBeingDragged);
-                },
-                () => {
-                    return dropTarget.getChildren().length;
-                });
-        }
+        // if (dragDropManager.isOnDrag()) {
+        //     if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+        //         return;
+        //     }
+        //     dragDropManager.setActivatedDropTarget(dropTarget,
+        //         (nodeBeingDragged) => {
+        //             // This drop zone is for assignment statements only.
+        //             // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
+        //             // is an Assignment Statement, that implies there is a return parameter . If there is no
+        //             // return parameter, then it is a Function Invocation Statement,
+        //             // which is validated with below check.
+        //             return ASTFactory.isAssignmentStatement(nodeBeingDragged);
+        //         },
+        //         () => {
+        //             return dropTarget.getChildren().length;
+        //         });
+        // }
         e.stopPropagation();
     }
 
     onTransformDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.parent;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
+        // if (dragDropManager.isOnDrag()) {
+        //     if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+        //         dragDropManager.clearActivatedDropTarget();
+        //         this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+        //     }
+        // }
         e.stopPropagation();
     }
 
@@ -1036,8 +1038,8 @@ class TransformExpanded extends React.Component {
                 //     functionInvocationExpression.getFunctionName() + '" cannot be found');
                 return [];
             }
-            nodeExpression.getChildren().forEach((child) => {
-                this.getIntermediateNodes(child, statement, intermediateNodes, nodeExpression);
+            nodeExpression.argumentExpressions.forEach((arg) => {
+                this.getIntermediateNodes(arg, statement, intermediateNodes, nodeExpression);
             });
             intermediateNodes.push({
                 type: 'function',
@@ -1047,14 +1049,24 @@ class TransformExpanded extends React.Component {
                 funcInv: nodeExpression,
             });
             return intermediateNodes;
-        } else if (TreeUtil.isBinaryExpr(nodeExpression) || TreeUtil.isUnaryExpr(nodeExpression)) {
+        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
             const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            if (TreeUtil.isBinaryExpr(nodeExpression)) {
-                this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
+            this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
                                                             intermediateNodes, nodeExpression);
-            }
             this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
                                                 intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                statement,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getExpression(), statement,
+                                                            intermediateNodes, nodeExpression);
             intermediateNodes.push({
                 type: 'operator',
                 operator,

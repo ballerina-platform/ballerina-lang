@@ -1,5 +1,6 @@
 .drop-zone {
     &.rect {
+        fill: 'none';
         fill-opacity: 0;
         &.active {
             fill: green;

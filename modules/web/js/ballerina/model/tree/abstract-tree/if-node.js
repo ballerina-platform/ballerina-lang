@@ -47,7 +47,12 @@ class IfNodeAbstract extends Node {
         return this.body;
     }
 
-
+    setChildrenAlias() {
+        const elseStatement = this.elseStatement;
+        if (elseStatement.kind === 'Block') {
+            elseStatement.viewState.alias = 'Else';
+        }
+    }
 
     setCondition(newValue, silent, title) {
         const oldValue = this.condition;

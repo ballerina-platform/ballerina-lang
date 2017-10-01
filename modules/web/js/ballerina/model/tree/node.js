@@ -51,6 +51,13 @@ class Node extends EventChannel {
     }
 
     /**
+     * If there are child nodes to be aliased, this should carry the implementation accordingly
+     */
+    setChildrenAlias() {
+        // Will implement by the particular node
+    }
+
+    /**
      *
      * @param {NodeVisitor} visitor
      */
@@ -506,6 +513,19 @@ class Node extends EventChannel {
      */
     setFile(file) {
         this.file = file;
+    }
+
+    /**
+     * Get root of the node which is the compilation unit
+     * @returns {Node} root node
+     * @memberof Node
+     */
+    getRoot() {
+        if (this.kind === 'CompilationUnit' || !this.parent) {
+            return this;
+        } else {
+            return this.parent.getRoot();
+        }
     }
 
     /**

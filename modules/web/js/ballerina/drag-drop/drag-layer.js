@@ -27,9 +27,15 @@ const layerStyles = {
     top: 0,
     width: '100%',
     height: '100%',
+    color: 'black',
 };
 
-function getItemStyles(props) {
+const blockStyles = {
+    position: 'relative',
+    left: -24,
+};
+
+function getItemStyles(props, isOverTarget, canDropToTarget) {
     const { currentOffset } = props;
     if (!currentOffset) {
         return {
@@ -42,6 +48,8 @@ function getItemStyles(props) {
     return {
         transform,
         WebkitTransform: transform,
+        opacity: isOverTarget && canDropToTarget ? 1 : 0.5,
+        cursor: canDropToTarget ? 'pointer' : 'no-drop',
     };
 }
 
@@ -50,11 +58,18 @@ class SVGIconDragLayer extends React.Component {
         if (!this.props.isDragging) {
             return null;
         }
+        const { isOverTarget, canDropToTarget } = this.props.getCurrentTargetInfo();
         const { item: { icon } } = this.props;
         return (
             <div style={layerStyles}>
-                <div style={getItemStyles(this.props)}>
-                    <i style={{ color: 'black' }} className={`fw fw-3x fw-${icon}`} />
+                <div style={getItemStyles(this.props, isOverTarget, canDropToTarget)}>
+                    {(!isOverTarget || canDropToTarget) && <i className={`fw fw-3x fw-${icon}`} />}
+                    {(isOverTarget && !canDropToTarget) &&
+                        <span className="fw-stack fw-lg fw-2x">
+                            <i className={`fw fw-${icon} fw-stack-1x`} />
+                            <i style={{ color: 'red' }} className="fw fw-block fw-stack-2x" />
+                        </span>
+                    }
                 </div>
             </div>
         );
@@ -68,6 +83,7 @@ SVGIconDragLayer.propTypes = {
         y: PropTypes.number.isRequired,
     }),
     isDragging: PropTypes.bool.isRequired,
+    getCurrentTargetInfo: PropTypes.func.isRequired,
 };
 
 function collect(monitor) {
@@ -75,6 +91,21 @@ function collect(monitor) {
         item: monitor.getItem(),
         currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
+        getCurrentTargetInfo: () => {
+            const targetIds = monitor.isDragging() ? monitor.getTargetIds() : [];
+            let isOverTarget = false;
+            let canDropToTarget = false;
+            for (let i = targetIds.length - 1; i >= 0; i--) {
+                if (monitor.isOverTarget(targetIds[i])) {
+                    isOverTarget = true;
+                    canDropToTarget = monitor.canDropOnTarget(targetIds[i]);
+                }
+            }
+            return {
+                isOverTarget,
+                canDropToTarget,
+            };
+        },
     };
 }
 

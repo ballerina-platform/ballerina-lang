@@ -357,9 +357,9 @@ class BallerinaFileEditor extends React.Component {
                     parseFile(file)
                         .then((jsonTree) => {
                             // something went wrong with the parser
-                            if (_.isNil(jsonTree.model.kind)) {
-                                log.error('Error while parsing the file: ' + file.name
-                                    + ' Error:' + jsonTree.diagnostics || jsonTree);
+                            if (_.isNil(jsonTree.model) || _.isNil(jsonTree.model.kind)) {
+                                log.error('Error while parsing the file ' + file.name + '.' + file.extension
+                                    + '. ' + (jsonTree.diagnostics || jsonTree.errorMessage || jsonTree));
                                 // cannot be in a view which depends on AST
                                 // hence forward to source view
                                 newState.activeView = SOURCE_VIEW;

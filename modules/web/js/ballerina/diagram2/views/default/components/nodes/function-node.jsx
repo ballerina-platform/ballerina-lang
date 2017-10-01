@@ -114,7 +114,7 @@ class FunctionNode extends React.Component {
                     <StatementContainer
                         dropTarget={this.props.model}
                         title="StatementContainer"
-                        bBox={this.props.model.viewState.components.statementContainer}
+                        bBox={this.props.model.body.viewState.bBox}
                     >
                         {body}
                     </StatementContainer>
