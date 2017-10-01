@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ReplyNodeAbstract from './abstract-tree/reply-node';
+import AbstractReplyNode from './abstract-tree/reply-node';
 
-class ReplyNode extends ReplyNodeAbstract {
+class ReplyNode extends AbstractReplyNode {
 
 }
 

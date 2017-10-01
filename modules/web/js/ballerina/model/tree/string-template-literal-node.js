@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import StringTemplateLiteralNodeAbstract from './abstract-tree/string-template-literal-node';
+import AbstractStringTemplateLiteralNode from './abstract-tree/string-template-literal-node';
 
-class StringTemplateLiteralNode extends StringTemplateLiteralNodeAbstract {
+class StringTemplateLiteralNode extends AbstractStringTemplateLiteralNode {
 
 }
 

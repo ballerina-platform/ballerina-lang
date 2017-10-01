@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ValueTypeNodeAbstract from './abstract-tree/value-type-node';
+import AbstractValueTypeNode from './abstract-tree/value-type-node';
 
-class ValueTypeNode extends ValueTypeNodeAbstract {
+class ValueTypeNode extends AbstractValueTypeNode {
 
 }
 

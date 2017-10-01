@@ -16,12 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class RetryNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+
+class AbstractRetryNode extends StatementNode {
+
+    constructor() {
+        super();
+
+    }
 
 
 }
 
-export default RetryNodeAbstract;
+export default AbstractRetryNode;

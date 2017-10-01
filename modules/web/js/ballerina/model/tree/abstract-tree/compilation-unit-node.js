@@ -16,10 +16,17 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class CompilationUnitNodeAbstract extends Node {
+import Node from '../node';
+
+class AbstractCompilationUnitNode extends Node {
+
+    constructor() {
+        super();
+
+        this.topLevelNodes = [];
+    }
 
 
     setTopLevelNodes(newValue, silent, title) {
@@ -46,7 +53,7 @@ class CompilationUnitNodeAbstract extends Node {
     }
 
 
-    addTopLevelNodes(node, i = -1, silent){
+    addTopLevelNodes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +62,7 @@ class CompilationUnitNodeAbstract extends Node {
         } else {
             this.topLevelNodes.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +75,10 @@ class CompilationUnitNodeAbstract extends Node {
         }
     }
 
-    removeTopLevelNodes(node, silent){
+    removeTopLevelNodes(node, silent) {
         const index = this.getIndexOfTopLevelNodes(node);
         this.removeTopLevelNodesByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +88,12 @@ class CompilationUnitNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeTopLevelNodesByIndex(index, silent){
+    removeTopLevelNodesByIndex(index, silent) {
         this.topLevelNodes.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +109,17 @@ class CompilationUnitNodeAbstract extends Node {
     replaceTopLevelNodes(oldChild, newChild, silent) {
         const index = this.getIndexOfTopLevelNodes(oldChild);
         this.topLevelNodes[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfTopLevelNodes(child) {
@@ -140,4 +158,4 @@ class CompilationUnitNodeAbstract extends Node {
 
 }
 
-export default CompilationUnitNodeAbstract;
+export default AbstractCompilationUnitNode;

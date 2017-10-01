@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import StructNodeAbstract from './abstract-tree/struct-node';
+import AbstractStructNode from './abstract-tree/struct-node';
 
-class StructNode extends StructNodeAbstract {
+class StructNode extends AbstractStructNode {
 
 }
 

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import AnnotationAttributeNodeAbstract from './abstract-tree/annotation-attribute-node';
+import AbstractAnnotationAttributeNode from './abstract-tree/annotation-attribute-node';
 
-class AnnotationAttributeNode extends AnnotationAttributeNodeAbstract {
+class AnnotationAttributeNode extends AbstractAnnotationAttributeNode {
 
 }
 

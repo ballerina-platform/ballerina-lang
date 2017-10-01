@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class TernaryExprNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+
+class AbstractTernaryExprNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.condition = new ExpressionNode();
+        this.elseExpression = new ExpressionNode();
+        this.thenExpression = new ExpressionNode();
+    }
 
 
     setCondition(newValue, silent, title) {
@@ -45,33 +54,6 @@ class TernaryExprNodeAbstract extends Node {
 
     getCondition() {
         return this.condition;
-    }
-
-
-
-    setThenExpression(newValue, silent, title) {
-        const oldValue = this.thenExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.thenExpression = newValue;
-
-        this.thenExpression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'thenExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getThenExpression() {
-        return this.thenExpression;
     }
 
 
@@ -103,6 +85,33 @@ class TernaryExprNodeAbstract extends Node {
 
 
 
+    setThenExpression(newValue, silent, title) {
+        const oldValue = this.thenExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.thenExpression = newValue;
+
+        this.thenExpression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'thenExpression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getThenExpression() {
+        return this.thenExpression;
+    }
+
+
+
 }
 
-export default TernaryExprNodeAbstract;
+export default AbstractTernaryExprNode;

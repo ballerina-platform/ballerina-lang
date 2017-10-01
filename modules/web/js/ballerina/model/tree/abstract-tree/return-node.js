@@ -16,10 +16,17 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ReturnNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+
+class AbstractReturnNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.expressions = [];
+    }
 
 
     setExpressions(newValue, silent, title) {
@@ -46,7 +53,7 @@ class ReturnNodeAbstract extends Node {
     }
 
 
-    addExpressions(node, i = -1, silent){
+    addExpressions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +62,7 @@ class ReturnNodeAbstract extends Node {
         } else {
             this.expressions.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +75,10 @@ class ReturnNodeAbstract extends Node {
         }
     }
 
-    removeExpressions(node, silent){
+    removeExpressions(node, silent) {
         const index = this.getIndexOfExpressions(node);
         this.removeExpressionsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +88,12 @@ class ReturnNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeExpressionsByIndex(index, silent){
+    removeExpressionsByIndex(index, silent) {
         this.expressions.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +109,17 @@ class ReturnNodeAbstract extends Node {
     replaceExpressions(oldChild, newChild, silent) {
         const index = this.getIndexOfExpressions(oldChild);
         this.expressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfExpressions(child) {
@@ -115,4 +133,4 @@ class ReturnNodeAbstract extends Node {
 
 }
 
-export default ReturnNodeAbstract;
+export default AbstractReturnNode;

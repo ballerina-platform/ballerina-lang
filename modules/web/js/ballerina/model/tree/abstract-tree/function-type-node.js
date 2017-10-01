@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class FunctionTypeNodeAbstract extends Node {
+import Node from '../node';
+
+class AbstractFunctionTypeNode extends Node {
+
+    constructor() {
+        super();
+
+        this.paramTypeNode = [];
+        this.returnParamTypeNode = [];
+    }
 
 
     setParamTypeNode(newValue, silent, title) {
@@ -46,7 +54,7 @@ class FunctionTypeNodeAbstract extends Node {
     }
 
 
-    addParamTypeNode(node, i = -1, silent){
+    addParamTypeNode(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +63,7 @@ class FunctionTypeNodeAbstract extends Node {
         } else {
             this.paramTypeNode.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +76,10 @@ class FunctionTypeNodeAbstract extends Node {
         }
     }
 
-    removeParamTypeNode(node, silent){
+    removeParamTypeNode(node, silent) {
         const index = this.getIndexOfParamTypeNode(node);
         this.removeParamTypeNodeByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +89,12 @@ class FunctionTypeNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeParamTypeNodeByIndex(index, silent){
+    removeParamTypeNodeByIndex(index, silent) {
         this.paramTypeNode.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +110,17 @@ class FunctionTypeNodeAbstract extends Node {
     replaceParamTypeNode(oldChild, newChild, silent) {
         const index = this.getIndexOfParamTypeNode(oldChild);
         this.paramTypeNode[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfParamTypeNode(child) {
@@ -137,7 +156,7 @@ class FunctionTypeNodeAbstract extends Node {
     }
 
 
-    addReturnParamTypeNode(node, i = -1, silent){
+    addReturnParamTypeNode(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -146,7 +165,7 @@ class FunctionTypeNodeAbstract extends Node {
         } else {
             this.returnParamTypeNode.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -159,10 +178,10 @@ class FunctionTypeNodeAbstract extends Node {
         }
     }
 
-    removeReturnParamTypeNode(node, silent){
+    removeReturnParamTypeNode(node, silent) {
         const index = this.getIndexOfReturnParamTypeNode(node);
         this.removeReturnParamTypeNodeByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -172,12 +191,12 @@ class FunctionTypeNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeReturnParamTypeNodeByIndex(index, silent){
+    removeReturnParamTypeNodeByIndex(index, silent) {
         this.returnParamTypeNode.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -193,6 +212,17 @@ class FunctionTypeNodeAbstract extends Node {
     replaceReturnParamTypeNode(oldChild, newChild, silent) {
         const index = this.getIndexOfReturnParamTypeNode(oldChild);
         this.returnParamTypeNode[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfReturnParamTypeNode(child) {
@@ -206,4 +236,4 @@ class FunctionTypeNodeAbstract extends Node {
 
 }
 
-export default FunctionTypeNodeAbstract;
+export default AbstractFunctionTypeNode;

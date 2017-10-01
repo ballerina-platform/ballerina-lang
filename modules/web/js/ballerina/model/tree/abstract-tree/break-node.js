@@ -16,12 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class BreakNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+
+class AbstractBreakNode extends StatementNode {
+
+    constructor() {
+        super();
+
+    }
 
 
 }
 
-export default BreakNodeAbstract;
+export default AbstractBreakNode;

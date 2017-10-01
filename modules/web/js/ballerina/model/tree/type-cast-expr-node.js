@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import TypeCastExprNodeAbstract from './abstract-tree/type-cast-expr-node';
+import AbstractTypeCastExprNode from './abstract-tree/type-cast-expr-node';
 
-class TypeCastExprNode extends TypeCastExprNodeAbstract {
+class TypeCastExprNode extends AbstractTypeCastExprNode {
 
 }
 

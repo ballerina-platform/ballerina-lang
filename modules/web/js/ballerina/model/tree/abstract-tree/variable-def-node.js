@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class VariableDefNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import VariableNode from '../variable-node';
+
+class AbstractVariableDefNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.variable = new VariableNode();
+    }
 
 
     setVariable(newValue, silent, title) {
@@ -51,4 +59,4 @@ class VariableDefNodeAbstract extends Node {
 
 }
 
-export default VariableDefNodeAbstract;
+export default AbstractVariableDefNode;

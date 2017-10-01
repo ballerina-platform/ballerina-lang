@@ -111,14 +111,29 @@ public class ModelGenerator {
                 // tag object with supper type
                 if(parents.contains("StatementNode")){
                     nodeObj.addProperty("isStatement", true);
+                    JsonObject imp = new JsonObject();
+                    imp.addProperty("returnType","StatementNode");
+                    imp.addProperty("returnTypeFile","statement-node");
+                    imports.add(imp);
                 }else{
                     nodeObj.addProperty("isStatement", false);
                 }
 
                 if(parents.contains("ExpressionNode")){
                     nodeObj.addProperty("isExpression", true);
+                    JsonObject imp = new JsonObject();
+                    imp.addProperty("returnType","ExpressionNode");
+                    imp.addProperty("returnTypeFile","expression-node");
+                    imports.add(imp);
                 }else{
                     nodeObj.addProperty("isExpression", false);
+                }
+
+                if(!parents.contains("StatementNode") && !parents.contains("ExpressionNode")){
+                    JsonObject imp = new JsonObject();
+                    imp.addProperty("returnType","Node");
+                    imp.addProperty("returnTypeFile","node");
+                    imports.add(imp);
                 }
 
                 Method[] methods = clazz.getMethods();
@@ -139,14 +154,14 @@ public class ModelGenerator {
                             if(alias.containsValue(m.getReturnType().getSimpleName())){
                                 returnClass = getKindForAliasClass(m.getReturnType().getSimpleName());
                             }
-                            imp.addProperty("returnType", m.getReturnType().getSimpleName());
-                            attribute.addProperty("returnType", m.getReturnType().getSimpleName());
+                            imp.addProperty("returnType", returnClass);
+                            attribute.addProperty("returnType", returnClass);
                             imp.addProperty("returnTypeFile", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
+                            if (!imports.contains(imp)) {
+                                imports.add(imp);
+                            }
                         }
                         attr.add(attribute);
-                        if (!imports.contains(imp)) {
-                            imports.add(imp);
-                        }
                     }
                 }
                 nodeObj.add("attributes", attr);

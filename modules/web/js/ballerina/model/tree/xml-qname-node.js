@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlQnameNodeAbstract from './abstract-tree/xml-qname-node';
+import AbstractXmlQnameNode from './abstract-tree/xml-qname-node';
 
-class XmlQnameNode extends XmlQnameNodeAbstract {
+class XmlQnameNode extends AbstractXmlQnameNode {
 
 }
 

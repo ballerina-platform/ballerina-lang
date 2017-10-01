@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ContinueNodeAbstract from './abstract-tree/continue-node';
+import AbstractContinueNode from './abstract-tree/continue-node';
 
-class ContinueNode extends ContinueNodeAbstract {
+class ContinueNode extends AbstractContinueNode {
 
 }
 

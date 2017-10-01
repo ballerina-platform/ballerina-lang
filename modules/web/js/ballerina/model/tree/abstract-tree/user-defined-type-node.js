@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class UserDefinedTypeNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractUserDefinedTypeNode extends Node {
+
+    constructor() {
+        super();
+
+        this.packageAlias = new IdentifierNode();
+        this.typeName = new IdentifierNode();
+    }
 
 
     setPackageAlias(newValue, silent, title) {
@@ -78,4 +87,4 @@ class UserDefinedTypeNodeAbstract extends Node {
 
 }
 
-export default UserDefinedTypeNodeAbstract;
+export default AbstractUserDefinedTypeNode;

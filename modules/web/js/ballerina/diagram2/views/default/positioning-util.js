@@ -530,51 +530,21 @@ class PositioningUtil {
 
 
     /**
-     * Calculate position of XmlAttribute nodes.
-     *
-     * @param {object} node XmlAttribute object
-     */
-    positionXmlAttributeNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate position of XmlCommentLiteral nodes.
-     *
-     * @param {object} node XmlCommentLiteral object
-     */
-    positionXmlCommentLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate position of XmlElementLiteral nodes.
-     *
-     * @param {object} node XmlElementLiteral object
-     */
-    positionXmlElementLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate position of XmlPiLiteral nodes.
-     *
-     * @param {object} node XmlPiLiteral object
-     */
-    positionXmlPiLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
      * Calculate position of XmlQname nodes.
      *
      * @param {object} node XmlQname object
      */
     positionXmlQnameNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlAttribute nodes.
+     *
+     * @param {object} node XmlAttribute object
+     */
+    positionXmlAttributeNode(node) {
         // Not implemented.
     }
 
@@ -590,11 +560,41 @@ class PositioningUtil {
 
 
     /**
+     * Calculate position of XmlElementLiteral nodes.
+     *
+     * @param {object} node XmlElementLiteral object
+     */
+    positionXmlElementLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate position of XmlTextLiteral nodes.
      *
      * @param {object} node XmlTextLiteral object
      */
     positionXmlTextLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlCommentLiteral nodes.
+     *
+     * @param {object} node XmlCommentLiteral object
+     */
+    positionXmlCommentLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate position of XmlPiLiteral nodes.
+     *
+     * @param {object} node XmlPiLiteral object
+     */
+    positionXmlPiLiteralNode(node) {
         // Not implemented.
     }
 

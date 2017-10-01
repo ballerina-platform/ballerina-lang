@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class XmlnsNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+import ExpressionNode from '../expression-node';
+
+class AbstractXmlnsNode extends Node {
+
+    constructor() {
+        super();
+
+        this.prefix = new IdentifierNode();
+        this.namespaceURI = new ExpressionNode();
+    }
 
 
     setPrefix(newValue, silent, title) {
@@ -78,4 +88,4 @@ class XmlnsNodeAbstract extends Node {
 
 }
 
-export default XmlnsNodeAbstract;
+export default AbstractXmlnsNode;

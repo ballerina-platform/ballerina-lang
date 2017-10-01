@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ConnectorInitExprNodeAbstract from './abstract-tree/connector-init-expr-node';
+import AbstractConnectorInitExprNode from './abstract-tree/connector-init-expr-node';
 
-class ConnectorInitExprNode extends ConnectorInitExprNodeAbstract {
+class ConnectorInitExprNode extends AbstractConnectorInitExprNode {
 
 }
 

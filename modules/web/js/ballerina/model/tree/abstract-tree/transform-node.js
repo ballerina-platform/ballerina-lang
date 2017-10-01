@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class TransformNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import BlockNode from '../block-node';
+
+class AbstractTransformNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.body = new BlockNode();
+    }
 
 
     setBody(newValue, silent, title) {
@@ -49,10 +57,10 @@ class TransformNodeAbstract extends Node {
 
 
 
-    setInputExpressions(newValue, silent, title) {
-        const oldValue = this.inputExpressions;
+    setInputs(newValue, silent, title) {
+        const oldValue = this.inputs;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.inputExpressions = newValue;
+        this.inputs = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -60,7 +68,7 @@ class TransformNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'inputExpressions',
+                    attributeName: 'inputs',
                     newValue,
                     oldValue,
                 },
@@ -68,82 +76,16 @@ class TransformNodeAbstract extends Node {
         }
     }
 
-    getInputExpressions() {
-        return this.inputExpressions;
+    getInputs() {
+        return this.inputs;
     }
 
 
-    addInputExpressions(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.inputExpressions.push(node);
-            index = this.inputExpressions.length;
-        } else {
-            this.inputExpressions.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
 
-    removeInputExpressions(node, silent){
-        const index = this.getIndexOfInputExpressions(node);
-        this.removeInputExpressionsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeInputExpressionsByIndex(index, silent){
-        this.inputExpressions.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceInputExpressions(oldChild, newChild, silent) {
-        const index = this.getIndexOfInputExpressions(oldChild);
-        this.inputExpressions[index] = newChild;
-    }
-
-    getIndexOfInputExpressions(child) {
-        return _.findIndex(this.inputExpressions, ['id', child.id]);
-    }
-
-    filterInputExpressions(predicateFunction) {
-        return _.filter(this.inputExpressions, predicateFunction);
-    }
-
-
-    setOutputExpressions(newValue, silent, title) {
-        const oldValue = this.outputExpressions;
+    setOutputs(newValue, silent, title) {
+        const oldValue = this.outputs;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.outputExpressions = newValue;
+        this.outputs = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -151,7 +93,7 @@ class TransformNodeAbstract extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'outputExpressions',
+                    attributeName: 'outputs',
                     newValue,
                     oldValue,
                 },
@@ -159,78 +101,12 @@ class TransformNodeAbstract extends Node {
         }
     }
 
-    getOutputExpressions() {
-        return this.outputExpressions;
+    getOutputs() {
+        return this.outputs;
     }
 
-
-    addOutputExpressions(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.outputExpressions.push(node);
-            index = this.outputExpressions.length;
-        } else {
-            this.outputExpressions.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeOutputExpressions(node, silent){
-        const index = this.getIndexOfOutputExpressions(node);
-        this.removeOutputExpressionsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeOutputExpressionsByIndex(index, silent){
-        this.outputExpressions.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceOutputExpressions(oldChild, newChild, silent) {
-        const index = this.getIndexOfOutputExpressions(oldChild);
-        this.outputExpressions[index] = newChild;
-    }
-
-    getIndexOfOutputExpressions(child) {
-        return _.findIndex(this.outputExpressions, ['id', child.id]);
-    }
-
-    filterOutputExpressions(predicateFunction) {
-        return _.filter(this.outputExpressions, predicateFunction);
-    }
 
 
 }
 
-export default TransformNodeAbstract;
+export default AbstractTransformNode;

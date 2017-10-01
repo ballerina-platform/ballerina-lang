@@ -16,10 +16,21 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class IfNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import BlockNode from '../block-node';
+import ExpressionNode from '../expression-node';
+
+class AbstractIfNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.body = new BlockNode();
+        this.condition = new ExpressionNode();
+        this.elseStatement = new StatementNode();
+    }
 
 
     setBody(newValue, silent, title) {
@@ -110,4 +121,4 @@ class IfNodeAbstract extends Node {
 
 }
 
-export default IfNodeAbstract;
+export default AbstractIfNode;

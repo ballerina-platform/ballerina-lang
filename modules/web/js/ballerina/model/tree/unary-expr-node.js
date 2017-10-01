@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import UnaryExprNodeAbstract from './abstract-tree/unary-expr-node';
+import AbstractUnaryExprNode from './abstract-tree/unary-expr-node';
 
-class UnaryExprNode extends UnaryExprNodeAbstract {
+class UnaryExprNode extends AbstractUnaryExprNode {
 
 }
 

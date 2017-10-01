@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ConnectorNodeAbstract from './abstract-tree/connector-node';
+import AbstractConnectorNode from './abstract-tree/connector-node';
 
-class ConnectorNode extends ConnectorNodeAbstract {
+class ConnectorNode extends AbstractConnectorNode {
 
 }
 

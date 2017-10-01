@@ -16,10 +16,16 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class LiteralNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+
+class AbstractLiteralNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+    }
 
 
     setValue(newValue, silent, title) {
@@ -49,4 +55,4 @@ class LiteralNodeAbstract extends Node {
 
 }
 
-export default LiteralNodeAbstract;
+export default AbstractLiteralNode;

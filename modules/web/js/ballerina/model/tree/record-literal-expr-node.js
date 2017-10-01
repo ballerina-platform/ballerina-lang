@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import RecordLiteralExprNodeAbstract from './abstract-tree/record-literal-expr-node';
+import AbstractRecordLiteralExprNode from './abstract-tree/record-literal-expr-node';
 
-class RecordLiteralExprNode extends RecordLiteralExprNodeAbstract {
+class RecordLiteralExprNode extends AbstractRecordLiteralExprNode {
 
 }
 

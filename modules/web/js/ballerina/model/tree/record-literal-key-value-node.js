@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import RecordLiteralKeyValueNodeAbstract from './abstract-tree/record-literal-key-value-node';
+import AbstractRecordLiteralKeyValueNode from './abstract-tree/record-literal-key-value-node';
 
-class RecordLiteralKeyValueNode extends RecordLiteralKeyValueNodeAbstract {
+class RecordLiteralKeyValueNode extends AbstractRecordLiteralKeyValueNode {
 
 }
 

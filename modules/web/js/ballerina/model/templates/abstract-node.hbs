@@ -17,7 +17,6 @@
  */
 
 import _ from 'lodash';
-import {{#if isStatement}}Statement{{/if}}{{#if isExpression}}Expression{{/if}}Node from '../{{#if isStatement}}statement-{{/if}}{{#if isExpression}}expression-{{/if}}node';
 {{#each imports}}
 import {{returnType}} from '../{{returnTypeFile}}';{{/each}}
 

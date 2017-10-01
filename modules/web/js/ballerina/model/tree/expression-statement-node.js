@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ExpressionStatementNodeAbstract from './abstract-tree/expression-statement-node';
+import AbstractExpressionStatementNode from './abstract-tree/expression-statement-node';
 
-class ExpressionStatementNode extends ExpressionStatementNodeAbstract {
+class ExpressionStatementNode extends AbstractExpressionStatementNode {
 
 }
 

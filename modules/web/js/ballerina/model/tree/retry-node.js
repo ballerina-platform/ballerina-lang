@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import RetryNodeAbstract from './abstract-tree/retry-node';
+import AbstractRetryNode from './abstract-tree/retry-node';
 
-class RetryNode extends RetryNodeAbstract {
+class RetryNode extends AbstractRetryNode {
 
 }
 

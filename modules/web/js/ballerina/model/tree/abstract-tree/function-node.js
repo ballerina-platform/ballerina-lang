@@ -16,10 +16,26 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class FunctionNodeAbstract extends Node {
+import Node from '../node';
+import VariableNode from '../variable-node';
+import BlockNode from '../block-node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractFunctionNode extends Node {
+
+    constructor() {
+        super();
+
+        this.receiver = new VariableNode();
+        this.returnParameters = [];
+        this.body = new BlockNode();
+        this.workers = [];
+        this.name = new IdentifierNode();
+        this.parameters = [];
+        this.annotationAttachments = [];
+    }
 
 
     setReceiver(newValue, silent, title) {
@@ -73,7 +89,7 @@ class FunctionNodeAbstract extends Node {
     }
 
 
-    addReturnParameters(node, i = -1, silent){
+    addReturnParameters(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -82,7 +98,7 @@ class FunctionNodeAbstract extends Node {
         } else {
             this.returnParameters.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -95,10 +111,10 @@ class FunctionNodeAbstract extends Node {
         }
     }
 
-    removeReturnParameters(node, silent){
+    removeReturnParameters(node, silent) {
         const index = this.getIndexOfReturnParameters(node);
         this.removeReturnParametersByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -108,12 +124,12 @@ class FunctionNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeReturnParametersByIndex(index, silent){
+    removeReturnParametersByIndex(index, silent) {
         this.returnParameters.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -129,6 +145,17 @@ class FunctionNodeAbstract extends Node {
     replaceReturnParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfReturnParameters(oldChild);
         this.returnParameters[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfReturnParameters(child) {
@@ -191,7 +218,7 @@ class FunctionNodeAbstract extends Node {
     }
 
 
-    addWorkers(node, i = -1, silent){
+    addWorkers(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -200,7 +227,7 @@ class FunctionNodeAbstract extends Node {
         } else {
             this.workers.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -213,10 +240,10 @@ class FunctionNodeAbstract extends Node {
         }
     }
 
-    removeWorkers(node, silent){
+    removeWorkers(node, silent) {
         const index = this.getIndexOfWorkers(node);
         this.removeWorkersByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -226,12 +253,12 @@ class FunctionNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeWorkersByIndex(index, silent){
+    removeWorkersByIndex(index, silent) {
         this.workers.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -247,6 +274,17 @@ class FunctionNodeAbstract extends Node {
     replaceWorkers(oldChild, newChild, silent) {
         const index = this.getIndexOfWorkers(oldChild);
         this.workers[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfWorkers(child) {
@@ -309,7 +347,7 @@ class FunctionNodeAbstract extends Node {
     }
 
 
-    addParameters(node, i = -1, silent){
+    addParameters(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -318,7 +356,7 @@ class FunctionNodeAbstract extends Node {
         } else {
             this.parameters.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -331,10 +369,10 @@ class FunctionNodeAbstract extends Node {
         }
     }
 
-    removeParameters(node, silent){
+    removeParameters(node, silent) {
         const index = this.getIndexOfParameters(node);
         this.removeParametersByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -344,12 +382,12 @@ class FunctionNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeParametersByIndex(index, silent){
+    removeParametersByIndex(index, silent) {
         this.parameters.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -365,6 +403,17 @@ class FunctionNodeAbstract extends Node {
     replaceParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfParameters(oldChild);
         this.parameters[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfParameters(child) {
@@ -425,7 +474,7 @@ class FunctionNodeAbstract extends Node {
     }
 
 
-    addAnnotationAttachments(node, i = -1, silent){
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -434,7 +483,7 @@ class FunctionNodeAbstract extends Node {
         } else {
             this.annotationAttachments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -447,10 +496,10 @@ class FunctionNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
+    removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
         this.removeAnnotationAttachmentsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -460,12 +509,12 @@ class FunctionNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
+    removeAnnotationAttachmentsByIndex(index, silent) {
         this.annotationAttachments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -481,6 +530,17 @@ class FunctionNodeAbstract extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAnnotationAttachments(child) {
@@ -494,4 +554,4 @@ class FunctionNodeAbstract extends Node {
 
 }
 
-export default FunctionNodeAbstract;
+export default AbstractFunctionNode;

@@ -16,10 +16,17 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class XmlTextLiteralNodeAbstract extends Node {
+import Node from '../node';
+
+class AbstractXmlTextLiteralNode extends Node {
+
+    constructor() {
+        super();
+
+        this.textFragments = [];
+    }
 
 
     setTextFragments(newValue, silent, title) {
@@ -46,7 +53,7 @@ class XmlTextLiteralNodeAbstract extends Node {
     }
 
 
-    addTextFragments(node, i = -1, silent){
+    addTextFragments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +62,7 @@ class XmlTextLiteralNodeAbstract extends Node {
         } else {
             this.textFragments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +75,10 @@ class XmlTextLiteralNodeAbstract extends Node {
         }
     }
 
-    removeTextFragments(node, silent){
+    removeTextFragments(node, silent) {
         const index = this.getIndexOfTextFragments(node);
         this.removeTextFragmentsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +88,12 @@ class XmlTextLiteralNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeTextFragmentsByIndex(index, silent){
+    removeTextFragmentsByIndex(index, silent) {
         this.textFragments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +109,17 @@ class XmlTextLiteralNodeAbstract extends Node {
     replaceTextFragments(oldChild, newChild, silent) {
         const index = this.getIndexOfTextFragments(oldChild);
         this.textFragments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfTextFragments(child) {
@@ -115,4 +133,4 @@ class XmlTextLiteralNodeAbstract extends Node {
 
 }
 
-export default XmlTextLiteralNodeAbstract;
+export default AbstractXmlTextLiteralNode;

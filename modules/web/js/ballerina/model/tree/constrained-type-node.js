@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ConstrainedTypeNodeAbstract from './abstract-tree/constrained-type-node';
+import AbstractConstrainedTypeNode from './abstract-tree/constrained-type-node';
 
-class ConstrainedTypeNode extends ConstrainedTypeNodeAbstract {
+class ConstrainedTypeNode extends AbstractConstrainedTypeNode {
 
 }
 

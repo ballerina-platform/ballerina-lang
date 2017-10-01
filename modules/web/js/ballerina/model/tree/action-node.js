@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ActionNodeAbstract from './abstract-tree/action-node';
+import AbstractActionNode from './abstract-tree/action-node';
 
-class ActionNode extends ActionNodeAbstract {
+class ActionNode extends AbstractActionNode {
 
 }
 

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import AnnotationAttachmentAttributeValueNodeAbstract from './abstract-tree/annotation-attachment-attribute-value-node';
+import AbstractAnnotationAttachmentAttributeValueNode from './abstract-tree/annotation-attachment-attribute-value-node';
 
-class AnnotationAttachmentAttributeValueNode extends AnnotationAttachmentAttributeValueNodeAbstract {
+class AnnotationAttachmentAttributeValueNode extends AbstractAnnotationAttachmentAttributeValueNode {
 
 }
 

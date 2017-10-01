@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import BlockNodeAbstract from './abstract-tree/block-node';
+import AbstractBlockNode from './abstract-tree/block-node';
 
-class BlockNode extends BlockNodeAbstract {
+class BlockNode extends AbstractBlockNode {
 
 }
 

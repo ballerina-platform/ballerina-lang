@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import PackageDeclarationNodeAbstract from './abstract-tree/package-declaration-node';
+import AbstractPackageDeclarationNode from './abstract-tree/package-declaration-node';
 
-class PackageDeclarationNode extends PackageDeclarationNodeAbstract {
+class PackageDeclarationNode extends AbstractPackageDeclarationNode {
 
 }
 

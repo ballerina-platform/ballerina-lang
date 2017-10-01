@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class FieldBasedAccessExprNodeAbstract extends Node {
+import Node from '../node';
+import VariableReferenceNode from '../variable-reference-node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractFieldBasedAccessExprNode extends Node {
+
+    constructor() {
+        super();
+
+        this.expression = new VariableReferenceNode();
+        this.fieldName = new IdentifierNode();
+    }
 
 
     setExpression(newValue, silent, title) {
@@ -78,4 +88,4 @@ class FieldBasedAccessExprNodeAbstract extends Node {
 
 }
 
-export default FieldBasedAccessExprNodeAbstract;
+export default AbstractFieldBasedAccessExprNode;

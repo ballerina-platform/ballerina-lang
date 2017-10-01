@@ -16,10 +16,17 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class BlockNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+
+class AbstractBlockNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.statements = [];
+    }
 
 
     setStatements(newValue, silent, title) {
@@ -46,7 +53,7 @@ class BlockNodeAbstract extends Node {
     }
 
 
-    addStatements(node, i = -1, silent){
+    addStatements(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +62,7 @@ class BlockNodeAbstract extends Node {
         } else {
             this.statements.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +75,10 @@ class BlockNodeAbstract extends Node {
         }
     }
 
-    removeStatements(node, silent){
+    removeStatements(node, silent) {
         const index = this.getIndexOfStatements(node);
         this.removeStatementsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +88,12 @@ class BlockNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeStatementsByIndex(index, silent){
+    removeStatementsByIndex(index, silent) {
         this.statements.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +109,17 @@ class BlockNodeAbstract extends Node {
     replaceStatements(oldChild, newChild, silent) {
         const index = this.getIndexOfStatements(oldChild);
         this.statements[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfStatements(child) {
@@ -115,4 +133,4 @@ class BlockNodeAbstract extends Node {
 
 }
 
-export default BlockNodeAbstract;
+export default AbstractBlockNode;

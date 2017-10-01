@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+import Node from '../node';
+
+class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.valueArray = [];
+        this.value = new Node();
+    }
 
 
     setValueArray(newValue, silent, title) {
@@ -46,7 +55,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
     }
 
 
-    addValueArray(node, i = -1, silent){
+    addValueArray(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +64,7 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         } else {
             this.valueArray.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +77,10 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
         }
     }
 
-    removeValueArray(node, silent){
+    removeValueArray(node, silent) {
         const index = this.getIndexOfValueArray(node);
         this.removeValueArrayByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +90,12 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeValueArrayByIndex(index, silent){
+    removeValueArrayByIndex(index, silent) {
         this.valueArray.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +111,17 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
     replaceValueArray(oldChild, newChild, silent) {
         const index = this.getIndexOfValueArray(oldChild);
         this.valueArray[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfValueArray(child) {
@@ -142,4 +162,4 @@ class AnnotationAttachmentAttributeValueNodeAbstract extends Node {
 
 }
 
-export default AnnotationAttachmentAttributeValueNodeAbstract;
+export default AbstractAnnotationAttachmentAttributeValueNode;

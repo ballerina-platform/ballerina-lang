@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import FieldBasedAccessExprNodeAbstract from './abstract-tree/field-based-access-expr-node';
+import AbstractFieldBasedAccessExprNode from './abstract-tree/field-based-access-expr-node';
 
-class FieldBasedAccessExprNode extends FieldBasedAccessExprNodeAbstract {
+class FieldBasedAccessExprNode extends AbstractFieldBasedAccessExprNode {
 
 }
 

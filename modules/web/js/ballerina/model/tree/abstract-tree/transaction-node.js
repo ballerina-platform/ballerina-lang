@@ -16,10 +16,23 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class TransactionNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import ExpressionNode from '../expression-node';
+import BlockNode from '../block-node';
+
+class AbstractTransactionNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.condition = new ExpressionNode();
+        this.failedBody = new BlockNode();
+        this.transactionBody = new BlockNode();
+        this.committedBody = new BlockNode();
+        this.abortedBody = new BlockNode();
+    }
 
 
     setCondition(newValue, silent, title) {
@@ -62,33 +75,6 @@ class TransactionNodeAbstract extends Node {
         }
     }
 
-    setTransactionBody(newValue, silent, title) {
-        const oldValue = this.transactionBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.transactionBody = newValue;
-
-        this.transactionBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'transactionBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTransactionBody() {
-        return this.transactionBody;
-    }
-
-
-
     setFailedBody(newValue, silent, title) {
         const oldValue = this.failedBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -112,6 +98,33 @@ class TransactionNodeAbstract extends Node {
 
     getFailedBody() {
         return this.failedBody;
+    }
+
+
+
+    setTransactionBody(newValue, silent, title) {
+        const oldValue = this.transactionBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.transactionBody = newValue;
+
+        this.transactionBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'transactionBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTransactionBody() {
+        return this.transactionBody;
     }
 
 
@@ -172,4 +185,4 @@ class TransactionNodeAbstract extends Node {
 
 }
 
-export default TransactionNodeAbstract;
+export default AbstractTransactionNode;

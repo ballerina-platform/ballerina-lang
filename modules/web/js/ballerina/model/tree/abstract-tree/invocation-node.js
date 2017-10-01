@@ -16,10 +16,22 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class InvocationNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+import VariableReferenceNode from '../variable-reference-node';
+
+class AbstractInvocationNode extends Node {
+
+    constructor() {
+        super();
+
+        this.packageAlias = new IdentifierNode();
+        this.expression = new VariableReferenceNode();
+        this.argumentExpressions = [];
+        this.name = new IdentifierNode();
+    }
 
 
     setPackageAlias(newValue, silent, title) {
@@ -100,7 +112,7 @@ class InvocationNodeAbstract extends Node {
     }
 
 
-    addArgumentExpressions(node, i = -1, silent){
+    addArgumentExpressions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -109,7 +121,7 @@ class InvocationNodeAbstract extends Node {
         } else {
             this.argumentExpressions.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -122,10 +134,10 @@ class InvocationNodeAbstract extends Node {
         }
     }
 
-    removeArgumentExpressions(node, silent){
+    removeArgumentExpressions(node, silent) {
         const index = this.getIndexOfArgumentExpressions(node);
         this.removeArgumentExpressionsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -135,12 +147,12 @@ class InvocationNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeArgumentExpressionsByIndex(index, silent){
+    removeArgumentExpressionsByIndex(index, silent) {
         this.argumentExpressions.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -156,6 +168,17 @@ class InvocationNodeAbstract extends Node {
     replaceArgumentExpressions(oldChild, newChild, silent) {
         const index = this.getIndexOfArgumentExpressions(oldChild);
         this.argumentExpressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfArgumentExpressions(child) {
@@ -196,4 +219,4 @@ class InvocationNodeAbstract extends Node {
 
 }
 
-export default InvocationNodeAbstract;
+export default AbstractInvocationNode;

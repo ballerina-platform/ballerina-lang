@@ -18,11 +18,11 @@
 
 import _ from 'lodash';
 import log from 'log';
-import CompilationUnitNodeAbstract from './abstract-tree/compilation-unit-node';
+import AbstractCompilationUnitNode from './abstract-tree/compilation-unit-node';
 import TreeUtils from '../tree-util';
 
 
-class CompilationUnitNode extends CompilationUnitNodeAbstract {
+class CompilationUnitNode extends AbstractCompilationUnitNode {
 
     /**
      * Check whether package name is existing one or not.

@@ -16,16 +16,27 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class XmlQnameNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractXmlQnameNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.prefix = new IdentifierNode();
+        this.localname = new IdentifierNode();
+    }
 
 
     setPrefix(newValue, silent, title) {
         const oldValue = this.prefix;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.prefix = newValue;
+
+        this.prefix.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -51,6 +62,8 @@ class XmlQnameNodeAbstract extends Node {
         const oldValue = this.localname;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.localname = newValue;
+
+        this.localname.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -99,4 +112,4 @@ class XmlQnameNodeAbstract extends Node {
 
 }
 
-export default XmlQnameNodeAbstract;
+export default AbstractXmlQnameNode;

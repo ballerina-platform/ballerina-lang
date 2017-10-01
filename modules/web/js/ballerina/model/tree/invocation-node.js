@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import InvocationNodeAbstract from './abstract-tree/invocation-node';
+import AbstractInvocationNode from './abstract-tree/invocation-node';
 
-class InvocationNode extends InvocationNodeAbstract {
+class InvocationNode extends AbstractInvocationNode {
 
     getFunctionName() {
         return this.name.value;
