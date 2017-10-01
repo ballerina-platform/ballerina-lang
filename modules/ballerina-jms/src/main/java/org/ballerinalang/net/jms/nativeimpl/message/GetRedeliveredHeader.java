@@ -19,7 +19,6 @@ package org.ballerinalang.net.jms.nativeimpl.message;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -58,7 +57,7 @@ public class GetRedeliveredHeader extends AbstractNativeFunction {
 
     public BValue[] execute(Context context) {
 
-        BStruct messageStruct  = ((BStruct) this.getRefArgument(context, 0));
+        BStruct messageStruct = ((BStruct) this.getRefArgument(context, 0));
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
         BValue[] headerValue = null;
         try {
