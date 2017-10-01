@@ -88,7 +88,7 @@ public class ServiceInfo extends StructureTypeInfo {
     }
 
     public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) `(
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo == null || packageName == null || annotationName == null) {
             return null;

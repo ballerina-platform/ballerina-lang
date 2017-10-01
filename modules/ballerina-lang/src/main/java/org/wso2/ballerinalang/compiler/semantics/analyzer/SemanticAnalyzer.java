@@ -180,17 +180,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        // Check for native functions
-        if (Symbols.isNative(funcNode.symbol)) {
-            return;
-        }
-
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
+
+        // Check for native functions
+        if (Symbols.isNative(funcNode.symbol)) {
+            return;
+        }
 
         analyzeStmt(funcNode.body, funcEnv);
 
@@ -253,6 +253,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         // Validate Attachment Point against the Annotation Definition.
         BAnnotationSymbol annotationSymbol = (BAnnotationSymbol) symbol;
+        annAttachmentNode.annotationSymbol = annotationSymbol;
         if (annotationSymbol.getAttachmentPoints() != null && annotationSymbol.getAttachmentPoints().size() > 0) {
             BLangAnnotationAttachmentPoint[] attachmentPointsArrray =
                     new BLangAnnotationAttachmentPoint[annotationSymbol.getAttachmentPoints().size()];
@@ -532,15 +533,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAction actionNode) {
         BSymbol actionSymbol = actionNode.symbol;
-        if (Symbols.isNative(actionSymbol)) {
-            return;
-        }
+
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         actionNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
             this.analyzeDef(a, actionEnv);
         });
+
+        if (Symbols.isNative(actionSymbol)) {
+            return;
+        }
+
         actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
         analyzeStmt(actionNode.body, actionEnv);
         // Process workers

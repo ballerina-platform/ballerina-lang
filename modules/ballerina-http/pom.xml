@@ -137,7 +137,7 @@
                     </processors>
                     <options>
                         <nativeEntityProviderPackage>org.ballerinalang.net.generated.providers</nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>StandardNativeNetElementProvider</nativeEntityProviderClass>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
                 <executions>

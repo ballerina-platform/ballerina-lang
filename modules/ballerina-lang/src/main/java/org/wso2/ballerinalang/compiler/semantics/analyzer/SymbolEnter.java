@@ -233,7 +233,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-//        BLangPackage pkgNode = pkgLoader.loadPackage(importPkgNode.pkgNameComps, importPkgNode.version);
         // Create import package symbol
         BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(importPkgNode.pkgNameComps, importPkgNode.version);
         importPkgNode.symbol = pkgSymbol;
