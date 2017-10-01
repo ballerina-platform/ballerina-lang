@@ -23,13 +23,10 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -40,16 +37,11 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.net.jms.JMSTransactionContext;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.actions.utils.Constants;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.DistributedTxManagerProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MapCarbonMessage;
-import org.wso2.carbon.messaging.MessageUtil;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.jms.contract.JMSClientConnector;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
@@ -154,7 +146,7 @@ public class Send extends AbstractJMSAction {
 
                     //Handle XA initialization
                     if (sessionWrapper instanceof XASessionWrapper) {
-                        initializeXATransaction(ballerinaTxManager, sessionWrapper);
+                        initializeXATransaction(ballerinaTxManager, (XASessionWrapper) sessionWrapper);
                     }
                 } else {
                     sessionWrapper = ((JMSTransactionContext) txContext).getSessionWrapper();
@@ -170,7 +162,7 @@ public class Send extends AbstractJMSAction {
     }
 
     private void initializeXATransaction(BallerinaTransactionManager ballerinaTxManager,
-            SessionWrapper sessionWrapper) {
+            XASessionWrapper xASessionWrapper) {
         /* Atomikos transaction manager initialize only distributed transaction is present.*/
         if (!ballerinaTxManager.hasXATransactionManager()) {
             TransactionManager transactionManager = DistributedTxManagerProvider.getInstance().getTransactionManager();
@@ -182,53 +174,13 @@ public class Send extends AbstractJMSAction {
         Transaction tx = ballerinaTxManager.getXATransaction();
         try {
             if (tx != null) {
-                XAResource xaResource = ((XASessionWrapper) sessionWrapper).getXASession().getXAResource();
+                XAResource xaResource = xASessionWrapper.getXASession().getXAResource();
                 tx.enlistResource(xaResource);
             }
         } catch (SystemException | RollbackException e) {
             throw new BallerinaException(
                     "error in enlisting distributed transaction resources: " + e.getCause().getMessage(), e);
         }
-    }
-
-    private CarbonMessage getBlobCarbonMessage(BMessage bMessage, Context context) {
-        return bMessage.value();
-    }
-
-    private CarbonMessage getMapCarbonMessage(BMessage bMessage, Context context) {
-
-        CarbonMessage carbonMessage = bMessage.value();
-        if (carbonMessage instanceof MapCarbonMessage) {
-            return carbonMessage;
-        }
-
-        BallerinaMessageDataSource dataSource = bMessage.getMessageDataSource();
-        if (dataSource instanceof BMap) {
-            MapCarbonMessage mapCarbonMessage = MessageUtil.createMapMessageWithoutData(carbonMessage);
-            BMap<String, ? extends BValue> mapData = (BMap) dataSource;
-            for (String key : mapData.keySet()) {
-                BValue value = mapData.get(key);
-                mapCarbonMessage.setValue(key, value.stringValue());
-            }
-            return mapCarbonMessage;
-        } else {
-            throw new BallerinaException("Invalid Map Message provided", context);
-        }
-    }
-
-    private CarbonMessage getTextCarbonMessage(BMessage bMessage, String messageType, Context context) {
-        CarbonMessage carbonMessage = bMessage.value();
-        if (carbonMessage instanceof TextCarbonMessage) {
-            return carbonMessage;
-        }
-
-        BallerinaMessageDataSource dataSource = bMessage.getMessageDataSource();
-        if (dataSource instanceof StringDataSource || dataSource instanceof BJSON || dataSource instanceof BXML) {
-            carbonMessage = MessageUtil.createTextMessageWithData(carbonMessage);
-        } else {
-            throw new BallerinaException("Invalid message type provided. Message Type: " + messageType, context);
-        }
-        return carbonMessage;
     }
 
     @Override
