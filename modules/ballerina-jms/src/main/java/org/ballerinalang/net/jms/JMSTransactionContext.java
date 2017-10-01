@@ -19,9 +19,9 @@ package org.ballerinalang.net.jms;
 
 import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
 import org.wso2.carbon.transport.jms.contract.JMSClientConnector;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
+import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
 
 import javax.jms.JMSException;
 
@@ -67,7 +67,7 @@ public class JMSTransactionContext implements BallerinaTransactionContext {
 
     @Override
     public void close() {
-        if(sessionWrapper != null) {
+        if (sessionWrapper != null) {
             try {
                 clientConnector.releaseSession(sessionWrapper);
                 sessionWrapper = null;

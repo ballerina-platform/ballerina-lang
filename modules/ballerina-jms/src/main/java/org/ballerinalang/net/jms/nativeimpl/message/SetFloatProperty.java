@@ -64,7 +64,7 @@ public class SetFloatProperty extends AbstractNativeFunction {
 
         BStruct messageStruct  = ((BStruct) this.getRefArgument(context, 0));
         String propertyName = this.getStringArgument(context, 0);
-        Float propertyValue = (float)this.getFloatArgument(context, 0);
+        Float propertyValue = (float) this.getFloatArgument(context, 0);
 
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
 

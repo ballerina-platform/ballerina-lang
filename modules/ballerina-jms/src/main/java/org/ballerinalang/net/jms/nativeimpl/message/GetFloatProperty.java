@@ -65,7 +65,7 @@ public class GetFloatProperty extends AbstractNativeFunction {
 
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
 
-        Float propertyValue = null;
+        Float propertyValue = Float.valueOf(0);
         try {
             propertyValue = jmsMessage.getFloatProperty(propertyName);
         } catch (JMSException e) {
