@@ -32,13 +32,13 @@ class FileOpenDialog extends React.Component {
      * Called when user clicks open
      */
     onFileOpen() {
-        const { selectedNode: { type, id } } = this.state;
-        if (type !== FILE_TYPE) {
+        const { filePath, selectedNode } = this.state;
+        if (selectedNode && selectedNode.type !== FILE_TYPE) {
             this.setState({
-                error: `${id} is not a file`,
+                error: `${filePath} is not a file`,
             });
         } else {
-            this.props.workspaceManager.openFile(id)
+            this.props.workspaceManager.openFile(filePath)
                 .then(() => {
                     this.setState({
                         error: '',
@@ -84,7 +84,13 @@ class FileOpenDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Form horizontal>
+                <Form
+                    horizontal
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        this.onFileOpen();
+                    }}
+                >
                     <FormGroup controlId="filePath">
                         <Col componentClass={ControlLabel} sm={2}>
                             File Path
@@ -92,10 +98,18 @@ class FileOpenDialog extends React.Component {
                         <Col sm={10}>
                             <FormControl
                                 value={this.state.filePath}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        this.onFileOpen();
+                                    } else if (e.key === 'Escape') {
+                                        this.onDialogHide();
+                                    }
+                                }}
                                 onChange={(evt) => {
                                     this.setState({
                                         error: '',
                                         filePath: evt.target.value,
+                                        selectedNode: undefined,
                                     });
                                 }}
                                 type="text"

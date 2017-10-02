@@ -33,13 +33,13 @@ class FolderOpenDialog extends React.Component {
      * Called when user clicks open
      */
     onFolderOpen() {
-        const { selectedNode: { type, id } } = this.state;
-        if (type !== FOLDER_TYPE) {
+        const { folderPath, selectedNode } = this.state;
+        if (selectedNode && selectedNode.type !== FOLDER_TYPE) {
             this.setState({
-                error: `${id} is not a folder`,
+                error: `${folderPath} is not a folder`,
             });
         } else {
-            this.props.workspaceManager.openFolder(id)
+            this.props.workspaceManager.openFolder(folderPath)
                 .then(() => {
                     this.setState({
                         error: '',
@@ -85,7 +85,13 @@ class FolderOpenDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Form horizontal>
+                <Form
+                    horizontal
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        this.onFolderOpen();
+                    }}
+                >
                     <FormGroup controlId="folderPath">
                         <Col componentClass={ControlLabel} sm={2}>
                             Location
@@ -93,10 +99,18 @@ class FolderOpenDialog extends React.Component {
                         <Col sm={10}>
                             <FormControl
                                 value={this.state.folderPath}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        this.onFolderOpen();
+                                    } else if (e.key === 'Escape') {
+                                        this.onDialogHide();
+                                    }
+                                }}
                                 onChange={(evt) => {
                                     this.setState({
                                         error: '',
                                         folderPath: evt.target.value,
+                                        selectedNode: undefined,
                                     });
                                 }}
                                 type="text"
