@@ -25,7 +25,7 @@ const ToolPalette = [];
 
 const createhttpServiceDefTool = {
     id: 'service',
-    name: 'http',
+    name: 'HTTP',
     meta: {
         protocolPkgName: 'http',
         protocolPkgPath: 'ballerina.net.http',
@@ -52,7 +52,7 @@ const createhttpServiceDefTool = {
 
 const createwsServiceDefTool = {
     id: 'service',
-    name: 'ws',
+    name: 'WebSocket',
     meta: {
         protocolPkgName: 'ws',
         protocolPkgPath: 'ballerina.net.ws',
@@ -433,9 +433,15 @@ const seperator = {
     seperator: true,
 };
 
+const seperator2 = {
+    id: 'main_tool_seperator',
+    name: '',
+    seperator: true,
+};
+
 // creating a one gourp for constructs
 const constructsToolDefArray = _.union(serviceToolDefArray, [seperator], mainToolDefArray,
-    [seperator], statementToolDefArray);
+    [seperator2], statementToolDefArray);
 
 const constructs = new ToolGroup({
     toolGroupName: 'Constructs',

@@ -221,13 +221,13 @@ class BallerinaFileEditor extends React.Component {
      * @param {ASTNode} newAST A new AST with up-to-date position
      */
     syncASTs(currentAST, newAST) {
-        const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
+        /* TODOX const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
         newAST.accept(findLineNumbersVisiter);
         const lineNumbers = findLineNumbersVisiter.getLineNumbers();
 
         const updateLineNumbersVisiter = new UpdateLineNumbersVisiter(currentAST);
         updateLineNumbersVisiter.setLineNumbers(lineNumbers);
-        currentAST.accept(updateLineNumbersVisiter);
+        currentAST.accept(updateLineNumbersVisiter);*/
     }
 
     /**
