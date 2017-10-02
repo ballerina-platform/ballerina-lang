@@ -192,7 +192,8 @@ class TransformExpanded extends React.Component {
             if (TreeUtil.isInvocation(expression)
                     || TreeUtil.isBinaryExpr(expression)
                     || TreeUtil.isUnaryExpr(expression)) {
-            this.drawIntermediateNode(variables, expression, statement, isTemp);
+                this.drawIntermediateNode(variables, expression, statement, isTemp);
+            }
         } else if (TreeUtil.isVariableDef(statement)) {
             const variables = statement.getVariables();
             const { exp: expression, isTemp } = this.transformNodeManager
@@ -221,10 +222,10 @@ class TransformExpanded extends React.Component {
             if (TreeUtil.isInvocation(expression)
                     || TreeUtil.isBinaryExpr(expression)
                     || TreeUtil.isUnaryExpr(expression)) {
-            this.drawIntermediateNode(variables, expression, statement, isTemp);
+                this.drawIntermediateNode(variables, expression, statement, isTemp);
+            }
         } else {
             log.error('Invalid statement type in transformer');
-            return;
         }
     }
 
@@ -812,22 +813,29 @@ class TransformExpanded extends React.Component {
         this.transformNodeManager.removeTargetType(type);
     }
 
-    addSource(selectedSource) {
-        const inputDef = TransformFactory.createSimpleVariableRef(selectedSource);
-        if (this.isVertexExist(selectedSource)) {
+    /**
+     * Add source to transform statement
+     * @param {any} source source
+     * @memberof TransformExpanded
+     */
+    addSource(source) {
+        const inputDef = TransformFactory.createSimpleVariableRef(source);
+        if (this.isVertexExist(source)) {
             this.props.model.addInput(inputDef);
             this.setState({ typedSource: '' });
         }
     }
 
-    addTarget(selectedTarget) {
-        const outDef = ASTFactory
-                                .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
-        if (this.isVertexExist(selectedTarget)) {
-            const outputs = this.props.model.getOutput();
-            outputs.push(outDef);
-            this.props.model.setOutput(outputs);
-            this.setState({ typedTarget: '' });
+    /**
+     * Add target to transform statement
+     * @param {any} target target
+     * @memberof TransformExpanded
+     */
+    addTarget(target) {
+        const outDef = TransformFactory.createSimpleVariableRef(target);
+        if (this.isVertexExist(target)) {
+            this.props.model.addOutput(outDef);
+            this.setState({ typedSource: '' });
         }
     }
 
