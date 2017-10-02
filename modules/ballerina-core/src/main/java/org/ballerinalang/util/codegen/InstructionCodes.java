@@ -243,7 +243,6 @@ public interface InstructionCodes {
     int NEWMESSAGE = 214;
     int NEWDATATABLE = 215;
 
-    int REP = 230;
     int IRET = 231;
     int FRET = 232;
     int SRET = 233;
