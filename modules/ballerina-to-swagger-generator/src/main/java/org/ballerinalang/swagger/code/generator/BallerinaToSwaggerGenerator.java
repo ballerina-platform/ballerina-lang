@@ -17,7 +17,7 @@
 package org.ballerinalang.swagger.code.generator;
 
 import io.swagger.models.Swagger;
-import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.swagger.code.generator.exception.SwaggerGenException;
 import org.ballerinalang.swagger.code.generator.util.SwaggerUtils;
 import org.ballerinalang.util.codegen.ServiceInfo;
