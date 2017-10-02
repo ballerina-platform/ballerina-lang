@@ -16,6 +16,7 @@
 
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.window.Window;
@@ -48,6 +49,10 @@ public class InsertIntoWindowCallback extends OutputCallback {
      */
     @Override
     public void send(ComplexEventChunk complexEventChunk) {
+        if (getSiddhiDebugger() != null) {
+            getSiddhiDebugger()
+                    .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, complexEventChunk.getFirst());
+        }
         // If events are inserted directly from another window, expired events can arrive
         complexEventChunk.reset();
         while (complexEventChunk.hasNext()) {

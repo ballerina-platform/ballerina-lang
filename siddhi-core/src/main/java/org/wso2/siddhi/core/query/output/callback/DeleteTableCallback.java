@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.state.StateEventPool;
@@ -38,30 +39,32 @@ public class DeleteTableCallback extends OutputCallback {
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
-    private StreamEventConverter streamEventConvertor;
+    private StreamEventConverter streamEventConverter;
 
     public DeleteTableCallback(Table table, CompiledCondition compiledCondition, int matchingStreamIndex,
                                boolean convertToStreamEvent, StateEventPool stateEventPool,
-                               StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
+                               StreamEventPool streamEventPool, StreamEventConverter streamEventConverter) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.table = table;
         this.compiledCondition = compiledCondition;
         this.convertToStreamEvent = convertToStreamEvent;
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
-        this.streamEventConvertor = streamEventConvertor;
+        this.streamEventConverter = streamEventConverter;
     }
 
     @Override
     public synchronized void send(ComplexEventChunk deletingEventChunk) {
+        if (getSiddhiDebugger() != null) {
+            getSiddhiDebugger()
+                    .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, deletingEventChunk.getFirst());
+        }
         deletingEventChunk.reset();
         if (deletingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> deletingStateEventChunk = constructMatchingStateEventChunk(
                     deletingEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool,
-                    streamEventConvertor);
-
+                    streamEventConverter);
             table.deleteEvents(deletingStateEventChunk, compiledCondition);
         }
     }
-
 }

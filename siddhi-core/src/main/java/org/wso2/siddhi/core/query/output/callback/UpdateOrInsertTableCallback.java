@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.state.StateEventPool;
@@ -42,13 +43,13 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
-    private StreamEventConverter streamEventConvertor;
+    private StreamEventConverter streamEventConverter;
 
     public UpdateOrInsertTableCallback(Table table, CompiledCondition compiledCondition,
                                        CompiledUpdateSet compiledUpdateSet,
                                        int matchingStreamIndex, boolean convertToStreamEvent,
                                        StateEventPool stateEventPool, StreamEventPool streamEventPool,
-                                       StreamEventConverter streamEventConvertor) {
+                                       StreamEventConverter streamEventConverter) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.table = table;
         this.compiledCondition = compiledCondition;
@@ -56,19 +57,23 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
         this.convertToStreamEvent = convertToStreamEvent;
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
-        this.streamEventConvertor = streamEventConvertor;
+        this.streamEventConverter = streamEventConverter;
         this.addingStreamEventExtractor = new AddingStreamEventExtractor(matchingStreamIndex);
     }
 
     @Override
     public void send(ComplexEventChunk updateOrAddEventChunk) {
+        if (getSiddhiDebugger() != null) {
+            getSiddhiDebugger().checkBreakPoint(getQueryName(),
+                    SiddhiDebugger.QueryTerminal.OUT, updateOrAddEventChunk.getFirst());
+        }
         updateOrAddEventChunk.reset();
         if (updateOrAddEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> updateOrAddStateEventChunk = constructMatchingStateEventChunk
-                    (updateOrAddEventChunk,
-                    convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
+                    (updateOrAddEventChunk, convertToStreamEvent, stateEventPool,
+                            matchingStreamIndex, streamEventPool, streamEventConverter);
             constructMatchingStateEventChunk(updateOrAddEventChunk, convertToStreamEvent, stateEventPool,
-                    matchingStreamIndex, streamEventPool, streamEventConvertor);
+                    matchingStreamIndex, streamEventPool, streamEventConverter);
             table.updateOrAddEvents(updateOrAddStateEventChunk, compiledCondition, compiledUpdateSet,
                     addingStreamEventExtractor);
         }
