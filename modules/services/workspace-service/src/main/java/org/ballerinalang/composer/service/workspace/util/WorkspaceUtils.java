@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -67,6 +68,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
@@ -234,8 +236,7 @@ public class WorkspaceUtils {
            // Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, "",
            //         connector));
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
-           // Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
-           //         structDef));
+            pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
         }
     }
 
@@ -360,17 +361,17 @@ public class WorkspaceUtils {
      * Extract Structs from ballerina lang.
      * @param packages packages to send.
      * @param packagePath packagePath.
-     * @param structDef structDef.
+     * @param struct struct.
      * */
-    private static void extractStructDefs(Map<String, ModelPackage> packages, String packagePath,
-                                          org.ballerinalang.model.StructDef structDef) {
+    private static void extractStruct(Map<String, ModelPackage> packages, String packagePath,
+                                          BLangStruct struct) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addStructsItem(createNewStruct(structDef.getName(), structDef.getFieldDefStmts()));
+            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields()));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
-            modelPackage.addStructsItem(createNewStruct(structDef.getName(), structDef.getFieldDefStmts()));
+            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields()));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -478,22 +479,16 @@ public class WorkspaceUtils {
     /**
      * Create new struct
      * @param name name of the struct
-     * @param fieldDefStmts field definiton statements
+     * @param fields    field definiton statements
      * @return {Function} function
      * */
-    private static Struct createNewStruct(String name, VariableDefStmt[] fieldDefStmts) {
+    private static Struct createNewStruct(String name, List<BLangVariable> fields) {
         Struct struct = new Struct(name);
-        Arrays.stream(fieldDefStmts).forEach(
-                fieldStmt -> {
-                    StructField structField = createNewStructField(fieldStmt.getVariableDef().getName(),
-                                                     fieldStmt.getVariableDef().getTypeName().getName());
-                    structField.setPackageName(fieldStmt.getVariableDef().getTypeName().getPackageName());
-                    if (fieldStmt.getRExpr() != null && fieldStmt.getRExpr() instanceof BasicLiteral) {
-                        structField.setDefaultValue(((BasicLiteral) fieldStmt.getRExpr()).getBValue().stringValue());
-                    }
-                    struct.addStructField(structField);
-                });
-
+        fields.forEach((field) -> {
+            StructField structField = createNewStructField(field.getName().getValue(),
+                    field.getTypeNode().type.toString());
+            struct.addStructField(structField);
+        });
         return struct;
     }
 
