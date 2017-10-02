@@ -69,6 +69,7 @@ class TransactionNode extends React.Component {
                     bBox={transactionBody.viewState.bBox}
                     title={'Transaction'}
                     model={transactionBody}
+                    body={transactionBody}
                 />
                 {failedBody &&
                     <CompoundStatementDecorator
@@ -76,6 +77,7 @@ class TransactionNode extends React.Component {
                         bBox={failedBody.viewState.bBox}
                         title={'Failed'}
                         model={failedBody}
+                        body={failedBody}
                     />
                 }
                 {abortedBody &&
@@ -83,6 +85,7 @@ class TransactionNode extends React.Component {
                         bBox={abortedBody.viewState.bBox}
                         title={'Aborted'}
                         model={abortedBody}
+                        body={abortedBody}
                     />
                 }
                 {committedBody &&
@@ -90,6 +93,7 @@ class TransactionNode extends React.Component {
                         bBox={committedBody.viewState.bBox}
                         title={'Committed'}
                         model={committedBody}
+                        body={committedBody}
                     />
                 }
             </g>

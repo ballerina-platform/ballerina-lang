@@ -41,11 +41,18 @@ class PositioningUtil {
 
     positionCompoundStatementComponents(node) {
         const viewState = node.viewState;
+        const x = viewState.bBox.x;
+        let y;
 
-        viewState.components['drop-zone'].x = viewState.bBox.x;
-        viewState.components['drop-zone'].y = viewState.bBox.y;
+        if (TreeUtil.isBlock(node)) {
+            y = viewState.bBox.y - viewState.components['block-header'].h;
+        } else {
+            y = viewState.bBox.y;
+        }
+        viewState.components['drop-zone'].x = x;
+        viewState.components['drop-zone'].y = y;
         viewState.components['statement-box'].x = viewState.bBox.x;
-        viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
+        viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
     }
 
 
@@ -629,7 +636,7 @@ class PositioningUtil {
         const statements = node.getStatements();
         let height = 0;
         statements.forEach((element) => {
-            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
             element.viewState.bBox.y = viewState.bBox.y + height;
             height += element.viewState.bBox.h;
         });
@@ -688,15 +695,37 @@ class PositioningUtil {
 
         this.positionCompoundStatementComponents(node);
 
+        node.body.viewState.bBox.x = node.viewState.components['statement-box'].x;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
+            + node.viewState.components['block-header'].h;
+
         // Set the position of the else statement
-        elseStatement.viewState.bBox.x = bBox.x;
-        elseStatement.viewState.bBox.y = viewState.components['statement-box'].y
+        const elseX = bBox.x;
+        let elseY = viewState.components['statement-box'].y
             + viewState.components['statement-box'].h;
+
+        // Increase the node's components width. Mac width of all the else if nodes and the else node increased in this
+        // pass
+        const newWidth = node.viewState.bBox.w;
+        node.body.viewState.bBox.w = newWidth;
+        node.viewState.components['drop-zone'].w = newWidth;
+        node.viewState.components['statement-box'].w = newWidth;
+        node.viewState.components['block-header'].w = newWidth;
+
+        if (node.viewState.bBox.w > elseStatement.viewState.bBox.w) {
+            elseStatement.viewState.bBox.w = newWidth;
+            if (TreeUtil.isBlock(elseStatement)) {
+                elseStatement.viewState.components['drop-zone'].w = newWidth;
+                elseStatement.viewState.components['statement-box'].w = newWidth;
+                elseStatement.viewState.components['block-header'].w = newWidth;
+            }
+        }
+        if (TreeUtil.isBlock(elseStatement)) {
+            elseY += elseStatement.viewState.components['block-header'].h;
+        }
+        elseStatement.viewState.bBox.x = elseX;
+        elseStatement.viewState.bBox.y = elseY;
         this.positionCompoundStatementComponents(elseStatement);
-        // elseStatement.viewState.components['drop-zone'].x = elseStatement.viewState.bBox.x;
-        // elseStatement.viewState.components['drop-zone'].y = elseStatement.viewState.bBox.y;
-        // elseStatement.viewState.components['statement-box'].x = elseStatement.viewState.bBox.x;
-        // elseStatement.viewState.components['statement-box'].y = elseStatement.viewState.bBox.y;
     }
 
     /**
@@ -768,7 +797,7 @@ class PositioningUtil {
         // Set the position of the transaction body
         if (transactionBody) {
             transactionBody.viewState.bBox.x = bBox.x;
-            transactionBody.viewState.bBox.y = nextComponentY;
+            transactionBody.viewState.bBox.y = nextComponentY + transactionBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(transactionBody);
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
         }
@@ -776,7 +805,7 @@ class PositioningUtil {
         // Set the position of the failed body
         if (failedBody) {
             failedBody.viewState.bBox.x = bBox.x;
-            failedBody.viewState.bBox.y = nextComponentY;
+            failedBody.viewState.bBox.y = nextComponentY + failedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(failedBody);
             nextComponentY += failedBody.viewState.components['statement-box'].h;
         }
@@ -784,7 +813,7 @@ class PositioningUtil {
         // Set the position of the aborted body
         if (abortedBody) {
             abortedBody.viewState.bBox.x = bBox.x;
-            abortedBody.viewState.bBox.y = nextComponentY;
+            abortedBody.viewState.bBox.y = nextComponentY + abortedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(abortedBody);
             nextComponentY += abortedBody.viewState.components['statement-box'].h;
         }
@@ -792,7 +821,7 @@ class PositioningUtil {
         // Set the position of the aborted body
         if (committedBody) {
             committedBody.viewState.bBox.x = bBox.x;
-            committedBody.viewState.bBox.y = nextComponentY;
+            committedBody.viewState.bBox.y = nextComponentY + committedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(committedBody);
         }
     }

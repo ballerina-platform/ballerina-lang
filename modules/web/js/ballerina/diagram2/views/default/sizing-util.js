@@ -136,12 +136,12 @@ class SizingUtil {
             if (element.viewState.bBox.w > width) {
                 width = element.viewState.bBox.w;
             }
-            stH = element.viewState.bBox.h;
+            stH += element.viewState.bBox.h;
         });
-        if (stH > height) {
-            height = stH;
+        if (stH + this.config.statement.gutter.v >= height) {
+            height = stH + this.config.statement.gutter.v;
         }
-        viewState.bBox.w = width;
+        viewState.bBox.w = width + (this.config.statement.gutter.h * 2);
         viewState.bBox.h = height;
     }
 
@@ -970,6 +970,13 @@ class SizingUtil {
         let nodeHeight = node.viewState.bBox.h;
         let elseStmt = node.elseStatement;
         let proceed = true;
+
+        // If the else statement's width is greater than the node's width, we increase the node width
+        // Eventually the top most if node ends up with the max width. During the positioning, increase the width to the
+        // bottom most node
+        if (elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
+            node.viewState.bBox.w = elseStmt.viewState.bBox.w;
+        }
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
                 nodeHeight += elseStmt.viewState.bBox.h;
@@ -981,6 +988,8 @@ class SizingUtil {
                 }
             }
         }
+
+        // Need to make the width of all the components (if, else, else if) equal
         node.viewState.bBox.h = nodeHeight;
     }
 

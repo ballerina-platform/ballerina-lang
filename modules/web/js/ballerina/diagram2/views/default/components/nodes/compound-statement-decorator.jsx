@@ -28,6 +28,7 @@ import './compound-statement-decorator.css';
 import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 // import ActiveArbiter from './active-arbiter';
 // import Breakpoint from './breakpoint';
+import { getComponentForNodeArray } from './../../../../diagram-util';
 
 const CLASS_MAP = {
     hidden: 'hide-action',
@@ -234,6 +235,9 @@ class BlockStatementDecorator extends React.Component {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         const separatorGapV = titleH / 3;
+
+        const body = this.props.body ? getComponentForNodeArray(this.props.body) : undefined;
+
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -298,6 +302,7 @@ class BlockStatementDecorator extends React.Component {
                     </g>
                 }
                 { isBreakpoint && this.renderBreakpointIndicator() }
+                {body}
             </g>);
     }
 }
