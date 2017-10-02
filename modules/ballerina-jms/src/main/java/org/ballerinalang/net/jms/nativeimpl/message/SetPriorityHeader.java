@@ -19,7 +19,7 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -41,9 +41,9 @@ import javax.jms.Message;
 @BallerinaFunction(
         packageName = "ballerina.net.jms.jmsmessage",
         functionName = "setPriority",
-        args = {@Argument(name = "jmsmessage", type = TypeEnum.STRUCT, structType = "JMSMessage",
+        args = {@Argument(name = "jmsmessage", type = TypeKind.STRUCT, structType = "JMSMessage",
                           structPackage = "ballerina.net.jms"),
-                @Argument(name = "value", type = TypeEnum.INT)},
+                @Argument(name = "value", type = TypeKind.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

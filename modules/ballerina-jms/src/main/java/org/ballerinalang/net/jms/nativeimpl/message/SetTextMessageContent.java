@@ -17,7 +17,7 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -40,10 +40,10 @@ import javax.jms.TextMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.jms.jmsmessage",
         functionName = "setTextMessageContent",
-        args = {@Argument(name = "msg", type = TypeEnum.STRUCT, structType = "JMSMessage",
+        args = {@Argument(name = "msg", type = TypeKind.STRUCT, structType = "JMSMessage",
                           structPackage = "ballerina.net.jms"),
-                @Argument(name = "content", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+                @Argument(name = "content", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

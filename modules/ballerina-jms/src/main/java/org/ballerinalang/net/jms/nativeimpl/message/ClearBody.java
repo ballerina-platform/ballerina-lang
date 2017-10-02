@@ -17,7 +17,7 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -38,7 +38,7 @@ import javax.jms.Message;
 @BallerinaFunction(
         packageName = "ballerina.net.jms.jmsmessage",
         functionName = "clearBody",
-        args = {@Argument(name = "msg", type = TypeEnum.STRUCT, structType = "JMSMessage",
+        args = {@Argument(name = "msg", type = TypeKind.STRUCT, structType = "JMSMessage",
                           structPackage = "ballerina.net.jms")},
         isPublic = true
 )
