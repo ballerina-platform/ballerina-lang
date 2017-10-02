@@ -2,25 +2,25 @@ package ballerina.net.jms;
 
 import ballerina.doc;
 
-struct JMSMessage {
+public struct JMSMessage {
 }
 
 @doc:Description { value:"Message acknowledgement action implementation for jms connector when using jms client acknowledgement mode"}
 @doc:Param { value:"message: message" }
 @doc:Param { value:"deliveryStatus: Specify whether message delivery is SUCCESS or ERROR" }
-native function acknowledge (message m, string deliveryStatus);
+public native function acknowledge (JMSMessage m, string deliveryStatus);
 
 @doc:Description { value:"Session rollback action implementation for jms connector when using jms session transaction mode"}
 @doc:Param { value:"message: message" }
-native function rollback (message m);
+public native function rollback (JMSMessage m);
 
 @doc:Description { value:"Session commit action implementation for jms connector when using jms session transaction mode"}
 @doc:Param { value:"message: message" }
-native function commit (message m);
+public native function commit (JMSMessage m);
 
 @doc:Description { value:"JMS client connector to send messages to the JMS provider."}
 @doc:Param { value:"connection and optional properties for the connector"}
-connector ClientConnector (map properties) {
+public connector ClientConnector (map properties) {
 
     @doc:Description {value:"SEND action implementation of the JMS Connector"}
     @doc:Param {value:"destinationName: Destination Name"}
@@ -31,7 +31,7 @@ connector ClientConnector (map properties) {
 
 @doc:Description { value:"Create JMS Message based on client connector"}
 @doc:Param { value:"ClientConnector: clientConnector" }
-native function createTextMessage (ClientConnector clientConnector) (JMSMessage);
+public native function createTextMessage (ClientConnector clientConnector) (JMSMessage);
 
 @doc:Description { value:"Header key for message ID. This is not a required header and jms client application might set the value when sending the message to the JMS broker."}
 const string HEADER_MESSAGE_ID = "JMS_MESSAGE_ID";
