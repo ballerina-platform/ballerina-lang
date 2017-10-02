@@ -314,6 +314,7 @@ const createFunctionInvocationTool = {
     definition: 'Provide a way to invoke/call functions',
 };
 
+/*
 const createReplyStatementTool = {
     id: 'Reply',
     name: 'Reply',
@@ -322,6 +323,7 @@ const createReplyStatementTool = {
     nodeFactoryMethod: DefaultASTFactory.createReplyStatement,
     definition: 'Send the request message back to the client',
 };
+*/
 
 const createReturnStatementTool = {
     id: 'Return',
@@ -412,7 +414,7 @@ const statementToolDefArray = [
     createThrowStatementTool,
 
     createReturnStatementTool,
-    createReplyStatementTool,
+    // createReplyStatementTool,
 
     createWorkerInvocationStatementTool,
     createWorkerReplyStatementTool,
