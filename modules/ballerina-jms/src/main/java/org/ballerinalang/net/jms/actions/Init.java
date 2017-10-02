@@ -20,7 +20,7 @@ package org.ballerinalang.net.jms.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -45,11 +45,11 @@ import java.util.UUID;
                  connectorName = Constants.CONNECTOR_NAME,
                  args = {
                          @Argument(name = "c",
-                                   type = TypeEnum.CONNECTOR)
+                                   type = TypeKind.CONNECTOR)
                  },
                  connectorArgs = {
                          @Argument(name = "properties",
-                                   type = TypeEnum.MAP)
+                                   type = TypeKind.MAP)
                  })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {
