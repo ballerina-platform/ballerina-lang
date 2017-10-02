@@ -11,6 +11,10 @@ struct Response {
 struct Options{
     boolean followRedirect = false;
     int maximumRedirectCount = 5;
+	string trustStoreFile;
+	string trustStorePassword;
+	string keyStoreFile;
+	string keyStorePassword;
 }
 
 connector ClientConnector (string serviceUri, Options connectorOptions) {

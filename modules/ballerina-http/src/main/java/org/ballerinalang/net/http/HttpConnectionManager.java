@@ -22,6 +22,7 @@ import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
+import org.apache.commons.lang3.StringUtils;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -172,8 +173,25 @@ public class HttpConnectionManager {
         BStruct options = (BStruct) bConnector.getRefField(0);
         int followRedirect = options.getBooleanField(0);
         Long maxRedirectCount = options.getIntField(0);
+        String trustStoreFile = options.getStringField(0);
+        String trustStorePassword = options.getStringField(1);
+        String keyStoreFile = options.getStringField(2);
+        String keyStorePassword = options.getStringField(3);
+
         senderConfiguration.setFollowRedirect(followRedirect == 1 ? true : false);
         senderConfiguration.setMaxRedirectCount(maxRedirectCount.intValue());
+        if (StringUtils.isNotBlank(trustStoreFile)) {
+            senderConfiguration.setTrustStoreFile(trustStoreFile);
+        }
+        if (StringUtils.isNotBlank(trustStorePassword)) {
+            senderConfiguration.setTrustStorePass(trustStorePassword);
+        }
+        if (StringUtils.isNotBlank(keyStoreFile)) {
+            senderConfiguration.setKeyStoreFile(keyStoreFile);
+        }
+        if (StringUtils.isNotBlank(keyStorePassword)) {
+            senderConfiguration.setKeyStorePassword(keyStorePassword);
+        }
 
         return httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
     }
