@@ -25,6 +25,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
+import TransformFactory from './transform-factory';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
 import ASTNode from '../../../../../ast/node';
 import Tree from './tree';
@@ -163,42 +164,67 @@ class TransformExpanded extends React.Component {
             return;
         }
 
-        if (!TreeUtil.isVariableDef(statement) && !TreeUtil.isAssignment(statement)) {
-            log.error('Invalid statement type in transformer');
-            return;
-        }
+        if (TreeUtil.isAssignment(statement)) {
+            const variables = statement.getVariables();
+            const { exp: expression, isTemp } = this.transformNodeManager
+                            .getResolvedExpression(statement.getExpression(), statement);
+            if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
+                TreeUtil.isSimpleVariableRef(expression))) {
+                _.forEach(variables, (variable) => {
+                    const sourceExprString = expression.getSource().trim();
+                    let sourceId = `${sourceExprString}:${viewId}`;
+                    let folded = false;
+                    if (!this.sourceElements[sourceId]) {
+                        folded = true;
+                        sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
+                    }
 
-        // There can be multiple left expressions.
-        // E.g. : e.name, e.username = p.first_name;
-        const variables = statement.getVariables();
-        const { exp: expression, isTemp } = this.transformNodeManager
-                        .getResolvedExpression(statement.getExpression(), statement);
-        if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
-            TreeUtil.isSimpleVariableRef(expression))) {
-            _.forEach(variables, (variable) => {
-                const sourceExprString = expression.getSource().trim();
-                let sourceId = `${sourceExprString}:${viewId}`;
-                let folded = false;
-                if (!this.sourceElements[sourceId]) {
-                    folded = true;
-                    sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
-                }
+                    const targetExprString = variable.getSource().trim();
+                    let targetId = `${targetExprString}:${viewId}`;
+                    if (!this.targetElements[targetId]) {
+                        folded = true;
+                        targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
+                    }
 
-                const targetExprString = variable.getSource().trim();
-                let targetId = `${targetExprString}:${viewId}`;
-                if (!this.targetElements[targetId]) {
-                    folded = true;
-                    targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
-                }
-
-                this.drawConnection(sourceId, targetId, folded);
-            });
-        }
-
-        if (TreeUtil.isInvocation(expression)
+                    this.drawConnection(sourceId, targetId, folded);
+                });
+            }
+            if (TreeUtil.isInvocation(expression)
                     || TreeUtil.isBinaryExpr(expression)
                     || TreeUtil.isUnaryExpr(expression)) {
             this.drawIntermediateNode(variables, expression, statement, isTemp);
+        } else if (TreeUtil.isVariableDef(statement)) {
+            const variables = statement.getVariables();
+            const { exp: expression, isTemp } = this.transformNodeManager
+                            .getResolvedExpression(statement.getExpression(), statement);
+            if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
+                TreeUtil.isSimpleVariableRef(expression))) {
+                _.forEach(variables, (variable) => {
+                    const sourceExprString = expression.getSource().trim();
+                    let sourceId = `${sourceExprString}:${viewId}`;
+                    let folded = false;
+                    if (!this.sourceElements[sourceId]) {
+                        folded = true;
+                        sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
+                    }
+
+                    const targetExprString = variable.getSource().trim();
+                    let targetId = `${targetExprString}:${viewId}`;
+                    if (!this.targetElements[targetId]) {
+                        folded = true;
+                        targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
+                    }
+
+                    this.drawConnection(sourceId, targetId, folded);
+                });
+            }
+            if (TreeUtil.isInvocation(expression)
+                    || TreeUtil.isBinaryExpr(expression)
+                    || TreeUtil.isUnaryExpr(expression)) {
+            this.drawIntermediateNode(variables, expression, statement, isTemp);
+        } else {
+            log.error('Invalid statement type in transformer');
+            return;
         }
     }
 
@@ -722,13 +748,13 @@ class TransformExpanded extends React.Component {
         if (suggestionValue === '') {
             const varDef = this.transformNodeManager.addNewVariable('source');
             const varVertex = ({
-                name: varDef.getVariable().getVariableName().getValue(),
-                displayName: varDef.getVariable().getVariableName().getValue(),
-                type: varDef.getVariable().getTypeNode().getValue(),
+                name: varDef.getVariableName().getValue(),
+                displayName: varDef.getVariableName().getValue(),
+                type: varDef.getTypeNode().typekind,
                 varDeclarationString: varDef.getSource(),
             });
             this.state.vertices.push(varVertex);
-            this.addSource(varDef.getVariable().getVariableName());
+            this.addSource(varDef.getVariableName());
         } else {
             this.setState({
                 selectedSource: suggestionValue,
@@ -787,12 +813,9 @@ class TransformExpanded extends React.Component {
     }
 
     addSource(selectedSource) {
-        const inputDef = ASTFactory
-                                .createSimpleVariableReferenceExpression({ variableName: selectedSource });
+        const inputDef = TransformFactory.createSimpleVariableRef(selectedSource);
         if (this.isVertexExist(selectedSource)) {
-            const inputs = this.props.model.getInput();
-            inputs.push(inputDef);
-            this.props.model.setInput(inputs);
+            this.props.model.addInput(inputDef);
             this.setState({ typedSource: '' });
         }
     }
@@ -1001,6 +1024,15 @@ class TransformExpanded extends React.Component {
         });
     }
 
+    /**
+     * Get intermediate node definitions
+     * @param {any} nodeExpression node expression
+     * @param {any} statement containing statements
+     * @param {any} [intermediateNodes=[]] if it is nested intermediate nodes
+     * @param {any} parentNode parent node
+     * @returns intermediate nodes
+     * @memberof TransformExpanded
+     */
     getIntermediateNodes(nodeExpression, statement, intermediateNodes = [], parentNode) {
         if (TreeUtil.isInvocation(nodeExpression)) {
             const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
@@ -1047,7 +1079,6 @@ class TransformExpanded extends React.Component {
             });
             return intermediateNodes;
         } else {
-            log.error('Invalid node type ' + nodeExpression.kind);
             return [];
         }
     }

@@ -16,11 +16,17 @@
  * under the License.
  */
 
+import log from 'log';
 import NodeFactory from '../../../../../model/node-factory';
 
 class TransformFactory {
-    static createSimpleVarRef(variableName) {
-
+    
+    static createSimpleVariableRef(variableName) {
+        const variableRef = NodeFactory.createSimpleVariableRef({});
+        const identifierNode = NodeFactory.createIdentifier({});
+        identifierNode.setValue(variableName);
+        variableRef.setVariableName(identifierNode);
+        return variableRef;
     }
 
     static createVariableDef(name, type, value) {
