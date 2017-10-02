@@ -86,6 +86,12 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         this.addTopLevelNodes(importNode, index + 1);
     }
 
+    getImports() {
+        return this.getTopLevelNodes().filter((node) => {
+            return TreeUtils.isImport(node);
+        });
+    }
+
     /**
      * Add a global declaration as a top level node
      * @param globalNode

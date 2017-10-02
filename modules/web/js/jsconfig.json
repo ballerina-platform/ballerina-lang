@@ -15,24 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import _ from 'lodash';
-import TreeUtil from 'ballerina/model/tree-util';
-import AbstractAnnotationAttachmentAttributeValueNode from './abstract-tree/annotation-attachment-attribute-value-node';
-
-class AnnotationAttachmentAttributeValueNode extends AbstractAnnotationAttachmentAttributeValueNode {
-
-    isValueLiteral() {
-        return this.getValue() && TreeUtil.isLiteral(this.getValue());
-    }
-
-    isValueAnnotationAttachment() {
-        return this.getValue() && TreeUtil.isAnnotationAttachment(this.getValue());
-    }
-
-    isValueArray() {
-        return _.isNil(this.getValue());
-    }
+ 
+ {
+    "compilerOptions": {
+        "baseUrl": "./",
+        "experimentalDecorators": true,
+        "jsx": "react",
+        "target": "es6",
+        "allowSyntheticDefaultImports": true,
+        "paths": {
+            "./*": [
+                "*"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules"
+    ]
 }
-
-export default AnnotationAttachmentAttributeValueNode;

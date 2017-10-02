@@ -19,7 +19,6 @@
 import AbstractAnnotationAttachmentAttributeNode from './abstract-tree/annotation-attachment-attribute-node';
 
 class AnnotationAttachmentAttributeNode extends AbstractAnnotationAttachmentAttributeNode {
-
 }
 
 export default AnnotationAttachmentAttributeNode;

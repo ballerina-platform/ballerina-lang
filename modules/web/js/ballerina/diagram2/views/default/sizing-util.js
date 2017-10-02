@@ -295,7 +295,16 @@ class SizingUtil {
         cmp.panelBody.h = (viewState.collapsed) ? 0 : cmp.panelBody.h;
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
-        // calculate annotations
+
+        if (_.isNil(viewState.showAnnotationContainer)) {
+            viewState.showAnnotationContainer = true;
+        }
+
+        if (!viewState.showAnnotationContainer || (node.isLambda && node.isLambda())) {
+            cmp.annotation.h = 0;
+        } else {
+            cmp.annotation.h = this._getAnnotationHeight(node, 40);
+        }
 
         viewState.bBox.h = cmp.heading.h + cmp.panelBody.h + cmp.annotation.h;
 
@@ -617,13 +626,16 @@ class SizingUtil {
 
         cmp.annotation = new SimpleBBox();
 
-        /* if (_.isUndefined(node.viewState.showAnnotationContainer)) {
-            node.viewState.showAnnotationContainer = true;
+        if (_.isNil(viewState.showAnnotationContainer)) {
+            viewState.showAnnotationContainer = true;
         }
 
-        if (!node.viewState.showAnnotationContainer) {
-            components.annotation.h = 0;
+        if (!viewState.showAnnotationContainer || (node.isLambda && node.isLambda())) {
+            cmp.annotation.h = 0;
+        } else {
+            cmp.annotation.h = this._getAnnotationHeight(node, 40);
         }
+        /*
         components.annotation.w = bodyWidth;
         components.transportLine.h = totalResourceHeight;
         // Set initial height to the body
@@ -641,6 +653,7 @@ class SizingUtil {
             }
         });
     }
+
     /**
      * Calculate dimention of Struct nodes.
      *
@@ -674,7 +687,7 @@ class SizingUtil {
             components.body.h = bodyHeight;
         }
 
-        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
+        if (_.isNil(node.viewState.showAnnotationContainer)) {
             node.viewState.showAnnotationContainer = true;
         }
 
@@ -1472,6 +1485,68 @@ class SizingUtil {
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
             components.expression = this.getTextWidth(expression, 0, available);
         }
+    }
+
+    /**
+     * Calculates the height of the annotations of a given node.
+     *
+     * @param {ASTNode} node The node with annotations.
+     * @param {number} [defaultHeight=0] The height value to start from.
+     * @param {number} [annotationLineHeight=18.75] The default height of an annotation or annotation entry when
+     * contained to a single line.
+     * @returns {number} The total height needed for the annotations.
+     *
+     * @memberof SizingUtil
+     */
+    _getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 17.33) {
+        let height = defaultHeight;
+        if (TreeUtil.isService(node) || TreeUtil.isResource(node) ||
+            TreeUtil.isFunction(node) || TreeUtil.isConnector(node) ||
+            TreeUtil.isAction(node) || TreeUtil.isAnnotation(node) ||
+            TreeUtil.isStruct(node)) {
+            for (const annotation of node.getAnnotationAttachments()) {
+                height += this._getAnnotationHeight(annotation) + 10;
+            }
+        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachment(node)) {
+            const annotationAttachment = node;
+            // Considering the start line of the annotation.
+            height += annotationLineHeight;
+            if (!annotationAttachment.viewState.collapsed) {
+                if (annotationAttachment.getAttributes().length > 0) {
+                    annotationAttachment.getAttributes().forEach((annotationAttribute) => {
+                        height += this._getAnnotationHeight(annotationAttribute);
+                    });
+                }
+            }
+        } else if (!_.isNil(node) && TreeUtil.isAnnotationAttachmentAttribute(node)) {
+            const annotationAttachmentAttribute = node;
+            const annotationAttachmentAttributeValue = annotationAttachmentAttribute.getValue();
+            // If the annotation entry a simple native type value
+            if (annotationAttachmentAttributeValue.isValueLiteral()) {
+                height += annotationLineHeight;
+            } else if (annotationAttachmentAttributeValue.isValueAnnotationAttachment()) {
+                if (!annotationAttachmentAttribute.viewState.collapsed) {
+                    // If the annotation entry value an annotation
+                    height += this._getAnnotationHeight(annotationAttachmentAttributeValue.getValue());
+                } else {
+                    // When collapsed we have to consider attribute as a line.
+                    height += annotationLineHeight;
+                }
+            } else if (annotationAttachmentAttributeValue.isValueArray()) {
+                // If the annotation entry value an array
+                height += annotationLineHeight;
+                if (!annotationAttachmentAttribute.viewState.collapsed) {
+                    // Calculating the height for the array children.
+                    annotationAttachmentAttributeValue.getValueArray().forEach((childNode) => {
+                        height += this._getAnnotationHeight(childNode.getValue());
+                    });
+                }
+            }
+        } else if (!_.isNil(node) && TreeUtil.isLiteral(node)) {
+            height += annotationLineHeight;
+        }
+
+        return height;
     }
 }
 
