@@ -38,8 +38,20 @@ class FileSaveDialog extends React.Component {
      */
     onFileSave() {
         const { filePath, fileName } = this.state;
+        if (fileName === '') {
+            this.setState({
+                error: 'File name cannot be empty',
+            });
+            return;
+        }
+        if (filePath === '') {
+            this.setState({
+                error: 'File path cannot be empty',
+            });
+            return;
+        }
         const derivedFilePath = !_.endsWith(filePath, getPathSeperator())
-                ? filePath + getPathSeperator : filePath;
+                ? filePath + getPathSeperator() : filePath;
         const derivedFileName = !_.endsWith(fileName, '.bal')
                 ? fileName + '.bal' : fileName;
         const file = this.props.file;
