@@ -43,6 +43,26 @@ class TransformNode extends AbstractTransformNode {
             });
         }
     }
+
+    addOutput(output, silent, title) {
+        const oldValue = this.outputs;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.outputs.push(output);
+        const newValue = this.outputs;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'outputs',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 }
 
 export default TransformNode;
