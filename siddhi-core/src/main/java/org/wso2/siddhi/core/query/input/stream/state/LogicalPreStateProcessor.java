@@ -102,8 +102,6 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
             partnerStatePreProcessor.pendingStateEventList.clear();
 
             if (isStartState && newAndEveryStateEventList.isEmpty()) {
-                //        if (isStartState && stateType == StateInputStream.Type.SEQUENCE && newAndEveryStateEventList
-                // .isEmpty()) {
                 if (stateType == StateInputStream.Type.SEQUENCE && thisStatePostProcessor.nextEveryStatePerProcessor ==
                         null && !((StreamPreStateProcessor) thisStatePostProcessor.nextStatePerProcessor)
                         .pendingStateEventList.isEmpty()) {
