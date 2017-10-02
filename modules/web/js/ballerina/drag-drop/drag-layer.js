@@ -44,7 +44,7 @@ function getItemStyles(props, isOverTarget, canDropToTarget) {
     }
 
     const { x, y } = currentOffset;
-    const transform = `translate(${x - 24}px, ${y - 48}px)`;
+    const transform = `translate(${x}px, ${y}px)`;
     return {
         transform,
         WebkitTransform: transform,
