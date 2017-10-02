@@ -59,9 +59,10 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link AvgAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader                 this hold the {@link AvgAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -116,18 +117,13 @@ public class AvgAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return avgOutputAttributeAggregator.canDestroy();
+    }
+
+    @Override
     public Object reset() {
         return avgOutputAttributeAggregator.reset();
-    }
-
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //nothing to stop
     }
 
     @Override
@@ -175,6 +171,11 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             value = 0.0;
             count = 0;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return value == 0.0 && count == 0;
         }
 
         @Override
@@ -230,6 +231,11 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
+        public boolean canDestroy() {
+            return value == 0.0 && count == 0;
+        }
+
+        @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
             state.put("Value", value);
@@ -279,6 +285,11 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             value = 0.0;
             count = 0;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return value == 0.0 && count == 0;
         }
 
         @Override
@@ -332,6 +343,11 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             value = 0.0;
             count = 0;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return value == 0.0 && count == 0;
         }
 
         @Override

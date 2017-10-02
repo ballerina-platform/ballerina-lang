@@ -69,9 +69,10 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
+     *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link MinAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     * @param configReader                 this hold the {@link MinAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
@@ -126,18 +127,13 @@ public class MinAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return minOutputAttributeAggregator.canDestroy();
+    }
+
+    @Override
     public Object reset() {
         return minOutputAttributeAggregator.reset();
-    }
-
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //nothing to stop
     }
 
     @Override
@@ -189,6 +185,11 @@ public class MinAttributeAggregator extends AttributeAggregator {
             minDeque.clear();
             minValue = null;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return minDeque.size() == 0 && minValue == null;
         }
 
         @Override
@@ -251,6 +252,11 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
+        public boolean canDestroy() {
+            return minDeque.size() == 0 && minValue == null;
+        }
+
+        @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
             synchronized (this) {
@@ -300,6 +306,11 @@ public class MinAttributeAggregator extends AttributeAggregator {
             minDeque.clear();
             minValue = null;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return minDeque.size() == 0 && minValue == null;
         }
 
         @Override
@@ -358,6 +369,11 @@ public class MinAttributeAggregator extends AttributeAggregator {
             minDeque.clear();
             minValue = null;
             return null;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return minDeque.size() == 0 && minValue == null;
         }
 
         @Override

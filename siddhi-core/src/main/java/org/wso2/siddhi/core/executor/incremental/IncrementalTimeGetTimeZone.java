@@ -70,16 +70,6 @@ public class IncrementalTimeGetTimeZone extends FunctionExecutor {
     }
 
     @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //nothing to stop
-    }
-
-    @Override
     public Attribute.Type getReturnType() {
         return Attribute.Type.STRING;
     }

@@ -28,10 +28,12 @@ import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -63,7 +65,7 @@ public class SiddhiAppContext {
     private String siddhiAppString;
 
     public SiddhiAppContext() {
-        this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
+        this.eternalReferencedHolders = Collections.synchronizedList(new LinkedList<>());
         this.scriptFunctionMap = new HashMap<String, Script>();
     }
 
@@ -131,12 +133,12 @@ public class SiddhiAppContext {
         this.scheduledExecutorService = scheduledExecutorService;
     }
 
-    public void addEternalReferencedHolder(EternalReferencedHolder eternalReferencedHolder) {
+    public synchronized void addEternalReferencedHolder(EternalReferencedHolder eternalReferencedHolder) {
         eternalReferencedHolders.add(eternalReferencedHolder);
     }
 
     public List<EternalReferencedHolder> getEternalReferencedHolders() {
-        return eternalReferencedHolders;
+        return Collections.unmodifiableList(new ArrayList<>(eternalReferencedHolders));
     }
 
     public ThreadBarrier getThreadBarrier() {

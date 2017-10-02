@@ -95,27 +95,6 @@ public class CustomFunctionExtension extends FunctionExecutor {
         }
     }
 
-    /**
-     * This will be called only once and this can be used to acquire
-     * required resources for the processing element.
-     * This will be called after initializing the system and before
-     * starting to process the events.
-     */
-    @Override
-    public void start() {
-
-    }
-
-    /**
-     * This will be called only once and this can be used to release
-     * the acquired resources for processing.
-     * This will be called before shutting down the system.
-     */
-    @Override
-    public void stop() {
-
-    }
-
     @Override
     public Attribute.Type getReturnType() {
         return returnType;
