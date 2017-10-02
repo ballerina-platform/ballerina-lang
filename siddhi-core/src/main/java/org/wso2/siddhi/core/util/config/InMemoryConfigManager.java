@@ -26,15 +26,15 @@ import java.util.Map;
  */
 public class InMemoryConfigManager implements ConfigManager {
     private Map<String, String> extensionMasterConfigs = new HashMap<>();
-    private Map<String, String> storeConfigs = new HashMap<>();
+    private Map<String, String> systemConfigs = new HashMap<>();
 
     public InMemoryConfigManager(Map<String, String> extensionMasterConfigs,
-                                 Map<String, String> storeConfigs) {
+                                 Map<String, String> systemConfigs) {
         if (extensionMasterConfigs != null) {
             this.extensionMasterConfigs = extensionMasterConfigs;
         }
-        if (storeConfigs != null) {
-            this.storeConfigs = storeConfigs;
+        if (systemConfigs != null) {
+            this.systemConfigs = systemConfigs;
         }
     }
 
@@ -53,9 +53,9 @@ public class InMemoryConfigManager implements ConfigManager {
         return new InMemoryConfigReader(keyPrefix, configs);
     }
 
-    public Map<String, String> extractStoreConfigs(String name) {
+    public Map<String, String> extractSystemConfigs(String name) {
         Map<String, String> configs = new HashMap<>();
-        for (Map.Entry<String, String> store : storeConfigs.entrySet()) {
+        for (Map.Entry<String, String> store : systemConfigs.entrySet()) {
             if (store.getKey().startsWith(name)) {
                 configs.put(store.getKey().replaceFirst(name + ".", ""), store.getValue());
             }

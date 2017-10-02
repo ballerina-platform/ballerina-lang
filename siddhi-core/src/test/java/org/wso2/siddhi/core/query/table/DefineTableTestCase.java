@@ -260,7 +260,7 @@ public class DefineTableTestCase {
         storeConfigs.put("test1.type", "test");
         storeConfigs.put("test1.uri", "http://localhost");
         InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test1");
+        inMemoryConfigManager.extractSystemConfigs("test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -303,7 +303,7 @@ public class DefineTableTestCase {
         storeConfigs.put("test1.type", "test");
         storeConfigs.put("test1.uri", "http://localhost");
         InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test1");
+        inMemoryConfigManager.extractSystemConfigs("test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -328,7 +328,7 @@ public class DefineTableTestCase {
         Map<String, String> storeConfigs = new HashMap<>();
         storeConfigs.put("test1.uri", "http://localhost");
         InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test1");
+        inMemoryConfigManager.extractSystemConfigs("test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -347,7 +347,7 @@ public class DefineTableTestCase {
         Map<String, String> storeConfigs = new HashMap<>();
         storeConfigs.put("test1.uri", "http://localhost");
         InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test2");
+        inMemoryConfigManager.extractSystemConfigs("test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -367,7 +367,7 @@ public class DefineTableTestCase {
         storeConfigs.put("test1.type", "testdb");
         storeConfigs.put("test1.uri", "http://localhost");
         InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test2");
+        inMemoryConfigManager.extractSystemConfigs("test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);

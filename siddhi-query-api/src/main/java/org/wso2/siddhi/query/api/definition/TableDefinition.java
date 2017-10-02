@@ -44,14 +44,4 @@ public class TableDefinition extends AbstractDefinition {
         return this;
     }
 
-    public void removeAnnotation(Annotation annotation) {
-        for (int i = 0; i < annotations.size(); i++) {
-            Annotation annotation1 = annotations.get(i);
-            if (annotation1.getName().equalsIgnoreCase(annotation.getName())) {
-                annotations.remove(annotation1);
-                break;
-            }
-        }
-    }
-
 }
