@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.transport.http.netty.https;
 
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -99,7 +102,8 @@ public class MutualSSLTestCase {
     public void testHttpsGet() {
         try {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = new HTTPCarbonMessage();
+            HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                    HttpMethod.GET, ""));
             msg.setProperty("PORT", serverPort);
             msg.setProperty("PROTOCOL", scheme);
             msg.setProperty("HOST", TestUtil.TEST_HOST);
