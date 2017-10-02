@@ -261,6 +261,10 @@ public class SiddhiAppRuntime {
         return sourceMap.values();
     }
 
+    public Collection<List<Sink>> getSinks() {
+        return sinkMap.values();
+    }
+
     public synchronized void start() {
         if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().startReporting();

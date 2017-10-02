@@ -111,6 +111,15 @@ public class SiddhiManager {
     }
 
     /**
+     * Method to set sink handler manager that would create sink handlers for each sink
+     *
+     * @param sinkHandlerManager Sink Handler Manager Implementation to be used.
+     */
+    public void setSinkHandlerFactory(SinkHandlerManager sinkHandlerManager) {
+        this.siddhiContext.setSinkHandlerManager(sinkHandlerManager);
+    }
+
+    /**
      * Method to set configManager for the Siddhi Manager instance.
      *
      * @param configManager Config Manager implementation to be used.
