@@ -4,6 +4,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
+import { exists as checkPathExists } from './../fs-util';
 
 const FILE_TYPE = 'file';
 
@@ -32,25 +33,34 @@ class FileOpenDialog extends React.Component {
      * Called when user clicks open
      */
     onFileOpen() {
-        const { selectedNode: { type, id } } = this.state;
-        if (type !== FILE_TYPE) {
-            this.setState({
-                error: `${id} is not a file`,
+        const { filePath } = this.state;
+        checkPathExists(filePath)
+            .then((response) => {
+                if (response.exists) {
+                    if (response.type === FILE_TYPE) {
+                        this.props.workspaceManager.openFile(filePath)
+                            .then(() => {
+                                this.setState({
+                                    error: '',
+                                    showDialog: false,
+                                });
+                            })
+                            .catch((error) => {
+                                this.setState({
+                                    error,
+                                });
+                            });
+                    } else {
+                        this.setState({
+                            error: `${filePath} is not a file`,
+                        });
+                    }
+                } else {
+                    this.setState({
+                        error: `File ${filePath} does not exist.`,
+                    });
+                }
             });
-        } else {
-            this.props.workspaceManager.openFile(id)
-                .then(() => {
-                    this.setState({
-                        error: '',
-                        showDialog: false,
-                    });
-                })
-                .catch((error) => {
-                    this.setState({
-                        error,
-                    });
-                });
-        }
     }
 
     /**
@@ -84,7 +94,12 @@ class FileOpenDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Form horizontal>
+                <Form
+                    horizontal
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                    }}
+                >
                     <FormGroup controlId="filePath">
                         <Col componentClass={ControlLabel} sm={2}>
                             File Path
@@ -92,10 +107,18 @@ class FileOpenDialog extends React.Component {
                         <Col sm={10}>
                             <FormControl
                                 value={this.state.filePath}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        this.onFileOpen();
+                                    } else if (e.key === 'Escape') {
+                                        this.onDialogHide();
+                                    }
+                                }}
                                 onChange={(evt) => {
                                     this.setState({
                                         error: '',
                                         filePath: evt.target.value,
+                                        selectedNode: undefined,
                                     });
                                 }}
                                 type="text"
