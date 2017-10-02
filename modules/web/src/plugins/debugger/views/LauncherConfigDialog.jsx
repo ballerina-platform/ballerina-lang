@@ -108,7 +108,6 @@ class LauncherConfigDialog extends React.Component {
                 actions={
                     <Button
                         bsStyle="primary"
-                        disabled={this.state.filePath === '' && this.state.fileName === ''}
                         onClick={this.saveConfigs}
                     >
                         Save
@@ -134,7 +133,6 @@ class LauncherConfigDialog extends React.Component {
                                             bsStyle="primary"
                                             onClick={() => this.onDeleteArgument(idx)}
                                             className="launcher-config-delete"
-                                            disabled={this.state.filePath === '' && this.state.fileName === ''}
                                         >
                                             <i className="fw fw-delete" />
                                         </Button>
@@ -144,11 +142,10 @@ class LauncherConfigDialog extends React.Component {
                         );
                     })}
 
-                    <FormGroup controlId="filePath">
+                    <FormGroup>
                         <Button
                             bsStyle="primary"
                             onClick={this.onAddArgument}
-                            disabled={this.state.filePath === '' && this.state.fileName === ''}
                         >
                             <i className="fw fw-add" />
                             &nbsp; Add argument

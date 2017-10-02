@@ -41,7 +41,12 @@ export function getHandlerDefinitions(debuggerPlugin) {
         {
             cmdID: COMMANDS.STOP,
             handler: () => {
-                LaunchManager.stop();
+                if (DebugManager.active) {
+                    DebugManager.stop();
+                }
+                if (LaunchManager.active) {
+                    LaunchManager.stop();
+                }
             },
         },
         {
@@ -57,6 +62,14 @@ export function getHandlerDefinitions(debuggerPlugin) {
             cmdID: COMMANDS.SHOW_LAUNCHER_CONFIG_DIALOG,
             handler: () => {
                 const id = DIALOG_IDS.LAUNCHER_CONFIG;
+                const { command: { dispatch } } = debuggerPlugin.appContext;
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+            },
+        },
+        {
+            cmdID: COMMANDS.SHOW_REMOTE_DEBUG_DIALOG,
+            handler: () => {
+                const id = DIALOG_IDS.REMOTE_DEBUG;
                 const { command: { dispatch } } = debuggerPlugin.appContext;
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
             },

@@ -27,6 +27,7 @@ export const COMMANDS = {
     STEP_OUT: 'step-out',
     STOP: 'stop',
     SHOW_LAUNCHER_CONFIG_DIALOG: 'show-launcher-config-dialog',
+    SHOW_REMOTE_DEBUG_DIALOG: 'show-remote-debug-dialog',
 };
 
 export const VIEWS = {
@@ -48,6 +49,7 @@ export const LABELS = {
 
 export const DIALOG_IDS = {
     LAUNCHER_CONFIG: 'composer.dialog.laucher-config',
+    REMOTE_DEBUG: 'composer.dialog.remote-debug',
 };
 
 export const TOOLS = {
