@@ -20,7 +20,7 @@ import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -64,13 +64,13 @@ import javax.transaction.xa.XAResource;
         packageName = "ballerina.net.jms",
         actionName = "send",
         connectorName = Constants.CONNECTOR_NAME,
-        args = { @Argument(name = "jmsClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "destinationName", type = TypeEnum.STRING),
-                 @Argument(name = "msgType", type = TypeEnum.STRING),
-                 @Argument(name = "m", type = TypeEnum.MESSAGE)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        args = { @Argument(name = "jmsClientConnector", type = TypeKind.CONNECTOR),
+                 @Argument(name = "destinationName", type = TypeKind.STRING),
+                 @Argument(name = "msgType", type = TypeKind.STRING),
+                 @Argument(name = "m", type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         connectorArgs = {
-                @Argument(name = "properties", type = TypeEnum.MAP)
+                @Argument(name = "properties", type = TypeKind.MAP)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "SEND action implementation of the JMS Connector") })
@@ -113,13 +113,6 @@ public class Send extends AbstractJMSAction {
 
         boolean isTransacted = Boolean.FALSE;
         if (propertyMap.get(JMSConstants.PARAM_ACK_MODE) != null) {
-            //Todo: do we need this?
-            //if the JMS transacted send is outside of the Ballerina transaction block, make it non-jms-transaction
-            //           if((JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE)))
-            // && !context
-            //                    .isInTransaction()) {
-            //                propertyMap.put(JMSConstants.PARAM_ACK_MODE, JMSConstants.AUTO_ACKNOWLEDGE_MODE);
-            //            }
             isTransacted = (JMSConstants.SESSION_TRANSACTED_MODE.equals(propertyMap.get(JMSConstants.PARAM_ACK_MODE)))
                     && context.isInTransaction();
         }

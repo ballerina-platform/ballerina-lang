@@ -20,7 +20,7 @@ package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -49,8 +49,8 @@ import javax.jms.Message;
  * Create Text JMS Message.
  */
 @BallerinaFunction(packageName = "ballerina.net.jms", functionName = "createTextMessage", args = {
-        @Argument(name = "clientConnector", type = TypeEnum.CONNECTOR) },
-                   returnType = {@ReturnType(type = TypeEnum.STRUCT, structPackage = "ballerina.net.jms",
+        @Argument(name = "clientConnector", type = TypeKind.CONNECTOR) },
+                   returnType = {@ReturnType(type = TypeKind.STRUCT, structPackage = "ballerina.net.jms",
                                              structType = "JMSMessage")},
                    isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

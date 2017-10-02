@@ -19,7 +19,7 @@
 package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -39,7 +39,7 @@ import javax.jms.Session;
  * To rollback the transactions.
  */
 @BallerinaFunction(packageName = "ballerina.net.jms", functionName = "rollback", args = {
-        @Argument(name = "m", type = TypeEnum.MESSAGE) }, isPublic = true)
+        @Argument(name = "m", type = TypeKind.MESSAGE) }, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Session rollback action implementation for jms connector when using jms session transaction mode") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
