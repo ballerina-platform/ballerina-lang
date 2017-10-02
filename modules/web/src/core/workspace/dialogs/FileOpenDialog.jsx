@@ -4,6 +4,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
+import { exists as checkPathExists } from './../fs-util';
 
 const FILE_TYPE = 'file';
 
@@ -32,25 +33,34 @@ class FileOpenDialog extends React.Component {
      * Called when user clicks open
      */
     onFileOpen() {
-        const { filePath, selectedNode } = this.state;
-        if (selectedNode && selectedNode.type !== FILE_TYPE) {
-            this.setState({
-                error: `${filePath} is not a file`,
+        const { filePath } = this.state;
+        checkPathExists(filePath)
+            .then((response) => {
+                if (response.exists) {
+                    if (response.type === FILE_TYPE) {
+                        this.props.workspaceManager.openFile(filePath)
+                            .then(() => {
+                                this.setState({
+                                    error: '',
+                                    showDialog: false,
+                                });
+                            })
+                            .catch((error) => {
+                                this.setState({
+                                    error,
+                                });
+                            });
+                    } else {
+                        this.setState({
+                            error: `${filePath} is not a file`,
+                        });
+                    }
+                } else {
+                    this.setState({
+                        error: `File ${filePath} does not exist.`,
+                    });
+                }
             });
-        } else {
-            this.props.workspaceManager.openFile(filePath)
-                .then(() => {
-                    this.setState({
-                        error: '',
-                        showDialog: false,
-                    });
-                })
-                .catch((error) => {
-                    this.setState({
-                        error,
-                    });
-                });
-        }
     }
 
     /**
@@ -88,7 +98,6 @@ class FileOpenDialog extends React.Component {
                     horizontal
                     onSubmit={(e) => {
                         e.preventDefault();
-                        this.onFileOpen();
                     }}
                 >
                     <FormGroup controlId="filePath">

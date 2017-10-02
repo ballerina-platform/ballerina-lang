@@ -4,6 +4,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
+import { exists as checkPathExists } from './../fs-util';
 
 
 const FOLDER_TYPE = 'folder';
@@ -33,25 +34,34 @@ class FolderOpenDialog extends React.Component {
      * Called when user clicks open
      */
     onFolderOpen() {
-        const { folderPath, selectedNode } = this.state;
-        if (selectedNode && selectedNode.type !== FOLDER_TYPE) {
-            this.setState({
-                error: `${folderPath} is not a folder`,
+        const { folderPath } = this.state;
+        checkPathExists(folderPath)
+            .then((response) => {
+                if (response.exists) {
+                    if (response.type === FOLDER_TYPE) {
+                        this.props.workspaceManager.openFolder(folderPath)
+                            .then(() => {
+                                this.setState({
+                                    error: '',
+                                    showDialog: false,
+                                });
+                            })
+                            .catch((error) => {
+                                this.setState({
+                                    error,
+                                });
+                            });
+                    } else {
+                        this.setState({
+                            error: `${folderPath} is not a folder`,
+                        });
+                    }
+                } else {
+                    this.setState({
+                        error: `Folder ${folderPath} does not exist.`,
+                    });
+                }
             });
-        } else {
-            this.props.workspaceManager.openFolder(folderPath)
-                .then(() => {
-                    this.setState({
-                        error: '',
-                        showDialog: false,
-                    });
-                })
-                .catch((error) => {
-                    this.setState({
-                        error,
-                    });
-                });
-        }
     }
 
     /**
@@ -89,7 +99,6 @@ class FolderOpenDialog extends React.Component {
                     horizontal
                     onSubmit={(e) => {
                         e.preventDefault();
-                        this.onFolderOpen();
                     }}
                 >
                     <FormGroup controlId="folderPath">
