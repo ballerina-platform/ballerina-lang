@@ -19,11 +19,22 @@
 package org.wso2.carbon.transport.http.netty.contract;
 
 /**
- * Created by pubudu on 9/29/17.
+ * An event listener to listen to connector life cycle events.
  */
 public interface LifeCycleEventListener {
 
+    /**
+     * Trigger an onOpen event when a connector is successfully up and running.
+     *
+     * @param host The IP address of the host
+     * @param port The port the connector is listening to
+     */
     void onOpen(String host, int port);
 
+    /**
+     * Trigger an onClose event when a connector has successfully stopped.
+     *
+     * @param connector The server connector object which just stopped.
+     */
     void onClose(ServerConnector connector);
 }

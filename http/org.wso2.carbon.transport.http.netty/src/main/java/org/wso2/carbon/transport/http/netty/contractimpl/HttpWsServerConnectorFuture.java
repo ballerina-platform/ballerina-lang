@@ -22,6 +22,7 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.LifeCycleEventListener;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -155,6 +156,15 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
             this.connectorPort = port;
         } else {
             lifeCycleEventListener.onOpen(host, port);
+        }
+    }
+
+    @Override
+    public void notifyLifeCycleEventListener(ServerConnector serverConnector) throws ServerConnectorException {
+        if (lifeCycleEventListener == null) {
+            throw new ServerConnectorException("Connector life cycle listener is not set");
+        } else {
+            lifeCycleEventListener.onClose(serverConnector);
         }
     }
 }

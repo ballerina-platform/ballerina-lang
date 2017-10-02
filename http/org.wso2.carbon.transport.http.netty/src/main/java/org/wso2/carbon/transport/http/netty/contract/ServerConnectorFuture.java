@@ -124,11 +124,19 @@ public interface ServerConnectorFuture {
     void setLifeCycleEventListener(LifeCycleEventListener lifeCycleEventListener);
 
     /**
-     * Notify the life cycle listener of events related to connector
+     * Notify the life cycle listener of events related to connector start up
+     *
      * @param host Host address of the connector
      * @param port Port of the connector
      */
     void notifyLifeCycleEventListener(String host, int port);
+
+    /**
+     * Notify the life cycle listener of events related to connector termination
+     *
+     * @param serverConnector The server connector instance which just stopped
+     */
+    void notifyLifeCycleEventListener(ServerConnector serverConnector) throws ServerConnectorException;
 
     /**
      * Waits till the port binding is completed.

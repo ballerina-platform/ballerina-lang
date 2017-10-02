@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
+import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -187,12 +188,21 @@ public class ServerConnectorBootstrap {
 
         @Override
         public boolean stop() {
+            boolean connectorStopped = false;
+            
             try {
-                return serverConnectorBootstrap.unBindInterface(this);
+                connectorStopped = serverConnectorBootstrap.unBindInterface(this);
+                if (connectorStopped) {
+                    serverConnectorFuture.notifyLifeCycleEventListener(this);
+                }
             } catch (InterruptedException e) {
                 log.error("Couldn't close the port", e);
                 return false;
+            } catch (ServerConnectorException e) {
+                log.error("Error in notifying life cycle event listener", e);
             }
+
+            return connectorStopped;
         }
 
         @Override
