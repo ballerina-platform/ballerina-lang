@@ -117,6 +117,20 @@ public interface ServerConnectorFuture {
     void notifyErrorListener(Throwable cause) throws ServerConnectorException;;
 
     /**
+     * Set life cycle event listener for the HTTP/WS connector
+     *
+     * @param lifeCycleEventListener The LifeCycleEventListener implementation
+     */
+    void setLifeCycleEventListener(LifeCycleEventListener lifeCycleEventListener);
+
+    /**
+     * Notify the life cycle listener of events related to connector
+     * @param host Host address of the connector
+     * @param port Port of the connector
+     */
+    void notifyLifeCycleEventListener(String host, int port);
+
+    /**
      * Waits till the port binding is completed.
      *
      * @throws InterruptedException if any interrupt occurred while waiting for port binding.

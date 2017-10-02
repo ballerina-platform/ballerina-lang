@@ -175,12 +175,10 @@ public class ServerConnectorBootstrap {
             serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
             channelFuture.addListener(channelFuture -> {
                 if (channelFuture.isSuccess()) {
-                    log.info("HTTP(S) Interface starting on host " + this.getHost()
-                            + " and port " + this.getPort());
+                    log.info("HTTP(S) Interface starting on host " + this.getHost() + " and port " + this.getPort());
+                    serverConnectorFuture.notifyLifeCycleEventListener(this.getHost(), this.getPort());
                 } else {
-                    String msg = "Cannot bind server connector to interface " + this.getHost() + " : " + this.getPort();
-                    log.error(msg);
-                    serverConnectorFuture.notifyErrorListener(new Exception(msg));
+                    serverConnectorFuture.notifyErrorListener(channelFuture.cause());
                 }
             });
             httpServerChannelInitializer.setServerConnectorFuture(serverConnectorFuture);

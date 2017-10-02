@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import io.netty.channel.ChannelFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.carbon.transport.http.netty.contract.LifeCycleEventListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -38,7 +39,10 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     private HttpConnectorListener httpConnectorListener;
     private WebSocketConnectorListener wsConnectorListener;
+    private LifeCycleEventListener lifeCycleEventListener;
     private ChannelFuture channelFuture;
+    private String connectorHost;
+    private int connectorPort = -1;
 
     public HttpWsServerConnectorFuture() {
     }
@@ -129,8 +133,28 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     @Override
     public void notifyErrorListener(Throwable cause) throws ServerConnectorException {
         if (httpConnectorListener == null) {
-            throw new ServerConnectorException("HTTP connector listener is not set");
+            throw new ServerConnectorException("HTTP connector listener is not set", new Exception(cause));
         }
         httpConnectorListener.onError(cause);
+    }
+
+    @Override
+    public void setLifeCycleEventListener(LifeCycleEventListener lifeCycleEventListener) {
+        this.lifeCycleEventListener = lifeCycleEventListener;
+        if (connectorHost != null && connectorPort >= 0) {
+            notifyLifeCycleEventListener(connectorHost, connectorPort);
+            connectorHost = null;
+            connectorPort = -1;
+        }
+    }
+
+    @Override
+    public void notifyLifeCycleEventListener(String host, int port) {
+        if (lifeCycleEventListener == null) {
+            this.connectorHost = host;
+            this.connectorPort = port;
+        } else {
+            lifeCycleEventListener.onOpen(host, port);
+        }
     }
 }
