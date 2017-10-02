@@ -32,9 +32,12 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
  * queries. There are multiple implementation of this which will receive events and perform various tasks.
  */
 public abstract class OutputCallback {
-
     private String queryName;
     private SiddhiDebugger siddhiDebugger;
+
+    OutputCallback(String queryName) {
+        this.queryName = queryName;
+    }
 
     public abstract void send(ComplexEventChunk complexEventChunk);
 
@@ -48,10 +51,6 @@ public abstract class OutputCallback {
 
     String getQueryName() {
         return queryName;
-    }
-
-    protected void setQueryName(String queryName) {
-        this.queryName = queryName;
     }
 
     protected ComplexEventChunk<StateEvent> constructMatchingStateEventChunk(ComplexEventChunk

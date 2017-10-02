@@ -32,8 +32,8 @@ public class InsertIntoStreamCallback extends OutputCallback {
     private StreamJunction.Publisher publisher;
 
     public InsertIntoStreamCallback(StreamDefinition outputStreamDefinition, String queryName) {
+        super(queryName);
         this.outputStreamDefinition = outputStreamDefinition;
-        setQueryName(queryName);
     }
 
     public void init(StreamJunction outputStreamJunction) {

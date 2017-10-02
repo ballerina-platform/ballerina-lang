@@ -50,6 +50,7 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
                                        int matchingStreamIndex, boolean convertToStreamEvent,
                                        StateEventPool stateEventPool, StreamEventPool streamEventPool,
                                        StreamEventConverter streamEventConverter, String queryName) {
+        super(queryName);
         this.matchingStreamIndex = matchingStreamIndex;
         this.table = table;
         this.compiledCondition = compiledCondition;
@@ -59,7 +60,6 @@ public class UpdateOrInsertTableCallback extends OutputCallback {
         this.streamEventPool = streamEventPool;
         this.streamEventConverter = streamEventConverter;
         this.addingStreamEventExtractor = new AddingStreamEventExtractor(matchingStreamIndex);
-        setQueryName(queryName);
     }
 
     @Override

@@ -38,9 +38,9 @@ public class InsertIntoWindowCallback extends OutputCallback {
     private final StreamDefinition outputStreamDefinition;
 
     public InsertIntoWindowCallback(Window window, StreamDefinition outputStreamDefinition, String queryName) {
+        super(queryName);
         this.window = window;
         this.outputStreamDefinition = outputStreamDefinition;
-        setQueryName(queryName);
     }
 
     /**
