@@ -788,8 +788,13 @@ class PositioningUtil {
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
+        const newWidth = node.viewState.bBox.w;
 
         this.positionCompoundStatementComponents(node);
+
+        node.viewState.components['drop-zone'].w = newWidth;
+        node.viewState.components['statement-box'].w = newWidth;
+        node.viewState.components['block-header'].w = newWidth;
 
         let nextComponentY = node.viewState.components['drop-zone'].y
             + node.viewState.components['drop-zone'].h;
@@ -800,6 +805,7 @@ class PositioningUtil {
             transactionBody.viewState.bBox.y = nextComponentY + transactionBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(transactionBody);
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
+            this.increaseTransactionComponentWidth(transactionBody, newWidth);
         }
 
         // Set the position of the failed body
@@ -808,6 +814,7 @@ class PositioningUtil {
             failedBody.viewState.bBox.y = nextComponentY + failedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(failedBody);
             nextComponentY += failedBody.viewState.components['statement-box'].h;
+            this.increaseTransactionComponentWidth(failedBody, newWidth);
         }
 
         // Set the position of the aborted body
@@ -816,6 +823,7 @@ class PositioningUtil {
             abortedBody.viewState.bBox.y = nextComponentY + abortedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(abortedBody);
             nextComponentY += abortedBody.viewState.components['statement-box'].h;
+            this.increaseTransactionComponentWidth(abortedBody, newWidth);
         }
 
         // Set the position of the aborted body
@@ -823,7 +831,15 @@ class PositioningUtil {
             committedBody.viewState.bBox.x = bBox.x;
             committedBody.viewState.bBox.y = nextComponentY + committedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(committedBody);
+            this.increaseTransactionComponentWidth(committedBody, newWidth);
         }
+    }
+
+    increaseTransactionComponentWidth(component, newWidth) {
+        component.viewState.bBox.w = newWidth;
+        component.viewState.components['drop-zone'].w = newWidth;
+        component.viewState.components['statement-box'].w = newWidth;
+        component.viewState.components['block-header'].w = newWidth;
     }
 
     /**

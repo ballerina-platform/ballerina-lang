@@ -1045,21 +1045,27 @@ class SizingUtil {
      */
     sizeTransactionNode(node) {
         this.sizeCompoundNode(node);
-
         node.viewState.components['statement-box'].h = 0;
 
+        // We ignore the previously calculated node height and re calculate it based on the component heights
         if (node.transactionBody) {
-            node.viewState.bBox.h += node.transactionBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h
+                += node.transactionBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.transactionBody.viewState.bBox.w);
         }
         if (node.failedBody) {
-            node.viewState.bBox.h += node.failedBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h += node.failedBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.failedBody.viewState.bBox.w);
         }
         if (node.abortedBody) {
-            node.viewState.bBox.h += node.abortedBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h += node.abortedBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.abortedBody.viewState.bBox.w);
         }
         if (node.committedBody) {
-            node.viewState.bBox.h += node.committedBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h += node.committedBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.committedBody.viewState.bBox.w);
         }
+        node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h;
     }
 
     /**

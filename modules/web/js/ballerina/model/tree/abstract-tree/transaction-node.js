@@ -61,7 +61,7 @@ class AbstractTransactionNode extends StatementNode {
     }
 
     setChildrenAlias() {
-        if (this.transactionBody) {
+        if (this.abortedBody) {
             this.abortedBody.viewState.alias = 'Aborted';
         }
         if (this.transactionBody) {
