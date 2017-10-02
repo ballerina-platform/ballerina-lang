@@ -106,16 +106,12 @@ public class SiddhiManager {
         this.siddhiContext.setPersistenceStore(persistenceStore);
     }
 
-    public void setSinkHandlerFactory(SinkHandlerManager sinkHandlerManager) {
-        this.siddhiContext.setSinkHandlerManager(sinkHandlerManager);
-    }
-
     /**
      * Method to set sink handler manager that would create sink handlers for each sink
      *
      * @param sinkHandlerManager Sink Handler Manager Implementation to be used.
      */
-    public void setSinkHandlerFactory(SinkHandlerManager sinkHandlerManager) {
+    public void setSinkHandlerManager(SinkHandlerManager sinkHandlerManager) {
         this.siddhiContext.setSinkHandlerManager(sinkHandlerManager);
     }
 
