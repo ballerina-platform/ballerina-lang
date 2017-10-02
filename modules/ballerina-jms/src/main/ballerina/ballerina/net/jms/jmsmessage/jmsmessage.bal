@@ -7,125 +7,125 @@ import ballerina.net.jms;
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The string property name" }
 @doc:Param { value:"value: The string property value" }
-native function setStringProperty (jms:JMSMessage msg, string key, string value);
+public native function setStringProperty (jms:JMSMessage msg, string key, string value);
 
 @doc:Description { value:"Gets a JMS transport string property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The string property name" }
 @doc:Return { value:"string: The string property value" }
-native function getStringProperty (jms:JMSMessage msg, string key) (string);
+public native function getStringProperty (jms:JMSMessage msg, string key) (string);
 
 @doc:Description { value:"Sets a JMS transport integer property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The integer property name" }
 @doc:Param { value:"value: The integer property value" }
-native function setIntProperty (jms:JMSMessage msg, string key, int value);
+public native function setIntProperty (jms:JMSMessage msg, string key, int value);
 
 @doc:Description { value:"Gets a JMS transport integer property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The integer property name" }
 @doc:Return { value:"int: The integer property value" }
-native function getIntProperty (jms:JMSMessage msg, string key) (int);
+public native function getIntProperty (jms:JMSMessage msg, string key) (int);
 
 @doc:Description { value:"Sets a JMS transport boolean property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The boolean property name" }
 @doc:Param { value:"value: The boolean property value" }
-native function setBooleanProperty (jms:JMSMessage msg, string key, boolean value);
+public native function setBooleanProperty (jms:JMSMessage msg, string key, boolean value);
 
 @doc:Description { value:"Gets a JMS transport boolean property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The boolean property name" }
 @doc:Return { value:"boolean: The boolean property value" }
-native function getBooleanProperty (jms:JMSMessage msg, string key) (boolean);
+public native function getBooleanProperty (jms:JMSMessage msg, string key) (boolean);
 
 @doc:Description { value:"Sets a JMS transport float property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The float property name" }
 @doc:Param { value:"value: The float property value" }
-native function setFloatProperty (jms:JMSMessage msg, string key, float value);
+public native function setFloatProperty (jms:JMSMessage msg, string key, float value);
 
 @doc:Description { value:"Gets a JMS transport float property from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"key: The float property name" }
 @doc:Return { value:"float: The float property value" }
-native function getFloatProperty (jms:JMSMessage msg, string key) (float);
+public native function getFloatProperty (jms:JMSMessage msg, string key) (float);
 
 @doc:Description { value:"Sets text content for the JMS message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Param { value:"content: Text Message Content" }
-native function setTextMessageContent (jms:JMSMessage msg, string content);
+public native function setTextMessageContent (jms:JMSMessage msg, string content);
 
 @doc:Description { value:"Gets text content of the JMS message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Return { value:"string: Text Message Content" }
-native function getTextMessageContent (jms:JMSMessage msg) (string value);
+public native function getTextMessageContent (jms:JMSMessage msg) (string value);
 
 @doc:Description { value:"Get JMS transport header MessageID from the message"}
 @doc:Param { value:"msg: A request message" }
 @doc:Return { value:"string: The header value" }
-native function getMessageID(jms:JMSMessage m) (string);
+public native function getMessageID(jms:JMSMessage m) (string);
 
 @doc:Description { value:"Get JMS transport header Timestamp from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"int: The header value" }
-native function getTimestamp(jms:JMSMessage m) (int);
+public native function getTimestamp(jms:JMSMessage m) (int);
 
 @doc:Description { value:"Sets DeliveryMode JMS transport header to the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Param { value:"i: The header value" }
-native function setDeliveryMode(jms:JMSMessage m, int i);
+public native function setDeliveryMode(jms:JMSMessage m, int i);
 
 @doc:Description { value:"Get JMS transport header DeliveryMode from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"int: The header value" }
-native function getDeliveryMode(jms:JMSMessage m) (int);
+public native function getDeliveryMode(jms:JMSMessage m) (int);
 
 @doc:Description { value:"Sets Expiration JMS transport header to the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Param { value:"i: The header value" }
-native function setExpiration(jms:JMSMessage m, int i);
+public native function setExpiration(jms:JMSMessage m, int i);
 
 @doc:Description { value:"Get JMS transport header Expiration from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"int: The header value" }
-native function getExpiration(jms:JMSMessage m) (int);
+public native function getExpiration(jms:JMSMessage m) (int);
 
 @doc:Description { value:"Sets Priority JMS transport header to the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Param { value:"i: The header value" }
-native function setPriority(jms:JMSMessage m, int i);
+public native function setPriority(jms:JMSMessage m, int i);
 
 @doc:Description { value:"Get JMS transport header Priority from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"int: The header value" }
-native function getPriority(jms:JMSMessage m) (int);
+public native function getPriority(jms:JMSMessage m) (int);
 
 @doc:Description { value:"Get JMS transport header Redelivered from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"boolean: The header value" }
-native function getRedelivered(jms:JMSMessage m) (boolean);
+public native function getRedelivered(jms:JMSMessage m) (boolean);
 
 @doc:Description { value:"Sets CorrelationID JMS transport header to the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Param { value:"s: The header value" }
-native function setCorrelationID(jms:JMSMessage m, string s);
+public native function setCorrelationID(jms:JMSMessage m, string s);
 
 @doc:Description { value:"Get JMS transport header CorrelationID from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"string: The header value" }
-native function getCorrelationID(jms:JMSMessage m) (string);
+public native function getCorrelationID(jms:JMSMessage m) (string);
 
 @doc:Description { value:"Sets Type JMS transport header to the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Param { value:"s: The header value" }
-native function setType(jms:JMSMessage m, string s);
+public native function setType(jms:JMSMessage m, string s);
 
 @doc:Description { value:"Get JMS transport header Type from the message"}
 @doc:Param { value:"m: A request message" }
 @doc:Return { value:"string: The header value" }
-native function getType(jms:JMSMessage m) (string);
+public native function getType(jms:JMSMessage m) (string);
 
 @doc:Description { value:"Clear JMS properties of the message"}
 @doc:Param { value:"m: A request message" }
-native function clearProperties(jms:JMSMessage m);
+public native function clearProperties(jms:JMSMessage m);
