@@ -44,10 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.carbon.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
@@ -91,60 +91,57 @@ public class WebSocketClient {
     /**
      * Handle the handshake with the server.
      *
-     * @param handshakeFuture Handshake future for the connecting client.
-     * @throws URISyntaxException throws if there is an error in the URI syntax.
-     * @throws InterruptedException throws if the connecting the server is interrupted.
-     * @throws SSLException throws if SSL exception occurred during protocol negotiation.
+     * @return handshake future for connection.
      */
-    public void handshake(HandshakeFuture handshakeFuture)
-            throws InterruptedException, URISyntaxException, SSLException {
-        URI uri = new URI(url);
-        String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
-        final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
-        final int port;
-        if (uri.getPort() == -1) {
-            if ("ws".equalsIgnoreCase(scheme)) {
-                port = 80;
-            } else if ("wss".equalsIgnoreCase(scheme)) {
-                port = 443;
-            } else {
-                port = -1;
-            }
-        } else {
-            port = uri.getPort();
-        }
-
-        if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
-            log.error("Only WS(S) is supported.");
-            throw new SSLException("");
-        }
-
-        final boolean ssl = "wss".equalsIgnoreCase(scheme);
-        final SslContext sslCtx;
-        if (ssl) {
-            sslCtx = SslContextBuilder.forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        } else {
-            sslCtx = null;
-        }
-
-        group = new NioEventLoopGroup();
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
-
-        // Adding custom headers to the handshake request.
-
-        if (headers != null) {
-            headers.entrySet().forEach(
-                    entry -> httpHeaders.add(entry.getKey(), entry.getValue())
-            );
-        }
-
-        WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
-
-
+    public HandshakeFuture handshake() {
+        HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
         try {
+            URI uri = new URI(url);
+            String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
+            final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
+            final int port;
+            if (uri.getPort() == -1) {
+                if ("ws".equalsIgnoreCase(scheme)) {
+                    port = 80;
+                } else if ("wss".equalsIgnoreCase(scheme)) {
+                    port = 443;
+                } else {
+                    port = -1;
+                }
+            } else {
+                port = uri.getPort();
+            }
+
+            if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
+                log.error("Only WS(S) is supported.");
+                throw new SSLException("");
+            }
+
+            final boolean ssl = "wss".equalsIgnoreCase(scheme);
+            final SslContext sslCtx;
+            if (ssl) {
+                sslCtx = SslContextBuilder.forClient()
+                        .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+            } else {
+                sslCtx = null;
+            }
+
+            group = new NioEventLoopGroup();
+            HttpHeaders httpHeaders = new DefaultHttpHeaders();
+
+            // Adding custom headers to the handshake request.
+
+            if (headers != null) {
+                headers.entrySet().forEach(
+                        entry -> httpHeaders.add(entry.getKey(), entry.getValue())
+                );
+            }
+
+            WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
+                    uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
+            handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
+
+
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
@@ -167,19 +164,27 @@ public class WebSocketClient {
                     });
 
             b.connect(uri.getHost(), port).sync();
-            handler.handshakeFuture().addListener(new ChannelFutureListener() {
+            ChannelFuture future = handler.handshakeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) {
-                    WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
-                    String actualSubProtocol = websocketHandshaker.actualSubprotocol();
-                    handler.setActualSubProtocol(actualSubProtocol);
-                    session.setNegotiatedSubProtocol(actualSubProtocol);
-                    session.setIsOpen(true);
-                    handshakeFuture.notifySuccess(session);
+                    Throwable cause = future.cause();
+                    if (future.isSuccess() && cause == null) {
+                        WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
+                        String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+                        handler.setActualSubProtocol(actualSubProtocol);
+                        session.setNegotiatedSubProtocol(actualSubProtocol);
+                        session.setIsOpen(true);
+                        handshakeFuture.notifySuccess(session);
+                    } else {
+                        handshakeFuture.notifyError(cause);
+                    }
                 }
             }).sync();
+            handshakeFuture.setChannelFuture(future);
         } catch (Throwable t) {
             handshakeFuture.notifyError(t);
         }
+
+        return handshakeFuture;
     }
 }

@@ -30,6 +30,9 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -38,10 +41,16 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
-    private String receivedTextToClient;
-    private ByteBuffer receivedByteBufferToClient;
+    private final CountDownLatch latch;
+    private final Queue<String> textQueue = new LinkedList<>();
+    private final Queue<ByteBuffer> bufferQueue = new LinkedList<>();
+    private final Queue<Throwable> errorsQueue = new LinkedList<>();
     private boolean isPongReceived = false;
     private boolean isIdleTimeout = false;
+
+    public WebSocketTestClientConnectorListener(CountDownLatch latch) {
+        this.latch = latch;
+    }
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
@@ -50,18 +59,21 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        receivedTextToClient = textMessage.getText();
+        textQueue.add(textMessage.getText());
+        latch.countDown();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        receivedByteBufferToClient = binaryMessage.getByteBuffer();
+        bufferQueue.add(binaryMessage.getByteBuffer());
+        latch.countDown();
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             isPongReceived = true;
+            latch.countDown();
         }
     }
 
@@ -72,12 +84,17 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onError(Throwable throwable) {
-        handleError(throwable);
+        errorsQueue.add(throwable);
+        log.error("Error handler received: " + throwable.getMessage());
+        for (int i = 0; i < latch.getCount(); i++) {
+            latch.countDown();
+        }
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         isIdleTimeout = true;
+        latch.countDown();
     }
 
     /**
@@ -85,10 +102,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      *
      * @return the latest text received to the client.
      */
-    public String getReceivedTextToClient() {
-        String tmp = receivedTextToClient;
-        receivedTextToClient = null;
-        return tmp;
+    public String getReceivedTextToClient() throws Throwable {
+        if (errorsQueue.isEmpty()) {
+            return textQueue.remove();
+        }
+        throw errorsQueue.remove();
     }
 
     /**
@@ -96,10 +114,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      *
      * @return the latest {@link ByteBuffer} received to client.
      */
-    public ByteBuffer getReceivedByteBufferToClient() {
-        ByteBuffer tmp = receivedByteBufferToClient;
-        receivedByteBufferToClient = null;
-        return tmp;
+    public ByteBuffer getReceivedByteBufferToClient() throws Throwable {
+        if (errorsQueue.isEmpty()) {
+            return bufferQueue.remove();
+        }
+        throw errorsQueue.remove();
     }
 
     /**
@@ -107,10 +126,13 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      *
      * @return true if a pong is received to client.
      */
-    public boolean isPongReceived() {
-        boolean tmp = isPongReceived;
-        isPongReceived = false;
-        return tmp;
+    public boolean isPongReceived() throws Throwable {
+        if (errorsQueue.isEmpty()) {
+            boolean tmp = isPongReceived;
+            isPongReceived = false;
+            return tmp;
+        }
+        throw errorsQueue.remove();
     }
 
     /**
@@ -118,14 +140,13 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      *
      * @return true if idle timeout is triggered.
      */
-    public boolean isIdleTimeout() {
-        boolean temp = isIdleTimeout;
-        isIdleTimeout = false;
-        return temp;
-    }
-
-    private void handleError(Throwable throwable) {
-        log.error("Error handler received: " + throwable.getMessage());
+    public boolean isIdleTimeout() throws Throwable {
+       if (errorsQueue.isEmpty()) {
+           boolean temp = isIdleTimeout;
+           isIdleTimeout = false;
+           return temp;
+       }
+       throw errorsQueue.remove();
     }
 
 }
