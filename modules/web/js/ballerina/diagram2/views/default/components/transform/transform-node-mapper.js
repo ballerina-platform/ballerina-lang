@@ -143,9 +143,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     createInputToOperatorMapping(sourceExpression, target, compatibility) {
-        if (ASTFactory.isBinaryExpression(target.operator)) {
+        if (TreeUtil.isBinaryExpr(target.operator)) {
             this.createInputToBinaryOperatorMapping(sourceExpression, target, compatibility);
-        } else if (ASTFactory.isUnaryExpression(target.operator)) {
+        } else if (TreeUtil.isUnaryExpr(target.operator)) {
             this.createInputToUnaryOperatorMapping(sourceExpression, target, compatibility);
         }
     }
@@ -163,20 +163,20 @@ class TransformNodeMapper {
 
         if (compatibility.safe) {
             if (index === 0) {
-                operatorNode.setLeftExpression(sourceExpression, { doSilently: true });
+                operatorNode.setLeftExpression(sourceExpression, true);
             } else {
-                operatorNode.setRightExpression(sourceExpression, { doSilently: true });
+                operatorNode.setRightExpression(sourceExpression, true);
             }
         } else {
             const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
-                                            this._transformStmt.getIndexOfChild(assignmentStmt));
+                                            this._transformStmt.body.getIndexOfChild(assignmentStmt));
             operatorNode.addChild(argumentExpression, index, true);
         }
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping ${sourceExpression.getExpressionString()} to operator ${operatorNode.getOperator()}`,
+            title: `Create mapping ${sourceExpression.getSource()} to operator ${operatorNode.getOperatorKind()}`,
             data: {},
         });
     }
@@ -193,19 +193,17 @@ class TransformNodeMapper {
         const index = target.index;
 
         if (compatibility.safe) {
-            operatorNode.setRightExpression(sourceExpression);
-            return;
+            operatorNode.setExpression(sourceExpression, true);
+        } else {
+            const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
+            const argumentExpression = this.getTempVertexExpression(sourceExpression,
+                this._transformStmt.getIndexOfChild(assignmentStmt));
+            operatorNode.addChild(argumentExpression, index);
         }
-
-        const assignmentStmt = this.findEnclosingAssignmentStatement(operatorNode);
-        const argumentExpression = this.getTempVertexExpression(sourceExpression,
-            this._transformStmt.getIndexOfChild(assignmentStmt));
-
-        operatorNode.addChild(argumentExpression, index);
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping ${sourceExpression.getExpressionString()} to operator ${operatorNode.getOperator()}`,
+            title: `Create mapping ${sourceExpression.getSource()} to operator ${operatorNode.getOperatorKind()}`,
             data: {},
         });
     }
@@ -288,7 +286,7 @@ class TransformNodeMapper {
         const assignmentStmt = this.findEnclosingAssignmentStatement(source.operator);
         if (!assignmentStmt) {
             log.error('Cannot find assignment statement containing the operator '
-                        + source.operator.getOperator());
+                        + source.operator.getOperatorKind());
             return;
         }
         const rightExpression = this.getCompatibleSourceExpression(
@@ -931,9 +929,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     findEnclosingAssignmentStatement(expression) {
-        return this._transformStmt.getChildren().find((stmt) => {
-            return (this.getMappableExpression(stmt.getRightExpression()).getExpressionString().trim()
-                        === expression.getExpressionString().trim());
+        return this._transformStmt.body.getStatements().find((stmt) => {
+            return (this.getMappableExpression(stmt.getExpression()).getSource().trim()
+                        === expression.getSource().trim());
         });
     }
 
@@ -1283,7 +1281,7 @@ class TransformNodeMapper {
     getCompatibleSourceExpression(sourceExpression, compatibilityType, targetType) {
         switch (compatibilityType) {
             case 'explicit' : {
-                const typeCastExp = ASTFactory.createTypeCastExpression();
+                const typeCastExp = TreeUtil.createTypeCastExpression();
                 typeCastExp.addChild(sourceExpression);
                 typeCastExp.setTargetType(targetType);
                 return typeCastExp;
