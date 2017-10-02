@@ -210,8 +210,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(names.
-                fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
+                names.fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
         annotationNode.attachmentPoints.forEach(point ->
                 ((BAnnotationSymbol) annotationSymbol).attachmentPoints.add(point));
