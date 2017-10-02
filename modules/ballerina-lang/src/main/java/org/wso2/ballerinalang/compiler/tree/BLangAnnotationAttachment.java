@@ -35,9 +35,20 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     public List<BLangAnnotAttachmentAttribute> attributes;
     public BLangIdentifier annotationName;
     public BLangAnnotationAttachmentPoint attachmentPoint;
+    public BLangIdentifier pkgAlias;
 
     public BLangAnnotationAttachment() {
         this.attributes = new ArrayList<>();
+    }
+
+    @Override
+    public IdentifierNode getPackageAlias() {
+        return pkgAlias;
+    }
+
+    @Override
+    public void setPackageAlias(IdentifierNode pkgAlias) {
+        this.pkgAlias = (BLangIdentifier) pkgAlias;
     }
 
     @Override
