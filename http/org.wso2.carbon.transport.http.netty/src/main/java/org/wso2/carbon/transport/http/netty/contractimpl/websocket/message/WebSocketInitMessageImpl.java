@@ -96,9 +96,10 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
     }
 
     private HandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout) {
-        HandshakeFuture handshakeFuture = new HandshakeFutureImpl();
+        HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
         try {
             ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest);
+            handshakeFuture.setChannelFuture(future);
             future.addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
