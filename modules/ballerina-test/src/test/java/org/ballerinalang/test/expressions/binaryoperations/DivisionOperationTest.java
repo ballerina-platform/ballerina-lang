@@ -74,7 +74,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
-    //@Test(description = "Test integer division by float")
+    @Test(description = "Test integer division by float")
     public void testIntDivideByFloat() {
         int a = Integer.MAX_VALUE;
         double b = 1.23456789d;
@@ -91,7 +91,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
-    //@Test(description = "Test float number division by integer")
+    @Test(description = "Test float number division by integer")
     public void testFloatDivideByInt() {
         double a = Float.MAX_VALUE;
         int b = 123456789;
@@ -121,7 +121,7 @@ public class DivisionOperationTest {
         BTestUtils.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 10);
     }
 
-    //@Test
+    @Test
     public void testIntDivisionFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
         BValue[] returns = BTestUtils.invoke(result, "intDivideByFloat", args);
@@ -130,7 +130,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //@Test
+    @Test
     public void testFloatDivisionInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
         BValue[] returns = BTestUtils.invoke(result, "floatDivideByInt", args);
