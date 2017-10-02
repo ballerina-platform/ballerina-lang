@@ -132,7 +132,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Unexpected error occurred in WebSocket transport");
+        log.error("Unexpected error occurred in WebSocket transport", throwable);
 
         if (throwable instanceof BindException) {
             connectorStartupSynchronizer.addException(serverConnectorId, (BindException) throwable);
