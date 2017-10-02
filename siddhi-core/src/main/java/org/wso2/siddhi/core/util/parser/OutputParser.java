@@ -115,11 +115,11 @@ public class OutputParser {
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             if (window != null) {
-                return new InsertIntoWindowCallback(window, outputStreamDefinition);
+                return new InsertIntoWindowCallback(window, outputStreamDefinition, queryName);
             } else if (table != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, table.getTableDefinition());
                 return new InsertIntoTableCallback(table, outputStreamDefinition, convertToStreamEvent,
-                        streamEventPool, streamEventConverter);
+                        streamEventPool, streamEventConverter, queryName);
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition, queryName);
             }
@@ -162,7 +162,7 @@ public class OutputParser {
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new DeleteTableCallback(table, compiledCondition, matchingMetaInfoHolder.
                                 getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool, streamEventPool,
-                                streamEventConverter);
+                                streamEventConverter, queryName);
                     } catch (SiddhiAppValidationException e) {
                         throw new SiddhiAppCreationException("Cannot create delete for table '" + outStream.getId() +
                                 "', " + e.getMessageWithOutContext(), e, e.getQueryContextStartIndex(),
@@ -190,7 +190,7 @@ public class OutputParser {
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateTableCallback(table, compiledCondition, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent,
-                                stateEventPool, streamEventPool, streamEventConverter);
+                                stateEventPool, streamEventPool, streamEventConverter, queryName);
                     } catch (SiddhiAppValidationException e) {
                         throw new SiddhiAppCreationException("Cannot create update for table '" + outStream.getId() +
                                 "', " + e.getMessageWithOutContext(), e, e.getQueryContextStartIndex(),
@@ -220,7 +220,7 @@ public class OutputParser {
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateOrInsertTableCallback(table, compiledCondition, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent,
-                                stateEventPool, streamEventPool, streamEventConverter);
+                                stateEventPool, streamEventPool, streamEventConverter, queryName);
 
                     } catch (SiddhiAppValidationException e) {
                         throw new SiddhiAppCreationException("Cannot create update or insert into for table '" +
