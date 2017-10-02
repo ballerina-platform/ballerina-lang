@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.launcher;
 
-import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
@@ -27,11 +27,19 @@ import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.program.BLangPrograms;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,6 +52,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -58,8 +70,10 @@ public class LauncherUtils {
         String srcPathStr = sourcePath.toString();
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
+            // TODO
+            throw new AssertionError();
         } else {
-            programFile = BLangCompiler.compile(sourceRootPath, sourcePath);
+            programFile = compile(sourceRootPath, sourcePath);
         }
 
         // If there is no main or service entry point, throw an error
@@ -74,6 +88,52 @@ public class LauncherUtils {
             runServices(programFile);
         } else {
             runMain(programFile, args);
+        }
+    }
+
+    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(sourcePath.toString());
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        return getExecutableProgram(programFile);
+    }
+
+    private static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+        ByteArrayInputStream byteIS = null;
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        try {
+            ProgramFileWriter.writeProgram(programFile, byteOutStream);
+
+            // Populate the global scope
+            BLangPrograms.loadBuiltinTypes();
+
+            // Populate the native function/actions
+            BLangPrograms.populateNativeScope();
+
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
+            return reader.readProgram(byteIS);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+
+            try {
+                byteOutStream.close();
+            } catch (IOException ignore) {
+            }
         }
     }
 
