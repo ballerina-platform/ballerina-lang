@@ -26,7 +26,8 @@ import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
 import javax.jms.JMSException;
 
 /**
- *
+ * {@link JMSTransactionContext} to hold information regarding the transactional stage
+ * inside a Context flow
  */
 public class JMSTransactionContext implements BallerinaTransactionContext {
     private SessionWrapper sessionWrapper;
