@@ -376,10 +376,9 @@ class Node extends EventChannel {
                 return 'continue' + w() + ';' + w();
             case 'Transform':
                 if (node.body) {
-                    return node.body.getSource();
-                } else {
-                    return '';
+                    return 'transform' + w() + '{' + w() + node.body.getSource() + w() + '}' + w();
                 }
+                return 'transform' + w() + '{' + w() + '}' + w();
             case 'WorkerSend':
                 return Node.join(node.expressions, w, '') + '->' +
                     w() + node.workerName.value + w() + ';' +

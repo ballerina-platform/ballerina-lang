@@ -175,7 +175,7 @@ class BallerinaFileEditor extends React.Component {
     onASTModified(evt) {
         const sourceGenVisitor = new SourceGenVisitor();
         this.state.model.accept(sourceGenVisitor);
-        const newContent = sourceGenVisitor.getGeneratedSource();
+        const newContent = this.state.model.getSource()
         // set breakpoints to model
         this.reCalculateBreakpoints(this.state.model);
         // create a wrapping event object to indicate tree modification
