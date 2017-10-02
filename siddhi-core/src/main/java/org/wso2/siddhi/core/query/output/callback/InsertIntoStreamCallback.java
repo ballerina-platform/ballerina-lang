@@ -33,6 +33,7 @@ public class InsertIntoStreamCallback extends OutputCallback {
 
     public InsertIntoStreamCallback(StreamDefinition outputStreamDefinition, String queryName) {
         this.outputStreamDefinition = outputStreamDefinition;
+        setQueryName(queryName);
     }
 
     public void init(StreamJunction outputStreamJunction) {

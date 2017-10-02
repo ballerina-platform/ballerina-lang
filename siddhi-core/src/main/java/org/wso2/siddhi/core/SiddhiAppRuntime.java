@@ -380,9 +380,7 @@ public class SiddhiAppRuntime {
         List<OutputCallback> streamCallbacks = new ArrayList<>();
         for (QueryRuntime queryRuntime : queryProcessorMap.values()) {
             streamRuntime.add(queryRuntime.getStreamRuntime());
-            OutputCallback callback = queryRuntime.getOutputCallback();
-            callback.setQueryName(queryRuntime.getQueryId());
-            streamCallbacks.add(callback);
+            streamCallbacks.add(queryRuntime.getOutputCallback());
         }
         for (StreamRuntime streamRuntime1 : streamRuntime) {
             for (SingleStreamRuntime singleStreamRuntime : streamRuntime1.getSingleStreamRuntimes()) {

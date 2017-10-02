@@ -38,7 +38,7 @@ public abstract class OutputCallback {
 
     public abstract void send(ComplexEventChunk complexEventChunk);
 
-    public SiddhiDebugger getSiddhiDebugger() {
+    SiddhiDebugger getSiddhiDebugger() {
         return siddhiDebugger;
     }
 
@@ -46,11 +46,11 @@ public abstract class OutputCallback {
         this.siddhiDebugger = siddhiDebugger;
     }
 
-    public String getQueryName() {
+    String getQueryName() {
         return queryName;
     }
 
-    public void setQueryName(String queryName) {
+    protected void setQueryName(String queryName) {
         this.queryName = queryName;
     }
 

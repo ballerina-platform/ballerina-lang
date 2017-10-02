@@ -40,12 +40,13 @@ public class InsertIntoTableCallback extends OutputCallback {
 
     public InsertIntoTableCallback(Table table, StreamDefinition outputStreamDefinition,
                                    boolean convertToStreamEvent, StreamEventPool streamEventPool,
-                                   StreamEventConverter streamEventConverter) {
+                                   StreamEventConverter streamEventConverter, String queryName) {
         this.table = table;
         this.outputStreamDefinition = outputStreamDefinition;
         this.convertToStreamEvent = convertToStreamEvent;
         this.streamEventPool = streamEventPool;
         this.streamEventConverter = streamEventConverter;
+        setQueryName(queryName);
     }
 
     @Override

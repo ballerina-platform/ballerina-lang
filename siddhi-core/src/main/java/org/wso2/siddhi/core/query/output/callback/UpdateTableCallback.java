@@ -45,7 +45,8 @@ public class UpdateTableCallback extends OutputCallback {
 
     public UpdateTableCallback(Table table, CompiledCondition compiledCondition, CompiledUpdateSet compiledUpdateSet,
                                int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
-                               StreamEventPool streamEventPool, StreamEventConverter streamEventConverter) {
+                               StreamEventPool streamEventPool, StreamEventConverter streamEventConverter,
+                               String queryName) {
         this.table = table;
         this.compiledCondition = compiledCondition;
         this.compiledUpdateSet = compiledUpdateSet;
@@ -54,6 +55,7 @@ public class UpdateTableCallback extends OutputCallback {
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
         this.streamEventConverter = streamEventConverter;
+        setQueryName(queryName);
     }
 
     @Override

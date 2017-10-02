@@ -43,7 +43,8 @@ public class DeleteTableCallback extends OutputCallback {
 
     public DeleteTableCallback(Table table, CompiledCondition compiledCondition, int matchingStreamIndex,
                                boolean convertToStreamEvent, StateEventPool stateEventPool,
-                               StreamEventPool streamEventPool, StreamEventConverter streamEventConverter) {
+                               StreamEventPool streamEventPool, StreamEventConverter streamEventConverter,
+                               String queryName) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.table = table;
         this.compiledCondition = compiledCondition;
@@ -51,6 +52,7 @@ public class DeleteTableCallback extends OutputCallback {
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
         this.streamEventConverter = streamEventConverter;
+        setQueryName(queryName);
     }
 
     @Override
