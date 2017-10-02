@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +51,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(0) };
         BTestUtils.invoke(result, "intDivide", args);
@@ -107,7 +108,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
-    //@Test(description = "Test float by zero", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test float by zero", expectedExceptions = BLangRuntimeException.class)
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
         BTestUtils.invoke(result, "floatDivide", args);
