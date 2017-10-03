@@ -1,6 +1,6 @@
-package lang.constant.main;
+package main;
 
-import lang.constant.variable;
+import variable;
 
 const int constNegativeInt = -342;
 
