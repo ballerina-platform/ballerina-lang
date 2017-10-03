@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -2038,6 +2039,52 @@ public class PartitionTestCase {
         SiddhiTestHelper.waitForEvents(100,  3,  count,  60000);
         AssertJUnit.assertTrue(eventArrived);
         AssertJUnit.assertEquals(3,  count.get());
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void testPartitionQuery42() throws InterruptedException {
+        log.info("Partition test");
+        SiddhiApp siddhiApp = SiddhiApp.siddhiApp("Test")
+                .defineStream(
+                        StreamDefinition.id("streamA")
+                                .attribute("symbol",  Attribute.Type.STRING)
+                                .attribute("price",  Attribute.Type.INT)
+                );
+        Query query = Query.query();
+        query.annotation(Annotation.annotation("info").element("name",  "query1"));
+        query.from(
+                InputStream.stream("streamA")
+        );
+        query.select(
+                Selector.selector().
+                        select("symbol",  Expression.variable("symbol")).
+                        select("price",  Expression.variable("price")));
+        query.insertInto("StockQuote");
+        Partition partition = Partition.partition();
+        partition.addQuery(query);
+        siddhiApp.addPartition(partition);
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        StreamCallback streamCallback = new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                AssertJUnit.assertTrue("IBM".equals(events[0].getData(0)) || "WSO2".equals(events[0].getData(0)));
+                count.addAndGet(events.length);
+                eventArrived = true;
+            }
+        };
+        siddhiAppRuntime.addCallback("StockQuote",  streamCallback);
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("streamA");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Event(System.currentTimeMillis(), new Object[]{"IBM",  700}));
+        inputHandler.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));
+        inputHandler.send(new Event(System.currentTimeMillis(), new Object[]{"WSO2",  60}));
+        Thread.sleep(1000);
+        AssertJUnit.assertEquals(0,  count.get());
         siddhiAppRuntime.shutdown();
     }
 
