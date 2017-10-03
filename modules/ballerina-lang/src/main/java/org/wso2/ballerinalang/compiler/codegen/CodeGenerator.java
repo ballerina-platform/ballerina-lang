@@ -116,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -490,26 +491,14 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangReturn returnNode) {
-        BLangExpression expr;
-        int i = 0;
-        while (i < returnNode.exprs.size()) {
-            expr = returnNode.exprs.get(i);
-            this.genNode(expr, this.env);
-            if (expr.isMultiReturnExpr()) {
-                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
-                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
-                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), i, invExpr.getRegIndexes()[j]);
-                    i++;
-                }
-            } else {
-                emit(this.typeTagToInstr(expr.type.tag), i, expr.regIndex);
-                i++;
-            }
-        }
-        generateFinallyInstructions(returnNode);
+        visitReturnStatementsExprs(returnNode);
         emit(InstructionCodes.RET);
     }
 
+    public void visit(BLangWorkerReturn returnNode) {
+        visitReturnStatementsExprs(returnNode);
+        this.emit(InstructionFactory.get(InstructionCodes.WRKRETURN));
+    }
 
     public void visit(BLangTransform transformNode) {
         this.genNode(transformNode.body, this.env);
@@ -1483,6 +1472,26 @@ public class CodeGenerator extends BLangNodeVisitor {
                                                   AnnotationAttributeInfo annotationAttributeInfo) {
         AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
         annotationAttributeInfo.attachmentList.add(attachmentInfo);
+    }
+
+    private void visitReturnStatementsExprs(BLangReturn returnNode) {
+        BLangExpression expr;
+        int i = 0;
+        while (i < returnNode.exprs.size()) {
+            expr = returnNode.exprs.get(i);
+            this.genNode(expr, this.env);
+            if (expr.isMultiReturnExpr()) {
+                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
+                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
+                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), i, invExpr.getRegIndexes()[j]);
+                    i++;
+                }
+            } else {
+                emit(this.typeTagToInstr(expr.type.tag), i, expr.regIndex);
+                i++;
+            }
+        }
+        generateFinallyInstructions(returnNode);
     }
 
     private VariableIndex copyVarIndex(VariableIndex that) {
