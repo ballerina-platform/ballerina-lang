@@ -41,7 +41,7 @@ function testXMLPILiteral() (xml, xml, xml, xml, xml) {
 }
 
 function testExpressionAsElementName() (xml, xml) {
-    int v1 = 11;
+    string v1 = "11";
     string v2 = "foo>bar";
     xml x1 = xml `<{{v1}}>hello</{{v1}}>`;
     xml x2 = xml `<{{v2}}>hello</{{v2}}>`;

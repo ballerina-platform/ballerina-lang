@@ -93,6 +93,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.XMLConstants;
+
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 
 /**
@@ -241,13 +243,27 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        // Create namespace symbol
-        BXMLNSSymbol xmlnsSymbol = new BXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix),
-                (String) xmlnsNode.namespaceURI.value, env.enclPkg.symbol.pkgID, env.scope.owner);
-        xmlnsSymbol.definedInline = false;
+        String nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
+
+        if (!xmlnsNode.prefix.value.isEmpty() && nsURI.isEmpty()) {
+            dlog.error(xmlnsNode.pos, DiagnosticCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
+        }
+
+        BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(names.fromIdNode(xmlnsNode.prefix), nsURI,
+                env.enclPkg.symbol.pkgID, env.scope.owner);
         xmlnsNode.symbol = xmlnsSymbol;
 
-        // Define it in the enclosing scope
+        // First check for package-imports with the same alias.
+        // Here we do not check for owner equality, since package import is always at the package
+        // level, but the namespace declaration can be at any level.
+        BSymbol foundSym = symResolver.lookupSymbol(env, xmlnsSymbol.name, SymTag.PACKAGE);
+        if (foundSym != symTable.notFoundSymbol) {
+            dlog.error(xmlnsNode.pos, DiagnosticCode.REDECLARED_SYMBOL, xmlnsSymbol.name);
+            return;
+        }
+
+        // Define it in the enclosing scope. Here we check for the owner equality,
+        // to support overriding of namespace declarations defined at package level.
         defineSymbol(xmlnsNode.pos, xmlnsSymbol);
     }
 
@@ -388,11 +404,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (exprs.size() == 1 && exprs.get(0).getKind() == NodeKind.LITERAL) {
             nsURI = (String) ((BLangLiteral) exprs.get(0)).value;
         }
+
+        String symbolName = qname.localname.value;
+        if (symbolName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            symbolName = XMLConstants.DEFAULT_NS_PREFIX;
+        }
         BXMLNSSymbol xmlnsSymbol =
-                new BXMLNSSymbol(names.fromIdNode(qname.localname), nsURI, env.enclPkg.symbol.pkgID, env.scope.owner);
-        if (symResolver.checkForUniqueSymbol(bLangXMLAttribute.pos, env, xmlnsSymbol)) {
+                new BXMLNSSymbol(names.fromString(symbolName), nsURI, env.enclPkg.symbol.pkgID, env.scope.owner);
+        if (symResolver.checkForUniqueMemberSymbol(bLangXMLAttribute.pos, env, xmlnsSymbol)) {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
-            xmlnsSymbol.definedInline = true;
             bLangXMLAttribute.symbol = xmlnsSymbol;
         }
     }
@@ -661,10 +681,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
 
-        // Add namespace declarations to the init function
-        for (BLangXMLNS xmlns : pkgNode.xmlnsList) {
+        // Add package level namespace declarations to the init function
+        pkgNode.xmlnsList.forEach(xmlns -> {
             initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
-        }
+        });
 
         //Add global variables to the init function
         pkgNode.globalVars.stream().filter(f -> f.expr != null)

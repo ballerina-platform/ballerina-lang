@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -347,6 +350,11 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         throw new AssertionError();
     }
+
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        throw new AssertionError();
+    }
+
     // Type nodes
 
     public void visit(BLangValueType valueType) {
@@ -429,6 +437,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangJSONAccessExpr jsonAccessExpr) {
+        throw new AssertionError();
+    }
+    
+    public void visit(BLangLocalXMLNS xmlnsNode) {
+        throw new AssertionError();
+    }
+    
+    public void visit(BLangPackageXMLNS xmlnsNode) {
         throw new AssertionError();
     }
 }
