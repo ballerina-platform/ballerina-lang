@@ -9,6 +9,7 @@ lexer grammar BallerinaLexer;
 PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
+PUBLIC      : 'public' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -17,12 +18,14 @@ CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
 ANNOTATION  : 'annotation' ;
+ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
 CONST       : 'const' ;
 TYPEMAPPER  : 'typemapper' ;
 WORKER      : 'worker' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
+VERSION     : 'version';
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -80,6 +83,7 @@ LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
+QUESTION_MARK       : '?' ;
 
 // Arithmetic operators
 
