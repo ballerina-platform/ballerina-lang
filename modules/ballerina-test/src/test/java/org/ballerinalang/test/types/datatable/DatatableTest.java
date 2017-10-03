@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.types;
+package org.ballerinalang.test.types.datatable;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -45,7 +45,7 @@ public class DatatableTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/datatable-type.bal");
+        result = BTestUtils.compile("test-src/types/datatable/datatable-type.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
     }
