@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import NodeFactory from './../model/node-factory';
+import DefaultNodeFactory from './../model/default-node-factory';
 import ToolGroup from './../tool-palette/tool-group';
 
 const ToolPalette = [];
@@ -139,7 +140,7 @@ const createMainFunctionDefTool = {
     },
     icon: 'main-function',
     title: 'Main Function',
-    nodeFactoryMethod: NodeFactory.createFunction,
+    nodeFactoryMethod: DefaultNodeFactory.createMainFunction,
     definition: 'Potential entry point for command line execution',
 };
 
