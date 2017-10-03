@@ -17,16 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
 
 class AbstractXmlCommentLiteralNode extends Node {
-
-    constructor() {
-        super();
-
-        this.textFragments = [];
-    }
 
 
     setTextFragments(newValue, silent, title) {
@@ -121,6 +114,21 @@ class AbstractXmlCommentLiteralNode extends Node {
             });
         }
     }
+
+    replaceTextFragmentsByIndex(index, newChild, silent) {
+        this.textFragments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfTextFragments(child) {
         return _.findIndex(this.textFragments, ['id', child.id]);

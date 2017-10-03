@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {unaryOpTools, binaryOpTools} from "../../../../../tool-palette/operator-tools";
+import {unaryOpTools, binaryOpTools} from "../../../../../tool-palette/item-provider/operator-tools";
 
 const toolIdOperatorMap = {
     add: '+',

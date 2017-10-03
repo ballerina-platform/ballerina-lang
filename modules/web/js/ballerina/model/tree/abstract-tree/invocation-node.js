@@ -17,21 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
-import VariableReferenceNode from '../variable-reference-node';
 
 class AbstractInvocationNode extends Node {
-
-    constructor() {
-        super();
-
-        this.packageAlias = new IdentifierNode();
-        this.expression = new VariableReferenceNode();
-        this.argumentExpressions = [];
-        this.name = new IdentifierNode();
-    }
 
 
     setPackageAlias(newValue, silent, title) {
@@ -180,6 +168,21 @@ class AbstractInvocationNode extends Node {
             });
         }
     }
+
+    replaceArgumentExpressionsByIndex(index, newChild, silent) {
+        this.argumentExpressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfArgumentExpressions(child) {
         return _.findIndex(this.argumentExpressions, ['id', child.id]);

@@ -103,6 +103,7 @@ public class ModelGenerator {
                 nodeObj.addProperty("name", nodeClassName);
                 nodeObj.addProperty("fileName", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, nodeClassName));
                 JsonArray attr = new JsonArray();
+                JsonArray bools = new JsonArray();
                 JsonArray imports = new JsonArray();
                 List<String> parents = Arrays.asList(clazz.getInterfaces()).stream().map(
                         parent -> parent.getSimpleName()
@@ -163,8 +164,30 @@ public class ModelGenerator {
                         }
                         attr.add(attribute);
                     }
+                    if (methodName.startsWith("is")) {
+                        JsonObject attribute = new JsonObject();
+                        JsonObject imp = new JsonObject();
+                        attribute.addProperty("property", toJsonName(m.getName(), 2));
+                        attribute.addProperty("methodSuffix", m.getName().substring(2));
+                        attribute.addProperty("list", List.class.isAssignableFrom(m.getReturnType()));
+                        attribute.addProperty("isNode", Node.class.isAssignableFrom(m.getReturnType()));
+                        if(Node.class.isAssignableFrom(m.getReturnType())){
+                            String returnClass = m.getReturnType().getSimpleName();
+                            if(alias.containsValue(m.getReturnType().getSimpleName())){
+                                returnClass = getKindForAliasClass(m.getReturnType().getSimpleName());
+                            }
+                            imp.addProperty("returnType", returnClass);
+                            attribute.addProperty("returnType", returnClass);
+                            imp.addProperty("returnTypeFile", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
+                            if (!imports.contains(imp)) {
+                                imports.add(imp);
+                            }
+                        }
+                        bools.add(attribute);
+                    }
                 }
                 nodeObj.add("attributes", attr);
+                nodeObj.add("bools", bools);
                 nodeObj.add("imports", imports);
                 nodes.add(nodeClassName, nodeObj);
             } catch (NoSuchElementException e) {

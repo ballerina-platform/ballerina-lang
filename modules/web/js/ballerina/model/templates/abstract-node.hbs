@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-{{#each imports}}
-import {{returnType}} from '../{{returnTypeFile}}';{{/each}}
+import {{#if isStatement}}Statement{{/if}}{{#if isExpression}}Expression{{/if}}Node from '../{{#if isStatement}}statement-{{/if}}{{#if isExpression}}expression-{{/if}}node';
 
 class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpression}}Expression{{/if}}Node {
-
-    constructor() {
-        super();
-{{#each attributes}}{{#if isNode}}
-        this.{{property}} = new {{returnType}}();{{/if}}{{#if list}}
-        this.{{property}} = [];{{/if}}{{/each}}
-    }
 
 {{#each attributes}}
     set{{methodSuffix}}(newValue, silent, title) {
@@ -125,6 +117,21 @@ class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpres
         }
     }
 
+    replace{{methodSuffix}}ByIndex(index, newChild, silent) {
+        this.{{property}}[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOf{{methodSuffix}}(child) {
         return _.findIndex(this.{{property}}, ['id', child.id]);
     }
@@ -133,6 +140,29 @@ class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpres
         return _.filter(this.{{property}}, predicateFunction);
     }
 {{/if}}
+{{/each}}{{#each bools}}
+
+    is{{methodSuffix}}() {
+        return this.{{property}};
+    }
+
+    set{{methodSuffix}}(newValue, silent, title) {
+        const oldValue = this.{{property}};
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.{{property}} = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: '{{property}}',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 {{/each}}
 }
 

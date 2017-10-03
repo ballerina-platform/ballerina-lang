@@ -17,25 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import BlockNode from '../block-node';
-import ExpressionNode from '../expression-node';
-import VariableNode from '../variable-node';
 
 class AbstractForkJoinNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.workers = [];
-        this.joinedWorkerIdentifiers = [];
-        this.joinBody = new BlockNode();
-        this.timeOutExpression = new ExpressionNode();
-        this.timeOutVariable = new VariableNode();
-        this.timeoutBody = new BlockNode();
-        this.joinResultVar = new VariableNode();
-    }
 
 
     setWorkers(newValue, silent, title) {
@@ -130,6 +114,21 @@ class AbstractForkJoinNode extends StatementNode {
             });
         }
     }
+
+    replaceWorkersByIndex(index, newChild, silent) {
+        this.workers[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfWorkers(child) {
         return _.findIndex(this.workers, ['id', child.id]);
@@ -232,6 +231,21 @@ class AbstractForkJoinNode extends StatementNode {
             });
         }
     }
+
+    replaceJoinedWorkerIdentifiersByIndex(index, newChild, silent) {
+        this.joinedWorkerIdentifiers[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfJoinedWorkerIdentifiers(child) {
         return _.findIndex(this.joinedWorkerIdentifiers, ['id', child.id]);

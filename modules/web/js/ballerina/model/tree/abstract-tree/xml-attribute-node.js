@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractXmlAttributeNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.name = new ExpressionNode();
-        this.value = new ExpressionNode();
-    }
 
 
     setName(newValue, silent, title) {

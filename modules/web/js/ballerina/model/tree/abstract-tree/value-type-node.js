@@ -17,15 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
 
 class AbstractValueTypeNode extends Node {
-
-    constructor() {
-        super();
-
-    }
 
 
     setTypeKind(newValue, silent, title) {

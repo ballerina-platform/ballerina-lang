@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractTernaryExprNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.condition = new ExpressionNode();
-        this.elseExpression = new ExpressionNode();
-        this.thenExpression = new ExpressionNode();
-    }
 
 
     setCondition(newValue, silent, title) {

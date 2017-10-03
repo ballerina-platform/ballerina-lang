@@ -30,9 +30,9 @@ export function withDragEnabled(ToolView) {
     // drag source spec
     const dragSpec = {
         beginDrag: (props, monitor, component) => {
-            const { meta = {}, nodeFactoryMethod, icon } = props.tool.attributes;
+            const { factoryArgs = {}, nodeFactoryMethod, icon } = props.tool;
             return {
-                dragSource: nodeFactoryMethod(meta),
+                dragSource: nodeFactoryMethod(factoryArgs),
                 icon,
             };
         },

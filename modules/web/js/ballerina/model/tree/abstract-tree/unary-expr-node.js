@@ -17,16 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractUnaryExprNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.expression = new ExpressionNode();
-    }
 
 
     setExpression(newValue, silent, title) {

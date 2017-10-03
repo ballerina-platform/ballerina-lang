@@ -18,10 +18,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import Tool from './tool';
-import ToolGroup from './tool-group';
 import ImageUtils from './../diagram/views/default/components/image-util';
 import { withDragEnabled } from './../drag-drop/drag-source';
+import { TOOL, TOOL_GROUP } from './spec';
 
 /**
  * Tool Component which render a tool in tool palette.
@@ -53,8 +52,8 @@ class ToolView extends React.Component {
     handleClickOpenDocumentation(e) {
         e.stopPropagation();
         const { tool, group } = this.props;
-        const functionName = tool.get('title') + (tool.parent ? tool.parent : '');
-        this.context.editor.openDocumentation(group.get('toolGroupName'), functionName);
+        const functionName = tool.title + (tool.parent ? tool.parent : '');
+        this.context.editor.openDocumentation(group.name, functionName);
     }
 
     /**
@@ -67,20 +66,20 @@ class ToolView extends React.Component {
     render() {
         const tool = this.props.tool;
         let toolTip = '';
-        let toolDef = '';
-        if (this.props.toolOrder === 'horizontal') {
-            toolTip = tool.get('name');
-            toolDef = tool.get('definition');
+        let toolDesc = '';
+        if (this.props.order === 'horizontal') {
+            toolTip = tool.name;
+            toolDesc = tool.description;
             return this.props.connectDragSource(
                 <div
                     className="tool-block tool-container"
-                    title={toolTip + '\n' + toolDef}
+                    title={toolTip + '\n' + toolDesc}
                     data-placement="bottom"
                     data-toggle="tooltip"
                     id={toolTip}
                 >
 
-                    <i className={`icon fw fw-${tool.get('icon')}`} />
+                    <i className={`icon fw fw-${tool.icon}`} />
                     <span className="tool-title-wrap" />
                     <span className="tool-title-wrap">
                         <p className="tool-title">{toolTip}</p>
@@ -90,11 +89,11 @@ class ToolView extends React.Component {
             );
         }
 
-        toolTip = tool.get('title');
-        if (tool.get('_parameters')) {
+        toolTip = tool.title;
+        if (tool.parameters) {
             toolTip += '(';
 
-            tool.get('_parameters').forEach((param, index) => {
+            tool.parameters.forEach((param, index) => {
                 if (index !== 0) {
                     toolTip += ',';
                 }
@@ -104,9 +103,9 @@ class ToolView extends React.Component {
 
             toolTip += ')';
         }
-        if (tool.get('_returnParams')) {
+        if (tool.returnParams) {
             toolTip += '(';
-            tool.get('_returnParams').forEach((param, index) => {
+            tool.returnParams.forEach((param, index) => {
                 if (index !== 0) {
                     toolTip += ',';
                 }
@@ -118,23 +117,23 @@ class ToolView extends React.Component {
         }
         let imageIcon;
         if (tool.id === 'ClientConnector') {
-            const iconBytes = ImageUtils.getConnectorIcon(tool.get('meta').pkgName);
+            const iconBytes = ImageUtils.getConnectorIcon(tool.factoryArgs.pkgName);
             imageIcon = <img alt="client connector icon" src={iconBytes} />;
         } else {
-            imageIcon = <i className={`icon fw fw-${tool.get('icon')}`} />;
+            imageIcon = <i className={`icon fw fw-${tool.icon}`} />;
         }
 
         return this.props.connectDragSource(
             <div
                 id={`${tool.id}-tool`}
-                className={`tool-block tool-container-vertical ${tool.get('classNames')}`}
+                className={`tool-block tool-container-vertical ${tool.classNames}`}
                 ref={(c) => { this.tool = c; }}
             >
                 <div
                     className="tool-container-vertical-icon"
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    title={toolTip + '\n' + toolDef}
+                    title={toolTip + '\n' + toolDesc}
                 >
                     {imageIcon}
                 </div>
@@ -142,11 +141,11 @@ class ToolView extends React.Component {
                     className="tool-container-vertical-title"
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    title={toolTip + '\n' + toolDef}
+                    title={toolTip + '\n' + toolDesc}
                 >
-                    {tool.get('title')}
+                    {tool.title}
                 </div>
-                <p className="tool-title">{tool.get('name')}</p>
+                <p className="tool-title">{tool.name}</p>
                 <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
                     <span className="fw fw-document" />
                 </a>
@@ -156,16 +155,16 @@ class ToolView extends React.Component {
 }
 
 ToolView.defaultProps = {
-    toolOrder: 'vertical',
+    order: 'vertical',
 };
 
 ToolView.propTypes = {
     connectDragSource: PropTypes.func.isRequired,
     connectDragPreview: PropTypes.func.isRequired,
     isDragging: PropTypes.bool.isRequired,
-    toolOrder: PropTypes.string,
-    tool: PropTypes.instanceOf(Tool).isRequired,
-    group: PropTypes.instanceOf(ToolGroup).isRequired,
+    order: PropTypes.string,
+    tool: TOOL.isRequired,
+    group: TOOL_GROUP.isRequired,
 };
 
 ToolView.contextTypes = {

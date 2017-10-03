@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import DefaultASTFactory from '../ast/default-ast-factory';
+import DefaultASTFactory from './../../ast/default-ast-factory';
 
 const operatorStatementCreator = DefaultASTFactory.createTransformAssignmentOperatorStatement
 
@@ -31,7 +31,7 @@ const addOpTool = {
     name: 'Add',
     icon: 'add',
     title: 'Add',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 + 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -42,7 +42,7 @@ const subtractOpTool = {
     name: 'Subtract',
     icon: 'minus',
     title: 'Subtract',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 - 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -53,7 +53,7 @@ const divideOpTool = {
     name: 'Divide',
     icon: 'divide',
     title: 'Divide',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 / 1',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -64,7 +64,7 @@ const multiplyOpTool = {
     name: 'Multiply',
     icon: 'cancel',
     title: 'Multiply',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 * 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -75,7 +75,7 @@ const powerOpTool = {
     name: 'Power',
     icon: 'power',
     title: 'Power',
-    meta: {
+    factoryArgs: {
         defaultExpression: '1 ^ 1',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -86,7 +86,7 @@ const lessThanOpTool = {
     name: 'Less Than',
     icon: 'less-than',
     title: 'Less Than',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 < 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -97,7 +97,7 @@ const greaterThanOpTool = {
     name: 'Greater Than',
     icon: 'greater-than',
     title: 'Greater Than',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 > 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -108,7 +108,7 @@ const lessThanOrEqualOpTool = {
     name: 'LT Or Equal To',
     icon: 'less-than-equals',
     title: 'LT Or Equal To',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 <= 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -119,7 +119,7 @@ const greaterThanOrEqualOpTool = {
     name: 'GT Or Equal To',
     icon: 'greater-than-equals',
     title: 'GT Or Equal To',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 >= 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -130,7 +130,7 @@ const equalOpTool = {
     name: 'Equal To',
     icon: 'equals',
     title: 'Equal To',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 == 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -141,7 +141,7 @@ const notEqualOpTool = {
     name: 'Not Equal To',
     icon: 'not-equal',
     title: 'Not Equal To',
-    meta: {
+    factoryArgs: {
         defaultExpression: '0 != 0',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -152,7 +152,7 @@ const andOpTool = {
     name: 'And',
     icon: 'and',
     title: 'And',
-    meta: {
+    factoryArgs: {
         defaultExpression: 'true && true',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -163,7 +163,7 @@ const orOpTool = {
     name: 'Or',
     icon: 'or',
     title: 'Or',
-    meta: {
+    factoryArgs: {
         defaultExpression: 'true || true',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -192,7 +192,7 @@ const plusOpTool = {
     name: 'Plus',
     icon: 'add',
     title: 'Plus',
-    meta: {
+    factoryArgs: {
         defaultExpression: '+ 1',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -203,7 +203,7 @@ const minusOpTool = {
     name: 'Minus',
     icon: 'minus',
     title: 'Minus',
-    meta: {
+    factoryArgs: {
         defaultExpression: '- 1',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -214,7 +214,7 @@ const notOpTool = {
     name: 'Not',
     icon: 'not',
     title: 'Not',
-    meta: {
+    factoryArgs: {
         defaultExpression: '! false',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -225,7 +225,7 @@ const lengthOfOpTool = {
     name: 'Length Of',
     icon: 'lengthof',
     title: 'Length Of',
-    meta: {
+    factoryArgs: {
         defaultExpression: 'lengthof a',
     },
     nodeFactoryMethod: operatorStatementCreator,
@@ -236,7 +236,7 @@ const typeOfOpTool = {
     name: 'Type Of',
     icon: 'typeof',
     title: 'Type Of',
-    meta: {
+    factoryArgs: {
         defaultExpression: 'typeof a',
     },
     nodeFactoryMethod: operatorStatementCreator,

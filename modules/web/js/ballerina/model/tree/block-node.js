@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
 
 class BlockNode extends AbstractBlockNode {
@@ -40,7 +40,8 @@ class BlockNode extends AbstractBlockNode {
      *
      */
     acceptDrop(node, dropBefore) {
-        this.addStatements(node);
+        const index = !_.isNil(dropBefore) ? this.getIndexOfStatements(dropBefore) : -1;
+        this.addStatements(node, index);
     }
 
 }

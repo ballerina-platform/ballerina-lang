@@ -17,16 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractStringTemplateLiteralNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.expressions = [];
-    }
 
 
     setExpressions(newValue, silent, title) {
@@ -121,6 +114,21 @@ class AbstractStringTemplateLiteralNode extends ExpressionNode {
             });
         }
     }
+
+    replaceExpressionsByIndex(index, newChild, silent) {
+        this.expressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfExpressions(child) {
         return _.findIndex(this.expressions, ['id', child.id]);

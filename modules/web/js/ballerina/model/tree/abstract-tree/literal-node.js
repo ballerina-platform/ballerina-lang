@@ -17,15 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractLiteralNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-    }
 
 
     setValue(newValue, silent, title) {
