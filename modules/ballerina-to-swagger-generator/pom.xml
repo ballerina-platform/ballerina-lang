@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-native</artifactId>
+            <artifactId>ballerina-builtin</artifactId>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
