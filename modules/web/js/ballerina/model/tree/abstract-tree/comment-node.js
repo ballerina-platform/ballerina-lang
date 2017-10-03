@@ -17,15 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
 
 class AbstractCommentNode extends StatementNode {
-
-    constructor() {
-        super();
-
-    }
 
 
     setComment(newValue, silent, title) {

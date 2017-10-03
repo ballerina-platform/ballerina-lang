@@ -19,8 +19,8 @@ import React from 'react';
 import Collapsible from 'react-collapsible';
 import PropTypes from 'prop-types';
 import ToolView from './tool-view';
+import { TOOL_GROUP } from './spec';
 import './tool-palette.css';
-import ToolGroup from './tool-group';
 
 /**
  * Renders a tool group.
@@ -52,7 +52,7 @@ class ToolGroupView extends React.Component {
      */
     getToolGroupName() {
         // todo: find a proper solution, this is a hack to reduce connector package names.
-        return this.props.group.get('toolGroupName').replace('org.wso2.ballerina.connectors.', '');
+        return this.props.group.name.replace('org.wso2.ballerina.connectors.', '');
     }
 
 
@@ -90,16 +90,16 @@ class ToolGroupView extends React.Component {
         const group = this.props.group;
         const children = [];
         group.tools.forEach((element) => {
-            if (element.attributes.seperator) {
-                children.push(<div className="clear-fix " key={`${element.attributes.id}-clear-fix`} />);
-                children.push(<div className="tool-separator" key={`${element.attributes.id}-tool-separator`} />);
+            if (element.seperator) {
+                children.push(<div className="clear-fix " key={`${element.id}-clear-fix`} />);
+                children.push(<div className="tool-separator" key={`${element.id}-tool-separator`} />);
             } else {
                 children.push(
                     <ToolView
                         tool={element}
                         group={group}
-                        key={element.cid}
-                        toolOrder={group.get('toolOrder')}
+                        key={element.id + element.name}
+                        order={group.order}
                     />);
             }
         }, this);
@@ -155,7 +155,7 @@ class ToolGroupView extends React.Component {
 
 ToolGroupView.propTypes = {
     showGridStyles: PropTypes.bool.isRequired,
-    group: PropTypes.instanceOf(ToolGroup).isRequired,
+    group: TOOL_GROUP.isRequired,
 };
 
 ToolGroupView.contextTypes = {

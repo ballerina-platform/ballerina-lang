@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import ExpressionNode from '../expression-node';
 
 class AbstractRecordLiteralKeyValueNode extends Node {
-
-    constructor() {
-        super();
-
-        this.value = new ExpressionNode();
-        this.key = new ExpressionNode();
-    }
 
 
     setValue(newValue, silent, title) {

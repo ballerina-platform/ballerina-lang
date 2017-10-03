@@ -17,27 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import VariableNode from '../variable-node';
-import FunctionNode from '../function-node';
-import ActionNode from '../action-node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractConnectorNode extends Node {
-
-    constructor() {
-        super();
-
-        this.filteredParameter = new VariableNode();
-        this.variableDefs = [];
-        this.initFunction = new FunctionNode();
-        this.initAction = new ActionNode();
-        this.name = new IdentifierNode();
-        this.actions = [];
-        this.parameters = [];
-        this.annotationAttachments = [];
-    }
 
 
     setFilteredParameter(newValue, silent, title) {
@@ -159,6 +141,21 @@ class AbstractConnectorNode extends Node {
             });
         }
     }
+
+    replaceVariableDefsByIndex(index, newChild, silent) {
+        this.variableDefs[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfVariableDefs(child) {
         return _.findIndex(this.variableDefs, ['id', child.id]);
@@ -343,6 +340,21 @@ class AbstractConnectorNode extends Node {
         }
     }
 
+    replaceActionsByIndex(index, newChild, silent) {
+        this.actions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfActions(child) {
         return _.findIndex(this.actions, ['id', child.id]);
     }
@@ -444,6 +456,21 @@ class AbstractConnectorNode extends Node {
             });
         }
     }
+
+    replaceParametersByIndex(index, newChild, silent) {
+        this.parameters[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfParameters(child) {
         return _.findIndex(this.parameters, ['id', child.id]);
@@ -571,6 +598,21 @@ class AbstractConnectorNode extends Node {
             });
         }
     }
+
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);

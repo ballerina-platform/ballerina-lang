@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
-import UserDefinedTypeNode from '../user-defined-type-node';
 
 class AbstractConnectorInitExprNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.expressions = [];
-        this.connectorType = new UserDefinedTypeNode();
-        this.filterConnectos = [];
-    }
 
 
     setExpressions(newValue, silent, title) {
@@ -125,6 +115,21 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
         }
     }
 
+    replaceExpressionsByIndex(index, newChild, silent) {
+        this.expressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfExpressions(child) {
         return _.findIndex(this.expressions, ['id', child.id]);
     }
@@ -132,33 +137,6 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     filterExpressions(predicateFunction) {
         return _.filter(this.expressions, predicateFunction);
     }
-
-
-    setConnectorType(newValue, silent, title) {
-        const oldValue = this.connectorType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.connectorType = newValue;
-
-        this.connectorType.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'connectorType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getConnectorType() {
-        return this.connectorType;
-    }
-
 
 
     setFilterConnectos(newValue, silent, title) {
@@ -254,6 +232,21 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
         }
     }
 
+    replaceFilterConnectosByIndex(index, newChild, silent) {
+        this.filterConnectos[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfFilterConnectos(child) {
         return _.findIndex(this.filterConnectos, ['id', child.id]);
     }
@@ -261,6 +254,33 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     filterFilterConnectos(predicateFunction) {
         return _.filter(this.filterConnectos, predicateFunction);
     }
+
+
+    setConnectorType(newValue, silent, title) {
+        const oldValue = this.connectorType;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.connectorType = newValue;
+
+        this.connectorType.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'connectorType',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getConnectorType() {
+        return this.connectorType;
+    }
+
 
 
 }

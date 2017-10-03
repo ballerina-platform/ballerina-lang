@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import ExpressionNode from '../expression-node';
 
 class AbstractAssignmentNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.variables = [];
-        this.expression = new ExpressionNode();
-    }
 
 
     setVariables(newValue, silent, title) {
@@ -124,6 +115,21 @@ class AbstractAssignmentNode extends StatementNode {
         }
     }
 
+    replaceVariablesByIndex(index, newChild, silent) {
+        this.variables[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfVariables(child) {
         return _.findIndex(this.variables, ['id', child.id]);
     }
@@ -159,6 +165,29 @@ class AbstractAssignmentNode extends StatementNode {
     }
 
 
+
+
+    isDeclaredWithVar() {
+        return this.declaredWithVar;
+    }
+
+    setDeclaredWithVar(newValue, silent, title) {
+        const oldValue = this.declaredWithVar;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.declaredWithVar = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'declaredWithVar',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

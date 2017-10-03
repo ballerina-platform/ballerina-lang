@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
-import TypeNode from '../type-node';
 
 class AbstractTypeCastExprNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.typeNode = new TypeNode();
-        this.expression = new ExpressionNode();
-    }
 
 
     setTypeNode(newValue, silent, title) {

@@ -17,20 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import ExpressionNode from '../expression-node';
 
 class AbstractXmlElementLiteralNode extends Node {
-
-    constructor() {
-        super();
-
-        this.startTagName = new ExpressionNode();
-        this.endTagName = new ExpressionNode();
-        this.attributes = [];
-        this.content = [];
-    }
 
 
     setStartTagName(newValue, silent, title) {
@@ -205,6 +194,21 @@ class AbstractXmlElementLiteralNode extends Node {
         }
     }
 
+    replaceAttributesByIndex(index, newChild, silent) {
+        this.attributes[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfAttributes(child) {
         return _.findIndex(this.attributes, ['id', child.id]);
     }
@@ -306,6 +310,21 @@ class AbstractXmlElementLiteralNode extends Node {
             });
         }
     }
+
+    replaceContentByIndex(index, newChild, silent) {
+        this.content[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfContent(child) {
         return _.findIndex(this.content, ['id', child.id]);

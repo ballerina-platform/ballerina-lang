@@ -81,7 +81,7 @@ class TreeNode extends React.Component {
                 let editTargetExists = false;
                 if (resp.exists) {
                     editError = `A file or folder "${inputValue}" already exists at this location.
-                    Please choose a differrent name`;
+                    Please choose a different name`;
                     editTargetExists = true;
                 }
                 this.setState({

@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractXmlQnameNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.prefix = new IdentifierNode();
-        this.localname = new IdentifierNode();
-    }
 
 
     setPrefix(newValue, silent, title) {

@@ -20,13 +20,12 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import $ from 'jquery';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import InitialTools from '../item-provider/initial-definitions';
+import InitialTools from './item-provider/initial-definitions';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
-import ToolGroup from './../tool-palette/tool-group';
 import DefaultASTFactory from '../ast/default-ast-factory';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
-import {binaryOpTools, unaryOpTools} from './operator-tools';
+import {binaryOpTools, unaryOpTools} from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 class ToolsPanel extends React.Component {
@@ -113,19 +112,19 @@ class TransformPane extends React.Component {
     }
 
     render() {
-        const binaryOpToolGroup = new ToolGroup({
-            toolGroupName: 'binary operators',
-            toolGroupID: 'binary-operators-tool-group',
-            toolOrder: 'horizontal',
-            toolDefinitions: binaryOpTools,
-        });
+        const binaryOpToolGroup = {
+            name: 'binary operators',
+            id: 'binary-operators-tool-group',
+            order: 'horizontal',
+            tools: binaryOpTools,
+        };
 
-        const unaryOpToolGroup = new ToolGroup({
-            toolGroupName: 'unary operators',
-            toolGroupID: 'unary-operators-tool-group',
-            toolOrder: 'horizontal',
-            toolDefinitions: unaryOpTools,
-        });
+        const unaryOpToolGroup = {
+            name: 'unary operators',
+            id: 'unary-operators-tool-group',
+            order: 'horizontal',
+            tools: unaryOpTools,
+        };
 
         return (
             <div>
@@ -292,7 +291,7 @@ class ToolPaletteView extends React.Component {
             return data;
         } else if (data.tools instanceof Array) {
             data.tools = data.tools.filter(function (item) {
-                if (item.get('name').toLowerCase().includes(this.searchText)) {
+                if (item.name.toLowerCase().includes(this.searchText)) {
                     return true;
                 }
                 return false;
@@ -335,7 +334,7 @@ class ToolPaletteView extends React.Component {
                 };
                 const connTool = {};
                 connTool.nodeFactoryMethod = DefaultASTFactory.createConnectorDeclaration;
-                connTool.meta = args;
+                connTool.factoryArgs = args;
                 // TODO : use a generic icon
                 connTool.title = connector.getName();
                 connTool.name = connector.getName();
@@ -353,7 +352,7 @@ class ToolPaletteView extends React.Component {
                     if ((index + 1) === collection.length) {
                         action.classNames = 'tool-connector-action tool-connector-last-action';
                     }
-                    actionTool.meta = {
+                    actionTool.factoryArgs = {
                         action: action.getName(),
                         actionConnectorName: connector.getName(),
                         actionPackageName: packageName,
@@ -371,8 +370,8 @@ class ToolPaletteView extends React.Component {
                     }
 
                     actionTool.id = `${connector.getName()}-${action.getName()}`;
-                    actionTool._parameters = action.getParameters();
-                    actionTool._returnParams = action.getReturnParams();
+                    actionTool.parameters = action.getParameters();
+                    actionTool.returnParams = action.getReturnParams();
                     definitions.push(actionTool);
                 });
             });
@@ -395,7 +394,7 @@ class ToolPaletteView extends React.Component {
                         const functionTool = {};
                         functionTool.nodeFactoryMethod =
                                                DefaultASTFactory.createTransformAssignmentFunctionInvocationStatement;
-                        functionTool.meta = {
+                        functionTool.factoryArgs = {
                             functionDef,
                             packageName,
                             fullPackageName: pckg.getName(),
@@ -404,15 +403,15 @@ class ToolPaletteView extends React.Component {
                         functionTool.name = functionDef.getName();
                         functionTool.id = functionDef.getName();
                         functionTool.cssClass = 'icon fw fw-function';
-                        functionTool._parameters = functionDef.getParameters();
-                        functionTool._returnParams = functionDef.getReturnParams();
+                        functionTool.parameters = functionDef.getParameters();
+                        functionTool.returnParams = functionDef.getReturnParams();
                         definitions.push(functionTool);
                     }
                 } else {
                     const packageName = _.last(_.split(pckg.getName(), '.'));
                     const functionTool = {};
                     functionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedFunctionInvocationStatement;
-                    functionTool.meta = {
+                    functionTool.factoryArgs = {
                         functionDef,
                         packageName,
                         fullPackageName: pckg.getName(),
@@ -421,19 +420,19 @@ class ToolPaletteView extends React.Component {
                     functionTool.name = functionDef.getName();
                     functionTool.id = functionDef.getName();
                     functionTool.cssClass = 'icon fw fw-function';
-                    functionTool._parameters = functionDef.getParameters();
-                    functionTool._returnParams = functionDef.getReturnParams();
+                    functionTool.parameters = functionDef.getParameters();
+                    functionTool.returnParams = functionDef.getReturnParams();
                     definitions.push(functionTool);
                 }
             });
         }
 
-        const group = new ToolGroup({
-            toolGroupName: pckg.getName(),
-            toolGroupID: `${pckg.getName()}-tool-group`,
-            toolOrder: 'vertical',
-            toolDefinitions: definitions,
-        });
+        const group = {
+            name: pckg.getName(),
+            id: `${pckg.getName()}-tool-group`,
+            order: 'vertical',
+            tools: definitions,
+        };
 
         return group;
     }

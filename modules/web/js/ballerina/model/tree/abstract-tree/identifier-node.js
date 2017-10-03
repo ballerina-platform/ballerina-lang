@@ -17,15 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
 
 class AbstractIdentifierNode extends Node {
-
-    constructor() {
-        super();
-
-    }
 
 
     setValue(newValue, silent, title) {
@@ -52,6 +46,29 @@ class AbstractIdentifierNode extends Node {
     }
 
 
+
+
+    isLiteral() {
+        return this.literal;
+    }
+
+    setLiteral(newValue, silent, title) {
+        const oldValue = this.literal;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.literal = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'literal',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

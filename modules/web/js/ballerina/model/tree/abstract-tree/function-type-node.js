@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
 
 class AbstractFunctionTypeNode extends Node {
-
-    constructor() {
-        super();
-
-        this.paramTypeNode = [];
-        this.returnParamTypeNode = [];
-    }
 
 
     setParamTypeNode(newValue, silent, title) {
@@ -122,6 +114,21 @@ class AbstractFunctionTypeNode extends Node {
             });
         }
     }
+
+    replaceParamTypeNodeByIndex(index, newChild, silent) {
+        this.paramTypeNode[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfParamTypeNode(child) {
         return _.findIndex(this.paramTypeNode, ['id', child.id]);
@@ -225,6 +232,21 @@ class AbstractFunctionTypeNode extends Node {
         }
     }
 
+    replaceReturnParamTypeNodeByIndex(index, newChild, silent) {
+        this.returnParamTypeNode[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfReturnParamTypeNode(child) {
         return _.findIndex(this.returnParamTypeNode, ['id', child.id]);
     }
@@ -233,6 +255,29 @@ class AbstractFunctionTypeNode extends Node {
         return _.filter(this.returnParamTypeNode, predicateFunction);
     }
 
+
+
+    isReturnKeywordExists() {
+        return this.returnKeywordExists;
+    }
+
+    setReturnKeywordExists(newValue, silent, title) {
+        const oldValue = this.returnKeywordExists;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.returnKeywordExists = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'returnKeywordExists',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

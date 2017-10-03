@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import TypeNode from '../type-node';
 
 class AbstractConstrainedTypeNode extends Node {
-
-    constructor() {
-        super();
-
-        this.constraint = new TypeNode();
-        this.type = new TypeNode();
-    }
 
 
     setConstraint(newValue, silent, title) {

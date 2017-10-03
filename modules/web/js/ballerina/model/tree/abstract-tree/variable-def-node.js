@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import VariableNode from '../variable-node';
 
 class AbstractVariableDefNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.variable = new VariableNode();
-    }
 
 
     setVariable(newValue, silent, title) {

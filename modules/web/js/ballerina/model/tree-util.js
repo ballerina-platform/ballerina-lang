@@ -40,6 +40,42 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return fullPackageName;
     }
+
+    /**
+     * Generate default name for root level statements.
+     * @param {Node} root - root node.
+     * @param {Node} node - current node.
+     * @return {Object} undefined if unsuccessful.
+     * */
+    generateDefaultName(root, node) {
+        if (!root) {
+            return undefined;
+        }
+
+        if (this.isFunction(node) && node.getName().value !== 'main') {
+            const functionDefaultName = 'function';
+            const functionNodes = root.filterTopLevelNodes(this.isFunction);
+            const names = {};
+            for (let i = 0; i < functionNodes.length; i++) {
+                const name = functionNodes[i].getName().value;
+                names[name] = name;
+            }
+
+            if (functionNodes.length > 0) {
+                for (let i = 1; i <= functionNodes.length + 1; i++) {
+                    if (!names[`${functionDefaultName}${i}`]) {
+                        node.getName().setValue(`${functionDefaultName}${i}`, true);
+                        node.setName(node.getName(), true);
+                        break;
+                    }
+                }
+            } else {
+                node.getName().setValue(`${functionDefaultName}1`, true);
+                node.setName(node.getName(), true);
+            }
+        }
+        return undefined;
+    }
 }
 
 export default new TreeUtil();

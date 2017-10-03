@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractSimpleVariableRefNode extends Node {
-
-    constructor() {
-        super();
-
-        this.packageAlias = new IdentifierNode();
-        this.variableName = new IdentifierNode();
-    }
 
 
     setPackageAlias(newValue, silent, title) {

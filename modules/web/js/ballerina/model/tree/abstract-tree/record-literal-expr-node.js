@@ -17,16 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractRecordLiteralExprNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.keyValuePairs = [];
-    }
 
 
     setKeyValuePairs(newValue, silent, title) {
@@ -121,6 +114,21 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
             });
         }
     }
+
+    replaceKeyValuePairsByIndex(index, newChild, silent) {
+        this.keyValuePairs[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfKeyValuePairs(child) {
         return _.findIndex(this.keyValuePairs, ['id', child.id]);
