@@ -16,10 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import ASTFactory from '../ast/ast-factory';
 import NodeFactory from './../model/node-factory';
 import ToolGroup from './../tool-palette/tool-group';
-import DefaultASTFactory from '../ast/default-ast-factory';
 
 const ToolPalette = [];
 
@@ -96,7 +94,7 @@ const createwsServiceDefTool = {
     },
     icon: 'web-service',
     title: 'WS Service',
-    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    nodeFactoryMethod: NodeFactory.createService,
     definition: 'Web Socket container of resources, each of which defines the logic for handling one type of request',
 };
 
@@ -123,7 +121,7 @@ const createjmsServiceDefTool = {
     },
     icon: 'jaxws',
     title: 'JMS Service',
-    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    nodeFactoryMethod: NodeFactory.createService,
     definition: 'JMS container of resources, each of which defines the logic for handling one type of request',
 };
 
@@ -141,7 +139,7 @@ const createMainFunctionDefTool = {
     },
     icon: 'main-function',
     title: 'Main Function',
-    nodeFactoryMethod: DefaultASTFactory.createMainFunctionDefinition,
+    nodeFactoryMethod: NodeFactory.createFunction,
     definition: 'Potential entry point for command line execution',
 };
 
@@ -152,7 +150,7 @@ const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool, c
     name: 'Resource',
     icon: 'resource',
     title: 'Resource',
-    nodeFactoryMethod: DefaultASTFactory.createResourceDefinition,
+    nodeFactoryMethod: NodeFactory.createResourceDefinition,
     definition: 'Construct that handles one request within a service',
 };
 
@@ -161,7 +159,7 @@ const createServiceDefTool = {
     name: 'Service',
     icon: 'service',
     title: 'Service',
-    nodeFactoryMethod: DefaultASTFactory.createServiceDefinition,
+    nodeFactoryMethod: NodeFactory.createServiceDefinition,
     definition: 'Container of resources, each of which defines the logic for handling one type of request',
 };*/
 
@@ -179,7 +177,7 @@ const createConnectorDefTool = {
     name: 'Connector',
     icon: 'connector',
     title: 'Connector Definition',
-    nodeFactoryMethod: DefaultASTFactory.createConnectorDefinition,
+    nodeFactoryMethod: NodeFactory.createConnector,
     definition: 'Participant in the integration and is used to interact with an external system or a service defined',
 };
 
@@ -188,7 +186,7 @@ const createConnectorActionTool = {
     name: 'Action',
     icon: 'dgm-action',
     title: 'Connector Action',
-    nodeFactoryMethod: DefaultASTFactory.createConnectorAction,
+    nodeFactoryMethod: NodeFactory.createAction,
     definition: 'Operation that can be executed against a connector',
 };
 
@@ -197,7 +195,7 @@ const createStructsDefTool = {
     name: 'Struct',
     icon: 'struct',
     title: 'Struct',
-    nodeFactoryMethod: ASTFactory.createStructDefinition,
+    nodeFactoryMethod: NodeFactory.createStruct,
     definition: 'User-defined record type',
 };
 
@@ -215,7 +213,7 @@ const createAnnotationDefTool = {
     name: 'Annotation',
     icon: 'annotation',
     title: 'Annotation Definition',
-    nodeFactoryMethod: DefaultASTFactory.createAnnotationDefinition,
+    nodeFactoryMethod: NodeFactory.createAnnotation,
     definition: 'Hold meta data related to the attached code',
 };
 
@@ -237,7 +235,7 @@ const createWhileStatementTool = {
     name: 'While',
     icon: 'dgm-while',
     title: 'While',
-    nodeFactoryMethod: ASTFactory.createWhileStatement,
+    nodeFactoryMethod: NodeFactory.createWhile,
     definition: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
 };
 
@@ -246,7 +244,7 @@ const createBreakStatementTool = {
     name: 'Break',
     icon: 'break',
     title: 'Break',
-    nodeFactoryMethod: ASTFactory.createBreakStatement,
+    nodeFactoryMethod: NodeFactory.createBreak,
     definition: 'Provide a way to terminate the immediately enclosing loop',
 };
 
@@ -255,7 +253,7 @@ const createContinueStatementTool = {
     name: 'Continue',
     icon: 'continue',
     title: 'Continue',
-    nodeFactoryMethod: ASTFactory.createContinueStatement,
+    nodeFactoryMethod: NodeFactory.createContinue,
     definition: 'Provide a way to continue with the immediately enclosing loop',
 };
 
@@ -264,7 +262,7 @@ const createTryCatchStatementTool = {
     name: 'Try-Catch',
     icon: 'try-catch',
     title: 'Try-Catch',
-    nodeFactoryMethod: DefaultASTFactory.createTryCatchStatement,
+    nodeFactoryMethod: NodeFactory.createTry,
     definition: 'Handle the exception by the block after the catch, if any exception occurs while executing the first block of statements ',
 };
 
@@ -273,7 +271,7 @@ const createAssignmentExpressionTool = {
     name: 'Assignment',
     icon: 'assign',
     title: 'Assignment',
-    nodeFactoryMethod: DefaultASTFactory.createAggregatedAssignmentStatement,
+    nodeFactoryMethod: NodeFactory.createAssignment,
     definition: 'Provide a way to assign a value to a variable accessor',
 };
 
@@ -282,7 +280,7 @@ const createTransformStatementTool = {
     name: 'Transform',
     icon: 'type-converter',
     title: 'Transform',
-    nodeFactoryMethod: ASTFactory.createTransformStatement,
+    nodeFactoryMethod: NodeFactory.createTransform,
     definition: 'Transform any chosen variables in the enclosing scope',
 };
 
@@ -291,7 +289,7 @@ const createJoinStatementTool = {
     name: 'Fork',
     icon: 'fork-join',
     title: 'Fork',
-    nodeFactoryMethod: DefaultASTFactory.createForkJoinStatement,
+    nodeFactoryMethod: NodeFactory.createForkJoin,
     definition: 'Provide a way to replicate a message to any number of parallel workers and have them independently operate on the copies of the message',
 };
 
@@ -301,7 +299,7 @@ const createVariableDefinitionStatementTool = {
     name: 'Variable',
     icon: 'variable',
     title: 'Variable Definition',
-    nodeFactoryMethod: DefaultASTFactory.createVariableDefinitionStatement,
+    nodeFactoryMethod: NodeFactory.createVariableDef,
     definition: 'Statements which can be added anywhere a statement is allowed. \n They can be interspersed with other statements in any order',
 };
 
@@ -310,7 +308,7 @@ const createFunctionInvocationTool = {
     name: 'Function Invoke',
     icon: 'function-invoke',
     title: 'Function Invoke',
-    nodeFactoryMethod: DefaultASTFactory.createAggregatedFunctionInvocationStatement,
+    nodeFactoryMethod: NodeFactory.createInvocation,
     definition: 'Provide a way to invoke/call functions',
 };
 
@@ -320,7 +318,7 @@ const createReplyStatementTool = {
     name: 'Reply',
     icon: 'reply',
     title: 'Reply',
-    nodeFactoryMethod: DefaultASTFactory.createReplyStatement,
+    nodeFactoryMethod: NodeFactory.createReplyStatement,
     definition: 'Send the request message back to the client',
 };
 */
@@ -330,7 +328,7 @@ const createReturnStatementTool = {
     name: 'Return',
     icon: 'return',
     title: 'Return',
-    nodeFactoryMethod: ASTFactory.createReturnStatement,
+    nodeFactoryMethod: NodeFactory.createReturn,
     definition: 'Evaluate the expression, stops the current function, and returns the result of the expression to the caller',
 };
 
@@ -339,7 +337,7 @@ const createWorkerInvocationStatementTool = {
     name: 'Send',
     icon: 'worker-invoke',
     title: 'Worker Invocation',
-    nodeFactoryMethod: DefaultASTFactory.createWorkerInvocationStatement,
+    nodeFactoryMethod: NodeFactory.createInvocation,
     definition: 'Provide a way to send a message to a worker',
 };
 
@@ -348,7 +346,7 @@ const createWorkerReplyStatementTool = {
     name: 'Receive',
     icon: 'worker-reply',
     title: 'Worker Receive',
-    nodeFactoryMethod: DefaultASTFactory.createWorkerReplyStatement,
+    nodeFactoryMethod: NodeFactory.createWorkerReceive,
     definition: 'Provide a way to receive the reply from a worker',
 };
 
@@ -357,7 +355,7 @@ const createThrowStatementTool = {
     name: 'Throw',
     icon: 'throw',
     title: 'Throw',
-    nodeFactoryMethod: DefaultASTFactory.createThrowStatement,
+    nodeFactoryMethod: NodeFactory.createThrow,
     definition: 'Provide a way to throw errors',
 };
 
@@ -366,7 +364,7 @@ const createAbortStatementTool = {
     name: 'Abort',
     icon: 'abort',
     title: 'Abort',
-    nodeFactoryMethod: DefaultASTFactory.createAbortStatement,
+    nodeFactoryMethod: NodeFactory.createAbort,
     definition: 'Can be executed after the transaction is rolled back due to any conditions',
 };
 
@@ -375,7 +373,7 @@ const createNamespaceDeclarationStatementTool = {
     name: 'Namespace',
     icon: 'namespace',
     title: 'Namespace',
-    nodeFactoryMethod: DefaultASTFactory.createNamespaceDeclarationStatement,
+    nodeFactoryMethod: NodeFactory.createXmlQname,
     definition: 'Can be used for xml qualified names',
 };
 
@@ -384,7 +382,7 @@ const createTransactionAbortedStatementTool = {
     name: 'Transaction',
     icon: 'transaction',
     title: 'Transaction',
-    nodeFactoryMethod: DefaultASTFactory.createTransactionAbortedStatement,
+    nodeFactoryMethod: NodeFactory.createAbort,
     definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
@@ -393,7 +391,7 @@ const createRetryStatementTool = {
     name: 'Retry',
     icon: 'refresh',
     title: 'Retry',
-    nodeFactoryMethod: ASTFactory.createRetryStatement,
+    nodeFactoryMethod: NodeFactory.createRetry,
     definition: 'Statement which sets the retry count for the transaction when transaction fails',
 };
 
