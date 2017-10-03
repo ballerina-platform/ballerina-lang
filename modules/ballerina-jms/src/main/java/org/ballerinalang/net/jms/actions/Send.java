@@ -50,12 +50,15 @@ import org.wso2.carbon.transport.jms.wrappers.SessionWrapper;
 import org.wso2.carbon.transport.jms.wrappers.XASessionWrapper;
 
 import java.util.Map;
+import java.util.UUID;
 import javax.jms.Message;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
+
+import static org.ballerinalang.net.jms.Constants.EMPTY_CONNECTOR_ID;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -107,8 +110,15 @@ public class Send extends AbstractJMSAction {
         BMap<String, BString> properties = (BMap<String, BString>) bConnector.getRefField(0);
 
         Map<String, String> propertyMap = JMSUtils.preProcessJmsConfig(properties);
-        String connectorKey = propertyMap.get(Constants.JMS_CONNECTOR_KEY);
-        propertyMap.remove(Constants.JMS_CONNECTOR_KEY);
+
+        // Generate connector the   key, if its not already generated
+        String connectorKey;
+        if (EMPTY_CONNECTOR_ID.equals(bConnector.getStringField(0))) {
+            connectorKey = UUID.randomUUID().toString();
+        } else {
+            connectorKey = bConnector.getStringField(0);
+        }
+
         propertyMap.put(JMSConstants.PARAM_DESTINATION_NAME, destination);
 
         boolean isTransacted = Boolean.FALSE;

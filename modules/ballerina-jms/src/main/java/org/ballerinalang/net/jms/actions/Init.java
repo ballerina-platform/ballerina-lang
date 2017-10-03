@@ -21,9 +21,6 @@ package org.ballerinalang.net.jms.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -32,8 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.osgi.service.component.annotations.Component;
-
-import java.util.UUID;
 
 /**
  * {@code Init} is the Init action implementation of the JMS Connector.
@@ -73,9 +68,6 @@ public class Init extends AbstractJMSAction {
         //                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
         //            });
         //        }
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        BMap sharedMap = (BMap) bConnector.getRefField(0);
-        sharedMap.put(Constants.JMS_CONNECTOR_KEY, new BString(UUID.randomUUID().toString()));
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();
         return future;
