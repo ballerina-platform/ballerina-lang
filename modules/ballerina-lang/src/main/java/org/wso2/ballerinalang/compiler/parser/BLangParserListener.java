@@ -1940,7 +1940,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterList(BallerinaParser.ParameterListContext ctx) {
-        this.pkgBuilder.endParameterList(getWS(ctx));
+        // This attaches WS of the commas to the def.
+        if (!(ctx.getParent() instanceof BallerinaParser.ConnectorDefinitionContext)) {
+            this.pkgBuilder.endCallableParamList(getWS(ctx));
+        } else {
+            this.pkgBuilder.endConnectorParamList(getWS(ctx));
+        }
     }
 
     /**
