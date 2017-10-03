@@ -238,6 +238,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.type = this.symTable.errType;
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
             }
+            BVarSymbol symbol1 = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, actualType, env.scope.owner);
+            varRefExpr.symbol = symbol1;
             resultTypes = Lists.of(varRefExpr.type);
             return;
         }
