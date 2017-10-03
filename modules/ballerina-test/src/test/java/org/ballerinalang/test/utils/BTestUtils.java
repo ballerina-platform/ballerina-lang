@@ -20,20 +20,14 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -90,7 +84,7 @@ public class BTestUtils {
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
 
         if (programFile != null) {
-            comResult.setProgFile(getExecutableProgram(programFile));
+            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
         return comResult;
@@ -182,37 +176,5 @@ public class BTestUtils {
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
-    }
-
-    private static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
-        ByteArrayInputStream byteIS = null;
-        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-        try {
-            ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
-
-            ProgramFileReader reader = new ProgramFileReader();
-            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
-            return reader.readProgram(byteIS);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            if (byteIS != null) {
-                try {
-                    byteIS.close();
-                } catch (IOException ignore) {
-                }
-            }
-
-            try {
-                byteOutStream.close();
-            } catch (IOException ignore) {
-            }
-        }
     }
 }

@@ -42,7 +42,7 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/connectors/sql-actions.bal");
+        result = BTestUtils.compile("test-src/connectors/sql/sql-actions.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }

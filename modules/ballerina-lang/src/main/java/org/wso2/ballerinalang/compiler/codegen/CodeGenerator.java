@@ -307,7 +307,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private static BLangFunction getMainFunction(BLangPackage pkgNode) {
-
         List<BLangFunction> functions = pkgNode.functions.stream().filter(f -> (f.name.value
                 .equals(MAIN_FUNCTION_NAME) && f.symbol.params.size() == 1 && f.symbol.retParams.size() == 0))
                 .collect(Collectors.toList());
