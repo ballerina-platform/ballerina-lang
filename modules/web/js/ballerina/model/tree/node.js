@@ -48,6 +48,9 @@ class Node extends EventChannel {
             dimensionsSynced: false,
             hidden: false,
         };
+
+        this.isStatement = false;
+        this.isExpression = false;
     }
 
     /**
@@ -373,10 +376,9 @@ class Node extends EventChannel {
                 return 'continue' + w() + ';' + w();
             case 'Transform':
                 if (node.body) {
-                    return node.body.getSource();
-                } else {
-                    return '';
+                    return 'transform' + w() + '{' + w() + node.body.getSource() + w() + '}' + w();
                 }
+                return 'transform' + w() + '{' + w() + '}' + w();
             case 'WorkerSend':
                 return Node.join(node.expressions, w, '') + '->' +
                     w() + node.workerName.value + w() + ';' +
@@ -446,7 +448,10 @@ class Node extends EventChannel {
             case 'CompilationUnit':
                 return w() + node.topLevelNodes.map(Node.getSourceOf).join('');
             case 'PackageDeclaration':
-                return 'package' + w() + Node.join(node.packageName, w, '.') + ';' + w();
+                if (node.packageName && node.packageName.length > 0) {
+                    return 'package' + w() + Node.join(node.packageName, w, '.') + ';' + w();
+                }
+                return '';
             case 'Import':
                 return 'import' + w() + Node.join(node.packageName, w, '.') + ';' + w();
             default:
@@ -554,6 +559,26 @@ class Node extends EventChannel {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check if the node is a statement node.
+     *
+     * @returns {boolean} return true if node is a statement.
+     * @memberof Node
+     */
+    isStatement() {
+        return this.isStatement;
+    }
+
+    /**
+     * Check if the node is a expression node.
+     *
+     * @returns {boolean} return true if node is an expression.
+     * @memberof Node
+     */
+    isExpression() {
+        return this.isExpression;
     }
 }
 

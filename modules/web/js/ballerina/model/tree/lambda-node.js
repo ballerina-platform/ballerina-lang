@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import LambdaNodeAbstract from './abstract-tree/lambda-node';
+import AbstractLambdaNode from './abstract-tree/lambda-node';
 
-class LambdaNode extends LambdaNodeAbstract {
+class LambdaNode extends AbstractLambdaNode {
 
 }
 

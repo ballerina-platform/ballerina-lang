@@ -105,8 +105,9 @@ class WorkspacePlugin extends Plugin {
      */
     openFile(filePath, type = 'bal') {
         return new Promise((resolve, reject) => {
+            const indexInOpenedFiles = _.findIndex(this.openedFiles, file => file.fullPath === filePath);
             // if not already opened
-            if (_.findIndex(this.openedFiles, file => file.fullPath === filePath) === -1) {
+            if (indexInOpenedFiles === -1) {
                 read(filePath)
                     .then((file) => {
                         file.extension = type;
@@ -126,6 +127,7 @@ class WorkspacePlugin extends Plugin {
                     filePath,
                 });
                 log.debug(`File ${filePath} is already opened.`);
+                resolve(this.openedFiles[indexInOpenedFiles]);
             }
         });
     }

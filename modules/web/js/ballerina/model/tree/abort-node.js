@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import AbortNodeAbstract from './abstract-tree/abort-node';
+import AbstractAbortNode from './abstract-tree/abort-node';
 
-class AbortNode extends AbortNodeAbstract {
+class AbortNode extends AbstractAbortNode {
 
 }
 

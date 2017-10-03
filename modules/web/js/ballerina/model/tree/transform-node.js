@@ -15,11 +15,54 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 
-import TransformNodeAbstract from './abstract-tree/transform-node';
+import AbstractTransformNode from './abstract-tree/transform-node';
 
-class TransformNode extends TransformNodeAbstract {
+class TransformNode extends AbstractTransformNode {
+    acceptDrop(node) {
+        this.getBody().addStatements(node);
+    }
 
+    addInput(input, silent, title) {
+        const oldValue = this.inputs;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.inputs.push(input);
+        const newValue = this.inputs;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'inputs',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    addOutput(output, silent, title) {
+        const oldValue = this.outputs;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.outputs.push(output);
+        const newValue = this.outputs;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'outputs',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 }
 
 export default TransformNode;

@@ -16,12 +16,16 @@
  * under the License.
  */
 
-import VariableDefNodeAbstract from './abstract-tree/variable-def-node';
+import AbstractVariableDefNode from './abstract-tree/variable-def-node';
 
-class VariableDefNode extends VariableDefNodeAbstract {
+class VariableDefNode extends AbstractVariableDefNode {
 
     getVariableName() {
         return this.getVariable().getName();
+    }
+
+    getTypeNode() {
+        return this.getVariable().getTypeNode();
     }
 
 }

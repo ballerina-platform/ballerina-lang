@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class PackageDeclarationNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractPackageDeclarationNode extends Node {
+
+    constructor() {
+        super();
+
+        this.packageVersion = new IdentifierNode();
+        this.packageName = [];
+    }
 
 
     setPackageVersion(newValue, silent, title) {
@@ -73,7 +82,7 @@ class PackageDeclarationNodeAbstract extends Node {
     }
 
 
-    addPackageName(node, i = -1, silent){
+    addPackageName(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -82,7 +91,7 @@ class PackageDeclarationNodeAbstract extends Node {
         } else {
             this.packageName.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -95,10 +104,10 @@ class PackageDeclarationNodeAbstract extends Node {
         }
     }
 
-    removePackageName(node, silent){
+    removePackageName(node, silent) {
         const index = this.getIndexOfPackageName(node);
         this.removePackageNameByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -108,12 +117,12 @@ class PackageDeclarationNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removePackageNameByIndex(index, silent){
+    removePackageNameByIndex(index, silent) {
         this.packageName.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -129,6 +138,17 @@ class PackageDeclarationNodeAbstract extends Node {
     replacePackageName(oldChild, newChild, silent) {
         const index = this.getIndexOfPackageName(oldChild);
         this.packageName[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfPackageName(child) {
@@ -142,4 +162,4 @@ class PackageDeclarationNodeAbstract extends Node {
 
 }
 
-export default PackageDeclarationNodeAbstract;
+export default AbstractPackageDeclarationNode;

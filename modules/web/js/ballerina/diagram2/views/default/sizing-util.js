@@ -136,12 +136,12 @@ class SizingUtil {
             if (element.viewState.bBox.w > width) {
                 width = element.viewState.bBox.w;
             }
-            stH = element.viewState.bBox.h;
+            stH += element.viewState.bBox.h;
         });
-        if (stH > height) {
-            height = stH;
+        if (stH + this.config.statement.gutter.v >= height) {
+            height = stH + this.config.statement.gutter.v;
         }
-        viewState.bBox.w = width;
+        viewState.bBox.w = width + (this.config.statement.gutter.h * 2);
         viewState.bBox.h = height;
     }
 
@@ -801,56 +801,23 @@ class SizingUtil {
 
 
     /**
+     * Calculate dimention of XmlQname nodes.
+     *
+     * @param {object} node
+     * 
+     */
+    sizeXmlQnameNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate dimention of XmlAttribute nodes.
      *
      * @param {object} node
      *
      */
     sizeXmlAttributeNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlCommentLiteral nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlCommentLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlElementLiteral nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlElementLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlPiLiteral nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlPiLiteralNode(node) {
-        // Not implemented.
-    }
-
-
-    /**
-     * Calculate dimention of XmlQname nodes.
-     *
-     * @param {object} node
-     *
-     */
-    sizeXmlQnameNode(node) {
         // Not implemented.
     }
 
@@ -867,12 +834,45 @@ class SizingUtil {
 
 
     /**
+     * Calculate dimention of XmlElementLiteral nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeXmlElementLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
      * Calculate dimention of XmlTextLiteral nodes.
      *
      * @param {object} node
      *
      */
     sizeXmlTextLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate dimention of XmlCommentLiteral nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeXmlCommentLiteralNode(node) {
+        // Not implemented.
+    }
+
+
+    /**
+     * Calculate dimention of XmlPiLiteral nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeXmlPiLiteralNode(node) {
         // Not implemented.
     }
 
@@ -970,6 +970,13 @@ class SizingUtil {
         let nodeHeight = node.viewState.bBox.h;
         let elseStmt = node.elseStatement;
         let proceed = true;
+
+        // If the else statement's width is greater than the node's width, we increase the node width
+        // Eventually the top most if node ends up with the max width. During the positioning, increase the width to the
+        // bottom most node
+        if (elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
+            node.viewState.bBox.w = elseStmt.viewState.bBox.w;
+        }
         if (TreeUtil.isBlock(node.parent)) {
             while (elseStmt && proceed) {
                 nodeHeight += elseStmt.viewState.bBox.h;
@@ -981,6 +988,8 @@ class SizingUtil {
                 }
             }
         }
+
+        // Need to make the width of all the components (if, else, else if) equal
         node.viewState.bBox.h = nodeHeight;
     }
 
@@ -1036,21 +1045,27 @@ class SizingUtil {
      */
     sizeTransactionNode(node) {
         this.sizeCompoundNode(node);
-
         node.viewState.components['statement-box'].h = 0;
 
+        // We ignore the previously calculated node height and re calculate it based on the component heights
         if (node.transactionBody) {
-            node.viewState.bBox.h += node.transactionBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h
+                += node.transactionBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.transactionBody.viewState.bBox.w);
         }
         if (node.failedBody) {
-            node.viewState.bBox.h += node.failedBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h += node.failedBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.failedBody.viewState.bBox.w);
         }
         if (node.abortedBody) {
-            node.viewState.bBox.h += node.abortedBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h += node.abortedBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.abortedBody.viewState.bBox.w);
         }
         if (node.committedBody) {
-            node.viewState.bBox.h += node.committedBody.viewState.bBox.h;
+            node.viewState.components['statement-box'].h += node.committedBody.viewState.components['statement-box'].h;
+            node.viewState.bBox.w = Math.max(node.viewState.bBox.w, node.committedBody.viewState.bBox.w);
         }
+        node.viewState.bBox.h = node.viewState.components['statement-box'].h + node.viewState.components['drop-zone'].h;
     }
 
     /**
@@ -1075,14 +1090,20 @@ class SizingUtil {
         const catchBlocks = node.catchBlocks || [];
         let height = node.viewState.bBox.h;
         const finallyBody = node.finallyBody;
+        let maxWidth = node.body.viewState.bBox.w;
 
+        // Here we check for the max width. Consider each block's body and set the max width to the try node's width
+        // During the position calculation iteration, we increase the each corresponding component's width accordingly
         catchBlocks.forEach((catchBlock) => {
             height += catchBlock.viewState.bBox.h;
+            maxWidth = Math.max(maxWidth, catchBlock.body.viewState.bBox.w);
         });
 
         height += finallyBody ? finallyBody.viewState.bBox.h : 0;
+        maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
 
         node.viewState.bBox.h = height;
+        node.viewState.bBox.w = maxWidth;
     }
 
     /**

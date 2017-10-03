@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import LiteralNodeAbstract from './abstract-tree/literal-node';
+import AbstractLiteralNode from './abstract-tree/literal-node';
 
-class LiteralNode extends LiteralNodeAbstract {
+class LiteralNode extends AbstractLiteralNode {
 
 }
 

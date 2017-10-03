@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import VariableNodeAbstract from './abstract-tree/variable-node';
+import AbstractVariableNode from './abstract-tree/variable-node';
 
-class VariableNode extends VariableNodeAbstract {
+class VariableNode extends AbstractVariableNode {
 
 }
 

@@ -20,7 +20,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import { getComponentForNodeArray } from './../../../../diagram-util';
 import ASTFactory from '../../../../../ast/ast-factory';
 import TreeUtil from './../../../../../model/tree-util';
 import SimpleBBox from './../../../../../ast/simple-bounding-box';
@@ -102,6 +101,7 @@ class IfNode extends React.Component {
                     expression={expression}
                     editorOptions={this.editorOptions}
                     model={model}
+                    body={model.body}
                 />
 
                 {elseComp && TreeUtil.isIf(elseComp) &&
@@ -114,6 +114,7 @@ class IfNode extends React.Component {
                         bBox={elseComp.viewState.bBox}
                         title={'Else'}
                         model={elseComp}
+                        body={elseComp}
                     />
                 }
             </g>

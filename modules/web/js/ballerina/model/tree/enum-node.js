@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import EnumNodeAbstract from './abstract-tree/enum-node';
+import AbstractEnumNode from './abstract-tree/enum-node';
 
-class EnumNode extends EnumNodeAbstract {
+class EnumNode extends AbstractEnumNode {
 
 }
 

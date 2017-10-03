@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class AnnotationAttachmentNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractAnnotationAttachmentNode extends Node {
+
+    constructor() {
+        super();
+
+        this.annotationName = new IdentifierNode();
+    }
 
 
     setAnnotationName(newValue, silent, title) {
@@ -51,4 +59,4 @@ class AnnotationAttachmentNodeAbstract extends Node {
 
 }
 
-export default AnnotationAttachmentNodeAbstract;
+export default AbstractAnnotationAttachmentNode;

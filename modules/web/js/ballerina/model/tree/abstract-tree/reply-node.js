@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ReplyNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import ExpressionNode from '../expression-node';
+
+class AbstractReplyNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.expression = new ExpressionNode();
+    }
 
 
     setExpression(newValue, silent, title) {
@@ -51,4 +59,4 @@ class ReplyNodeAbstract extends Node {
 
 }
 
-export default ReplyNodeAbstract;
+export default AbstractReplyNode;

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import TernaryExprNodeAbstract from './abstract-tree/ternary-expr-node';
+import AbstractTernaryExprNode from './abstract-tree/ternary-expr-node';
 
-class TernaryExprNode extends TernaryExprNodeAbstract {
+class TernaryExprNode extends AbstractTernaryExprNode {
 
 }
 

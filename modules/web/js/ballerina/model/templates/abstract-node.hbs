@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
+{{#each imports}}
+import {{returnType}} from '../{{returnTypeFile}}';{{/each}}
 
-class {{name}}Abstract extends Node {
+class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpression}}Expression{{/if}}Node {
+
+    constructor() {
+        super();
+{{#each attributes}}{{#if isNode}}
+        this.{{property}} = new {{returnType}}();{{/if}}{{#if list}}
+        this.{{property}} = [];{{/if}}{{/each}}
+    }
 
 {{#each attributes}}
     set{{methodSuffix}}(newValue, silent, title) {
@@ -48,7 +56,7 @@ class {{name}}Abstract extends Node {
     }
 
 {{#if list}}
-    add{{methodSuffix}}(node, i = -1, silent){
+    add{{methodSuffix}}(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -57,7 +65,7 @@ class {{name}}Abstract extends Node {
         } else {
             this.{{property}}.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -70,10 +78,10 @@ class {{name}}Abstract extends Node {
         }
     }
 
-    remove{{methodSuffix}}(node, silent){
+    remove{{methodSuffix}}(node, silent) {
         const index = this.getIndexOf{{methodSuffix}}(node);
         this.remove{{methodSuffix}}ByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -83,12 +91,12 @@ class {{name}}Abstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    remove{{methodSuffix}}ByIndex(index, silent){
+    remove{{methodSuffix}}ByIndex(index, silent) {
         this.{{property}}.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -104,6 +112,17 @@ class {{name}}Abstract extends Node {
     replace{{methodSuffix}}(oldChild, newChild, silent) {
         const index = this.getIndexOf{{methodSuffix}}(oldChild);
         this.{{property}}[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOf{{methodSuffix}}(child) {
@@ -117,4 +136,4 @@ class {{name}}Abstract extends Node {
 {{/each}}
 }
 
-export default {{name}}Abstract;
+export default Abstract{{name}};

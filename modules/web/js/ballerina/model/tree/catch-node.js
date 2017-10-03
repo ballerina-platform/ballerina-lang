@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import CatchNodeAbstract from './abstract-tree/catch-node';
+import AbstractCatchNode from './abstract-tree/catch-node';
 
-class CatchNode extends CatchNodeAbstract {
+class CatchNode extends AbstractCatchNode {
 
 }
 

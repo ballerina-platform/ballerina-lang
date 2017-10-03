@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import CommentNodeAbstract from './abstract-tree/comment-node';
+import AbstractCommentNode from './abstract-tree/comment-node';
 
-class CommentNode extends CommentNodeAbstract {
+class CommentNode extends AbstractCommentNode {
 
 }
 

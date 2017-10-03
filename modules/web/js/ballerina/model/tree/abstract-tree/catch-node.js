@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class CatchNodeAbstract extends Node {
+import Node from '../node';
+import BlockNode from '../block-node';
+import VariableNode from '../variable-node';
+
+class AbstractCatchNode extends Node {
+
+    constructor() {
+        super();
+
+        this.body = new BlockNode();
+        this.parameter = new VariableNode();
+    }
 
 
     setBody(newValue, silent, title) {
@@ -78,4 +88,4 @@ class CatchNodeAbstract extends Node {
 
 }
 
-export default CatchNodeAbstract;
+export default AbstractCatchNode;

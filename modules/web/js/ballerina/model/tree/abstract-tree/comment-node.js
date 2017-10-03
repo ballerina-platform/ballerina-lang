@@ -16,10 +16,16 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class CommentNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+
+class AbstractCommentNode extends StatementNode {
+
+    constructor() {
+        super();
+
+    }
 
 
     setComment(newValue, silent, title) {
@@ -49,4 +55,4 @@ class CommentNodeAbstract extends Node {
 
 }
 
-export default CommentNodeAbstract;
+export default AbstractCommentNode;

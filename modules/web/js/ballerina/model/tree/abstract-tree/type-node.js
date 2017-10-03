@@ -18,81 +18,8 @@
 
 import Node from '../node';
 
-class TypeNodeAbstract extends Node {
-
-
-    setWS(newValue, silent, title) {
-        let oldValue = this.wS;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.wS = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'wS',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getWS() {
-        return this.wS;
-    }
-
-
-
-    setKind(newValue, silent, title) {
-        let oldValue = this.kind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.kind = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'kind',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getKind() {
-        return this.kind;
-    }
-
-
-
-    setPosition(newValue, silent, title) {
-        let oldValue = this.position;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.position = newValue;
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'position',
-                    newValue,
-                    oldValue,
-                }
-            });
-        }
-    }
-
-    getPosition() {
-        return this.position;
-    }
-
-
+class AbstractTypeNode extends Node {
 
 }
 
-export default TypeNodeAbstract;
+export default AbstractTypeNode;

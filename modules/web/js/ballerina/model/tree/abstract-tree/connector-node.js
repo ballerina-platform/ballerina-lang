@@ -16,100 +16,27 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ConnectorNodeAbstract extends Node {
+import Node from '../node';
+import VariableNode from '../variable-node';
+import FunctionNode from '../function-node';
+import ActionNode from '../action-node';
+import IdentifierNode from '../identifier-node';
 
+class AbstractConnectorNode extends Node {
 
-    setVariableDefs(newValue, silent, title) {
-        const oldValue = this.variableDefs;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variableDefs = newValue;
+    constructor() {
+        super();
 
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'variableDefs',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getVariableDefs() {
-        return this.variableDefs;
-    }
-
-
-    addVariableDefs(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.variableDefs.push(node);
-            index = this.variableDefs.length;
-        } else {
-            this.variableDefs.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeVariableDefs(node, silent){
-        const index = this.getIndexOfVariableDefs(node);
-        this.removeVariableDefsByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeVariableDefsByIndex(index, silent){
-        this.variableDefs.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceVariableDefs(oldChild, newChild, silent) {
-        const index = this.getIndexOfVariableDefs(oldChild);
-        this.variableDefs[index] = newChild;
-    }
-
-    getIndexOfVariableDefs(child) {
-        return _.findIndex(this.variableDefs, ['id', child.id]);
-    }
-
-    filterVariableDefs(predicateFunction) {
-        return _.filter(this.variableDefs, predicateFunction);
+        this.filteredParameter = new VariableNode();
+        this.variableDefs = [];
+        this.initFunction = new FunctionNode();
+        this.initAction = new ActionNode();
+        this.name = new IdentifierNode();
+        this.actions = [];
+        this.parameters = [];
+        this.annotationAttachments = [];
     }
 
 
@@ -138,6 +65,108 @@ class ConnectorNodeAbstract extends Node {
         return this.filteredParameter;
     }
 
+
+
+    setVariableDefs(newValue, silent, title) {
+        const oldValue = this.variableDefs;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.variableDefs = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'variableDefs',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getVariableDefs() {
+        return this.variableDefs;
+    }
+
+
+    addVariableDefs(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.variableDefs.push(node);
+            index = this.variableDefs.length;
+        } else {
+            this.variableDefs.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeVariableDefs(node, silent) {
+        const index = this.getIndexOfVariableDefs(node);
+        this.removeVariableDefsByIndex(index);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeVariableDefsByIndex(index, silent) {
+        this.variableDefs.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceVariableDefs(oldChild, newChild, silent) {
+        const index = this.getIndexOfVariableDefs(oldChild);
+        this.variableDefs[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfVariableDefs(child) {
+        return _.findIndex(this.variableDefs, ['id', child.id]);
+    }
+
+    filterVariableDefs(predicateFunction) {
+        return _.filter(this.variableDefs, predicateFunction);
+    }
 
 
     setInitFunction(newValue, silent, title) {
@@ -245,7 +274,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addActions(node, i = -1, silent){
+    addActions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -254,7 +283,7 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.actions.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -267,10 +296,10 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    removeActions(node, silent){
+    removeActions(node, silent) {
         const index = this.getIndexOfActions(node);
         this.removeActionsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -280,12 +309,12 @@ class ConnectorNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeActionsByIndex(index, silent){
+    removeActionsByIndex(index, silent) {
         this.actions.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -301,6 +330,17 @@ class ConnectorNodeAbstract extends Node {
     replaceActions(oldChild, newChild, silent) {
         const index = this.getIndexOfActions(oldChild);
         this.actions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfActions(child) {
@@ -336,7 +376,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addParameters(node, i = -1, silent){
+    addParameters(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -345,7 +385,7 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.parameters.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -358,10 +398,10 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    removeParameters(node, silent){
+    removeParameters(node, silent) {
         const index = this.getIndexOfParameters(node);
         this.removeParametersByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -371,12 +411,12 @@ class ConnectorNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeParametersByIndex(index, silent){
+    removeParametersByIndex(index, silent) {
         this.parameters.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -392,6 +432,17 @@ class ConnectorNodeAbstract extends Node {
     replaceParameters(oldChild, newChild, silent) {
         const index = this.getIndexOfParameters(oldChild);
         this.parameters[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfParameters(child) {
@@ -452,7 +503,7 @@ class ConnectorNodeAbstract extends Node {
     }
 
 
-    addAnnotationAttachments(node, i = -1, silent){
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -461,7 +512,7 @@ class ConnectorNodeAbstract extends Node {
         } else {
             this.annotationAttachments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -474,10 +525,10 @@ class ConnectorNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
+    removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
         this.removeAnnotationAttachmentsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -487,12 +538,12 @@ class ConnectorNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
+    removeAnnotationAttachmentsByIndex(index, silent) {
         this.annotationAttachments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -508,6 +559,17 @@ class ConnectorNodeAbstract extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAnnotationAttachments(child) {
@@ -521,4 +583,4 @@ class ConnectorNodeAbstract extends Node {
 
 }
 
-export default ConnectorNodeAbstract;
+export default AbstractConnectorNode;

@@ -16,10 +16,27 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class PackageNodeAbstract extends Node {
+import Node from '../node';
+import PackageDeclarationNode from '../package-declaration-node';
+
+class AbstractPackageNode extends Node {
+
+    constructor() {
+        super();
+
+        this.compilationUnits = [];
+        this.packageDeclaration = new PackageDeclarationNode();
+        this.imports = [];
+        this.namespaceDeclarations = [];
+        this.globalVariables = [];
+        this.services = [];
+        this.connectors = [];
+        this.functions = [];
+        this.structs = [];
+        this.annotations = [];
+    }
 
 
     setCompilationUnits(newValue, silent, title) {
@@ -46,7 +63,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addCompilationUnits(node, i = -1, silent){
+    addCompilationUnits(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +72,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.compilationUnits.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +85,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeCompilationUnits(node, silent){
+    removeCompilationUnits(node, silent) {
         const index = this.getIndexOfCompilationUnits(node);
         this.removeCompilationUnitsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +98,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeCompilationUnitsByIndex(index, silent){
+    removeCompilationUnitsByIndex(index, silent) {
         this.compilationUnits.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +119,17 @@ class PackageNodeAbstract extends Node {
     replaceCompilationUnits(oldChild, newChild, silent) {
         const index = this.getIndexOfCompilationUnits(oldChild);
         this.compilationUnits[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfCompilationUnits(child) {
@@ -164,7 +192,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addImports(node, i = -1, silent){
+    addImports(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -173,7 +201,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.imports.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -186,10 +214,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeImports(node, silent){
+    removeImports(node, silent) {
         const index = this.getIndexOfImports(node);
         this.removeImportsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -199,12 +227,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeImportsByIndex(index, silent){
+    removeImportsByIndex(index, silent) {
         this.imports.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -220,6 +248,17 @@ class PackageNodeAbstract extends Node {
     replaceImports(oldChild, newChild, silent) {
         const index = this.getIndexOfImports(oldChild);
         this.imports[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfImports(child) {
@@ -255,7 +294,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addNamespaceDeclarations(node, i = -1, silent){
+    addNamespaceDeclarations(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -264,7 +303,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.namespaceDeclarations.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -277,10 +316,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeNamespaceDeclarations(node, silent){
+    removeNamespaceDeclarations(node, silent) {
         const index = this.getIndexOfNamespaceDeclarations(node);
         this.removeNamespaceDeclarationsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -290,12 +329,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeNamespaceDeclarationsByIndex(index, silent){
+    removeNamespaceDeclarationsByIndex(index, silent) {
         this.namespaceDeclarations.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -311,6 +350,17 @@ class PackageNodeAbstract extends Node {
     replaceNamespaceDeclarations(oldChild, newChild, silent) {
         const index = this.getIndexOfNamespaceDeclarations(oldChild);
         this.namespaceDeclarations[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfNamespaceDeclarations(child) {
@@ -346,7 +396,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addGlobalVariables(node, i = -1, silent){
+    addGlobalVariables(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -355,7 +405,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.globalVariables.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -368,10 +418,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeGlobalVariables(node, silent){
+    removeGlobalVariables(node, silent) {
         const index = this.getIndexOfGlobalVariables(node);
         this.removeGlobalVariablesByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -381,12 +431,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeGlobalVariablesByIndex(index, silent){
+    removeGlobalVariablesByIndex(index, silent) {
         this.globalVariables.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -402,6 +452,17 @@ class PackageNodeAbstract extends Node {
     replaceGlobalVariables(oldChild, newChild, silent) {
         const index = this.getIndexOfGlobalVariables(oldChild);
         this.globalVariables[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfGlobalVariables(child) {
@@ -437,7 +498,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addServices(node, i = -1, silent){
+    addServices(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -446,7 +507,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.services.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -459,10 +520,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeServices(node, silent){
+    removeServices(node, silent) {
         const index = this.getIndexOfServices(node);
         this.removeServicesByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -472,12 +533,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeServicesByIndex(index, silent){
+    removeServicesByIndex(index, silent) {
         this.services.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -493,6 +554,17 @@ class PackageNodeAbstract extends Node {
     replaceServices(oldChild, newChild, silent) {
         const index = this.getIndexOfServices(oldChild);
         this.services[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfServices(child) {
@@ -528,7 +600,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addConnectors(node, i = -1, silent){
+    addConnectors(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -537,7 +609,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.connectors.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -550,10 +622,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeConnectors(node, silent){
+    removeConnectors(node, silent) {
         const index = this.getIndexOfConnectors(node);
         this.removeConnectorsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -563,12 +635,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeConnectorsByIndex(index, silent){
+    removeConnectorsByIndex(index, silent) {
         this.connectors.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -584,6 +656,17 @@ class PackageNodeAbstract extends Node {
     replaceConnectors(oldChild, newChild, silent) {
         const index = this.getIndexOfConnectors(oldChild);
         this.connectors[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfConnectors(child) {
@@ -619,7 +702,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addFunctions(node, i = -1, silent){
+    addFunctions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -628,7 +711,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.functions.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -641,10 +724,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeFunctions(node, silent){
+    removeFunctions(node, silent) {
         const index = this.getIndexOfFunctions(node);
         this.removeFunctionsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -654,12 +737,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeFunctionsByIndex(index, silent){
+    removeFunctionsByIndex(index, silent) {
         this.functions.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -675,6 +758,17 @@ class PackageNodeAbstract extends Node {
     replaceFunctions(oldChild, newChild, silent) {
         const index = this.getIndexOfFunctions(oldChild);
         this.functions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfFunctions(child) {
@@ -710,7 +804,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addStructs(node, i = -1, silent){
+    addStructs(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -719,7 +813,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.structs.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -732,10 +826,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeStructs(node, silent){
+    removeStructs(node, silent) {
         const index = this.getIndexOfStructs(node);
         this.removeStructsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -745,12 +839,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeStructsByIndex(index, silent){
+    removeStructsByIndex(index, silent) {
         this.structs.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -766,6 +860,17 @@ class PackageNodeAbstract extends Node {
     replaceStructs(oldChild, newChild, silent) {
         const index = this.getIndexOfStructs(oldChild);
         this.structs[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfStructs(child) {
@@ -801,7 +906,7 @@ class PackageNodeAbstract extends Node {
     }
 
 
-    addAnnotations(node, i = -1, silent){
+    addAnnotations(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -810,7 +915,7 @@ class PackageNodeAbstract extends Node {
         } else {
             this.annotations.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -823,10 +928,10 @@ class PackageNodeAbstract extends Node {
         }
     }
 
-    removeAnnotations(node, silent){
+    removeAnnotations(node, silent) {
         const index = this.getIndexOfAnnotations(node);
         this.removeAnnotationsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -836,12 +941,12 @@ class PackageNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAnnotationsByIndex(index, silent){
+    removeAnnotationsByIndex(index, silent) {
         this.annotations.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -857,6 +962,17 @@ class PackageNodeAbstract extends Node {
     replaceAnnotations(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotations(oldChild);
         this.annotations[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAnnotations(child) {
@@ -870,4 +986,4 @@ class PackageNodeAbstract extends Node {
 
 }
 
-export default PackageNodeAbstract;
+export default AbstractPackageNode;

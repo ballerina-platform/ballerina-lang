@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import BreakNodeAbstract from './abstract-tree/break-node';
+import AbstractBreakNode from './abstract-tree/break-node';
 
-class BreakNode extends BreakNodeAbstract {
+class BreakNode extends AbstractBreakNode {
 
 }
 

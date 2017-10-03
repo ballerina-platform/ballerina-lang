@@ -16,10 +16,21 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class XmlElementLiteralNodeAbstract extends Node {
+import Node from '../node';
+import ExpressionNode from '../expression-node';
+
+class AbstractXmlElementLiteralNode extends Node {
+
+    constructor() {
+        super();
+
+        this.startTagName = new ExpressionNode();
+        this.endTagName = new ExpressionNode();
+        this.attributes = [];
+        this.content = [];
+    }
 
 
     setStartTagName(newValue, silent, title) {
@@ -100,99 +111,6 @@ class XmlElementLiteralNodeAbstract extends Node {
     }
 
 
-    addNamespaces(node, i = -1, silent){
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.namespaces.push(node);
-            index = this.namespaces.length;
-        } else {
-            this.namespaces.splice(i, 0, node);
-        }
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeNamespaces(node, silent){
-        const index = this.getIndexOfNamespaces(node);
-        this.removeNamespacesByIndex(index);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }        
-    }
-
-    removeNamespacesByIndex(index, silent){
-        this.namespaces.splice(index, 1);
-        if(!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceNamespaces(oldChild, newChild, silent) {
-        const index = this.getIndexOfNamespaces(oldChild);
-        this.namespaces[index] = newChild;
-    }
-
-    getIndexOfNamespaces(child) {
-        return _.findIndex(this.namespaces, ['id', child.id]);
-    }
-
-    filterNamespaces(predicateFunction) {
-        return _.filter(this.namespaces, predicateFunction);
-    }
-
-
-    setDefaultNamespaceUri(newValue, silent, title) {
-        const oldValue = this.defaultNamespaceUri;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.defaultNamespaceUri = newValue;
-
-        this.defaultNamespaceUri.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'defaultNamespaceUri',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getDefaultNamespaceUri() {
-        return this.defaultNamespaceUri;
-    }
-
-
 
     setAttributes(newValue, silent, title) {
         const oldValue = this.attributes;
@@ -218,7 +136,7 @@ class XmlElementLiteralNodeAbstract extends Node {
     }
 
 
-    addAttributes(node, i = -1, silent){
+    addAttributes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -227,7 +145,7 @@ class XmlElementLiteralNodeAbstract extends Node {
         } else {
             this.attributes.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -240,10 +158,10 @@ class XmlElementLiteralNodeAbstract extends Node {
         }
     }
 
-    removeAttributes(node, silent){
+    removeAttributes(node, silent) {
         const index = this.getIndexOfAttributes(node);
         this.removeAttributesByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -253,12 +171,12 @@ class XmlElementLiteralNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAttributesByIndex(index, silent){
+    removeAttributesByIndex(index, silent) {
         this.attributes.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -274,6 +192,17 @@ class XmlElementLiteralNodeAbstract extends Node {
     replaceAttributes(oldChild, newChild, silent) {
         const index = this.getIndexOfAttributes(oldChild);
         this.attributes[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAttributes(child) {
@@ -309,7 +238,7 @@ class XmlElementLiteralNodeAbstract extends Node {
     }
 
 
-    addContent(node, i = -1, silent){
+    addContent(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -318,7 +247,7 @@ class XmlElementLiteralNodeAbstract extends Node {
         } else {
             this.content.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -331,10 +260,10 @@ class XmlElementLiteralNodeAbstract extends Node {
         }
     }
 
-    removeContent(node, silent){
+    removeContent(node, silent) {
         const index = this.getIndexOfContent(node);
         this.removeContentByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -344,12 +273,12 @@ class XmlElementLiteralNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeContentByIndex(index, silent){
+    removeContentByIndex(index, silent) {
         this.content.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -365,6 +294,17 @@ class XmlElementLiteralNodeAbstract extends Node {
     replaceContent(oldChild, newChild, silent) {
         const index = this.getIndexOfContent(oldChild);
         this.content[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfContent(child) {
@@ -378,4 +318,4 @@ class XmlElementLiteralNodeAbstract extends Node {
 
 }
 
-export default XmlElementLiteralNodeAbstract;
+export default AbstractXmlElementLiteralNode;

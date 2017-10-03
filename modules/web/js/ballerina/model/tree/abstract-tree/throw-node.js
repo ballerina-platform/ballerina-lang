@@ -16,10 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ThrowNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import ExpressionNode from '../expression-node';
+
+class AbstractThrowNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.expressions = new ExpressionNode();
+    }
 
 
     setExpressions(newValue, silent, title) {
@@ -51,4 +59,4 @@ class ThrowNodeAbstract extends Node {
 
 }
 
-export default ThrowNodeAbstract;
+export default AbstractThrowNode;

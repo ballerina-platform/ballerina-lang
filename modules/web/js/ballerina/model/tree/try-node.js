@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import TryNodeAbstract from './abstract-tree/try-node';
+import AbstractTryNode from './abstract-tree/try-node';
 
-class TryNode extends TryNodeAbstract {
+class TryNode extends AbstractTryNode {
 
 }
 

@@ -16,12 +16,18 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ContinueNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+
+class AbstractContinueNode extends StatementNode {
+
+    constructor() {
+        super();
+
+    }
 
 
 }
 
-export default ContinueNodeAbstract;
+export default AbstractContinueNode;

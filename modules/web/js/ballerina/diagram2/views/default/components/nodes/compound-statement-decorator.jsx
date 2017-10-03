@@ -25,9 +25,9 @@ import SimpleBBox from '../../../../../ast/simple-bounding-box';
 import './compound-statement-decorator.css';
 // import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
 // import ActionBox from './action-box';
-import DragDropManager from '../../../../../tool-palette/drag-drop-manager';
 // import ActiveArbiter from './active-arbiter';
 // import Breakpoint from './breakpoint';
+import { getComponentForNodeArray } from './../../../../diagram-util';
 
 const CLASS_MAP = {
     hidden: 'hide-action',
@@ -102,30 +102,28 @@ class BlockStatementDecorator extends React.Component {
      * @param {MouseEvent} e - Mouse move event from moving on to or out of statement.
      */
     setActionVisibility(show, e) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            if (show) {
-                const isInChildStatement = this.isInFocusableChild(e.target);
-                const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);
+        if (show) {
+            const isInChildStatement = this.isInFocusableChild(e.target);
+            const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);
 
-                if (!isInChildStatement) {
-                    if (isFromChildStatement) {
-                        this.context.activeArbiter.readyToDelayedActivate(this);
-                    } else {
-                        this.context.activeArbiter.readyToActivate(this);
-                    }
+            if (!isInChildStatement) {
+                if (isFromChildStatement) {
+                    this.context.activeArbiter.readyToDelayedActivate(this);
+                } else {
+                    this.context.activeArbiter.readyToActivate(this);
                 }
-            } else {
-                let elm = e.relatedTarget;
-                let isInMe = false;
-                while (elm && elm.getAttribute) {
-                    if (elm === this.myRoot) {
-                        isInMe = true;
-                    }
-                    elm = elm.parentNode;
+            }
+        } else {
+            let elm = e.relatedTarget;
+            let isInMe = false;
+            while (elm && elm.getAttribute) {
+                if (elm === this.myRoot) {
+                    isInMe = true;
                 }
-                if (!isInMe) {
-                    this.context.activeArbiter.readyToDeactivate(this);
-                }
+                elm = elm.parentNode;
+            }
+            if (!isInMe) {
+                this.context.activeArbiter.readyToDeactivate(this);
             }
         }
     }
@@ -234,6 +232,9 @@ class BlockStatementDecorator extends React.Component {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         const separatorGapV = titleH / 3;
+
+        const body = this.props.body ? getComponentForNodeArray(this.props.body) : undefined;
+
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -298,6 +299,7 @@ class BlockStatementDecorator extends React.Component {
                     </g>
                 }
                 { isBreakpoint && this.renderBreakpointIndicator() }
+                {body}
             </g>);
     }
 }
@@ -359,7 +361,6 @@ BlockStatementDecorator.propTypes = {
 BlockStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
 };

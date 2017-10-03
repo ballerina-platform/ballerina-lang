@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import ServiceNodeAbstract from './abstract-tree/service-node';
+import AbstractServiceNode from './abstract-tree/service-node';
 
-class ServiceNode extends ServiceNodeAbstract {
+class ServiceNode extends AbstractServiceNode {
 
 }
 

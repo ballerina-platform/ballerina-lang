@@ -16,10 +16,16 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class ValueTypeNodeAbstract extends Node {
+import Node from '../node';
+
+class AbstractValueTypeNode extends Node {
+
+    constructor() {
+        super();
+
+    }
 
 
     setTypeKind(newValue, silent, title) {
@@ -49,4 +55,4 @@ class ValueTypeNodeAbstract extends Node {
 
 }
 
-export default ValueTypeNodeAbstract;
+export default AbstractValueTypeNode;

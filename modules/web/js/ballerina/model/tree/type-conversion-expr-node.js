@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import TypeConversionExprNodeAbstract from './abstract-tree/type-conversion-expr-node';
+import AbstractTypeConversionExprNode from './abstract-tree/type-conversion-expr-node';
 
-class TypeConversionExprNode extends TypeConversionExprNodeAbstract {
+class TypeConversionExprNode extends AbstractTypeConversionExprNode {
 
 }
 

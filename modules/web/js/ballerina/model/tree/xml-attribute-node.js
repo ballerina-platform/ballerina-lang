@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlAttributeNodeAbstract from './abstract-tree/xml-attribute-node';
+import AbstractXmlAttributeNode from './abstract-tree/xml-attribute-node';
 
-class XmlAttributeNode extends XmlAttributeNodeAbstract {
+class XmlAttributeNode extends AbstractXmlAttributeNode {
 
 }
 

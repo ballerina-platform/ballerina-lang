@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlTextLiteralNodeAbstract from './abstract-tree/xml-text-literal-node';
+import AbstractXmlTextLiteralNode from './abstract-tree/xml-text-literal-node';
 
-class XmlTextLiteralNode extends XmlTextLiteralNodeAbstract {
+class XmlTextLiteralNode extends AbstractXmlTextLiteralNode {
 
 }
 

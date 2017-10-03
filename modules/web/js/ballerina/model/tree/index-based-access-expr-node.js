@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import IndexBasedAccessExprNodeAbstract from './abstract-tree/index-based-access-expr-node';
+import AbstractIndexBasedAccessExprNode from './abstract-tree/index-based-access-expr-node';
 
-class IndexBasedAccessExprNode extends IndexBasedAccessExprNodeAbstract {
+class IndexBasedAccessExprNode extends AbstractIndexBasedAccessExprNode {
 
 }
 

@@ -38,7 +38,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
     nodeArray = _.concat([], nodeArray);
 
     return nodeArray.filter((child) => {
-        const compName = child.viewState.alias ? (child.viewState.alias + 'Node') : child.constructor.name;
+        const compName = child.constructor.name;
         if (components['default'][compName]) {
             return true;
         }
@@ -53,7 +53,7 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
             });
         }
 
-        const compName = child.viewState.alias ? (child.viewState.alias + 'Node') : child.constructor.name;
+        const compName = child.constructor.name;
         if (components[mode][compName]) {
             return React.createElement(components[mode][compName], {
                 model: child,

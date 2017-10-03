@@ -16,10 +16,17 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class RecordLiteralExprNodeAbstract extends Node {
+import ExpressionNode from '../expression-node';
+
+class AbstractRecordLiteralExprNode extends ExpressionNode {
+
+    constructor() {
+        super();
+
+        this.keyValuePairs = [];
+    }
 
 
     setKeyValuePairs(newValue, silent, title) {
@@ -46,7 +53,7 @@ class RecordLiteralExprNodeAbstract extends Node {
     }
 
 
-    addKeyValuePairs(node, i = -1, silent){
+    addKeyValuePairs(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +62,7 @@ class RecordLiteralExprNodeAbstract extends Node {
         } else {
             this.keyValuePairs.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +75,10 @@ class RecordLiteralExprNodeAbstract extends Node {
         }
     }
 
-    removeKeyValuePairs(node, silent){
+    removeKeyValuePairs(node, silent) {
         const index = this.getIndexOfKeyValuePairs(node);
         this.removeKeyValuePairsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +88,12 @@ class RecordLiteralExprNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeKeyValuePairsByIndex(index, silent){
+    removeKeyValuePairsByIndex(index, silent) {
         this.keyValuePairs.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +109,17 @@ class RecordLiteralExprNodeAbstract extends Node {
     replaceKeyValuePairs(oldChild, newChild, silent) {
         const index = this.getIndexOfKeyValuePairs(oldChild);
         this.keyValuePairs[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfKeyValuePairs(child) {
@@ -115,4 +133,4 @@ class RecordLiteralExprNodeAbstract extends Node {
 
 }
 
-export default RecordLiteralExprNodeAbstract;
+export default AbstractRecordLiteralExprNode;

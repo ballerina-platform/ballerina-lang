@@ -18,12 +18,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
-import { lifeLine } from './../../designer-defaults';
+import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLine from '../decorators/lifeline';
-import StatementContainer from '../decorators/statement-container';
+import FunctionNodeModel from '../../../../../model/tree/function-node';
 
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
@@ -49,17 +48,9 @@ class FunctionNode extends React.Component {
         if (name === 'main') {
             icons = 'tool-icons/main-function';
         }
-
-        const body = getComponentForNodeArray(this.props.model.getBody(), this.context.mode);
-        /* const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
-        statementContainerBBoxClone.w += connectorOffset;*/
-
-        // lets calculate function worker lifeline bounding box.
-        /* const function_worker_bBox = {};
-        function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
-        function_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
-        function_worker_bBox.w = lifeLine.width;
-        function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;*/
+        const body = this.props.model.getBody();
+        const bodyBBox = body.viewState.bBox;
+        const blockNode = getComponentForNodeArray(body, this.context.mode);
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -111,13 +102,15 @@ class FunctionNode extends React.Component {
                     argumentParams={argumentParameters}
                     returnParams={returnParameters}
                 >
-                    <StatementContainer
-                        dropTarget={this.props.model}
-                        title="StatementContainer"
-                        bBox={this.props.model.body.viewState.bBox}
-                    >
-                        {body}
-                    </StatementContainer>
+                    <StatementDropZone
+                        x={bodyBBox.x}
+                        y={bodyBBox.y}
+                        width={bodyBBox.w}
+                        height={bodyBBox.h}
+                        baseComponent="rect"
+                        dropTarget={body}
+                        enableDragBg
+                    />
                     <LifeLine
                         title="default"
                         bBox={this.props.model.viewState.components.defaultWorker}
@@ -125,10 +118,15 @@ class FunctionNode extends React.Component {
                         icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                         iconColor='#025482'
                     />
+                    {blockNode}
                 </PanelDecorator>);
        // TODOX }
     }
 }
+
+FunctionNode.propTypes = {
+    model: PropTypes.instanceOf(FunctionNodeModel).isRequired,
+};
 
 FunctionNode.contextTypes = {
     mode: PropTypes.string,

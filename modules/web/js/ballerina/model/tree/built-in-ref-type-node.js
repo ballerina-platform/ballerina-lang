@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import BuiltInRefTypeNodeAbstract from './abstract-tree/built-in-ref-type-node';
+import AbstractBuiltInRefTypeNode from './abstract-tree/built-in-ref-type-node';
 
-class BuiltInRefTypeNode extends BuiltInRefTypeNodeAbstract {
+class BuiltInRefTypeNode extends AbstractBuiltInRefTypeNode {
 
 }
 

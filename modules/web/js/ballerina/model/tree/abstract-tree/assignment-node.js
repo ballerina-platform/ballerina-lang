@@ -16,10 +16,19 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class AssignmentNodeAbstract extends Node {
+import StatementNode from '../statement-node';
+import ExpressionNode from '../expression-node';
+
+class AbstractAssignmentNode extends StatementNode {
+
+    constructor() {
+        super();
+
+        this.variables = [];
+        this.expression = new ExpressionNode();
+    }
 
 
     setVariables(newValue, silent, title) {
@@ -46,7 +55,7 @@ class AssignmentNodeAbstract extends Node {
     }
 
 
-    addVariables(node, i = -1, silent){
+    addVariables(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +64,7 @@ class AssignmentNodeAbstract extends Node {
         } else {
             this.variables.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +77,10 @@ class AssignmentNodeAbstract extends Node {
         }
     }
 
-    removeVariables(node, silent){
+    removeVariables(node, silent) {
         const index = this.getIndexOfVariables(node);
         this.removeVariablesByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +90,12 @@ class AssignmentNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeVariablesByIndex(index, silent){
+    removeVariablesByIndex(index, silent) {
         this.variables.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +111,17 @@ class AssignmentNodeAbstract extends Node {
     replaceVariables(oldChild, newChild, silent) {
         const index = this.getIndexOfVariables(oldChild);
         this.variables[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfVariables(child) {
@@ -142,4 +162,4 @@ class AssignmentNodeAbstract extends Node {
 
 }
 
-export default AssignmentNodeAbstract;
+export default AbstractAssignmentNode;

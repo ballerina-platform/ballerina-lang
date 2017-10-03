@@ -16,10 +16,20 @@
  * under the License.
  */
 
-import Node from '../node';
 import _ from 'lodash';
 
-class EnumNodeAbstract extends Node {
+import Node from '../node';
+import IdentifierNode from '../identifier-node';
+
+class AbstractEnumNode extends Node {
+
+    constructor() {
+        super();
+
+        this.enumFields = [];
+        this.name = new IdentifierNode();
+        this.annotationAttachments = [];
+    }
 
 
     setEnumFields(newValue, silent, title) {
@@ -46,7 +56,7 @@ class EnumNodeAbstract extends Node {
     }
 
 
-    addEnumFields(node, i = -1, silent){
+    addEnumFields(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -55,7 +65,7 @@ class EnumNodeAbstract extends Node {
         } else {
             this.enumFields.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -68,10 +78,10 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    removeEnumFields(node, silent){
+    removeEnumFields(node, silent) {
         const index = this.getIndexOfEnumFields(node);
         this.removeEnumFieldsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -81,12 +91,12 @@ class EnumNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeEnumFieldsByIndex(index, silent){
+    removeEnumFieldsByIndex(index, silent) {
         this.enumFields.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -102,6 +112,17 @@ class EnumNodeAbstract extends Node {
     replaceEnumFields(oldChild, newChild, silent) {
         const index = this.getIndexOfEnumFields(oldChild);
         this.enumFields[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfEnumFields(child) {
@@ -189,7 +210,7 @@ class EnumNodeAbstract extends Node {
     }
 
 
-    addAnnotationAttachments(node, i = -1, silent){
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
@@ -198,7 +219,7 @@ class EnumNodeAbstract extends Node {
         } else {
             this.annotationAttachments.splice(i, 0, node);
         }
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
@@ -211,10 +232,10 @@ class EnumNodeAbstract extends Node {
         }
     }
 
-    removeAnnotationAttachments(node, silent){
+    removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
         this.removeAnnotationAttachmentsByIndex(index);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -224,12 +245,12 @@ class EnumNodeAbstract extends Node {
                     index,
                 },
             });
-        }        
+        }
     }
 
-    removeAnnotationAttachmentsByIndex(index, silent){
+    removeAnnotationAttachmentsByIndex(index, silent) {
         this.annotationAttachments.splice(index, 1);
-        if(!silent) {
+        if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-removed',
@@ -245,6 +266,17 @@ class EnumNodeAbstract extends Node {
     replaceAnnotationAttachments(oldChild, newChild, silent) {
         const index = this.getIndexOfAnnotationAttachments(oldChild);
         this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
     getIndexOfAnnotationAttachments(child) {
@@ -258,4 +290,4 @@ class EnumNodeAbstract extends Node {
 
 }
 
-export default EnumNodeAbstract;
+export default AbstractEnumNode;

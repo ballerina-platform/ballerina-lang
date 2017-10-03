@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import XmlQuotedStringNodeAbstract from './abstract-tree/xml-quoted-string-node';
+import AbstractXmlQuotedStringNode from './abstract-tree/xml-quoted-string-node';
 
-class XmlQuotedStringNode extends XmlQuotedStringNodeAbstract {
+class XmlQuotedStringNode extends AbstractXmlQuotedStringNode {
 
 }
 

@@ -30,7 +30,6 @@ import { validateFile, parseFile, getProgramPackages } from '../../api-client/ap
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
@@ -173,11 +172,9 @@ class BallerinaFileEditor extends React.Component {
      * On ast modifications
      */
     onASTModified(evt) {
-        const sourceGenVisitor = new SourceGenVisitor();
-        this.state.model.accept(sourceGenVisitor);
-        const newContent = sourceGenVisitor.getGeneratedSource();
+        const newContent = this.state.model.getSource();
         // set breakpoints to model
-        this.reCalculateBreakpoints(this.state.model);
+        // TODOX this.reCalculateBreakpoints(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
@@ -221,13 +218,13 @@ class BallerinaFileEditor extends React.Component {
      * @param {ASTNode} newAST A new AST with up-to-date position
      */
     syncASTs(currentAST, newAST) {
-        const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
+        /* TODOX const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
         newAST.accept(findLineNumbersVisiter);
         const lineNumbers = findLineNumbersVisiter.getLineNumbers();
 
         const updateLineNumbersVisiter = new UpdateLineNumbersVisiter(currentAST);
         updateLineNumbersVisiter.setLineNumbers(lineNumbers);
-        currentAST.accept(updateLineNumbersVisiter);
+        currentAST.accept(updateLineNumbersVisiter);*/
     }
 
     /**
