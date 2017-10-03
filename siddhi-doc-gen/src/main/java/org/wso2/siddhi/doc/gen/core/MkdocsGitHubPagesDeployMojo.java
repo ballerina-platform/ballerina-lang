@@ -39,9 +39,9 @@ import java.io.File;
 )
 public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
     /**
-     * The directory in which the documentation will be generated
+     * The maven project object
      */
-    @Parameter(defaultValue = "${project}", readonly = true)
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
 
     /**
@@ -97,8 +97,18 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
 
         // Deploying the documentation
-        DocumentationUtils.deployMkdocsOnGitHubPages(mkdocsConfigFile, mavenProject.getVersion(), getLog());
-        DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
-                mavenProject.getVersion(), getLog());
+        if (DocumentationUtils.generateMkdocsSite(mkdocsConfigFile, getLog())) {
+            // Creating the credential provider fot Git
+            String scmUsername = System.getenv(Constants.SYSTEM_PROPERTY_SCM_USERNAME_KEY);
+            String scmPassword = System.getenv(Constants.SYSTEM_PROPERTY_SCM_PASSWORD_KEY);
+
+            // Deploying documentation
+            DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
+                    mavenProject.getVersion(), getLog());
+            DocumentationUtils.deployMkdocsOnGitHubPages(mavenProject.getVersion(),
+                    rootMavenProject.getBasedir(), scmUsername, scmPassword, getLog());
+        } else {
+            getLog().warn("Unable to generate documentation. Skipping documentation deployment.");
+        }
     }
 }

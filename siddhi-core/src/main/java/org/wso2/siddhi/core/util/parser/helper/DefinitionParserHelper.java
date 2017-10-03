@@ -118,7 +118,8 @@ public class DefinitionParserHelper {
         }
         AbstractDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
         if (existingAggregationDefinition != null
-                && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
+                && (!existingAggregationDefinition.equals(definition)
+                || definition instanceof AggregationDefinition)) {
             throw new DuplicateDefinitionException(
                     "Aggregation Definition with same Aggregation Id '" + definition.getId() + "' already exist : "
                             + existingWindowDefinition + ", hence cannot add " + definition,
@@ -168,72 +169,23 @@ public class DefinitionParserHelper {
             Table table;
             ConfigReader configReader = null;
             if (annotation != null) {
-                String tableRef = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_REF);
-                if (tableRef != null) {
-                    Map<String, String> storeConfigs = siddhiAppContext.getSiddhiContext().getConfigManager()
-                            .extractStoreConfigs(tableRef);
-                    if (storeConfigs.size() == 0) {
-                        throw new SiddhiAppCreationException("The store element of the name '" + tableRef + "' is " +
-                                "not defined in the configurations file.", annotation.getQueryContextStartIndex(),
-                                annotation.getQueryContextEndIndex());
-                    } else {
-                        final String tableTypeFromRef = storeConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                        if (tableTypeFromRef == null || tableTypeFromRef.equals("")) {
-                            throw new SiddhiAppCreationException("Table type must be defined in the store element of " +
-                                    "name '" + tableRef + "' in the configurations file.",
-                                    annotation.getQueryContextStartIndex(), annotation.getQueryContextEndIndex());
-                        } else {
-                            Map<String, String> collect = annotation.getElements().stream()
-                                    .collect(Collectors.toMap(Element::getKey, Element::getValue));
-                            collect.remove(SiddhiConstants.ANNOTATION_ELEMENT_REF);
-                            storeConfigs.putAll(collect);
-
-                            List<Element> storeAnnotationElements = storeConfigs.entrySet().stream()
-                                    .map((property) -> new Element(
-                                            property.getKey(),
-                                            property.getValue()))
-                                    .collect(Collectors.toList());
-
-                            Annotation newStoreAnnotation = new Annotation(SiddhiConstants.ANNOTATION_STORE);
-                            newStoreAnnotation.setElements(storeAnnotationElements);
-                            tableDefinition.removeAnnotation(annotation);
-                            tableDefinition.annotation(newStoreAnnotation);
-
-                            Extension extension = new Extension() {
-                                @Override
-                                public String getNamespace() {
-                                    return SiddhiConstants.NAMESPACE_STORE;
-                                }
-
-                                @Override
-                                public String getName() {
-                                    return tableTypeFromRef;
-                                }
-                            };
-                            table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
-                                    TableExtensionHolder.getInstance(siddhiAppContext));
-                            configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
-                                    .generateConfigReader(extension.getNamespace(), extension.getName());
-                        }
+                annotation = updateAnnotationRef(annotation, SiddhiConstants.NAMESPACE_STORE, siddhiAppContext);
+                String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                Extension extension = new Extension() {
+                    @Override
+                    public String getNamespace() {
+                        return SiddhiConstants.NAMESPACE_STORE;
                     }
-                } else {
-                    final String tableType = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                    Extension extension = new Extension() {
-                        @Override
-                        public String getNamespace() {
-                            return SiddhiConstants.NAMESPACE_STORE;
-                        }
 
-                        @Override
-                        public String getName() {
-                            return tableType;
-                        }
-                    };
-                    table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
-                            TableExtensionHolder.getInstance(siddhiAppContext));
-                    configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
-                            .generateConfigReader(extension.getNamespace(), extension.getName());
-                }
+                    @Override
+                    public String getName() {
+                        return tableType;
+                    }
+                };
+                table = (Table) SiddhiClassLoader.loadExtensionImplementation(extension,
+                        TableExtensionHolder.getInstance(siddhiAppContext));
+                configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
+                        .generateConfigReader(extension.getNamespace(), extension.getName());
             } else {
                 table = new InMemoryTable();
             }
@@ -330,6 +282,8 @@ public class DefinitionParserHelper {
                                       SiddhiAppContext siddhiAppContext) {
         for (Annotation sourceAnnotation : streamDefinition.getAnnotations()) {
             if (SiddhiConstants.ANNOTATION_SOURCE.equalsIgnoreCase(sourceAnnotation.getName())) {
+                sourceAnnotation = updateAnnotationRef(sourceAnnotation, SiddhiConstants.NAMESPACE_SOURCE,
+                        siddhiAppContext);
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sourceAnnotation.getAnnotations());
                 if (mapAnnotation == null) {
@@ -354,9 +308,9 @@ public class DefinitionParserHelper {
                     validateSourceMapperCompatibility(streamDefinition, sourceType, mapType, source, sourceMapper,
                             sourceAnnotation);
 
-                    OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
+                    OptionHolder sourceOptionHolder = constructOptionHolder(streamDefinition, sourceAnnotation,
                             source.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
-                    OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                    OptionHolder mapOptionHolder = constructOptionHolder(streamDefinition, mapAnnotation,
                             sourceMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
 
                     AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
@@ -436,6 +390,8 @@ public class DefinitionParserHelper {
                                     SiddhiAppContext siddhiAppContext) {
         for (Annotation sinkAnnotation : streamDefinition.getAnnotations()) {
             if (SiddhiConstants.ANNOTATION_SINK.equalsIgnoreCase(sinkAnnotation.getName())) {
+                sinkAnnotation = updateAnnotationRef(sinkAnnotation, SiddhiConstants.NAMESPACE_SINK,
+                        siddhiAppContext);
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sinkAnnotation.getAnnotations());
                 if (mapAnnotation == null) {
@@ -460,10 +416,10 @@ public class DefinitionParserHelper {
                     if (isDistributedTransport) {
                         Sink sink = createSink(sinkExtension, siddhiAppContext);
                         isMultiClient = isMultiClientDistributedTransport(sink, streamDefinition,
-                                distributionAnnotation);
+                                distributionAnnotation, siddhiAppContext);
                         supportedDynamicOptions = sink.getSupportedDynamicOptions();
                         destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
-                                streamDefinition, sink);
+                                streamDefinition, sink, siddhiAppContext);
                     }
 
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
@@ -491,16 +447,16 @@ public class DefinitionParserHelper {
                         org.wso2.siddhi.annotation.Extension sinkExt
                                 = sink.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
 
-                        OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
+                        OptionHolder transportOptionHolder = constructOptionHolder(streamDefinition, sinkAnnotation,
                                 sinkExt, supportedDynamicOptions);
-                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                        OptionHolder mapOptionHolder = constructOptionHolder(streamDefinition, mapAnnotation,
                                 sinkMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
                                 sinkMapper.getSupportedDynamicOptions());
                         List<Element> payloadElementList = getPayload(mapAnnotation);
 
                         OptionHolder distributionOptHolder = null;
                         if (isDistributedTransport) {
-                            distributionOptHolder = constructOptionProcessor(streamDefinition, distributionAnnotation,
+                            distributionOptHolder = constructOptionHolder(streamDefinition, distributionAnnotation,
                                     sinkExt, supportedDynamicOptions);
                             String strategyType = distributionOptHolder
                                     .validateAndGetStaticValue(SiddhiConstants.DISTRIBUTION_STRATEGY_KEY);
@@ -731,10 +687,10 @@ public class DefinitionParserHelper {
         }
     }
 
-    private static OptionHolder constructOptionProcessor(StreamDefinition streamDefinition,
-                                                         Annotation annotation,
-                                                         org.wso2.siddhi.annotation.Extension extension,
-                                                         String[] supportedDynamicOptions) {
+    private static OptionHolder constructOptionHolder(StreamDefinition streamDefinition,
+                                                      Annotation annotation,
+                                                      org.wso2.siddhi.annotation.Extension extension,
+                                                      String[] supportedDynamicOptions) {
         List<String> supportedDynamicOptionList = new ArrayList<>();
         if (supportedDynamicOptions != null) {
             supportedDynamicOptionList = Arrays.asList(supportedDynamicOptions);
@@ -760,11 +716,11 @@ public class DefinitionParserHelper {
     }
 
     private static boolean isMultiClientDistributedTransport(Sink clientTransport, StreamDefinition
-            streamDefinition, Annotation distributionAnnotation) {
+            streamDefinition, Annotation distributionAnnotation, SiddhiAppContext siddhiAppContext) {
 
         // fetch the @distribution annotations from the @sink annotation
         List<OptionHolder> destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
-                streamDefinition, clientTransport);
+                streamDefinition, clientTransport, siddhiAppContext);
 
         List<String> dynamicOptions = Arrays.asList(clientTransport.getSupportedDynamicOptions());
         // If at least one of the @destination contains a static option then multi client transport should be used
@@ -786,24 +742,56 @@ public class DefinitionParserHelper {
 
     private static Sink createSink(Extension sinkExtension, SiddhiAppContext siddhiAppContext) {
         // Create a temp instance of the underlying transport to get supported dynamic options
-        Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(sinkExtension,
+        return (Sink) SiddhiClassLoader.loadExtensionImplementation(sinkExtension,
                 SinkExecutorExtensionHolder.getInstance(siddhiAppContext));
-        return sink;
     }
 
     private static List<OptionHolder> createDestinationOptionHolders(Annotation distributionAnnotation,
                                                                      StreamDefinition streamDefinition,
-                                                                     Sink clientTransport) {
+                                                                     Sink clientTransport,
+                                                                     SiddhiAppContext siddhiAppContext) {
         org.wso2.siddhi.annotation.Extension sinkExt
                 = clientTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
 
         List<OptionHolder> destinationOptHolders = new ArrayList<>();
         distributionAnnotation.getAnnotations().stream()
                 .filter(annotation -> annotation.getName().equalsIgnoreCase(SiddhiConstants.ANNOTATION_DESTINATION))
-                .forEach(destinationAnnotation -> destinationOptHolders.add(constructOptionProcessor(streamDefinition,
-                        destinationAnnotation, sinkExt, clientTransport.getSupportedDynamicOptions())));
-
+                .forEach(destinationAnnotation -> destinationOptHolders.add(constructOptionHolder(streamDefinition,
+                        updateAnnotationRef(destinationAnnotation, SiddhiConstants.ANNOTATION_DESTINATION,
+                                siddhiAppContext), sinkExt, clientTransport.getSupportedDynamicOptions())));
         return destinationOptHolders;
+    }
+
+    private static Annotation updateAnnotationRef(Annotation annotation, String type,
+                                                  SiddhiAppContext siddhiAppContext) {
+        String ref = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_REF);
+        if (ref != null) {
+            Map<String, String> systemConfigs = siddhiAppContext.getSiddhiContext().getConfigManager()
+                    .extractSystemConfigs(ref);
+
+            if (systemConfigs.size() == 0) {
+                throw new SiddhiAppCreationException("The " + type + " element of the name '" + ref +
+                        "' is not defined in the configurations file.",
+                        annotation.getQueryContextStartIndex(),
+                        annotation.getQueryContextEndIndex());
+            } else {
+                HashMap<String, String> newSystemConfig = new HashMap<>(systemConfigs);
+
+                Map<String, String> collection = annotation.getElements().stream()
+                        .collect(Collectors.toMap(Element::getKey, Element::getValue));
+                collection.remove(SiddhiConstants.ANNOTATION_ELEMENT_REF);
+                newSystemConfig.putAll(collection);
+
+                List<Element> annotationElements = newSystemConfig.entrySet().stream()
+                        .map((property) -> new Element(
+                                property.getKey(),
+                                property.getValue()))
+                        .collect(Collectors.toList());
+
+                annotation.setElements(annotationElements);
+            }
+        }
+        return annotation;
     }
 
     /**
