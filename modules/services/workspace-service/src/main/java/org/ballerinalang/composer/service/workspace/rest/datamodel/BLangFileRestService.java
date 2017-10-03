@@ -174,14 +174,15 @@ public class BLangFileRestService {
     
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
-            model = WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE)
-                    .getBLangPackage();
-            diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content, CompilerPhase.CODE_ANALYZE)
-                    .getDiagnostics();
+            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
+                    CompilerPhase.CODE_ANALYZE);
+            model = ballerinaFile.getBLangPackage();
+            diagnostics = ballerinaFile.getDiagnostics();
         
         } else {
-            model = WorkspaceUtils.getBallerinaFile(filePath, fileName).getBLangPackage();
-            diagnostics = WorkspaceUtils.getBallerinaFile(fileName, content).getDiagnostics();
+            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
+            model = ballerinaFile.getBLangPackage();
+            diagnostics = ballerinaFile.getDiagnostics();
         }
     
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
