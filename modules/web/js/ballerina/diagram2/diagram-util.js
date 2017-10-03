@@ -86,9 +86,40 @@ function getPositioningUtil(mode) {
     return undefined;
 }
 
+function getOverlayComponent(nodeArray, mode = 'default') {
+    // lets load the view components diffrent modes.
+    components.default = requireAll(require.context('./views/default/components/utils', true, /\.jsx$/));
+
+    // make sure what is passed is an array.
+    nodeArray = _.concat([], nodeArray);
+
+    return nodeArray.filter((child) => {
+        const compName = child.kind;
+        if (components['default'][compName]) {
+            return true;
+        }
+        log.debug(`Unknown element type :${child.constructor.name}`);
+        return false;
+    }).map((child) => {
+        // hide hidden elements
+        const compName = child.kind;
+        if (components[mode][compName]) {
+            return React.createElement(components[mode][compName], {
+                model: child,
+                key: child.props.key,
+            }, null);
+        } else if (components.default[compName]) {
+            return React.createElement(components.default[compName], {
+                model: child,
+                key: child.props.key,
+            }, null);
+        }
+    });
+}
 export {
     getComponentForNodeArray,
     requireAll,
     getSizingUtil,
     getPositioningUtil,
+    getOverlayComponent,
 };

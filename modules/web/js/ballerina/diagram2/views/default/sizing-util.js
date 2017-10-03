@@ -483,7 +483,7 @@ class SizingUtil {
      *
      */
     sizeResourceNode(node) {
-        // Not implemented.
+        this.sizeFunctionNode(node);
     }
 
 
@@ -506,7 +506,71 @@ class SizingUtil {
      *
      */
     sizeServiceNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        const components = viewState.components;
+        const totalResourceHeight = 0;
+        // Set the width initial value to the padding left and right
+        const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
+
+        let textWidth = this.getTextWidth(name);
+        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
+            + this.config.panelHeading.iconSize.width;
+        viewState.trimmedTitle = textWidth.text;
+        // There are no connectors as well as resources, since we set the default height
+        const bodyHeight = this.config.innerPanel.body.height;
+        components.heading = new SimpleBBox();
+        components.defaultWorker = new SimpleBBox();
+        components.body = new SimpleBBox();
+        components.annotation = new SimpleBBox();
+        components.transportLine = new SimpleBBox();
+        components.heading.h = this.config.panel.heading.height;
+        if (node.viewState.collapsed) {
+            components.body.h = 0;
+        } else {
+            components.body.h = bodyHeight;
+        }
+
+        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
+            node.viewState.showAnnotationContainer = true;
+        }
+
+        if (!node.viewState.showAnnotationContainer) {
+            components.annotation.h = 0;
+        }
+        components.body.w = bodyWidth;
+        components.annotation.w = bodyWidth;
+        components.transportLine.h = totalResourceHeight;
+        // Set initial height to the body
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
+        viewState.components = components;
+        viewState.components.heading.w += viewState.titleWidth + 100;
+        viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
+        textWidth = this.getTextWidth(node.getName().value);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
+        // calculate defult worker
+        components.defaultWorker.w = this.config.lifeLine.width;
+        components.defaultWorker.h = (this.config.lifeLine.head.height * 2);
+
+        // Set the height if globals inside the service node is expanded
+        if (viewState.globalsExpanded) {
+            const topGutter = 10;
+            const topBarHeight = 25;
+            const importInputHeight = 40;
+            const globals = node.getVariables();
+            viewState.bBox.h += topGutter + topBarHeight + importInputHeight +
+                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
+        }
+        // Set the service height according to the resources
+        if (!node.viewState.collapsed) {
+            const resources = node.getResources();
+            resources.map((resource, index) => {
+                const resourcebBox = resources[index].viewState.bBox;
+                if (!resource.viewState.collapsed) {
+                    viewState.bBox.h += resourcebBox.h;
+                }
+            });
+        }
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
@@ -516,7 +580,6 @@ class SizingUtil {
             }
         });
     }
-
     /**
      * Calculate dimention of Struct nodes.
      *
@@ -587,18 +650,15 @@ class SizingUtil {
      */
     sizeVariableNode(node) {
         // For argument parameters and return types in the panel decorator
-        if (TreeUtil.isFunction(node.parent) || TreeUtil.isResource(node.parent)) {
-            const paramViewState = node.viewState;
-            paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
-            paramViewState.h = this.config.panelHeading.heading.height - 7;
+        /* if (TreeUtil.isFunction(node.parent) || TreeUtil.isResource(node.parent)) {*/
+        const paramViewState = node.viewState;
+        paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
+        paramViewState.h = this.config.panelHeading.heading.height - 7;
 
             // Creating component for delete icon.
-            paramViewState.components.deleteIcon = {};
-            paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
-            paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
-        } else {
-            // For variable nodes inside the body of a top level node
-        }
+        paramViewState.components.deleteIcon = {};
+        paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
+        paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
     }
 
 
@@ -804,7 +864,7 @@ class SizingUtil {
      * Calculate dimention of XmlQname nodes.
      *
      * @param {object} node
-     * 
+     *
      */
     sizeXmlQnameNode(node) {
         // Not implemented.

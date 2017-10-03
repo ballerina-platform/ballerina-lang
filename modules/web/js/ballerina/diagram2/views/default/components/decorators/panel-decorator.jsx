@@ -209,10 +209,8 @@ class PanelDecorator extends React.Component {
         const rightHeadingButtons = this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
 
         let protocolOffset = 0;
-        let protocolTextSize = 0;
         if (this.props.protocol) {
-            protocolOffset = 50;
-            protocolTextSize = util.getTextWidth(this.props.protocol, 0).w;
+            protocolOffset = 35;
         }
 
         return (<g className="panel">
@@ -237,9 +235,9 @@ class PanelDecorator extends React.Component {
                     xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}
                 />
                 <EditableText
-                    x={bBox.x + titleHeight + iconSize + 15 + protocolOffset}
+                    x={bBox.x + titleHeight + iconSize + protocolOffset}
                     y={bBox.y + titleHeight / 2 + annotationBodyHeight}
-                    width={titleWidth.w}
+                    width={titleWidth.w - 10}
                     onBlur={() => { this.onTitleInputBlur(); }}
                     onClick={() => { this.onTitleClick(); }}
                     editing={this.state.titleEditing}
@@ -248,37 +246,7 @@ class PanelDecorator extends React.Component {
                     onKeyDown={(e) => { this.onTitleKeyDown(e); }}
                 >
                     {this.state.editingTitle}
-                </EditableText> { /*
-                {this.props.protocol &&
-                    <g>
-                        <rect
-                            x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
-                            className="protocol-rect"
-                            onClick={this.handleProtocolClick}
-                        />
-                        <text className="protocol-text" onClick={this.handleProtocolClick} x={bBox.x + titleHeight + iconSize + 15 + 3 + ((protocolOffset - protocolTextSize) / 2)} y={bBox.y + annotationBodyHeight + 15} style={{ dominantBaseline: 'central' }}>{this.props.protocol}</text>
-                        <SuggestionsText
-                            x={bBox.x + titleHeight + iconSize + 15 + 3} y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
-                            suggestionsPool={this.availableProtocols}
-                            show={this.state.showProtocolSelect}
-                            onBlur={this.handleProtocolBlur}
-                            onEnter={this.handleProtocolEnter}
-                            onSuggestionSelected={this.handleProtocolBlur}
-                        />
-                    </g>
-                }
-                <rect
-                    x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight - 3}
-                    className="annotation-icon-wrapper"
-                />
-                <image
-                    x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
-                    xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
-                    className="annotation-icon"
-                >
-                    <title>Add Annotation</title> </image>
-                {titleComponents}*/}
-
+                </EditableText>
                 {rightHeadingButtons}
                 { this.props.argumentParams &&
                     <ArgumentParameterDefinitionHolder
@@ -321,7 +289,7 @@ class PanelDecorator extends React.Component {
             </g>
         </g>);
     }
-    
+
     getTitleComponents(titleComponentData) {
         const components = [];
         if (!_.isUndefined(titleComponentData)) {
@@ -393,7 +361,7 @@ PanelDecorator.defaultProps = {
 };
 
 PanelDecorator.contextTypes = {
- //   editor: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default PanelDecorator;
