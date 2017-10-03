@@ -160,7 +160,7 @@ public class TypeChecker extends BLangNodeVisitor {
         DiagnosticCode preDiagCode = this.diagCode;
         this.env = env;
         this.diagCode = diagCode;
-        this.expTypes = verifyAndGetExpectedTypes(expr, expTypes);
+        this.expTypes = expTypes;
 
         expr.accept(this);
 
@@ -636,15 +636,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
-    }
-
-    private List<BType> verifyAndGetExpectedTypes(BLangExpression expr, List<BType> expTypes) {
-        if (!expr.isMultiReturnExpr() && expTypes.size() > 1) {
-            // This error will be reported after analyzing the expression
-            return Lists.of(symTable.errType);
-        }
-
-        return expTypes;
     }
 
     private void setExprType(BLangExpression expr, List<BType> expTypes) {
