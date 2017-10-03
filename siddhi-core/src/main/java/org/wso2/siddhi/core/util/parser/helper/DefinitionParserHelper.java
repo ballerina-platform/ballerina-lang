@@ -775,27 +775,20 @@ public class DefinitionParserHelper {
                         annotation.getQueryContextStartIndex(),
                         annotation.getQueryContextEndIndex());
             } else {
-                final String typeFromRef = systemConfigs.get(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
-                if (typeFromRef == null || typeFromRef.equals("")) {
-                    throw new SiddhiAppCreationException(type + " type must be defined in the " + type +
-                            " element of name '" + ref + "' in the configurations file.",
-                            annotation.getQueryContextStartIndex(), annotation.getQueryContextEndIndex());
-                } else {
-                    HashMap<String, String> newSystemConfig = new HashMap<>(systemConfigs);
+                HashMap<String, String> newSystemConfig = new HashMap<>(systemConfigs);
 
-                    Map<String, String> collection = annotation.getElements().stream()
-                            .collect(Collectors.toMap(Element::getKey, Element::getValue));
-                    collection.remove(SiddhiConstants.ANNOTATION_ELEMENT_REF);
-                    newSystemConfig.putAll(collection);
+                Map<String, String> collection = annotation.getElements().stream()
+                        .collect(Collectors.toMap(Element::getKey, Element::getValue));
+                collection.remove(SiddhiConstants.ANNOTATION_ELEMENT_REF);
+                newSystemConfig.putAll(collection);
 
-                    List<Element> annotationElements = newSystemConfig.entrySet().stream()
-                            .map((property) -> new Element(
-                                    property.getKey(),
-                                    property.getValue()))
-                            .collect(Collectors.toList());
+                List<Element> annotationElements = newSystemConfig.entrySet().stream()
+                        .map((property) -> new Element(
+                                property.getKey(),
+                                property.getValue()))
+                        .collect(Collectors.toList());
 
-                    annotation.setElements(annotationElements);
-                }
+                annotation.setElements(annotationElements);
             }
         }
         return annotation;
