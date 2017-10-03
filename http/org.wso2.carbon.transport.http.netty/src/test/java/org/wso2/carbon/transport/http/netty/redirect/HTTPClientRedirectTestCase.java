@@ -204,8 +204,8 @@ public class HTTPClientRedirectTestCase {
         httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
         httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
 
-        httpCarbonRequest.setHeader(Constants.HTTP_HOST, locationUrl.getHost());
-        httpCarbonRequest.setHeader(Constants.HTTP_PORT, Integer.toString(locationUrl.getPort()));
+        httpCarbonRequest.setHeader(Constants.HOST, locationUrl.getHost());
+        httpCarbonRequest.setHeader(Constants.PORT, Integer.toString(locationUrl.getPort()));
         httpCarbonRequest.setEndOfMsgAdded(true);
         return httpCarbonRequest;
     }

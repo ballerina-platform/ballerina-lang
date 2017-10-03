@@ -352,8 +352,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
         httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
 
-        httpCarbonRequest.setHeader(Constants.HTTP_HOST, locationUrl.getHost());
-        httpCarbonRequest.setHeader(Constants.HTTP_PORT, Integer.toString(locationUrl.getPort()));
+        httpCarbonRequest.setHeader(Constants.HOST, locationUrl.getHost() + Constants.COLON + locationUrl.getPort());
         httpCarbonRequest.setEndOfMsgAdded(true);
         return httpCarbonRequest;
     }
