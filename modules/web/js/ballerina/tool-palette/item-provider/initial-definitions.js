@@ -16,15 +16,15 @@
  * under the License.
  */
 import _ from 'lodash';
-import NodeFactory from './../model/node-factory';
-import ToolGroup from './../tool-palette/tool-group';
+import NodeFactory from './../../model/node-factory';
+import FragmentUtils from './../../utils/fragment-utils';
 
 const ToolPalette = [];
 
 const createhttpServiceDefTool = {
     id: 'service',
     name: 'HTTP',
-    meta: {
+    factoryArgs: {
         protocolPkgName: 'http',
         protocolPkgPath: 'ballerina.net.http',
         resources: [
@@ -45,13 +45,13 @@ const createhttpServiceDefTool = {
     icon: 'http',
     title: 'HTTP Service',
     nodeFactoryMethod: NodeFactory.createService,
-    definition: 'Http container of resources, each of which defines the logic for handling one type of request',
+    description: 'Http container of resources, each of which defines the logic for handling one type of request',
 };
 
 const createwsServiceDefTool = {
     id: 'service',
     name: 'WebSocket',
-    meta: {
+    factoryArgs: {
         protocolPkgName: 'ws',
         protocolPkgPath: 'ballerina.net.ws',
         resources: [
@@ -95,13 +95,13 @@ const createwsServiceDefTool = {
     icon: 'web-service',
     title: 'WS Service',
     nodeFactoryMethod: NodeFactory.createService,
-    definition: 'Web Socket container of resources, each of which defines the logic for handling one type of request',
+    description: 'Web Socket container of resources, each of which defines the logic for handling one type of request',
 };
 
 const createjmsServiceDefTool = {
     id: 'service',
     name: 'jms',
-    meta: {
+    factoryArgs: {
         protocolPkgName: 'jms',
         protocolPkgPath: 'ballerina.net.jms',
         resources: [
@@ -122,13 +122,13 @@ const createjmsServiceDefTool = {
     icon: 'jaxws',
     title: 'JMS Service',
     nodeFactoryMethod: NodeFactory.createService,
-    definition: 'JMS container of resources, each of which defines the logic for handling one type of request',
+    description: 'JMS container of resources, each of which defines the logic for handling one type of request',
 };
 
 const createMainFunctionDefTool = {
     id: 'function',
     name: 'Main Function',
-    meta: {
+    factoryArgs: {
         functionName: 'main',
         functionArgs: [
             {
@@ -140,28 +140,10 @@ const createMainFunctionDefTool = {
     icon: 'main-function',
     title: 'Main Function',
     nodeFactoryMethod: NodeFactory.createFunction,
-    definition: 'Potential entry point for command line execution',
+    description: 'Potential entry point for command line execution',
 };
 
 const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool, createMainFunctionDefTool];
-
-/* const createResourceDefTool = {
-    id: 'resource',
-    name: 'Resource',
-    icon: 'resource',
-    title: 'Resource',
-    nodeFactoryMethod: NodeFactory.createResourceDefinition,
-    definition: 'Construct that handles one request within a service',
-};
-
-const createServiceDefTool = {
-    id: 'service',
-    name: 'Service',
-    icon: 'service',
-    title: 'Service',
-    nodeFactoryMethod: NodeFactory.createServiceDefinition,
-    definition: 'Container of resources, each of which defines the logic for handling one type of request',
-};*/
 
 const createFunctionDefTool = {
     id: 'function',
@@ -169,7 +151,7 @@ const createFunctionDefTool = {
     icon: 'function',
     title: 'Function',
     nodeFactoryMethod: NodeFactory.createFunction,
-    definition: 'Single operation that is intended to be a unit of reusable functionality',
+    description: 'Single operation that is intended to be a unit of reusable functionality',
 };
 
 const createConnectorDefTool = {
@@ -178,7 +160,7 @@ const createConnectorDefTool = {
     icon: 'connector',
     title: 'Connector Definition',
     nodeFactoryMethod: NodeFactory.createConnector,
-    definition: 'Participant in the integration and is used to interact with an external system or a service defined',
+    description: 'Participant in the integration and is used to interact with an external system or a service defined',
 };
 
 const createConnectorActionTool = {
@@ -187,7 +169,7 @@ const createConnectorActionTool = {
     icon: 'dgm-action',
     title: 'Connector Action',
     nodeFactoryMethod: NodeFactory.createAction,
-    definition: 'Operation that can be executed against a connector',
+    description: 'Operation that can be executed against a connector',
 };
 
 const createStructsDefTool = {
@@ -196,7 +178,7 @@ const createStructsDefTool = {
     icon: 'struct',
     title: 'Struct',
     nodeFactoryMethod: NodeFactory.createStruct,
-    definition: 'User-defined record type',
+    description: 'User-defined record type',
 };
 
 const createWorkerDecTool = {
@@ -205,7 +187,7 @@ const createWorkerDecTool = {
     icon: 'worker',
     title: 'Worker',
     nodeFactoryMethod: NodeFactory.createWorker,
-    definition: 'Programmable actor which is represented on a sequence diagram as a vertical lifeline of logic to be executed.',
+    description: 'Programmable actor which is represented on a sequence diagram as a vertical lifeline of logic to be executed.',
 };
 
 const createAnnotationDefTool = {
@@ -214,7 +196,7 @@ const createAnnotationDefTool = {
     icon: 'annotation',
     title: 'Annotation Definition',
     nodeFactoryMethod: NodeFactory.createAnnotation,
-    definition: 'Hold meta data related to the attached code',
+    description: 'Hold factoryArgs data related to the attached code',
 };
 
 const mainToolDefArray = [/* createServiceDefTool, createResourceDefTool, */
@@ -227,7 +209,7 @@ const createIfStatementTool = {
     icon: 'dgm-if-else',
     title: 'If',
     nodeFactoryMethod: NodeFactory.createIf,
-    definition: 'Provide a way to perform conditional execution',
+    description: 'Provide a way to perform conditional execution',
 };
 
 const createWhileStatementTool = {
@@ -236,7 +218,7 @@ const createWhileStatementTool = {
     icon: 'dgm-while',
     title: 'While',
     nodeFactoryMethod: NodeFactory.createWhile,
-    definition: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
+    description: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
 };
 
 const createBreakStatementTool = {
@@ -245,7 +227,7 @@ const createBreakStatementTool = {
     icon: 'break',
     title: 'Break',
     nodeFactoryMethod: NodeFactory.createBreak,
-    definition: 'Provide a way to terminate the immediately enclosing loop',
+    description: 'Provide a way to terminate the immediately enclosing loop',
 };
 
 const createContinueStatementTool = {
@@ -254,7 +236,7 @@ const createContinueStatementTool = {
     icon: 'continue',
     title: 'Continue',
     nodeFactoryMethod: NodeFactory.createContinue,
-    definition: 'Provide a way to continue with the immediately enclosing loop',
+    description: 'Provide a way to continue with the immediately enclosing loop',
 };
 
 const createTryCatchStatementTool = {
@@ -263,7 +245,7 @@ const createTryCatchStatementTool = {
     icon: 'try-catch',
     title: 'Try-Catch',
     nodeFactoryMethod: NodeFactory.createTry,
-    definition: 'Handle the exception by the block after the catch, if any exception occurs while executing the first block of statements ',
+    description: 'Handle the exception by the block after the catch, if any exception occurs while executing the first block of statements ',
 };
 
 const createAssignmentExpressionTool = {
@@ -272,7 +254,7 @@ const createAssignmentExpressionTool = {
     icon: 'assign',
     title: 'Assignment',
     nodeFactoryMethod: NodeFactory.createAssignment,
-    definition: 'Provide a way to assign a value to a variable accessor',
+    description: 'Provide a way to assign a value to a variable accessor',
 };
 
 const createTransformStatementTool = {
@@ -281,7 +263,7 @@ const createTransformStatementTool = {
     icon: 'type-converter',
     title: 'Transform',
     nodeFactoryMethod: NodeFactory.createTransform,
-    definition: 'Transform any chosen variables in the enclosing scope',
+    description: 'Transform any chosen variables in the enclosing scope',
 };
 
 const createJoinStatementTool = {
@@ -290,7 +272,7 @@ const createJoinStatementTool = {
     icon: 'fork-join',
     title: 'Fork',
     nodeFactoryMethod: NodeFactory.createForkJoin,
-    definition: 'Provide a way to replicate a message to any number of parallel workers and have them independently operate on the copies of the message',
+    description: 'Provide a way to replicate a message to any number of parallel workers and have them independently operate on the copies of the message',
 };
 
 // TODO: change the icon with the new one
@@ -300,7 +282,7 @@ const createVariableDefinitionStatementTool = {
     icon: 'variable',
     title: 'Variable Definition',
     nodeFactoryMethod: NodeFactory.createVariableDef,
-    definition: 'Statements which can be added anywhere a statement is allowed. \n They can be interspersed with other statements in any order',
+    description: 'Statements which can be added anywhere a statement is allowed. \n They can be interspersed with other statements in any order',
 };
 
 const createFunctionInvocationTool = {
@@ -309,19 +291,9 @@ const createFunctionInvocationTool = {
     icon: 'function-invoke',
     title: 'Function Invoke',
     nodeFactoryMethod: NodeFactory.createInvocation,
-    definition: 'Provide a way to invoke/call functions',
+    description: 'Provide a way to invoke/call functions',
 };
 
-/*
-const createReplyStatementTool = {
-    id: 'Reply',
-    name: 'Reply',
-    icon: 'reply',
-    title: 'Reply',
-    nodeFactoryMethod: NodeFactory.createReplyStatement,
-    definition: 'Send the request message back to the client',
-};
-*/
 
 const createReturnStatementTool = {
     id: 'Return',
@@ -329,7 +301,7 @@ const createReturnStatementTool = {
     icon: 'return',
     title: 'Return',
     nodeFactoryMethod: NodeFactory.createReturn,
-    definition: 'Evaluate the expression, stops the current function, and returns the result of the expression to the caller',
+    description: 'Evaluate the expression, stops the current function, and returns the result of the expression to the caller',
 };
 
 const createWorkerInvocationStatementTool = {
@@ -338,7 +310,7 @@ const createWorkerInvocationStatementTool = {
     icon: 'worker-invoke',
     title: 'Worker Invocation',
     nodeFactoryMethod: NodeFactory.createInvocation,
-    definition: 'Provide a way to send a message to a worker',
+    description: 'Provide a way to send a message to a worker',
 };
 
 const createWorkerReplyStatementTool = {
@@ -347,7 +319,7 @@ const createWorkerReplyStatementTool = {
     icon: 'worker-reply',
     title: 'Worker Receive',
     nodeFactoryMethod: NodeFactory.createWorkerReceive,
-    definition: 'Provide a way to receive the reply from a worker',
+    description: 'Provide a way to receive the reply from a worker',
 };
 
 const createThrowStatementTool = {
@@ -356,7 +328,7 @@ const createThrowStatementTool = {
     icon: 'throw',
     title: 'Throw',
     nodeFactoryMethod: NodeFactory.createThrow,
-    definition: 'Provide a way to throw errors',
+    description: 'Provide a way to throw errors',
 };
 
 const createAbortStatementTool = {
@@ -365,7 +337,7 @@ const createAbortStatementTool = {
     icon: 'abort',
     title: 'Abort',
     nodeFactoryMethod: NodeFactory.createAbort,
-    definition: 'Can be executed after the transaction is rolled back due to any conditions',
+    description: 'Can be executed after the transaction is rolled back due to any conditions',
 };
 
 const createNamespaceDeclarationStatementTool = {
@@ -374,7 +346,7 @@ const createNamespaceDeclarationStatementTool = {
     icon: 'namespace',
     title: 'Namespace',
     nodeFactoryMethod: NodeFactory.createXmlQname,
-    definition: 'Can be used for xml qualified names',
+    description: 'Can be used for xml qualified names',
 };
 
 const createTransactionAbortedStatementTool = {
@@ -383,7 +355,7 @@ const createTransactionAbortedStatementTool = {
     icon: 'transaction',
     title: 'Transaction',
     nodeFactoryMethod: NodeFactory.createAbort,
-    definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
+    description: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
 const createRetryStatementTool = {
@@ -392,7 +364,7 @@ const createRetryStatementTool = {
     icon: 'refresh',
     title: 'Retry',
     nodeFactoryMethod: NodeFactory.createRetry,
-    definition: 'Statement which sets the retry count for the transaction when transaction fails',
+    description: 'Statement which sets the retry count for the transaction when transaction fails',
 };
 
 const statementToolDefArray = [
@@ -441,13 +413,13 @@ const seperator2 = {
 const constructsToolDefArray = _.union(serviceToolDefArray, [seperator], mainToolDefArray,
     [seperator2], statementToolDefArray);
 
-const constructs = new ToolGroup({
-    toolGroupName: 'Constructs',
-    toolGroupID: 'constructs-tool-group',
-    toolOrder: 'horizontal',
-    toolDefinitions: constructsToolDefArray,
+const constructs = {
+    name: 'Constructs',
+    id: 'constructs-tool-group',
+    order: 'horizontal',
+    tools: constructsToolDefArray,
     gridConfig: true,
-});
+};
 
 ToolPalette.push(constructs);
 export default ToolPalette;
