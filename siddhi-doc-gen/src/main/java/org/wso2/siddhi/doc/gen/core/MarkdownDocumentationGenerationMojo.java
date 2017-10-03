@@ -45,9 +45,9 @@ import java.util.List;
 )
 public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
     /**
-     * The maven project object for the current module
+     * The maven project object
      */
-    @Parameter(defaultValue = "${project}", readonly = true)
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
 
     /**

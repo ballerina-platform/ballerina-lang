@@ -48,30 +48,42 @@ public class Constants {
 
     public static final String GITHUB_GPL_EXTENSION_REPOSITORY_PREFIX = "siddhi-gpl-";
     public static final String GITHUB_APACHE_EXTENSION_REPOSITORY_PREFIX = "siddhi-";
-    public static final String GITHUB_EXTENSION_REPOSITORY_PARENT_POSTFIX = "-parent";
     public static final String GITHUB_OWNER_WSO2_EXTENSIONS = "wso2-extensions";
+
+    public static final String SYSTEM_PROPERTY_SCM_USERNAME_KEY = "SCM_USERNAME";
+    public static final String SYSTEM_PROPERTY_SCM_PASSWORD_KEY = "SCM_PASSWORD";
 
     public static final String MKDOCS_CONFIG_PAGES_KEY = "pages";
     public static final String MKDOCS_CONFIG_PAGES_API_KEY = "API Docs";
     public static final String MKDOCS_FILE_SEPARATOR = "/";
+    public static final String MKDOCS_SITE_DIRECTORY = "site";
 
     public static final String MKDOCS_COMMAND = "mkdocs";
-    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND = "gh-deploy";
-    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT = "-f";
-    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND_MESSAGE_ARGUMENT = "-m";
+    public static final String MKDOCS_BUILD_COMMAND = "build";
+    public static final String MKDOCS_BUILD_COMMAND_CLEAN_ARGUEMENT = "-c";
+    public static final String MKDOCS_BUILD_COMMAND_CONFIG_FILE_ARGUMENT = "-f";
+    public static final String MKDOCS_BUILD_COMMAND_SITE_DIRECTORY_ARGUMENT = "-d";
+
+    public static final String GIT_REMOTE = "origin";
+    public static final String GIT_REMOTE_WITH_USERNAME_PASSWORD = "https://%s:%s@github.com/wso2/siddhi.git";
+    public static final String GIT_MASTER_BRANCH = "master";
+    public static final String GIT_GH_PAGES_BRANCH = "gh-pages";
 
     public static final String GIT_COMMAND = "git";
+    public static final String GIT_BRANCH_COMMAND = "branch";
+    public static final String GIT_BRANCH_COMMAND_OUTPUT_CURRENT_BRANCH_PREFIX = "* ";
+    public static final String GIT_STASH_COMMAND = "stash";
+    public static final String GIT_STASH_POP_COMMAND = "pop";
     public static final String GIT_ADD_COMMAND = "add";
+    public static final String GIT_PULL_COMMAND = "pull";
     public static final String GIT_PUSH_COMMAND = "push";
-    public static final String GIT_PUSH_COMMAND_REMOTE = "origin";
-    public static final String GIT_PUSH_COMMAND_REMOTE_BRANCH = "master";
+    public static final String GIT_CHECKOUT_COMMAND = "checkout";
+    public static final String GIT_CHECKOUT_COMMAND_ORPHAN_ARGUMENT = "--orphan";
     public static final String GIT_COMMIT_COMMAND = "commit";
     public static final String GIT_COMMIT_COMMAND_FILES_ARGUMENT = "--";
     public static final String GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT = "-m";
     public static final String GIT_COMMIT_COMMAND_MESSAGE_FORMAT = "[WSO2-Release] [Release %s] " +
             "update documentation for release %s";
-
-    public static final String URL_PREFIX_BASE = ".";
 
     public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     public static final String CORE_NAMESPACE = "core";
@@ -84,4 +96,5 @@ public class Constants {
     public static final String FREEMARKER_LATEST_API_DOCS_HEADING = "## Latest API Docs";
     public static final String FREEMARKER_SIDDHI_HOME_PAGE = "https://wso2.github.io/siddhi";
     public static final String FREEMARKER_SIDDHI_REPOSITORY_ARTIFACT_ID = "siddhi";
+    public static final String FREEMARKER_EXTENSION_REPOSITORY_PARENT_POSTFIX = "-parent";
 }
