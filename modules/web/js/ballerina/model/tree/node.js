@@ -448,7 +448,10 @@ class Node extends EventChannel {
             case 'CompilationUnit':
                 return w() + node.topLevelNodes.map(Node.getSourceOf).join('');
             case 'PackageDeclaration':
-                return 'package' + w() + Node.join(node.packageName, w, '.') + ';' + w();
+                if (node.packageName && node.packageName.length > 0) {
+                    return 'package' + w() + Node.join(node.packageName, w, '.') + ';' + w();
+                }
+                return '';
             case 'Import':
                 return 'import' + w() + Node.join(node.packageName, w, '.') + ';' + w();
             default:

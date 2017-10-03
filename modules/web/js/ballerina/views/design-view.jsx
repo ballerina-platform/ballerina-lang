@@ -23,7 +23,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import DragLayer from './../drag-drop/drag-layer';
 import BallerinaDiagram from './../diagram2/diagram';
-import TransformExpanded from '../diagram/views/default/components/transform/transform-expanded';
+import TransformExpanded from '../diagram2/views/default/components/transform/transform-expanded';
 import MessageManager from './../visitors/message-manager';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
