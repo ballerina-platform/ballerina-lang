@@ -21,19 +21,10 @@ import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import NodeFactory from '../../../../../model/node-factory';
 import TransformFactory from './transform-factory';
+import TransformUtils from "../../../../../utils/transform-utils";
 
-const ExpressionType = {
-    ERROR: 'error',
-    PLACEHOLDER: 'placeholder',
-    TEMPVAR: 'tempvar',
-    DIRECT: 'direct',
-    CONST: 'const',
-};
-
-const VarPrefix = {
-    TEMP: '__temp',
-    OUTPUT: '__output',
-};
+const ExpressionType = TransformUtils.expressionTypes;
+const VarPrefix = TransformUtils.varPrefix;
 
 /**
  * Performs utility methods for handling transform inner statement creation and removal
@@ -228,7 +219,7 @@ class TransformNodeMapper {
         const rightExpression = this.getCompatibleSourceExpression(
             this.getMappableExpression(source.funcInv), compatibility.type, target.type);
 
-        const outputExpressions = this.getOutputExpressions(assignmentStmt);
+        const outputExpressions = TransformUtils.getOutputExpressions(this._transformStmt, assignmentStmt);
 
         if (outputExpressions[source.index].type === ExpressionType.TEMPVAR) {
             const tempVarRefExpr = outputExpressions[source.index].expression;
@@ -292,7 +283,7 @@ class TransformNodeMapper {
         const rightExpression = this.getCompatibleSourceExpression(
             this.getMappableExpression(source.operator), compatibility.type, target.type);
 
-        const outputExpressions = this.getOutputExpressions(assignmentStmt);
+        const outputExpressions = TransformUtils.getOutputExpressions(this._transformStmt, assignmentStmt);
 
         if (outputExpressions[0].type === ExpressionType.TEMPVAR) {
             const tempVarRefExpr = outputExpressions[source.index].expression;
@@ -560,11 +551,11 @@ class TransformNodeMapper {
             const assignedTempVars = this.getAssignedTempVariable(assignmentStmtSource);
             if (assignedTempVars) {
                 assignedTempVars.forEach((tempVar) => {
-                    const assStmts = this.getInputStatements(tempVar.expression);
+                    const assStmts = TransformUtils.getInputStatements(this._transformStmt, empVar.expression);
                     assStmts.forEach((stmt) => {
                         this.removeOutputExpressions(stmt, targetName);
                     });
-                    const assStmtNew = this.getInputStatements(tempVar.expression);
+                    const assStmtNew = TransformUtils.getInputStatements(this._transformStmt, empVar.expression);
                     if (assStmtNew.length === 1) {
                         // remove the temp reference if there are no statement using the temp
                         assignmentStmtSource.getLeftExpression()
@@ -888,14 +879,14 @@ class TransformNodeMapper {
     removeOutputExpressions(stmt, expStr) {
         stmt.getVariables().forEach((exp, index) => {
             if (exp.getSource().trim() === expStr) {
-                if (TreeUtil.isSimpleVariableRef(stmt.getExpression())) {
+                if (TreeUtil.isSimpleVariableRef(this._transformStmt, stmt.getExpression())) {
                     this._transformStmt.body.removeStatements(stmt, true);
                     // check for temp expressions
-                    if (this.isTempVariable(stmt.getExpression())) {
+                    if (TransformUtils.isTempVariable(this._transformStmt, stmt.getExpression())) {
                         const tempExp = stmt.getExpression();
-                        const tempUsedStmts = this.getInputStatements(tempExp);
+                        const tempUsedStmts = TransformUtils.getInputStatements(this._transformStmt, empExp);
                         if (tempUsedStmts.length === 1) {
-                            const tempAssignStmt = this.getOutputStatement(tempExp);
+                            const tempAssignStmt = TransformUtils.getOutputStatement(this._transformStmt, empExp);
                             const tempLeftExp = tempAssignStmt.getVariables().find((ex) => {
                                 return ex.getSource().trim() === tempExp.getSource().trim();
                             });
@@ -965,7 +956,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     validateTargetMappings(targetExpression) {
-        const targetStmt = this.getOutputStatement(targetExpression);
+        const targetStmt = TransformUtils.getOutputStatement(this._transformStmt, targetExpression);
         if (targetStmt) {
             if (this.isComplexStatement(targetStmt)) {
                 this.removeOutputMapping(targetStmt, targetExpression);
@@ -976,39 +967,13 @@ class TransformNodeMapper {
     }
 
     /**
-     * Get expressions that are mapped by the assignment statement.
-     * The output mappings ignore error expressions and placeholder temporary variables.
-     * @param {AssignmentStatement} assignmentStmt assignment statement
-     * @returns {[Expression]} expressions that are output mappings
-     * @memberof TransformNodeMapper
-     */
-    getOutputExpressions(assignmentStmt) {
-        const outputMappings = [];
-        assignmentStmt.getVariables().forEach((exp, index) => {
-            outputMappings[index] = { expression: exp };
-            if (this.isInTransformInputOutput(exp)) {
-                outputMappings[index].type = ExpressionType.DIRECT;
-            } else if (this.isErrorExpression(exp)) {
-                outputMappings[index].type = ExpressionType.ERROR;
-            } else if (this.isPlaceHolderTempVariable(exp)) {
-                outputMappings[index].type = ExpressionType.PLACEHOLDER;
-            } else if (this.isConstant(exp, assignmentStmt)) {
-                outputMappings[index].type = ExpressionType.CONST;
-            } else {
-                outputMappings[index].type = ExpressionType.TEMPVAR;
-            }
-        });
-        return outputMappings;
-    }
-
-    /**
      * Get the expression assigned by the temporary variable
      * @param {Expression} expression temporary variable
      * @returns {Expression} assigned expression
      * @memberof TransformNodeMapper
      */
     getTempResolvedExpression(expression) {
-        const assignmentStmt = this.getOutputStatement(expression);
+        const assignmentStmt = TransformUtils.getOutputStatement(this._transformStmt, expression);
         return assignmentStmt.getExpression();
     }
 
@@ -1019,138 +984,10 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     getAssignedTempVariable(statement) {
-        const outExpressions = this.getOutputExpressions(statement);
+        const outExpressions = TransformUtils.getOutputExpressions(this._transformStmt, statement);
         return outExpressions.filter((out) => {
             return (out.type === ExpressionType.TEMPVAR);
         });
-    }
-
-    /**
-     * Check whether the given expression is a temporary variable in the transform
-     * statement scope. A temporary variable is a variable that is declared in the
-     * transform statement scope and holds a combination of source expressions.
-     * E.g.:
-     *  1) var __temp1, _ = <int> a;
-     *  2) var __temp1 = func(a);
-     *  3) var __temp1 = a + b
-     *      where a and b are source variables of the transform statement.
-     * Mappings of the temp variables can be done in any manner.
-     * E.g.:
-     *    var __temp1 = func(x);
-     *    y = __temp1;
-     *    x = __temp1;
-     * Here although the mapping is done via a temporary variable, there is an actual
-     * value associated, which can be shown as a mapping.
-     * @param {Expression} expression expression to check
-     * @return {boolean} whether temporary or not
-     * @memberof TransformNodeMapper
-     */
-    isTempVariable(expression, assignmentStmt) {
-        if (this.isInTransformInputOutput(expression)
-            || this.isErrorExpression(expression)
-            || this.isPlaceHolderTempVariable(expression)
-            || this.isConstant(expression, assignmentStmt)) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Check whether the given expression is a placeholder temporary variable in the transform
-     * statement scope.
-     * E.g. : var __output1 = func(null);
-     * Here the __output1 is not declared earlier, but is a temporary variable, which
-     * cannot be shown as a mapping.
-     * @param {Expression} expression expression to check
-     * @returns {boolean} whether a placeholder temporary variable or not
-     * @memberof TransformNodeMapper
-     */
-    isPlaceHolderTempVariable(expression) {
-        if (this.isInTransformInputOutput(expression)) {
-            return false;
-        }
-        const usedStatements = this.getInputStatements(expression);
-        return (usedStatements.length === 0);
-    }
-
-    /**
-     * Check whether the given expression is an input or output expression
-     * of transform statement
-     * @param {Expression} expression expression to check
-     * @returns {boolean} whether or not the expression is an input or an output
-     * @memberof TransformNodeMapper
-     */
-    isInTransformInputOutput(expression) {
-        const inputOutput = [...this._transformStmt.inputs, ...this._transformStmt.outputs];
-        const ioReference = inputOutput.find((io) => {
-            return io === expression.getSource().trim();
-        });
-        return (ioReference !== undefined);
-    }
-
-    /**
-    * Checks whether the given expression is an error expression
-    * @param {Expression} expression expression
-    * @returns {boolean} is or not an error expression
-    * @memberof TransformNodeMapper
-    */
-    isErrorExpression(expression) {
-        // TODO: enhance for user defined errors
-        return (expression.getSource().trim() === '_');
-    }
-
-    /**
-     * whether the constant expression is a constant value
-     * @param {any} expression expression
-     * @param {any} assignmentStmt assignment statement
-     * @returns whether the expression is a constant
-     * @memberof TransformNodeMapper
-     */
-    isConstant(expression, assignmentStmt) {
-        if (!assignmentStmt) {
-            assignmentStmt = this.getOutputStatement(expression);
-        }
-        return TreeUtil.isLiteral(assignmentStmt.getExpression());
-    }
-
-    /**
-     * Get vertices that are used in expression
-     * @param {Expression} expression expression to get vertices from
-     * @returns {[Expression]} array of expressions that are inputs
-     * @memberof TransformNodeMapper
-     */
-    getVerticesFromExpression(expression) {
-        if (TreeUtil.isSimpleVariableRef(expression)) {
-            return [expression];
-        }
-        if (TreeUtil.isFieldBasedAccessExpr(expression)) {
-            return [expression];
-        }
-        if (TreeUtil.isTypeCastExpr(expression) || TreeUtil.isTypeConversionExpr(expression)) {
-            return [...this.getVerticesFromExpression(expression.getExpression())];
-        }
-        if (TreeUtil.isInvocation(expression)) {
-            return _.flatten(expression.getChildren().map((exp) => {
-                return [...this.getVerticesFromExpression(exp)];
-            }));
-        }
-        if (TreeUtil.isBinaryExpr(expression)) {
-            return [...this.getVerticesFromExpression(expression.getLeftExpression()),
-                ...this.getVerticesFromExpression(expression.getRightExpression())];
-        }
-        if (TreeUtil.isUnaryExpr(expression)) {
-            return this.getVerticesFromExpression(expression.getExpression());
-        }
-        if (TreeUtil.isLiteral(expression)) {
-            return [];
-        }
-        if (TreeUtil.isReferenceTypeInitExpression(expression)) {
-            log.error('not implemented reference type init expression');
-        }
-        if (TreeUtil.isTernaryExpr(expression)) {
-            log.error('not implemented reference type init expression');
-        }
-        return [];
     }
 
     /**
@@ -1163,39 +1000,9 @@ class TransformNodeMapper {
         const varExp = assignmentStmt.getVariables().find((exp) => {
             return exp.getSource().trim() === varExpression.getSource();
         });
-        const outputVar = TransformFactory.createSimpleVariableRef(this.getNewTempVarName(VarPrefix.OUTPUT));
+        const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT);
+        const outputVar = TransformFactory.createSimpleVariableRef(tempVarName);
         assignmentStmt.replaceVariable(varExp, outputVar, true);
-    }
-
-
-    /**
-     * Get statement that have given expression as output.
-     * @param {Expression} expression output expression
-     * @return {AssignmentStatement} assignment statement with expression as an output
-     * @memberof TransformNodeMapper
-     */
-    getOutputStatement(expression) {
-        return this._transformStmt.body.filterStatements(TreeUtil.isAssignment).find((stmt) => {
-            return stmt.getVariables().find((exp) => {
-                return expression.getSource().trim() === exp.getSource().trim();
-            });
-        });
-    }
-
-    /**
-    * Gets the statements where a given expression has been used.
-    * Usage denotes that it is a right expression of a statement.
-    * @param {Expression} expression expression to check usage
-    * @returns {[AssignmentStatement]} assignment statements with usage
-    * @memberof TransformNodeMapper
-    */
-    getInputStatements(expression) {
-        return this._transformStmt.body.getStatements().filter((stmt) => {
-            const matchingInput = this.getVerticesFromExpression(stmt.getExpression()).filter((exp) => {
-                return (exp.getSource().trim() === expression.getSource().trim());
-            });
-            return (matchingInput.length > 0);
-        });
     }
 
     /**
@@ -1205,7 +1012,7 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     assignToTempVariable(assignmentStmt) {
-        const tempVarName = this.getNewTempVarName();
+        const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt);
         const tempVarRefExpr = TransformFactory.createSimpleVariableRef(tempVarName);
 
         let index = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
@@ -1232,32 +1039,6 @@ class TransformNodeMapper {
     //     const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
     //     varRefList.addChild(errorVarRef);
         this._transformStmt.body.addStatements(assignmentStmt, index, true);
-    }
-
-    /**
-     * Get a new name for temporary variable
-     * @param {string} varPrefix prefix for the variable
-     * @returns {Expression} temporary var expression
-     * @memberof TransformNodeMapper
-     */
-    getNewTempVarName(varPrefix = VarPrefix.TEMP) {
-        const varNameRegex = new RegExp(varPrefix + '[\\d]*');
-        const tempVarNames = [];
-        this._transformStmt.body.getStatements().forEach((stmt) => {
-            this.getOutputExpressions(stmt).forEach((mapping) => {
-                const expStr = mapping.expression.getSource();
-                if ((mapping.type === ExpressionType.TEMPVAR) && varNameRegex.test(expStr)) {
-                    tempVarNames.push(expStr);
-                }
-            });
-        });
-
-        tempVarNames.sort();
-        let index = 1;
-        if (tempVarNames.length > 0) {
-            index = Number.parseInt(tempVarNames[tempVarNames.length - 1].substring(varPrefix.length), 10) + 1;
-        }
-        return varPrefix + index;
     }
 
     /**

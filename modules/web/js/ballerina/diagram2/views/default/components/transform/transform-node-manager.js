@@ -21,6 +21,7 @@ import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import Mapper from './transform-node-mapper';
 import TransformFactory from './transform-factory';
+import TransformUtils, { VarPrefix, ExpressionType } from '../../../../../utils/transform-utils';
 
 /**
  * Transform node manager
@@ -398,7 +399,7 @@ class TransformNodeManager {
     getResolvedExpression(expression, statement) {
         const mapExp = this._mapper.getMappableExpression(expression);
         if (TreeUtil.isSimpleVariableRef(expression)
-            && this._mapper.isTempVariable(mapExp, statement)) {
+            && TransformUtils.isTempVariable(this._transformStmt, mapExp, statement)) {
             return {
                 exp: this._mapper.getMappableExpression(this._mapper.getTempResolvedExpression(mapExp)),
                 isTemp: true,
