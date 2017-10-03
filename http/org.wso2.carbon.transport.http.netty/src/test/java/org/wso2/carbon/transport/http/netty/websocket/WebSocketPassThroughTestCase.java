@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,19 +38,22 @@ import org.wso2.carbon.transport.http.netty.util.server.websocket.WebSocketRemot
 
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 
 /**
  * Test cases for WebSocket pass-through scenarios.
  */
-public class WebSocketPassThroughTestCase extends WebSocketTestCase {
+public class WebSocketPassThroughTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
+
+    private final int latchCountDownInSecs = 10;
 
     private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.TEST_REMOTE_WS_SERVER_PORT);
 
-    private WebSocketTestClient webSocketClient = new WebSocketTestClient();
     private ServerConnector serverConnector;
 
     @BeforeClass
@@ -66,11 +70,14 @@ public class WebSocketPassThroughTestCase extends WebSocketTestCase {
     }
 
     @Test
-    public void testTextPassthrough() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
+    public void testTextPassThrough() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient webSocketClient = new WebSocketTestClient(latch);
         webSocketClient.handhshake();
         String text = "hello-pass-through";
         webSocketClient.sendText(text);
-        assertWebSocketClientTextMessage(webSocketClient, text);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(webSocketClient.getTextReceived(), text);
     }
 
     @AfterClass

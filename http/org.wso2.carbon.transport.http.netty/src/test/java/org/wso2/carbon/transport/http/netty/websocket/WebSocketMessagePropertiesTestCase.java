@@ -43,7 +43,7 @@ import javax.net.ssl.SSLException;
 /**
  * Test class to check the known properties of which should contain in a WebSocket message.
  */
-public class WebSocketMessagePropertiesTestCase extends WebSocketTestCase {
+public class WebSocketMessagePropertiesTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketMessagePropertiesTestCase.class);
 

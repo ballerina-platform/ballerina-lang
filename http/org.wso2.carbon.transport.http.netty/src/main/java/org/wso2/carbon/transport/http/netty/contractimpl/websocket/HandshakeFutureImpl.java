@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.transport.http.netty.contractimpl.websocket;
 
+import io.netty.channel.ChannelFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.HandshakeListener;
 
@@ -32,17 +33,29 @@ public class HandshakeFutureImpl implements HandshakeFuture {
     private Throwable throwable = null;
     private Session session = null;
     private HandshakeListener handshakeListener;
+    private ChannelFuture channelFuture;
+    private boolean isSync = false;
+
+    public HandshakeFutureImpl() {
+    }
+
+    public void setChannelFuture(ChannelFuture channelFuture) throws InterruptedException {
+        this.channelFuture = channelFuture;
+        if (isSync) {
+            this.channelFuture.sync();
+        }
+    }
 
     @Override
-    public void setHandshakeListener(HandshakeListener handshakeListener) {
+    public HandshakeFuture setHandshakeListener(HandshakeListener handshakeListener) {
         this.handshakeListener = handshakeListener;
         if (throwable != null) {
             handshakeListener.onError(throwable);
-            return;
         }
         if (session != null) {
             handshakeListener.onSuccess(session);
         }
+        return this;
     }
 
     @Override
@@ -62,4 +75,14 @@ public class HandshakeFutureImpl implements HandshakeFuture {
         }
         handshakeListener.onError(throwable);
     }
+
+    @Override
+    public void sync() throws InterruptedException {
+        isSync = true;
+        if (channelFuture != null) {
+            channelFuture.sync();
+        }
+    }
+
+
 }
