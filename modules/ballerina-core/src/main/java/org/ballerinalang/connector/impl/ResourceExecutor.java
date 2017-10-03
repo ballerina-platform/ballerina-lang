@@ -199,5 +199,6 @@ public class ResourceExecutor {
             debugManager.setDebuggerContext(context);
         }
         bLangVM.run(context);
+        connectorFuture.notifySuccess();
     }
 }

@@ -13,3 +13,11 @@ function stringAdd(string a, string b) (string) {
 function stringAndIntAdd(string a, int b) (string) {
     return a + b;
 }
+
+function intFloatAdd(int a, float b) (float) {
+    return a + b;
+}
+
+function floatIntAdd(float a, int b) (float) {
+    return a + b;
+}
