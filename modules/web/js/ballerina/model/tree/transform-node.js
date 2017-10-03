@@ -18,9 +18,12 @@
 import _ from 'lodash';
 
 import AbstractTransformNode from './abstract-tree/transform-node';
+import TransformUtils, { VarPrefix } from '../../utils/transform-utils';
 
 class TransformNode extends AbstractTransformNode {
     acceptDrop(node) {
+        const tempVarName = TransformUtils.getNewTempVarName(this, VarPrefix.OUTPUT);
+        node.getVariables()[0].getVariableName().setValue(tempVarName);
         this.getBody().addStatements(node);
     }
 
