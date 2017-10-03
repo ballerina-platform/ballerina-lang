@@ -43,6 +43,6 @@ public class GetBinaryPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getBinaryPayload(context, this);
+        return HttpUtil.getBinaryPayload(context, this, true);
     }
 }

@@ -27,6 +27,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -44,7 +45,9 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING)
+                @Argument(name = "serviceUri", type = TypeKind.STRING),
+                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
+                          structPackage = "ballerina.net.http")
         }
 )
 public class Get extends AbstractHTTPAction {
@@ -63,6 +66,12 @@ public class Get extends AbstractHTTPAction {
             throw new BallerinaException("Failed to invoke 'get' action in " + Constants.CONNECTOR_NAME
                     + ". " + e.getMessage(), context);
         }
+    }
+
+    protected HTTPCarbonMessage createCarbonMsg(Context context) {
+        HTTPCarbonMessage cMsg = super.createCarbonMsg(context);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
+        return cMsg;
     }
 
 }

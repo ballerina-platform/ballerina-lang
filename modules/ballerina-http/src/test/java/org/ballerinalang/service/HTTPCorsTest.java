@@ -128,7 +128,7 @@ public class HTTPCorsTest {
     public void testSimpleReqWithNullOrigin() {
         String path = "/hello1/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Hello there");
-        cMsg.setHeader(Constants.ORIGIN, null);
+        cMsg.setHeader(Constants.ORIGIN, "");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response);

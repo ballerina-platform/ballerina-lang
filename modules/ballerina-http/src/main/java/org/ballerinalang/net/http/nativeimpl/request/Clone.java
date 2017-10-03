@@ -36,13 +36,14 @@ import org.ballerinalang.net.http.HttpUtil;
         functionName = "clone",
         args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeKind.MESSAGE)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Request",
+                structPackage = "ballerina.net.http")},
         isPublic = true
 )
 public class Clone  extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.clone(context, this);
+        return HttpUtil.clone(context, this, true);
     }
 }

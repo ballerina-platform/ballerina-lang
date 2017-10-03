@@ -25,7 +25,6 @@ import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.Semaphore;
@@ -77,7 +76,6 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
         Object carbonStatusCode = requestMessage.getProperty(Constants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        ErrorHandlerUtils.printError(ex);
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
         this.executionWaitSem.release();
     }

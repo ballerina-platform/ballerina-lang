@@ -29,7 +29,6 @@ import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -533,7 +532,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -2281,7 +2280,7 @@ public class BLangVM {
 
                 xmlVal = (BXML<?>) sf.refRegs[i];
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
-                xmlVal.setChildren(child);
+                xmlVal.addChildren(child);
                 break;
         }
     }
@@ -2502,8 +2501,12 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
         BConnector bConnector = new BConnector(connectorInfo.getType());
-        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
+//        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
+        if (connectorInfo.getInitAction() != null) {
+            FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(new int[] {0}, new int[0]);
+            invokeNativeAction(connectorInfo.getInitAction(), funcCallCPEntry);
+        }
     }
 
     private void createNewStruct(int[] operands, StackFrame sf) {
@@ -2559,53 +2562,6 @@ public class BLangVM {
             }
         }
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
-    }
-
-    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
-        //BType connectorType = paramTypes[0];
-        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
-        ActionInfo newActionInfo = null;
-        ConnectorInfo connectorInfoIncoming;
-        if (connector != null && connector.getConnectorType() != null &&
-                !(callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
-            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-                    (BConnectorType) connector.getConnectorType());
-            if (connectorInfoFilter != null) {
-                newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
-            } else {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                handleError();
-                return;
-            }
-        }
-
-        WorkerInfo defaultWorkerInfo;
-        if (newActionInfo != null) {
-            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-        } else {
-            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        }
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
-
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
@@ -2688,15 +2644,19 @@ public class BLangVM {
             String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
-                //resultMsgs.add(res);
+                WorkerResult wr = invokeAnyWorker(workerRunnerList, timeout);
+                if (wr != null) {
+                    resultMsgs.add(wr);
+                }
             } else {
                 List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
-                //resultMsgs.add(res);
+                WorkerResult wr = invokeAnyWorker(workerRunnersSpecified, timeout);
+                if (wr != null) {
+                    resultMsgs.add(wr);
+                }
             }
         } else {
             String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
@@ -2767,7 +2727,9 @@ public class BLangVM {
                 }
 
             }).forEach((WorkerResult b) -> {
-                result.add(b);
+                if (b != null) {
+                    result.add(b);
+                }
             });
         } catch (InterruptedException e) {
             return result;
@@ -3015,34 +2977,7 @@ public class BLangVM {
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
 
-        BConnector connector = (BConnector) callerSF.refRegs[funcCallCPEntry.getArgRegs()[0]];
-        ActionInfo newActionInfo = null;
-        ConnectorInfo connectorInfoIncoming;
-        if (connector != null && connector.getConnectorType() != null &&
-                !(actionInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            connectorInfoIncoming = actionInfo.getConnectorInfo();
-            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-                    (BConnectorType) connector.getConnectorType());
-            if (connectorInfoFilter != null) {
-                newActionInfo = connectorInfoFilter.getActionInfo(actionInfo.getName());
-            } else {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                handleError();
-                return;
-            }
-        }
-
-        WorkerInfo defaultWorkerInfo;
-        if (newActionInfo != null) {
-            actionInfo = newActionInfo;
-            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-        } else {
-            defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
-        }
-
+        WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
 
         if (nativeAction != null) {
@@ -3106,7 +3041,7 @@ public class BLangVM {
             }
         } else {
             // Ballerina Action in case of ballerina based filter connector
-            invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+            invokeCallableUnit(actionInfo, funcCallCPEntry);
         }
     }
 
@@ -3233,7 +3168,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i < tFields.length; i++) {
-            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
+            if (isAssignable(tFields[i].getFieldType(), sFields[i].getFieldType()) &&
                     tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
                 continue;
             }
@@ -3241,6 +3176,55 @@ public class BLangVM {
         }
 
         return true;
+    }
+
+    private static boolean isAssignable(BType actualType, BType expType) {
+        // First check whether both references points to the same object.
+        if (actualType == expType) {
+            return true;
+        }
+
+        // If the both type tags are equal, then perform following checks.
+        if (actualType.getTag() == expType.getTag() && isValueType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() &&
+                !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayEquivalent(actualType, expType);
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) actualType, (BStructType) expType)) {
+            // If both types are structs then check for their equivalency
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isValueType(BType type) {
+        return type.getTag() <= TypeTags.BLOB_TAG;
+    }
+
+    private static boolean isUserDefinedType(BType type) {
+        return type.getTag() == TypeTags.STRUCT_TAG || type.getTag() == TypeTags.CONNECTOR_TAG ||
+                type.getTag() == TypeTags.ENUM_TAG || type.getTag() == TypeTags.ARRAY_TAG;
+    }
+
+    private static boolean isConstrainedType(BType type) {
+        return type.getTag() == TypeTags.JSON_TAG;
+    }
+
+    private static boolean checkArrayEquivalent(BType actualType, BType expType) {
+        if (expType.getTag() == TypeTags.ARRAY_TAG && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) expType;
+            BArrayType rhsArrayType = (BArrayType) actualType;
+            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+        }
+        // Now one or both types are not array types and they have to be equal
+        if (expType == actualType) {
+            return true;
+        }
+        return false;
     }
 
     private void convertJSONToInt(int[] operands, StackFrame sf) {

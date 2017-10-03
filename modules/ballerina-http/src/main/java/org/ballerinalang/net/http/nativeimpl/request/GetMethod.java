@@ -44,7 +44,7 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 )
 public class GetMethod extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
-        String httpMethod = null;
+        String httpMethod = "";
         BStruct requestStruct = (BStruct) getRefArgument(ctx, 0);
         //TODO checck below line
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);

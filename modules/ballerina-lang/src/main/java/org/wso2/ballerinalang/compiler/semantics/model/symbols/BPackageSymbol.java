@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -28,20 +28,16 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
  */
 public class BPackageSymbol extends BTypeSymbol {
 
-    public Name version;
-
     // TODO Introduce States to the Package Symbol.. DEFINED, TYPE_CHECKED, ANALYZED etc..
 
-    public BPackageSymbol(Name pkgName, Name pkgVersion, BSymbol owner) {
-        super(PACKAGE, 0, pkgName, null, owner);
-        this.version = pkgVersion;
+    public BPackageSymbol(PackageID pkgID, BSymbol owner) {
+        super(PACKAGE, 0, pkgID.name, pkgID, null, owner);
         this.type = new BPackageType(this);
-        this.kind = SymbolKind.PACKAGE;
     }
 
     @Override
     public SymbolKind getKind() {
-        return kind;
+        return SymbolKind.PACKAGE;
     }
 
     @Override
@@ -55,14 +51,11 @@ public class BPackageSymbol extends BTypeSymbol {
         }
 
         BPackageSymbol that = (BPackageSymbol) o;
-        return name.equals(that.name) && version.equals(that.version);
-
+        return pkgID.equals(that.pkgID);
     }
 
     @Override
     public int hashCode() {
-        int result = version.hashCode();
-        result = 31 * result + name.hashCode();
-        return result;
+        return pkgID.hashCode();
     }
 }

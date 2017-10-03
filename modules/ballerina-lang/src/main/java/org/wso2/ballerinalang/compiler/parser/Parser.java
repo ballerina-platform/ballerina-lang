@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -68,6 +68,8 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgSource.getPackageSourceEntries()
                 .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgSource.getPackageId(),
+                pkgSource.getPackageSourceEntries().get(0).getEntryName()), 1, 1, 1, 1);
         return pkgNode;
     }
 
@@ -103,10 +105,8 @@ public class Parser {
     }
 
     private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {
-        Name pkgName = sourceEntry.getPackageID().getName();
-        Name pkgVersion = sourceEntry.getPackageID().getPackageVersion();
         String entryName = sourceEntry.getEntryName();
-        return new BDiagnosticSource(pkgName.getValue(), pkgVersion.getValue(), entryName);
+        return new BDiagnosticSource(sourceEntry.getPackageID(), entryName);
     }
 
 }

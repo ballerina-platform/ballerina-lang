@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
@@ -24,24 +25,22 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
  */
 public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
 
-    public String pkgName;
-    public String pkgVersion;
+    public PackageID pkgID;
     public String cUnitName;
 
-    public BDiagnosticSource(String packageName, String packageVersion, String compUnitName) {
-        this.pkgName = packageName;
-        this.pkgVersion = packageVersion;
+    public BDiagnosticSource(PackageID packageID, String compUnitName) {
+        this.pkgID = packageID;
         this.cUnitName = compUnitName;
     }
 
     @Override
     public String getPackageName() {
-        return pkgName;
+        return pkgID.name.value;
     }
 
     @Override
     public String getPackageVersion() {
-        return pkgVersion;
+        return pkgID.version.value;
     }
 
     @Override

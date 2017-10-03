@@ -49,7 +49,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE connectorVarDefStatement* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,8 +57,7 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
-    | LEFT_BRACE connectorVarDefStatement* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE statement* workerDeclaration* RIGHT_BRACE
     ;
 
 
@@ -80,7 +79,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :   LEFT_BRACE connectorVarDefStatement* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -97,7 +96,7 @@ structBody
     ;
 
 annotationDefinition
-    : ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
+    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
     ;
 
 enumDefinition
@@ -147,7 +146,7 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE connectorVarDefStatement* statement* RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 workerDefinition
@@ -269,11 +268,7 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN  expression)? SEMICOLON
-    ;
-
-connectorVarDefStatement
-    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
+    :   typeName Identifier (ASSIGN (connectorInitExpression | expression) )? SEMICOLON
     ;
 
 mapStructLiteral

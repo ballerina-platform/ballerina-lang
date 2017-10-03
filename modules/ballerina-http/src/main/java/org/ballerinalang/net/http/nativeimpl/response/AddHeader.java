@@ -43,6 +43,6 @@ public class AddHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.addHeader(context, this);
+        return HttpUtil.addHeader(context, this, false);
     }
 }

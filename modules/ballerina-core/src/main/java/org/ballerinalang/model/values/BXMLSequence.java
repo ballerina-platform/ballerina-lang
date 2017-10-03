@@ -258,7 +258,19 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         
         ((BXMLItem) sequence.get(0)).setChildren(seq);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addChildren(BXML<?> seq) {
+        if (sequence.size() != 1) {
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+        }
+        
+        ((BXMLItem) sequence.get(0)).addChildren(seq);
+    }
+
     /**
      * {@inheritDoc}
      */

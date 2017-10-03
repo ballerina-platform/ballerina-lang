@@ -31,11 +31,12 @@ import java.util.List;
  */
 public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProcessingInstructionLiteralNode {
 
-    public LiteralNode target;
-    public List<ExpressionNode> dataFragments;
+    public BLangLiteral target;
+    public List<BLangExpression> dataFragments;
+    public BLangExpression dataConcatExpr;
     
     public BLangXMLProcInsLiteral() {
-        dataFragments = new ArrayList<ExpressionNode>();
+        dataFragments = new ArrayList<BLangExpression>();
     }
     
     @Override
@@ -45,17 +46,17 @@ public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProces
     
     @Override
     public void setTarget(LiteralNode target) {
-        this.target = target;
+        this.target = (BLangLiteral) target;
     }
 
     @Override
-    public List<ExpressionNode> getDataTextFragments() {
+    public List<BLangExpression> getDataTextFragments() {
         return dataFragments;
     }
 
     @Override
     public void addDataTextFragment(ExpressionNode textFragment) {
-        this.dataFragments.add(textFragment);
+        this.dataFragments.add((BLangExpression) textFragment);
     }
 
     @Override

@@ -36,12 +36,12 @@ import java.util.List;
 public class BLangConnectorInit extends BLangExpression implements ConnectorInitNode {
 
     public BLangUserDefinedType connectorType;
-    public List<ExpressionNode> argsExpressions;
+    public List<BLangExpression> argsExpr;
     public List<ConnectorInitNode> filterConnectors;
 
 
     public BLangConnectorInit() {
-        argsExpressions = new ArrayList<>();
+        argsExpr = new ArrayList<>();
         filterConnectors = new ArrayList<>();
     }
 
@@ -52,12 +52,7 @@ public class BLangConnectorInit extends BLangExpression implements ConnectorInit
 
     @Override
     public List<? extends ExpressionNode> getExpressions() {
-        return this.argsExpressions;
-    }
-
-    @Override
-    public void addExpression(ExpressionNode expressionNode) {
-        this.argsExpressions.add(expressionNode);
+        return this.argsExpr;
     }
 
     @Override
@@ -72,12 +67,13 @@ public class BLangConnectorInit extends BLangExpression implements ConnectorInit
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
     public String toString() {
         return "BLangConnectorInit: " + connectorType +
-                " (" + (argsExpressions != null ? Arrays.toString(argsExpressions.toArray()) : "") + ") " +
+                " (" + (argsExpr != null ? Arrays.toString(argsExpr.toArray()) : "") + ") " +
                 (!filterConnectors.isEmpty() ? " with " + Arrays.toString(filterConnectors.toArray()) : "");
     }
 }

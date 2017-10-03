@@ -31,6 +31,7 @@ public enum SymbolKind {
     FUNCTION,
     WORKER,
     ANNOTATION,
+    ANNOTATION_ATTRIBUTE,
     CONSTANT,
     PACKAGE_VARIABLE,
 
@@ -39,5 +40,6 @@ public enum SymbolKind {
     SERVICE_VARIABLE,
     CONNECTOR_VARIABLE,
 
+    XMLNS,
     OTHER
 }

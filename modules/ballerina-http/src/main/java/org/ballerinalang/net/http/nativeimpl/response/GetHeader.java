@@ -25,6 +25,6 @@ public class GetHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.getHeader(context, this);
+        return HttpUtil.getHeader(context, this, false);
     }
 }

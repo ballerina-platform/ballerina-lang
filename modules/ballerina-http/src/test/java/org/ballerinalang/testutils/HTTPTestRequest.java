@@ -18,6 +18,9 @@
 
 package org.ballerinalang.testutils;
 
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -27,6 +30,10 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 public class HTTPTestRequest extends HTTPCarbonMessage {
 
     private TestHttpFutureListener futureListener;
+
+    public HTTPTestRequest() {
+        super(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+    }
 
     @Override
     public void respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {

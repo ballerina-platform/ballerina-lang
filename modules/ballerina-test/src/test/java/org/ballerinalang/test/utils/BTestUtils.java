@@ -87,13 +87,30 @@ public class BTestUtils {
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(sourceFile);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getProgramFile();
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
 
         if (programFile != null) {
             comResult.setProgFile(getExecutableProgram(programFile));
         }
 
         return comResult;
+    }
+
+    /**
+     * Invoke a ballerina function.
+     *
+     * @param compileResult CompileResult instance
+     * @param packgeName Name of the package to invoke
+     * @param functionName Name of the function to invoke
+     * @param args Input parameters for the function
+     * @return return values of the function
+     */
+    public static BValue[] invoke(CompileResult compileResult, String packgeName, String functionName, BValue[] args) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        ProgramFile programFile = compileResult.getProgFile();
+        return BLangFunctions.invokeNew(programFile, packgeName, functionName, args);
     }
 
     /**
@@ -108,6 +125,22 @@ public class BTestUtils {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException("compilation contains errors.");
         }
+        ProgramFile programFile = compileResult.getProgFile();
+        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
+    }
+
+    /**
+     * Invoke a ballerina function.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName Name of the function to invoke
+     * @return return values of the function
+     */
+    public static BValue[] invoke(CompileResult compileResult, String functionName) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException("compilation contains errors.");
+        }
+        BValue[] args = {};
         ProgramFile programFile = compileResult.getProgFile();
         return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
     }

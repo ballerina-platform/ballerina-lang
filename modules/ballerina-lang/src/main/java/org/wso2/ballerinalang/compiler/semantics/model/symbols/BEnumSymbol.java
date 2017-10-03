@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.EnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -29,7 +30,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ENU
  */
 public class BEnumSymbol extends BTypeSymbol implements EnumSymbol {
 
-    public BEnumSymbol(int flags, Name name, BType type, BSymbol owner) {
-        super(ENUM, flags, name, type, owner);
+    public BEnumSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(ENUM, flags, name, pkgID, type, owner);
     }
 }

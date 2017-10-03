@@ -31,20 +31,16 @@ public class Names {
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
+    public static final Name BUILTIN_PACKAGE = new Name("ballerina.builtin");
+    public static final Name BUILTIN_PACKAGE_CORE = new Name("ballerina.builtin.core");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
-    public static final Name STACK_FRAME = new Name("stackFrame");
-    public static final Name CALLER = new Name("caller");
-    public static final Name PACKAGE = new Name("package");
-    public static final Name FILE_NAME = new Name("fileName");
-    public static final Name LINE_NUMBER = new Name("lineNumber");
-    public static final Name MSG = new Name("msg");
     public static final Name ERROR = new Name("error");
-    public static final Name CAUSE = new Name("cause");
-    public static final Name STACK_TRACE = new Name("stackTrace");
+    public static final Name ERROR_TYPE_CAST = new Name("TypeCastError");
+    public static final Name ERROR_TYPE_CONVERSION = new Name("TypeConversionError");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name CONNECTOR = new Name("connector");
 
@@ -81,5 +77,13 @@ public class Names {
 
     public Name fromTypeKind(TypeKind typeKind) {
         return fromString(typeKind.typeName());
+    }
+
+    public Name merge(Name... names) {
+        StringBuilder builder = new StringBuilder("");
+        for (Name name : names) {
+            builder.append(name.value);
+        }
+        return new Name(builder.toString());
     }
 }

@@ -50,7 +50,9 @@ import java.util.Locale;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING)
+                @Argument(name = "serviceUri", type = TypeKind.STRING),
+                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
+                          structPackage = "ballerina.net.http")
         }
 )
 public class Execute extends AbstractHTTPAction {

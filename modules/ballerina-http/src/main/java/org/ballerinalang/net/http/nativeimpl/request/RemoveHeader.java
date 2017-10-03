@@ -42,6 +42,6 @@ public class RemoveHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.removeHeader(context, this);
+        return HttpUtil.removeHeader(context, this, true);
     }
 }

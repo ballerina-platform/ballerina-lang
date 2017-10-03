@@ -40,7 +40,8 @@ import org.ballerinalang.net.http.HttpUtil;
 public class SetJsonPayload extends AbstractNativeFunction {
 
     @Override
-    public BValue[] execute(Context ctx) {
-        return HttpUtil.setJsonPayload(ctx, this);
+    public BValue[] execute(Context context) {
+        return HttpUtil
+                .setJsonPayload(context, this, true);
     }
 }
