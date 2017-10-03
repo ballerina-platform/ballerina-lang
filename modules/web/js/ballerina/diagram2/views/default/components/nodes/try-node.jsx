@@ -47,7 +47,6 @@ class TryNode extends React.Component {
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const catchViews = getComponentForNodeArray(model.catchBlocks);
-        const finallyView = getComponentForNodeArray([model.finallyBody]);
 
         return (
             <g>
@@ -57,11 +56,17 @@ class TryNode extends React.Component {
                     title={'Try'}
                     expression={expression}
                     editorOptions={this.editorOptions}
-                    model={model.parent}
-                >
-                </CompoundStatementDecorator>
+                    model={model}
+                    body={model.body}
+                />
                 {catchViews}
-                {finallyView}
+                <CompoundStatementDecorator
+                    bBox={bBox}
+                    title={'Finally'}
+                    expression={expression}
+                    model={model.finallyBody}
+                    body={model.finallyBody}
+                />
             </g>
         );
     }

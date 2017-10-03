@@ -25,7 +25,7 @@ class TransformNode extends AbstractTransformNode {
     }
 
     addInput(input, silent, title) {
-        const oldValue = this.input;
+        const oldValue = this.inputs;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.inputs.push(input);
         const newValue = this.inputs;

@@ -47,12 +47,12 @@ class CatchNode extends React.Component {
         return (
             <g>
                 <CompoundStatementDecorator
-                    dropTarget={model}
                     bBox={bBox}
                     title={'Catch'}
                     expression={expression}
                     editorOptions={this.editorOptions}
-                    model={model.parent}
+                    model={model}
+                    body={model.body}
                 >
                 </CompoundStatementDecorator>
             </g>

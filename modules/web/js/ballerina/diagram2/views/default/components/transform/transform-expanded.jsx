@@ -819,9 +819,8 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     addSource(source) {
-        const inputDef = TransformFactory.createSimpleVariableRef(source);
         if (this.isVertexExist(source)) {
-            this.props.model.addInput(inputDef);
+            this.props.model.addInput(source);
             this.setState({ typedSource: '' });
         }
     }
@@ -832,9 +831,8 @@ class TransformExpanded extends React.Component {
      * @memberof TransformExpanded
      */
     addTarget(target) {
-        const outDef = TransformFactory.createSimpleVariableRef(target);
         if (this.isVertexExist(target)) {
-            this.props.model.addOutput(outDef);
+            this.props.model.addOutput(target);
             this.setState({ typedSource: '' });
         }
     }

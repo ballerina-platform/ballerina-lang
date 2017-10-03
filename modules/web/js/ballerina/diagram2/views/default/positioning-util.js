@@ -805,7 +805,7 @@ class PositioningUtil {
             transactionBody.viewState.bBox.y = nextComponentY + transactionBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(transactionBody);
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
-            this.increaseTransactionComponentWidth(transactionBody, newWidth);
+            this.increaseNodeComponentWidth(transactionBody, newWidth);
         }
 
         // Set the position of the failed body
@@ -814,7 +814,7 @@ class PositioningUtil {
             failedBody.viewState.bBox.y = nextComponentY + failedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(failedBody);
             nextComponentY += failedBody.viewState.components['statement-box'].h;
-            this.increaseTransactionComponentWidth(failedBody, newWidth);
+            this.increaseNodeComponentWidth(failedBody, newWidth);
         }
 
         // Set the position of the aborted body
@@ -823,7 +823,7 @@ class PositioningUtil {
             abortedBody.viewState.bBox.y = nextComponentY + abortedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(abortedBody);
             nextComponentY += abortedBody.viewState.components['statement-box'].h;
-            this.increaseTransactionComponentWidth(abortedBody, newWidth);
+            this.increaseNodeComponentWidth(abortedBody, newWidth);
         }
 
         // Set the position of the aborted body
@@ -831,11 +831,11 @@ class PositioningUtil {
             committedBody.viewState.bBox.x = bBox.x;
             committedBody.viewState.bBox.y = nextComponentY + committedBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(committedBody);
-            this.increaseTransactionComponentWidth(committedBody, newWidth);
+            this.increaseNodeComponentWidth(committedBody, newWidth);
         }
     }
 
-    increaseTransactionComponentWidth(component, newWidth) {
+    increaseNodeComponentWidth(component, newWidth) {
         component.viewState.bBox.w = newWidth;
         component.viewState.components['drop-zone'].w = newWidth;
         component.viewState.components['statement-box'].w = newWidth;
@@ -891,10 +891,23 @@ class PositioningUtil {
 
         const catchBlocks = node.catchBlocks;
         const finallyBody = node.finallyBody;
+        // New width is set at the sizing util (Propagate the max width to the try node)
+        const newWidth = node.viewState.bBox.w;
+        const x = node.viewState.bBox.x;
+
+        // set the new width of try node's components
+        node.body.viewState.bBox.w = newWidth;
+        node.viewState.components['drop-zone'].w = newWidth;
+        node.viewState.components['statement-box'].w = newWidth;
+        node.viewState.components['block-header'].w = newWidth;
+
+        // Position the try node
+        node.body.viewState.bBox.x = x;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
+            + node.viewState.components['block-header'].h;
 
         for (let itr = 0; itr < catchBlocks.length; itr++) {
             const catchBlockBBox = (catchBlocks[itr]).viewState.bBox;
-            const x = node.viewState.bBox.x;
             let y;
 
             if (itr === 0) {
@@ -905,9 +918,20 @@ class PositioningUtil {
                 y = (catchBlocks[itr - 1]).viewState.components['statement-box'].y
                     + (catchBlocks[itr - 1]).viewState.components['statement-box'].h;
             }
+            // Position the catch block
             catchBlockBBox.x = x;
             catchBlockBBox.y = y;
+
+            // increase the catch block's components' width
+            this.increaseNodeComponentWidth(catchBlocks[itr], newWidth);
+
+            // Position the compound statement components of catch block
             this.positionCompoundStatementComponents(catchBlocks[itr]);
+
+            // Position the catch block's body and set new width
+            catchBlocks[itr].body.viewState.bBox.w = newWidth;
+            catchBlocks[itr].body.viewState.bBox.x = x;
+            catchBlocks[itr].body.viewState.bBox.y = y + catchBlocks[itr].viewState.components['block-header'].h;
         }
 
         const finallyX = node.viewState.bBox.x;
@@ -921,9 +945,10 @@ class PositioningUtil {
             finallyY = node.viewState.components['statement-box'].y + node.viewState.components['statement-box'].h;
         }
 
+        // Position the finally block
         finallyBody.viewState.bBox.x = finallyX;
-        finallyBody.viewState.bBox.y = finallyY;
-
+        finallyBody.viewState.bBox.y = finallyY + finallyBody.viewState.components['block-header'].h;
+        this.increaseNodeComponentWidth(finallyBody, newWidth);
         this.positionCompoundStatementComponents(finallyBody);
     }
 
@@ -945,7 +970,11 @@ class PositioningUtil {
      * @param {object} node While object
      */
     positionWhileNode(node) {
-        // Not implemented.
+        this.positionCompoundStatementComponents(node);
+        // Position the while node
+        node.body.viewState.bBox.x = node.viewState.bBox.x;
+        node.body.viewState.bBox.y = node.viewState.components['statement-box'].y
+            + node.viewState.components['block-header'].h;
     }
 
 

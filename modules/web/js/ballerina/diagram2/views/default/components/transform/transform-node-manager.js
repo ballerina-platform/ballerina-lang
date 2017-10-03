@@ -101,9 +101,8 @@ class TransformNodeManager {
         if (isField) {
             expression = BallerinaASTFactory.createFieldBasedVarRefExpression();
         } else {
-            expression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+            expression = TransformFactory.createSimpleVariableRef(name);
         }
-        expression.setExpressionFromString(name);
         return expression;
     }
 

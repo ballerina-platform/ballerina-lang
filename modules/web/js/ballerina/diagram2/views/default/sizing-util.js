@@ -1090,14 +1090,20 @@ class SizingUtil {
         const catchBlocks = node.catchBlocks || [];
         let height = node.viewState.bBox.h;
         const finallyBody = node.finallyBody;
+        let maxWidth = node.body.viewState.bBox.w;
 
+        // Here we check for the max width. Consider each block's body and set the max width to the try node's width
+        // During the position calculation iteration, we increase the each corresponding component's width accordingly
         catchBlocks.forEach((catchBlock) => {
             height += catchBlock.viewState.bBox.h;
+            maxWidth = Math.max(maxWidth, catchBlock.body.viewState.bBox.w);
         });
 
         height += finallyBody ? finallyBody.viewState.bBox.h : 0;
+        maxWidth = Math.max(maxWidth, finallyBody.viewState.bBox.w);
 
         node.viewState.bBox.h = height;
+        node.viewState.bBox.w = maxWidth;
     }
 
     /**
