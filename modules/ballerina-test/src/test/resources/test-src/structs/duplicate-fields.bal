@@ -1,6 +1,6 @@
 struct Department {
-	string dptName;
-	int id;
-	string id;
-	Person prsn1;
+    string dptName;
+    int id;
+    string id;
+    Person prsn1;
 }
