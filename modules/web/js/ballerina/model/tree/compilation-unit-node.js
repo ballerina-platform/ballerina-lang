@@ -147,6 +147,7 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
      */
     acceptDrop(node) {
         // TODO
+        TreeUtils.generateDefaultName(this, node);
         this.addTopLevelNodes(node);
     }
 

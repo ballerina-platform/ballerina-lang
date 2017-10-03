@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import NodeFactory from './../../model/node-factory';
 import FragmentUtils from './../../utils/fragment-utils';
+import DefaultNodeFactory from './../../model/default-node-factory';
 
 const ToolPalette = [];
 
@@ -139,8 +140,8 @@ const createMainFunctionDefTool = {
     },
     icon: 'main-function',
     title: 'Main Function',
-    nodeFactoryMethod: NodeFactory.createFunction,
-    description: 'Potential entry point for command line execution',
+    nodeFactoryMethod: DefaultNodeFactory.createMainFunction,
+    definition: 'Potential entry point for command line execution',
 };
 
 const serviceToolDefArray = [createhttpServiceDefTool, createwsServiceDefTool, createMainFunctionDefTool];
@@ -293,7 +294,6 @@ const createFunctionInvocationTool = {
     nodeFactoryMethod: NodeFactory.createInvocation,
     description: 'Provide a way to invoke/call functions',
 };
-
 
 const createReturnStatementTool = {
     id: 'Return',
