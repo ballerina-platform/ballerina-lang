@@ -49,14 +49,14 @@ public class BFloatValueTest {
         result = BTestUtils.compile("test-src/types/Float/float-value.bal");
     }
 
-//    @Test(description = "Test double value assignment")
-//    public void testFloatValue() {
-//        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatValue");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BFloat.class);
-//        BFloat floatValue = (BFloat) returns[0];
-//        Assert.assertEquals(floatValue.floatValue(), 10.1f, DELTA, "Invalid float value returned.");
-//    }
+    @Test(description = "Test double value assignment")
+    public void testFloatValue() {
+        BValue[] returns = BTestUtils.invoke(result, "testFloatValue", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        BFloat floatValue = (BFloat) returns[0];
+        Assert.assertEquals(floatValue.floatValue(), 10.1f, DELTA, "Invalid float value returned.");
+    }
 
     @Test(description = "Test negative double value assignment")
     public void testNegativeFloatValue() {
