@@ -17,16 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
 
 class AbstractBlockNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.statements = [];
-    }
 
 
     setStatements(newValue, silent, title) {
@@ -121,6 +114,21 @@ class AbstractBlockNode extends StatementNode {
             });
         }
     }
+
+    replaceStatementsByIndex(index, newChild, silent) {
+        this.statements[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfStatements(child) {
         return _.findIndex(this.statements, ['id', child.id]);

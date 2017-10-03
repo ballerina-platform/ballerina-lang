@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import BlockNode from '../block-node';
-import ExpressionNode from '../expression-node';
 
 class AbstractWhileNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.body = new BlockNode();
-        this.condition = new ExpressionNode();
-    }
 
 
     setBody(newValue, silent, title) {

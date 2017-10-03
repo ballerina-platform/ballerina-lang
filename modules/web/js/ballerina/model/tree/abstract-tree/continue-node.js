@@ -17,15 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
 
 class AbstractContinueNode extends StatementNode {
-
-    constructor() {
-        super();
-
-    }
 
 
 }

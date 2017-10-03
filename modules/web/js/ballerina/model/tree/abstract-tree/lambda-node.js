@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
-import FunctionNode from '../function-node';
 
 class AbstractLambdaNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.functionNode = new FunctionNode();
-    }
 
 
     setFunctionNode(newValue, silent, title) {

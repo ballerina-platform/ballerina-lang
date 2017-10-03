@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
 
 class AbstractBinaryExprNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.leftExpression = new ExpressionNode();
-        this.rightExpression = new ExpressionNode();
-    }
 
 
     setOperatorKind(newValue, silent, title) {

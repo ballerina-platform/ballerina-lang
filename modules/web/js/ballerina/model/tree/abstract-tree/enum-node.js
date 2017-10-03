@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractEnumNode extends Node {
-
-    constructor() {
-        super();
-
-        this.enumFields = [];
-        this.name = new IdentifierNode();
-        this.annotationAttachments = [];
-    }
 
 
     setEnumFields(newValue, silent, title) {
@@ -124,6 +114,21 @@ class AbstractEnumNode extends Node {
             });
         }
     }
+
+    replaceEnumFieldsByIndex(index, newChild, silent) {
+        this.enumFields[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfEnumFields(child) {
         return _.findIndex(this.enumFields, ['id', child.id]);
@@ -278,6 +283,21 @@ class AbstractEnumNode extends Node {
             });
         }
     }
+
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);

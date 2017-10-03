@@ -17,20 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import BlockNode from '../block-node';
-import ExpressionNode from '../expression-node';
 
 class AbstractIfNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.body = new BlockNode();
-        this.condition = new ExpressionNode();
-        this.elseStatement = new StatementNode();
-    }
 
 
     setBody(newValue, silent, title) {
@@ -58,12 +47,7 @@ class AbstractIfNode extends StatementNode {
         return this.body;
     }
 
-    setChildrenAlias() {
-        const elseStatement = this.elseStatement;
-        if (elseStatement.kind === 'Block') {
-            elseStatement.viewState.alias = 'Else';
-        }
-    }
+
 
     setCondition(newValue, silent, title) {
         const oldValue = this.condition;

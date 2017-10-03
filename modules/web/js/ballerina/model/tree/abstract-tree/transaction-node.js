@@ -17,22 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import ExpressionNode from '../expression-node';
-import BlockNode from '../block-node';
 
 class AbstractTransactionNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.condition = new ExpressionNode();
-        this.failedBody = new BlockNode();
-        this.transactionBody = new BlockNode();
-        this.committedBody = new BlockNode();
-        this.abortedBody = new BlockNode();
-    }
 
 
     setCondition(newValue, silent, title) {
@@ -60,20 +47,7 @@ class AbstractTransactionNode extends StatementNode {
         return this.condition;
     }
 
-    setChildrenAlias() {
-        if (this.abortedBody) {
-            this.abortedBody.viewState.alias = 'Aborted';
-        }
-        if (this.transactionBody) {
-            this.transactionBody.viewState.alias = 'Transaction';
-        }
-        if (this.committedBody) {
-            this.committedBody.viewState.alias = 'Committed';
-        }
-        if (this.failedBody) {
-            this.failedBody.viewState.alias = 'Failed';
-        }
-    }
+
 
     setFailedBody(newValue, silent, title) {
         const oldValue = this.failedBody;

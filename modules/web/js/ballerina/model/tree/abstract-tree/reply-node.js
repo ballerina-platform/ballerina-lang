@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import ExpressionNode from '../expression-node';
 
 class AbstractReplyNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.expression = new ExpressionNode();
-    }
 
 
     setExpression(newValue, silent, title) {

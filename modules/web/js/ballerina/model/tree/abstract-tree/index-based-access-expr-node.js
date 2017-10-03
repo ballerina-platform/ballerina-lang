@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import ExpressionNode from '../expression-node';
-import VariableReferenceNode from '../variable-reference-node';
 
 class AbstractIndexBasedAccessExprNode extends Node {
-
-    constructor() {
-        super();
-
-        this.index = new ExpressionNode();
-        this.expression = new VariableReferenceNode();
-    }
 
 
     setIndex(newValue, silent, title) {

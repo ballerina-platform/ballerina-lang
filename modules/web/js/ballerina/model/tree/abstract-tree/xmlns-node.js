@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
-import ExpressionNode from '../expression-node';
 
 class AbstractXmlnsNode extends Node {
-
-    constructor() {
-        super();
-
-        this.prefix = new IdentifierNode();
-        this.namespaceURI = new ExpressionNode();
-    }
 
 
     setPrefix(newValue, silent, title) {

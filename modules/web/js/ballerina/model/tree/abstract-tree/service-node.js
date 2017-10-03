@@ -17,50 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
-import FunctionNode from '../function-node';
 
 class AbstractServiceNode extends Node {
-
-    constructor() {
-        super();
-
-        this.protocolPackageIdentifier = new IdentifierNode();
-        this.variables = [];
-        this.initFunction = new FunctionNode();
-        this.name = new IdentifierNode();
-        this.resources = [];
-        this.annotationAttachments = [];
-    }
-
-
-    setProtocolPackageIdentifier(newValue, silent, title) {
-        const oldValue = this.protocolPackageIdentifier;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.protocolPackageIdentifier = newValue;
-
-        this.protocolPackageIdentifier.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'protocolPackageIdentifier',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getProtocolPackageIdentifier() {
-        return this.protocolPackageIdentifier;
-    }
-
 
 
     setVariables(newValue, silent, title) {
@@ -156,6 +115,21 @@ class AbstractServiceNode extends Node {
         }
     }
 
+    replaceVariablesByIndex(index, newChild, silent) {
+        this.variables[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfVariables(child) {
         return _.findIndex(this.variables, ['id', child.id]);
     }
@@ -188,6 +162,33 @@ class AbstractServiceNode extends Node {
 
     getInitFunction() {
         return this.initFunction;
+    }
+
+
+
+    setProtocolPackageIdentifier(newValue, silent, title) {
+        const oldValue = this.protocolPackageIdentifier;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.protocolPackageIdentifier = newValue;
+
+        this.protocolPackageIdentifier.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'protocolPackageIdentifier',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getProtocolPackageIdentifier() {
+        return this.protocolPackageIdentifier;
     }
 
 
@@ -311,6 +312,21 @@ class AbstractServiceNode extends Node {
             });
         }
     }
+
+    replaceResourcesByIndex(index, newChild, silent) {
+        this.resources[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfResources(child) {
         return _.findIndex(this.resources, ['id', child.id]);
@@ -438,6 +454,21 @@ class AbstractServiceNode extends Node {
             });
         }
     }
+
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);
