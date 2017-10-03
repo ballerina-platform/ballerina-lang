@@ -306,7 +306,7 @@ class NodeFactory {
     createVariable(json = {}){
         json.kind = 'Variable';
         let node = new VariableNode();
-        node.typeNode = new TypeNode();
+        node.typeNode = new ValueTypeNode();
         node.initialExpression = new ExpressionNode();
         node.name = new IdentifierNode();
         node.annotationAttachments = [];
@@ -753,7 +753,7 @@ class NodeFactory {
     createArrayType(json = {}){
         json.kind = 'ArrayType';
         let node = new ArrayTypeNode();
-        node.elementType = new TypeNode();
+        node.elementType = new ValueTypeNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
