@@ -20,6 +20,29 @@ import AbstractBlockNode from './abstract-tree/block-node';
 
 class BlockNode extends AbstractBlockNode {
 
+    /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return node.isStatement;
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     *
+     */
+    acceptDrop(node, dropBefore) {
+        this.addStatements(node);
+    }
+
 }
 
 export default BlockNode;

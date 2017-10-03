@@ -228,7 +228,7 @@ const createIfStatementTool = {
     name: 'If',
     icon: 'dgm-if-else',
     title: 'If',
-    nodeFactoryMethod: ASTFactory.createIfElseStatement,
+    nodeFactoryMethod: NodeFactory.createIf,
     definition: 'Provide a way to perform conditional execution',
 };
 

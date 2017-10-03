@@ -18,34 +18,32 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import StatementContainer from '../decorators/statement-container';
 import './block-node.css';
+import BlockNodeModel from '../../../../../model/tree/block-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 
-
+/**
+ * Class to represent block node in tree.
+ */
 class BlockNode extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
+    /**
+     * @inheritdoc
+     */
     render() {
         const model = this.props.model;
-        const bBox = model.viewState.bBox;
         const statements = getComponentForNodeArray(model.getStatements(), this.context.mode);
-        return <g>
-            <rect
-                x={bBox.x}
-                y={bBox.y}
-                width={bBox.w}
-                height={bBox.h}
-                className="block-node drop-zone"
-            />
-            {statements}
-        </g>;
+        return (
+            <g className="block-node">
+                {statements}
+            </g>
+        );
     }
 }
+
+BlockNode.propTypes = {
+    model: PropTypes.instanceOf(BlockNodeModel).isRequired,
+};
 
 BlockNode.contextTypes = {
     mode: PropTypes.string,
