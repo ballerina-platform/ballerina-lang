@@ -1,20 +1,3 @@
-/*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
 package org.ballerinalang.launcher;
 
 import org.ballerinalang.model.values.BValue;
@@ -50,7 +33,7 @@ public class BTester {
         CompilerContext context = new CompilerContext();
         options = CompilerOptions.getInstance(context);
 //        options.put(SOURCE_ROOT, System.getProperty("user.dir"));
-        options.put(SOURCE_ROOT, System.getProperty("user.dir") + "/bal-src");
+        options.put(SOURCE_ROOT, "./");
         options.put(COMPILER_PHASE, "codeGen");
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -66,23 +49,21 @@ public class BTester {
 //        compiler.compile("bar.bal");
         compiler.compile("pkg.bal");
 //        compiler.compile("a.b.c");
-
-
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
 
         if (programFile != null) {
             org.ballerinalang.util.codegen.ProgramFile executableProgram = getExecutableProgram(programFile);
-//            traceCode(executableProgram.getEntryPackage());
-            BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(), "main", new BValue[1]);
+            traceCode(executableProgram.getEntryPackage());
+            BValue[] returnVals = BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(), "main", new BValue[0]);
+            System.out.printf("");
         }
-
     }
 
     private static void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < packageInfo.getInstructions().length; i++) {
             printStream.println(i + ": " + Mnemonics.getMnem(packageInfo.getInstructions()[i].getOpcode()) + " " +
-                    getOperandsLine(packageInfo.getInstructions()[i].getOperands()));
+                                        getOperandsLine(packageInfo.getInstructions()[i].getOperands()));
         }
     }
 
@@ -136,5 +117,4 @@ public class BTester {
             }
         }
     }
-
 }

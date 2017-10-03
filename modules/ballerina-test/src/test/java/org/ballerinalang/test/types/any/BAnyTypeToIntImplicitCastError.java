@@ -19,6 +19,7 @@ package org.ballerinalang.model.any;
 
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -29,6 +30,7 @@ public class BAnyTypeToIntImplicitCastError {
     @Test
     public void testAnyToIntImplicitCast() {
         CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-to-int-implicit-cast.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 15);
     }
 }
