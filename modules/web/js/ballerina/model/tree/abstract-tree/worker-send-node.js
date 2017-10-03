@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractWorkerSendNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.expressions = [];
-        this.workerName = new IdentifierNode();
-    }
 
 
     setExpressions(newValue, silent, title) {
@@ -124,6 +115,21 @@ class AbstractWorkerSendNode extends StatementNode {
         }
     }
 
+    replaceExpressionsByIndex(index, newChild, silent) {
+        this.expressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
+
     getIndexOfExpressions(child) {
         return _.findIndex(this.expressions, ['id', child.id]);
     }
@@ -159,6 +165,29 @@ class AbstractWorkerSendNode extends StatementNode {
     }
 
 
+
+
+    isForkJoinedSend() {
+        return this.forkJoinedSend;
+    }
+
+    setForkJoinedSend(newValue, silent, title) {
+        const oldValue = this.forkJoinedSend;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.forkJoinedSend = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'forkJoinedSend',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

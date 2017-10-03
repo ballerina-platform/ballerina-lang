@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import TypeNode from '../type-node';
 
 class AbstractArrayTypeNode extends Node {
-
-    constructor() {
-        super();
-
-        this.elementType = new TypeNode();
-    }
 
 
     setElementType(newValue, silent, title) {

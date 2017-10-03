@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import VariableReferenceNode from '../variable-reference-node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractFieldBasedAccessExprNode extends Node {
-
-    constructor() {
-        super();
-
-        this.expression = new VariableReferenceNode();
-        this.fieldName = new IdentifierNode();
-    }
 
 
     setExpression(newValue, silent, title) {

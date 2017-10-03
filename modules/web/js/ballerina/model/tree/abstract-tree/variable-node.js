@@ -17,22 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import TypeNode from '../type-node';
-import ExpressionNode from '../expression-node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractVariableNode extends Node {
-
-    constructor() {
-        super();
-
-        this.typeNode = new TypeNode();
-        this.initialExpression = new ExpressionNode();
-        this.name = new IdentifierNode();
-        this.annotationAttachments = [];
-    }
 
 
     setTypeNode(newValue, silent, title) {
@@ -233,6 +220,21 @@ class AbstractVariableNode extends Node {
             });
         }
     }
+
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);

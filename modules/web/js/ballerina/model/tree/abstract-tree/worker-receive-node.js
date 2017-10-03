@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractWorkerReceiveNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.expressions = [];
-        this.workerName = new IdentifierNode();
-    }
 
 
     setExpressions(newValue, silent, title) {
@@ -123,6 +114,21 @@ class AbstractWorkerReceiveNode extends StatementNode {
             });
         }
     }
+
+    replaceExpressionsByIndex(index, newChild, silent) {
+        this.expressions[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfExpressions(child) {
         return _.findIndex(this.expressions, ['id', child.id]);

@@ -17,17 +17,36 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractAnnotationAttachmentNode extends Node {
 
-    constructor() {
-        super();
 
-        this.annotationName = new IdentifierNode();
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageAlias',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
     }
+
+    getPackageAlias() {
+        return this.packageAlias;
+    }
+
 
 
     setAnnotationName(newValue, silent, title) {

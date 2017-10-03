@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import BlockNode from '../block-node';
-import VariableNode from '../variable-node';
 
 class AbstractCatchNode extends Node {
-
-    constructor() {
-        super();
-
-        this.body = new BlockNode();
-        this.parameter = new VariableNode();
-    }
 
 
     setBody(newValue, silent, title) {

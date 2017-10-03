@@ -17,16 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
 
 class AbstractCompilationUnitNode extends Node {
-
-    constructor() {
-        super();
-
-        this.topLevelNodes = [];
-    }
 
 
     setTopLevelNodes(newValue, silent, title) {
@@ -121,6 +114,21 @@ class AbstractCompilationUnitNode extends Node {
             });
         }
     }
+
+    replaceTopLevelNodesByIndex(index, newChild, silent) {
+        this.topLevelNodes[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfTopLevelNodes(child) {
         return _.findIndex(this.topLevelNodes, ['id', child.id]);

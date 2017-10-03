@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import LiteralNode from '../literal-node';
 
 class AbstractXmlPiLiteralNode extends Node {
-
-    constructor() {
-        super();
-
-        this.dataTextFragments = [];
-        this.target = new LiteralNode();
-    }
 
 
     setDataTextFragments(newValue, silent, title) {
@@ -123,6 +114,21 @@ class AbstractXmlPiLiteralNode extends Node {
             });
         }
     }
+
+    replaceDataTextFragmentsByIndex(index, newChild, silent) {
+        this.dataTextFragments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfDataTextFragments(child) {
         return _.findIndex(this.dataTextFragments, ['id', child.id]);

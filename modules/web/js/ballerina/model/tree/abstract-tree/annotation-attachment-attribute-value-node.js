@@ -17,18 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import ExpressionNode from '../expression-node';
-import Node from '../node';
 
 class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
-
-    constructor() {
-        super();
-
-        this.valueArray = [];
-        this.value = new Node();
-    }
 
 
     setValueArray(newValue, silent, title) {
@@ -123,6 +114,21 @@ class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
             });
         }
     }
+
+    replaceValueArrayByIndex(index, newChild, silent) {
+        this.valueArray[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfValueArray(child) {
         return _.findIndex(this.valueArray, ['id', child.id]);

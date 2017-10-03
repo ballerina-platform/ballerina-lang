@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import BlockNode from '../block-node';
 
 class AbstractTryNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.body = new BlockNode();
-        this.catchBlocks = [];
-        this.finallyBody = new BlockNode();
-    }
 
 
     setBody(newValue, silent, title) {
@@ -57,11 +47,7 @@ class AbstractTryNode extends StatementNode {
         return this.body;
     }
 
-    setChildrenAlias() {
-        if (this.finallyBody) {
-            this.finallyBody.viewState.alias = 'Finally';
-        }
-    }
+
 
     setCatchBlocks(newValue, silent, title) {
         const oldValue = this.catchBlocks;
@@ -155,6 +141,21 @@ class AbstractTryNode extends StatementNode {
             });
         }
     }
+
+    replaceCatchBlocksByIndex(index, newChild, silent) {
+        this.catchBlocks[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfCatchBlocks(child) {
         return _.findIndex(this.catchBlocks, ['id', child.id]);

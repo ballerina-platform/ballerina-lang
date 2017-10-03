@@ -16,7 +16,8 @@
  * under the License.
  */
 
-{{#each this}}
+import StatementNode from './tree/statement-node';
+import ExpressionNode from './tree/expression-node';{{#each this}}
 import {{ kind }}Node from './tree/{{ fileName }}';{{/each}}
 
 class NodeFactory {
@@ -24,7 +25,9 @@ class NodeFactory {
 {{#each this}}
     create{{kind}}(json){
         json.kind = '{{kind}}';
-        let node = new {{ kind }}Node();
+        let node = new {{ kind }}Node();{{#each attributes}}{{#if isNode}}
+        node.{{property}} = new {{returnType}}();{{/if}}{{#if list}}
+        node.{{property}} = [];{{/if}}{{/each}}
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
@@ -33,4 +36,4 @@ class NodeFactory {
 
 }
 
-export default NodeFactory;
+export default new NodeFactory;

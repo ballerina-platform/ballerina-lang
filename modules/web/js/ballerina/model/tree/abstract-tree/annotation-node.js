@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractAnnotationNode extends Node {
-
-    constructor() {
-        super();
-
-        this.name = new IdentifierNode();
-        this.attributes = [];
-        this.annotationAttachments = [];
-    }
 
 
     setName(newValue, silent, title) {
@@ -151,6 +141,21 @@ class AbstractAnnotationNode extends Node {
             });
         }
     }
+
+    replaceAttributesByIndex(index, newChild, silent) {
+        this.attributes[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfAttributes(child) {
         return _.findIndex(this.attributes, ['id', child.id]);
@@ -278,6 +283,21 @@ class AbstractAnnotationNode extends Node {
             });
         }
     }
+
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfAnnotationAttachments(child) {
         return _.findIndex(this.annotationAttachments, ['id', child.id]);

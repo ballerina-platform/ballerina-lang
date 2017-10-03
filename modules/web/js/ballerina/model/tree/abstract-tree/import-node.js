@@ -17,19 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import Node from '../node';
-import IdentifierNode from '../identifier-node';
 
 class AbstractImportNode extends Node {
-
-    constructor() {
-        super();
-
-        this.packageVersion = new IdentifierNode();
-        this.alias = new IdentifierNode();
-        this.packageName = [];
-    }
 
 
     setPackageVersion(newValue, silent, title) {
@@ -178,6 +168,21 @@ class AbstractImportNode extends Node {
             });
         }
     }
+
+    replacePackageNameByIndex(index, newChild, silent) {
+        this.packageName[index] = newChild;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }    
 
     getIndexOfPackageName(child) {
         return _.findIndex(this.packageName, ['id', child.id]);

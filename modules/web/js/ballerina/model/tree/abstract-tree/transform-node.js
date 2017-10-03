@@ -17,17 +17,9 @@
  */
 
 import _ from 'lodash';
-
 import StatementNode from '../statement-node';
-import BlockNode from '../block-node';
 
 class AbstractTransformNode extends StatementNode {
-
-    constructor() {
-        super();
-
-        this.body = new BlockNode();
-    }
 
 
     setBody(newValue, silent, title) {
