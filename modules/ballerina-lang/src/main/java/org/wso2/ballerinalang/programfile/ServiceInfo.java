@@ -17,9 +17,6 @@
 */
 package org.wso2.ballerinalang.programfile;
 
-import org.wso2.ballerinalang.programfile.attributes.AnnotationAttributeInfo;
-import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -57,17 +54,4 @@ public class ServiceInfo extends StructureTypeInfo {
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
 
-    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo == null || packageName == null || annotationName == null) {
-            return null;
-        }
-        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
-            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
-                return annotationInfo;
-            }
-        }
-        return null;
-    }
 }

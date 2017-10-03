@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -168,7 +167,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
 
-        pkgNode.compUnits.forEach(e -> e.accept(this));
+        pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
     
@@ -400,10 +399,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBreak breakNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangReply replyNode) {
         /* ignore */
     }
 

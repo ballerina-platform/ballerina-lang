@@ -80,7 +80,6 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType nullType = new BNullType();
     public final BType voidType = new BNoType(TypeTags.VOID);
-    public final BType messageType = new BBuiltInRefType(TypeTags.MESSAGE, null);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
@@ -130,7 +129,6 @@ public class SymbolTable {
         initializeType(datatableType, TypeKind.DATATABLE.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
-        initializeType(messageType, TypeKind.MESSAGE.typeName());
 
         // Initialize error type;
         this.errType = new BErrorType(null);
