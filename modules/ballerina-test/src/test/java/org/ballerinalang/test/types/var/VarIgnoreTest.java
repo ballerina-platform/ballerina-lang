@@ -21,6 +21,6 @@ public class VarIgnoreTest {
     public void testIntegerValue() {
         BValue[] returns = BTestUtils.invoke(result, "m", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(),3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 }
