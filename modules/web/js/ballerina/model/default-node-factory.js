@@ -31,7 +31,9 @@ class DefaultNodeFactory {
         const parameter = NodeFactory.createVariable({});
         const parameterName = NodeFactory.createIdentifier({});
         const valueType = NodeFactory.createValueType({});
+        const arrayType = NodeFactory.createArrayType({});
         valueType.setTypeKind('string', true);
+        arrayType.setElementType(valueType, true);
         parameterName.setValue('args', true);
         parameter.setName(parameterName, true);
         parameter.setTypeNode(valueType);

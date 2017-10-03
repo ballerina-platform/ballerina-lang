@@ -133,8 +133,8 @@ const createMainFunctionDefTool = {
         functionName: 'main',
         functionArgs: [
             {
-                type: 'message',
-                identifier: 'm',
+                type: 'string[]',
+                identifier: 'args',
             },
         ],
     },
