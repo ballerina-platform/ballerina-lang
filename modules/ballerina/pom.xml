@@ -36,7 +36,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-native</artifactId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -45,6 +49,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -158,7 +166,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-native,ballerina-samples
+                                ballerina-builtin,ballerina-http,ballerina-samples
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
