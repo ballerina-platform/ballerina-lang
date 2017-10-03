@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import PropTypes from 'prop-types';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
@@ -55,6 +56,18 @@ class CanvasDecorator extends React.Component {
                     {/* This space is used to render html elements over svg*/ }
                 </div>
                 {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
+                <CSSTransitionGroup
+                    transitionName="propWindow"
+                    transitionAppear
+                    transitionAppearTimeout={800}
+                    transitionEnter
+                    transitionEnterTimeout={800}
+                    transitionLeave
+                    transitionLeaveTimeout={800}
+                >
+                    {(this.props.overlayComponents && this.props.overlayComponents.length > 0) ?
+                    this.props.overlayComponents : null }
+                </CSSTransitionGroup>
                 <svg className="svg-container" width={this.props.bBox.w} height={this.props.bBox.h}>
                     <DropZone
                         x="0"
@@ -81,10 +94,12 @@ CanvasDecorator.propTypes = {
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     annotations: PropTypes.arrayOf(PropTypes.element),
+    overlayComponents: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {
     annotations: [],
+    overlayComponents: [],
 };
 
 CanvasDecorator.contextTypes = {

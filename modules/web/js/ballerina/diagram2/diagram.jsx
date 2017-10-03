@@ -24,7 +24,8 @@ import DimensionVisitor from './visitors/dimension-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
-import { getComponentForNodeArray, getSizingUtil, getPositioningUtil } from './diagram-util';
+import OverlayComponentsRenderingVisitor from '../visitors/overlay-comp-rendering-visitor';
+import { getComponentForNodeArray, getSizingUtil, getPositioningUtil, getOverlayComponent } from './diagram-util';
 import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
@@ -119,11 +120,21 @@ class Diagram extends React.Component {
         //    a CsnvasDecorator and pass child components for that.
 
         */
-        let tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
-        let children = getComponentForNodeArray(tln, this.props.mode);
+
+        // Filter out the overlay components so we can overlay html on top of svg.
+        const overlayCompRender = new OverlayComponentsRenderingVisitor();
+        this.props.model.accept(overlayCompRender);
+        let overlayComponents = [];
+        if (overlayCompRender.getOverlayComponents()) {
+            overlayComponents = getOverlayComponent(overlayCompRender.getOverlayComponents(), this.props.mode);
+        }
+
+        const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
+        const children = getComponentForNodeArray(tln, this.props.mode);
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}
+            overlayComponents={overlayComponents}
             // TODOX annotations={annotations}
         >
             { children }

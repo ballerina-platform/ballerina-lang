@@ -64,7 +64,6 @@ class AbstractFunctionNode extends Node {
     }
 
 
-
     setReturnParameters(newValue, silent, title) {
         const oldValue = this.returnParameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -191,7 +190,6 @@ class AbstractFunctionNode extends Node {
     getBody() {
         return this.body;
     }
-
 
 
     setWorkers(newValue, silent, title) {
@@ -322,7 +320,6 @@ class AbstractFunctionNode extends Node {
     }
 
 
-
     setParameters(newValue, silent, title) {
         const oldValue = this.parameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -447,7 +444,6 @@ class AbstractFunctionNode extends Node {
     getFlags() {
         return this.flags;
     }
-
 
 
     setAnnotationAttachments(newValue, silent, title) {

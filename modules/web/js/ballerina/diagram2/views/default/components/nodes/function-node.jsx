@@ -23,7 +23,6 @@ import ImageUtil from '../../../../image-util';
 import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLine from '../decorators/lifeline';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
-
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
 
