@@ -23,7 +23,7 @@
 
 <#list namespace.extensionMap as extensionType, extensionsList>
 <#list extensionsList as extension>
-### ${extension.name} *(<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>)*
+### ${extension.name} *<@utils.renderLinkToExtensionTypeDoc extensionType=extensionType/>*
 
 <p style="word-wrap: break-word">${formatDescription(extension.description)}</p>
 
