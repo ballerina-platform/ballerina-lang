@@ -77,7 +77,7 @@ class TransformNodeMapper {
 
         if (!compatibility.safe) {
             const errorVarRef = TransformFactory.createSimpleVariableRef('_');
-            assignmentStmt.addVariables(errorVarRef, errorVarRef);
+            assignmentStmt.addVariables(errorVarRef, true);
         }
         this._transformStmt.body.addStatements(assignmentStmt);
         this._transformStmt.trigger('tree-modified', {
@@ -296,42 +296,38 @@ class TransformNodeMapper {
 
         if (outputExpressions[0].type === ExpressionType.TEMPVAR) {
             const tempVarRefExpr = outputExpressions[source.index].expression;
-            const newAssignmentStmt = ASTFactory.createAssignmentStatement();
-            const varRefList = ASTFactory.createVariableReferenceList();
-            varRefList.addChild(targetExpression, true);
-            newAssignmentStmt.addChild(varRefList, 0, true);
-            newAssignmentStmt.addChild(tempVarRefExpr, 1, true);
-            this._transformStmt.addChild(newAssignmentStmt, true);
+            const newAssignmentStmt = NodeFactory.createAssignment({});
+            newAssignmentStmt.addVariables(targetExpression, true);
+            newAssignmentStmt.setExpression(tempVarRefExpr, true);
+            this._transformStmt.body.addStatements(newAssignmentStmt, true);
         } else if (outputExpressions[0].type === ExpressionType.PLACEHOLDER) {
-            assignmentStmt.replaceChildByIndex(rightExpression, 1, true);
+            assignmentStmt.setExpression(rightExpression, true);
 
-            assignmentStmt.getLeftExpression().replaceChildByIndex(targetExpression, 0, true);
+            assignmentStmt.replaceVariablesByIndex(targetExpression, 0, true);
             // TODO: conditionally remove var if all outputs are mapped
-            assignmentStmt.setIsDeclaredWithVar(false, true);
+            assignmentStmt.setIsDeclaredWithVar(false);
 
             if (!compatibility.safe) {
                 // TODO: only add error reference if there is not one already
                 // TODO: also remove error variable if no longer required
-                const errorVarRef = DefaultASTFactory.createIgnoreErrorVariableReference();
-                assignmentStmt.getLeftExpression().addChild(errorVarRef, true);
+                const errorVarRef = TransformFactory.createSimpleVariableRef('_');
+                assignmentStmt.addVariables(errorVarRef, true);
             }
         } else if (outputExpressions[0].type === ExpressionType.DIRECT) {
             const tempVarName = this.assignToTempVariable(assignmentStmt);
-            const tempVarRefExpr = ASTFactory.createSimpleVariableReferenceExpression({ variableName: tempVarName });
-            assignmentStmt.replaceChildByIndex(tempVarRefExpr, 1, true);
+            const tempVarRefExpr = TransformFactory.createSimpleVariableRef(tempVarName);
+            assignmentStmt.setExpression(tempVarRefExpr, true);
 
-            const newAssignmentStmt = ASTFactory.createAssignmentStatement();
-            const varRefList = ASTFactory.createVariableReferenceList();
-            varRefList.addChild(targetExpression, source.index, true);
-            newAssignmentStmt.addChild(varRefList, 0, true);
-            newAssignmentStmt.addChild(tempVarRefExpr, 1, true);
-            this._transformStmt.addChild(newAssignmentStmt, true);
+            const newAssignmentStmt = NodeFactory.createAssignment({});
+            newAssignmentStmt.addVariables(targetExpression, 0, true);
+            newAssignmentStmt.setExpression(tempVarRefExpr, true);
+            this._transformStmt.body.addStatements(newAssignmentStmt, true);
         }
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping operator ${source.operator.getOperator()} to ${target.name}`,
+            title: `Create mapping operator ${source.operator.getOperatorKind()} to ${target.name}`,
             data: {},
         });
     }
@@ -547,11 +543,11 @@ class TransformNodeMapper {
      */
     removeNodeToOutputMapping(source, targetName) {
         const nodeExpression = (source.funcInv) ? source.funcInv : source.operator;
-        const nodeName = (source.funcInv) ? nodeExpression.getFunctionName() : nodeExpression.getOperator();
+        const nodeName = (source.funcInv) ? nodeExpression.getFunctionName() : nodeExpression.getOperatorKind();
 
         const assignmentStmtSource = this.getParentAssignmentStmt(nodeExpression);
-        const expression = assignmentStmtSource.getLeftExpression().getChildren().find((child) => {
-            return (child.getExpressionString().trim() === targetName);
+        const expression = assignmentStmtSource.getVariables().find((child) => {
+            return (child.getSource().trim() === targetName);
         });
 
         if (expression) {
@@ -890,31 +886,28 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeOutputExpressions(stmt, expStr) {
-        stmt.getLeftExpression().getChildren().forEach((exp, index) => {
-            if (exp.getExpressionString().trim() === expStr) {
-                if (ASTFactory.isSimpleVariableReferenceExpression(stmt.getRightExpression())) {
-                    this._transformStmt.removeChild(stmt, true);
+        stmt.getVariables().forEach((exp, index) => {
+            if (exp.getSource().trim() === expStr) {
+                if (TreeUtil.isSimpleVariableRef(stmt.getExpression())) {
+                    this._transformStmt.body.removeStatements(stmt, true);
                     // check for temp expressions
-                    if (this.isTempVariable(stmt.getRightExpression())) {
-                        const tempExp = stmt.getRightExpression();
+                    if (this.isTempVariable(stmt.getExpression())) {
+                        const tempExp = stmt.getExpression();
                         const tempUsedStmts = this.getInputStatements(tempExp);
                         if (tempUsedStmts.length === 1) {
                             const tempAssignStmt = this.getOutputStatement(tempExp);
-                            const tempLeftExp = tempAssignStmt.getLeftExpression().getChildren().find((ex) => {
-                                return ex.getExpressionString().trim() === tempExp.getExpressionString().trim();
+                            const tempLeftExp = tempAssignStmt.getVariables().find((ex) => {
+                                return ex.getSource().trim() === tempExp.getSource().trim();
                             });
-                            tempAssignStmt.getLeftExpression()
-                                .replaceChild(tempLeftExp, tempUsedStmts[0].getLeftExpression().getChildren()[0], true);
+                            tempAssignStmt.replaceVariables(tempLeftExp, tempUsedStmts[0].getVariables()[0], true);
                             tempAssignStmt.setIsDeclaredWithVar(false);
-                            this._transformStmt.removeChild(tempUsedStmts[0], true);
+                            this._transformStmt.body.removeStatements(tempUsedStmts[0], true);
                         }
                     }
                 } else {
-                    stmt.getLeftExpression().removeChild(exp, true);
                     stmt.setIsDeclaredWithVar(true);
-                    const simpleVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
-                    simpleVarRefExpression.setExpressionFromString('__output' + (index + 1));
-                    stmt.getLeftExpression().replaceChildByIndex(simpleVarRefExpression, index + 1, true);
+                    const simpleVarRefExpression = TransformFactory.createSimpleVariableRef('__output' + (index + 1));
+                    stmt.replaceVariablesByIndex(simpleVarRefExpression, index, true);
                 }
             }
         });
@@ -942,10 +935,10 @@ class TransformNodeMapper {
     * @memberof TransformStatementDecorator
     */
     getParentAssignmentStmt(node) {
-        if (ASTFactory.isAssignmentStatement(node) || ASTFactory.isVariableDefinitionStatement(node)) {
+        if (TreeUtil.isAssignment(node) || TreeUtil.isVariableDef(node)) {
             return node;
         } else {
-            return this.getParentAssignmentStmt(node.getParent());
+            return this.getParentAssignmentStmt(node.parent);
         }
     }
 
@@ -991,7 +984,7 @@ class TransformNodeMapper {
      */
     getOutputExpressions(assignmentStmt) {
         const outputMappings = [];
-        assignmentStmt.getLeftExpression().getChildren().forEach((exp, index) => {
+        assignmentStmt.getVariables().forEach((exp, index) => {
             outputMappings[index] = { expression: exp };
             if (this.isInTransformInputOutput(exp)) {
                 outputMappings[index].type = ExpressionType.DIRECT;
@@ -1016,7 +1009,7 @@ class TransformNodeMapper {
      */
     getTempResolvedExpression(expression) {
         const assignmentStmt = this.getOutputStatement(expression);
-        return assignmentStmt.getRightExpression();
+        return assignmentStmt.getExpression();
     }
 
     /**
@@ -1117,7 +1110,7 @@ class TransformNodeMapper {
         if (!assignmentStmt) {
             assignmentStmt = this.getOutputStatement(expression);
         }
-        return ASTFactory.isBasicLiteralExpression(assignmentStmt.getRightExpression());
+        return TreeUtil.isLiteral(assignmentStmt.getExpression());
     }
 
     /**
@@ -1197,7 +1190,7 @@ class TransformNodeMapper {
     * @memberof TransformNodeMapper
     */
     getInputStatements(expression) {
-        return this._transformStmt.getBody().getStatements().filter((stmt) => {
+        return this._transformStmt.body.getStatements().filter((stmt) => {
             const matchingInput = this.getVerticesFromExpression(stmt.getExpression()).filter((exp) => {
                 return (exp.getSource().trim() === expression.getSource().trim());
             });
@@ -1213,14 +1206,11 @@ class TransformNodeMapper {
      */
     assignToTempVariable(assignmentStmt) {
         const tempVarName = this.getNewTempVarName();
-        const tempVarRefExpr = ASTFactory.createSimpleVariableReferenceExpression();
-        tempVarRefExpr.setExpressionFromString(tempVarName);
+        const tempVarRefExpr = TransformFactory.createSimpleVariableRef(tempVarName);
 
-        const varRefList = ASTFactory.createVariableReferenceList();
-        varRefList.addChild(tempVarRefExpr, true);
-        let index = this._transformStmt.getIndexOfChild(assignmentStmt);
+        let index = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
         index = (index === 0) ? 0 : index - 1;
-        this.insertAssignmentStatement(varRefList, assignmentStmt.getRightExpression(), index, true);
+        this.insertAssignmentStatement([tempVarRefExpr], assignmentStmt.getExpression(), index, true);
         return tempVarName;
     }
 
@@ -1232,16 +1222,16 @@ class TransformNodeMapper {
      * @param {boolean} [isVar=true] whether assignment statement must be declared with var
      * @memberof TransformNodeMapper
      */
-    insertAssignmentStatement(leftExpressions, rightExpression, index, isVar = true) {
-        const assignmentStmt = ASTFactory.createAssignmentStatement();
+    insertAssignmentStatement(variableExpressions, rightExpression, index, isVar = true) {
+        const assignmentStmt = NodeFactory.createAssignment({});
 
-        assignmentStmt.addChild(leftExpressions, 0);
-        assignmentStmt.addChild(rightExpression, 1);
+        assignmentStmt.setVariables(variableExpressions, true);
+        assignmentStmt.setExpression(rightExpression, true);
         assignmentStmt.setIsDeclaredWithVar(isVar);
         // TODO: handle type cast and coversion
     //     const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
     //     varRefList.addChild(errorVarRef);
-        this._transformStmt.addChild(assignmentStmt, index, true);
+        this._transformStmt.body.addStatements(assignmentStmt, index, true);
     }
 
     /**
@@ -1253,9 +1243,9 @@ class TransformNodeMapper {
     getNewTempVarName(varPrefix = VarPrefix.TEMP) {
         const varNameRegex = new RegExp(varPrefix + '[\\d]*');
         const tempVarNames = [];
-        this._transformStmt.getChildren().forEach((stmt) => {
+        this._transformStmt.body.getStatements().forEach((stmt) => {
             this.getOutputExpressions(stmt).forEach((mapping) => {
-                const expStr = mapping.expression.getExpressionString();
+                const expStr = mapping.expression.getSource();
                 if ((mapping.type === ExpressionType.TEMPVAR) && varNameRegex.test(expStr)) {
                     tempVarNames.push(expStr);
                 }
@@ -1281,13 +1271,13 @@ class TransformNodeMapper {
     getCompatibleSourceExpression(sourceExpression, compatibilityType, targetType) {
         switch (compatibilityType) {
             case 'explicit' : {
-                const typeCastExp = TreeUtil.createTypeCastExpression();
+                const typeCastExp = NodeFactory.createTypeCastExpr({});
                 typeCastExp.addChild(sourceExpression);
                 typeCastExp.setTargetType(targetType);
                 return typeCastExp;
             }
             case 'conversion' : {
-                const typeConversionExp = ASTFactory.createTypeConversionExpression();
+                const typeConversionExp = NodeFactory.createTypeConversionExpr({});
                 typeConversionExp.addChild(sourceExpression);
                 typeConversionExp.setTargetType(targetType);
                 return typeConversionExp;
