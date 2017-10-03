@@ -82,4 +82,12 @@ public class HttpServer implements TestServer {
     public void setMessage(String message, String contentType) {
         httpServerInitializer.setMessage(message, contentType);
     }
+
+    public void setResponseCode(int responseCode) {
+        httpServerInitializer.setResponseCode(responseCode);
+    }
+
+    public void setLocation(String location) {
+        httpServerInitializer.setLocation(location);
+    }
 }

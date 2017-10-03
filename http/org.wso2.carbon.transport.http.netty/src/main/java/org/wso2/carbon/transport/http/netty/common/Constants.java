@@ -265,11 +265,15 @@ public final class Constants {
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
 
-    public static final AttributeKey<AtomicInteger> REDIRECT_COUNT = AttributeKey.<AtomicInteger>valueOf("REDIRECT_COUNT");
-    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.<HTTPCarbonMessage>valueOf("ORIGINAL_REQUEST");
+    public static final AttributeKey<AtomicInteger> REDIRECT_COUNT = AttributeKey.<AtomicInteger>valueOf
+            ("REDIRECT_COUNT");
+    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.<HTTPCarbonMessage>valueOf
+            ("ORIGINAL_REQUEST");
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
+    public static final String FORWRD_SLASH = "/";
+    public static final String COLON = ":";
 
     private Constants() {
     }

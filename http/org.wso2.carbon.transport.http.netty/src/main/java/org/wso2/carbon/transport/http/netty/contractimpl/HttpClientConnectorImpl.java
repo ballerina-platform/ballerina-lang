@@ -47,15 +47,19 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
+    private int maxRedirectCount;
 
+    /*This needs to be refactored to hold all the channel properties in a separate bean as there are too many
+     arguments here*/
     public HttpClientConnectorImpl(ConnectionManager connectionManager,
                                    SSLConfig sslConfig, int socketIdleTimeout, boolean httpTraceLogEnabled, boolean
-            followRedirect) {
+            followRedirect, int maxRedirectCount) {
         this.connectionManager = connectionManager;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.sslConfig = sslConfig;
         this.socketIdleTimeout = socketIdleTimeout;
         this.followRedirect = followRedirect;
+        this.maxRedirectCount = maxRedirectCount;
     }
 
     @Override
@@ -78,7 +82,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         try {
             final HttpRoute route = getTargetRoute(httpCarbonRequest);
             TargetChannel targetChannel = connectionManager
-                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, followRedirect);
+                    .borrowTargetChannel(route, srcHandler, sslConfig, httpTraceLogEnabled, followRedirect,
+                            maxRedirectCount);
             targetChannel.getChannelFuture()
                     .addListener(new ChannelFutureListener() {
                         @Override

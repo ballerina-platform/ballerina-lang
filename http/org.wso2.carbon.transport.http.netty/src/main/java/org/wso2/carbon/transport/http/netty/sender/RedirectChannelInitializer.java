@@ -39,12 +39,14 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
     private SSLEngine sslEngine;
     private boolean httpTraceLogEnabled;
     private ChannelHandlerContext originalChannelContext;
+    private int maxRedirectCount;
 
-    public RedirectChannelInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled,
-            ChannelHandlerContext originalChannelContext) {
+    public RedirectChannelInitializer(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine, boolean
+            httpTraceLogEnabled, int maxRedirectCount) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.originalChannelContext = originalChannelContext;
+        this.maxRedirectCount = maxRedirectCount;
     }
 
     @Override
@@ -61,7 +63,8 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
-        RedirectHandler redirectHandler = new RedirectHandler(originalChannelContext);
+        RedirectHandler redirectHandler = new RedirectHandler(originalChannelContext, sslEngine, httpTraceLogEnabled,
+                maxRedirectCount);
         ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
     }
 

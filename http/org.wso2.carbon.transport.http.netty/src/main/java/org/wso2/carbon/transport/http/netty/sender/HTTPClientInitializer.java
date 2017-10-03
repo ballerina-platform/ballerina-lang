@@ -41,11 +41,14 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private TargetHandler handler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
+    private int maxRedirectCount;
 
-    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, boolean followRedirect) {
+    public HTTPClientInitializer(SSLEngine sslEngine, boolean httpTraceLogEnabled, boolean followRedirect,  int
+            maxRedirectCount) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.followRedirect = followRedirect;
+        this.maxRedirectCount = maxRedirectCount;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
                                   new HTTPTraceLoggingHandler("tracelog.http.upstream", LogLevel.DEBUG));
         }
         if (followRedirect) {
-            RedirectHandler redirectHandler = new RedirectHandler();
+            RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount);
             ch.pipeline().addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
         handler = new TargetHandler();

@@ -41,6 +41,7 @@ public class HTTPServerInitializer extends ChannelInitializer {
     private String message;
     private String contentType;
     private int responseCode = 200;
+    private String location;
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
@@ -58,6 +59,7 @@ public class HTTPServerInitializer extends ChannelInitializer {
         HTTPServerHandler httpServerHandler = new HTTPServerHandler();
         httpServerHandler.setMessage(message, contentType);
         httpServerHandler.setResponseStatusCode(responseCode);
+        httpServerHandler.setLocation(location);
         p.addLast("handler", httpServerHandler);
     }
 
@@ -72,5 +74,9 @@ public class HTTPServerInitializer extends ChannelInitializer {
     public void setMessage(String message, String contentType) {
         this.message = message;
         this.contentType = contentType;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

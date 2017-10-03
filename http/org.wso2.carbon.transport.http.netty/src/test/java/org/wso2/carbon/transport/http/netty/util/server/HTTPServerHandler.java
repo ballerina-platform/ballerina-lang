@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.LOCATION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
 import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
@@ -55,6 +56,7 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
     private String contentType;
     private int responseStatusCode = 200;
     private HttpRequest req;
+    private String location;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -73,6 +75,10 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
                 FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
                 response.headers().set(CONTENT_TYPE, contentType);
                 response.headers().set(CONTENT_LENGTH, content.readableBytes());
+
+                if (location != null) {
+                    response.headers().set(LOCATION, location);
+                }
 
                 if (!keepAlive) {
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -133,5 +139,9 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
 
     public void setResponseStatusCode(int responseStatusCode) {
         this.responseStatusCode = responseStatusCode;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

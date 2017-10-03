@@ -76,13 +76,14 @@ public class HttpWsConnectorFactoryImpl implements HttpWsConnectorFactory {
         int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
         boolean httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         boolean followRedirect = senderConfiguration.isFollowRedirect();
+        int maxRedirectCount = senderConfiguration.getMaxRedirectCount();
 
         ConnectionManager.init(transportProperties);
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
 
         return new HttpClientConnectorImpl(connectionManager, sslConfig, socketIdleTimeout, httpTraceLogEnabled,
-                followRedirect);
+                followRedirect, maxRedirectCount);
     }
 
     @Override

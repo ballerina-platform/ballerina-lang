@@ -175,6 +175,23 @@ public class TestUtil {
         return httpServer;
     }
 
+    public static HttpServer startHTTPServerForRedirect(int port, String message, String contentType, int
+            responseCode, String location) {
+        HttpServer httpServer = new HttpServer(port);
+        CountDownLatch latch = new CountDownLatch(1);
+        ServerThread serverThread = new ServerThread(latch, httpServer);
+        try {
+            serverThread.start();
+            latch.await();
+            httpServer.setMessage(message, contentType);
+            httpServer.setResponseCode(responseCode);
+            httpServer.setLocation(location);
+        } catch (Exception e) {
+            log.error("Thread Interrupted while sleeping ", e);
+        }
+        return httpServer;
+    }
+
     public static String getContent(HttpURLConnection urlConn) throws IOException {
         return new String(ByteStreams.toByteArray(urlConn.getInputStream()), Charsets.UTF_8);
     }
