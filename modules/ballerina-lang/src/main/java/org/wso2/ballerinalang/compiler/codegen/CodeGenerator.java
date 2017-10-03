@@ -111,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -1735,6 +1734,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
         // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
+        pvIndexes = new VariableIndex();
     }
 
     private void createActionInfoEntry(BLangAction actionNode, ConnectorInfo connectorInfo) {
@@ -2253,10 +2253,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBreak breakNode) {
         generateFinallyInstructions(breakNode, NodeKind.WHILE);
         this.emit(this.loopExitInstructionStack.peek());
-    }
-
-    public void visit(BLangReply replyNode) {
-        /* ignore */
     }
 
     public void visit(BLangThrow throwNode) {

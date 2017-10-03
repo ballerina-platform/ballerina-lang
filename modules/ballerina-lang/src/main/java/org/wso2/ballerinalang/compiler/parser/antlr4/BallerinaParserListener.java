@@ -882,16 +882,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#replyStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterReplyStatement(BallerinaParser.ReplyStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#replyStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#workerInteractionStatement}.
 	 * @param ctx the parse tree
 	 */

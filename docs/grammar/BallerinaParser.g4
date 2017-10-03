@@ -179,8 +179,7 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MESSAGE
-    |   TYPE_MAP (LT typeName GT)?
+    :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_DATATABLE
@@ -237,7 +236,6 @@ statement
     |   tryCatchStatement
     |   throwStatement
     |   returnStatement
-    |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
     |   expressionStmt
@@ -380,11 +378,6 @@ throwStatement
 
 returnStatement
     :   RETURN expressionList? SEMICOLON
-    ;
-
-// below Identifier is only a type of TYPE_MESSAGE
-replyStatement
-    :   REPLY expression SEMICOLON
     ;
 
 workerInteractionStatement
