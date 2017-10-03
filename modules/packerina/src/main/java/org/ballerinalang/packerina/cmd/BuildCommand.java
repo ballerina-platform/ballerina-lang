@@ -141,7 +141,6 @@ public class BuildCommand implements BLauncherCmd {
             throw new BLangRuntimeException("ballerina: error writing program file '" + balxFilePath.toString() + "'",
                     e);
         }
-
     }
 
     private static Path getTargetBALXFilePath(Path packagePath, Path targetPath) {
