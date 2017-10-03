@@ -210,8 +210,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
-                names.fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet), names.
+                fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
         annotationNode.attachmentPoints.forEach(point ->
                 ((BAnnotationSymbol) annotationSymbol).attachmentPoints.add(point));
@@ -233,9 +233,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        BLangPackage pkgNode = pkgLoader.loadPackage(importPkgNode.pkgNameComps, importPkgNode.version);
         // Create import package symbol
-        BPackageSymbol pkgSymbol = pkgNode.symbol;
+        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(importPkgNode.pkgNameComps, importPkgNode.version);
         importPkgNode.symbol = pkgSymbol;
         this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
     }

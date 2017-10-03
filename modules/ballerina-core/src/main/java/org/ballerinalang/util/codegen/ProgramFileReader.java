@@ -1286,7 +1286,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWMESSAGE:
                 case InstructionCodes.NEWDATATABLE:
-                case InstructionCodes.REP:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;

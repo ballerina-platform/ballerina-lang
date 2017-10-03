@@ -241,7 +241,8 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = Lists.of(varRefExpr.type);
             return;
         }
-        BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+        Name pkgAlias = names.fromIdNode(varRefExpr.pkgAlias);
+        BSymbol symbol = symResolver.lookupSymbol(varRefExpr.pos, env, pkgAlias, varName, SymTag.VARIABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
         } else {
@@ -725,7 +726,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromIdNode(iExpr.pkgAlias), funcName);
         if (funcSymbol == symTable.notFoundSymbol) {
             // Check for function pointer.
-            BSymbol functionPointer = symResolver.lookupSymbol(env, funcName, SymTag.VARIABLE);
+            Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+            BSymbol functionPointer = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             if (functionPointer.type.tag != TypeTags.INVOKABLE) {
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
                 resultTypes = getListWithErrorTypes(expTypes.size());
@@ -783,7 +785,8 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) iExpr.expr;
         Name varName = names.fromIdNode(varRef.variableName);
-        BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+        Name pkgAlias = names.fromIdNode(varRef.pkgAlias);
+        BSymbol symbol = symResolver.lookupSymbol(iExpr.pos, env, pkgAlias, varName, SymTag.VARIABLE);
         if (symbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.value);
             resultTypes = getListWithErrorTypes(expTypes.size());;

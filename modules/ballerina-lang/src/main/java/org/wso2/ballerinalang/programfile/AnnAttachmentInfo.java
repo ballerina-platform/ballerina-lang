@@ -28,34 +28,22 @@ import java.util.Map;
 public class AnnAttachmentInfo {
 
     protected int pkgPathCPIndex;
-    protected String pkgPath;
 
     protected int nameCPIndex;
-    protected String name;
 
     private Map<String, AnnAttributeKeyValuePair> attributeValueMap = new LinkedHashMap<>();
 
-    public AnnAttachmentInfo(int pkgPathCPIndex, String pkgPath, int nameCPIndex, String name) {
+    public AnnAttachmentInfo(int pkgPathCPIndex, int nameCPIndex) {
         this.pkgPathCPIndex = pkgPathCPIndex;
-        this.pkgPath = pkgPath;
         this.nameCPIndex = nameCPIndex;
-        this.name = name;
     }
 
     public int getPkgPathCPIndex() {
         return pkgPathCPIndex;
     }
 
-    public String getPkgPath() {
-        return pkgPath;
-    }
-
     public int getNameCPIndex() {
         return nameCPIndex;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public Map<String, AnnAttributeKeyValuePair> getAttributeValueMap() {
