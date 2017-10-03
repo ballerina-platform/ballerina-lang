@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -83,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -125,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.ActionInfo;
@@ -132,11 +133,13 @@ import org.wso2.ballerinalang.programfile.AnnAttachmentInfo;
 import org.wso2.ballerinalang.programfile.AnnAttributeValue;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.ConnectorInfo;
+import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
@@ -153,6 +156,7 @@ import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
@@ -270,6 +274,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public ProgramFile generate(BLangPackage pkgNode) {
         programFile = new ProgramFile();
+        // TODO: Fix this. Added temporally for codegen. Load this from VM side.
+        if (this.symTable.builtInPackageSymbol != null) {
+            genPackage(this.symTable.builtInPackageSymbol);
+        }
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         genPackage(pkgSymbol);
 
@@ -388,13 +396,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
         for (BLangStatement stmt : blockNode.stmts) {
-//            if (stmt instanceof CommentStmt) {
-//                continue;
-//            }
-//
-//            if (!(stmt instanceof TryCatchStmt)) {
-//                addLineNumberInfo(stmt.getNodeLocation());
-//            }
+            addLineNumberInfo(stmt);
 
             genNode(stmt, blockEnv);
 
@@ -459,6 +461,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 i++;
             }
         }
+        generateFinallyInstructions(returnNode);
         emit(InstructionCodes.RET);
     }
 
@@ -1237,18 +1240,105 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private AnnAttachmentInfo getAnnotationAttachmentInfo(BLangAnnotationAttachment attachment) {
         int attachmentNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachment.getAnnotationName().getValue());
-        AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(currentPackageRefCPIndex, "", attachmentNameCPIndex,
+        AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(currentPackageRefCPIndex,
+                attachment.pkgAlias.getValue(), attachmentNameCPIndex,
                 attachment.getAnnotationName().getValue());
-        attachment.attributes.forEach(attr -> getAnnotationAttributeValue(attr, annAttachmentInfo));
+        attachment.attributes.forEach(attr -> {
+            AnnAttributeValue attribValue = getAnnotationAttributeValue(attr.value);
+            int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attr.getName());
+            annAttachmentInfo.addAttributeValue(attributeNameCPIndex, attr.getName(), attribValue);
+        });
         return annAttachmentInfo;
     }
 
-    private void getAnnotationAttributeValue(AnnotationAttachmentAttributeNode attributeNode,
-                                             AnnAttachmentInfo annAttachmentInfo) {
-        int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attributeNode.getName());
+    private AnnAttributeValue getAnnotationAttributeValue(BLangAnnotAttachmentAttributeValue attributeNode) {
         AnnAttributeValue attribValue = null;
+        if (attributeNode.value != null
+                && attributeNode.value instanceof BLangLiteral) {
+            // Annotation attribute value is a literal value
+            BLangLiteral literalValue = (BLangLiteral) attributeNode.value;
+            String typeDesc = literalValue.type.getDesc();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
+
+            int valueCPIndex;
+            int typeTag = literalValue.type.tag;
+            switch (typeTag) {
+                case TypeTags.INT:
+                    long intValue = (long) literalValue.value;
+                    attribValue.setIntValue(intValue);
+                    valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(intValue));
+                    attribValue.setValueCPIndex(valueCPIndex);
+
+                    break;
+                case TypeTags.FLOAT:
+                    double floatValue = (double) literalValue.value;
+                    attribValue.setFloatValue(floatValue);
+                    valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(floatValue));
+                    attribValue.setValueCPIndex(valueCPIndex);
+
+                    break;
+                case TypeTags.STRING:
+                    String stringValue = (String) literalValue.value;
+                    attribValue.setStringValue(stringValue);
+                    valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(stringValue));
+                    attribValue.setValueCPIndex(valueCPIndex);
+
+                    break;
+                case TypeTags.BOOLEAN:
+                    boolean boolValue = (boolean) literalValue.value;
+                    attribValue.setBooleanValue(boolValue);
+                    break;
+            }
+
+        } else if (attributeNode.value != null) {
+            // Annotation attribute value is another annotation attachment
+            BLangAnnotationAttachment attachment = (BLangAnnotationAttachment) attributeNode.value;
+            AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(attachment);
+
+            String typeDesc = TypeDescriptor.SIG_ANNOTATION;
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, attachmentInfo);
+
+        } else if (attributeNode.value != null
+                && attributeNode.value instanceof BLangSimpleVarRef) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) attributeNode.value;
+            String typeDesc = simpleVarRef.type.getDesc();
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+
+
+            String constPkg = simpleVarRef.symbol.pkgID.getName().getValue();
+            UTF8CPEntry constPkgCPEntry = new UTF8CPEntry(constPkg);
+            int constPkgCPIndex = currentPkgInfo.addCPEntry(constPkgCPEntry);
+
+            String constName = simpleVarRef.symbol.name.getValue();
+            UTF8CPEntry constNameCPEntry = new UTF8CPEntry(constName);
+            int constNameCPIndex = currentPkgInfo.addCPEntry(constNameCPEntry);
+
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
+                    constPkg, constNameCPIndex, constName);
+            attribValue.setConstVarExpr(true);
+
+            programFile.addUnresolvedAnnAttrValue(attribValue);
+        } else {
+            List<BLangAnnotAttachmentAttributeValue> attributeValues =
+                    attributeNode.arrayValues;
+            AnnAttributeValue[] annotationAttribValues = new AnnAttributeValue[attributeValues.size()];
+            for (int i = 0; i < attributeValues.size(); i++) {
+                annotationAttribValues[i] = getAnnotationAttributeValue(attributeValues.get(i));
+            }
+
+            String typeDesc = TypeDescriptor.SIG_ARRAY;
+            UTF8CPEntry typeDescCPEntry = new UTF8CPEntry(typeDesc);
+            int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
+            attribValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, annotationAttribValues);
+        }
+
         //TODO:create AnnAttributeValue
-        annAttachmentInfo.addAttributeValue(attributeNameCPIndex, attributeNode.getName(), attribValue);
+        return attribValue;
     }
 
     private void visitInvokableNode(BLangInvokableNode invokableNode,
@@ -1667,6 +1757,36 @@ public class CodeGenerator extends BLangNodeVisitor {
         callableUnitInfo.addWorkerInfo(worker.name.value, workerInfo);
     }
 
+    private ErrorTableAttributeInfo createErrorTableIfAbsent(PackageInfo packageInfo) {
+        ErrorTableAttributeInfo errorTable =
+                (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
+        if (errorTable == null) {
+            UTF8CPEntry attribNameCPEntry = new UTF8CPEntry(AttributeInfo.Kind.ERROR_TABLE.toString());
+            int attribNameCPIndex = packageInfo.addCPEntry(attribNameCPEntry);
+            errorTable = new ErrorTableAttributeInfo(attribNameCPIndex);
+            packageInfo.addAttributeInfo(AttributeInfo.Kind.ERROR_TABLE, errorTable);
+        }
+        return errorTable;
+    }
+
+    private void addLineNumberInfo(BLangStatement statement) {
+        DiagnosticPos pos = statement.pos;
+        if (NodeKind.CATCH == statement.getKind() || NodeKind.TRY == statement.getKind()) {
+            return;
+        }
+        LineNumberInfo lineNumInfo = createLineNumberInfo(pos, currentPkgInfo, currentPkgInfo.instructionList.size());
+        lineNoAttrInfo.addLineNumberInfo(lineNumInfo);
+    }
+
+    private LineNumberInfo createLineNumberInfo(DiagnosticPos pos, PackageInfo packageInfo, int ip) {
+        UTF8CPEntry fileNameUTF8CPEntry = new UTF8CPEntry(pos.src.cUnitName);
+        int fileNameCPEntryIndex = packageInfo.addCPEntry(fileNameUTF8CPEntry);
+        LineNumberInfo lineNumberInfo = new LineNumberInfo(pos.sLine, fileNameCPEntryIndex, pos.src.cUnitName, ip);
+        lineNumberInfo.setPackageInfo(packageInfo);
+        lineNumberInfo.setIp(ip);
+        return lineNumberInfo;
+    }
+
     private void setParameterNames(BLangResource resourceNode, ResourceInfo resourceInfo) {
         int paramCount = resourceNode.params.size();
         resourceInfo.paramNameCPIndexes = new int[paramCount];
@@ -2076,10 +2196,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangContinue continueNode) {
+        generateFinallyInstructions(continueNode, NodeKind.WHILE);
         this.emit(this.loopResetInstructionStack.peek());
     }
 
     public void visit(BLangBreak breakNode) {
+        generateFinallyInstructions(breakNode, NodeKind.WHILE);
         this.emit(this.loopExitInstructionStack.peek());
     }
 
@@ -2088,7 +2210,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangThrow throwNode) {
-        /* ignore */
+        genNode(throwNode.expr, env);
+        emit(InstructionFactory.get(InstructionCodes.THROW, throwNode.expr.regIndex));
     }
 
     public void visit(BLangComment commentNode) {
@@ -2198,8 +2321,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
-        //TODO:Add below error handling code
-        //generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
+        generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
     }
 
@@ -2463,11 +2585,68 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        /* ignore */
+        Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, -1);
+        List<int[]> unhandledErrorRangeList = new ArrayList<>();
+        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+
+        // Handle try block.
+        int fromIP = nextIP();
+        genNode(tryNode.tryBody, env);
+        int toIP = nextIP() - 1;
+
+        // Append finally block instructions.
+        if (tryNode.finallyBody != null) {
+            genNode(tryNode.finallyBody, env);
+        }
+        emit(instructGotoTryCatchEnd);
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+        // Handle catch blocks.
+        int order = 0;
+        for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            int targetIP = nextIP();
+            genNode(bLangCatch, env);
+            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+            // Append finally block instructions.
+            if (tryNode.finallyBody != null) {
+                genNode(tryNode.finallyBody, env);
+            }
+            emit(instructGotoTryCatchEnd);
+            // Create Error table entry for this catch block
+            BTypeSymbol structSymbol = bLangCatch.param.symbol.type.tsymbol;
+            BPackageSymbol packageSymbol = (BPackageSymbol) bLangCatch.param.symbol.type.tsymbol.owner;
+            int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, packageSymbol.pkgID);
+            int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+            int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+            StructInfo errorStructInfo = this.programFile.getPackageInfo(packageSymbol.name.value)
+                    .getStructInfo(structSymbol.name.value);
+            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
+            errorTableEntry.setError(errorStructInfo);
+            errorTable.addErrorTableEntry(errorTableEntry);
+        }
+
+        if (tryNode.finallyBody != null) {
+            // Create Error table entry for unhandled errors in try and catch(s) blocks
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
+                errorTable.addErrorTableEntry(errorTableEntry);
+            }
+            // Append finally block instruction.
+            genNode(tryNode.finallyBody, env);
+            emit(InstructionFactory.get(InstructionCodes.THROW, -1));
+        }
+        instructGotoTryCatchEnd.setOperand(0, nextIP());
     }
 
-    public void visit(BLangCatch catchNode) {
-        /* ignore */
+    public void visit(BLangCatch bLangCatch) {
+        // Define local variable index for Error.
+        BLangVariable variable = bLangCatch.param;
+        int lvIndex = ++lvIndexes.tRef;
+        variable.symbol.varIndex = lvIndex;
+        emit(InstructionFactory.get(InstructionCodes.ERRSTORE, lvIndex));
+
+        // Visit Catch Block.
+        genNode(bLangCatch.body, env);
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -2484,5 +2663,28 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         int nextIndex = getNextIndex(TypeTags.INVOKABLE, regIndexes);
         emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    private void generateFinallyInstructions(BLangStatement statement) {
+        generateFinallyInstructions(statement, null);
+    }
+
+    private void generateFinallyInstructions(BLangStatement statement, NodeKind targetStatementKind) {
+        BLangStatement current = statement;
+        while (current != null && current.statementLink.parent != null) {
+            BLangStatement parent = current.statementLink.parent.statement;
+            if (targetStatementKind != null && targetStatementKind == parent.getKind()) {
+                return;
+            }
+            if (NodeKind.TRY == parent.getKind()) {
+                BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
+                final BLangStatement body = current;
+                if (tryCatchFinally.finallyBody != null && (current == tryCatchFinally.tryBody
+                        || tryCatchFinally.catchBlocks.stream().anyMatch(c -> c.body == body))) {
+                    genNode(tryCatchFinally.finallyBody, env);
+                }
+            }
+            current = parent;
+        }
     }
 }

@@ -90,7 +90,7 @@ public class AddOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test(description = "Test string and int add expression")
+    @Test(description = "Test string and int add expression")
     public void testStringAndIntAddExpr() {
         String a = "test";
         int b = 10;

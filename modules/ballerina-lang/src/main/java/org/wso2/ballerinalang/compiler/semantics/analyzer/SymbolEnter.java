@@ -210,8 +210,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(names.
-                fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
+                names.fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
         annotationNode.attachmentPoints.forEach(point ->
                 ((BAnnotationSymbol) annotationSymbol).attachmentPoints.add(point));
@@ -290,7 +290,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
-        defineServiceInitFunction(serviceNode);
         defineSymbol(serviceNode.pos, serviceSymbol);
     }
 
@@ -327,6 +326,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
 
+        //TODO check below as it create a new symbol for the connector
         BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                 names.fromIdNode((BLangIdentifier) createIdentifier(Names.CONNECTOR.getValue())),
                 env.enclPkg.symbol.pkgID, actionSymbol.owner.type, invokableEnv.scope.owner);
@@ -409,7 +409,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
         }
         pkgNode.symbol = pSymbol;
-        pSymbol.scope = new Scope(pSymbol);
+        if (Names.BUILTIN_PACKAGE.value.equals(pSymbol.name.value) ||
+                Names.BUILTIN_PACKAGE_CORE.value.equals(pSymbol.name.value)) {
+            pSymbol.scope = symTable.rootScope;
+        } else {
+            pSymbol.scope = new Scope(pSymbol);
+        }
         return pSymbol;
     }
 
@@ -516,9 +521,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         services.forEach(service -> {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
             service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
-            defineServiceInitFunction(service);
-            defineNode(service.initFunction, serviceEnv);
-//            service.symbol.initFunctionSymbol = service.initFunction.symbol;
+            defineServiceInitFunction(service, serviceEnv);
             service.resources.stream()
                     .peek(action -> action.flagSet.add(Flag.PUBLIC))
                     .forEach(resource -> defineNode(resource, serviceEnv));
@@ -622,33 +625,35 @@ public class SymbolEnter extends BLangNodeVisitor {
         param.setTypeNode(connectorType);
         initFunction.addParameter(param);
         //Add connector level variables to the init function
-        for (BLangVariableDef variableDef : connector.getVariableDefs()) {
-            initFunction.body.addStatement(createAssignmentStmt(variableDef));
-        }
+        connector.varDefs.stream().filter(f -> f.var.expr != null)
+                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
+
         addInitReturnStatement(initFunction.body);
         connector.initFunction = initFunction;
         defineNode(connector.initFunction, conEnv);
         connector.symbol.initFunctionSymbol = connector.initFunction.symbol;
     }
 
-    private void defineServiceInitFunction(BLangService service) {
+    private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue());
         //Add service level variables to the init function
-        for (BLangVariableDef variableDef : service.getVariables()) {
-            initFunction.body.addStatement(createAssignmentStmt(variableDef));
-        }
+        service.vars.stream().filter(f -> f.var.expr != null)
+                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
+
         addInitReturnStatement(initFunction.body);
         service.initFunction = initFunction;
+        defineNode(service.initFunction, conEnv);
+//        service.symbol.initFunctionSymbol = service.initFunction.symbol;
     }
 
-    private BLangAssignment createAssignmentStmt(BLangVariableDef variableDef) {
+    private BLangAssignment createAssignmentStmt(BLangVariable variable) {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = variableDef.var.expr;
-        assignmentStmt.pos = variableDef.pos;
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
                 .createSimpleVariableReferenceNode();
-        varRef.pos = variableDef.pos;
-        varRef.variableName = variableDef.var.name;
+        varRef.pos = variable.pos;
+        varRef.variableName = variable.name;
         varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         assignmentStmt.addVariable(varRef);
         return assignmentStmt;
@@ -663,9 +668,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         //Add global variables to the init function
-        for (BLangVariable variable : pkgNode.getGlobalVariables()) {
-            initFunction.body.addStatement(createVariableDefStatement(variable.pos, variable));
-        }
+        pkgNode.globalVars.stream().filter(f -> f.expr != null)
+                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v)));
 
         addInitReturnStatement(initFunction.body);
         pkgNode.initFunction = initFunction;

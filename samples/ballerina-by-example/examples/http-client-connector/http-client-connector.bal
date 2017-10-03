@@ -1,54 +1,55 @@
 import ballerina.lang.system;
 import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina.net.http.request;
+import ballerina.net.http.response;
 
 function main (string[] args) {
     // Create an HTTP Client Connector
     http:ClientConnector httpConnector = create http:ClientConnector("https://postman-echo.com");
-    message m = {};
+    http:Request req = {};
 
     // Send a GET request to the specified endpoint
-    message response = httpConnector.get("/get?test=123", m);
+    http:Response resp = httpConnector.get("/get?test=123", req);
     system:println("GET request:");
-    system:println(response);
+    system:println(resp);
 
     // Set a string payload to the message to be sent to the endpoint
-    messages:setStringPayload(m, "POST: Hello World");
-    response = httpConnector.post("/post", m);
+    request:setStringPayload(req, "POST: Hello World");
+    resp = httpConnector.post("/post", req);
     system:println("\nPOST request:");
-    system:println(response);
+    system:println(resp);
 
     // Set a JSON payload to the message to be sent to the endpoint
     json jsonMsg = {method: "PUT", payload: "Hello World"};
-    messages:setJsonPayload(m, jsonMsg);
-    response = httpConnector.put("/put", m);
+    request:setJsonPayload(req, jsonMsg);
+    resp = httpConnector.put("/put", req);
     system:println("\nPUT request:");
-    system:println(response);
+    system:println(resp);
 
     // Set an XML payload to the message to be sent to the endpoint
     xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
-    messages:setXmlPayload(m, xmlMsg);
-    response = httpConnector.patch("/patch", m);
+    request:setXmlPayload(req, xmlMsg);
+    resp = httpConnector.patch("/patch", req);
     system:println("\nPATCH request:");
-    system:println(response);
+    system:println(resp);
 
-    messages:setStringPayload(m, "DELETE: Hello World");
-    response = httpConnector.delete("/delete", m);
+    request:setStringPayload(req, "DELETE: Hello World");
+    resp = httpConnector.delete("/delete", req);
     system:println("\nDELETE request:");
-    system:println(response);
+    system:println(resp);
 
-    messages:setStringPayload(m, "CUSTOM: Hello World");
+    request:setStringPayload(req, "CUSTOM: Hello World");
     // The execute() action can be used if one needs to use custom HTTP verbs
-    response = httpConnector.execute("COPY", "/get", m);
+    resp = httpConnector.execute("COPY", "/get", req);
 
     // The messages and http packages provide various utility functions which are useful when dealing with HTTP requests/responses.
-    m = {};
-    messages:addHeader(m, "Sample-Name", "http-client-connector");
-    response = httpConnector.get("/get", m);
+    req = {};
+    request:addHeader(req, "Sample-Name", "http-client-connector");
+    resp = httpConnector.get("/get", req);
 
-    string contentType = messages:getHeader(response, "Content-Type");
+    string contentType = response:getHeader(resp, "Content-Type");
     system:println("\nContent-Type: " + contentType);
 
-    int statusCode = http:getStatusCode(response);
+    int statusCode = response:getStatusCode(resp);
     system:println("Status code: " + statusCode);
 }

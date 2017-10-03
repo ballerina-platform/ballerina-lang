@@ -20,6 +20,7 @@ package org.ballerinalang.core;
 
 import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
@@ -41,6 +42,8 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
+
+        ServerConnectorRegistry.getInstance().initServerConnectors();
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();

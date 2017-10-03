@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -81,6 +83,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -153,6 +156,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        analyzeDef(pkgNode.initFunction, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
@@ -237,8 +242,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env,
-                new Name(annAttachmentNode.getAnnotationName().getValue()), SymTag.ANNOTATION);
+        BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, env,
+                names.fromString(annAttachmentNode.pkgAlias.getValue()),
+                names.fromString(annAttachmentNode.getAnnotationName().getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
@@ -466,8 +472,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
+            checkConstantAssignment(varRef, expTypes);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    private void checkConstantAssignment(BLangExpression varRef, List<BType> expTypes) {
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+        Name varName = names.fromIdNode(simpleVarRef.variableName);
+        if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
+                && env.enclInvokable != env.enclPkg.initFunction) {
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+            expTypes.add(symTable.errType);
+        }
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -535,7 +555,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        serviceNode.annAttachments.forEach(a -> this.analyzeDef(a, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
 
@@ -770,6 +789,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangThrow throwNode) {
+        this.typeChecker.checkExpr(throwNode.expr, env, Lists.of(symTable.errStructType));
+    }
+
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
@@ -841,4 +865,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    @Override
+    public void visit(BLangComment commentNode) {
+        // do nothing
+    }
 }

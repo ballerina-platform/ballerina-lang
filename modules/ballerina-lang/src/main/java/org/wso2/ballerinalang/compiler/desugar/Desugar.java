@@ -94,6 +94,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransform;
@@ -124,6 +126,8 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
 
     private BLangNode result;
+
+    private BLangStatementLink currentLink;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -159,6 +163,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
+        pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -243,7 +248,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt block) {
-        block.stmts = rewrite(block.stmts);
+        block.stmts = rewriteStmt(block.stmts);
         result = block;
     }
 
@@ -546,7 +551,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
     }
@@ -733,6 +738,29 @@ public class Desugar extends BLangNodeVisitor {
         BLangNode resultNode = this.result;
         this.result = null;
         return (E) resultNode;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E extends BLangStatement> E rewrite(E statement) {
+        if (statement == null) {
+            return null;
+        }
+        BLangStatementLink link = new BLangStatementLink();
+        link.parent = currentLink;
+        currentLink = link;
+        BLangStatement stmt = (BLangStatement) rewrite((BLangNode) statement);
+        // Link Statements.
+        link.statement = stmt;
+        stmt.statementLink = link;
+        currentLink = link.parent;
+        return (E) stmt;
+    }
+
+    private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList) {
+        for (int i = 0; i < nodeList.size(); i++) {
+            nodeList.set(i, rewrite(nodeList.get(i)));
+        }
+        return nodeList;
     }
 
     private <E extends BLangNode> List<E> rewrite(List<E> nodeList) {

@@ -19,8 +19,9 @@
 package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -59,7 +60,7 @@ public class Init extends AbstractFtpAction {
     private static final Logger log = LoggerFactory.getLogger(Init.class);
 
     @Override
-    public BValue execute(Context context) {
+    public ConnectorFuture execute(Context context) {
         ClientConnector ftpConnector = BallerinaConnectorManager.getInstance().getClientConnector(
                 FileConstants.FTP_CONNECTOR_NAME);
 
@@ -85,7 +86,9 @@ public class Init extends AbstractFtpAction {
         } catch (ClientConnectorException e) {
             log.error("Error in initializing the FTP Client Connector", e);
         }
-        return null;
+        ClientConnectorFuture future = new ClientConnectorFuture();
+        future.notifySuccess();
+        return future;
     }
 
     @Override
