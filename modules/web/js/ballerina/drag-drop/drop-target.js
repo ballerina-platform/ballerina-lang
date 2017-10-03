@@ -31,7 +31,7 @@ export function withDropEnabled(DropArea) {
         drop: (props, monitor, component) => {
             return {
                 dropTarget: props.dropTarget,
-                dropBefore: props.dropTarget,
+                dropBefore: props.dropBefore,
             };
         },
         hover: (props, monitor, component) => {
