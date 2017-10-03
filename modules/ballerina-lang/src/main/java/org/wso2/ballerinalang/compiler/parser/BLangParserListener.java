@@ -1463,25 +1463,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addReturnStatement(this.getCurrentPos(ctx), getWS(ctx), ctx.expressionList() != null);
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void enterReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
-        getWS(ctx);
-    }
-
     @Override
     public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
         this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false);
@@ -1959,7 +1940,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitParameterList(BallerinaParser.ParameterListContext ctx) {
-        this.pkgBuilder.endParameterList(getWS(ctx));
+        // This attaches WS of the commas to the def.
+        if (!(ctx.getParent() instanceof BallerinaParser.ConnectorDefinitionContext)) {
+            this.pkgBuilder.endCallableParamList(getWS(ctx));
+        } else {
+            this.pkgBuilder.endConnectorParamList(getWS(ctx));
+        }
     }
 
     /**

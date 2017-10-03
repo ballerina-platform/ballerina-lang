@@ -111,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -256,6 +255,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
 
+    private static final String MAIN_FUNCTION_NAME = "main";
+
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
         if (codeGenerator == null) {
@@ -283,8 +284,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgSymbol.pkgID);
 
-        // TODO Setting this program as a main program. Remove this ASAP
-        programFile.setMainEPAvailable(true);
+        setEntryPoints(programFile, pkgNode);
 
         // Add global variable indexes to the ProgramFile
         prepareIndexes(pvIndexes);
@@ -293,6 +293,37 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVarCountAttrInfo(programFile, programFile, pvIndexes);
 
         return programFile;
+    }
+
+    private static void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
+        BLangFunction mainFunc = getMainFunction(pkgNode);
+        if (mainFunc != null) {
+            programFile.setMainEPAvailable(true);
+        }
+
+        if (pkgNode.services.size() != 0) {
+            programFile.setServiceEPAvailable(true);
+        }
+    }
+
+    private static BLangFunction getMainFunction(BLangPackage pkgNode) {
+        List<BLangFunction> functions = pkgNode.functions.stream().filter(f -> (f.name.value
+                .equals(MAIN_FUNCTION_NAME) && f.symbol.params.size() == 1 && f.symbol.retParams.size() == 0))
+                .collect(Collectors.toList());
+        if (functions.isEmpty()) {
+            return null;
+        }
+        for (BLangFunction f : functions) {
+            BType paramType = f.symbol.params.get(0).type;
+            if (paramType.tag != TypeTags.ARRAY) {
+                continue;
+            }
+            BArrayType arrayType = (BArrayType) paramType;
+            if (arrayType.eType.tag == TypeTags.STRING) {
+                return f;
+            }
+        }
+        return null;
     }
 
     public void visit(BLangPackage pkgNode) {
@@ -381,6 +412,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangResource resourceNode) {
         ResourceInfo resourceInfo = currentServiceInfo.resourceInfoMap.get(resourceNode.name.getValue());
         currentCallableUnitInfo = resourceInfo;
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        resourceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+
         SymbolEnv resourceEnv = SymbolEnv
                 .createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, this.env);
         visitInvokableNode(resourceNode, currentCallableUnitInfo, resourceEnv);
@@ -389,6 +426,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
         currentCallableUnitInfo = currentPkgInfo.functionInfoMap.get(funcNode.symbol.name.value);
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        funcNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
         visitInvokableNode(funcNode, currentCallableUnitInfo, funcEnv);
     }
 
@@ -1240,9 +1282,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private AnnAttachmentInfo getAnnotationAttachmentInfo(BLangAnnotationAttachment attachment) {
         int attachmentNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachment.getAnnotationName().getValue());
-        AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(currentPackageRefCPIndex,
-                attachment.pkgAlias.getValue(), attachmentNameCPIndex,
-                attachment.getAnnotationName().getValue());
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, attachment.annotationSymbol.pkgID);
+        AnnAttachmentInfo annAttachmentInfo = new AnnAttachmentInfo(pkgRefCPIndex, attachmentNameCPIndex);
         attachment.attributes.forEach(attr -> {
             AnnAttributeValue attribValue = getAnnotationAttributeValue(attr.value);
             int attributeNameCPIndex = addUTF8CPEntry(currentPkgInfo, attr.getName());
@@ -1692,6 +1733,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
         // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
+        pvIndexes = new VariableIndex();
     }
 
     private void createActionInfoEntry(BLangAction actionNode, ConnectorInfo connectorInfo) {
@@ -1717,7 +1759,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        String protocolPkg = serviceNode.getProtocolPackageIdentifier().value;
+        PackageID protocolPkgId = ((BTypeSymbol) serviceNode.symbol).protocolPkgId;
+        String protocolPkg = protocolPkgId.getName().value;
         int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
         ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
         // Add service level variables
@@ -2128,6 +2171,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         ActionInfo actionInfo = currentConnectorInfo.actionInfoMap.get(actionNode.name.getValue());
         currentCallableUnitInfo = actionInfo;
 
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        actionNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+
         SymbolEnv actionEnv = SymbolEnv
                 .createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, this.env);
         visitInvokableNode(actionNode, currentCallableUnitInfo, actionEnv);
@@ -2203,10 +2252,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBreak breakNode) {
         generateFinallyInstructions(breakNode, NodeKind.WHILE);
         this.emit(this.loopExitInstructionStack.peek());
-    }
-
-    public void visit(BLangReply replyNode) {
-        /* ignore */
     }
 
     public void visit(BLangThrow throwNode) {

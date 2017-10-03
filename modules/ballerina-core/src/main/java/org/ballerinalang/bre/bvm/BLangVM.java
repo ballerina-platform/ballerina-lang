@@ -717,10 +717,6 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
-                case InstructionCodes.REP:
-                    //TODO fix
-                    handleReply(operands, sf);
-                    break;
                 case InstructionCodes.IRET:
                     i = operands[0];
                     j = operands[1];
@@ -2472,27 +2468,6 @@ public class BLangVM {
         }
 
         sf.refRegs[errorRegIndex] = errorVal;
-    }
-
-    private void handleReply(int[] operands, StackFrame sf) {
-        //TODO fix, this should just be a notification, just success notification would suffice.
-        // current impl inject reply statement at the end of the resource. That needs to be revisited as well.
-//        int i;
-//        i = operands[0];
-//        BMessage message = null;
-//        if (i >= 0) {
-//            message = (BMessage) sf.refRegs[i];
-//        }
-//        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
-//        generateSessionAndCorsHeaders(message);
-//        context.setError(null);
-//        context.getConnectorFuture().notifyReply(message.value());
-//        if (context.getBalCallback() != null &&
-//                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
-//            context.getBalCallback().done(message.value());
-//        }
-        context.getConnectorFuture().notifySuccess();
-        ip = -1;
     }
 
     private void createNewConnector(int[] operands, StackFrame sf) {
