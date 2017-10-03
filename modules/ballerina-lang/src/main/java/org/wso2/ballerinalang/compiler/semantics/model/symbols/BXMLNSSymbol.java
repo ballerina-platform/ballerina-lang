@@ -39,8 +39,6 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      */
     public int nsURIIndex = -1;
 
-    public int level;
-
     public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner) {
         super(SymTag.XMLNS, 0, prefix, pkgID, new BNoType(TypeTags.XMLNS), owner);
         this.namespaceURI = namespaceURI;
