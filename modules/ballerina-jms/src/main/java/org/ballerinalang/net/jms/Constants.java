@@ -129,4 +129,6 @@ public class Constants {
     public static final String HEADER_MESSAGE_TYPE = "JMS_TYPE";
 
     public static final String HEADER_DELIVERY_MODE = "JMS_DELIVERY_MODE";
+
+    public static final String EMPTY_CONNECTOR_ID = "EMPTY_ID";
 }

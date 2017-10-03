@@ -22,6 +22,8 @@ public native function commit (JMSMessage m);
 @doc:Param { value:"connection and optional properties for the connector"}
 public connector ClientConnector (map properties) {
 
+    string connectorID = "EMPTY_ID";
+
     @doc:Description {value:"SEND action implementation of the JMS Connector"}
     @doc:Param {value:"destinationName: Destination Name"}
     @doc:Param {value:"message: Message"}
