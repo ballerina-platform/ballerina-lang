@@ -31,11 +31,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.programfile.ProgramFile;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Paths;
 
 /**
  * @since 0.94
@@ -167,14 +162,6 @@ public class Compiler {
         }
 
         programFile = this.codeGenerator.generate(pkgNode);
-
-        try {
-            ProgramFileWriter.writeProgram(programFile, Paths.get("temp.balx"));
-        } catch (IOException e) {
-            // TODO FIX This ASAP
-            PrintStream err = System.err;
-            err.println(e.getMessage());
-        }
     }
 
     private CompilerPhase getCompilerPhase() {

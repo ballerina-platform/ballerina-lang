@@ -235,7 +235,14 @@ public class LauncherUtils {
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(sourcePath.toString());
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-        return getExecutableProgram(programFile);
+
+        if (programFile == null) {
+            throw createLauncherException("compilation contains errors");
+        }
+
+        ProgramFile progFile = getExecutableProgram(programFile);
+        progFile.setProgramFilePath(sourcePath);
+        return progFile;
     }
 
     /**
@@ -260,8 +267,8 @@ public class LauncherUtils {
             ProgramFileReader reader = new ProgramFileReader();
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
             return reader.readProgram(byteIS);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (Throwable e) {
+            throw createLauncherException("error: fail to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
         } finally {
             if (byteIS != null) {
                 try {
