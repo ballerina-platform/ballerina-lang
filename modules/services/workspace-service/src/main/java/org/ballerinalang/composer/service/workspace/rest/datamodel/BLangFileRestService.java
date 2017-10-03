@@ -25,26 +25,21 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -221,9 +216,9 @@ public class BLangFileRestService {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
-        List<Method> methods = Arrays.stream(node.getClass().getInterfaces())
+        Set<Method> methods = ClassUtils.getAllInterfaces(node.getClass()).stream()
                 .flatMap(aClass -> Arrays.stream(aClass.getMethods()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         JsonObject nodeJson = new JsonObject();
 
         JsonArray wsJsonArray = new JsonArray();
@@ -232,9 +227,9 @@ public class BLangFileRestService {
             for (Whitespace whitespace : ws) {
                 JsonObject wsJson = new JsonObject();
                 wsJson.addProperty("ws", whitespace.getWs());
-                //wsJson.addProperty("i", whitespace.getIndex());
-                //wsJson.addProperty("text", whitespace.getPrevious());
-                //wsJson.addProperty("static", whitespace.isStatic());
+                wsJson.addProperty("i", whitespace.getIndex());
+                wsJson.addProperty("text", whitespace.getPrevious());
+                wsJson.addProperty("static", whitespace.isStatic());
                 wsJsonArray.add(wsJson);
             }
             nodeJson.add("ws", wsJsonArray);
@@ -255,77 +250,79 @@ public class BLangFileRestService {
                 continue;
             }
 
-            String jsonName = null;
+            String jsonName;
             if (name.startsWith("get")) {
                 jsonName = toJsonName(name, 3);
             } else if (name.startsWith("is")) {
                 jsonName = toJsonName(name, 2);
+            } else {
+                continue;
             }
 
-            if (jsonName != null) {
-                Object prop = m.invoke(node);
-                if (prop instanceof Node) {
-                    nodeJson.add(jsonName, generateJSON((Node) prop));
-                } else if (prop instanceof List) {
-                    List listProp = (List) prop;
-                    JsonArray listPropJson = new JsonArray();
-                    nodeJson.add(jsonName, listPropJson);
-                    for (Object listPropItem : listProp) {
-                        if (listPropItem instanceof Node) {
-                            listPropJson.add(generateJSON((Node) listPropItem));
-                        } else {
-                            // throw new AssertionError("Assuming all lists are of type Node.");
-                        }
-                    }
-                } else if (prop instanceof Set && jsonName.equals("flags")) {
-                    Set flags = (Set) prop;
-                    for (Flag flag : Flag.values()) {
-                        nodeJson.addProperty(flag.toString().toLowerCase(), flags.contains(flag));
-                    }
-                } else if (prop instanceof Set) {
-                    Set vars = (Set) prop;
-                    JsonArray listVarJson = new JsonArray();
-                    nodeJson.add(jsonName, listVarJson);
-                    for (Object obj : vars) {
-                        listVarJson.add(obj.toString());
-                    }
-                } else if (prop instanceof PackageID) {
-                    PackageID id = (PackageID) prop;
-                    nodeJson.addProperty("package", id.getName().toString());
-                    nodeJson.addProperty("packageVersion", id.getPackageVersion().toString());
-                    JsonArray comps = new JsonArray();
-                    List<Name> nameComps = id.getNameComps();
-                    for (int compI = 0; compI < nameComps.size(); compI++) {
-                        Name i = nameComps.get(compI);
-                        if (compI != 0) {
-                            comps.add(".");
-                        }
-                        comps.add(i.getValue());
-                    }
-                    nodeJson.add("packageComps", comps);
-                } else if (prop instanceof TypeKind) {
-                    nodeJson.addProperty(jsonName, prop.toString().toLowerCase());
-                } else if (prop instanceof String) {
-                    if (node instanceof LiteralNode) {
-                        nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
-                    } else {
-                        nodeJson.addProperty(jsonName, (String) prop);
-                    }
-                } else if (prop instanceof Number) {
-                    nodeJson.addProperty(jsonName, (Number) prop);
-                } else if (prop instanceof Boolean) {
-                    nodeJson.addProperty(jsonName, (Boolean) prop);
-                } else if (prop instanceof NodeKind) {
-                    String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
-                    nodeJson.addProperty(jsonName, kindName);
-                } else if (prop instanceof OperatorKind) {
-                    nodeJson.addProperty(jsonName, prop.toString());
-                } else if (prop != null) {
-                    nodeJson.addProperty(jsonName, prop.toString());
-                    String message = "Node " + node.getClass().getSimpleName() +
-                            " contains unknown type prop: " + jsonName + " of type " + prop.getClass();
-                    logger.error(message);
+            Object prop = m.invoke(node);
+
+            /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
+            if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
+                if (prop instanceof String) {
+                    nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
+                } else {
+                    nodeJson.addProperty(jsonName, String.valueOf(prop));
                 }
+                continue;
+            }
+
+            /* Node classes */
+            if (prop instanceof Node) {
+                nodeJson.add(jsonName, generateJSON((Node) prop));
+            } else if (prop instanceof List) {
+                List listProp = (List) prop;
+                JsonArray listPropJson = new JsonArray();
+                nodeJson.add(jsonName, listPropJson);
+                for (Object listPropItem : listProp) {
+                    if (listPropItem instanceof Node) {
+                        listPropJson.add(generateJSON((Node) listPropItem));
+                    } else {
+
+                        System.err.println(" " + prop);
+                    }
+                }
+
+
+            /* Runtime model classes */
+            } else if (prop instanceof Set && jsonName.equals("flags")) {
+                Set flags = (Set) prop;
+                for (Flag flag : Flag.values()) {
+                    nodeJson.addProperty(flag.toString().toLowerCase(), flags.contains(flag));
+                }
+            } else if (prop instanceof Set) {
+                // TODO : limit this else if the getTypes
+                Set vars = (Set) prop;
+                JsonArray listVarJson = new JsonArray();
+                nodeJson.add(jsonName, listVarJson);
+                for (Object obj : vars) {
+                    listVarJson.add(obj.toString());
+                }
+            } else if (prop instanceof TypeKind) {
+                nodeJson.addProperty(jsonName, prop.toString().toLowerCase());
+            } else if (prop instanceof NodeKind) {
+                String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
+                nodeJson.addProperty(jsonName, kindName);
+            } else if (prop instanceof OperatorKind) {
+                nodeJson.addProperty(jsonName, prop.toString());
+
+
+            /* Generic classes */
+            } else if (prop instanceof String) {
+                nodeJson.addProperty(jsonName, (String) prop);
+            } else if (prop instanceof Number) {
+                nodeJson.addProperty(jsonName, (Number) prop);
+            } else if (prop instanceof Boolean) {
+                nodeJson.addProperty(jsonName, (Boolean) prop);
+            } else if (prop != null) {
+                nodeJson.addProperty(jsonName, prop.toString());
+                String message = "Node " + node.getClass().getSimpleName() +
+                        " contains unknown type prop: " + jsonName + " of type " + prop.getClass();
+                logger.error(message);
             }
         }
         return nodeJson;

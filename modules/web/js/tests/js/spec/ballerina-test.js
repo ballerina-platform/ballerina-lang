@@ -30,7 +30,7 @@ function ballerinaASTDeserializer(fileContent) {
     return new Promise((resolve, reject) => {
         parseContent(fileContent)
             .then((parsedJson) => {
-                const tree = TreeBuilder.build(parsedJson);
+                const tree = TreeBuilder.build(parsedJson.model);
                 resolve(tree);
             })
             .catch(reject);

@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
@@ -90,6 +91,7 @@ public class WorkspaceUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         return getBallerinaFile(fileName, context);
     }
 
@@ -106,6 +108,7 @@ public class WorkspaceUtils {
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
 
         return getBallerinaFile(fileName, context);
     }
