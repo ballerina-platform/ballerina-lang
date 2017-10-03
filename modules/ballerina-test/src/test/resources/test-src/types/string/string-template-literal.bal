@@ -1,8 +1,3 @@
-function emptyStringTemplate () (string) {
-    string s = string ``;
-    return s;
-}
-
 function stringTemplateWithText1 () (string) {
     string s = string `\``;
     return s;
@@ -141,4 +136,9 @@ function getFirstName () (string) {
 
 function getLastName () (string) {
     return "Smith";
+//}
+//
+//function emptyStringTemplate () (string) {
+//    string s = string ``;
+//    return s;
 }
