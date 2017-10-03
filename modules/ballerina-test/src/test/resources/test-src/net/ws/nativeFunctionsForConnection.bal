@@ -29,13 +29,13 @@ function testGetParentConnection(ws:Connection conn) (ws:Connection) {
 }
 
 function testPushText(ws:Connection conn, string text) {
-    return ws:pushText(conn, text);
+    ws:pushText(conn, text);
 }
 
 function testPushBinary(ws:Connection conn, blob data) {
-    return ws:pushBinary(conn, data);
+    ws:pushBinary(conn, data);
 }
 
 function testCloseConnection(ws:Connection conn, int statusCode, string reason) {
-    return ws:closeConnection(conn, statusCode, reason);
+    ws:closeConnection(conn, statusCode, reason);
 }

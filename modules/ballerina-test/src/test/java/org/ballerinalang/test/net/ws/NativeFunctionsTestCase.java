@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.websocket;
+package org.ballerinalang.test.net.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BBlob;
@@ -26,10 +26,11 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
-import org.ballerinalang.testutils.ws.MockWebSocketSession;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -46,6 +47,7 @@ import javax.websocket.CloseReason;
  */
 public class NativeFunctionsTestCase {
 
+    private CompileResult compileResult;
     private ProgramFile programFile;
     private Context context;
     private BStruct wsConnection;
@@ -63,7 +65,8 @@ public class NativeFunctionsTestCase {
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("websocket/nativeFunctionsForConnection.bal");
+        compileResult = BTestUtils.compile("test-src/net/ws/nativeFunctionsForConnection.bal");
+        programFile = compileResult.getProgFile();
         context = new Context(programFile);
 
         session = new MockWebSocketSession(sessionID);
