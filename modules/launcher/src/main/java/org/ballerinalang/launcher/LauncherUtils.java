@@ -70,8 +70,6 @@ public class LauncherUtils {
         String srcPathStr = sourcePath.toString();
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-            // TODO
-            throw new AssertionError();
         } else {
             programFile = compile(sourceRootPath, sourcePath);
         }
@@ -88,52 +86,6 @@ public class LauncherUtils {
             runServices(programFile);
         } else {
             runMain(programFile, args);
-        }
-    }
-
-    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRootPath.toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(sourcePath.toString());
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-        return getExecutableProgram(programFile);
-    }
-
-    private static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
-        ByteArrayInputStream byteIS = null;
-        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-        try {
-            ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
-
-            ProgramFileReader reader = new ProgramFileReader();
-            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
-            return reader.readProgram(byteIS);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            if (byteIS != null) {
-                try {
-                    byteIS.close();
-                } catch (IOException ignore) {
-                }
-            }
-
-            try {
-                byteOutStream.close();
-            } catch (IOException ignore) {
-            }
         }
     }
 
@@ -261,6 +213,66 @@ public class LauncherUtils {
             } catch (IOException e) {
                 throw createLauncherException("error: fail to write ballerina.pid file: " +
                         makeFirstLetterLowerCase(e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Compile and get the executable program file.
+     * 
+     * @param sourceRootPath Path to the source root
+     * @param sourcePath Path to the source from the source root
+     * @return Executable program
+     */
+    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(sourcePath.toString());
+        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        return getExecutableProgram(programFile);
+    }
+
+    /**
+     * Get the executable program ({@link ProgramFile}) given the compiled program 
+     * ({@link org.wso2.ballerinalang.programfile.ProgramFile})
+     * 
+     * @param programFile Compiled program
+     * @return Executable program
+     */
+    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+        ByteArrayInputStream byteIS = null;
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        try {
+            ProgramFileWriter.writeProgram(programFile, byteOutStream);
+
+            // Populate the global scope
+            BLangPrograms.loadBuiltinTypes();
+
+            // Populate the native function/actions
+            BLangPrograms.populateNativeScope();
+
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
+            return reader.readProgram(byteIS);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+
+            try {
+                byteOutStream.close();
+            } catch (IOException ignore) {
             }
         }
     }
