@@ -50,7 +50,7 @@ class TreeBuilder {
      * @returns {Node} object tree of node elements.
      * @memberof TreeBuilder
      */
-    static build(json, parent) {
+    static build(json, parent, parentKind) {
         let childName;
         // 1. Backend API will send a serialized json of the AST tree.
         // 2. We consider all the json objects in the serialized json as nodes.
@@ -60,8 +60,9 @@ class TreeBuilder {
 
         // TODO: Special case node creation with kind.
         let node;
-        if (json.kind && treeNodes[json.kind + 'Node']) {
-            node = new (treeNodes[json.kind + 'Node'])();
+        const kind = json.kind;
+        if (kind && treeNodes[kind + 'Node']) {
+            node = new (treeNodes[kind + 'Node'])();
         } else {
             node = new Node();
         }
@@ -71,18 +72,27 @@ class TreeBuilder {
             if (childName !== 'position' && childName !== 'ws') {
                 const child = json[childName];
                 if (_.isPlainObject(child) && child.kind) {
-                    json[childName] = TreeBuilder.build(child, node);
+                    json[childName] = TreeBuilder.build(child, node, kind);
                 } else if (child instanceof Array) {
                     for (let i = 0; i < child.length; i++) {
                         const childItem = child[i];
                         if (_.isPlainObject(childItem) && childItem.kind) {
-                            child[i] = TreeBuilder.build(childItem, node);
+                            child[i] = TreeBuilder.build(childItem, node, kind);
                         }
                     }
                 }
             }
         }
         // TODO: Special case node creation with kind.
+
+        if (kind === 'If' && json.elseStatement && json.elseStatement.kind === 'If') {
+            json.ladderParent = true;
+        }
+
+        if (kind === 'Variable' && parentKind === 'CompilationUnit') {
+            json.global = true;
+        }
+
         json.parent = parent;
         Object.assign(node, json);
         node.setChildrenAlias();
