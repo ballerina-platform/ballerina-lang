@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.types;
+package org.ballerinalang.test.types.time;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -30,7 +30,7 @@ public class TimeTest {
     CompileResult result;
     @BeforeClass
     public void setup() {
-        result = BTestUtils.compile("test-src/types/time-type.bal");
+        result = BTestUtils.compile("test-src/types/time/time-type.bal");
     }
 
     @Test(description = "Test current time representation.")
