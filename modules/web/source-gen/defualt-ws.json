@@ -1,0 +1,249 @@
+{
+  "PackageDeclaration": {
+    "package": "",
+    "packageName": "",
+    ";": ""
+  },
+  "Import": {
+    "import": "",
+    "packageName": "",
+    ";": ""
+  },
+  "Identifier": {
+    "value": ""
+  },
+  "Action": {
+    "action": "",
+    "name": "",
+    "(": "",
+    "parameters": "",
+    ")": "",
+    "returnParameters": "",
+    "{": "",
+    "}": ""
+  },
+  "AnnotationAttachment": {
+    "@": "",
+    "{": "",
+    "attributes": "",
+    "}": ""
+  },
+  "AnnotationAttachmentAttributeValue": {},
+  "ArrayLiteralExpr": {
+    "[": "",
+    "expressions": "",
+    "]": ""
+  },
+  "ArrayType": {
+    "[": "",
+    "]": ""
+  },
+  "Assignment": {
+    "var": "",
+    "variables": "",
+    "=": "",
+    ";": ""
+  },
+  "BinaryExpr": {
+    "operatorKind": ""
+  },
+  "Block": {
+    "statements": ""
+  },
+  "Break": {
+    "break": "",
+    ";": ""
+  },
+  "BuiltInRefType": {
+    "typeKind": "",
+    "message": ""
+  },
+  "Comment": {
+    "comment": ""
+  },
+  "Connector": {
+    "connector": "",
+    "name": "",
+    "(": "",
+    ")": "",
+    "{": "",
+    "variableDefs": "",
+    "actions": "",
+    "}": ""
+  },
+  "ConnectorInitExpr": {
+    "create": "",
+    "(": "",
+    "expressions": "",
+    ")": ""
+  },
+  "ConstrainedType": {},
+  "Continue": {
+    "continue": "",
+    ";": ""
+  },
+  "ExpressionStatement": {
+    ";": ""
+  },
+  "FieldBasedAccessExpr": {
+    ".": "",
+    "fieldName": ""
+  },
+  "ForkJoin": {
+    "fork": "",
+    "{": "",
+    "workers": "",
+    "}": ""
+  },
+  "Function": {
+    "annotationAttachments": "",
+    "function": "",
+    "name": "",
+    "(": "",
+    "parameters": "",
+    ")": "",
+    "returnParameters": "",
+    "{": "",
+    "}": ""
+  },
+  "If": {
+    "if": "",
+    "(": "",
+    ")": "",
+    "{": "",
+    "}": "",
+    "else": ""
+  },
+  "IndexBasedAccessExpr": {
+    "[": "",
+    "]": ""
+  },
+  "Invocation": {
+    "packageAlias": "",
+    ":": "",
+    "name": "",
+    "(": "",
+    "argumentExpressions": "",
+    ")": "",
+    ".": ""
+  },
+  "Literal": {
+    "value": ""
+  },
+  "RecordLiteralExpr": {
+    "{": "",
+    "keyValuePairs": "",
+    "}": ""
+  },
+  "RecordLiteralKeyValue": {
+    ":": ""
+  },
+  "Resource": {
+    "annotationAttachments": "",
+    "parameters": "",
+    "{": "",
+    "}": ""
+  },
+  "Return": {
+    "return": "",
+    "expressions": "",
+    ";": ""
+  },
+  "SimpleVariableRef": {
+    "packageAlias": "",
+    ":": "",
+    "variableName": ""
+  },
+  "Struct": {
+    "annotationAttachments": "",
+    "struct": "",
+    "name": "",
+    "{": "",
+    "fields": "",
+    "}": ""
+  },
+  "Throw": {
+    "throw": "",
+    ";": ""
+  },
+  "Transform": {},
+  "TypeCastExpr": {
+    "(": "",
+    ")": ""
+  },
+  "TypeConversionExpr": {
+    "<": "",
+    ">": ""
+  },
+  "UnaryExpr": {
+    "operatorKind": ""
+  },
+  "UserDefinedType": {
+    "packageAlias": "",
+    ":": "",
+    "typeName": ""
+  },
+  "ValueType": {
+    "typeKind": ""
+  },
+  "Variable": {
+    "const": "",
+    "name": "",
+    "=": "",
+    ";": "",
+    "int": ""
+  },
+  "VariableDef": {
+    ";": ""
+  },
+  "While": {
+    "while": "",
+    "(": "",
+    ")": "",
+    "{": "",
+    "}": ""
+  },
+  "Worker": {
+    "{": "",
+    "}": ""
+  },
+  "WorkerReceive": {
+    "expressions": "",
+    "<-": "",
+    "workerName": "",
+    ";": ""
+  },
+  "WorkerSend": {
+    "expressions": "",
+    "->": "",
+    "workerName": "",
+    ";": ""
+  },
+  "XmlAttribute": {
+    "=": ""
+  },
+  "XmlCommentLiteral": {
+    "textFragments": ""
+  },
+  "XmlElementLiteral": {
+    "<": "",
+    "attributes": "",
+    ">": "",
+    "content": "",
+    "/>": ""
+  },
+  "XmlPiLiteral": {
+    "dataTextFragments": ""
+  },
+  "XmlQname": {
+    "</": "",
+    "localname": "",
+    ">": ""
+  },
+  "XmlQuotedString": {
+    "textFragments": ""
+  },
+  "XmlTextLiteral": {
+    "textFragments": ""
+  }
+}
