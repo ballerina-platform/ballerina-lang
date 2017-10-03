@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -81,6 +82,7 @@ public class SymbolTable {
     public final BType nullType = new BNullType();
     public final BType voidType = new BNoType(TypeTags.VOID);
     public final BType messageType = new BBuiltInRefType(TypeTags.MESSAGE, null);
+    public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;

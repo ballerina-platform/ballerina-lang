@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -241,14 +242,24 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = Lists.of(varRefExpr.type);
             return;
         }
-        BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
+
+        varRefExpr.pkgSymbol =
+                symResolver.resolveImportSymbol(varRefExpr.pos, env, names.fromIdNode(varRefExpr.pkgAlias));
+        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+            actualType = symTable.errType;
+            return;
+        } else if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+            actualType = symTable.stringType;
         } else {
-            BVarSymbol varSym = (BVarSymbol) symbol;
-            checkSefReferences(varRefExpr.pos, env, varSym);
-            varRefExpr.symbol = varSym;
-            actualType = varSym.type;
+            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            if (symbol == symTable.notFoundSymbol) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
+            } else {
+                BVarSymbol varSym = (BVarSymbol) symbol;
+                checkSefReferences(varRefExpr.pos, env, varSym);
+                varRefExpr.symbol = varSym;
+                actualType = varSym.type;
+            }
         }
 
         // Check type compatibility
@@ -621,6 +632,35 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
         bLangXMLQuotedString.concatExpr = getStringTemplateConcatExpr(bLangXMLQuotedString.textFragments);
         resultTypes = Lists.of(types.checkType(bLangXMLQuotedString, symTable.stringType, expTypes.get(0)));
+    }
+
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        BType actualType = symTable.errType;
+
+        // First analyze the variable reference expression.
+        checkExpr(xmlAttributeAccessExpr.expr, env, Lists.of(symTable.xmlType));
+
+        // Then analyze the index expression.
+        BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
+        if (indexExpr == null) {
+            actualType = symTable.xmlAttributesType;
+            if (xmlAttributeAccessExpr.lhsVar) {
+                dlog.error(xmlAttributeAccessExpr.pos, DiagnosticCode.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
+            }
+            return;
+        }
+
+        checkExpr(indexExpr, env, Lists.of(symTable.stringType)).get(0);
+        if (indexExpr.getKind() == NodeKind.XML_QNAME) {
+            ((BLangXMLQName) indexExpr).isUsedInXML = true;;
+        }
+
+        if (indexExpr.type.tag == TypeTags.STRING) {
+            actualType = symTable.stringType;
+        }
+
+        xmlAttributeAccessExpr.namespaces.putAll(symResolver.resolveAllNamespaces(env));
+        resultTypes = types.checkTypes(xmlAttributeAccessExpr, Lists.of(actualType), this.expTypes);
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {

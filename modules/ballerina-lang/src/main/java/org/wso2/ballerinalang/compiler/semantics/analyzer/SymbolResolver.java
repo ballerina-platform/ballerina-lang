@@ -152,6 +152,14 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
+        return resolvePkgSymbol(pos, env, pkgAlias, SymTag.PACKAGE);
+    }
+
+    public BSymbol resolveImportSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
+        return resolvePkgSymbol(pos, env, pkgAlias, SymTag.IMPORT);
+    }
+
+    private BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, int symTag) {
 
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -159,7 +167,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // Lookup for an imported package
-        BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, SymTag.PACKAGE);
+        BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, symTag);
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias.value);
         }
