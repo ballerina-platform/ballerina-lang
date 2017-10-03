@@ -136,6 +136,7 @@ class DebugChannel extends EventChannel {
     close() {
         clearInterval(this.ping);
         this.websocket.close();
+        this.trigger('connection-closed');
     }
 }
 

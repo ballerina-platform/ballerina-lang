@@ -38,6 +38,7 @@ class DebuggerPanel extends View {
         this.startApplication = this.startApplication.bind(this);
         this.startDebug = this.startDebug.bind(this);
         this.stopApplication = this.stopApplication.bind(this);
+        this.showRemoteDebugDialog = this.showRemoteDebugDialog.bind(this);
         this.state = {
             active: false,
             navigation: false,
@@ -66,12 +67,22 @@ class DebuggerPanel extends View {
         this.props.DebugManager.on('debug-hit', (message) => {
             this.setState({
                 navigation: true,
+                isDebugging: true,
                 message: processFrames(message),
             });
         });
+
+        this.props.DebugManager.on('execution-ended', () => {
+            this.setState({
+                active: false,
+                isDebugging: false,
+            });
+        });
+
         this.props.DebugManager.on('resume-execution', () => {
             this.setState({
                 navigation: false,
+                isDebugging: false,
                 message: { frames: [] },
             });
         });
@@ -93,6 +104,9 @@ class DebuggerPanel extends View {
 
     stopApplication() {
         this.props.commandProxy.dispatch(COMMANDS.STOP);
+    }
+    showRemoteDebugDialog() {
+        this.props.commandProxy.dispatch(COMMANDS.SHOW_REMOTE_DEBUG_DIALOG);
     }
 
     /**
@@ -136,7 +150,7 @@ class DebuggerPanel extends View {
                             type="button"
                             id="run_application"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Start Application"
+                            title="Run Program"
                             onClick={this.startApplication}
                         >
                             <span className="launch-label">Run</span>
@@ -145,10 +159,19 @@ class DebuggerPanel extends View {
                             type="button"
                             id="start_debug"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Start Application"
+                            title="Start Debugging"
                             onClick={this.startDebug}
                         >
                             <span className="launch-label">Debug</span>
+                        </div>
+                        <div
+                            type="button"
+                            id="start_debug"
+                            className="btn text-left btn-debug-activate col-xs-12"
+                            title="Start Application"
+                            onClick={this.showRemoteDebugDialog}
+                        >
+                            <span className="launch-label">Remote Debug</span>
                         </div>
                     </div>
                 </div>
