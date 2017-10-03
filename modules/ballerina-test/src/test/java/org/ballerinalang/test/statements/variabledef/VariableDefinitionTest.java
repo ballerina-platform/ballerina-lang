@@ -154,13 +154,13 @@ public class VariableDefinitionTest {
     public void testVariableDefNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
         //testDuplicateConstVariables
-        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 22, 4);
+        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 19, 4);
         //testDuplicateVariables
         BTestUtils.validateError(resultNegative, 1, "redeclared symbol 'b'", 5, 4);
         //testUndeclaredVariables
         BTestUtils.validateError(resultNegative, 2, "undefined symbol 'a'", 11, 15);
         //testUnsupportedTypeVariable
-        BTestUtils.validateError(resultNegative, 3, "unknown type 'Foo'", 17, 8);
+        BTestUtils.validateError(resultNegative, 3, "unknown type 'Foo'", 15, 8);
     }
 
     @Test(description = "Test defining a constant from an arrays type", enabled = false)

@@ -12,10 +12,7 @@ function testDuplicateVariables (string[] i) {
     }
 
     function testUnsupportedTypeVariable (string[] i) {
-
-        // Following line is invalid.
         Foo bar;
-        reply m;
     }
 
     const int b = 10;
