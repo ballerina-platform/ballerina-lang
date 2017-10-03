@@ -23,16 +23,13 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.logging.Logger;
 
 /**
  * Test cases for the log API

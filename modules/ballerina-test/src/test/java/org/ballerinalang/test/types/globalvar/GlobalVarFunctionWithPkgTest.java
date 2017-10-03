@@ -73,7 +73,8 @@ public class GlobalVarFunctionWithPkgTest {
         Assert.assertEquals(((BFloat) returnsChanged[0]).floatValue(), 80.0);
     }
 
-    @Test(description = "Test assigning global variable to another global variable in different package", enabled = false)
+    @Test(description = "Test assigning global variable to another global variable in different package",
+          enabled = false)
     public void testAssignGlobalVarToAnotherGlobalVar() {
         CompileResult result = BTestUtils.compile("test-src/types/globalvar/pkg/main");
         BValue[] returns = BTestUtils.invoke(result, "getAssignedGlobalVarFloat", new BValue[0]);
