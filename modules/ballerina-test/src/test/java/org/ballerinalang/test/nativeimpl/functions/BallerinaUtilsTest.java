@@ -32,8 +32,6 @@ import java.util.List;
 /**
  * Test Cases for ballerina.utils native functions.
  */
-// TODO: Enable test case after changes are done
-//@Test(enabled = false)
 public class BallerinaUtilsTest {
 
     private CompileResult compileResult;
@@ -135,7 +133,7 @@ public class BallerinaUtilsTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBase64toBase16Encode() {
         BValue[] args = new BValue[]{new BString("Ballerina HMAC BASE64 test")};
         BValue[] returnVals = BTestUtils.invoke(compileResult, "testBase64ToBase16Encode", args);
