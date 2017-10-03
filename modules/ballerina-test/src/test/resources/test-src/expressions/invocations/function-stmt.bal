@@ -46,6 +46,24 @@ function test3 () {
     }
 }
 
+function test4 () {
+    string a = "hello";
+    try {
+        a = "b";
+    } catch (error e) {
+        a = "c";
+    }
+}
+
+function test5 () {
+    string a = "hello";
+    try {
+        a = "b";
+    } finally {
+        a = "c";
+    }
+}
+
 function addFloat3 (float x, float y) (float z) {
     z = x + y;
     return;

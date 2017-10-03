@@ -56,7 +56,7 @@ public class FunctionTest {
         BTestUtils.invoke(result, "test1", args);
         BTestUtils.invoke(result, "test2", args);
         BTestUtils.invoke(result, "test3", args);
-       // BTestUtils.invoke(result, "test4", args);
-       // BTestUtils.invoke(result, "test5", args);
+        BTestUtils.invoke(result, "test4", args);
+        BTestUtils.invoke(result, "test5", args);
     }
 }
