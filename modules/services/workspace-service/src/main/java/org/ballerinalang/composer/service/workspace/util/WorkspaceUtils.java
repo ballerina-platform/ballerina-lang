@@ -383,9 +383,8 @@ public class WorkspaceUtils {
      * */
     private static void addParameters(List<Parameter> params, List<BLangVariable> argumentTypeNames) {
         if (argumentTypeNames != null) {
-            // TODO : support other TypeNodes
             argumentTypeNames.forEach(item -> params.add(createNewParameter(item.getName().getValue(),
-                  ((BLangValueType)item.getTypeNode()).getTypeKind().typeName())));
+                    item.getTypeNode().type.toString())));
         }
     }
 
