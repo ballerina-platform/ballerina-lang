@@ -18,14 +18,24 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
+import ASTFactory from '../../../../../ast/ast-factory';
+import TreeUtil from './../../../../../model/tree-util';
 import './try-node.css';
 
-class FinallyNode extends React.Component {
+class WhileNode extends React.Component {
 
     constructor(props) {
         super(props);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'While condition',
+            model: props.model,
+            getterMethod: props.model.getConditionString,
+            setterMethod: props.model.setConditionFromString,
+        };
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }
 
@@ -42,17 +52,18 @@ class FinallyNode extends React.Component {
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
-                    title={'Finally'}
+                    title={'While'}
                     expression={expression}
-                    model={model.parent}
-                >
-                </CompoundStatementDecorator>
+                    editorOptions={this.editorOptions}
+                    model={model}
+                    body={model.body}
+                />
             </g>
         );
     }
 }
 
-FinallyNode.propTypes = {
+WhileNode.propTypes = {
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
@@ -61,8 +72,8 @@ FinallyNode.propTypes = {
     }),
 };
 
-FinallyNode.contextTypes = {
+WhileNode.contextTypes = {
     mode: PropTypes.string,
 };
 
-export default FinallyNode;
+export default WhileNode;
