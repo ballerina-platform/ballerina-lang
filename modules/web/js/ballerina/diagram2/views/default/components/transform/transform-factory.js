@@ -79,10 +79,20 @@ class TransformFactory {
     /**
      * Create default expression based on argument type
      * @static
-     * @param {any} args args
+     * @param {any} type type
      * @memberof TransformFactory
      */
-    static createDefaultExpression(args) {
+    static createDefaultExpression(type) {
+        // TODO : get default values from environment and support other types
+        let fragment = FragmentUtils.createExpressionFragment('""');
+        if (type === 'string') {
+            fragment = FragmentUtils.createExpressionFragment('""');
+        } else if (type === 'int') {
+            fragment = FragmentUtils.createExpressionFragment('0');
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return exp;
         // TODO : create default expression based on argument type
     }
 
