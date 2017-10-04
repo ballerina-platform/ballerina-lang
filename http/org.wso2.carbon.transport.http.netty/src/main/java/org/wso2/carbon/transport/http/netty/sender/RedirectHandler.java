@@ -102,42 +102,52 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             /* Actual redirection happens only when the full response for the previous request
             has been received */
             if (msg instanceof LastHttpContent) {
-                if (isRedirect) {
-                    try {
-                        URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
-                        HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
-                        Util.setupTransferEncodingForRequest(httpCarbonRequest);
-                        HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
-
-                        if (isCrossDoamin) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Send redirect request using a new channel");
-                            }
-                            writeContentToNewChannel(locationUrl, httpCarbonRequest, httpRequest);
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Use existing channel to send the redirect request");
-                            }
-                            ctx.write(httpRequest);
-                            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                        }
-                    } catch (MalformedURLException e) {
-                        LOG.error("Error occurred when parsing redirect url", e);
-                        originalChannelContext.fireExceptionCaught(e);
-                    } catch (Exception e) {
-                        LOG.error("Error occurred during redirection", e);
-                        originalChannelContext.fireExceptionCaught(e);
-                    }
-
-                } else {
-                    originalChannelContext.fireChannelRead(msg);
-                }
+                redirectRequest(ctx, msg);
             } else {
                 //Content is still flowing through the channel and when it's not a redirect, pass it to the next handler
                 if (!isRedirect) {
                     originalChannelContext.fireChannelRead(msg);
                 }
             }
+        }
+    }
+
+    /**
+     * Handles the actual redirect.
+     *
+     * @param ctx Channel handler context
+     * @param msg Response message
+     */
+    private void redirectRequest(ChannelHandlerContext ctx, Object msg) {
+        if (isRedirect) {
+            try {
+                URL locationUrl = new URL(redirectState.get(Constants.LOCATION));
+                HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
+                Util.setupTransferEncodingForRequest(httpCarbonRequest);
+                HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
+
+                if (isCrossDoamin) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Send redirect request using a new channel");
+                    }
+                    writeContentToNewChannel(locationUrl, httpCarbonRequest, httpRequest);
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Use existing channel to send the redirect request");
+                    }
+                    ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
+                    ctx.write(httpRequest);
+                    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                }
+            } catch (MalformedURLException e) {
+                LOG.error("Error occurred when parsing redirect url", e);
+                originalChannelContext.fireExceptionCaught(e);
+            } catch (Exception e) {
+                LOG.error("Error occurred during redirection", e);
+                originalChannelContext.fireExceptionCaught(e);
+            }
+        } else {
+            originalChannelContext.fireChannelRead(msg);
         }
     }
 
@@ -175,12 +185,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 }
                 originalChannelContext.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
 
-                if (redirectCount.intValue() < maxRedirectCount) {
+                if (redirectCount.intValue() <= maxRedirectCount) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Redirection required");
                     }
                     isRedirect = true;
                 } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Maximum redirect count reached.");
+                    }
                     //Fire next handler in the original channel
                     isRedirect = false;
                     originalChannelContext.fireChannelRead(msg);

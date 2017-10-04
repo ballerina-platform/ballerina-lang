@@ -53,9 +53,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
@@ -69,8 +71,10 @@ public class HTTPClientRedirectTestCase {
     HttpWsConnectorFactory connectorFactory;
     TransportsConfiguration transportsConfiguration;
     public static final String FINAL_DESTINATION = "http://localhost:9000/destination";
-    public static final String RELATIVE_REDIRECT_URL = "/redirect2";
-    public static final int REDIRECT_DESTINATION_PORT = 9091;
+    public static final String RELATIVE_REDIRECT_URL1 = "/redirect2";
+    public static final int REDIRECT_DESTINATION_PORT1 = 9091;
+    public static final int REDIRECT_DESTINATION_PORT2 = 9092;
+    public static final String ABSOLUTE_REDIRECT_URL = "http://localhost:9092/redirect2";
 
     private String testValue = "Test Message";
     private String testValueForLoopRedirect = "Test Loop";
@@ -102,28 +106,47 @@ public class HTTPClientRedirectTestCase {
         HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
                 Unpooled.EMPTY_BUFFER);
         response.headers().set(HttpHeaders.Names.LOCATION, FINAL_DESTINATION);
-        embeddedChannel.attr(Constants.ORIGINAL_REQUEST).set(createHttpRequestForFinalRedirectLocation());
+        embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
+                .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
         embeddedChannel.writeInbound(response);
         embeddedChannel.writeInbound(LastHttpContent.EMPTY_LAST_CONTENT);
         assertNotNull(embeddedChannel.readOutbound());
+    }
+
+    @Test
+    public void unitTestForRedirectLoop() throws URISyntaxException, IOException {
+        EmbeddedChannel embeddedChannel = new EmbeddedChannel();
+        embeddedChannel.pipeline().addLast(new HttpResponseDecoder());
+        embeddedChannel.pipeline().addLast(new HttpRequestEncoder());
+        embeddedChannel.pipeline().addLast(new RedirectHandler(null, false, 5));
+        HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.TEMPORARY_REDIRECT,
+                Unpooled.EMPTY_BUFFER);
+        response.headers().set(HttpHeaders.Names.LOCATION, ABSOLUTE_REDIRECT_URL);
+        embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
+                .set(createHttpRequest(Constants.HTTP_POST_METHOD, ABSOLUTE_REDIRECT_URL));
+        embeddedChannel.attr(Constants.REDIRECT_COUNT).set(new AtomicInteger(5));
+        embeddedChannel.writeInbound(response);
+        embeddedChannel.writeInbound(LastHttpContent.EMPTY_LAST_CONTENT);
+        assertNull(embeddedChannel.readOutbound());
     }
 
     /**
      * Test for single redirection in cross domain situation where the location is defined as an absolute path.
      */
     @Test
-    public void singleRedirectionTest() {
+    public void integrationTestForSingleRedirect() {
         try {
 
             httpServer = TestUtil.startHTTPServer(TestUtil.TEST_HTTP_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
 
             redirectServer = TestUtil
-                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT, testValue, Constants.TEXT_PLAIN,
+                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(createHttpCarbonRequest(null));
+            HttpResponseFuture responseFuture = httpClientConnector
+                    .send(createHttpCarbonRequest(null, REDIRECT_DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -143,19 +166,32 @@ public class HTTPClientRedirectTestCase {
     }
 
     /**
-     * Test for redirection loop. Cross domain false situation with a relative path.
+     * Test for redirection loop.
      */
     @Test
-    public void testRedirectionLoop() {
+    public void integrationTestForRedirectLoop() {
         try {
+            SenderConfiguration senderConfiguration = HTTPConnectorUtil
+                    .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+            senderConfiguration.setFollowRedirect(true);
+            senderConfiguration.setMaxRedirectCount(2);
 
-            redirectServer = TestUtil.startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT, testValueForLoopRedirect,
-                    Constants.TEXT_PLAIN, HttpResponseStatus.TEMPORARY_REDIRECT.code(), RELATIVE_REDIRECT_URL);
+            HttpClientConnector httpClientConnector = connectorFactory
+                    .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                            senderConfiguration);
+
+            HttpServer redirectServer1 = TestUtil
+                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT1, testValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), ABSOLUTE_REDIRECT_URL);
+
+            HttpServer redirectServer2 = TestUtil
+                    .startHTTPServerForRedirect(REDIRECT_DESTINATION_PORT2, testValueForLoopRedirect,
+                            Constants.TEXT_PLAIN, HttpResponseStatus.TEMPORARY_REDIRECT.code(), RELATIVE_REDIRECT_URL1);
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPSConnectorListener listener = new HTTPSConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(RELATIVE_REDIRECT_URL));
+                    .send(createHttpCarbonRequest(null, REDIRECT_DESTINATION_PORT1));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -167,15 +203,17 @@ public class HTTPClientRedirectTestCase {
                     .collect(Collectors.joining("\n"));
 
             assertEquals(testValueForLoopRedirect, result);
-            redirectServer.shutdown();
+            redirectServer1.shutdown();
+            redirectServer2.shutdown();
+
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testRedirectionLoop", e);
         }
     }
 
-    private HTTPCarbonMessage createHttpCarbonRequest(String requestUrl) {
+    private HTTPCarbonMessage createHttpCarbonRequest(String requestUrl, int destinationPort) {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
-        msg.setProperty(Constants.PORT, REDIRECT_DESTINATION_PORT);
+        msg.setProperty(Constants.PORT, destinationPort);
         msg.setProperty(Constants.PROTOCOL, "http");
         msg.setProperty(Constants.HOST, "localhost");
         msg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
@@ -186,21 +224,21 @@ public class HTTPClientRedirectTestCase {
         return msg;
     }
 
-    private HTTPCarbonMessage createHttpRequestForFinalRedirectLocation() {
+    private HTTPCarbonMessage createHttpRequest(String method, String location) {
         URL locationUrl = null;
         try {
-            locationUrl = new URL(FINAL_DESTINATION);
+            locationUrl = new URL(location);
         } catch (MalformedURLException e) {
             TestUtil.handleException("MalformedURLException occurred while running unitTestForRedirectHandler ", e);
         }
 
-        HttpMethod httpMethod = new HttpMethod(Constants.HTTP_GET_METHOD);
+        HttpMethod httpMethod = new HttpMethod(method);
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
         httpCarbonRequest.setProperty(Constants.PORT, locationUrl.getPort());
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HOST, locationUrl.getHost());
-        httpCarbonRequest.setProperty(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
+        httpCarbonRequest.setProperty(Constants.HTTP_METHOD, method);
         httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
         httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
 
