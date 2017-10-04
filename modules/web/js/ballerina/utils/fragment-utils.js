@@ -38,6 +38,32 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for service resource.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createServiceResourceFragment(sourceString) {
+        return {
+            expectedNodeType: 'service-resource',
+            source: sourceString,
+        };
+    }
+
+     /**
+     * Create fragment for connector action.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createConnectorActionFragment(sourceString) {
+        return {
+            expectedNodeType: 'connector-action',
+            source: sourceString,
+        };
+    }
+
+    /**
      * Create fragment for expression.
      *
      * @param {string} sourceString - source fragment input.

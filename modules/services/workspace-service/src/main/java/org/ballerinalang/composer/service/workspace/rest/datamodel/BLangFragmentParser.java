@@ -65,15 +65,20 @@ public class BLangFragmentParser {
     protected static JsonObject getJsonNodeForFragment(JsonObject jsonModel, BLangSourceFragment fragment) {
         JsonObject fragmentNode = null;
         JsonArray jsonArray = jsonModel.getAsJsonArray(BLangJSONModelConstants.TOP_LEVEL_NODES);
-        if (fragment.getExpectedNodeType().equals(BLangFragmentParserConstants.TOP_LEVEL_NODE)) {
-            return jsonArray.get(0).getAsJsonObject();
-        }
-        JsonObject functionObj = jsonArray.get(0).getAsJsonObject(); // 0 is package def
-        JsonObject bodyObj = functionObj.getAsJsonObject(BLangJSONModelConstants.BODY);
+        JsonObject rootConstruct = jsonArray.get(0).getAsJsonObject(); // 0 is package def
         switch (fragment.getExpectedNodeType()) {
+            case BLangFragmentParserConstants.TOP_LEVEL_NODE:
+                fragmentNode = rootConstruct;
+                break;
+            case BLangFragmentParserConstants.SERVICE_RESOURCE:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RESOURCES).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.CONNECTOR_ACTION:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ACTIONS).get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.EXPRESSION:
                 // 0 & 1 are function args and return types, 2 is the var def stmt
-                JsonObject varDef = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                JsonObject varDef = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(2).getAsJsonObject();
                 // 0th child is the var ref expression of var def stmt
                 fragmentNode = varDef.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
@@ -81,7 +86,7 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 // 0 & 1 are function args and return types, 2 is the assignment statement
-                JsonObject assignmentStmt = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                JsonObject assignmentStmt = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(2).getAsJsonObject();
                 // 0th child is the var ref list expression of assignment stmt
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
@@ -89,22 +94,23 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.STATEMENT:
                 // 0 & 1 are function args and return types, 2 is the statement came from source fragment
-                fragmentNode = bodyObj.getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
+                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
                 fragmentNode.remove(BLangJSONModelConstants.CHILDREN);
                 fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
                 break;
@@ -135,6 +141,14 @@ public class BLangFragmentParser {
         switch (sourceFragment.getExpectedNodeType()) {
             case BLangFragmentParserConstants.TOP_LEVEL_NODE:
                 parsableText = sourceFragment.getSource();
+                break;
+            case BLangFragmentParserConstants.SERVICE_RESOURCE:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.SERVICE_BODY_RESOURCE_WRAPPER, sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.CONNECTOR_ACTION:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.CONNECTOR_BODY_ACTION_WRAPPER, sourceFragment.getSource());
                 break;
             case BLangFragmentParserConstants.EXPRESSION:
                 parsableText = getFromTemplate(

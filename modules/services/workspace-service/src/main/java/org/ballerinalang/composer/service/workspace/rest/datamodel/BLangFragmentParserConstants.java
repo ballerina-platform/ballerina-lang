@@ -23,6 +23,8 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 public class BLangFragmentParserConstants {
     // expected node types
     public static final String TOP_LEVEL_NODE = "top-level-node";
+    public static final String CONNECTOR_ACTION = "connector-action";
+    public static final String SERVICE_RESOURCE = "service-resource";
     public static final String STATEMENT = "statement";
     public static final String EXPRESSION = "expression";
     public static final String JOIN_CONDITION = "join-condition";
@@ -32,6 +34,8 @@ public class BLangFragmentParserConstants {
     public static final String VARIABLE_REFERENCE_LIST = "variable_reference_list";
 
     // wrapper templates
+    protected static final String SERVICE_BODY_RESOURCE_WRAPPER = "service<http> service1{\n$FRAGMENT\n}";
+    protected static final String CONNECTOR_BODY_ACTION_WRAPPER = "connector ClientConnector(string ag){\n$FRAGMENT\n}";
     protected static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT\n}";
     protected static final String VAR_DEF_STMT_EXPR_WRAPPER = "function testFunction(){any val =\n$FRAGMENT;\n}";
     protected static final String FORK_JOIN_CONDITION_WRAPPER =
