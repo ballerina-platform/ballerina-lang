@@ -563,7 +563,7 @@ class SizingUtil {
         components.annotation.w = bodyWidth;
         components.transportLine.h = totalResourceHeight;
         // Set initial height to the body
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h - 50;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
         viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);

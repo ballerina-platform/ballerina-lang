@@ -59,7 +59,7 @@ class ResourceNode extends React.Component {
      * Handles the mouse leave event on the service definition
      */
     onMouseOut() {
-        if (!this.props.model.viewState.showWebSocketMethods) {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
             this.setState({ style: 'hideResourceGroup' });
         }
     }
