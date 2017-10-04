@@ -307,7 +307,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private static BLangFunction getMainFunction(BLangPackage pkgNode) {
-
         List<BLangFunction> functions = pkgNode.functions.stream().filter(f -> (f.name.value
                 .equals(MAIN_FUNCTION_NAME) && f.symbol.params.size() == 1 && f.symbol.retParams.size() == 0))
                 .collect(Collectors.toList());
@@ -494,9 +493,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             expr = returnNode.exprs.get(i);
             this.genNode(expr, this.env);
             if (expr.isMultiReturnExpr()) {
-                BLangInvocation invExpr = (BLangInvocation) expr;
-                for (int j = 0; j < invExpr.regIndexes.length; j++) {
-                    emit(this.typeTagToInstr(invExpr.types.get(j).tag), i, invExpr.regIndexes[j]);
+                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
+                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
+                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), i, invExpr.getRegIndexes()[j]);
                     i++;
                 }
             } else {

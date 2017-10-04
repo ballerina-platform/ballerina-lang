@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,7 +37,6 @@ import org.testng.annotations.Test;
  * b = 10.1L;
  */
 public class BIntegerValueTest {
-    private ProgramFile bLangProgram;
     private CompileResult result;
 
     @BeforeClass

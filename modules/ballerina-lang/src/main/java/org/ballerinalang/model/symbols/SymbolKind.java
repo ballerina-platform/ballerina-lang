@@ -40,6 +40,9 @@ public enum SymbolKind {
     SERVICE_VARIABLE,
     CONNECTOR_VARIABLE,
 
+    CAST_OPERATOR,
+    CONVERSION_OPERATOR,
+
     XMLNS,
     OTHER
 }
