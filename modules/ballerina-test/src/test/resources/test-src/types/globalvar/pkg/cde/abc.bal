@@ -1,6 +1,6 @@
-package lang.globalvar.pkg.cde;
+package pkg.cde;
 
-import lang.globalvar.pkg.efg;
+import pkg.efg;
 
 int sample = 200;
 

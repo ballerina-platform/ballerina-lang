@@ -1,6 +1,6 @@
-package lang.globalvar.pkg.main;
+package pkg.main;
 
-import lang.globalvar.pkg.variable;
+import pkg.variable;
 
 float glbVarFloat = <float> variable:glbVarAnyInt;
 

@@ -1,4 +1,4 @@
-package lang.globalvar.pkg.variable;
+package pkg.variable;
 
 int glbVarInt = 800;
 string glbVarString = "value";
