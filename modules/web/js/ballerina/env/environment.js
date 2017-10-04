@@ -186,13 +186,23 @@ class BallerinaEnvironment extends EventChannel {
             if (!_.isNil(builtinType)) {
                 this._types.push(builtinType.name);
                 if (builtinType.defaultValue) {
-                    this._defaultValues.push({ name: builtinType.name, defaultValue: builtinType.defaultValue });
+                    this._defaultValues[builtinType.name] = builtinType.defaultValue;
                 }
             }
         });
         this._types = _.sortBy(this._types, [function (type) {
             return type;
         }]);
+    }
+
+    /**
+     * Get default value of given type
+     * @param {any} type type
+     * @returns default value
+     * @memberof BallerinaEnvironment
+     */
+    getDefaultValue(type) {
+        return this._defaultValues[type];
     }
 
     /**

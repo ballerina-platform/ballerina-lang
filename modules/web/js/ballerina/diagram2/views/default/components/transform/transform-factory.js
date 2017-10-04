@@ -63,6 +63,29 @@ class TransformFactory {
         return refExpr;
     }
 
+    /**
+     * Create assignment statement from given args
+     * @static
+     * @param {any} args arguments
+     * @param {Expression} args.expression expression for the assignment
+     * @memberof TransformFactory
+     */
+    static createAssignmentStatement(args) {
+        const assignment = NodeFactory.createAssignment({});
+        assignment.setExpression(args.expression);
+        return assignment;
+    }
+
+    /**
+     * Create default expression based on argument type
+     * @static
+     * @param {any} args args
+     * @memberof TransformFactory
+     */
+    static createDefaultExpression(args) {
+        // TODO : create default expression based on argument type
+    }
+
 }
 
 export default TransformFactory;
