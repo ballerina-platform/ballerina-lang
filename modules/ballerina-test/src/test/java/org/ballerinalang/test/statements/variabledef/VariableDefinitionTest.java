@@ -163,6 +163,7 @@ public class VariableDefinitionTest {
         BTestUtils.validateError(resultNegative, 3, "unknown type 'Foo'", 15, 8);
     }
 
+    //TODO Fix below after syntax error parser merged
     @Test(description = "Test defining a constant from an arrays type", enabled = false)
     public void testArrayTypeConstant() {
         result = BTestUtils.compile("test-src/statements/variabledef/array-type-constants.bal");

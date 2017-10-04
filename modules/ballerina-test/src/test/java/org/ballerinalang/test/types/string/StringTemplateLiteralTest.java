@@ -36,14 +36,6 @@ public class StringTemplateLiteralTest {
         result = BTestUtils.compile("test-src/types/string/string-template-literal.bal");
     }
 
-    @Test(enabled = false)
-    public void testEmptyStringTemplate() {
-        BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "emptyStringTemplate", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "");
-    }
-
     @Test
     public void testStringTemplateWithText1() {
         BValue[] args = {};
@@ -227,5 +219,14 @@ public class StringTemplateLiteralTest {
         BValue[] returns = BTestUtils.invoke(result, "stringTemplateWithText23", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+    }
+
+    //TODO fix this empty stack issue.
+    @Test(enabled = false)
+    public void testEmptyStringTemplate() {
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "emptyStringTemplate", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "");
     }
 }
