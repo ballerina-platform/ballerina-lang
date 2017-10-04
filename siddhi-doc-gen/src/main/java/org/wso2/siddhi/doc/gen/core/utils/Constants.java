@@ -66,7 +66,7 @@ public class Constants {
     public static final String MKDOCS_BUILD_COMMAND_SITE_DIRECTORY_ARGUMENT = "-d";
 
     public static final String GIT_REMOTE = "origin";
-    public static final String GIT_REMOTE_WITH_USERNAME_PASSWORD = "https://%s:%s@github.com/suhothayan/siddhi.git";
+    public static final String GIT_REMOTE_WITH_USERNAME_PASSWORD = "https://%s:%s@github.com/wso2/siddhi.git";
     public static final String GIT_MASTER_BRANCH = "master";
     public static final String GIT_GH_PAGES_BRANCH = "gh-pages";
 
