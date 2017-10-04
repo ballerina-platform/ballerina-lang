@@ -65,6 +65,7 @@
                         </goals>
                         <phase>initialize</phase>
                         <configuration>
+                            <skip>${skipClientSideBuild}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>install</argument>
@@ -80,6 +81,7 @@
                       </goals>
                       <phase>pre-clean</phase>
                       <configuration>
+                        <skip>${skipClientSideBuild}</skip>
                         <executable>${npm.executable}</executable>
                         <arguments>
                           <argument>install</argument>
@@ -94,6 +96,7 @@
                         </goals>
                         <phase>clean</phase>
                         <configuration>
+                            <skip>${skipClientSideBuild}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
@@ -108,6 +111,7 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
+                            <skip>${skipClientSideBuild}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
@@ -161,7 +165,7 @@
                         <phase>validate</phase>
                         <goals>
                             <goal>replace</goal>
-                        </goals> 
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
@@ -173,11 +177,11 @@
                         <replacement>
                             <token>"version": "(.*?)",</token>
                             <value>"version": "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}",</value>
-                        </replacement> 
+                        </replacement>
                         <replacement>
                             <token>Ballerina Composer v(.*?)( \|)</token>
                             <value>Ballerina Composer v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion} |</value>
-                        </replacement> 
+                        </replacement>
                         <replacement>
                             <token>id="aboutModalLabel"&gt;v(.*?)&lt;</token>
                             <value>id="aboutModalLabel"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}&lt;</value>
@@ -208,6 +212,12 @@
                 <npm.build.command>build-electron</npm.build.command>
             </properties>
         </profile>
+        <profile>
+            <id>skip-client</id>
+            <properties>
+                <skipClientSideBuild>true</skipClientSideBuild>
+            </properties>
+        </profile>
     </profiles>
 
     <properties>
@@ -216,5 +226,6 @@
         <npm.build.command>build</npm.build.command>
         <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
         <replacer.plugin.version>1.5.3</replacer.plugin.version>
+        <skipClientSideBuild>false</skipClientSideBuild>
     </properties>
 </project>
