@@ -228,11 +228,31 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
         defineBinaryOperator(OperatorKind.EQUAL, typeType, typeType, booleanType, InstructionCodes.TEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, jsonType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, nullType, jsonType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, xmlType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, nullType, xmlType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, datatableType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, nullType, datatableType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, anyType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, nullType, anyType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, mapType, nullType, booleanType, InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, nullType, mapType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, typeType, typeType, booleanType, InstructionCodes.TNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, jsonType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, jsonType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, xmlType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, xmlType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, datatableType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, datatableType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, anyType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, anyType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, mapType, nullType, booleanType, InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, mapType, booleanType, InstructionCodes.RNE);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
