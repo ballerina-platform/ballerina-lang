@@ -51,7 +51,7 @@ function floatReturn()(float) {
 
 function anyToAnyExplicitCasting() (any) {
   any abc = jsonReturnFunction();
-  any val = (any)abc;
+  any val = abc;
   return val;
 }
 
@@ -82,5 +82,3 @@ function assignmentTest()(any a) {
     val = 44.3;
     return val;
 }
-
-
