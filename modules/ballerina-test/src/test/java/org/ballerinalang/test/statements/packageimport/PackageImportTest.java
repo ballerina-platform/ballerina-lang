@@ -19,23 +19,24 @@
 package org.ballerinalang.test.statements.packageimport;
 
 import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.test.utils.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  * Tests covering package imports.
  */
-// TODO: Enable test case after changes are done
-@Test(enabled = false)
 public class PackageImportTest {
 
     /*
      * Negative tests
      */
     
-    @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "duplicate-import.bal:4: redeclared symbol 'system'")
+    @Test
     public void testDuplicatePackageImports() {
-        BTestUtils.compile("test-src/statements/packageimport/duplicate-import-negative.bal");
+        CompileResult result = BTestUtils.compile(
+                "test-src/statements/packageimport/duplicate-import-negative.bal");
+        // TODO: This should handle in a proper way after duplicate import is handled.
+        Assert.assertTrue(result.getDiagnostics().length > 0);
     }
 }
