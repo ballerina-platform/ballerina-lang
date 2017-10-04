@@ -72,7 +72,7 @@ class Abstract{{name}} extends {{#if isStatement}}Statement{{/if}}{{#if isExpres
 
     remove{{methodSuffix}}(node, silent) {
         const index = this.getIndexOf{{methodSuffix}}(node);
-        this.remove{{methodSuffix}}ByIndex(index);
+        this.remove{{methodSuffix}}ByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
