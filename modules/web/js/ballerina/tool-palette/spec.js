@@ -6,6 +6,8 @@ export const TOOL = PropTypes.shape({
     icon: PropTypes.string,
     title: PropTypes.string,
     description: PropTypes.string,
+    factoryArgs: PropTypes.objectOf(Object),
+    nodeFactoryMethod: PropTypes.func,
 });
 
 export const TOOL_GROUP = PropTypes.shape({
