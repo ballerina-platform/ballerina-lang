@@ -38,7 +38,6 @@ public class BLangFragmentParser {
     private static final Logger logger = LoggerFactory.getLogger(BLangFragmentParser.class);
 
     public static final String SYNTAX_ERRORS = "syntax_errors";
-    public static final String TEMP_UNTITLED = "temp/untitled";
     public static final String ERROR = "error";
 
     public static String parseFragment(BLangSourceFragment sourceFragment) {
@@ -115,7 +114,7 @@ public class BLangFragmentParser {
 
     protected static JsonElement getJsonModel(String source) throws IOException {
         String fileName = "untitled";
-        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.TYPE_CHECK)
+        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.DEFINE)
                 .getBLangPackage();
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
@@ -126,51 +125,6 @@ public class BLangFragmentParser {
             // This should never occur.
             throw new AssertionError("Error while serializing source to JSON.");
         }
-
-//        ByteArrayInputStream inputStream = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8));
-//        ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
-//        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-//        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-//
-//        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-//        BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
-//        ballerinaParser.setErrorHandler(errorStrategy);
-//
-//        GlobalScope globalScope = GlobalScope.getInstance();
-//        BTypes.loadBuiltInTypes(globalScope);
-//        BLangPackage bLangPackage = new BLangPackage(globalScope);
-//        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-//        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
-//                StringUtils.EMPTY);
-//        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(true, ballerinaToken, bLangModelBuilder,
-//                new File(TEMP_UNTITLED).toPath());
-//        ballerinaParser.addParseListener(ballerinaBaseListener);
-//        ballerinaParser.compilationUnit();
-//        BallerinaFile bFile = bLangModelBuilder.build();
-
-//        JsonObject jsonModelRoot = new JsonObject();
-//        JsonArray errors = new JsonArray();
-//        for (SyntaxError error : errorStrategy.getErrorTokens()) {
-//            // reduce number of lines in wrapper function from row count
-//            error.setRow(error.getRow() - 1);
-//            errors.add(error.toJson());
-//        }
-//
-//        if (errorStrategy.getErrorTokens().isEmpty()
-//                /* if parser recovered the error */
-//                || (bFile.getCompilationUnits().length > 0
-//                && (((BallerinaFunction) bFile.getCompilationUnits()[0]).getCallableUnitBody()
-//                .getStatements().length == 1)
-//                /* if the only recovered error is the additional semicolon error*/
-//                && errorStrategy.getErrorTokens().size() == 1 &&
-//                errorStrategy.getErrorTokens().get(0).getText().contains("unwanted token ';'"))) {
-//            BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(jsonModelRoot);
-//            bFile.accept(jsonModelBuilder);
-//        } else {
-//            jsonModelRoot.add(SYNTAX_ERRORS, errors);
-//        }
-//
-//        return jsonModelRoot;
     }
 
     protected static String getParsableString(BLangSourceFragment sourceFragment) {
