@@ -65,7 +65,6 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
-        console.log(this.props.model);
         // Following is how we render the diagram.
         // 1 First clear any intermediate state we have set.
         this.props.model.accept(new Clean());
