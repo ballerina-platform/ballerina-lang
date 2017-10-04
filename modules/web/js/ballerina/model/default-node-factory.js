@@ -15,33 +15,64 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import FragmentUtils from './../utils/fragment-utils';
 import NodeFactory from './node-factory';
+import TreeBuilder from './tree-builder';
+
+/**
+ * Creates the node instance for given source fragment
+ *
+ * @param {Fragment} fragment Source Fragment
+ */
+function getNodeForFragment(fragment) {
+    const parsedJson = FragmentUtils.parseFragment(fragment);
+    return TreeBuilder.build(parsedJson);
+}
 
 class DefaultNodeFactory {
     /**
-     * Create main function.
-     * @param {Object} json - node attributes as a json
+     * Create main function
      * @return {Node} function node for main function
      * @memberof DefaultNodeFactory
      * */
-    createMainFunction(json) {
-        const functionNode = NodeFactory.createFunction(json);
-        const name = NodeFactory.createIdentifier({});
-        const parameter = NodeFactory.createVariable({});
-        const parameterName = NodeFactory.createIdentifier({});
-        const valueType = NodeFactory.createValueType({});
-        const arrayType = NodeFactory.createArrayType({});
-        valueType.setTypeKind('string', true);
-        arrayType.setElementType(valueType, true);
-        parameterName.setValue('args', true);
-        parameter.setName(parameterName, true);
-        parameter.setTypeNode(valueType);
-        name.setValue('main', true);
-        functionNode.setName(name);
-        functionNode.addParameters(parameter, -1, true);
-        return functionNode;
+    createMainFunction() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                function main(string[] args) {
+
+                }
+            `)
+        );
     }
+
+    createHTTPServiceDef() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                service<http> service1 {
+
+                }
+            `)
+        );
+    }
+
+    createWSServiceDef() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                service<ws> service1 {
+                    
+                }
+            `)
+        );
+    }
+
+    createAssignmentStmt() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment('a = b;'));
+    }
+
+    createVarDefStmt() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+    }
+
 }
 
 export default new DefaultNodeFactory();

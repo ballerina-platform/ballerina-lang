@@ -20,7 +20,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import $ from 'jquery';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import InitialTools from './item-provider/initial-definitions';
+import DefaultTools from './item-provider/default-tools';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import DefaultASTFactory from '../ast/default-ast-factory';
@@ -454,7 +454,7 @@ class ToolPaletteView extends React.Component {
             currentTools.collapsed = searching;
         }
         // get the constructs
-        let constructs = _.cloneDeep(InitialTools[0]);
+        let constructs = _.cloneDeep(DefaultTools);
         // get imported packages
         const imports = []; // TODOX model.getImportDeclarations();
         // convert imports to tool groups
