@@ -70,7 +70,7 @@ class AbstractFunctionTypeNode extends Node {
 
     removeParamTypeNode(node, silent) {
         const index = this.getIndexOfParamTypeNode(node);
-        this.removeParamTypeNodeByIndex(index);
+        this.removeParamTypeNodeByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -187,7 +187,7 @@ class AbstractFunctionTypeNode extends Node {
 
     removeReturnParamTypeNode(node, silent) {
         const index = this.getIndexOfReturnParamTypeNode(node);
-        this.removeReturnParamTypeNodeByIndex(index);
+        this.removeReturnParamTypeNodeByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

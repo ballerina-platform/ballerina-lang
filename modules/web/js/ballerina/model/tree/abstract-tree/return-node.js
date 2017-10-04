@@ -70,7 +70,7 @@ class AbstractReturnNode extends StatementNode {
 
     removeExpressions(node, silent) {
         const index = this.getIndexOfExpressions(node);
-        this.removeExpressionsByIndex(index);
+        this.removeExpressionsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

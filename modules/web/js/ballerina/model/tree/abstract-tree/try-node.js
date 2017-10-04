@@ -97,7 +97,7 @@ class AbstractTryNode extends StatementNode {
 
     removeCatchBlocks(node, silent) {
         const index = this.getIndexOfCatchBlocks(node);
-        this.removeCatchBlocksByIndex(index);
+        this.removeCatchBlocksByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

@@ -19,13 +19,13 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractUnaryExprNode extends ExpressionNode {
+class AbstractAnnotationAttachmentAttributeNode extends ExpressionNode {
 
 
-    setOperatorKind(newValue, silent, title) {
-        const oldValue = this.operatorKind;
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.operatorKind = newValue;
+        this.name = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractUnaryExprNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'operatorKind',
+                    attributeName: 'name',
                     newValue,
                     oldValue,
                 },
@@ -41,18 +41,18 @@ class AbstractUnaryExprNode extends ExpressionNode {
         }
     }
 
-    getOperatorKind() {
-        return this.operatorKind;
+    getName() {
+        return this.name;
     }
 
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setValue(newValue, silent, title) {
+        const oldValue = this.value;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.value = newValue;
 
-        this.expression.parent = this;
+        this.value.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -60,7 +60,7 @@ class AbstractUnaryExprNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'value',
                     newValue,
                     oldValue,
                 },
@@ -68,12 +68,12 @@ class AbstractUnaryExprNode extends ExpressionNode {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getValue() {
+        return this.value;
     }
 
 
 
 }
 
-export default AbstractUnaryExprNode;
+export default AbstractAnnotationAttachmentAttributeNode;

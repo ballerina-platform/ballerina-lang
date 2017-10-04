@@ -70,7 +70,7 @@ class AbstractAnnotationAttachmentAttributeValueNode extends ExpressionNode {
 
     removeValueArray(node, silent) {
         const index = this.getIndexOfValueArray(node);
-        this.removeValueArrayByIndex(index);
+        this.removeValueArrayByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

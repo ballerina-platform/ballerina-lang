@@ -124,7 +124,7 @@ class AbstractImportNode extends Node {
 
     removePackageName(node, silent) {
         const index = this.getIndexOfPackageName(node);
-        this.removePackageNameByIndex(index);
+        this.removePackageNameByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
