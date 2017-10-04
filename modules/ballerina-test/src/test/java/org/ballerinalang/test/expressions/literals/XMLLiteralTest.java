@@ -1,59 +1,110 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- * <p>
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-package org.ballerinalang.nativeimpl.functions;
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+package org.ballerinalang.test.expressions.literals;
+
 
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.ParserException;
-import org.ballerinalang.util.exceptions.SemanticException;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 /**
  * Test class for XML literal.
+ *
+ * @since 0.94
  */
 public class XMLLiteralTest {
-    private ProgramFile programFile;
-    private ProgramFile literalWithNamespacesProgFile;
 
+    CompileResult result;
+    CompileResult literalWithNamespacesResult;
+    CompileResult negativeResult;
+    
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/xml/xmlLiteralTest.bal");
-        literalWithNamespacesProgFile = BTestUtils.getProgramFile("samples/xml/xmlLiteralsWithNamespaces.bal");
+        result = BTestUtils.compile("test-src/expressions/literals/xml/xml-literals.bal");
+        literalWithNamespacesResult =
+                BTestUtils.compile("test-src/expressions/literals/xml/xml-literals-with-namespaces.bal");
+         negativeResult = BTestUtils.compile("test-src/expressions/literals/xml/xml-literals-negative.bal");
     }
 
     @Test
+    public void testXMLNegativeSemantics() {
+        BTestUtils.validateError(negativeResult, 0, "invalid namespace prefix 'xmlns'", 5, 18);
+        BTestUtils.validateError(negativeResult, 1, "invalid namespace prefix 'xmlns'", 5, 35);
+
+        // undeclared element prefix
+        BTestUtils.validateError(negativeResult, 2, "undefined symbol 'ns1'", 10, 18);
+        BTestUtils.validateError(negativeResult, 3, "undefined symbol 'ns1'", 10, 33);
+
+        // text with multi type expressions
+        BTestUtils.validateError(negativeResult, 4, "incompatible types: expected 'xml', found 'map'", 16, 58);
+
+        // combined expressions as element name
+        // TODO:
+
+        // text with invalid multi type expressions
+        BTestUtils.validateError(negativeResult, 5, "incompatible types: expected 'string', found 'xml'", 33, 52);
+
+        // redeclare namespaces
+        BTestUtils.validateError(negativeResult, 6, "redeclared symbol 'ns0'", 42, 8);
+
+        // assigning attributes-map to a map
+        BTestUtils.validateError(negativeResult, 7, "incompatible types: expected 'map', found 'xml-attributes'", 48,
+                13);
+
+        // namespace conflict with package import
+        BTestUtils.validateError(negativeResult, 8, "redeclared symbol 'x'", 52, 4);
+
+        // get attributes from non-xml
+        BTestUtils.validateError(negativeResult, 9, "incompatible types: expected 'xml', found 'map'", 57, 15);
+
+        // update attributes map
+        BTestUtils.validateError(negativeResult, 10,
+                "xml attributes cannot be updated as a collection. update attributes one at a time", 62, 4);
+
+        // update qname
+        BTestUtils.validateError(negativeResult, 11, "cannot assign values to an xml qualified name", 67, 4);
+
+        // use of undefined namespace for qname
+        BTestUtils.validateError(negativeResult, 12, "undefined package 'ns0'", 75, 18);
+        
+        // define namespace with empty URI
+        BTestUtils.validateError(negativeResult, 13, "cannot bind prefix 'ns0' to the empty namespace name", 79, 4);
+    }
+
+    /*
+    @Test(expectedExceptions = { ParserException.class },
+            expectedExceptionsMessageRegExp = "xmlElementNameWithCominedExpressions.bal:3:18: invalid identifier '<'")
+    public void testCombinedExpressionsAsElementName() {
+        BTestUtils.getProgramFile("samples/xml/xmlElementNameWithCominedExpressions.bal");
+    }
+     */
+    @Test
     public void testXMLTextLiteral() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testXMLTextLiteral", args);
+        BValue[] returns = BTestUtils.invoke(result, "testXMLTextLiteral", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "aaa");
 
@@ -76,7 +127,7 @@ public class XMLLiteralTest {
     @Test
     public void testXMLCommentLiteral() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testXMLCommentLiteral", args);
+        BValue[] returns = BTestUtils.invoke(result, "testXMLCommentLiteral", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<!--aaa-->");
 
@@ -99,7 +150,7 @@ public class XMLLiteralTest {
     @Test
     public void testXMLPILiteral() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testXMLPILiteral", args);
+        BValue[] returns = BTestUtils.invoke(result, "testXMLPILiteral", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<?foo ?>");
 
@@ -119,7 +170,7 @@ public class XMLLiteralTest {
     @Test
     public void testExpressionAsElementName() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testExpressionAsElementName", args);
+        BValue[] returns = BTestUtils.invoke(result, "testExpressionAsElementName", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<11>hello</11>");
 
@@ -127,16 +178,10 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[1].stringValue(), "<foo&gt;bar>hello</foo&gt;bar>");
     }
 
-    @Test(expectedExceptions = { ParserException.class },
-            expectedExceptionsMessageRegExp = "xmlElementNameWithCominedExpressions.bal:3:18: invalid identifier '<'")
-    public void testCombinedExpressionsAsElementName() {
-        BTestUtils.getProgramFile("samples/xml/xmlElementNameWithCominedExpressions.bal");
-    }
-
     @Test
     public void testExpressionAsAttributeName() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testExpressionAsAttributeName", args);
+        BValue[] returns = BTestUtils.invoke(result, "testExpressionAsAttributeName", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<foo bar=\"attribute value\">hello</foo>");
 
@@ -147,7 +192,7 @@ public class XMLLiteralTest {
     @Test
     public void testExpressionAsAttributeValue() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testExpressionAsAttributeValue", args);
+        BValue[] returns = BTestUtils.invoke(result, "testExpressionAsAttributeValue", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<foo bar=\"&quot;zzz&quot;\"/>");
 
@@ -168,7 +213,7 @@ public class XMLLiteralTest {
     @Test
     public void testElementLiteralWithTemplateChildren() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testElementLiteralWithTemplateChildren", args);
+        BValue[] returns = BTestUtils.invoke(result, "testElementLiteralWithTemplateChildren", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root>hello aaa&lt;bbb good morning <fname>John</fname> "
                 + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar/></root>");
@@ -186,12 +231,12 @@ public class XMLLiteralTest {
     public void testElementLiteralWithNamespaces() {
         BValue[] args = {};
         BValue[] returns =
-                BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testElementLiteralWithNamespaces", args);
+                BTestUtils.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1="
-                        + "\"http://ballerina.com/c\" ns0:id=\"456\"><foo>123</foo><bar ns1:status=\"complete\"/>"
-                        + "</root>");
+                "<root xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
+                        + "xmlns:ns1=\"http://ballerina.com/c\" ns0:id=\"456\"><foo>123</foo>"
+                        + "<bar ns1:status=\"complete\"/></root>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[1];
@@ -208,8 +253,7 @@ public class XMLLiteralTest {
     @Test
     public void testElementWithQualifiedName() {
         BValue[] args = {};
-        BValue[] returns =
-                BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testElementWithQualifiedName", args);
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testElementWithQualifiedName", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
 
@@ -234,7 +278,7 @@ public class XMLLiteralTest {
     @Test
     public void testDefineInlineNamespace() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testDefineInlineNamespace", args);
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testDefineInlineNamespace", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<nsx:foo xmlns:nsx=\"http://wso2.com\" "
                 + "xmlns:ns1=\"http://ballerina.com/b\" nsx:id=\"123\">hello</nsx:foo>");
@@ -244,7 +288,7 @@ public class XMLLiteralTest {
     public void testDefineInlineDefaultNamespace() {
         BValue[] args = {};
         BValue[] returns =
-                BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testDefineInlineDefaultNamespace", args);
+                BTestUtils.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<foo xmlns=\"http://ballerina.com/default/namespace\" "
                 + "xmlns:nsx=\"http://wso2.com/aaa\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
@@ -260,27 +304,18 @@ public class XMLLiteralTest {
                         + "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: start and end tag names"
-                    + " mismatch: 'foo' and 'bar'.*")
+    @Test
     public void testMismatchTagNameVar() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMismatchTagNameVar", args);
+        BValue[] returns = BTestUtils.invoke(result, "testMismatchTagNameVar", args);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "");
-    }
-
-    @Test(expectedExceptions = { SemanticException.class },
-            expectedExceptionsMessageRegExp = "xmlTextWithMultiTypeExpressions.bal:6: incompatible types: expected"
-                    + " 'string', found 'xml'")
-    public void testTextWithInvalidMultiTypeExpressions() {
-        BTestUtils.getProgramFile("samples/xml/xmlTextWithMultiTypeExpressions.bal");
+        Assert.assertEquals(returns[0].stringValue(), "<foo>hello</foo>");
     }
 
     @Test
     public void testTextWithValidMultiTypeExpressions() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTextWithValidMultiTypeExpressions", args);
+        BValue[] returns = BTestUtils.invoke(result, "testTextWithValidMultiTypeExpressions", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "hello 11 world. How 1.35 are you true?");
@@ -289,7 +324,7 @@ public class XMLLiteralTest {
     @Test
     public void testArithmaticExpreesionInXMLTemplate() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testArithmaticExpreesionInXMLTemplate", args);
+        BValue[] returns = BTestUtils.invoke(result, "testArithmaticExpreesionInXMLTemplate", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello 5\">hello</foo>");
@@ -298,61 +333,35 @@ public class XMLLiteralTest {
     @Test
     public void testFunctionCallInXMLTemplate() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFunctionCallInXMLTemplate", args);
+        BValue[] returns = BTestUtils.invoke(result, "testFunctionCallInXMLTemplate", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<foo>&lt;-->returned from a function</foo>");
     }
 
-    @Test(expectedExceptions = { SemanticException.class },
-            expectedExceptionsMessageRegExp = "xmlRestrictedElementPrefix.bal:3: invalid namespace prefix 'xmlns'")
-    public void xmlRestrictedElementPrefix() {
-        BTestUtils.getProgramFile("samples/xml/xmlRestrictedElementPrefix.bal");
-    }
-
-    @Test(expectedExceptions = { SemanticException.class },
-            expectedExceptionsMessageRegExp = "xmlUndeclaredElementPrefix.bal:3: undefined namespace 'ns1'")
-    public void xmlUndeclaredElementPrefix() {
-        BTestUtils.getProgramFile("samples/xml/xmlUndeclaredElementPrefix.bal");
-    }
-
-    @Test(expectedExceptions = { SemanticException.class },
-            expectedExceptionsMessageRegExp = "xmlTemplateWithNonXML.bal:3: incompatible types in xml template "
-                    + "literal. expected 'xml' or 'string', found 'map'")
-    public void testTextWithMultiTypeExpressions() {
-        BTestUtils.getProgramFile("samples/xml/xmlTemplateWithNonXML.bal");
-    }
-
-    @Test(expectedExceptions = { SemanticException.class },
-            expectedExceptionsMessageRegExp = "defineEmptyNamespaceInline.bal:2: cannot bind a prefix \\('ns0'\\) to"
-                    + " the empty namespace name")
-    public void testDefineEmptyNamespaceInline() {
-        BTestUtils.getProgramFile("samples/xml/defineEmptyNamespaceInline.bal");
-    }
-
     @Test
     public void testUsingNamespcesOfParent() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testUsingNamespcesOfParent", args);
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://ballerinalang.com/\" "
                 + "xmlns:ns1=\"http://ballerina.com/b\"><ns0:foo>hello</ns0:foo></root>");
     }
-    
+
     @Test
     public void testComplexXMLLiteral() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testComplexXMLLiteral", args);
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testComplexXMLLiteral", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
-        Assert.assertEquals(returns[0].stringValue(), getComplexXMLContent());
+        Assert.assertEquals(returns[0].stringValue(),
+                BTestUtils.readFileAsString("test-src/expressions/literals/xml/sampleXML.txt"));
     }
-    
+
     @Test
     public void testElementWithEmptyUriQualifiedName() {
         BValue[] args = {};
-        BValue[] returns =
-                BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testElementWithEmptyUriQualifiedName", args);
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testElementWithEmptyUriQualifiedName", args);
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
@@ -360,40 +369,30 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(),
                 "<root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</root>");
     }
-    
-    private String getComplexXMLContent() {
-        InputStream is = ClassLoader.getSystemResourceAsStream("samples/xml/sampleXML.txt");
-        InputStreamReader inputStreamREader = null;
-        BufferedReader br = null;
-        StringBuilder sb = new StringBuilder();
-        try {
-            inputStreamREader = new InputStreamReader(is);
-            br = new BufferedReader(inputStreamREader);
-            String content = br.readLine();
-            if (content == null) {
-                return sb.toString();
-            }
 
-            sb.append(content);
+    @Test
+    public void testNamespaceDclr() {
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testNamespaceDclr");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a2}foo");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/b2}foo");
+        
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/d2}foo");
+    }
 
-            while ((content = br.readLine()) != null) {
-                sb.append("\n" + content);
-            }
-        } catch (IOException ignore) {
-        } finally {
-            if (inputStreamREader != null) {
-                try {
-                    inputStreamREader.close();
-                } catch (IOException ignore) {
-                }
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-        return sb.toString();
+    @Test
+    public void testInnerScopeNamespaceDclr() {
+        BValue[] returns = BTestUtils.invoke(literalWithNamespacesResult, "testInnerScopeNamespaceDclr");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{http://ballerina.com/b}foo");
+
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/a3}foo");
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
 }

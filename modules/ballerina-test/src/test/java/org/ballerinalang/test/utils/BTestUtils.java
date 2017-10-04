@@ -28,6 +28,10 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -207,5 +211,41 @@ public class BTestUtils {
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
+    }
+
+    public static String readFileAsString(String path) {
+        InputStream is = ClassLoader.getSystemResourceAsStream(path);
+        InputStreamReader inputStreamREader = null;
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            inputStreamREader = new InputStreamReader(is);
+            br = new BufferedReader(inputStreamREader);
+            String content = br.readLine();
+            if (content == null) {
+                return sb.toString();
+            }
+
+            sb.append(content);
+
+            while ((content = br.readLine()) != null) {
+                sb.append("\n" + content);
+            }
+        } catch (IOException ignore) {
+        } finally {
+            if (inputStreamREader != null) {
+                try {
+                    inputStreamREader.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return sb.toString();
     }
 }

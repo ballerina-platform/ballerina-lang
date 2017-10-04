@@ -96,6 +96,9 @@ public enum DiagnosticCode {
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
+    XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed"),
+    XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed"),
+    INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),

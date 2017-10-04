@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -1509,6 +1510,20 @@ public class BLangPackageBuilder {
         transformNode.setBody(transformBlock);
         addStmtToCurrentBlock(transformNode);
     }
+
+    public void createXmlAttributesRefExpr(DiagnosticPos pos, boolean singleAttribute) {
+        BLangExpression indexExpr = null;
+        BLangXMLAttributeAccess xmlAttributeAccess =
+                (BLangXMLAttributeAccess) TreeBuilder.createXMLAttributeAccessNode();
+        xmlAttributeAccess.pos = pos;
+        if (singleAttribute) {
+            xmlAttributeAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
+        }
+        xmlAttributeAccess.expr = (BLangVariableReference) exprNodeStack.pop();
+        addExpressionNode(xmlAttributeAccess);
+    }
+
+    // Private methods
 
     private List<BLangExpression> getExpressionsInTemplate(DiagnosticPos pos,
                                                            Set<Whitespace> ws,

@@ -21,18 +21,18 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.94
  */
 public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
-    public BLangLiteral namespaceURI;
+    public BLangExpression namespaceURI;
     public BLangIdentifier prefix;
-    public BXMLNSSymbol symbol;
-    
+    public BSymbol symbol;
+
     @Override
     public ExpressionNode getNamespaceURI() {
         return namespaceURI;
@@ -50,7 +50,7 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
 
     @Override
     public void setNamespaceURI(ExpressionNode namespaceURI) {
-        this.namespaceURI = (BLangLiteral) namespaceURI;
+        this.namespaceURI = (BLangExpression) namespaceURI;
     }
 
     @Override
@@ -66,5 +66,27 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     @Override
     public String toString() {
         return "BLangXMLNS: " + prefix + "[" +  namespaceURI + "]";
+    }
+    
+    /**
+     * @since 0.94
+     */
+    public static class BLangLocalXMLNS extends BLangXMLNS {
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+    
+    /**
+     * @since 0.94
+     */
+    public static class BLangPackageXMLNS extends BLangXMLNS {
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }
