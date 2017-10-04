@@ -217,8 +217,6 @@ class EditorTabs extends View {
                 <TabPane
                     tab={
                         <div data-extra="tab-bar-title" className={`tab-title-wrapper ${editor.customTitleClass}`}>
-                            <i className={`fw fw-${icon} tab-icon`} />
-                            {title}
                             <button
                                 type="button"
                                 className="close close-tab pull-right"
@@ -226,6 +224,8 @@ class EditorTabs extends View {
                             >
                                 ×
                             </button>
+                            <i className={`fw fw-${icon} tab-icon`} />
+                            {title}
                         </div>
                     }
                     data-extra="tabpane"

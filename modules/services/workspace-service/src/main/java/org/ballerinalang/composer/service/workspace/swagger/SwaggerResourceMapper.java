@@ -16,6 +16,7 @@
 
 package org.ballerinalang.composer.service.workspace.swagger;
 
+import com.google.common.collect.Lists;
 import io.swagger.models.ExternalDocs;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
@@ -34,13 +35,15 @@ import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.AnnotationAttributeValue;
-import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -49,6 +52,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -56,16 +60,21 @@ import javax.ws.rs.core.MediaType;
  */
 public class SwaggerResourceMapper {
 
-    private static final String SWAGGER_PACKAGE_PATH = "ballerina.net.http.swagger";
-    private static final String SWAGGER_PACKAGE = "swagger";
-    private static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-    private static final String HTTP_PACKAGE = "http";
     private static final String X_MULTI_OPERATIONS = "x-MULTI";
     private static final String X_HTTP_METHODS = "x-METHODS";
-    
+    private final String httpAlias;
+    private final String swaggerAlias;
     private final Swagger swaggerDefinition;
     
-    SwaggerResourceMapper(Swagger swagger) {
+    /**
+     * Initializes a resource parser for swagger.
+     * @param swagger The swagger definition.
+     * @param httpAlias The alias for ballerina.net.http package.
+     * @param swaggerAlias The alias for ballerina.net.http.swagger package.
+     */
+    SwaggerResourceMapper(Swagger swagger, String httpAlias, String swaggerAlias) {
+        this.httpAlias = httpAlias;
+        this.swaggerAlias = swaggerAlias;
         this.swaggerDefinition = swagger;
     }
 
@@ -75,9 +84,9 @@ public class SwaggerResourceMapper {
      * @param resources Resource array to be convert.
      * @return map of string and swagger path objects.
      */
-    protected Map<String, Path> convertResourceToPath(Resource[] resources) {
+    protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
         Map<String, Path> pathMap = new HashMap<>();
-        for (Resource resource : resources) {
+        for (ResourceNode resource : resources) {
             if (this.getHttpMethods(resource).size() > 1) {
                 useMultiResourceMapper(pathMap, resource);
             } else {
@@ -92,8 +101,8 @@ public class SwaggerResourceMapper {
      * @param pathMap The map with paths that should be updated.
      * @param resource The ballerina resource.
      */
-    private void useMultiResourceMapper(Map<String, Path> pathMap, Resource resource) {
-        Set<String> httpMethods = this.getHttpMethods(resource);
+    private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
+        List<String> httpMethods = this.getHttpMethods(resource);
         String path = this.getPath(resource);
         Operation operation = null;
         boolean hasGetOnly = true;
@@ -130,7 +139,7 @@ public class SwaggerResourceMapper {
      * @param pathMap The map with paths that should be updated.
      * @param resource The ballerina resource.
      */
-    private void useDefaultResourceMapper(Map<String, Path> pathMap, Resource resource) {
+    private void useDefaultResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
         OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, null);
         Path path = pathMap.get(operationAdaptor.getPath());
         //TODO this check need to be improve to avoid repetition checks and http head support need to add.
@@ -174,17 +183,17 @@ public class SwaggerResourceMapper {
      * @param resource Resource array to be convert.
      * @return @OperationAdaptor of string and swagger path objects.
      */
-    private OperationAdaptor convertResourceToOperation(Resource resource, String httpMethod) {
+    private OperationAdaptor convertResourceToOperation(ResourceNode resource, String httpMethod) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
             // Setting default values.
             op.setHttpOperation(Constants.HTTP_METHOD_GET);
-            op.setPath('/' + resource.getName());
+            op.setPath('/' + resource.getName().getValue());
             Response response = new Response()
                     .description("Successful")
                     .example(MediaType.APPLICATION_JSON, "Ok");
             op.getOperation().response(200, response);
-            op.getOperation().setOperationId(resource.getName());
+            op.getOperation().setOperationId(resource.getName().getValue());
             op.getOperation().setParameters(null);
     
             // Parsing annotations.
@@ -209,44 +218,43 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param operationAdaptor The operation adaptor..
      */
-    private void parseHttpResourceConfig(Resource resource, OperationAdaptor operationAdaptor) {
-        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getName()))
+    private void parseHttpResourceConfig(ResourceNode resource, OperationAdaptor operationAdaptor) {
+        Optional<? extends AnnotationAttachmentNode> responsesAnnotation = resource.getAnnotationAttachments().stream()
+                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
+                             "resourceConfig".equals(a.getAnnotationName().getValue()))
                 .findFirst();
-        if (responsesAnnotationAttachment.isPresent()) {
-            Map<String, AnnotationAttributeValue> resourceConfigAnnotationAttributes =
-                    responsesAnnotationAttachment.get().getAttributeNameValuePairs();
-            if (null != resourceConfigAnnotationAttributes.get("methods") &&
-                resourceConfigAnnotationAttributes.get("methods").getValueArray().length > 0) {
-                AnnotationAttributeValue[] methodsValues =
-                        resourceConfigAnnotationAttributes.get("methods").getValueArray();
+        if (responsesAnnotation.isPresent()) {
+            Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
+                    this.listToMap(responsesAnnotation.get());
+            if (configAttributes.containsKey("methods") && configAttributes.get("methods").getValueArray().size() > 0) {
+                List<? extends  AnnotationAttachmentAttributeValueNode> methodsValues =
+                        configAttributes.get("methods").getValueArray();
                 // Since there is only one http method.
-                operationAdaptor.setHttpOperation(methodsValues[0].getLiteralValue().stringValue());
+                operationAdaptor.setHttpOperation(this.getStringLiteralValue(methodsValues.get(0)));
             }
             
-            if (null != resourceConfigAnnotationAttributes.get("path")) {
-                operationAdaptor.setPath((resourceConfigAnnotationAttributes.get("path")
-                                                  .getLiteralValue().stringValue()));
+            if (configAttributes.containsKey("path")) {
+                operationAdaptor.setPath(this.getStringLiteralValue(configAttributes.get("path")));
             }
             
-            if (null != resourceConfigAnnotationAttributes.get("produces") &&
-                resourceConfigAnnotationAttributes.get("produces").getValueArray().length > 0) {
+            if (configAttributes.containsKey("produces") &&
+                                                        configAttributes.get("produces").getValueArray().size() > 0) {
                 List<String> produces = new LinkedList<>();
-                AnnotationAttributeValue[] producesValues =
-                        resourceConfigAnnotationAttributes.get("produces").getValueArray();
-                for (AnnotationAttributeValue consumesValue : producesValues) {
-                    produces.add(consumesValue.getLiteralValue().stringValue());
+                List<? extends  AnnotationAttachmentAttributeValueNode> producesValues =
+                        configAttributes.get("produces").getValueArray();
+                for (AnnotationAttachmentAttributeValueNode producesValue : producesValues) {
+                    produces.add(this.getStringLiteralValue(producesValue));
                 }
                 operationAdaptor.getOperation().setProduces(produces);
             }
             
-            if (null != resourceConfigAnnotationAttributes.get("consumes") &&
-                resourceConfigAnnotationAttributes.get("consumes").getValueArray().length > 0) {
+            if (configAttributes.containsKey("consumes") &&
+                                                        configAttributes.get("consumes").getValueArray().size() > 0) {
                 List<String> consumes = new LinkedList<>();
-                AnnotationAttributeValue[] consumesValues =
-                        resourceConfigAnnotationAttributes.get("consumes").getValueArray();
-                for (AnnotationAttributeValue consumesValue : consumesValues) {
-                    consumes.add(consumesValue.getLiteralValue().stringValue());
+                List<? extends  AnnotationAttachmentAttributeValueNode> consumesValues =
+                        configAttributes.get("consumes").getValueArray();
+                for (AnnotationAttachmentAttributeValueNode consumesValue : consumesValues) {
+                    consumes.add(this.getStringLiteralValue(consumesValue));
                 }
                 
                 operationAdaptor.getOperation().setConsumes(consumes);
@@ -259,29 +267,34 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param op The swagger operation.
      */
-    private void parseResponsesAnnotationAttachment(Resource resource, Operation op) {
-        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "Responses".equals(a.getName()))
+    private void parseResponsesAnnotationAttachment(ResourceNode resource, Operation op) {
+        Optional<? extends AnnotationAttachmentNode> responsesAnnotation = resource.getAnnotationAttachments().stream()
+                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
+                             "Responses".equals(a.getAnnotationName().getValue()))
                 .findFirst();
-        if (responsesAnnotationAttachment.isPresent()) {
-            if (null != responsesAnnotationAttachment.get().getAttributeNameValuePairs().get("value")) {
-                AnnotationAttributeValue[] responsesValues = responsesAnnotationAttachment.get()
-                        .getAttributeNameValuePairs().get("value").getValueArray();
-                if (responsesValues.length > 0) {
+        if (responsesAnnotation.isPresent()) {
+            Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
+                    this.listToMap(responsesAnnotation.get());
+            if (responsesAttributes.containsKey("value")) {
+                List<? extends  AnnotationAttachmentAttributeValueNode> responsesValues =
+                                                                    responsesAttributes.get("value").getValueArray();
+                if (responsesValues.size() > 0) {
                     Map<String, Response> responses = new HashMap<>();
-                    for (AnnotationAttributeValue responsesValue : responsesValues) {
-                        AnnotationAttachment responseAnnotationAttachment = responsesValue.getAnnotationValue();
-                        if (null != responseAnnotationAttachment.getAttributeNameValuePairs().get("code")) {
-                            String code = responseAnnotationAttachment.getAttributeNameValuePairs()
-                                    .get("code").getLiteralValue().stringValue();
+                    for (AnnotationAttachmentAttributeValueNode responsesValue : responsesValues) {
+                        AnnotationAttachmentNode responseAnnotationAttachment =
+                                                                    (AnnotationAttachmentNode)responsesValue.getValue();
+                        Map<String, AnnotationAttachmentAttributeValueNode>
+                                responseAttributes = this.listToMap
+                                (responseAnnotationAttachment);
+                        if (responseAttributes.containsKey("code")) {
+                            String code = this.getStringLiteralValue(responseAttributes.get("code"));
                             Response response = new Response();
-                            if (null != responseAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
-                                response.setDescription(responseAnnotationAttachment.getAttributeNameValuePairs()
-                                        .get("description").getLiteralValue().stringValue());
+                            if (responseAttributes.containsKey("description")) {
+                                response.setDescription(
+                                                    this.getStringLiteralValue(responseAttributes.get("description")));
                             }
                             // TODO: Parse 'response' attribute for $.paths./resource-path.responses[*]["code"].schema
-                            this.createHeadersModel(responseAnnotationAttachment.getAttributeNameValuePairs()
-                                    .get("headers"), response);
+                            this.createHeadersModel(responseAttributes.get("headers"), response);
                             responses.put(code, response);
                         }
                     }
@@ -296,18 +309,19 @@ public class SwaggerResourceMapper {
      * @param annotationAttributeValue The annotation attribute value which has the headers.
      * @param response The swagger response.
      */
-    private void createHeadersModel(AnnotationAttributeValue annotationAttributeValue, Response response) {
+    private void createHeadersModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
+                                    Response response) {
         if (null != annotationAttributeValue) {
-            AnnotationAttributeValue[] headersValueArray = annotationAttributeValue.getValueArray();
-            for (AnnotationAttributeValue headersValue : headersValueArray) {
-                AnnotationAttachment headerAnnotationAttachment = headersValue.getAnnotationValue();
+            List<? extends  AnnotationAttachmentAttributeValueNode> headersValueArray =
+                                                                            annotationAttributeValue.getValueArray();
+            for (AnnotationAttachmentAttributeValueNode headersValue : headersValueArray) {
+                AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode)headersValue;
                 Map<String, Property> headers = new HashMap<>();
-                if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("name") &&
-                    null != headerAnnotationAttachment.getAttributeNameValuePairs().get("headerType")) {
-                    String headerName = headerAnnotationAttachment.getAttributeNameValuePairs().get("name")
-                            .getLiteralValue().stringValue();
-                    String type = headerAnnotationAttachment.getAttributeNameValuePairs().get("headerType")
-                            .getLiteralValue().stringValue();
+                Map<String, AnnotationAttachmentAttributeValueNode> headersAttributes =
+                        this.listToMap(headerAnnotationAttachment);
+                if (headersAttributes.containsKey("name") && headersAttributes.containsKey("headerType")) {
+                    String headerName = this.getStringLiteralValue(headersAttributes.get("name"));
+                    String type = this.getStringLiteralValue(headersAttributes.get("headerType"));
                     Property property = null;
                     if ("string".equals(type)) {
                         property = new StringProperty();
@@ -319,9 +333,8 @@ public class SwaggerResourceMapper {
                         property = new ArrayProperty();
                     }
                     if (null != property) {
-                        if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
-                            property.setDescription(headerAnnotationAttachment.getAttributeNameValuePairs()
-                                    .get("description").getLiteralValue().stringValue());
+                        if (headersAttributes.containsKey("description")) {
+                            property.setDescription(this.getStringLiteralValue(headersAttributes.get("description")));
                         }
                         headers.put(headerName, property);
                     }
@@ -336,78 +349,89 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param operationAdaptor The swagger operation.
      */
-    private void addResourceParameters(Resource resource, OperationAdaptor operationAdaptor) {
+    private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
         if (!"get".equalsIgnoreCase(operationAdaptor.getHttpOperation())) {
         
-            // Creating message body - required.
+            // Creating request body - required.
             ModelImpl messageModel = new ModelImpl();
             messageModel.setType("object");
             Map<String, Model> definitions = new HashMap<>();
-            if (!definitions.containsKey("Message")) {
-                definitions.put("Message", messageModel);
+            if (!definitions.containsKey("Request")) {
+                definitions.put("Request", messageModel);
                 this.swaggerDefinition.setDefinitions(definitions);
             }
         
-            // Creating "Message m" parameter
+            // Creating "Request rq" parameter
             BodyParameter messageParameter = new BodyParameter();
-            messageParameter.setName(resource.getParameterDefs()[0].getName());
+            messageParameter.setName(resource.getParameters().get(0).getName().getValue());
             RefModel refModel = new RefModel();
-            refModel.setReference("Message");
+            refModel.setReference("Request");
             messageParameter.setSchema(refModel);
             operationAdaptor.getOperation().addParameter(messageParameter);
         }
-        
-        for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            String typeName = parameterDef.getTypeName().getName();
-            if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations() != null) {
-                AnnotationAttachment parameterAnnotation = parameterDef.getAnnotations()[0];
-                // Add query parameter
-                if (this.checkIfHttpAnnotation(parameterAnnotation) &&
-                                                        parameterAnnotation.getName().equalsIgnoreCase("QueryParam")) {
-                    QueryParameter queryParameter = new QueryParameter();
-                    // Set in value.
-                    queryParameter.setIn("query");
-                    // Set parameter name
-                    String parameterName = parameterDef.getAnnotations()[0].getValue();
-                    if ((parameterName == null) || parameterName.isEmpty()) {
-                        parameterName = parameterDef.getName();
-                    }
-                    queryParameter.setName(parameterName);
-                    // Note: 'description' to be added using annotations, hence skipped here.
-                    // Setting false to required(as per swagger spec). This can be overridden while parsing annotations.
-                    queryParameter.required(false);
-                    // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
-                    // Set type
-                    if ("int".equals(typeName)) {
-                        queryParameter.setType("integer");
-                    } else {
-                        queryParameter.setType(typeName);
-                    }
-                    // Note: 'format' to be added using annotations, hence skipped here.
-                    operationAdaptor.getOperation().addParameter(queryParameter);
+    
+        for (int i = 2; i < resource.getParameters().size(); i++) {
+            VariableNode parameterDef = resource.getParameters().get(i);
+            AnnotationAttachmentNode parameterAnnotation = parameterDef.getAnnotationAttachments().get(0);
+            String typeName = parameterDef.getTypeNode().toString().toLowerCase(Locale.getDefault());
+            // Add query parameter
+            if (null != this.httpAlias && this.httpAlias.equals(parameterAnnotation.getPackageAlias().getValue()) &&
+                parameterAnnotation.getAnnotationName().getValue().equalsIgnoreCase("QueryParam")) {
+                QueryParameter queryParameter = new QueryParameter();
+                // Set in value.
+                queryParameter.setIn("query");
+                // Set parameter name
+                String parameterName = null;
+                if (parameterAnnotation.getAttributes().size() > 0) {
+                    AnnotationAttachmentAttributeValueNode attrValue = parameterAnnotation.getAttributes().get(0)
+                            .getValue();
+                    parameterName = (String)((LiteralNode)attrValue.getValue()).getValue();
                 }
-                if (this.checkIfHttpAnnotation(parameterAnnotation) &&
-                                                        parameterAnnotation.getName().equalsIgnoreCase("PathParam")) {
-                    PathParameter pathParameter = new PathParameter();
-                    // Set in value
-                    pathParameter.setIn("path");
-                    // Set parameter name
-                    String parameterName = parameterDef.getAnnotations()[0].getValue();
-                    if ((parameterName == null) || parameterName.isEmpty()) {
-                        parameterName = parameterDef.getName();
-                    }
-                    pathParameter.setName(parameterName);
-                    // Note: 'description' to be added using annotations, hence skipped here.
-                    // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
-                    // Set type
-                    if ("int".equals(typeName)) {
-                        pathParameter.setType("integer");
-                    } else {
-                        pathParameter.setType(typeName);
-                    }
-                    // Note: 'format' to be added using annotations, hence skipped here.
-                    operationAdaptor.getOperation().addParameter(pathParameter);
+    
+                if ((parameterName == null) || parameterName.isEmpty()) {
+                    parameterName = parameterDef.getName().getValue();
                 }
+                queryParameter.setName(parameterName);
+                // Note: 'description' to be added using annotations, hence skipped here.
+                // Setting false to required(as per swagger spec). This can be overridden while parsing annotations.
+                queryParameter.required(false);
+                // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
+                // Set type
+                if ("int".equals(typeName)) {
+                    queryParameter.setType("integer");
+                } else {
+                    queryParameter.setType(typeName);
+                }
+                // Note: 'format' to be added using annotations, hence skipped here.
+                operationAdaptor.getOperation().addParameter(queryParameter);
+            }
+            if (null != this.httpAlias && this.httpAlias.equals(parameterAnnotation.getPackageAlias().getValue()) &&
+                parameterAnnotation.getAnnotationName().getValue().equalsIgnoreCase("PathParam")) {
+                PathParameter pathParameter = new PathParameter();
+                // Set in value
+                pathParameter.setIn("path");
+                // Set parameter name
+                String parameterName = null;
+                if (parameterAnnotation.getAttributes().size() > 0) {
+                    AnnotationAttachmentAttributeValueNode attrValue = parameterAnnotation.getAttributes().get(0)
+                            .getValue();
+                    parameterName = (String)((LiteralNode)attrValue.getValue()).getValue();
+                }
+                
+                if ((parameterName == null) || parameterName.isEmpty()) {
+                    parameterName = parameterDef.getName().getValue();
+                }
+                pathParameter.setName(parameterName);
+                // Note: 'description' to be added using annotations, hence skipped here.
+                // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
+                // Set type
+                if ("int".equals(typeName)) {
+                    pathParameter.setType("integer");
+                } else {
+                    pathParameter.setType(typeName);
+                }
+                // Note: 'format' to be added using annotations, hence skipped here.
+                operationAdaptor.getOperation().addParameter(pathParameter);
             }
         }
     }
@@ -417,25 +441,31 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param operation The swagger operation.
      */
-    private void parseParametersInfoAnnotationAttachment(Resource resource, Operation operation) {
-        Optional<AnnotationAttachment> parametersInfoAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ParametersInfo".equals(a.getName()))
+    private void parseParametersInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
+        Optional<? extends AnnotationAttachmentNode> parametersInfoAnnotation = resource.getAnnotationAttachments()
+                .stream()
+                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
+                             "ParametersInfo".equals(a.getAnnotationName().getValue()))
                 .findFirst();
-        if (parametersInfoAnnotationAttachment.isPresent()) {
-            if (null != parametersInfoAnnotationAttachment.get().getAttributeNameValuePairs().get("value")) {
-                AnnotationAttributeValue[] parametersInfoValues = parametersInfoAnnotationAttachment.get()
-                        .getAttributeNameValuePairs().get("value").getValueArray();
-                for (AnnotationAttributeValue parametersInfoValue : parametersInfoValues) {
-                    AnnotationAttachment parameterInfoAnnotation = parametersInfoValue.getAnnotationValue();
-                    if (null != parameterInfoAnnotation.getAttributeNameValuePairs().get("name")) {
+        if (parametersInfoAnnotation.isPresent()) {
+            Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
+                    this.listToMap(parametersInfoAnnotation.get());
+            if (infoAttributes.containsKey("value")) {
+                List<? extends  AnnotationAttachmentAttributeValueNode> parametersInfoValues =
+                        infoAttributes.get("value").getValueArray();
+                for (AnnotationAttachmentAttributeValueNode parametersInfoValue : parametersInfoValues) {
+                    AnnotationAttachmentNode parameterInfoAnnotation =
+                                                            (AnnotationAttachmentNode)parametersInfoValue.getValue();
+                    Map<String, AnnotationAttachmentAttributeValueNode>
+                            parameterAttributes = this.listToMap(parameterInfoAnnotation);
+                    if (parameterAttributes.containsKey("name")) {
                         if (null != operation.getParameters()) {
                             for (Parameter parameter : operation.getParameters()) {
-                                if (parameter.getName().equals(parameterInfoAnnotation.getAttributeNameValuePairs()
-                                        .get("name").getLiteralValue().stringValue())) {
-                                    if (null != parameterInfoAnnotation.getAttributeNameValuePairs()
-                                            .get("description")) {
-                                        parameter.setDescription(parameterInfoAnnotation.getAttributeNameValuePairs()
-                                                .get("description").getLiteralValue().stringValue());
+                                if (parameter.getName().equals(
+                                        this.getStringLiteralValue(parameterAttributes.get("name")))) {
+                                    if (parameterAttributes.containsKey("description")) {
+                                        parameter.setDescription(
+                                                this.getStringLiteralValue(parameterAttributes.get("description")));
                                     }
                                 }
                             }
@@ -451,24 +481,24 @@ public class SwaggerResourceMapper {
      * @param resource The resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceInfoAnnotationAttachment(Resource resource, Operation operation) {
-        Optional<AnnotationAttachment> resourceConfigAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ResourceInfo".equals(a.getName()))
+    private void parseResourceInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
+        Optional<? extends AnnotationAttachmentNode> resourceConfigAnnotation = resource.getAnnotationAttachments()
+                .stream()
+                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
+                             "ResourceInfo".equals(a.getAnnotationName().getValue()))
                 .findFirst();
-        if (resourceConfigAnnotationAttachment.isPresent()) {
-            this.createTagModel(resourceConfigAnnotationAttachment.get().getAttributeNameValuePairs()
-                    .get("tag"), operation);
+        if (resourceConfigAnnotation.isPresent()) {
+            Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
+                    this.listToMap(resourceConfigAnnotation.get());
+            this.createTagModel(infoAttributes.get("tag"), operation);
             
-            if (null != resourceConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("summary")) {
-                operation.setSummary(resourceConfigAnnotationAttachment.get().getAttributeNameValuePairs()
-                        .get("summary").getLiteralValue().stringValue());
+            if (infoAttributes.containsKey("summary")) {
+                operation.setSummary(this.getStringLiteralValue(infoAttributes.get("summary")));
             }
-            if (null != resourceConfigAnnotationAttachment.get().getAttributeNameValuePairs().get("description")) {
-                operation.setDescription(resourceConfigAnnotationAttachment.get().getAttributeNameValuePairs()
-                        .get("description").getLiteralValue().stringValue());
+            if (infoAttributes.containsKey("description")) {
+                operation.setDescription(this.getStringLiteralValue(infoAttributes.get("description")));
             }
-            this.createExternalDocsModel(resourceConfigAnnotationAttachment.get().getAttributeNameValuePairs()
-                    .get("externalDoc"), operation);
+            this.createExternalDocsModel(infoAttributes.get("externalDoc"), operation);
         }
     }
     
@@ -477,17 +507,20 @@ public class SwaggerResourceMapper {
      * @param annotationAttributeValue The annotation attribute value for external docs.
      * @param operation The swagger operation.
      */
-    private void createExternalDocsModel(AnnotationAttributeValue annotationAttributeValue, Operation operation) {
+    private void createExternalDocsModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
+                                         Operation operation) {
         if (null != annotationAttributeValue) {
-            AnnotationAttachment externalDocAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
+            AnnotationAttachmentNode externalDocAnnotationAttachment =
+                                                                    (AnnotationAttachmentNode)annotationAttributeValue;
             ExternalDocs externalDocs = new ExternalDocs();
-            if (null != externalDocAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
-                externalDocs.setDescription(externalDocAnnotationAttachment.getAttributeNameValuePairs()
-                        .get("description").getLiteralValue().stringValue());
+    
+            Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
+                    this.listToMap(externalDocAnnotationAttachment);
+            if (externalDocAttributes.containsKey("description")) {
+                externalDocs.setDescription(this.getStringLiteralValue(externalDocAttributes.get("description")));
             }
-            if (null != externalDocAnnotationAttachment.getAttributeNameValuePairs().get("url")) {
-                externalDocs.setUrl(externalDocAnnotationAttachment.getAttributeNameValuePairs().get("url")
-                        .getLiteralValue().stringValue());
+            if (externalDocAttributes.containsKey("url")) {
+                externalDocs.setUrl(this.getStringLiteralValue(externalDocAttributes.get("url")));
             }
     
             operation.setExternalDocs(externalDocs);
@@ -499,12 +532,13 @@ public class SwaggerResourceMapper {
      * @param annotationAttributeValue The annotation attribute value which has tags.
      * @param operation The swagger operation.
      */
-    private void createTagModel(AnnotationAttributeValue annotationAttributeValue, Operation operation) {
+    private void createTagModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Operation operation) {
         if (null != annotationAttributeValue) {
-            if (annotationAttributeValue.getValueArray().length > 0) {
+            if (annotationAttributeValue.getValueArray().size() > 0) {
                 List<String> tags = new LinkedList<>();
-                for (AnnotationAttributeValue tagAttributeValue : annotationAttributeValue.getValueArray()) {
-                    tags.add(tagAttributeValue.getLiteralValue().stringValue());
+                for (AnnotationAttachmentAttributeValueNode tagAttributeValue :
+                                                                            annotationAttributeValue.getValueArray()) {
+                    tags.add(this.getStringLiteralValue(tagAttributeValue));
                 }
                 operation.setTags(tags);
             }
@@ -516,18 +550,23 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceConfigAnnotationAttachment(Resource resource, Operation operation) {
-        Optional<AnnotationAttachment> resourceConfigAnnotation = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ResourceConfig".equals(a.getName()))
+    private void parseResourceConfigAnnotationAttachment(ResourceNode resource, Operation operation) {
+        Optional<? extends AnnotationAttachmentNode> resourceConfigAnnotation = resource.getAnnotationAttachments()
+                .stream()
+                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
+                             "ResourceConfig".equals(a.getAnnotationName().getValue()))
                 .findFirst();
     
         if (resourceConfigAnnotation.isPresent()) {
-            if (null != resourceConfigAnnotation.get().getAttributeNameValuePairs().get("schemes")) {
+            Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
+                    this.listToMap(resourceConfigAnnotation.get());
+            if (configAttributes.containsKey("schemes")) {
                 List<Scheme> schemes = new LinkedList<>();
-                AnnotationAttributeValue[] schemesValues = resourceConfigAnnotation.get().getAttributeNameValuePairs()
-                        .get("schemes").getValueArray();
-                for (AnnotationAttributeValue schemesValue : schemesValues) {
-                    schemes.add(Scheme.forValue(schemesValue.getLiteralValue().stringValue()));
+                for (AnnotationAttachmentAttributeValueNode schemesValue :
+                                                                    configAttributes.get("schemes").getValueArray()) {
+                    if (null != Scheme.forValue(this.getStringLiteralValue(schemesValue))) {
+                        schemes.add(Scheme.forValue(this.getStringLiteralValue(schemesValue)));
+                    }
                 }
                 operation.setSchemes(schemes);
             }
@@ -538,44 +577,25 @@ public class SwaggerResourceMapper {
     }
     
     /**
-     * Checks if an annotation belongs to ballerina.net.http.swagger package.
-     * @param annotationAttachment The annotation.
-     * @return true if belongs to ballerina.net.http.swagger package, else false.
-     */
-    private boolean checkIfSwaggerAnnotation(AnnotationAttachment annotationAttachment) {
-        return SWAGGER_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
-               SWAGGER_PACKAGE.equals(annotationAttachment.getPkgName());
-    }
-    
-    /**
-     * Checks if an annotation belongs to ballerina.net.http package.
-     * @param annotationAttachment The annotation.
-     * @return true if belongs to ballerina.net.http package, else false.
-     */
-    private boolean checkIfHttpAnnotation(AnnotationAttachment annotationAttachment) {
-        return HTTP_PACKAGE_PATH.equals(annotationAttachment.getPkgPath()) &&
-               HTTP_PACKAGE.equals(annotationAttachment.getPkgName());
-    }
-    
-    /**
      * Gets the http methods of a resource.
      * @param resource The ballerina resource.
      * @return A list of http methods.
      */
-    private Set<String> getHttpMethods(Resource resource) {
-        Set<String> httpMethods = new LinkedHashSet<>();
-        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getName()))
+    private List<String> getHttpMethods(ResourceNode resource) {
+        Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
+                                                                            resource.getAnnotationAttachments().stream()
+                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
+                             "resourceConfig".equals(a.getAnnotationName().getValue()))
                 .findFirst();
+        Set<String> httpMethods = new LinkedHashSet<>();
         if (responsesAnnotationAttachment.isPresent()) {
-            Map<String, AnnotationAttributeValue> resourceConfigAnnotationAttributes =
-                    responsesAnnotationAttachment.get().getAttributeNameValuePairs();
-            if (null != resourceConfigAnnotationAttributes.get("methods") &&
-                                        resourceConfigAnnotationAttributes.get("methods").getValueArray().length > 0) {
-                AnnotationAttributeValue[] methodsValues =
-                                                    resourceConfigAnnotationAttributes.get("methods").getValueArray();
-                for (AnnotationAttributeValue methodsValue : methodsValues) {
-                    httpMethods.add(methodsValue.getLiteralValue().stringValue());
+            Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
+                    this.listToMap(responsesAnnotationAttachment.get());
+            if (responsesAttributes.containsKey("methods") &&
+                                                        responsesAttributes.get("methods").getValueArray().size() > 0) {
+                for (AnnotationAttachmentAttributeValueNode methodsValue :
+                                                                responsesAttributes.get("methods").getValueArray()) {
+                    httpMethods.add(this.getStringLiteralValue(methodsValue));
                 }
             }
         }
@@ -584,7 +604,7 @@ public class SwaggerResourceMapper {
             // By default get is supported.
             httpMethods.add("GET");
         }
-        return httpMethods;
+        return Lists.reverse(new ArrayList<>(httpMethods));
     }
     
     /**
@@ -592,19 +612,42 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource.
      * @return The path value.
      */
-    private String getPath(Resource resource) {
+    private String getPath(ResourceNode resource) {
         String path = "/" + resource.getName();
-        Optional<AnnotationAttachment> responsesAnnotationAttachment = Arrays.stream(resource.getAnnotations())
-                .filter(a -> this.checkIfHttpAnnotation(a) && "resourceConfig".equals(a.getName()))
+        Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
+                                                                        resource.getAnnotationAttachments().stream()
+                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
+                             "resourceConfig".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (responsesAnnotationAttachment.isPresent()) {
-            Map<String, AnnotationAttributeValue> resourceConfigAnnotationAttributes =
-                    responsesAnnotationAttachment.get().getAttributeNameValuePairs();
-            if (null != resourceConfigAnnotationAttributes.get("path")) {
-                path = resourceConfigAnnotationAttributes.get("path").getLiteralValue().stringValue();
+            Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
+                    this.listToMap(responsesAnnotationAttachment.get());
+            if (configAttributes.containsKey("path")) {
+                path = this.getStringLiteralValue(configAttributes.get("path"));
             }
         }
         
         return path;
+    }
+    
+    /**
+     * Converts the attributes of an annotation to a map of key being attribute key and value being an annotation
+     * attachment value.
+     * @param annotation The annotation attachment node.
+     * @return A map of attributes.
+     */
+    private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
+        return annotation.getAttributes().stream().collect(
+                Collectors.toMap(AnnotationAttachmentAttributeNode::getName, AnnotationAttachmentAttributeNode
+                        ::getValue));
+    }
+    
+    /**
+     * Coverts the string value of an annotation attachment to a string.
+     * @param valueNode The annotation attachment.
+     * @return The string value.
+     */
+    private String getStringLiteralValue(AnnotationAttachmentAttributeValueNode valueNode) {
+        return ((LiteralNode)valueNode.getValue()).getValue().toString();
     }
 }

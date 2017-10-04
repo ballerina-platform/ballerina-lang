@@ -76,6 +76,18 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return undefined;
     }
+
+
+    /**
+     * Return true if the statement is a connector declaration.
+     *
+     * @param {any} node
+     * @returns {boolean} true if the statement is a connector declaration.
+     * @memberof TreeUtil
+     */
+    isConnectorDeclaration(node) {
+        return false;
+    }
 }
 
 export default new TreeUtil();

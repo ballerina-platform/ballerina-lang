@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractResourceNode extends Node {
 
 
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.body = newValue;
+
+        this.body.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'body',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getBody() {
+        return this.body;
+    }
+
+
+
     setReturnParameters(newValue, silent, title) {
         const oldValue = this.returnParameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -70,7 +97,7 @@ class AbstractResourceNode extends Node {
 
     removeReturnParameters(node, silent) {
         const index = this.getIndexOfReturnParameters(node);
-        this.removeReturnParametersByIndex(index);
+        this.removeReturnParametersByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -139,33 +166,6 @@ class AbstractResourceNode extends Node {
     }
 
 
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'body',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getBody() {
-        return this.body;
-    }
-
-
-
     setWorkers(newValue, silent, title) {
         const oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -214,7 +214,7 @@ class AbstractResourceNode extends Node {
 
     removeWorkers(node, silent) {
         const index = this.getIndexOfWorkers(node);
-        this.removeWorkersByIndex(index);
+        this.removeWorkersByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -358,7 +358,7 @@ class AbstractResourceNode extends Node {
 
     removeParameters(node, silent) {
         const index = this.getIndexOfParameters(node);
-        this.removeParametersByIndex(index);
+        this.removeParametersByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -427,31 +427,6 @@ class AbstractResourceNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
     setAnnotationAttachments(newValue, silent, title) {
         const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -500,7 +475,7 @@ class AbstractResourceNode extends Node {
 
     removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index);
+        this.removeAnnotationAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -567,6 +542,31 @@ class AbstractResourceNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }

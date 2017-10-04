@@ -134,8 +134,8 @@ class SizingUtil {
         let stH = 0;
         nodes.forEach((element) => {
             const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
-                element.variable.initialExpression : undefined;
-            if (element.viewState.bBox.w > width) {
+                undefined : undefined;
+            if (initialExpression && element.viewState.bBox.w > width) {
                 if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
                     width = element.viewState.bBox.w;
                 }
@@ -329,7 +329,7 @@ class SizingUtil {
         const statements = node.body.statements;
         const connectorDecls = _.filter(statements, (statement) => {
             const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
-                statement.variable.initialExpression : undefined;
+                undefined : undefined;
             return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
         });
 

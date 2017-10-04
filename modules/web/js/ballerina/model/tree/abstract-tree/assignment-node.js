@@ -70,7 +70,7 @@ class AbstractAssignmentNode extends StatementNode {
 
     removeVariables(node, silent) {
         const index = this.getIndexOfVariables(node);
-        this.removeVariablesByIndex(index);
+        this.removeVariablesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

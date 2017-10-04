@@ -23,13 +23,13 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
  */
 public class BFile {
 
-    private String content;
+    private String content = "";
 
-    private String fileName;
+    private String fileName = "untitled";
 
-    private String filePath;
+    private String filePath = "temp";
 
-    private String packageName;
+    private String packageName = "";
 
     public String getContent() {
         return content;

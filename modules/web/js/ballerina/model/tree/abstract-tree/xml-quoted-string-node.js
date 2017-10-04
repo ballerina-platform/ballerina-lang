@@ -70,7 +70,7 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
 
     removeTextFragments(node, silent) {
         const index = this.getIndexOfTextFragments(node);
-        this.removeTextFragmentsByIndex(index);
+        this.removeTextFragmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

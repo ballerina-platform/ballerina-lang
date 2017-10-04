@@ -49,33 +49,6 @@ class AbstractInvocationNode extends Node {
 
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
-
-
     setArgumentExpressions(newValue, silent, title) {
         const oldValue = this.argumentExpressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -124,7 +97,7 @@ class AbstractInvocationNode extends Node {
 
     removeArgumentExpressions(node, silent) {
         const index = this.getIndexOfArgumentExpressions(node);
-        this.removeArgumentExpressionsByIndex(index);
+        this.removeArgumentExpressionsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -191,6 +164,33 @@ class AbstractInvocationNode extends Node {
     filterArgumentExpressions(predicateFunction) {
         return _.filter(this.argumentExpressions, predicateFunction);
     }
+
+
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
 
 
     setName(newValue, silent, title) {

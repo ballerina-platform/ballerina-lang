@@ -70,7 +70,7 @@ class AbstractXmlPiLiteralNode extends Node {
 
     removeDataTextFragments(node, silent) {
         const index = this.getIndexOfDataTextFragments(node);
-        this.removeDataTextFragmentsByIndex(index);
+        this.removeDataTextFragmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

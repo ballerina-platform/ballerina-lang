@@ -41,10 +41,10 @@
         "parameters": [
           {
             "in": "body",
-            "name": "m",
+            "name": "req",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/Message"
+              "$ref": "#/definitions/Request"
             }
           },
           {
@@ -71,10 +71,10 @@
         "parameters": [
           {
             "in": "body",
-            "name": "m",
+            "name": "req",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/Message"
+              "$ref": "#/definitions/Request"
             }
           }
         ],
@@ -97,10 +97,10 @@
         "parameters": [
           {
             "in": "body",
-            "name": "m",
+            "name": "req",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/Message"
+              "$ref": "#/definitions/Request"
             }
           }
         ],
@@ -116,7 +116,7 @@
     }
   },
   "definitions": {
-    "Message": {
+    "Request": {
       "type": "object"
     }
   }

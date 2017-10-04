@@ -103,6 +103,10 @@ class AbstractTreeUtil {
         return node.kind === 'Xmlns';
     }
 
+    isAnnotationAttachmentAttribute(node) {
+        return node.kind === 'AnnotationAttachmentAttribute';
+    }
+
     isAnnotationAttachmentAttributeValue(node) {
         return node.kind === 'AnnotationAttachmentAttributeValue';
     }

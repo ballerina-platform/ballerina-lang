@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractServiceNode extends Node {
 
 
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -70,7 +97,7 @@ class AbstractServiceNode extends Node {
 
     removeVariables(node, silent) {
         const index = this.getIndexOfVariables(node);
-        this.removeVariablesByIndex(index);
+        this.removeVariablesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -137,33 +164,6 @@ class AbstractServiceNode extends Node {
     filterVariables(predicateFunction) {
         return _.filter(this.variables, predicateFunction);
     }
-
-
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
 
 
     setProtocolPackageIdentifier(newValue, silent, title) {
@@ -268,7 +268,7 @@ class AbstractServiceNode extends Node {
 
     removeResources(node, silent) {
         const index = this.getIndexOfResources(node);
-        this.removeResourcesByIndex(index);
+        this.removeResourcesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -337,31 +337,6 @@ class AbstractServiceNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
     setAnnotationAttachments(newValue, silent, title) {
         const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -410,7 +385,7 @@ class AbstractServiceNode extends Node {
 
     removeAnnotationAttachments(node, silent) {
         const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index);
+        this.removeAnnotationAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -477,6 +452,31 @@ class AbstractServiceNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
 }
