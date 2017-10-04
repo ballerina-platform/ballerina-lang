@@ -31,7 +31,6 @@ import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
@@ -44,7 +43,7 @@ import java.util.Optional;
 public class JMSDispatcher {
     private static final Logger log = LoggerFactory.getLogger(JMSDispatcher.class);
 
-    public static Resource findResource(CarbonMessage cMsg, CarbonCallback carbonCallback) throws BallerinaException {
+    public static Resource findResource(CarbonMessage cMsg) throws BallerinaException {
 
         Resource resource = null;
         String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
@@ -71,12 +70,12 @@ public class JMSDispatcher {
             }
             resource = resources[0];
         } catch (Throwable throwable) {
-            handleError(cMsg, carbonCallback, throwable);
+            handleError(cMsg, throwable);
         }
         return resource;
     }
 
-    public static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
+    public static void handleError(CarbonMessage cMsg, Throwable throwable) {
         String errorMsg = throwable.getMessage();
         log.error("error: " + errorMsg, throwable);
         Object protocol = cMsg.getProperty("PROTOCOL");
@@ -84,9 +83,11 @@ public class JMSDispatcher {
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
         try {
+            //todo: null is passed as the CarbonCallback for now. It is not used inside the method call, can be removed
+            //todo: when DefaultServerConnectorErrorHandler API is updated
             optionalErrorHandler
                     .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaConnectorException(errorMsg, throwable.getCause()), cMsg, callback);
+                    .handleError(new BallerinaConnectorException(errorMsg, throwable.getCause()), cMsg, null);
         } catch (Exception e) {
             log.error("Cannot handle error using the error handler for: " + protocol, e);
         }

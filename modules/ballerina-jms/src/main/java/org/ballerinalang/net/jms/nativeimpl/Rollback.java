@@ -19,8 +19,9 @@
 package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,7 +32,6 @@ import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.jms.Session;
 
@@ -48,22 +48,21 @@ public class Rollback extends AbstractNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Rollback.class);
 
     public BValue[] execute(Context ctx) {
-        BMessage msg = (BMessage) getRefArgument(ctx, 0);
-        CarbonMessage carbonMessage = msg.value();
-        Object jmsSessionAcknowledgementMode = carbonMessage.getProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
+        ConnectorFuture future = ctx.getConnectorFuture();
 
-        if (null == jmsSessionAcknowledgementMode) {
+        if (null == future) {
             log.warn("JMS Rollback function can only be used with JMS Messages. "
                     + Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
             return VOID_RETURN;
         }
+        Object jmsSessionAcknowledgementMode = ctx.getProperties().get(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
         if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
             throw new BallerinaException(
                     Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a " + "integer value. ");
         }
         if (Session.SESSION_TRANSACTED == (Integer) jmsSessionAcknowledgementMode) {
-            carbonMessage.setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, Constants.JMS_MESSAGE_DELIVERY_ERROR);
-            ctx.getBalCallback().done(carbonMessage);
+            ctx.getConnectorFuture()
+                    .notifyFailure(new BallerinaConnectorException("Error when processing the JMS message"));
 
         } else {
             log.warn("JMS Rollback function can only be used with JMS Session Transacted Mode.");
