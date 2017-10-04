@@ -1,5 +1,3 @@
-import ballerina.lang.errors;
-
 function testStringAsJsonVal () (json) {
     json j = "Supun";
     return j;
@@ -300,7 +298,7 @@ function testJsonArrayToJsonCasting () (json) {
     return j2;
 }
 
-function testJsonToJsonArrayCasting () (json[], json[][], errors:TypeCastError) {
+function testJsonToJsonArrayCasting () (json[], json[][], TypeCastError) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     var j2, e = (json[])j1;
@@ -309,7 +307,7 @@ function testJsonToJsonArrayCasting () (json[], json[][], errors:TypeCastError) 
     return j2, j3, e;
 }
 
-function testJsonToJsonArrayInvalidCasting () (json[][][], errors:TypeCastError) {
+function testJsonToJsonArrayInvalidCasting () (json[][][], TypeCastError) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     var j2, e = (json[][][])j1;

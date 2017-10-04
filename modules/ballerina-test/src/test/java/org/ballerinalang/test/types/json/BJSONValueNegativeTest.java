@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 public class BJSONValueNegativeTest {
 
     private CompileResult compileResult;
-    private static final double DELTA = 0.01;
 
     @BeforeClass
     public void setup() {
