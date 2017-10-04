@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,10 +41,10 @@ public class BNullValueTest {
 
     @BeforeClass
     public void setup() {
-//        compileResult = BTestUtils.compile("test-src/types/null/null-value.bal");
+        compileResult = BTestUtils.compile("test-src/types/null/null-value.bal");
     }
 
-    //    @Test(description = "Test null value of a xml")
+    @Test(description = "Test null value of a xml")
     public void testXmlNull() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testXmlNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -51,7 +52,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(5));
     }
 
-    //    @Test(description = "Test null value of a json")
+    @Test(description = "Test null value of a json")
     public void testJsonNull() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testJsonNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -59,7 +60,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(6));
     }
 
-    //    @Test(description = "Test null value of a struct")
+    @Test(description = "Test null value of a struct")
     public void testStructNull() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testStructNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -67,7 +68,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(7));
     }
 
-    //    @Test(description = "Test null value of a connector")
+    @Test(description = "Test null value of a connector")
     public void testConnectorNull() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testConnectorNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -75,7 +76,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(8));
     }
 
-    //    @Test(description = "Test null value of a array")
+    @Test(description = "Test null value of a array")
     public void testArrayNull() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testArrayNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -91,7 +92,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(10));
     }
 
-    //    @Test(description = "Test casting a nullified value")
+    @Test(description = "Test casting a nullified value")
     void testCastingNullValue() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testCastingNull", new BValue[]{null});
         Assert.assertEquals(vals[0], null);
@@ -101,32 +102,32 @@ public class BNullValueTest {
 //        Assert.assertEquals(((BXML) vals[0]).getMessageAsString(), "<name>converted xml</name>");
     }
 
-    //    @Test(description = "Test passing null to a function expects a reference type")
+    @Test(description = "Test passing null to a function expects a reference type")
     public void testFunctionCallWithNull() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testFunctionCallWithNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
-    //    @Test(description = "Test comparing null vs null")
+    @Test(description = "Test comparing null vs null")
     public void testNullLiteralComparison() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testNullLiteralComparison", new BValue[]{});
         Assert.assertTrue(vals[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) vals[0]).booleanValue(), true);
     }
 
-    //    @Test(description = "Test returning a null literal")
+    @Test(description = "Test returning a null literal")
     public void testReturnNullLiteral() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testReturnNullLiteral", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
-    //@Test(description = "Test null in worker")
+    @Test(description = "Test null in worker")
     public void testNullInWorker() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testNullInWorker", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
-    //@Test(description = "Test null in fork-join")
+    @Test(description = "Test null in fork-join")
     public void testNullInForkJoin() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testNullInForkJoin", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -134,7 +135,7 @@ public class BNullValueTest {
         Assert.assertEquals(((BMessage) vals[1]).stringValue(), "");
     }
 
-    //    @Test(description = "Test array of null values")
+    @Test(description = "Test array of null values")
     public void testArrayOfNulls() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testArrayOfNulls", new BValue[]{});
         BRefValueArray nullArray = (BRefValueArray) vals[0];
@@ -145,7 +146,7 @@ public class BNullValueTest {
         Assert.assertEquals(nullArray.get(4), null);
     }
 
-    //    @Test(description = "Test map of null values")
+    @Test(description = "Test map of null values")
     public void testMapOfNulls() {
         BValue[] vals = BTestUtils.invoke(compileResult, "testMapOfNulls", new BValue[]{});
         BMap<String, BValue> nullMap = (BMap<String, BValue>) vals[0];
@@ -157,28 +158,28 @@ public class BNullValueTest {
 
     // Negative Tests
 
-    //    @Test(description = "Test accessing an element in a null array",
-//          expectedExceptions = BLangRuntimeException.class,
-//          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+    @Test(description = "Test accessing an element in a null array",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     void testNullArrayAccess() {
         BTestUtils.invoke(compileResult, "testNullArrayAccess", new BValue[]{});
     }
 
-    //    @Test(description = "Test accessing an element in a null map",
-//          expectedExceptions = BLangRuntimeException.class,
-//          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+    @Test(description = "Test accessing an element in a null map",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     void testNullMapAccess() {
         BTestUtils.invoke(compileResult, "testNullMapAccess", new BValue[]{});
     }
 
-    //    @Test(description = "Test accessing an element in a null array",
-//          expectedExceptions = BLangRuntimeException.class,
-//          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+    @Test(description = "Test accessing an element in a null array",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     void testActionInNullConenctor() {
         BTestUtils.invoke(compileResult, "testActionInNullConenctor", new BValue[]{});
     }
 
-    //    @Test(description = "Test comparison of null values of two types")
+    @Test(description = "Test comparison of null values of two types")
     void testCompareNullOfDifferentTypes() {
         CompileResult compileResult = BTestUtils.compile("test-src/types/null/null-of-different-types.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -204,7 +205,7 @@ public class BNullValueTest {
                             "incompatible types: 'other' cannot be cast to 'string'");
     }
 
-    //    @Test(description = "Test casting a null literal to a reference type")
+    @Test(description = "Test casting a null literal to a reference type")
     void testCastNullToReferenceType() {
         CompileResult compileResult = BTestUtils.compile("test-src/types/null/null-cast-to-reference-type.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -212,7 +213,7 @@ public class BNullValueTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "");
     }
 
-    //    @Test(description = "Test passing null to a function expects a value type")
+    @Test(description = "Test passing null to a function expects a value type")
     void testInvalidFunctionCallWithNull() {
         CompileResult compileResult = BTestUtils.compile("test-src/types/null/invalid-function-call-with-nulll.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
