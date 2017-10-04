@@ -1,20 +1,21 @@
-import ballerina.lang.errors;
-
 struct testError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string code;
 }
 
 struct testDataError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string data;
 }
 
 struct testInputError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string input;
 }
 
@@ -45,7 +46,7 @@ function testTryCatch(int value)(string){
             path = path + "innerFinally ";
         }
         path = path + "endInsideTry ";
-    } catch (errors:Error e){
+    } catch (error e){
         path = path + "ErrorCatch ";
     } catch (testError ex){
         path = path + "TestErrorCatch ";
@@ -62,7 +63,7 @@ function testFunctionThrow (int arg)(boolean, string){
         a = a + "1";
         int b = testThrow(arg);
         a = a + "2";
-    } catch (errors:Error b){
+    } catch (error b){
         a = a + "3";
         return true, a;
     }
@@ -75,21 +76,25 @@ function testThrow(int a)(int) {
     return testNestedThrow(c);
 }
 
-function testNestedThrow(int a)(int){
-    errors:Error e  = {msg : "test message"};
-    throw e;
+function testNestedThrow (int a) (int) {
+    error e = {msg:"test message"};
+    int i = 10;
+    if (i == 10) {
+        throw e;
+    }
+    return i;
 }
 
 function testUncaughtException(){
     testNestedThrow(1);
 }
 
-function testStackTrace()(errors:StackTrace){
-    errors:StackTrace trace;
+function testStackTrace()(stackFrame[]){
+    stackFrame[] trace;
     try{
         testUncaughtException();
-    } catch (errors:Error e) {
-        trace = errors:getStackTrace(e);
+    } catch (error e) {
+        trace = e.stackTrace;
     }
     return trace;
 }
@@ -101,7 +106,7 @@ function mockFunction ()(string) {
 function testMethodCallInFinally ()(string) {
     string s = "start";
     try {
-        errors:Error e = {msg:"test"};
+        error e = {msg:"test"};
         throw e;
     }finally {
          s = s + mockFunction();
@@ -113,7 +118,7 @@ function scopeIssueTest () (int) {
     int i = 0;
     while (i < 10) {
         try {
-        } catch (errors:Error e) {
+        } catch (error e) {
         }
         i = i + 1;
     }
@@ -131,7 +136,7 @@ function testTryWithinWhile() (int) {
     while(i < 3) {
         try {
             int o = 0;
-        } catch (errors:Error e) {
+        } catch (error e) {
 
         }
         i = i+1;

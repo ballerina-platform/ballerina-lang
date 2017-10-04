@@ -19,10 +19,8 @@ package org.ballerinalang.core.lang.error;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,17 +30,17 @@ import org.testng.annotations.Test;
  */
 public class TestErrorReturn {
 
-    ProgramFile programValidIgnore;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programValidIgnore = BTestUtils.getProgramFile("lang/errors/valid-ignore.bal");
+        compileResult = BTestUtils.compile("test-src/types/errors/valid-ignore.bal");
     }
 
     @Test(description = "Testing test1 method")
     public void testValidateIgnoreReturn1() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programValidIgnore, "test1", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "test1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "a");
@@ -53,7 +51,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test2 method")
     public void testValidateIgnoreReturn2() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programValidIgnore, "test2", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "test2", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "a");
@@ -64,7 +62,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test3 method")
     public void testValidateIgnoreReturn3() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programValidIgnore, "test3", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "test3", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0);
@@ -73,9 +71,9 @@ public class TestErrorReturn {
 
     @Test(description = "validate ignored error struct type.")
     public void testValidateErrorReturn() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/errors/error_return.bal");
+        CompileResult compileResult = BTestUtils.compile("test-src/types/errors/error_return.bal");
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnError", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testReturnError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "FOO:10.5");
@@ -85,34 +83,18 @@ public class TestErrorReturn {
         Assert.assertEquals(returns[2].stringValue(), "BAZ:0.0");
         Assert.assertNotNull(returns[3]);
         Assert.assertEquals(returns[3].stringValue(), "BAR:11.5");
-    }
 
-    @Test(description = "test throwing a returned error type..")
-    public void testValidateErrorReturnAndThrow() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/errors/error_return.bal");
-        BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnAndThrowError", args);
+        returns = BTestUtils.invoke(compileResult, "testReturnAndThrowError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "invalid name");
     }
 
-    @Test(description = "negative test case for validating when all variables are ignored. ", expectedExceptions =
-            BallerinaException.class, expectedExceptionsMessageRegExp = ".*assignment statement should have at least " +
-            "one variable assignment")
+    @Test(description = "test case for validating when all variables are ignored. ")
     public void testValidateIgnoreAll() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/errors/invalid-all-ignore.bal");
         BValue[] args = {};
-        BLangFunctions.invokeNew(programFile, "testReturnAndThrowError", args);
-    }
-
-    @Test(description = "negative test case for validating when all variables are ignored. ", expectedExceptions =
-            BallerinaException.class, expectedExceptionsMessageRegExp = ".*assignment statement should have at least " +
-            "one variable assignment")
-    public void testValidateIgnore() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/errors/invalid-ignore.bal");
-        BValue[] args = {};
-        BLangFunctions.invokeNew(programFile, "testReturnAndThrowError", args);
+        BTestUtils.invoke(compileResult, "test4", args);
+        BTestUtils.invoke(compileResult, "test5", args);
     }
 
 }
