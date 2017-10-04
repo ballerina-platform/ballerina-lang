@@ -157,7 +157,7 @@ service<http> echo11 {
     }
     resource echo15 (http:Request req, http:Response res) {
         map params = request:getQueryParams(req);
-        var bar, _ = (string)params.foo;
+        var bar, _ = <boolean> params.foo;
         json responseJson = {"echo15":bar};
         response:setJsonPayload(res, responseJson);
         response:send(res);
