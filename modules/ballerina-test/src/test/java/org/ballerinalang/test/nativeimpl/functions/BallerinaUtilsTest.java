@@ -133,7 +133,7 @@ public class BallerinaUtilsTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testBase64toBase16Encode() {
         BValue[] args = new BValue[]{new BString("Ballerina HMAC BASE64 test")};
         BValue[] returnVals = BTestUtils.invoke(compileResult, "testBase64ToBase16Encode", args);

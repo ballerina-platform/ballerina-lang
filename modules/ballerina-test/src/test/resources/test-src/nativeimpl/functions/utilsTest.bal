@@ -22,5 +22,6 @@ function testMessageDigest(string base, string algo)(string) {
 }
 
 function testBase64ToBase16Encode(string base)(string) {
-  return utils:base64ToBase16Encode(utils:base64encode(base));
+  string  base64Str = utils:base64encode(base);
+  return utils:base64ToBase16Encode(base64Str);
 }
