@@ -79,6 +79,7 @@ public class Constants {
     public static final String GIT_PULL_COMMAND = "pull";
     public static final String GIT_PUSH_COMMAND = "push";
     public static final String GIT_CHECKOUT_COMMAND = "checkout";
+    public static final String GIT_CHECKOUT_COMMAND_DELETE = "--delete";
     public static final String GIT_CHECKOUT_COMMAND_ORPHAN_ARGUMENT = "--orphan";
     public static final String GIT_COMMIT_COMMAND = "commit";
     public static final String GIT_COMMIT_COMMAND_FILES_ARGUMENT = "--";
