@@ -1,4 +1,4 @@
-function testXmlNull() (xml, xml, int) {
+function testXmlNull () (xml, xml, int) {
     xml x1;
     xml x2 = null;
     int a = 0;
@@ -8,7 +8,7 @@ function testXmlNull() (xml, xml, int) {
     return x1, x2, a;
 }
 
-function testJsonNull() (json, json, int) {
+function testJsonNull () (json, json, int) {
     json j1;
     json j2 = null;
     int a = 0;
@@ -18,7 +18,7 @@ function testJsonNull() (json, json, int) {
     return j1, j2, a;
 }
 
-function testStructNull() (Person, Person, int) {
+function testStructNull () (Person, Person, int) {
     Person p1;
     Person p2 = null;
     int a = 0;
@@ -32,7 +32,7 @@ struct Person {
     string name;
 }
 
-function testConnectorNull() (TestConnector, TestConnector, int) {
+function testConnectorNull () (TestConnector, TestConnector, int) {
     TestConnector c1;
     TestConnector c2 = null;
     int a = 0;
@@ -42,15 +42,15 @@ function testConnectorNull() (TestConnector, TestConnector, int) {
     return c1, c2, a;
 }
 
-connector TestConnector() {
+connector TestConnector () {
     string name;
 
-    action testAction() (string) {
+    action testAction () (string) {
         return name;
     }
 }
 
-function testArrayNull() (string[], Person[], int) {
+function testArrayNull () (string[], Person[], int) {
     string[] s;
     Person[] p;
     int a = 0;
@@ -60,7 +60,7 @@ function testArrayNull() (string[], Person[], int) {
     return s, p, a;
 }
 
-function testMapNull() (map, map, int) {
+function testMapNull () (map, map, int) {
     map m1;
     map m2 = null;
     int a = 0;
@@ -70,47 +70,47 @@ function testMapNull() (map, map, int) {
     return m1, m2, a;
 }
 
-function testNullArrayAccess() (string) {
+function testNullArrayAccess () (string) {
     string[] fruits;
     return fruits[0];
 }
 
-function testNullMapAccess() (string) {
+function testNullMapAccess () (string) {
     map marks;
     string value;
-    value, _ = (string) marks["maths"];
+    value, _ = (string)marks["maths"];
     return value;
 }
 
-function testCastingNull(any j) (xml) {
+function testCastingNull (any j) (xml) {
     xml x;
-    x, _ = (xml) j;
+    x, _ = (xml)j;
 
     return x;
 }
 
-function testFunctionCallWithNull() (any) {
+function testFunctionCallWithNull () (any) {
     return foo(null);
 }
 
-function foo(xml x) (xml) {
+function foo (xml x) (xml) {
     return x;
 }
 
-function testActionInNullConenctor() {
+function testActionInNullConenctor () {
     TestConnector testConnector;
     string result = testConnector.testAction();
 }
 
-function testNullLiteralComparison() (boolean) {
+function testNullLiteralComparison () (boolean) {
     return (null == null);
 }
 
-function testReturnNullLiteral() (any) {
+function testReturnNullLiteral () (any) {
     return null;
 }
 
-function testNullInWorker() (any) {
+function testNullInWorker () (any) {
     message request;
     request -> worker1;
 
@@ -120,13 +120,13 @@ function testNullInWorker() (any) {
     return result;
 
     worker worker1 {
-    message resp;
-    resp <- default;
-    resp -> default;
+        message resp;
+        resp <- default;
+        resp -> default;
     }
 }
 
-function testNullInForkJoin() (message, message) {
+function testNullInForkJoin () (message, message) {
     message m = null;
     fork {
         worker foo {
@@ -142,17 +142,17 @@ function testNullInForkJoin() (message, message) {
         any[] temp;
         temp, _ = (any[])allReplies["foo"];
         message m1;
-        m1, _ = (message) temp[0];
-        temp,_ = (any[])allReplies["bar"];
+        m1, _ = (message)temp[0];
+        temp, _ = (any[])allReplies["bar"];
         message m2;
-        m2, _ = (message) temp[0];
-        return m1,m2;
+        m2, _ = (message)temp[0];
+        return m1, m2;
     } timeout (30000) (map msgs) {
         return null, null;
     }
 }
 
-function testArrayOfNulls() (Person[]) {
+function testArrayOfNulls () (Person[]) {
     Person p1 = {};
     Person p2;
     Person p3 = null;
@@ -161,7 +161,7 @@ function testArrayOfNulls() (Person[]) {
     return personArray;
 }
 
-function testMapOfNulls() (map) {
+function testMapOfNulls () (map) {
     string x1 = "<x1>test xml1</x1>";
     xml x2;
     xml x3 = null;
