@@ -16,7 +16,6 @@
  * under the License.
  */
 import FragmentUtils from './../utils/fragment-utils';
-import NodeFactory from './node-factory';
 import TreeBuilder from './tree-builder';
 
 /**
@@ -30,20 +29,6 @@ function getNodeForFragment(fragment) {
 }
 
 class DefaultNodeFactory {
-    /**
-     * Create main function
-     * @return {Node} function node for main function
-     * @memberof DefaultNodeFactory
-     * */
-    createMainFunction() {
-        return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                function main(string[] args) {
-
-                }
-            `)
-        );
-    }
 
     createHTTPServiceDef() {
         return getNodeForFragment(
@@ -60,6 +45,81 @@ class DefaultNodeFactory {
             FragmentUtils.createTopLevelNodeFragment(`
                 service<ws> service1 {
                     
+                }
+            `)
+        );
+    }
+
+    /**
+     * Create main function
+     * @return {Node} function node for main function
+     * @memberof DefaultNodeFactory
+     * */
+    createMainFunction() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                function main(string[] args) {
+
+                }
+            `)
+        );
+    }
+
+    createFunction() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                function function1(string arg1) {
+
+                }
+            `)
+        );
+    }
+
+    createConnector() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                connector ClientConnector(string url) {
+
+                }
+            `)
+        );
+    }
+
+    createConnectorAction() {  
+        return getNodeForFragment(
+            FragmentUtils.createConnectorActionFragment(`
+                action action1(message msg) (message){
+
+                }
+            `)
+        );
+    }
+
+    createResource() {  
+        return getNodeForFragment(
+            FragmentUtils.createServiceResourceFragment(`
+                resource echo1 (message m, string foo) {
+
+                }
+            `)
+        );
+    }
+
+    createStruct() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                public struct Person {
+                    string name;
+                    int age;
+                }
+            `)
+        );
+    }
+
+    createWorker() {
+        return getNodeForFragment(
+            FragmentUtils.createStatementFragment(`
+                worker worker1 {
                 }
             `)
         );

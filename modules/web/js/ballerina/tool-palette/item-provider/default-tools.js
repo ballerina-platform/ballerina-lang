@@ -57,7 +57,7 @@ const tools = [
         name: 'Function',
         icon: 'function',
         title: 'Function',
-        nodeFactoryMethod: NodeFactory.createFunction,
+        nodeFactoryMethod: DefaultNodeFactory.createFunction,
         description: 'Single operation that is intended to be a unit of reusable functionality',
     },
     {
@@ -65,7 +65,7 @@ const tools = [
         name: 'Connector',
         icon: 'connector',
         title: 'Connector Definition',
-        nodeFactoryMethod: NodeFactory.createConnector,
+        nodeFactoryMethod: DefaultNodeFactory.createConnector,
         description: 'Participant in the integration and is used to interact with an external'
             + 'system or a service defined',
     },
@@ -74,7 +74,7 @@ const tools = [
         name: 'Action',
         icon: 'dgm-action',
         title: 'Connector Action',
-        nodeFactoryMethod: NodeFactory.createAction,
+        nodeFactoryMethod: DefaultNodeFactory.createConnectorAction,
         description: 'Operation that can be executed against a connector',
     },
     {
@@ -82,7 +82,7 @@ const tools = [
         name: 'Struct',
         icon: 'struct',
         title: 'Struct',
-        nodeFactoryMethod: NodeFactory.createStruct,
+        nodeFactoryMethod: DefaultNodeFactory.createStruct,
         description: 'User-defined record type',
     },
     {
@@ -90,7 +90,7 @@ const tools = [
         name: 'Worker',
         icon: 'worker',
         title: 'Worker',
-        nodeFactoryMethod: NodeFactory.createWorker,
+        nodeFactoryMethod: DefaultNodeFactory.createWorker,
         description: 'Programmable actor which is represented on a sequence diagram'
             + 'as a vertical lifeline of logic to be executed.',
     },
