@@ -50,6 +50,22 @@ public class ModOperationTest {
         floatMod(-4, 10, -4);
     }
 
+    @Test(description = "Test int float mod expression")
+    public void testIntFloatModeExpr() {
+        intFloatMod(1, 1.5f, 1);
+        intFloatMod(10, 3.5f, 3);
+        intFloatMod(4, 10.5f, 4);
+        intFloatMod(-4, 10.5f, -4);
+    }
+
+    @Test(description = "Test float int mod expression")
+    public void testFloatIntModeExpr() {
+        floatIntMod(1.5f, 1, 0.5);
+        floatIntMod(10.5f, 3, 1.5);
+        floatIntMod(4.5f, 10, 4.5);
+        floatIntMod(-4.5f, 10, -4.5);
+    }
+
     private void intMod(int val1, int val2, long expected) {
         BValue[] args = { new BInteger(val1), new BInteger(val2) };
         BValue[] returns = BTestUtils.invoke(result, "intMod", args);
@@ -64,6 +80,28 @@ public class ModOperationTest {
     private void floatMod(float val1, float val2, double expected) {
         BValue[] args = { new BFloat(val1), new BFloat(val2) };
         BValue[] returns = BTestUtils.invoke(result, "floatMod", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actual, expected);
+    }
+
+    private void intFloatMod(int val1, float val2, double expected) {
+        BValue[] args = { new BInteger(val1), new BFloat(val2) };
+        BValue[] returns = BTestUtils.invoke(result, "intFloatMod", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actual, expected);
+    }
+
+    private void floatIntMod(float val1, int val2, double expected) {
+        BValue[] args = { new BFloat(val1), new BInteger(val2) };
+        BValue[] returns = BTestUtils.invoke(result, "floatIntMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);

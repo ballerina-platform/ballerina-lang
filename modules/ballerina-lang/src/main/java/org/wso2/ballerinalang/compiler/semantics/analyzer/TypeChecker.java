@@ -160,7 +160,7 @@ public class TypeChecker extends BLangNodeVisitor {
         DiagnosticCode preDiagCode = this.diagCode;
         this.env = env;
         this.diagCode = diagCode;
-        this.expTypes = verifyAndGetExpectedTypes(expr, expTypes);
+        this.expTypes = expTypes;
 
         expr.accept(this);
 
@@ -238,6 +238,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.type = this.symTable.errType;
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
             }
+            varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, actualType, env.scope.owner);
             resultTypes = Lists.of(varRefExpr.type);
             return;
         }
@@ -635,15 +636,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
-    }
-
-    private List<BType> verifyAndGetExpectedTypes(BLangExpression expr, List<BType> expTypes) {
-        if (!expr.isMultiReturnExpr() && expTypes.size() > 1) {
-            // This error will be reported after analyzing the expression
-            return Lists.of(symTable.errType);
-        }
-
-        return expTypes;
     }
 
     private void setExprType(BLangExpression expr, List<BType> expTypes) {

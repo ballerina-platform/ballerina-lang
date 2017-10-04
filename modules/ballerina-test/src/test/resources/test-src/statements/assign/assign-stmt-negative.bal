@@ -57,3 +57,16 @@ function testVarRepeatedReturn2 () (int, string, int) {
 function testMultiReturnValid () (int, string, int) {
     return 5, "john", 6;
 }
+
+const int i = 10;
+const string aa = "sam";
+
+function testConstAssignment () {
+    i = 20;
+    return;
+}
+
+function constantAssignment () {
+    // Following line is invalid.
+    aa = "mad";
+}
