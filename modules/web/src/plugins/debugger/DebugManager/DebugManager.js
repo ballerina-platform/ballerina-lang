@@ -157,6 +157,13 @@ class DebugManager extends EventChannel {
         });
     }
     /**
+     * Reconnect to backend
+     * @memberof DebugManager
+     */
+    reConnect() {
+        this.connect(this.endpoint);
+    }
+    /**
      * @param {String} url - Start debugging with a remote url
      *
      * @memberof DebugManager
