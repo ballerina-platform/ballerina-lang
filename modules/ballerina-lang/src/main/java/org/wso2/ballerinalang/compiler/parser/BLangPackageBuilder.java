@@ -1534,7 +1534,7 @@ public class BLangPackageBuilder {
     }
 
     public void endParameterList(Set<Whitespace> ws) {
-        this.invokableNodeStack.peek().addWS(ws);
+        //this.invokableNodeStack.peek().addWS(ws);
     }
 
     private Set<Whitespace> removeFirst(Set<Whitespace> ws) {

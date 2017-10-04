@@ -520,7 +520,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
-        connectorNode.annAttachments.forEach(annotation -> this.analyzeDef(annotation, connectorEnv));
+
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
 
@@ -537,7 +537,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        actionNode.annAttachments.forEach(a -> this.analyzeDef(a, actionEnv));
+
         actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
         analyzeStmt(actionNode.body, actionEnv);
         // Process workers
@@ -568,7 +568,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangResource resourceNode) {
         BSymbol resourceSymbol = resourceNode.symbol;
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
-        resourceNode.annAttachments.forEach(a -> this.analyzeDef(a, resourceEnv));
+
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
         resourceNode.workers.forEach(w -> this.analyzeDef(w, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);

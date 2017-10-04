@@ -68,13 +68,20 @@ public class BTestUtils {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
+        try {
+            resourceDir = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath().concat("test-src"));
+        } catch (Exception ex) {
+
+        }
+
+
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFile = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-
+        sourceFile = "lang.annotations.foo";
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRoot.toString());
+        options.put(SOURCE_ROOT, resourceDir.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
