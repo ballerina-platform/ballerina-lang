@@ -2,7 +2,6 @@ import React from 'react';
 import log from 'log';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'react-tippy';
 import 'react-tippy/dist/tippy.css';
 import { getPathSeperator } from 'api-client/api-client';
 import classnames from 'classnames';
@@ -182,96 +181,82 @@ class TreeNode extends React.Component {
             onNodeDelete,
         } = this.props;
         const treeNodeHeader = (
-            <Tooltip
-                disabled={this.state.disableToolTip || enableEdit}
-                position="bottom"
-                delay={800}
-                hideDelay={0}
-                className="tree-node-tool-tip"
-                offset={50}
-                distance={0}
-                html={(
-                    <div>{id}</div>
-                )}
-                style={{
-                    backgroundColor: 'black',
-                    fontSize: 14,
+            <div
+                data-placement="bottom"
+                data-toggle="tooltip"
+                title={id}
+                className={classnames('tree-node-header', { active })}
+                onClick={() => {
+                    if (!enableEdit) {
+                        onClick(node);
+                    }
+                }}
+                onDoubleClick={() => {
+                    if (!enableEdit) {
+                        onDoubleClick(node);
+                    }
                 }}
             >
-                <div
-                    className={classnames('tree-node-header', { active })}
-                    onClick={() => {
-                        if (!enableEdit) {
-                            onClick(node);
-                        }
-                    }}
-                    onDoubleClick={() => {
-                        if (!enableEdit) {
-                            onDoubleClick(node);
-                        }
-                    }}
-                >
-                    <div className="tree-node-highlight-row" />
-                    {!node.loading && <div className="tree-node-arrow" />}
-                    {node.loading && <i className="tree-node-loading fw fw-loader4 fw-spin" />}
-                    <i
-                        className={
-                            classnames(
-                                'tree-node-icon',
-                                'fw',
-                                { 'fw-folder': type === NODE_TYPES.FOLDER },
-                                { 'fw-document': type === NODE_TYPES.FILE }
-                            )
-                        }
-                    />
-                    {enableEdit && <div className="tree-node-focus-highlighter" onClick={this.onEditComplete} />}
-                    {enableEdit &&
-                        <div className={classnames('tree-node-name-input-wrapper', { error: !_.isEmpty(this.state.editError) })} >
-                            <input
-                                type="text"
-                                className={classnames('tree-node-name-input')}
-                                spellCheck={false}
-                                value={this.state.inputValue}
-                                onChange={this.onEditName}
-                                onBlur={this.onEditComplete}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !this.state.editTargetExists) {
-                                        this.onEditComplete();
-                                    } else if (e.key === 'Escape') {
-                                        this.onEditEscape();
-                                    }
+                <div className="tree-node-highlight-row" />
+                {!node.loading && <div className="tree-node-arrow" />}
+                {node.loading && <i className="tree-node-loading fw fw-loader4 fw-spin" />}
+                <i
+                    className={
+                        classnames(
+                            'tree-node-icon',
+                            'fw',
+                            { 'fw-folder': type === NODE_TYPES.FOLDER },
+                            { 'fw-document': type === NODE_TYPES.FILE }
+                        )
+                    }
+                />
+                {enableEdit && <div className="tree-node-focus-highlighter" onClick={this.onEditComplete} />}
+                {enableEdit &&
+                    <div className={classnames('tree-node-name-input-wrapper', { error: !_.isEmpty(this.state.editError) })} >
+                        <input
+                            type="text"
+                            className={classnames('tree-node-name-input')}
+                            spellCheck={false}
+                            value={this.state.inputValue}
+                            onChange={this.onEditName}
+                            onBlur={this.onEditComplete}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !this.state.editTargetExists) {
+                                    this.onEditComplete();
+                                } else if (e.key === 'Escape') {
+                                    this.onEditEscape();
+                                }
+                            }}
+                            ref={(nameInput) => {
+                                this.nameInput = nameInput;
+                            }}
+                        />
+                        {!_.isEmpty(this.state.editError) && this.nameInput &&
+                            <div
+                                className="tree-node-name-input-error"
+                                style={{
+                                    top: this.nameInput.offsetTop + this.nameInput.clientHeight,
+                                    left: this.nameInput.offsetLeft,
+                                    width: this.nameInput.offsetWidth,
                                 }}
-                                ref={(nameInput) => {
-                                    this.nameInput = nameInput;
-                                }}
-                            />
-                            {!_.isEmpty(this.state.editError) && this.nameInput &&
-                                <div
-                                    className="tree-node-name-input-error"
+                            >
+                                <p
                                     style={{
-                                        top: this.nameInput.offsetTop + this.nameInput.clientHeight,
-                                        left: this.nameInput.offsetLeft,
                                         width: this.nameInput.offsetWidth,
                                     }}
                                 >
-                                    <p
-                                        style={{
-                                            width: this.nameInput.offsetWidth,
-                                        }}
-                                    >
-                                        {this.state.editError}
-                                    </p>
-                                </div>
-                            }
-                        </div>
-                    }
-                    {!enableEdit &&
-                        <span className="tree-node-label" >
-                            {label}
-                        </span>
-                    }
-                </div>
-            </Tooltip>
+                                    {this.state.editError}
+                                </p>
+                            </div>
+                        }
+                    </div>
+                }
+                {!enableEdit &&
+                    <span className="tree-node-label" >
+                        {label}
+                    </span>
+                }
+            </div>
         );
         return (
             <div
