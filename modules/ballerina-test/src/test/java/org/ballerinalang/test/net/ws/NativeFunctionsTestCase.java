@@ -32,7 +32,10 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,7 +68,14 @@ public class NativeFunctionsTestCase {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/net/ws/nativeFunctionsForConnection.bal");
+        compileResult = BTestUtils.compile("test-src/net/ws/native-functions-for-connection.bal");
+        if (compileResult.getDiagnostics().length > 0) {
+            String errorsStr = "";
+            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+                errorsStr = errorsStr.concat(diagnostic.getMessage() + System.lineSeparator());
+            }
+            Assert.fail("Compilation Errors" + System.lineSeparator() + errorsStr);
+        }
         programFile = compileResult.getProgFile();
         context = new Context(programFile);
 
