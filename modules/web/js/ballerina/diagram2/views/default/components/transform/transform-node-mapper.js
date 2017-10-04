@@ -87,28 +87,8 @@ class TransformNodeMapper {
         const funcNode = target.funcInv;
         const index = target.index;
 
-        let refType = ASTFactory.createReferenceTypeInitExpression();
-        if (target.isField &&
-            ASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
-            refType = funcNode.children[index];
-        }
-        funcNode.removeChild(funcNode.children[index], true);
-        // check function parameter is a struct and mapping is a complex mapping
-        if (target.isField && _.find(this.state.vertices, (struct) => {
-            return struct.typeName === this.getFunctionVertices(funcNode).parameters[index].type;
-        })) {
-            const keyValEx = ASTFactory.createKeyValueExpression();
-            const nameVarRefExpression = ASTFactory.createSimpleVariableReferenceExpression();
-
-            const propChain = (target.name).split('.').splice(1);
-
-            nameVarRefExpression.setExpressionFromString(propChain[0]);
-            keyValEx.addChild(nameVarRefExpression);
-            keyValEx.addChild(sourceExpression);
-            refType.addChild(keyValEx);
-            funcNode.addChild(refType, index);
-        } else if (compatibility.safe) {
-            funcNode.addChild(sourceExpression, index);
+        if (compatibility.safe) {
+            funcNode.replaceArgumentExpressionsByIndex(index, sourceExpression, true);
         } else {
             const assignmentStmt = this.findEnclosingAssignmentStatement(funcNode);
             const argumentExpression = this.getTempVertexExpression(sourceExpression,
@@ -118,7 +98,7 @@ class TransformNodeMapper {
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
-            title: `Create mapping ${sourceExpression.getExpressionString()} to ${funcNode.getFunctionName()}`,
+            title: `Create mapping ${sourceExpression.getSource()} to ${funcNode.getFunctionName()}`,
             data: {},
         });
     }
@@ -220,36 +200,32 @@ class TransformNodeMapper {
 
         if (outputExpressions[source.index].type === ExpressionType.TEMPVAR) {
             const tempVarRefExpr = outputExpressions[source.index].expression;
-            const newAssignmentStmt = ASTFactory.createAssignmentStatement();
-            const varRefList = ASTFactory.createVariableReferenceList();
-            varRefList.addChild(targetExpression, true);
-            newAssignmentStmt.addChild(varRefList, 0, true);
-            newAssignmentStmt.addChild(tempVarRefExpr, 1, true);
-            this._transformStmt.addChild(newAssignmentStmt, true);
+            const newAssignmentStmt = NodeFactory.createAssignment();
+            newAssignmentStmt.addVariables(targetExpression, true);
+            newAssignmentStmt.setExpression(tempVarRefExpr, true);
+            this._transformStmt.body.addStatements(newAssignmentStmt, true);
         } else if (outputExpressions[source.index].type === ExpressionType.PLACEHOLDER) {
-            assignmentStmt.replaceChildByIndex(rightExpression, 1, true);
+            assignmentStmt.setExpression(rightExpression, true);
 
-            assignmentStmt.getLeftExpression().replaceChildByIndex(targetExpression, source.index, true);
+            assignmentStmt.replaceVariablesByIndex(source.index, targetExpression, true);
             // TODO: conditionally remove var if all outputs are mapped
-            assignmentStmt.setIsDeclaredWithVar(false, true);
+            assignmentStmt.setDeclaredWithVar(false, true);
 
             if (!compatibility.safe) {
                 // TODO: only add error reference if there is not one already
                 // TODO: also remove error variable if no longer required
-                const errorVarRef = DefaultASTFactory.createIgnoreErrorVariableReference();
-                assignmentStmt.getLeftExpression().addChild(errorVarRef, true);
+                const errorVarRef = TransformFactory.createSimpleVariableRef('_');
+                assignmentStmt.addVariables(errorVarRef, true);
             }
         } else if (outputExpressions[source.index].type === ExpressionType.DIRECT) {
             const tempVarName = this.assignToTempVariable(assignmentStmt);
-            const tempVarRefExpr = ASTFactory.createSimpleVariableReferenceExpression({ variableName: tempVarName });
-            assignmentStmt.replaceChildByIndex(tempVarRefExpr, 1, true);
+            const tempVarRefExpr = TransformFactory.createSimpleVariableRef(tempVarName);
+            assignmentStmt.setExpression(tempVarRefExpr, true);
 
-            const newAssignmentStmt = ASTFactory.createAssignmentStatement();
-            const varRefList = ASTFactory.createVariableReferenceList();
-            varRefList.addChild(targetExpression, source.index, true);
-            newAssignmentStmt.addChild(varRefList, 0, true);
-            newAssignmentStmt.addChild(tempVarRefExpr, 1, true);
-            this._transformStmt.addChild(newAssignmentStmt, true);
+            const newAssignmentStmt = NodeFactory.createAssignment();
+            newAssignmentStmt.addVariables(targetExpression, source.index, true);
+            newAssignmentStmt.setExpression(tempVarRefExpr, true);
+            this._transformStmt.body.addStatements(newAssignmentStmt, true);
         }
 
         this._transformStmt.trigger('tree-modified', {
@@ -291,9 +267,9 @@ class TransformNodeMapper {
         } else if (outputExpressions[0].type === ExpressionType.PLACEHOLDER) {
             assignmentStmt.setExpression(rightExpression, true);
 
-            assignmentStmt.replaceVariablesByIndex(targetExpression, 0, true);
+            assignmentStmt.replaceVariablesByIndex(0, targetExpression, true);
             // TODO: conditionally remove var if all outputs are mapped
-            assignmentStmt.setIsDeclaredWithVar(false);
+            assignmentStmt.setDeclaredWithVar(false, true);
 
             if (!compatibility.safe) {
                 // TODO: only add error reference if there is not one already
@@ -557,7 +533,7 @@ class TransformNodeMapper {
                         // remove the temp reference if there are no statement using the temp
                         assignmentStmtSource.getLeftExpression()
                             .replaceChild(tempVar.expression, assStmtNew[0].getLeftExpression().getChildren()[0], true);
-                        assignmentStmtSource.setIsDeclaredWithVar(false, true);
+                        assignmentStmtSource.setDeclaredWithVar(false, true);
                         this._transformStmt.removeChild(assStmtNew[0], true);
                     }
                 });
@@ -612,30 +588,22 @@ class TransformNodeMapper {
      */
     removeInputToOperatorMapping(sourceName, target) {
         const operatorExp = target.operator;
-        const defaultExp = ASTFactory.createBasicLiteralExpression({ basicLiteralType: 'int', basicLiteralValue: 0 });
+        const defaultExp = NodeFactory.createLiteral({ basicLiteralType: 'int', basicLiteralValue: 0 });
 
-        if (this.getMappableExpression(operatorExp.getRightExpression()).getExpressionString().trim() === sourceName) {
-            operatorExp.setRightExpression(defaultExp, { doSilently: true });
-        } else if (ASTFactory.isBinaryExpression(operatorExp)
-           && this.getMappableExpression(operatorExp.getLeftExpression()).getExpressionString().trim() === sourceName) {
-            operatorExp.setLeftExpression(defaultExp, { doSilently: true });
+        if (TreeUtil.isUnaryExpr(operatorExp) && target.index === 0) {
+            operatorExp.setExpression(defaultExp, true);
+        } else if (TreeUtil.isBinaryExpr(operatorExp) && target.index === 0) {
+            operatorExp.setLeftExpression(defaultExp, true);
+        } else if (TreeUtil.isBinaryExpr(operatorExp) && target.index === 1) {
+            operatorExp.setRightExpression(defaultExp, true);
+        } else {
+            return;
         }
 
-        // TODO: work on this logic
-        // if (expression.getExpressionString().startsWith('__temp')) {
-        //     // remove temp variable assignment if it is not used
-        //     const tempUsages = this.findTempVarUsages(expression.getExpressionString());
-        //     if (tempUsages.length === 0) {
-        //         const tempAssignStmt = this.findAssignedVertexForTemp(expression);
-        //         if (tempAssignStmt) {
-        //             this._transformStmt.removeChild(tempAssignStmt, true);
-        //         }
-        //     }
-        // }
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-removed',
-            title: `Remove mapping ${sourceName} to ${operatorExp.getOperator()}`,
+            title: `Remove mapping ${sourceName} to ${operatorExp.getOperatorKind()}`,
             data: {},
         });
     }
@@ -888,12 +856,12 @@ class TransformNodeMapper {
                                 return ex.getSource().trim() === tempExp.getSource().trim();
                             });
                             tempAssignStmt.replaceVariables(tempLeftExp, tempUsedStmts[0].getVariables()[0], true);
-                            tempAssignStmt.setIsDeclaredWithVar(false, true);
+                            tempAssignStmt.setDeclaredWithVar(false, true);
                             this._transformStmt.body.removeStatements(tempUsedStmts[0], true);
                         }
                     }
                 } else {
-                    stmt.setIsDeclaredWithVar(true, true);
+                    stmt.setDeclaredWithVar(true, true);
                     const simpleVarRefExpression = TransformFactory.createSimpleVariableRef('__output' + (index + 1));
                     stmt.replaceVariablesByIndex(simpleVarRefExpression, index, true);
                 }
@@ -1031,7 +999,7 @@ class TransformNodeMapper {
 
         assignmentStmt.setVariables(variableExpressions, true);
         assignmentStmt.setExpression(rightExpression, true);
-        assignmentStmt.setIsDeclaredWithVar(isVar);
+        assignmentStmt.setDeclaredWithVar(isVar, true);
         // TODO: handle type cast and coversion
     //     const errorVarRef = DefaultBallerinaASTFactory.createIgnoreErrorVariableReference();
     //     varRefList.addChild(errorVarRef);

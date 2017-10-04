@@ -15,7 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
+import log from 'log';
+import _ from 'lodash';
 import TreeUtil from '../model/tree-util';
 
 export const ExpressionType = {
@@ -24,7 +25,7 @@ export const ExpressionType = {
     TEMPVAR: 'tempvar',
     DIRECT: 'direct',
     CONST: 'const',
-}
+};
 
 export const VarPrefix = {
     TEMP: '__temp',
@@ -232,7 +233,7 @@ export default class TransformUtils {
             return [...this.getVerticesFromExpression(expression.getExpression())];
         }
         if (TreeUtil.isInvocation(expression)) {
-            return _.flatten(expression.getChildren().map((exp) => {
+            return _.flatten(expression.getArgumentExpressions().map((exp) => {
                 return [...this.getVerticesFromExpression(exp)];
             }));
         }

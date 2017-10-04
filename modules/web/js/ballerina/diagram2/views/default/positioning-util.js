@@ -29,8 +29,8 @@ class PositioningUtil {
     positionStatementComponents(node) {
         const viewState = node.viewState;
         const initialExpression = TreeUtil.isVariableDef(node) || TreeUtil.isAssignment(node) ?
-            node.variable.initialExpression : undefined;
-        if (TreeUtil.isConnectorInitExpr(initialExpression)) {
+            undefined : undefined;
+        if (initialExpression && TreeUtil.isConnectorInitExpr(initialExpression)) {
 
             // Filter the connector declaration statements
             const connectorDecls = _.filter(node.parent.statements, (statement) => {
@@ -269,7 +269,7 @@ class PositioningUtil {
             const statements = node.body.statements;
             const connectorDecls = _.filter(statements, (statement) => {
                 const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
-                    statement.variable.initialExpression : undefined;
+                    undefined : undefined;
                 return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
             });
 
@@ -752,7 +752,7 @@ class PositioningUtil {
         let height = 0;
         statements.forEach((element) => {
             const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
-                element.variable.initialExpression : undefined;
+                undefined : undefined;
             if (initialExpression) {
                 if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
                     element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
