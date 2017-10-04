@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { Collapse } from 'react-bootstrap';
 import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'react-tippy';
 import 'react-tippy/dist/tippy.css';
 import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
 import './styles.scss';
@@ -95,42 +94,28 @@ class ExplorerItem extends React.Component {
                         });
                     }}
                 >
-                    <Tooltip
-                        disabled={this.state.disableToolTip}
-                        position="bottom"
-                        delay={800}
-                        hideDelay={0}
-                        className="tree-node-tool-tip"
-                        offset={50}
-                        distance={0}
-                        html={(
-                            <div>{this.state.node.id}</div>
-                        )}
-                        style={{
-                            backgroundColor: 'black',
-                            fontSize: 14,
-                        }}
+                    <div
+                        data-placement="bottom"
+                        data-toggle="tooltip"
+                        title={this.state.node.id}
+                        className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
+                        onClick={() => {
+                            this.state.node.active = true;
+                            this.state.node.collapsed = !this.state.node.collapsed;
+                            this.forceUpdate();
+                            // un-select child nodes when clicked on root
+                            this.props.onSelect(this.state.node);
+                        }
+                        }
                     >
-                        <div
-                            className={classnames('root', 'unseletable-content', { active: this.state.node.active })}
-                            onClick={() => {
-                                this.state.node.active = true;
-                                this.state.node.collapsed = !this.state.node.collapsed;
-                                this.forceUpdate();
-                                // un-select child nodes when clicked on root
-                                this.props.onSelect(this.state.node);
-                            }
-                            }
-                        >
-                            <div className={classnames('arrow', { collapsed: this.state.node.collapsed })} />
-                            <i className="fw fw-folder icon" />
-                            <span className="root-label">{this.state.node.label}</span>
-                            <span className="root-actions">
-                                <i className="fw fw-refresh2 action" onClick={this.onRefreshProjectFolderClick} />
-                                <i className="fw fw-close action" onClick={this.onRemoveProjectFolderClick} />
-                            </span>
-                        </div>
-                    </Tooltip>
+                        <div className={classnames('arrow', { collapsed: this.state.node.collapsed })} />
+                        <i className="fw fw-folder icon" />
+                        <span className="root-label">{this.state.node.label}</span>
+                        <span className="root-actions">
+                            <i className="fw fw-refresh2 action" onClick={this.onRefreshProjectFolderClick} />
+                            <i className="fw fw-close action" onClick={this.onRemoveProjectFolderClick} />
+                        </span>
+                    </div>
                 </ContextMenuTrigger>
                 <Collapse in={!this.state.node.collapsed}>
                     <div className="file-tree">
