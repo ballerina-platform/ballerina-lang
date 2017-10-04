@@ -2,7 +2,7 @@ package ballerina.net.http.swagger;
 
 public annotation ServiceInfo attach service {
     string title;
-    string version;
+    string serviceVersion;
     string description;
     string termsOfService;
     Contact contact;
@@ -45,7 +45,7 @@ public annotation Developer {
 }
 
 public annotation Swagger attach service {
-    string version;
+    string swaggerVersion;
     SwaggerExtension[] extension;
 }
 

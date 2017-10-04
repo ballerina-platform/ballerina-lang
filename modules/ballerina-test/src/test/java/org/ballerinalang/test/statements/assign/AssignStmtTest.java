@@ -120,9 +120,35 @@ public class AssignStmtTest {
         Assert.assertEquals(6, ((BInteger) returns[2]).intValue());
     }
 
+    @Test(description = "Test assignment of int to float")
+    public void testAssignmentStatementIntToFloat() {
+        BValue[] args = { new BInteger(100) };
+        BValue[] returns = BTestUtils.invoke(result, "testIntCastFloatStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 100f;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test binary expression with int and float")
+    public void testBinaryExpressionIntToFloat() {
+        BValue[] args = { new BInteger(100) };
+        BValue[] returns = BTestUtils.invoke(result, "testBinaryExpressionIntAndFloatStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 200f;
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Test assignment statement with errors")
     public void testAssignmentNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         //testIncompatibleTypeAssign
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 8);
         //testAssignCountMismatch1
@@ -141,5 +167,8 @@ public class AssignStmtTest {
         //testVarRepeatedReturn2
         BTestUtils.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 17);
         BTestUtils.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 20);
+
+        BTestUtils.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 4);
+        BTestUtils.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 4);
     }
 }
