@@ -72,9 +72,6 @@ class EditorTabTitle extends React.Component {
                 data-extra="tab-bar-title"
                 className={`tab-title-wrapper ${customClass}`}
             >
-                <i className="fw fw-ballerina tab-icon" />
-                {file.name}
-                {this.state.isFileDirty && <span className="dirty-indicator">*</span> }
                 <button
                     type="button"
                     className="close close-tab pull-right"
@@ -82,6 +79,9 @@ class EditorTabTitle extends React.Component {
                 >
                     ×
                 </button>
+                <i className="fw fw-ballerina tab-icon" />
+                {file.name}
+                {this.state.isFileDirty && <span className="dirty-indicator">*</span> }
             </div>
         );
     }
