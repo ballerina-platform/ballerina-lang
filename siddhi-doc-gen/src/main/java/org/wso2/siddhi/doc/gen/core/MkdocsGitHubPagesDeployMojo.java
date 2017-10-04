@@ -148,6 +148,11 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
             String scmUsername = System.getenv(Constants.SYSTEM_PROPERTY_SCM_USERNAME_KEY);
             String scmPassword = System.getenv(Constants.SYSTEM_PROPERTY_SCM_PASSWORD_KEY);
 
+            if (scmUsername == null && scmPassword == null) {
+                getLog().info("SCM_USERNAME and SCM_PASSWORD not defined!");
+            }
+            getLog().info("scmUsername:" + scmUsername);
+            getLog().info("scmPassword:" + scmPassword);
             // Deploying documentation
             DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
                     mavenProject.getVersion(), getLog());

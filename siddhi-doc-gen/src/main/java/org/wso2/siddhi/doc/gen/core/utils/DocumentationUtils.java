@@ -799,7 +799,7 @@ public class DocumentationUtils {
     private static void executeCommand(String[] command, Log logger) throws Throwable {
         List<String> executionOutputLines = getCommandOutput(command, logger);
         for (String executionOutputLine : executionOutputLines) {
-            logger.debug(executionOutputLine);
+            logger.info(executionOutputLine);
         }
     }
 }
