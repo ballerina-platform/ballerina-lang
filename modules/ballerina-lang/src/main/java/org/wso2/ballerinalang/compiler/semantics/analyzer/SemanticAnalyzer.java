@@ -171,6 +171,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangXMLNS xmlnsNode) {
         xmlnsNode.type = symTable.stringType;
+
+        // Namespace node already having the symbol means we are inside an init-function,
+        // and the symbol has already been declared by the original statement.
+        if (xmlnsNode.symbol != null) {
+            return;
+        }
+
         symbolEnter.defineNode(xmlnsNode, env);
         typeChecker.checkExpr(xmlnsNode.namespaceURI, env, Lists.of(symTable.stringType));
     }
@@ -480,15 +487,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkConstantAssignment(BLangExpression varRef, List<BType> expTypes) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
         if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
+
         BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+        if (simpleVarRef.pkgSymbol != null && simpleVarRef.pkgSymbol.tag == SymTag.XMLNS) {
+            dlog.error(varRef.pos, DiagnosticCode.XML_QNAME_UPDATE_NOT_ALLOWED);
+            return;
+        }
+
         Name varName = names.fromIdNode(simpleVarRef.variableName);
         if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
             dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
-            expTypes.add(symTable.errType);
         }
     }
 
@@ -529,6 +545,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
+        this.analyzeDef(connectorNode.initAction, connectorEnv);
     }
 
     public void visit(BLangAction actionNode) {

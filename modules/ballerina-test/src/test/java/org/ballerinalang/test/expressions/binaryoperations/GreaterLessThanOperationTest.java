@@ -110,7 +110,7 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    //@Test
+    @Test
     public void testIntGTFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
         BValue[] returns = BTestUtils.invoke(result, "intGTFloat", args);
@@ -119,7 +119,7 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //@Test
+    @Test
     public void testFloatGTInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
         BValue[] returns = BTestUtils.invoke(result, "floatGTInt", args);
