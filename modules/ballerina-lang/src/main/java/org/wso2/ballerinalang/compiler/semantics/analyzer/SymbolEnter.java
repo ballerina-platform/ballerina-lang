@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -629,7 +628,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         addInitReturnStatement(initFunction.body);
         connector.initFunction = initFunction;
+
+        BLangAction initAction = createNativeInitAction(connector.pos);
+        connector.initAction = initAction;
+
         defineNode(connector.initFunction, conEnv);
+        defineNode(connector.initAction, conEnv);
         connector.symbol.initFunctionSymbol = connector.initFunction.symbol;
     }
 
@@ -686,11 +690,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return initFunction;
     }
 
-    private BLangVariableDef createVariableDefStatement(DiagnosticPos pos, BLangVariable variable) {
-        BLangVariableDef variableDef = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
-        variableDef.pos = pos;
-        variableDef.var = variable;
-        return variableDef;
+    private BLangAction createNativeInitAction(DiagnosticPos pos) {
+        BLangAction initAction = (BLangAction) TreeBuilder.createActionNode();
+        initAction.setName(createIdentifier(Names.INIT_ACTION_SUFFIX.getValue()));
+        initAction.flagSet = EnumSet.of(Flag.NATIVE, Flag.PUBLIC);
+        initAction.pos = pos;
+        return initAction;
     }
 
     private IdentifierNode createIdentifier(String value) {

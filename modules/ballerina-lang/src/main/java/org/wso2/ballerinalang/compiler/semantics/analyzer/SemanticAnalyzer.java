@@ -528,6 +528,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
+        this.analyzeDef(connectorNode.initAction, connectorEnv);
     }
 
     public void visit(BLangAction actionNode) {
