@@ -1028,6 +1028,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+
+        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
+        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex,
+                structureRefCPIndex, actionNameCPIndex);
+        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
+        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
     }
 
     public void visit(BLangFunctionInvocation iExpr) {
@@ -1736,6 +1742,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
         // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
+        createActionInfoEntry(connectorNode.initAction, connectorInfo);
         pvIndexes = new VariableIndex();
     }
 
@@ -2168,6 +2175,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, this.env);
         connectorNode.actions.forEach(action -> genNode(action, connectorEnv));
+        genNode(connectorNode.initAction, connectorEnv);
     }
 
     public void visit(BLangAction actionNode) {

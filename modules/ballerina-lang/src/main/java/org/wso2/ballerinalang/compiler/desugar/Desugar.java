@@ -221,6 +221,7 @@ public class Desugar extends BLangNodeVisitor {
         connectorNode.actions = rewrite(connectorNode.actions);
         connectorNode.varDefs = rewrite(connectorNode.varDefs);
         connectorNode.initFunction = rewrite(connectorNode.initFunction);
+        connectorNode.initAction = rewrite(connectorNode.initAction);
         result = connectorNode;
     }
 
