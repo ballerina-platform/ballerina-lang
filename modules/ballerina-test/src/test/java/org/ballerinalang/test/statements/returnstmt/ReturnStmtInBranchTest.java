@@ -15,13 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.statements;
+package org.ballerinalang.test.statements.returnstmt;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,40 +32,34 @@ import org.testng.annotations.Test;
  */
 public class ReturnStmtInBranchTest {
 
-    private ProgramFile programFile;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/statements/returnstmt/return-stmt-in-branches.bal");
+        compileResult = BTestUtils.compile("test-src/statements/returnstmt/return-stmt-in-branches.bal");
     }
 
-//    @Test(description = "Test Return statements in branches")
-//    public void testReturnStmtInBranches1() {
-//        BValue[] args = {new BInteger(12), new BInteger(13)};
-//
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "returnStmtBranch1", args);
-//
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
-//    }
+    @Test(description = "Test Return statements in branches")
+    public void testReturnStmtInBranches1() {
+        BValue[] args = {new BInteger(12), new BInteger(13)};
+
+        BValue[] returns = BTestUtils.invoke(compileResult, "returnStmtBranch1", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+    }
 
     @Test(description = "Test Return statements in branches")
     public void testReturnStmtInBranches2() {
         BValue[] args = {new BInteger(9), new BInteger(10)};
 
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "returnStmtBranch2", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "returnStmtBranch2", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 819);
-    }
-
-    public static void main(String[] args) {
-        ReturnStmtInBranchTest returnStmtInBranchTest = new ReturnStmtInBranchTest();
-        returnStmtInBranchTest.setup();
-        returnStmtInBranchTest.testReturnStmtInBranches2();
     }
 }
