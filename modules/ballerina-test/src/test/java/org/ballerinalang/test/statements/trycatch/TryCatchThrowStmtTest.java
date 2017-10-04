@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  */
 public class TryCatchThrowStmtTest {
 
-    CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
