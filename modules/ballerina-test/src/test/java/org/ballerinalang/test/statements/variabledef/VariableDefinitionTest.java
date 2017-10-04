@@ -164,7 +164,7 @@ public class VariableDefinitionTest {
     }
 
     //TODO Fix below after syntax error parser merged
-    @Test(description = "Test defining a constant from an arrays type", enabled = false)
+    @Test(description = "Test defining a constant from an arrays type")
     public void testArrayTypeConstant() {
         result = BTestUtils.compile("test-src/statements/variabledef/array-type-constants.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
