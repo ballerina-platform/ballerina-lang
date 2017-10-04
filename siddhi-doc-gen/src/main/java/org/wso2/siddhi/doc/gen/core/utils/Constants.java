@@ -66,7 +66,7 @@ public class Constants {
     public static final String MKDOCS_BUILD_COMMAND_SITE_DIRECTORY_ARGUMENT = "-d";
 
     public static final String GIT_REMOTE = "origin";
-    public static final String GIT_REMOTE_WITH_USERNAME_PASSWORD = "https://%s:%s@github.com/wso2/siddhi.git";
+    public static final String GIT_REMOTE_WITH_USERNAME_PASSWORD = "ssh://%s:%s@github.com/wso2/siddhi.git";
     public static final String GIT_MASTER_BRANCH = "master";
     public static final String GIT_GH_PAGES_BRANCH = "gh-pages";
 
@@ -79,7 +79,6 @@ public class Constants {
     public static final String GIT_PULL_COMMAND = "pull";
     public static final String GIT_PUSH_COMMAND = "push";
     public static final String GIT_CHECKOUT_COMMAND = "checkout";
-    public static final String GIT_CHECKOUT_COMMAND_DELETE = "--delete";
     public static final String GIT_CHECKOUT_COMMAND_ORPHAN_ARGUMENT = "--orphan";
     public static final String GIT_COMMIT_COMMAND = "commit";
     public static final String GIT_COMMIT_COMMAND_FILES_ARGUMENT = "--";

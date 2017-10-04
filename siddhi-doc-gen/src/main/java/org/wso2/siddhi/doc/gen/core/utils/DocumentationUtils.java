@@ -446,20 +446,9 @@ public class DocumentationUtils {
                         executeCommand(new String[]{Constants.GIT_COMMAND,
                                 Constants.GIT_PUSH_COMMAND,
                                 String.format(Constants.GIT_REMOTE_WITH_USERNAME_PASSWORD, scmUsername, scmPassword),
-                                Constants.GIT_CHECKOUT_COMMAND_DELETE,
                                 Constants.GIT_GH_PAGES_BRANCH}, logger);
 
-                        executeCommand(new String[]{Constants.GIT_COMMAND,
-                                Constants.GIT_PUSH_COMMAND,
-                                String.format(Constants.GIT_REMOTE_WITH_USERNAME_PASSWORD, scmUsername, scmPassword),
-                                Constants.GIT_GH_PAGES_BRANCH}, logger);
                     } else {
-                        executeCommand(new String[]{Constants.GIT_COMMAND,
-                                Constants.GIT_PUSH_COMMAND,
-                                Constants.GIT_REMOTE,
-                                Constants.GIT_CHECKOUT_COMMAND_DELETE,
-                                Constants.GIT_GH_PAGES_BRANCH}, logger);
-
                         // Using git credential store
                         executeCommand(new String[]{Constants.GIT_COMMAND,
                                 Constants.GIT_PUSH_COMMAND,
