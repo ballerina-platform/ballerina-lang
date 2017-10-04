@@ -25,6 +25,7 @@ under the License.
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.expressions.*"/>
+            <package name="org.ballerinalang.test.services.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
         </packages>

@@ -2,16 +2,6 @@ import ballerina.net.http;
 import ballerina.net.http.request;
 import ballerina.net.http.response;
 
-function testAddHeader (http:Request req, string key, string value) (http:Request) {
-    request:addHeader(req, key, value);
-    return req;
-}
-
-function testClone (http:Request req) (http:Request) {
-    http:Request newReq = request:clone(req);
-    return newReq;
-}
-
 function testGetContentLength (http:Request req) (int) {
     int length = request:getContentLength(req);
     return length;
@@ -27,7 +17,7 @@ function testGetJsonPayload (http:Request req) (json) {
     return payload;
 }
 
-function testGetMethod (http:Request req) (string) {
+function testGetMethod (http:Request req) (string ) {
     string method = request:getMethod(req);
     return method;
 }
@@ -39,7 +29,7 @@ function testGetProperty (http:Request req, string propertyName) (string) {
 
 function testGetRequestURL (http:Request req) (string) {
     string url = request:getRequestURL(req);
-    if (url == " ") {
+    if (url == "") {
         url = "no url";
     }
     return url;

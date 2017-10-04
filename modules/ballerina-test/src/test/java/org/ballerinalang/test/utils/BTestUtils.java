@@ -18,8 +18,12 @@ package org.ballerinalang.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -247,5 +251,13 @@ public class BTestUtils {
             }
         }
         return sb.toString();
+    }
+
+    public static BStruct createAndGetStruct(CompileResult result, String packagePath, String structName) {
+        ProgramFile programFile = result.getProgFile();
+        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
+        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
     }
 }
