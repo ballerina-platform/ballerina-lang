@@ -105,7 +105,7 @@ public class ArrayTest {
         Assert.assertEquals(((BInteger) returnVals[1]).intValue(), 3, "Length didn't match");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testJSONArrayLength() {
         BJSON arrayValue = new BJSON("[{ \"test\" : \"1\"}, { \"test\" : \"1\"}]");
         
