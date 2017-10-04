@@ -19,8 +19,9 @@
 package org.ballerinalang.net.jms.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,7 +32,6 @@ import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.jms.Session;
 
@@ -56,25 +56,24 @@ public class Acknowledge extends AbstractNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Acknowledge.class);
 
     public BValue[] execute(Context ctx) {
-        BMessage msg = (BMessage) getRefArgument(ctx, 0);
-        CarbonMessage carbonMessage = msg.value();
         String deliveryStatus = getStringArgument(ctx, 0);
-        Object jmsSessionAcknowledgementMode = carbonMessage.getProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
-
-        if (null == jmsSessionAcknowledgementMode) {
+        ConnectorFuture future = ctx.getConnectorFuture();
+        if (null == future) {
             log.warn("JMS Acknowledge function can only be used with JMS Messages. "
                     + Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
             return VOID_RETURN;
         }
+        Object jmsSessionAcknowledgementMode = ctx.getProperties().get(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
         if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
             throw new BallerinaException(
                     Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a " + "integer value. ");
         }
         if (Session.CLIENT_ACKNOWLEDGE == (Integer) jmsSessionAcknowledgementMode) {
-            if (Constants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)
-                    || Constants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
-                carbonMessage.setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);
-                ctx.getBalCallback().done(carbonMessage);
+            if (Constants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)) {
+                ctx.getConnectorFuture().notifySuccess();
+            } else if (Constants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
+                ctx.getConnectorFuture()
+                        .notifyFailure(new BallerinaConnectorException("Error when consuming the JMS message"));
             } else {
                 throw new BallerinaException(
                         "Second parameter for the jms:acknowledge function should be within the " + "set ["
