@@ -140,7 +140,9 @@ class SizingUtil {
                     width = element.viewState.bBox.w;
                 }
             }
-            if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
+            if (initialExpression) {
+                stH += !TreeUtil.isConnectorInitExpr(initialExpression) ? element.viewState.bBox.h : 0;
+            } else {
                 stH += element.viewState.bBox.h;
             }
         });
@@ -328,7 +330,7 @@ class SizingUtil {
         const connectorDecls = _.filter(statements, (statement) => {
             const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
                 statement.variable.initialExpression : undefined;
-            return TreeUtil.isConnectorInitExpr(initialExpression);
+            return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
         });
 
         connectorDecls.forEach((conNode) => {

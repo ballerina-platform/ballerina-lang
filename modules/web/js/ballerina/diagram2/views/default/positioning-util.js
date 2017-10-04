@@ -270,7 +270,7 @@ class PositioningUtil {
             const connectorDecls = _.filter(statements, (statement) => {
                 const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
                     statement.variable.initialExpression : undefined;
-                return TreeUtil.isConnectorInitExpr(initialExpression);
+                return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
             });
 
             connectorDecls.forEach((conNode) => {
@@ -753,7 +753,13 @@ class PositioningUtil {
         statements.forEach((element) => {
             const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
                 element.variable.initialExpression : undefined;
-            if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
+            if (initialExpression) {
+                if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
+                    element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
+                    element.viewState.bBox.y = viewState.bBox.y + height;
+                    height += element.viewState.bBox.h;
+                }
+            } else {
                 element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;

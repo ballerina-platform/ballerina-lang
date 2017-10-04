@@ -21,10 +21,7 @@ import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import NodeFactory from '../../../../../model/node-factory';
 import TransformFactory from './transform-factory';
-import TransformUtils from "../../../../../utils/transform-utils";
-
-const ExpressionType = TransformUtils.expressionTypes;
-const VarPrefix = TransformUtils.varPrefix;
+import TransformUtils, { ExpressionType, VarPrefix } from '../../../../../utils/transform-utils';
 
 /**
  * Performs utility methods for handling transform inner statement creation and removal
@@ -560,7 +557,7 @@ class TransformNodeMapper {
                         // remove the temp reference if there are no statement using the temp
                         assignmentStmtSource.getLeftExpression()
                             .replaceChild(tempVar.expression, assStmtNew[0].getLeftExpression().getChildren()[0], true);
-                        assignmentStmtSource.setIsDeclaredWithVar(false);
+                        assignmentStmtSource.setIsDeclaredWithVar(false, true);
                         this._transformStmt.removeChild(assStmtNew[0], true);
                     }
                 });
@@ -891,12 +888,12 @@ class TransformNodeMapper {
                                 return ex.getSource().trim() === tempExp.getSource().trim();
                             });
                             tempAssignStmt.replaceVariables(tempLeftExp, tempUsedStmts[0].getVariables()[0], true);
-                            tempAssignStmt.setIsDeclaredWithVar(false);
+                            tempAssignStmt.setIsDeclaredWithVar(false, true);
                             this._transformStmt.body.removeStatements(tempUsedStmts[0], true);
                         }
                     }
                 } else {
-                    stmt.setIsDeclaredWithVar(true);
+                    stmt.setIsDeclaredWithVar(true, true);
                     const simpleVarRefExpression = TransformFactory.createSimpleVariableRef('__output' + (index + 1));
                     stmt.replaceVariablesByIndex(simpleVarRefExpression, index, true);
                 }

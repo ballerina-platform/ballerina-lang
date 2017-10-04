@@ -100,7 +100,7 @@ class TransformNodeManager {
     getVertexExpression(name, isField) {
         let expression;
         if (isField) {
-            expression = BallerinaASTFactory.createFieldBasedVarRefExpression();
+            expression = TransformFactory.createFieldBasedVarRefExpression(name);
         } else {
             expression = TransformFactory.createSimpleVariableRef(name);
         }

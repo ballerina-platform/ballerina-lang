@@ -38,6 +38,7 @@ class BallerinaEnvironment extends EventChannel {
         this._packages = _.get(args, 'packages', []);
         this._typeLattice = _.get(args, 'typeLattice', TypeLattice);
         this._types = _.get(args, 'types', []);
+        this._defaultValues = _.get(args, 'defaultValues', []);
         this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
     }
 
@@ -184,6 +185,9 @@ class BallerinaEnvironment extends EventChannel {
         _.each(builtinTypes, (builtinType) => {
             if (!_.isNil(builtinType)) {
                 this._types.push(builtinType.name);
+                if (builtinType.defaultValue) {
+                    this._defaultValues.push({ name: builtinType.name, defaultValue: builtinType.defaultValue });
+                }
             }
         });
         this._types = _.sortBy(this._types, [function (type) {
