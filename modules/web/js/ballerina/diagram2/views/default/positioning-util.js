@@ -28,15 +28,40 @@ class PositioningUtil {
 
     positionStatementComponents(node) {
         const viewState = node.viewState;
+        const initialExpression = TreeUtil.isVariableDef(node) || TreeUtil.isAssignment(node) ?
+            node.variable.initialExpression : undefined;
+        if (TreeUtil.isConnectorInitExpr(initialExpression)) {
 
-        viewState.components['drop-zone'].x = viewState.bBox.x;
-        viewState.components['drop-zone'].y = viewState.bBox.y;
-        viewState.components['statement-box'].x = viewState.bBox.x;
-        viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
-        viewState.components.text.x = viewState.components['statement-box'].x +
-                                    (viewState.components['statement-box'].w / 2);
-        viewState.components.text.y = viewState.components['statement-box'].y +
-                                    (viewState.components['statement-box'].h / 2);
+            // Filter the connector declaration statements
+            const connectorDecls = _.filter(node.parent.statements, (statement) => {
+                const initExpr = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
+                    statement.variable.initialExpression : undefined;
+                return TreeUtil.isConnectorInitExpr(initExpr);
+            });
+            const nodeIndex = _.indexOf(connectorDecls, node);
+            const bBox = initialExpression.viewState.bBox;
+            const parentBlockNode = node.parent;
+
+            // Here we only set the x value, since it is based on the other connector Decls. y position is set at the
+            // function node positioning, etc
+            let xVal = parentBlockNode.viewState.bBox.x + parentBlockNode.viewState.bBox.w
+                + this.config.lifeLine.gutter.h;
+            if (nodeIndex > 0) {
+                xVal = connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.x
+                    + connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.w
+                    + this.config.lifeLine.gutter.h;
+            }
+            bBox.x = xVal;
+        } else {
+            viewState.components['drop-zone'].x = viewState.bBox.x;
+            viewState.components['drop-zone'].y = viewState.bBox.y;
+            viewState.components['statement-box'].x = viewState.bBox.x;
+            viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
+            viewState.components.text.x = viewState.components['statement-box'].x +
+                (viewState.components['statement-box'].w / 2);
+            viewState.components.text.y = viewState.components['statement-box'].y +
+                (viewState.components['statement-box'].h / 2);
+        }
     }
 
     positionCompoundStatementComponents(node) {
@@ -237,6 +262,23 @@ class PositioningUtil {
             // Positioning the closing bracket component of the parameters.
             cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
             cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
+
+            // Set the y position of the connector declarations
+            // Here we only set the y value, since it is based on the default worker position. x position is set at the
+            // block node positioning
+            const statements = node.body.statements;
+            const connectorDecls = _.filter(statements, (statement) => {
+                const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
+                    statement.variable.initialExpression : undefined;
+                return TreeUtil.isConnectorInitExpr(initialExpression);
+            });
+
+            connectorDecls.forEach((conNode) => {
+                const declaration = conNode.variable.initialExpression;
+                declaration.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                declaration.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                declaration.viewState.bBox.y = node.viewState.components.defaultWorker.y;
+            });
         }
     }
 
@@ -636,9 +678,13 @@ class PositioningUtil {
         const statements = node.getStatements();
         let height = 0;
         statements.forEach((element) => {
-            element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
-            element.viewState.bBox.y = viewState.bBox.y + height;
-            height += element.viewState.bBox.h;
+            const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
+                element.variable.initialExpression : undefined;
+            if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
+                element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
+                element.viewState.bBox.y = viewState.bBox.y + height;
+                height += element.viewState.bBox.h;
+            }
         });
     }
 

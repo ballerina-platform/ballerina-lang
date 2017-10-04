@@ -133,10 +133,16 @@ class SizingUtil {
         width = this.config.blockNode.width;
         let stH = 0;
         nodes.forEach((element) => {
+            const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
+                element.variable.initialExpression : undefined;
             if (element.viewState.bBox.w > width) {
-                width = element.viewState.bBox.w;
+                if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
+                    width = element.viewState.bBox.w;
+                }
             }
-            stH += element.viewState.bBox.h;
+            if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
+                stH += element.viewState.bBox.h;
+            }
         });
         if (stH + this.config.statement.gutter.v >= height) {
             height = stH + this.config.statement.gutter.v;
@@ -316,6 +322,20 @@ class SizingUtil {
         const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
 
         viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
+
+        // Set the size of the connector declarations
+        const statements = node.body.statements;
+        const connectorDecls = _.filter(statements, (statement) => {
+            const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
+                statement.variable.initialExpression : undefined;
+            return TreeUtil.isConnectorInitExpr(initialExpression);
+        });
+
+        connectorDecls.forEach((conNode) => {
+            const declaration = conNode.variable.initialExpression;
+            declaration.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+            declaration.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+        });
     }
 
     /**
@@ -664,7 +684,26 @@ class SizingUtil {
      *
      */
     sizeConnectorInitExprNode(node) {
-        // Not implemented.
+        // const viewState = node.viewState;
+        // const bBox = viewState.bBox;
+        // const components = viewState.components;
+        //
+        // components.header = new SimpleBBox();
+        // components.footer = new SimpleBBox();
+        // components.body = new SimpleBBox();
+        //
+        // components.header.w = this.config.lifeLine.width;
+        // components.header.h = this.config.lifeLine.head.height;
+        //
+        // components.footer.w = this.config.lifeLine.width;
+        // components.footer.h = this.config.lifeLine.footer.height;
+        //
+        // components.body.w = this.config.lifeLine.width;
+        // components.body.h = this.config.lifeLine.line.height;
+        //
+        // bBox.w = this.config.lifeLine.width;
+        // bBox.h = components.header.h + components.footer.h + components.body.h;
+        // components.header.h = this.config.lifeLine.head.height;
     }
 
 
