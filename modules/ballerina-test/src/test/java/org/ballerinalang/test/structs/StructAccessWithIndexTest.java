@@ -85,7 +85,7 @@ public class StructAccessWithIndexTest {
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
 
-    //    @Test(description = "Test default value of a struct field")
+    @Test(description = "Test default value of a struct field")
     public void testDefaultValue() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testDefaultVal");
 
@@ -101,7 +101,7 @@ public class StructAccessWithIndexTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
     }
 
-    //    @Test(description = "Test default value of a nested struct field")
+    @Test(description = "Test default value of a nested struct field")
     public void testNestedFieldDefaultValue() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testNestedFieldDefaultVal");
 

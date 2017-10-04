@@ -71,7 +71,7 @@ public class StructNegativeTest {
                             "undefined field 'id' in struct 'Department'");
     }
 
-    //    @Test(description = "Test defining a struct constant")
+        @Test(description = "Test defining a struct constant")
     public void testStructConstant() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs", "constants");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
