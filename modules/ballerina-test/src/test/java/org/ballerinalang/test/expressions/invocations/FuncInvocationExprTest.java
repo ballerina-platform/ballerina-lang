@@ -110,8 +110,8 @@ public class FuncInvocationExprTest {
     @Test
     public void testReturnNativeFuncInvocationWithinNativeFuncInvocation() {
         BValue[] args = {new BFloat(2)};
-        BValue[] returns =
-                BTestUtils.invoke(funcInvocationExpResult, "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult,
+                                             "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
