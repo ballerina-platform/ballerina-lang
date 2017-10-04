@@ -38,7 +38,6 @@ public class BLangFragmentParser {
     private static final Logger logger = LoggerFactory.getLogger(BLangFragmentParser.class);
 
     public static final String SYNTAX_ERRORS = "syntax_errors";
-    public static final String TEMP_UNTITLED = "temp/untitled";
     public static final String ERROR = "error";
 
     public static String parseFragment(BLangSourceFragment sourceFragment) {
@@ -66,16 +65,25 @@ public class BLangFragmentParser {
     protected static JsonObject getJsonNodeForFragment(JsonObject jsonModel, BLangSourceFragment fragment) {
         JsonObject fragmentNode = null;
         JsonArray jsonArray = jsonModel.getAsJsonArray(BLangJSONModelConstants.TOP_LEVEL_NODES);
-        JsonObject functionObj = jsonArray.get(0).getAsJsonObject(); // 0 is package def
-        JsonObject bodyObj = functionObj.getAsJsonObject(BLangJSONModelConstants.BODY);
+        JsonObject rootConstruct = jsonArray.get(0).getAsJsonObject(); // 0 is package def
         switch (fragment.getExpectedNodeType()) {
+            case BLangFragmentParserConstants.TOP_LEVEL_NODE:
+                fragmentNode = rootConstruct;
+                break;
+            case BLangFragmentParserConstants.SERVICE_RESOURCE:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RESOURCES).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.CONNECTOR_ACTION:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ACTIONS).get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.EXPRESSION:
                 // 0th child is the var ref expression of var def stmt
-                fragmentNode = bodyObj.getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
+                            .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 // 0 & 1 are function args and return types, 2 is the assignment statement
-                JsonObject assignmentStmt = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                JsonObject assignmentStmt = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(2).getAsJsonObject();
                 // 0th child is the var ref list expression of assignment stmt
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
@@ -83,22 +91,23 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.STATEMENT:
                 // 0 & 1 are function args and return types, 2 is the statement came from source fragment
-                fragmentNode = bodyObj.getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
+                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
                 fragmentNode.remove(BLangJSONModelConstants.CHILDREN);
                 fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
-                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
                         .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
                 break;
@@ -111,7 +120,7 @@ public class BLangFragmentParser {
 
     protected static JsonElement getJsonModel(String source) throws IOException {
         String fileName = "untitled";
-        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.TYPE_CHECK)
+        BLangPackage model = WorkspaceUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.DEFINE)
                 .getBLangPackage();
         BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
@@ -122,56 +131,22 @@ public class BLangFragmentParser {
             // This should never occur.
             throw new AssertionError("Error while serializing source to JSON.");
         }
-
-//        ByteArrayInputStream inputStream = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8));
-//        ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
-//        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-//        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-//
-//        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-//        BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
-//        ballerinaParser.setErrorHandler(errorStrategy);
-//
-//        GlobalScope globalScope = GlobalScope.getInstance();
-//        BTypes.loadBuiltInTypes(globalScope);
-//        BLangPackage bLangPackage = new BLangPackage(globalScope);
-//        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-//        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
-//                StringUtils.EMPTY);
-//        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(true, ballerinaToken, bLangModelBuilder,
-//                new File(TEMP_UNTITLED).toPath());
-//        ballerinaParser.addParseListener(ballerinaBaseListener);
-//        ballerinaParser.compilationUnit();
-//        BallerinaFile bFile = bLangModelBuilder.build();
-
-//        JsonObject jsonModelRoot = new JsonObject();
-//        JsonArray errors = new JsonArray();
-//        for (SyntaxError error : errorStrategy.getErrorTokens()) {
-//            // reduce number of lines in wrapper function from row count
-//            error.setRow(error.getRow() - 1);
-//            errors.add(error.toJson());
-//        }
-//
-//        if (errorStrategy.getErrorTokens().isEmpty()
-//                /* if parser recovered the error */
-//                || (bFile.getCompilationUnits().length > 0
-//                && (((BallerinaFunction) bFile.getCompilationUnits()[0]).getCallableUnitBody()
-//                .getStatements().length == 1)
-//                /* if the only recovered error is the additional semicolon error*/
-//                && errorStrategy.getErrorTokens().size() == 1 &&
-//                errorStrategy.getErrorTokens().get(0).getText().contains("unwanted token ';'"))) {
-//            BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(jsonModelRoot);
-//            bFile.accept(jsonModelBuilder);
-//        } else {
-//            jsonModelRoot.add(SYNTAX_ERRORS, errors);
-//        }
-//
-//        return jsonModelRoot;
     }
 
     protected static String getParsableString(BLangSourceFragment sourceFragment) {
         String parsableText = null;
         switch (sourceFragment.getExpectedNodeType()) {
+            case BLangFragmentParserConstants.TOP_LEVEL_NODE:
+                parsableText = sourceFragment.getSource();
+                break;
+            case BLangFragmentParserConstants.SERVICE_RESOURCE:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.SERVICE_BODY_RESOURCE_WRAPPER, sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.CONNECTOR_ACTION:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.CONNECTOR_BODY_ACTION_WRAPPER, sourceFragment.getSource());
+                break;
             case BLangFragmentParserConstants.EXPRESSION:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.VAR_DEF_STMT_EXPR_WRAPPER, sourceFragment.getSource());
