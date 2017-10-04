@@ -18,9 +18,12 @@
 
 package org.ballerinalang.net.jms;
 
+import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.net.jms.actions.utils.Constants;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -31,12 +34,14 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.transport.jms.callback.JMSCallback;
 import org.wso2.carbon.transport.jms.contract.JMSListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * JMS Connector listener for Ballerina
  */
-public class  JMSListenerImpl implements JMSListener {
+public class JMSListenerImpl implements JMSListener {
 
     private static final Logger breLog = LoggerFactory.getLogger(JMSListenerImpl.class);
 
@@ -61,8 +66,21 @@ public class  JMSListenerImpl implements JMSListener {
 
     @Override
     public void onMessage(CarbonMessage carbonMessage, JMSCallback jmsCallback) {
-        Resource resource = JMSDispatcher.findResource(carbonMessage, jmsCallback);
-        Executor.submit(resource, null, JMSDispatcher.getSignatureParameters(resource, carbonMessage));
+        Resource resource = JMSDispatcher.findResource(carbonMessage);
+
+        Map<String, Object> properties = null;
+        if (jmsCallback != null) {
+            properties = new HashMap<>();
+            properties.put(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, jmsCallback.getAcknowledgementMode());
+        }
+
+        ConnectorFuture future = Executor
+                .submit(resource, properties, JMSDispatcher.getSignatureParameters(resource, carbonMessage));
+
+        if (jmsCallback != null) {
+            ConnectorFutureListener futureListener = new JMSConnectorFutureListener(jmsCallback);
+            future.setConnectorFutureListener(futureListener);
+        }
     }
 
     @Override

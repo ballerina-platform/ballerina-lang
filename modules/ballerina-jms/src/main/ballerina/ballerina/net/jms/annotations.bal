@@ -6,7 +6,7 @@ public annotation configuration attach service<> {
     string connectionFactoryType;
     string connectionFactoryName;
     string destination;
-    string acknowledgmentMode;
+    string acknowledgementMode;
     string subscriptionId;
     string clientId;
     string configFilePath;
