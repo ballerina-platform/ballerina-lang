@@ -62,6 +62,20 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
     private File docGenBaseDirectory;
 
     /**
+     * The name of the index file
+     * Optional
+     */
+    @Parameter(property = "home.page.file.name")
+    private String homePageFileName;
+
+    /**
+     * The path of the readme file in the base directory
+     * Optional
+     */
+    @Parameter(property = "home.page.template.file")
+    private File homePageTemplateFile;
+
+    /**
      * The readme file
      * Optional
      */
@@ -90,11 +104,33 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
             docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
+        // Setting the home page file name if not set by user
+        File homePageFile;
+        if (homePageFileName == null) {
+            homePageFile = new File(docGenBasePath + File.separator
+                    + Constants.HOMEPAGE_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
+        } else {
+            homePageFile = new File(docGenBasePath + File.separator + homePageFileName);
+        }
+
         // Setting the readme file name if not set by user
         if (readmeFile == null) {
             readmeFile = new File(rootMavenProject.getBasedir() + File.separator
                     + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
         }
+
+        // Setting the home page template file path if not set by user
+        if (homePageTemplateFile == null) {
+            homePageTemplateFile = new File(rootMavenProject.getBasedir() + File.separator
+                    + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
+        }
+
+
+        DocumentationUtils.updateHeadingsInMarkdownFile(homePageTemplateFile, homePageFile,
+                rootMavenProject.getArtifactId(), mavenProject.getVersion(), null);
+        DocumentationUtils.updateHeadingsInMarkdownFile(readmeFile, readmeFile, rootMavenProject.getArtifactId(),
+                mavenProject.getVersion(), null);
+
 
         // Delete snapshot files
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());

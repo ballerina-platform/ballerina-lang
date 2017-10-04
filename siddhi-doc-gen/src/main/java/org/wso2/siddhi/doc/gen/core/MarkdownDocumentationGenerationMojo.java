@@ -31,7 +31,6 @@ import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.List;
 
 /**
@@ -58,13 +57,6 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
     private File moduleTargetDirectory;
 
     /**
-     * The path of the readme file in the base directory
-     * Optional
-     */
-    @Parameter(property = "home.page.template.file")
-    private File homePageTemplateFile;
-
-    /**
      * The path of the mkdocs.yml file in the base directory
      * Optional
      */
@@ -77,13 +69,6 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
      */
     @Parameter(property = "doc.gen.base.directory")
     private File docGenBaseDirectory;
-
-    /**
-     * The name of the index file
-     * Optional
-     */
-    @Parameter(property = "home.page.file.name")
-    private String homePageFileName;
 
     /**
      * The readme file
@@ -116,25 +101,10 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
             docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
-        // Setting the home page template file path if not set by user
-        if (homePageTemplateFile == null) {
-            homePageTemplateFile = new File(rootMavenProject.getBasedir() + File.separator
-                    + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
-        }
-
         // Setting the mkdocs config file path if not set by user
         if (mkdocsConfigFile == null) {
             mkdocsConfigFile = new File(rootMavenProject.getBasedir() + File.separator
                     + Constants.MKDOCS_CONFIG_FILE_NAME + Constants.YAML_FILE_EXTENSION);
-        }
-
-        // Setting the home page file name if not set by user
-        File homePageFile;
-        if (homePageFileName == null) {
-            homePageFile = new File(docGenBasePath + File.separator
-                    + Constants.HOMEPAGE_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
-        } else {
-            homePageFile = new File(docGenBasePath + File.separator + homePageFileName);
         }
 
         // Setting the readme file name if not set by user
@@ -159,19 +129,6 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
         if (namespaceMetaDataList.size() > 0) {
             DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenBasePath, mavenProject.getVersion(),
                     getLog());
-            DocumentationUtils.updateHeadingsInMarkdownFile(homePageTemplateFile, homePageFile,
-                    rootMavenProject.getArtifactId(), mavenProject.getVersion(), namespaceMetaDataList);
-            DocumentationUtils.updateHeadingsInMarkdownFile(readmeFile, readmeFile, rootMavenProject.getArtifactId(),
-                    mavenProject.getVersion(), namespaceMetaDataList);
-
-
-            // Updating the mkdocs config to support all the API Docs pages
-            try {
-                DocumentationUtils.updateAPIPagesInMkdocsConfig(mkdocsConfigFile, docGenBasePath);
-            } catch (FileNotFoundException e) {
-                getLog().warn("Unable to find mkdocs configuration file: "
-                        + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
-            }
         }
     }
 }

@@ -16,7 +16,7 @@
   ~ under the License.
   -->
 <#import "utils.ftl" as utils>
-# API Docs - v${latestDocumentationVersion}*
+# API Docs - v${latestDocumentationVersion}
 
 <#list metaData as namespace>
 ## ${namespace.name?capitalize}
