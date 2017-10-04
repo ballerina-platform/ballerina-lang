@@ -25,22 +25,21 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Constant access test cases.
  */
-
 public class ConstantAccessTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        // Todo
-        //                compileResult = BTestUtils.compile("test-src/lang/constant/access", "main");
+        compileResult = BTestUtils.compile("test-src/lang/constant/access", "main");
     }
 
-    //    @Test(description = "Test accessing constant from other packages")
+    @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
         BValue[] returns = BTestUtils.invoke(compileResult, "main", "accessConstantFromOtherPkg");
         Assert.assertEquals(returns.length, 1);
@@ -48,7 +47,7 @@ public class ConstantAccessTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
     }
 
-    //    @Test(description = "Test assigning constant from other package to global variable")
+    @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
         BValue[] returns = BTestUtils.invoke(compileResult, "main", "assignConstFromOtherPkgToGlobalVar");
         Assert.assertEquals(returns.length, 1);
@@ -56,8 +55,7 @@ public class ConstantAccessTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
     }
 
-
-    //    @Test(description = "Test negative constant values")
+    @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
         BValue[] returns = BTestUtils.invoke(compileResult, "main", "getNegativeConstants");
         Assert.assertEquals(returns.length, 4);
@@ -71,7 +69,7 @@ public class ConstantAccessTest {
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), -3343.88);
     }
 
-    //    @Test(description = "Test assigning float to int in constants")
+    @Test(description = "Test assigning float to int in constants")
     public void floatIntConversion() {
         BValue[] returns = BTestUtils.invoke(compileResult, "main", "floatIntConversion");
         Assert.assertEquals(returns.length, 3);
