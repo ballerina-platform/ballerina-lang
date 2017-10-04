@@ -582,6 +582,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
                 emit(opcode, regIndex);
                 break;
+            case TypeTags.NULL:
+                regIndex = ++regIndexes.tRef;
+                emit(InstructionCodes.RCONST_NULL, regIndex);
         }
 
         literalExpr.regIndex = regIndex;

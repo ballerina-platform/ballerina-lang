@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -83,7 +85,9 @@ import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -264,6 +268,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Create struct type
         structNode.symbol.type = new BStructType((BTypeSymbol) structNode.symbol, new ArrayList<>());
+        defineBinaryOperator(OperatorKind.EQUAL, structSymbol.type, symTable.nullType, symTable.booleanType,
+                InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, symTable.nullType, structSymbol.type, symTable.booleanType,
+                InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, structSymbol.type, symTable.nullType, symTable.booleanType,
+                InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, symTable.nullType, structSymbol.type, symTable.booleanType,
+                InstructionCodes.RNE);
     }
 
     @Override
@@ -282,6 +294,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(connectorNode.pos, conSymbol);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         defineConnectorSymbolParams(connectorNode, conSymbol, connectorEnv);
+        defineBinaryOperator(OperatorKind.EQUAL, conSymbol.type, symTable.nullType, symTable.booleanType,
+                InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.EQUAL, symTable.nullType, conSymbol.type, symTable.booleanType,
+                InstructionCodes.REQ);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, conSymbol.type, symTable.nullType, symTable.booleanType,
+                InstructionCodes.RNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, symTable.nullType, conSymbol.type, symTable.booleanType,
+                InstructionCodes.RNE);
     }
 
     @Override
@@ -594,6 +614,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
+    }
+
+    private void defineBinaryOperator(OperatorKind kind,
+                                      BType lhsType,
+                                      BType rhsType,
+                                      BType retType,
+                                      int opcode) {
+        List<BType> paramTypes = Lists.of(lhsType, rhsType);
+        List<BType> retTypes = Lists.of(retType);
+        defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
+    }
+
+    private void defineOperator(Name name,
+                                List<BType> paramTypes,
+                                List<BType> retTypes,
+                                int opcode) {
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BOperatorSymbol symbol = new BOperatorSymbol(name, env.enclPkg.symbol.pkgID, opType, env.enclPkg.symbol,
+                opcode);
+        env.enclPkg.symbol.scope.define(symbol.name, symbol);
     }
 
     public BVarSymbol defineVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
