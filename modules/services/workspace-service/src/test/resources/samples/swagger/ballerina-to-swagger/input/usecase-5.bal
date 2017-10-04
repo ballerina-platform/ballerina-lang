@@ -1,9 +1,10 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/api"}
 @swagger:ServiceInfo {
-    version: "1.0.0",
+    serviceVersion: "1.0.0",
     description: "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
     termsOfService: "http://swagger.io/terms/",
     contact: @swagger:Contact {
@@ -87,10 +88,10 @@ service<http> Service5 {
             }
         ]
     }
-    resource Resource1 (message m, @http:PathParam{value: "id"} string id,
+    resource Resource1 (http:Request req, http:Response res, @http:PathParam{value: "id"} string id,
                                     @http:QueryParam{value: "tag"} string tag,
                                     @http:QueryParam{value: "limit"} int limit,
                                     @http:QueryParam{value: "isEmpty"} boolean isEmpty) {
-        reply m;
+        response:send(res);
     }
 }

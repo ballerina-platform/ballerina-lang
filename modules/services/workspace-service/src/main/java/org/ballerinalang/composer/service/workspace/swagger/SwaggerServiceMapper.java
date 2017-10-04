@@ -18,6 +18,7 @@ package org.ballerinalang.composer.service.workspace.swagger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import io.swagger.models.Contact;
 import io.swagger.models.ExternalDocs;
 import io.swagger.models.Info;
@@ -111,7 +112,8 @@ public class SwaggerServiceMapper {
     private void parseServiceConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
         Optional<? extends AnnotationAttachmentNode> swaggerConfigAnnotation = service.getAnnotationAttachments()
                 .stream()
-                .filter(a -> (this.swaggerAlias + ":" + "ServiceConfig").equals(a.getAnnotationName().getValue()))
+                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
+                             "ServiceConfig".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         
         if (swaggerConfigAnnotation.isPresent()) {
@@ -131,6 +133,7 @@ public class SwaggerServiceMapper {
                     }
                 }
                 if (schemes.size() > 0) {
+                    schemes = Lists.reverse(schemes);
                     swagger.setSchemes(schemes);
                 }
             }
@@ -215,7 +218,8 @@ public class SwaggerServiceMapper {
      */
     private void parseServiceInfoAnnotationAttachment(ServiceNode service, Swagger swagger) {
         Optional<? extends AnnotationAttachmentNode> swaggerInfoAnnotation = service.getAnnotationAttachments().stream()
-                .filter(a -> (this.swaggerAlias + ":" + "ServiceInfo").equals(a.getAnnotationName().getValue()))
+                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
+                             "ServiceInfo".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         
         Info info = new Info()
@@ -224,8 +228,8 @@ public class SwaggerServiceMapper {
         if (swaggerInfoAnnotation.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> attributes =
                                                                         this.listToMap(swaggerInfoAnnotation.get());
-            if (attributes.containsKey("version")) {
-                info.version(this.getStringLiteralValue(attributes.get("version")));
+            if (attributes.containsKey("serviceVersion")) {
+                info.version(this.getStringLiteralValue(attributes.get("serviceVersion")));
             }
             if (attributes.containsKey("title")) {
                 info.title(this.getStringLiteralValue(attributes.get("title")));
@@ -256,7 +260,7 @@ public class SwaggerServiceMapper {
         if (null != annotationAttributeValue) {
             List<Developer> developers = new LinkedList<>();
             for (AnnotationAttachmentAttributeValueNode value : annotationAttributeValue.getValueArray()) {
-                AnnotationAttachmentNode developerAnnotation = (AnnotationAttachmentNode) value;
+                AnnotationAttachmentNode developerAnnotation = (AnnotationAttachmentNode) value.getValue();
                 Map<String, AnnotationAttachmentAttributeValueNode> developerAttributes =
                                                                                     this.listToMap(developerAnnotation);
                 Developer developer = new Developer();
@@ -268,7 +272,7 @@ public class SwaggerServiceMapper {
                 }
                 developers.add(developer);
             }
-            info.setVendorExtension("x-developers", developers);
+            info.setVendorExtension("x-developers", Lists.reverse(developers));
         }
     }
     
@@ -280,7 +284,7 @@ public class SwaggerServiceMapper {
     private void createOrganizationModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
             AnnotationAttachmentNode organizationAnnotationAttachment =
-                                                                    (AnnotationAttachmentNode)annotationAttributeValue;
+                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
             
             Map<String, AnnotationAttachmentAttributeValueNode> organizationAttributes =
                     this.listToMap(organizationAnnotationAttachment);
@@ -304,7 +308,7 @@ public class SwaggerServiceMapper {
         if (null != annotationAttributeValue) {
             List<Tag> tags = new LinkedList<>();
             for (AnnotationAttachmentAttributeValueNode value : annotationAttributeValue.getValueArray()) {
-                AnnotationAttachmentNode tagAnnotation = (AnnotationAttachmentNode) value;
+                AnnotationAttachmentNode tagAnnotation = (AnnotationAttachmentNode) value.getValue();
                 Map<String, AnnotationAttachmentAttributeValueNode> tagAttributes =
                         this.listToMap(tagAnnotation);
                 Tag tag = new Tag();
@@ -318,7 +322,7 @@ public class SwaggerServiceMapper {
                 tags.add(tag);
             }
     
-            swagger.setTags(tags);
+            swagger.setTags(Lists.reverse(tags));
         }
     }
     
@@ -405,7 +409,8 @@ public class SwaggerServiceMapper {
     private void parseConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
         Optional<? extends AnnotationAttachmentNode> httpConfigAnnotationAttachment = service.getAnnotationAttachments()
                 .stream()
-                .filter(a -> (this.httpAlias + ":" + "configuration").equals(a.getAnnotationName().getValue()))
+                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
+                             "configuration".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (httpConfigAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
@@ -421,7 +426,8 @@ public class SwaggerServiceMapper {
     
         Optional<? extends AnnotationAttachmentNode> consumesAnnotationAttachment = service.getAnnotationAttachments()
                 .stream()
-                .filter(a -> (this.httpAlias + ":" + "Consumes").equals(a.getAnnotationName().getValue()))
+                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
+                             "Consumes".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (consumesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> consumesAttributes =
@@ -437,7 +443,8 @@ public class SwaggerServiceMapper {
     
         Optional<? extends AnnotationAttachmentNode> producesAnnotationAttachment = service.getAnnotationAttachments()
                 .stream()
-                .filter(a -> (this.httpAlias + ":" + "Produces").equals(a.getAnnotationName().getValue()))
+                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
+                             "Produces".equals(a.getAnnotationName().getValue()))
                 .findFirst();
         if (producesAnnotationAttachment.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> consumesAttributes =
@@ -459,7 +466,7 @@ public class SwaggerServiceMapper {
      * @return A map of attributes.
      */
     private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
-        return annotation.geAttributes().stream().collect(
+        return annotation.getAttributes().stream().collect(
                 Collectors.toMap(AnnotationAttachmentAttributeNode::getName, AnnotationAttachmentAttributeNode
                         ::getValue));
     }

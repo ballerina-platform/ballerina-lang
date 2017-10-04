@@ -1,9 +1,10 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
+import ballerina.net.http.response;
 
 @http:configuration {basePath:"/api"}
 @swagger:ServiceInfo {
-    version: "1.0.0",
+    serviceVersion: "1.0.0",
     title: "Swagger Petstore",
     description: "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
     termsOfService: "http://swagger.io/terms/",
@@ -37,7 +38,7 @@ service<http> Service3 {
     @swagger:ResourceInfo {
         description: "Returns all pets from the system that the user has access to"
     }
-    resource Resource1 (message m) {
-        reply m;
+    resource Resource1 (http:Request req, http:Response res) {
+        response:send(res);
     }
 }

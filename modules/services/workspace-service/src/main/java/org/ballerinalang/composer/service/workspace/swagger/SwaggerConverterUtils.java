@@ -16,6 +16,8 @@
 
 package org.ballerinalang.composer.service.workspace.swagger;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import io.swagger.codegen.ClientOptInput;
 import io.swagger.codegen.ClientOpts;
 import io.swagger.codegen.CodegenConfig;
@@ -26,9 +28,13 @@ import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
 import io.swagger.util.Json;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
 import org.ballerinalang.composer.service.workspace.swagger.generators.BallerinaCodeGenerator;
+import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
@@ -47,6 +53,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -58,7 +65,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -92,28 +102,35 @@ public class SwaggerConverterUtils {
     /**
      * Generate ballerina fine from the String definition
      *
-     * @param ballerinaFile ballerina string definition
+     * @param bFile ballerina string definition
      * @return ballerina file created from ballerina string definition
      * @throws IOException IO exception
      */
-    public static BLangCompilationUnit getTopLevelNodeFromBallerinaFile(BFile ballerinaFile) throws IOException {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, ballerinaFile.getFilePath());
+    public static BLangCompilationUnit getTopLevelNodeFromBallerinaFile(BFile bFile) throws IOException {
+    
+        String filePath = bFile.getFilePath();
+        String fileName = bFile.getFileName();
+        String content = bFile.getContent();
+    
+        org.wso2.ballerinalang.compiler.tree.BLangPackage model;
     
         // Sometimes we are getting Ballerina content without a file in the file-system.
-        List<org.wso2.ballerinalang.compiler.util.Name> names = new ArrayList<>();
-        names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
-        // Registering custom PackageRepository to provide ballerina content without a file in file-system
-        context.put(PackageRepository.class, new InMemoryPackageRepository(
-                new PackageID(names, new org.wso2.ballerinalang.compiler.util.Name("0.0.0")),
-                ballerinaFile.getFilePath(), ballerinaFile.getFileName(),
-                ballerinaFile.getContent().getBytes(StandardCharsets.UTF_8)));
+        if (!Files.exists(Paths.get(filePath, fileName))) {
+            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
+                    CompilerPhase.CODE_ANALYZE);
+            model = ballerinaFile.getBLangPackage();
+        
+        } else {
+            BallerinaFile ballerinaFile = WorkspaceUtils.getBallerinaFile(filePath, fileName);
+            model = ballerinaFile.getBLangPackage();
+        }
     
-        Compiler compiler = Compiler.getInstance(context);
-        org.wso2.ballerinalang.compiler.tree.BLangPackage model = compiler.compile(ballerinaFile.getFileName());
+        final Map<String, ModelPackage> modelPackage = new HashMap<>();
+        WorkspaceUtils.loadPackageMap("Current Package", model, modelPackage);
+    
         return model.getCompilationUnits().stream().
-                filter(compUnit -> ballerinaFile.getFileName().equals(compUnit.getName())).findFirst().get();
+                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+        
     }
     
     /**
