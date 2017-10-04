@@ -51,56 +51,57 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLNegativeSemantics() {
-        BTestUtils.validateError(negativeResult, 0, "invalid namespace prefix 'xmlns'", 5, 18);
-        BTestUtils.validateError(negativeResult, 1, "invalid namespace prefix 'xmlns'", 5, 35);
+        BTestUtils.validateError(negativeResult, 0, "invalid namespace prefix 'xmlns'", 5, 19);
+        BTestUtils.validateError(negativeResult, 1, "invalid namespace prefix 'xmlns'", 5, 36);
 
         // undeclared element prefix
-        BTestUtils.validateError(negativeResult, 2, "undefined symbol 'ns1'", 10, 18);
-        BTestUtils.validateError(negativeResult, 3, "undefined symbol 'ns1'", 10, 33);
+        BTestUtils.validateError(negativeResult, 2, "undefined symbol 'ns1'", 10, 19);
+        BTestUtils.validateError(negativeResult, 3, "undefined symbol 'ns1'", 10, 34);
 
         // text with multi type expressions
-        BTestUtils.validateError(negativeResult, 4, "incompatible types: expected 'xml', found 'map'", 16, 58);
+        BTestUtils.validateError(negativeResult, 4, "incompatible types: expected 'xml', found 'map'", 16, 59);
 
         // combined expressions as element name
         // TODO:
 
         // text with invalid multi type expressions
-        BTestUtils.validateError(negativeResult, 5, "incompatible types: expected 'string', found 'xml'", 33, 52);
+        BTestUtils.validateError(negativeResult, 5, "incompatible types: expected 'string', found 'xml'", 33, 53);
 
         // redeclare namespaces
-        BTestUtils.validateError(negativeResult, 6, "redeclared symbol 'ns0'", 42, 8);
+        BTestUtils.validateError(negativeResult, 6, "redeclared symbol 'ns0'", 42, 9);
 
         // assigning attributes-map to a map
         BTestUtils.validateError(negativeResult, 7, "incompatible types: expected 'map', found 'xml-attributes'", 48,
-                13);
+                14);
 
         // namespace conflict with package import
-        BTestUtils.validateError(negativeResult, 8, "redeclared symbol 'x'", 52, 4);
+        BTestUtils.validateError(negativeResult, 8, "redeclared symbol 'x'", 52, 5);
 
         // get attributes from non-xml
-        BTestUtils.validateError(negativeResult, 9, "incompatible types: expected 'xml', found 'map'", 57, 15);
+        BTestUtils.validateError(negativeResult, 9, "incompatible types: expected 'xml', found 'map'", 57, 16);
 
         // update attributes map
         BTestUtils.validateError(negativeResult, 10,
-                "xml attributes cannot be updated as a collection. update attributes one at a time", 62, 4);
+                "xml attributes cannot be updated as a collection. update attributes one at a time", 62, 5);
 
         // update qname
-        BTestUtils.validateError(negativeResult, 11, "cannot assign values to an xml qualified name", 67, 4);
+        BTestUtils.validateError(negativeResult, 11, "cannot assign values to an xml qualified name", 67, 5);
 
         // use of undefined namespace for qname
-        BTestUtils.validateError(negativeResult, 12, "undefined package 'ns0'", 75, 18);
+        BTestUtils.validateError(negativeResult, 12, "undefined package 'ns0'", 75, 19);
         
         // define namespace with empty URI
-        BTestUtils.validateError(negativeResult, 13, "cannot bind prefix 'ns0' to the empty namespace name", 79, 4);
+        BTestUtils.validateError(negativeResult, 13, "cannot bind prefix 'ns0' to the empty namespace name", 79, 5);
     }
 
-    /*
-    @Test(expectedExceptions = { ParserException.class },
-            expectedExceptionsMessageRegExp = "xmlElementNameWithCominedExpressions.bal:3:18: invalid identifier '<'")
+    
+    @Test
     public void testCombinedExpressionsAsElementName() {
-        BTestUtils.getProgramFile("samples/xml/xmlElementNameWithCominedExpressions.bal");
+        CompileResult negativeResult = BTestUtils.compile("test-src/expressions/literals/xml/xml-invalid-syntax-1.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        BTestUtils.validateError(negativeResult, 0, "invalid token '<ns0:{{'", 3, 19);
     }
-     */
+     
     @Test
     public void testXMLTextLiteral() {
         BValue[] args = {};

@@ -136,7 +136,7 @@ public class FuncInvocationExprTest {
     public void testUnaryStmtNegativeCases() {
         Assert.assertEquals(funcInvocationNegative.getErrorCount(), 2);
         BTestUtils
-                .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 22);
-        BTestUtils.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 4);
+                .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 23);
+        BTestUtils.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
     }
 }
