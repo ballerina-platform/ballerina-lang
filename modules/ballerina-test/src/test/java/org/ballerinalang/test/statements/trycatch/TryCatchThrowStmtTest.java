@@ -15,18 +15,16 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.core.lang.error;
+package org.ballerinalang.test.statements.trycatch;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.SemanticException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,17 +34,17 @@ import org.testng.annotations.Test;
  */
 public class TryCatchThrowStmtTest {
 
-    private ProgramFile programFile;
+    CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/errors/testTryCatchStmt.bal");
+        compileResult = BTestUtils.compile("test-src/statements/trycatch/testTryCatchStmt.bal");
     }
 
     @Test(description = "Test try block execution.")
     public void testTryCatchStmt() {
         BValue[] args = {new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryCatch", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -58,7 +56,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution.")
     public void testTryCatchWithThrow() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryCatch", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -70,7 +68,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution, where thrown exception is caught using equivalent catch block ")
     public void testTryCatchEquivalentCatch() {
         BValue[] args = {new BInteger(-1)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryCatch", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -82,7 +80,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test throw statement in a function.")
     public void testTryCatch() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFunctionThrow", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testFunctionThrow", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -92,23 +90,21 @@ public class TryCatchThrowStmtTest {
     }
 
     @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = "error: " +
-            "ballerina.lang.errors:Error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
+            "error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
     public void testUncaughtException() {
         BValue[] args = {};
-        BLangFunctions.invokeNew(programFile, "testUncaughtException", args);
+        BTestUtils.invoke(compileResult, "testUncaughtException", args);
     }
 
     @Test(description = "Test getStack trace of an error in a function.")
     public void testGetStackTrace() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStackTrace", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testStackTrace", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BValue value = ((BStruct) returns[0]).getRefField(0);
-        Assert.assertNotNull(value);
-        BRefValueArray bArray = (BRefValueArray) value;
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        BRefValueArray bArray = (BRefValueArray) returns[0];
         Assert.assertEquals(bArray.size(), 3);
         Assert.assertEquals(((BStruct) bArray.get(0)).getStringField(0), "testNestedThrow");
         Assert.assertEquals(((BStruct) bArray.get(1)).getStringField(0), "testUncaughtException");
@@ -119,7 +115,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test scope issue when using try catch inside while loop")
     public void testScopeIssueInTryCatch() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "scopeIssueTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "scopeIssueTest", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -131,7 +127,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test try statement within while block")
     public void testIssueWhenTryWithinWhile() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryWithinWhile", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "testTryWithinWhile", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -142,33 +138,34 @@ public class TryCatchThrowStmtTest {
 
     @Test(description = "Test function call in finally block when error there is a error thrown.",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: test.*")
+            expectedExceptionsMessageRegExp = ".*error: error, message: test.*")
     public void testMethodCallInFinally() {
         BValue[] args = {};
-        BLangFunctions.invokeNew(programFile, "testMethodCallInFinally", args);
+        BTestUtils.invoke(compileResult, "testMethodCallInFinally", args);
     }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*redeclared symbol 'e'.*")
+    @Test()
     public void testDuplicateExceptionVariable() {
-        BTestUtils.getProgramFile("lang/errors/duplicate-var-try-catch.bal");
+        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/duplicate-var-try-catch.bal");
+        BTestUtils.validateError(compile, 0, "redeclared symbol 'e'", 5, 8);
     }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*only a struct type " +
-            "structurally equivalent to ballerina.lang.errors:Error is allowed here")
+    @Test()
     public void testInvalidThrow() {
-        BTestUtils.getProgramFile("lang/errors/invalid-throw.bal");
+        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/invalid-throw.bal");
+        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 3, 10);
     }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*only a struct type " +
-            "structurally equivalent to ballerina.lang.errors:Error is allowed here")
+    @Test()
     public void testInvalidFunctionThrow() {
-        BTestUtils.getProgramFile("lang/errors/invalid-function-throw.bal");
+        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/invalid-function-throw.bal");
+        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 2, 10);
     }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*error 'TestError' " +
-            "already caught in try catch block")
+    @Test()
     public void testDuplicateCatchBlock() {
-        BTestUtils.getProgramFile("lang/errors/duplicate-catch-block.bal");
+        CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/duplicate-catch-block.bal");
+        BTestUtils.validateError(compile, 0, "error 'TestError' already caught in catch block", 16, 13);
     }
 
 }

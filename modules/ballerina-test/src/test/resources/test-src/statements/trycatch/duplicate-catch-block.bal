@@ -1,8 +1,7 @@
-import ballerina.lang.errors;
-
 struct TestError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string code;
 }
 
@@ -12,7 +11,7 @@ function test()(string){
         string a = "abc";
     } catch (TestError e) {
         return "catch1";
-    } catch (errors:Error ex) {
+    } catch (error ex) {
         return "catch2";
     } catch (TestError e){
         return "catch3";
