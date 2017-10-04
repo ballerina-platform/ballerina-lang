@@ -561,7 +561,7 @@ class SizingUtil {
         components.annotation.w = bodyWidth;
         components.transportLine.h = totalResourceHeight;
         // Set initial height to the body
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h - 50;
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
         viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
@@ -584,12 +584,16 @@ class SizingUtil {
         // Set the service height according to the resources
         if (!node.viewState.collapsed) {
             const resources = node.getResources();
-            resources.map((resource, index) => {
-                const resourcebBox = resources[index].viewState.bBox;
-                if (!resource.viewState.collapsed) {
-                    viewState.bBox.h += resourcebBox.h;
-                }
-            });
+            if (resources.length > 0) {
+                resources.map((resource, index) => {
+                    const resourcebBox = resources[index].viewState.bBox;
+                    if (!resource.viewState.collapsed) {
+                        viewState.bBox.h += resourcebBox.h;
+                    }
+                });
+            } else {
+                viewState.bBox.h -= 140;
+            }
         }
     }
 
