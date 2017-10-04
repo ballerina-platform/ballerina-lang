@@ -64,7 +64,8 @@ public enum TypeKind {
     VOID(""),
     NONE(""),
     OTHER("other"),
-    MESSAGE("message");
+    MESSAGE("message"),
+    XML_ATTRIBUTES("xml-attributes");
 
     private String name;
 
