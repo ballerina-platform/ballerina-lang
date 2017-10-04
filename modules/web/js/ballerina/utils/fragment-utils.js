@@ -25,6 +25,19 @@ import { parseFragment } from 'js/api-client/api-client';
 class FragmentUtils {
 
     /**
+     * Create fragment for top level nodes.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createTopLevelNodeFragment(sourceString) {
+        return {
+            expectedNodeType: 'top-level-node',
+            source: sourceString,
+        };
+    }
+
+    /**
      * Create fragment for expression.
      *
      * @param {string} sourceString - source fragment input.

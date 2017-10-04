@@ -22,6 +22,7 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
  */
 public class BLangFragmentParserConstants {
     // expected node types
+    public static final String TOP_LEVEL_NODE = "top-level-node";
     public static final String STATEMENT = "statement";
     public static final String EXPRESSION = "expression";
     public static final String JOIN_CONDITION = "join-condition";

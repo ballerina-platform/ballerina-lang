@@ -65,6 +65,9 @@ public class BLangFragmentParser {
     protected static JsonObject getJsonNodeForFragment(JsonObject jsonModel, BLangSourceFragment fragment) {
         JsonObject fragmentNode = null;
         JsonArray jsonArray = jsonModel.getAsJsonArray(BLangJSONModelConstants.TOP_LEVEL_NODES);
+        if (fragment.getExpectedNodeType().equals(BLangFragmentParserConstants.TOP_LEVEL_NODE)) {
+            return jsonArray.get(0).getAsJsonObject();
+        }
         JsonObject functionObj = jsonArray.get(0).getAsJsonObject(); // 0 is package def
         JsonObject bodyObj = functionObj.getAsJsonObject(BLangJSONModelConstants.BODY);
         switch (fragment.getExpectedNodeType()) {
@@ -130,6 +133,9 @@ public class BLangFragmentParser {
     protected static String getParsableString(BLangSourceFragment sourceFragment) {
         String parsableText = null;
         switch (sourceFragment.getExpectedNodeType()) {
+            case BLangFragmentParserConstants.TOP_LEVEL_NODE:
+                parsableText = sourceFragment.getSource();
+                break;
             case BLangFragmentParserConstants.EXPRESSION:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.VAR_DEF_STMT_EXPR_WRAPPER, sourceFragment.getSource());
