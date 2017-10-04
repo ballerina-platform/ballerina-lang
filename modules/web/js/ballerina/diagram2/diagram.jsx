@@ -65,6 +65,7 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
+        console.log(this.props.model);
         // Following is how we render the diagram.
         // 1 First clear any intermediate state we have set.
         this.props.model.accept(new Clean());
@@ -92,21 +93,6 @@ class Diagram extends React.Component {
         // we re run the dimention and possition calculator again there are any conflicts.
         this.props.model.accept(this.dimentionVisitor);
         this.props.model.accept(this.positionCalc);
-        // 3. Now we need to create component for each child of root node.
-        let [others] = [undefined, [], [], []];
-        const otherNodes = [];
-        this.props.model.children.forEach((child) => {
-            switch (child.constructor.name) {
-            case 'ImportDeclaration':
-                break;
-            case 'ConstantDefinition':
-                break;
-            case 'GlobalVariableDefinition':
-                break;
-            default:
-                otherNodes.push(child);
-            }
-        });
         others = getComponentForNodeArray(otherNodes, this.props.mode);
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
@@ -115,9 +101,6 @@ class Diagram extends React.Component {
         if (annotationRenderer.getAnnotations()) {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations(), this.props.mode);
         }
-
-        // 4. Ok we are all set, now lets render the diagram with React. We will create
-        //    a CsnvasDecorator and pass child components for that.
 
         */
 
@@ -131,6 +114,9 @@ class Diagram extends React.Component {
 
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
+
+        // 4. Ok we are all set, now lets render the diagram with React. We will create
+        //    a CsnvasDecorator and pass child components for that.
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}
