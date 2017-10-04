@@ -19,7 +19,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         if (!shouldIndent && wsI !== undefined) {
             return wsI;
         }
-        return defaultWS || '';
+        return defaultWS || ' ';
     }
 
     function a(afterWS) {
