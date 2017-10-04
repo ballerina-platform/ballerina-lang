@@ -57,10 +57,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-native</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>

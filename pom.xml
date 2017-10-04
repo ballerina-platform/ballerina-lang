@@ -71,11 +71,6 @@
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-native</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.ballerina.connectors</groupId>
                 <artifactId>connectors</artifactId>
                 <version>${ballerina.version}</version>
