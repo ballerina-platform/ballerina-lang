@@ -28,6 +28,9 @@ import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+
+import static org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils.updateAPIPagesInMkdocsConfig;
 
 /**
  * Mojo for deploying mkdocs website on GitHub pages
@@ -93,9 +96,16 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
                     + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
         }
 
-        // Updating the API Docs files
+        // Delete snapshot files
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
 
+        // Updating the links in the home page to the mkdocs config
+        try {
+            updateAPIPagesInMkdocsConfig(mkdocsConfigFile, docGenBasePath);
+        } catch (FileNotFoundException e) {
+            getLog().warn("Unable to find mkdocs configuration file: "
+                    + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
+        }
         // Deploying the documentation
         if (DocumentationUtils.generateMkdocsSite(mkdocsConfigFile, getLog())) {
             // Creating the credential provider fot Git

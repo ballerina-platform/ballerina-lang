@@ -130,15 +130,17 @@ public class DocumentationUtils {
      * @param namespaceMetaDataList      Metadata in this repository
      * @param documentationBaseDirectory The path of the directory in which the documentation will be generated
      * @param documentationVersion       The version of the documentation being generated
+     * @param logger                     The logger to log errors
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                             String documentationBaseDirectory, String documentationVersion)
+                                             String documentationBaseDirectory, String documentationVersion, Log logger)
             throws MojoFailureException {
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
         rootDataModel.put("metaData", namespaceMetaDataList);
         rootDataModel.put("formatDescription", new FormatDescriptionMethod());
+        rootDataModel.put("latestDocumentationVersion", documentationVersion);
 
         String outputFileRelativePath = Constants.API_SUB_DIRECTORY + File.separator + documentationVersion
                 + Constants.MARKDOWN_FILE_EXTENSION;
@@ -148,6 +150,15 @@ public class DocumentationUtils {
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
                 rootDataModel, documentationBaseDirectory, outputFileRelativePath
         );
+        File newVersionFile = new File(documentationBaseDirectory + File.separator + outputFileRelativePath);
+        File latestLabelFile = new File(documentationBaseDirectory + File.separator +
+                Constants.API_SUB_DIRECTORY + File.separator + Constants.LATEST_FILE_NAME +
+                Constants.MARKDOWN_FILE_EXTENSION);
+        try {
+            Files.copy(newVersionFile, latestLabelFile);
+        } catch (IOException e) {
+            logger.warn("Failed to generate latest.md file", e);
+        }
     }
 
     /**
@@ -194,7 +205,7 @@ public class DocumentationUtils {
      * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
      * @param logger                     The maven plugin logger
      */
-    public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String  documentationBaseDirectory, Log logger) {
+    public static void removeSnapshotAPIDocs(File mkdocsConfigFile, String documentationBaseDirectory, Log logger) {
         // Retrieving the documentation file names
         File apiDocsDirectory = new File(documentationBaseDirectory
                 + File.separator + Constants.API_SUB_DIRECTORY);
@@ -217,13 +228,6 @@ public class DocumentationUtils {
                 }
             }
 
-            // Updating the links in the home page to the mkdocs config
-            try {
-                updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationBaseDirectory);
-            } catch (FileNotFoundException e) {
-                logger.warn("Unable to find mkdocs configuration file: "
-                        + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
-            }
         }
     }
 
@@ -249,6 +253,16 @@ public class DocumentationUtils {
         } else {
             apiDirectoryContent = Arrays.asList(documentationFiles);
             apiDirectoryContent.sort(String::compareTo);
+            Collections.reverse(apiDirectoryContent);
+        }
+
+        String latestVersionFile = null;
+        if (apiDirectoryContent.size() > 1) {
+            String first = apiDirectoryContent.get(0);
+            String secound = apiDirectoryContent.get(1);
+            if (first.equals(Constants.LATEST_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION)) {
+                latestVersionFile = secound;
+            }
         }
 
         // Creating yaml parser
@@ -271,6 +285,10 @@ public class DocumentationUtils {
             String pageName = apiFile.substring(0, apiFile.length() - Constants.MARKDOWN_FILE_EXTENSION.length());
 
             Map<String, Object> newPage = new HashMap<>();
+            if (latestVersionFile != null && pageName.equals(Constants.LATEST_FILE_NAME)) {
+                pageName = "Latest (" + latestVersionFile.substring(0, latestVersionFile.length() -
+                        Constants.MARKDOWN_FILE_EXTENSION.length()) + ")";
+            }
             newPage.put(pageName, Constants.API_SUB_DIRECTORY + Constants.MKDOCS_FILE_SEPARATOR + apiFile);
             apiPagesList.add(newPage);
         }
@@ -343,7 +361,7 @@ public class DocumentationUtils {
         boolean isDocumentationGenerationSuccessful = false;
         try {
             // Building the mkdocs site
-            executeCommand(new String[] {Constants.MKDOCS_COMMAND,
+            executeCommand(new String[]{Constants.MKDOCS_COMMAND,
                     Constants.MKDOCS_BUILD_COMMAND,
                     Constants.MKDOCS_BUILD_COMMAND_CLEAN_ARGUEMENT,
                     Constants.MKDOCS_BUILD_COMMAND_CONFIG_FILE_ARGUMENT,
@@ -466,10 +484,10 @@ public class DocumentationUtils {
     public static void updateDocumentationOnGitHub(String docsDirectory, File mkdocsConfigFile, File readmeFile,
                                                    String version, Log logger) {
         try {
-            executeCommand(new String[] {Constants.GIT_COMMAND,
+            executeCommand(new String[]{Constants.GIT_COMMAND,
                     Constants.GIT_ADD_COMMAND,
                     docsDirectory, mkdocsConfigFile.getAbsolutePath(), readmeFile.getAbsolutePath()}, logger);
-            executeCommand(new String[] {Constants.GIT_COMMAND,
+            executeCommand(new String[]{Constants.GIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND,
                     Constants.GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT,
                     String.format(Constants.GIT_COMMIT_COMMAND_MESSAGE_FORMAT, version, version),
@@ -747,7 +765,7 @@ public class DocumentationUtils {
         List<String> executionOutputLines = new ArrayList<>();
 
         // Logging the output of the command execution
-        InputStream[] inputStreams = new InputStream[] {process.getInputStream(), process.getErrorStream()};
+        InputStream[] inputStreams = new InputStream[]{process.getInputStream(), process.getErrorStream()};
         BufferedReader bufferedReader = null;
         try {
             for (InputStream inputStream : inputStreams) {

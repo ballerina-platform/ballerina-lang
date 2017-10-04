@@ -34,6 +34,7 @@ public class Constants {
     public static final String API_SUB_DIRECTORY = "api";
 
     public static final String README_FILE_NAME = "README";
+    public static final String LATEST_FILE_NAME = "latest";
     public static final String MKDOCS_CONFIG_FILE_NAME = "mkdocs";
     public static final String HOMEPAGE_FILE_NAME = "index";
 
