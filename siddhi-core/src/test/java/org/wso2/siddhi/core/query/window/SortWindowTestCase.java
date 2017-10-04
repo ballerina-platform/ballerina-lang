@@ -26,21 +26,27 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SortWindowTestCase {
     private static final Logger log = Logger.getLogger(SortWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
+    private AtomicInteger atomicCount;
 
     @BeforeMethod
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
         eventArrived = false;
+        atomicCount = new AtomicInteger(0);
     }
 
     @Test
@@ -137,4 +143,84 @@ public class SortWindowTestCase {
         siddhiAppRuntime.shutdown();
 
     }
+
+    @Test public void sortWindowTest3() throws InterruptedException {
+        log.info("sortWindowTest3");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" + "define stream cseEventStream (symbol string, price float, index int); "
+                + "define stream twitterStream (id int, tweet string, company string); ";
+        String query = "" + "@info(name = 'query1') "
+                + "from cseEventStream#window.sort(2, index) join twitterStream#window.sort(2, id) "
+                + "on cseEventStream.symbol== twitterStream.company "
+                + "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price "
+                + "insert into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        try {
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+                @Override public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        atomicCount.addAndGet(inEvents.length);
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount += (removeEvents.length);
+                    }
+                    eventArrived = true;
+                }
+            });
+            InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+            siddhiAppRuntime.start();
+            cseEventStreamHandler.send(new Object[] { "WSO2", 55.6f, 100 });
+            cseEventStreamHandler.send(new Object[] { "IBM", 59.6f, 101 });
+            twitterStreamHandler.send(new Object[] { 10, "Hello World", "WSO2" });
+            twitterStreamHandler.send(new Object[] { 15, "Hello World2", "WSO2" });
+            cseEventStreamHandler.send(new Object[] { "IBM", 75.6f, 90 });
+            twitterStreamHandler.send(new Object[] { 5, "Hello World2", "IBM" });
+            SiddhiTestHelper.waitForEvents(100, 3, atomicCount, 10000);
+            AssertJUnit.assertEquals(3, atomicCount.get());
+            AssertJUnit.assertTrue(eventArrived);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class) public void sortWindowTest4()
+            throws InterruptedException {
+        log.info("sortWindowTest4");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" + "define stream cseEventStream (symbol string, price float, volume int);";
+        String query =
+                "" + "@info(name = 'query1') " + "from cseEventStream#window.sort(2.5) " + "select symbol,price,volume "
+                        + "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class) public void sortWindowTest5()
+            throws InterruptedException {
+        log.info("sortWindowTest5");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" + "define stream cseEventStream (symbol string, time long, volume int);";
+        String query = "" + "@info(name = 'query1') " + "from cseEventStream#window.sort(2, 8) "
+                + "select symbol,price,volume " + "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class) public void sortWindowTest6()
+            throws InterruptedException {
+        log.info("sortWindowTest6");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" + "define stream cseEventStream (symbol string, time long, volume int);";
+        String query = "" + "@info(name = 'query1') " + "from cseEventStream#window.sort(2, volume, 'ecs') "
+                + "select symbol,price,volume " + "insert all events into outputStream ;";
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
 }

@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -170,6 +171,54 @@ public class TimeWindowTestCase {
         AssertJUnit.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
 
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void timeWindowTest4() throws InterruptedException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price float, volume int);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(2 sec, 5) " +
+                "select symbol,price,volume " +
+                "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void timeWindowTest5() throws InterruptedException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, time long, volume int);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(time) " +
+                "select symbol,price,volume " +
+                "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void timeWindowTest6() throws InterruptedException, SiddhiAppCreationException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, time long, volume int);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(4.7) " +
+                "select symbol,price,volume " +
+                "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
 }
