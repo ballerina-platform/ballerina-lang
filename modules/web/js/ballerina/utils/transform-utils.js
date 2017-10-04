@@ -39,13 +39,20 @@ export default class TransformUtils {
      * @returns {Expression} temporary var expression
      * @memberof TransformNodeMapper
      */
-    static getNewTempVarName(transformNode, varPrefix = '__temp') {
+    static getNewTempVarName(transformNode, varPrefix = VarPrefix.TEMP) {
         const varNameRegex = new RegExp(varPrefix + '[\\d]*');
         const tempVarNames = [];
+
+        let checkedExpressionType = ExpressionType.TEMPVAR;
+
+        if (varPrefix === VarPrefix.OUTPUT) {
+            checkedExpressionType = ExpressionType.PLACEHOLDER;
+        }
+
         transformNode.body.getStatements().forEach((stmt) => {
             this.getOutputExpressions(transformNode, stmt).forEach((mapping) => {
                 const expStr = mapping.expression.getSource();
-                if ((mapping.type === ExpressionType.TEMPVAR) && varNameRegex.test(expStr)) {
+                if ((mapping.type === checkedExpressionType) && varNameRegex.test(expStr)) {
                     tempVarNames.push(expStr);
                 }
             });

@@ -100,10 +100,11 @@ class Node extends EventChannel {
 
     /**
      * Get the source of the current Node.
+     * @param {boolean?} pretty ignore WS and put default WS.
      * @return {string} source.
      */
-    getSource() {
-        return getSourceOf(this);
+    getSource(pretty) {
+        return getSourceOf(this, pretty);
     }
 
     [Symbol.iterator]() {

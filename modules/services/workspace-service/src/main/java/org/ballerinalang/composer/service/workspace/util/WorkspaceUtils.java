@@ -168,8 +168,9 @@ public class WorkspaceUtils {
                     .collect(Collectors.<BLangIdentifier>toList());
 
             //TODO Remove this if check once other packages are available to load.
-            if ("[ballerina, utils, logger]".equals(pkgNameComps.toString())
-                    || "[ballerina, utils]".equals(pkgNameComps.toString())) {
+            if (!"[ballerina, lang, btype]".equals(pkgNameComps.toString())
+                    && !"[ballerina, mock]".equals(pkgNameComps.toString())
+                    && !"[ballerina, test]".equals(pkgNameComps.toString())) {
                 org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                         .loadPackage(pkgNameComps, bLangIdentifier);
                 loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);

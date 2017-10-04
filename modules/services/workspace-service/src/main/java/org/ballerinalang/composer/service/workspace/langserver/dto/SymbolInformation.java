@@ -29,6 +29,16 @@ public class SymbolInformation {
 
     private String containerName;
 
+    private String defaultValue;
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
     public String getName() {
         return name;
     }
@@ -60,4 +70,5 @@ public class SymbolInformation {
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
+
 }

@@ -18,6 +18,8 @@
 
 import log from 'log';
 import NodeFactory from '../../../../../model/node-factory';
+import FragmentUtils from '../../../../../utils/fragment-utils';
+import TreeBuilder from '../../../../../model/tree-builder';
 
 class TransformFactory {
     
@@ -47,6 +49,18 @@ class TransformFactory {
 
         // variableDef.setStatementFromString('string ' + varName + ' = ""');
         return variableDef;
+    }
+
+    /**
+     * Create  for FieldBasedVarRefExpression struct fields
+     * @param  {string} name expression name
+     * @return {object} FieldBasedVarRefExpression object
+     */
+    static createFieldBasedVarRefExpression(name) {
+        const fragment = FragmentUtils.createExpressionFragment(name);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const refExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return refExpr;
     }
 
 }
