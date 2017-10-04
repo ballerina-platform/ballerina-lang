@@ -21,10 +21,7 @@ import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import NodeFactory from '../../../../../model/node-factory';
 import TransformFactory from './transform-factory';
-import TransformUtils from "../../../../../utils/transform-utils";
-
-const ExpressionType = TransformUtils.expressionTypes;
-const VarPrefix = TransformUtils.varPrefix;
+import TransformUtils, { ExpressionType, VarPrefix } from '../../../../../utils/transform-utils';
 
 /**
  * Performs utility methods for handling transform inner statement creation and removal
