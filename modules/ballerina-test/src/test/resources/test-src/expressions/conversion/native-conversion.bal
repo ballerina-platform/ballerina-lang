@@ -1,5 +1,3 @@
-import ballerina.lang.errors;
-
 struct Person {
     string name;
     int age;
@@ -26,7 +24,7 @@ function testStructToMap () (map) {
                    info:{status:"single"},
                    marks:[67, 38, 91]
                };
-    errors:TypeConversionError err;
+    TypeConversionError err;
     map m;
     m, err = <map>p;
     return m;
@@ -111,7 +109,7 @@ function testIncompatibleMapToStruct () (Person) {
                 marks:marks
             };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>m;
     if (e != null) {
         throw e;
@@ -127,7 +125,7 @@ function testMapWithMissingFieldsToStruct () (Person) {
                 marks:marks
             };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>m;
     if (e != null) {
         throw e;
@@ -160,7 +158,7 @@ function testMapWithIncompatibleArrayToStruct () (Person) {
                 alive:true
             };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>m;
     if (e != null) {
         throw e;
@@ -203,7 +201,7 @@ function testJsonToStructWithMissingFields () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -219,7 +217,7 @@ function testIncompatibleJsonToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -243,7 +241,7 @@ function testJsonWithIncompatibleMapToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -267,7 +265,7 @@ function testJsonWithIncompatibleTypeToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -291,7 +289,7 @@ function testJsonWithIncompatibleStructToStruct () (Person) {
                  marks:[87, 94, 72]
              };
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -302,7 +300,7 @@ function testJsonWithIncompatibleStructToStruct () (Person) {
 function testJsonArrayToStruct () (Person) {
     json j = [87, 94, 72];
     Person p;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     p, e = <Person>j;
     if (e != null) {
         throw e;
@@ -311,15 +309,15 @@ function testJsonArrayToStruct () (Person) {
 }
 
 struct Info {
-    message msg;
+    string msg;
 }
 
 function testStructWithMessageToJson () (json) {
 
-    message m = {};
+    string m = "";
     Info info = {msg:m};
     json j;
-    errors:TypeConversionError err;
+    TypeConversionError err;
     j, err = <json>info;
     if (err != null) {
         throw err;
@@ -422,7 +420,7 @@ struct XmlArray {
 function testJsonToXmlArray () (XmlArray) {
     json j = {a:["a", "b", "c"]};
     XmlArray a;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     a, e = <XmlArray>j;
     if (e != null) {
         throw e;
@@ -447,7 +445,7 @@ function testNullJsonToArray () (StringArray) {
 function testNonArrayJsonToArray () (StringArray) {
     json j = {a:"im not an array"};
     StringArray a;
-    errors:TypeConversionError e;
+    TypeConversionError e;
     a, e = <StringArray>j;
     if (e != null) {
         throw e;
@@ -514,7 +512,7 @@ function testNullStructToMap () (map) {
     return m;
 }
 
-function testIncompatibleJsonToStructWithErrors () (Person, errors:TypeConversionError) {
+function testIncompatibleJsonToStructWithErrors () (Person, TypeConversionError) {
     json j = {name:"Child",
                  age:25,
                  parent:{
@@ -529,7 +527,7 @@ function testIncompatibleJsonToStructWithErrors () (Person, errors:TypeConversio
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    errors:TypeConversionError err;
+    TypeConversionError err;
     Person p;
     p, err = <Person>j;
     return p, err;
@@ -540,8 +538,8 @@ struct PersonA {
     int age;
 }
 
-function JsonToStructWithErrors () (PersonA, errors:TypeConversionError) {
-    errors:TypeConversionError err;
+function JsonToStructWithErrors () (PersonA, TypeConversionError) {
+    TypeConversionError err;
     PersonA person;
     json j = {name:"supun"};
 
