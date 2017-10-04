@@ -16,13 +16,16 @@
 
 package org.ballerinalang.composer.service.workspace.utils;
 
-import com.google.gson.JsonArray;
+import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,14 +53,19 @@ public class BallerinaProgramContentProvider {
      * Returns native types
      * @return JsonArray
      */
-    public JsonArray builtinTypes() {
-        JsonArray nativeTypes = new JsonArray();
+    public List<SymbolInformation> builtinTypes() {
+        List<SymbolInformation> symbolInfoList = new ArrayList<>();
         globalScope.getSymbolMap().values().stream().forEach(symbol -> {
             if (symbol instanceof BType) {
-                nativeTypes.add(symbol.getName());
+                SymbolInformation symbolInfo = new SymbolInformation();
+                symbolInfo.setName(symbol.getName());
+                if (((BType) symbol).getZeroValue() != null) {
+                    symbolInfo.setDefaultValue(((BType) symbol).getZeroValue().stringValue());
+                }
+                symbolInfoList.add(symbolInfo);
             }
         });
-        return nativeTypes;
+        return symbolInfoList;
     }
 
     /**
