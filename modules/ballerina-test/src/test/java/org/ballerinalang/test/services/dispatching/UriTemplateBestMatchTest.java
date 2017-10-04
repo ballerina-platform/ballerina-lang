@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.services.dispatching;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.Constants;
 import org.ballerinalang.test.services.testutils.EnvironmentInitializer;

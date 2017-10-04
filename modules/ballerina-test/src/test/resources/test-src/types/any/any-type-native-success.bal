@@ -33,6 +33,3 @@ function findBestNativeFunctionPrint() {
     int val = 7;
     system:print(val);
 }
-
-
-
