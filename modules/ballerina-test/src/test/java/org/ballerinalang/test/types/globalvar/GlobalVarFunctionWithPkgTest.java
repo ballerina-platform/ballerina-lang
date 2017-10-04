@@ -38,7 +38,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     }
 
-    @Test(description = "Test accessing global variables defined in other packages", enabled = false)
+    @Test(description = "Test accessing global variables defined in other packages")
     public void testAccessingGlobalVar() {
         CompileResult result = BTestUtils.compile("test-src/types/globalvar/pkg/main/");
         BValue[] returns = BTestUtils.invoke(result, "getGlobalVars", new BValue[0]);
@@ -53,7 +53,7 @@ public class GlobalVarFunctionWithPkgTest {
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 88343);
     }
 
-    @Test(description = "Test change global var within functions", enabled = false)
+    @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         CompileResult result = BTestUtils.compile("test-src/types/globalvar/pkg/main");
         BValue[] args = {new BInteger(88)};
@@ -86,7 +86,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     }
 
-    @Test(description = "Test assigning function invocation to global variable", enabled = false)
+    @Test(description = "Test assigning function invocation to global variable")
     public void testAssignFuncInvocationToGlobalVar() {
         CompileResult result = BTestUtils.compile("test-src/types/globalvar/pkg/main");
         BValue[] returns = BTestUtils.invoke(result, "getGlobalVarInt", new BValue[0]);
@@ -99,7 +99,7 @@ public class GlobalVarFunctionWithPkgTest {
     }
 
     @Test(description = "Test retrieving variable from different package when that package is already initialized " +
-            "within another package", enabled = false)
+            "within another package")
     public void testRetrievingVarFromDifferentPkg() {
         CompileResult result = BTestUtils.compile("test-src/types/globalvar/pkg/abc");
         BValue[] returns = BTestUtils.invoke(result, "getStringInPkg", new BValue[0]);
