@@ -37,7 +37,7 @@ service<http> GlobalVar {
         float pkgFloat = varpkg:glbVarFloat;
         json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -49,7 +49,7 @@ service<http> GlobalVar {
 
         json responseJson = {"glbVarFloat1":glbVarFloat1};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -60,7 +60,7 @@ service<http> GlobalVar {
         message response = {};
         json responseJson = {"glbVarFunc":glbVarFunc};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -71,7 +71,7 @@ service<http> GlobalVar {
         message response = {};
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -82,7 +82,7 @@ service<http> GlobalVar {
         message response = {};
         json responseJson = {"serviceVarString":serviceVarString};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -94,7 +94,7 @@ service<http> GlobalVar {
 
         varpkg:glbVarFloatChange = 345432.454;
 
-        reply response;
+        response:send(response);
     }
 
 
@@ -114,7 +114,7 @@ service<http> GlobalVarSecond {
         float changeVarFloat = varpkg:glbVarFloatChange;
         json responseJson = {"changeVarFloat":changeVarFloat};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
 }

@@ -9,7 +9,7 @@ service<http> echo {
     }
     resource echo (message m) {
         http:convertToResponse(m);
-        reply m;
+        response:send(m);
     
     }
     

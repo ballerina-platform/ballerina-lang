@@ -4,5 +4,5 @@ function main(string[] s) {
 	// Following line is invalid.
 	i = 5 + "abc";
 	
-	reply m;
+	response:send(m);
 }

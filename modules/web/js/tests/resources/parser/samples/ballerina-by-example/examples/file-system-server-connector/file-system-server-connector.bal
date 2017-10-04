@@ -19,6 +19,6 @@ service<fs> fileSystem {
         // The message 'm' contains the URL of a file as its payload.
         // This URL can be then used in conjunction with another connector.
         system:println(messages:getStringPayload(m));
-        reply m;
+        response:send(m);
     }
 }

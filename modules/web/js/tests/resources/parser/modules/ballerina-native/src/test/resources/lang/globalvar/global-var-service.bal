@@ -27,7 +27,7 @@ service<http> GlobalVar {
 
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -39,7 +39,7 @@ service<http> GlobalVar {
 
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -51,7 +51,7 @@ service<http> GlobalVar {
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -62,7 +62,7 @@ service<http> GlobalVar {
         message response = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
 }
@@ -79,7 +79,7 @@ service<http> GlobalVarSecond {
         message response = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         messages:setJsonPayload(response, responseJson);
-        reply response;
+        response:send(response);
     }
 
 }
