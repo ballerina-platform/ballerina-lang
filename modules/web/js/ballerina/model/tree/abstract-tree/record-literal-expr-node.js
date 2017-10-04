@@ -70,7 +70,7 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
 
     removeKeyValuePairs(node, silent) {
         const index = this.getIndexOfKeyValuePairs(node);
-        this.removeKeyValuePairsByIndex(index);
+        this.removeKeyValuePairsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

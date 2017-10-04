@@ -70,7 +70,7 @@ class AbstractCompilationUnitNode extends Node {
 
     removeTopLevelNodes(node, silent) {
         const index = this.getIndexOfTopLevelNodes(node);
-        this.removeTopLevelNodesByIndex(index);
+        this.removeTopLevelNodesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

@@ -70,7 +70,7 @@ class AbstractBlockNode extends StatementNode {
 
     removeStatements(node, silent) {
         const index = this.getIndexOfStatements(node);
-        this.removeStatementsByIndex(index);
+        this.removeStatementsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

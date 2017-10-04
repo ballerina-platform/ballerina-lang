@@ -70,7 +70,7 @@ class AbstractForkJoinNode extends StatementNode {
 
     removeWorkers(node, silent) {
         const index = this.getIndexOfWorkers(node);
-        this.removeWorkersByIndex(index);
+        this.removeWorkersByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -187,7 +187,7 @@ class AbstractForkJoinNode extends StatementNode {
 
     removeJoinedWorkerIdentifiers(node, silent) {
         const index = this.getIndexOfJoinedWorkerIdentifiers(node);
-        this.removeJoinedWorkerIdentifiersByIndex(index);
+        this.removeJoinedWorkerIdentifiersByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -254,31 +254,6 @@ class AbstractForkJoinNode extends StatementNode {
     filterJoinedWorkerIdentifiers(predicateFunction) {
         return _.filter(this.joinedWorkerIdentifiers, predicateFunction);
     }
-
-
-    setJoinType(newValue, silent, title) {
-        const oldValue = this.joinType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinType = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinType() {
-        return this.joinType;
-    }
-
 
 
     setJoinCount(newValue, silent, title) {
@@ -383,6 +358,31 @@ class AbstractForkJoinNode extends StatementNode {
 
     getTimeOutVariable() {
         return this.timeOutVariable;
+    }
+
+
+
+    setJoinType(newValue, silent, title) {
+        const oldValue = this.joinType;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinType = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinType',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinType() {
+        return this.joinType;
     }
 
 

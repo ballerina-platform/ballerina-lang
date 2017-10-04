@@ -70,7 +70,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
 
     removeExpressions(node, silent) {
         const index = this.getIndexOfExpressions(node);
-        this.removeExpressionsByIndex(index);
+        this.removeExpressionsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -187,7 +187,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
 
     removeFilterConnectos(node, silent) {
         const index = this.getIndexOfFilterConnectos(node);
-        this.removeFilterConnectosByIndex(index);
+        this.removeFilterConnectosByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

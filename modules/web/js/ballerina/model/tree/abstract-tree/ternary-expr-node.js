@@ -49,33 +49,6 @@ class AbstractTernaryExprNode extends ExpressionNode {
 
 
 
-    setElseExpression(newValue, silent, title) {
-        const oldValue = this.elseExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.elseExpression = newValue;
-
-        this.elseExpression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'elseExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getElseExpression() {
-        return this.elseExpression;
-    }
-
-
-
     setThenExpression(newValue, silent, title) {
         const oldValue = this.thenExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -99,6 +72,33 @@ class AbstractTernaryExprNode extends ExpressionNode {
 
     getThenExpression() {
         return this.thenExpression;
+    }
+
+
+
+    setElseExpression(newValue, silent, title) {
+        const oldValue = this.elseExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.elseExpression = newValue;
+
+        this.elseExpression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'elseExpression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getElseExpression() {
+        return this.elseExpression;
     }
 
 

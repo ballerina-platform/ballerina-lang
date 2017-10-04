@@ -39,6 +39,7 @@ import StructNode from './tree/struct-node';
 import VariableNode from './tree/variable-node';
 import WorkerNode from './tree/worker-node';
 import XmlnsNode from './tree/xmlns-node';
+import AnnotationAttachmentAttributeNode from './tree/annotation-attachment-attribute-node';
 import AnnotationAttachmentAttributeValueNode from './tree/annotation-attachment-attribute-value-node';
 import ArrayLiteralExprNode from './tree/array-literal-expr-node';
 import BinaryExprNode from './tree/binary-expr-node';
@@ -121,6 +122,7 @@ class NodeFactory {
         let node = new AnnotationAttachmentNode();
         node.packageAlias = new IdentifierNode();
         node.annotationName = new IdentifierNode();
+        node.attributes = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
@@ -334,6 +336,15 @@ class NodeFactory {
         let node = new XmlnsNode();
         node.prefix = new IdentifierNode();
         node.namespaceURI = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below. 
+        return node;
+    }
+
+    createAnnotationAttachmentAttribute(json = {}){
+        json.kind = 'AnnotationAttachmentAttribute';
+        let node = new AnnotationAttachmentAttributeNode();
+        node.value = new AnnotationAttachmentAttributeValueNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;

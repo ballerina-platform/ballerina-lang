@@ -149,7 +149,7 @@ class AbstractXmlElementLiteralNode extends Node {
 
     removeAttributes(node, silent) {
         const index = this.getIndexOfAttributes(node);
-        this.removeAttributesByIndex(index);
+        this.removeAttributesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -266,7 +266,7 @@ class AbstractXmlElementLiteralNode extends Node {
 
     removeContent(node, silent) {
         const index = this.getIndexOfContent(node);
-        this.removeContentByIndex(index);
+        this.removeContentByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
