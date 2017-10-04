@@ -41,7 +41,7 @@ export default class TransformUtils {
      */
     static getNewTempVarName(transformNode, varPrefix = VarPrefix.TEMP) {
         const varNameRegex = new RegExp(varPrefix + '[\\d]*');
-        const tempVarNames = [];
+        const tempVarSuffixes = [];
 
         let checkedExpressionType = ExpressionType.TEMPVAR;
 
@@ -53,16 +53,17 @@ export default class TransformUtils {
             this.getOutputExpressions(transformNode, stmt).forEach((mapping) => {
                 const expStr = mapping.expression.getSource();
                 if ((mapping.type === checkedExpressionType) && varNameRegex.test(expStr)) {
-                    tempVarNames.push(expStr);
+                    const index = Number.parseInt(expStr.substring(varPrefix.length + 1), 10) || 0;
+                    tempVarSuffixes.push(index);
                 }
             });
         });
 
-        tempVarNames.sort();
-        let index = 1;
-        if (tempVarNames.length > 0) {
-            index = Number.parseInt(tempVarNames[tempVarNames.length - 1].substring(varPrefix.length), 10) + 1;
+        function sortNumber(a,b) {
+            return a - b;
         }
+        tempVarSuffixes.sort(sortNumber);
+        let index = tempVarSuffixes[tempVarSuffixes.length - 1] + 1;
         return varPrefix + index;
     }
 
