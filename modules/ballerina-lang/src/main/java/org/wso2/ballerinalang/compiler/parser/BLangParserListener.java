@@ -1357,7 +1357,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endExprNodeList(ctx.getChildCount() / 2 + 1);
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
     }
 
     /**
@@ -1874,7 +1874,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endExprNodeList(ctx.getChildCount() / 2 + 1);
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
     }
 
     @Override

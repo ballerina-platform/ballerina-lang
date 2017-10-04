@@ -164,6 +164,8 @@ public class BLangPackageBuilder {
 
     private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> commaWsStack = new Stack<>();
+
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
@@ -443,6 +445,7 @@ public class BLangPackageBuilder {
         if (exprAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
+            connectorInitNode.addWS(commaWsStack.pop());
         }
         ConnectorInitNode previous = null;
         while (!connectorInitNodeStack.empty()) {
@@ -459,6 +462,7 @@ public class BLangPackageBuilder {
         if (exprAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> connectorInitNode.argsExpr.add((BLangExpression) exprNode));
+            connectorInitNode.addWS(commaWsStack.pop());
         }
         this.connectorInitNodeStack.push(connectorInitNode);
     }
@@ -538,12 +542,13 @@ public class BLangPackageBuilder {
 
     public void addArrayInitExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
         List<ExpressionNode> argExprList;
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         if (argsAvailable) {
+            arrayLiteral.addWS(commaWsStack.pop());
             argExprList = exprNodeListStack.pop();
         } else {
             argExprList = new ArrayList<>(0);
         }
-        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         arrayLiteral.exprs = argExprList.stream().map(expr -> (BLangExpression) expr).collect(Collectors.toList());
         arrayLiteral.pos = pos;
         arrayLiteral.addWS(ws);
@@ -574,7 +579,8 @@ public class BLangPackageBuilder {
         this.exprNodeListStack.push(new ArrayList<>());
     }
 
-    public void endExprNodeList(int exprCount) {
+    public void endExprNodeList(Set<Whitespace> ws, int exprCount) {
+        commaWsStack.push(ws);
         List<ExpressionNode> exprList = exprNodeListStack.peek();
         addExprToExprNodeList(exprList, exprCount);
     }
@@ -610,6 +616,7 @@ public class BLangPackageBuilder {
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
+            invocationNode.addWS(commaWsStack.pop());
         }
 
         BLangNameReference nameReference = nameReferenceStack.pop();
@@ -626,6 +633,7 @@ public class BLangPackageBuilder {
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
+            invocationNode.addWS(commaWsStack.pop());
         }
 
         invocationNode.expr = (BLangVariableReference) exprNodeStack.pop();
@@ -1123,6 +1131,7 @@ public class BLangPackageBuilder {
         assignmentNode.setDeclaredWithVar(isVarDeclaration);
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
+        assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
     }
@@ -1169,6 +1178,7 @@ public class BLangPackageBuilder {
         retStmt.pos = pos;
         retStmt.addWS(ws);
         if (exprAvailable) {
+            retStmt.addWS(commaWsStack.pop());
             for (ExpressionNode expr : this.exprNodeListStack.pop()) {
                 retStmt.exprs.add((BLangExpression) expr);
             }
@@ -1297,6 +1307,7 @@ public class BLangPackageBuilder {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
+        workerSendNode.addWS(commaWsStack.pop());
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
@@ -1307,6 +1318,7 @@ public class BLangPackageBuilder {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
         exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
+        workerReceiveNode.addWS(commaWsStack.pop());
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
         addStmtToCurrentBlock(workerReceiveNode);
