@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +51,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(0) };
         BTestUtils.invoke(result, "intDivide", args);
@@ -73,7 +74,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
-    //@Test(description = "Test integer division by float")
+    @Test(description = "Test integer division by float")
     public void testIntDivideByFloat() {
         int a = Integer.MAX_VALUE;
         double b = 1.23456789d;
@@ -90,7 +91,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
-    //@Test(description = "Test float number division by integer")
+    @Test(description = "Test float number division by integer")
     public void testFloatDivideByInt() {
         double a = Float.MAX_VALUE;
         int b = 123456789;
@@ -107,7 +108,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actualResult, expectedResult, DELTA, "Result of the division operation is incorrect");
     }
 
-    //@Test(description = "Test float by zero", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test float by zero", expectedExceptions = BLangRuntimeException.class)
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
         BTestUtils.invoke(result, "floatDivide", args);
@@ -120,7 +121,7 @@ public class DivisionOperationTest {
         BTestUtils.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 10);
     }
 
-    //@Test
+    @Test
     public void testIntDivisionFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
         BValue[] returns = BTestUtils.invoke(result, "intDivideByFloat", args);
@@ -129,7 +130,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //@Test
+    @Test
     public void testFloatDivisionInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
         BValue[] returns = BTestUtils.invoke(result, "floatDivideByInt", args);
