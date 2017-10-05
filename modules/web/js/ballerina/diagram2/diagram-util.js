@@ -1,5 +1,6 @@
 import log from 'log';
 import React from 'react';
+import _ from 'lodash';
 import Hidden from './views/action/components/hidden';
 
 import * as DefaultConfig from './views/default/designer-defaults';
@@ -116,10 +117,24 @@ function getOverlayComponent(nodeArray, mode = 'default') {
         }
     });
 }
+
+/**
+ * Get the max height among the workers
+ * @param {Array} workers - array of workers
+ * @returns {number} maximum worker height
+ */
+function getWorkerMaxHeight(workers) {
+    const workerNode = _.maxBy(workers, (worker) => {
+        return worker.body.viewState.bBox.h;
+    });
+
+    return workerNode.body.viewState.bBox.h + DefaultConfig.lifeLine.head.height + DefaultConfig.lifeLine.footer.height;
+}
 export {
     getComponentForNodeArray,
     requireAll,
     getSizingUtil,
     getPositioningUtil,
     getOverlayComponent,
+    getWorkerMaxHeight,
 };

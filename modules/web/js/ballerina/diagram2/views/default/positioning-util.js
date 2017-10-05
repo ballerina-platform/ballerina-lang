@@ -199,6 +199,7 @@ class PositioningUtil {
         const functionBody = node.body;
         const funcBodyViewState = functionBody.viewState;
         const cmp = viewState.components;
+        const workers = node.workers;
 
         // position the components.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
@@ -278,7 +279,63 @@ class PositioningUtil {
                 declaration.viewState.bBox.w = node.viewState.components.defaultWorker.w;
                 declaration.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 declaration.viewState.bBox.y = node.viewState.components.defaultWorker.y;
+
+                const initExp = conNode.variable.initialExpression;
+                const nodeIndex = _.indexOf(connectorDecls, node);
+                const initExpBBox = initExp.viewState.bBox;
+                const blockNode = node.body;
+
+                // Here we only set the x value, since it is based on the other connector Decls.
+                let xVal = blockNode.viewState.bBox.x + blockNode.viewState.bBox.w
+                    + this.config.lifeLine.gutter.h;
+                if (nodeIndex > 0) {
+                    xVal = connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.x
+                        + connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.w
+                        + this.config.lifeLine.gutter.h;
+                }
+                initExpBBox.x = xVal;
             });
+
+            // Iterate over the workers and position them
+            for (let itr = 0; itr < workers.length; itr++) {
+                const worker = workers[itr];
+                const workerViewState = worker.viewState;
+                const workerBody = worker.body;
+                const yVal = node.viewState.components.defaultWorker.y;
+                let xVal;
+
+                if (itr === 0) {
+                    // If the worker is the first worker which is positioning
+                    if (connectorDecls.length > 0) {
+                        // If there are connector declarations, position the first worker next to it
+                        const lastConnector = connectorDecls[connectorDecls.length - 1];
+                        xVal = lastConnector.variable.initialExpression.viewState.bBox.x
+                            + lastConnector.variable.initialExpression.viewState.bBox + this.config.lifeLine.gutter.h;
+                    } else {
+                        // If there are no connector declarations, position the first worker
+                        // next to the left panel margin of the function
+                        xVal = node.body.viewState.bBox.x + node.body.viewState.bBox.w + this.config.lifeLine.gutter.h;
+                    }
+                } else {
+                    // If there are workers positioned before, position the new one next to the previous worker
+                    xVal = workers[itr - 1].body.viewState.bBox.x + workers[itr - 1].body.viewState.bBox.w
+                        + this.config.lifeLine.gutter.h;
+                }
+
+                // Set the worker body x position and y position
+                workerBody.viewState.bBox.x = xVal;
+                workerBody.viewState.bBox.y = yVal + this.config.lifeLine.head.height;
+
+                // Set the worker life line x position and y position
+                workerViewState.bBox.x = xVal + ((workerBody.viewState.bBox.w - workerViewState.bBox.w) / 2);
+                workerViewState.bBox.y = yVal;
+
+                // Increase the worker life line's in such a way all the workers including the default worker will take
+                // the same height
+                workerViewState.bBox.h = node.viewState.components.defaultWorker.h;
+                workerBody.viewState.bBox.h = node.viewState.components.defaultWorker.h
+                    - this.config.lifeLine.head.height - this.config.lifeLine.footer.height;
+            }
         }
     }
 
