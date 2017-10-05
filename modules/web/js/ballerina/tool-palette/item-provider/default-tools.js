@@ -26,7 +26,7 @@ const tools = [
         title: 'HTTP Service',
         nodeFactoryMethod: DefaultNodeFactory.createHTTPServiceDef,
         description: 'Http container of resources, each of which defines the logic for'
-            + 'handling one type of request',
+        + 'handling one type of request',
     },
     {
         id: 'service',
@@ -35,7 +35,7 @@ const tools = [
         title: 'WS Service',
         nodeFactoryMethod: DefaultNodeFactory.createWSServiceDef,
         description: 'Web Socket container of resources,'
-            + 'each of which defines the logic for handling one type of request',
+        + 'each of which defines the logic for handling one type of request',
     },
     {
         id: 'function',
@@ -67,7 +67,7 @@ const tools = [
         title: 'Connector Definition',
         nodeFactoryMethod: DefaultNodeFactory.createConnector,
         description: 'Participant in the integration and is used to interact with an external'
-            + 'system or a service defined',
+        + 'system or a service defined',
     },
     {
         id: 'connectorAction',
@@ -92,14 +92,14 @@ const tools = [
         title: 'Worker',
         nodeFactoryMethod: DefaultNodeFactory.createWorker,
         description: 'Programmable actor which is represented on a sequence diagram'
-            + 'as a vertical lifeline of logic to be executed.',
+        + 'as a vertical lifeline of logic to be executed.',
     },
     {
         id: 'annotation',
         name: 'Annotation',
         icon: 'annotation',
         title: 'Annotation Definition',
-        nodeFactoryMethod: NodeFactory.createAnnotation,
+        nodeFactoryMethod: DefaultNodeFactory.createAnnotation,
         description: 'Hold factoryArgs data related to the attached code',
     },
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ const tools = [
         title: 'Variable Definition',
         nodeFactoryMethod: DefaultNodeFactory.createVarDefStmt,
         description: 'Statements which can be added anywhere a statement is allowed.'
-            + '\n They can be interspersed with other statements in any order',
+        + '\n They can be interspersed with other statements in any order',
     },
     {
         id: 'Assignment',
@@ -131,7 +131,7 @@ const tools = [
         name: 'If',
         icon: 'dgm-if-else',
         title: 'If',
-        nodeFactoryMethod: NodeFactory.createIf,
+        nodeFactoryMethod: DefaultNodeFactory.createIf,
         description: 'Provide a way to perform conditional execution',
     },
     {
@@ -139,7 +139,7 @@ const tools = [
         name: 'Function Invoke',
         icon: 'function-invoke',
         title: 'Function Invoke',
-        nodeFactoryMethod: NodeFactory.createInvocation,
+        nodeFactoryMethod: DefaultNodeFactory.createInvocation,
         description: 'Provide a way to invoke/call functions',
     },
     {
@@ -147,7 +147,7 @@ const tools = [
         name: 'While',
         icon: 'dgm-while',
         title: 'While',
-        nodeFactoryMethod: NodeFactory.createWhile,
+        nodeFactoryMethod: DefaultNodeFactory.createWhile,
         description: 'Provide a way to execute a series of statements as long as a Boolean expression is met',
     },
     {
@@ -155,7 +155,7 @@ const tools = [
         name: 'Transform',
         icon: 'type-converter',
         title: 'Transform',
-        nodeFactoryMethod: NodeFactory.createTransform,
+        nodeFactoryMethod: DefaultNodeFactory.createTransform,
         description: 'Transform any chosen variables in the enclosing scope',
     },
     {
@@ -163,7 +163,7 @@ const tools = [
         name: 'Break',
         icon: 'break',
         title: 'Break',
-        nodeFactoryMethod: NodeFactory.createBreak,
+        nodeFactoryMethod: DefaultNodeFactory.createBreak,
         description: 'Provide a way to terminate the immediately enclosing loop',
     },
     {
@@ -171,7 +171,7 @@ const tools = [
         name: 'Continue',
         icon: 'continue',
         title: 'Continue',
-        nodeFactoryMethod: NodeFactory.createContinue,
+        nodeFactoryMethod: DefaultNodeFactory.createContinue,
         description: 'Provide a way to continue with the immediately enclosing loop',
     },
     {
@@ -179,16 +179,16 @@ const tools = [
         name: 'Try-Catch',
         icon: 'try-catch',
         title: 'Try-Catch',
-        nodeFactoryMethod: NodeFactory.createTry,
+        nodeFactoryMethod: DefaultNodeFactory.createTry,
         description: 'Handle the exception by the block after the catch,'
-            + 'if any exception occurs while executing the first block of statements ',
+        + 'if any exception occurs while executing the first block of statements ',
     },
     {
         id: 'Throw',
         name: 'Throw',
         icon: 'throw',
         title: 'Throw',
-        nodeFactoryMethod: NodeFactory.createThrow,
+        nodeFactoryMethod: DefaultNodeFactory.createThrow,
         description: 'Provide a way to throw errors',
     },
     {
@@ -196,16 +196,16 @@ const tools = [
         name: 'Return',
         icon: 'return',
         title: 'Return',
-        nodeFactoryMethod: NodeFactory.createReturn,
+        nodeFactoryMethod: DefaultNodeFactory.createReturn,
         description: 'Evaluate the expression, stops the current function'
-            + ', and returns the result of the expression to the caller',
+        + ', and returns the result of the expression to the caller',
     },
     {
         id: 'WorkerInvocation',
         name: 'Send',
         icon: 'worker-invoke',
         title: 'Worker Invocation',
-        nodeFactoryMethod: NodeFactory.createInvocation,
+        nodeFactoryMethod: DefaultNodeFactory.createWorkerInvocation,
         description: 'Provide a way to send a message to a worker',
     },
     {
@@ -213,7 +213,7 @@ const tools = [
         name: 'Receive',
         icon: 'worker-reply',
         title: 'Worker Receive',
-        nodeFactoryMethod: NodeFactory.createWorkerReceive,
+        nodeFactoryMethod: DefaultNodeFactory.createWorkerReceive,
         description: 'Provide a way to receive the reply from a worker',
     },
     {
@@ -221,16 +221,16 @@ const tools = [
         name: 'Transaction',
         icon: 'transaction',
         title: 'Transaction',
-        nodeFactoryMethod: NodeFactory.createAbort,
+        nodeFactoryMethod: DefaultNodeFactory.createTransaction,
         description: 'Series of data manipulation statements that must either'
-            + ' fully complete or fully fail, leaving the system in a consistent state',
+        + ' fully complete or fully fail, leaving the system in a consistent state',
     },
     {
         id: 'Abort',
         name: 'Abort',
         icon: 'abort',
         title: 'Abort',
-        nodeFactoryMethod: NodeFactory.createAbort,
+        nodeFactoryMethod: DefaultNodeFactory.createAbort,
         description: 'Can be executed after the transaction is rolled back due to any conditions',
     },
     {
@@ -238,7 +238,7 @@ const tools = [
         name: 'Retry',
         icon: 'refresh',
         title: 'Retry',
-        nodeFactoryMethod: NodeFactory.createRetry,
+        nodeFactoryMethod: DefaultNodeFactory.createRetry,
         description: 'Statement which sets the retry count for the transaction when transaction fails',
     },
     {
@@ -246,16 +246,16 @@ const tools = [
         name: 'Fork',
         icon: 'fork-join',
         title: 'Fork',
-        nodeFactoryMethod: NodeFactory.createForkJoin,
+        nodeFactoryMethod: DefaultNodeFactory.createForkJoin,
         description: 'Provide a way to replicate a message to any number of parallel workers'
-            + 'and have them independently operate on the copies of the message',
+        + 'and have them independently operate on the copies of the message',
     },
     {
         id: 'Namespace',
         name: 'Namespace',
         icon: 'namespace',
         title: 'Namespace',
-        nodeFactoryMethod: NodeFactory.createXmlQname,
+        nodeFactoryMethod: DefaultNodeFactory.createXmlQname,
         description: 'Can be used for xml qualified names',
     },
 ];

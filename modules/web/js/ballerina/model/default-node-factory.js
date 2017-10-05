@@ -34,7 +34,8 @@ class DefaultNodeFactory {
         return getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(`
                 service<http> service1 {
-
+                    resource resource1 (message m) {
+                    }
                 }
             `)
         );
@@ -85,7 +86,7 @@ class DefaultNodeFactory {
         );
     }
 
-    createConnectorAction() {  
+    createConnectorAction() {
         return getNodeForFragment(
             FragmentUtils.createConnectorActionFragment(`
                 action action1(message msg) (message){
@@ -124,8 +125,18 @@ class DefaultNodeFactory {
 
     createWorker() {
         return getNodeForFragment(
-            FragmentUtils.createStatementFragment(`
+            FragmentUtils.createWorkerFragment(`
                 worker worker1 {
+                }
+            `)
+        );
+    }
+
+    createAnnotation() {
+        return getNodeForFragment(
+            FragmentUtils.createTopLevelNodeFragment(`
+                public annotation Annotation1 {
+                    string attrib1;
                 }
             `)
         );
@@ -137,6 +148,118 @@ class DefaultNodeFactory {
 
     createVarDefStmt() {
         return getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+    }
+
+    createIf() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            if (true) {
+                
+            }
+        `));
+    }
+
+    createInvocation() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            callFunction(arg1);
+        `));
+    }
+
+    createWhile() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            while(true) {
+                
+            }
+        `));
+    }
+
+    createTransform() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            transform {
+                
+            }
+        `));
+    }
+
+    createBreak() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            break;
+        `));
+    }
+
+    createContinue() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            continue;
+        `));
+    }
+
+    createTry() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            try {
+
+            } catch (errors:Error e) {
+
+            }
+        `));
+    }
+
+    createThrow() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            throw e;
+        `));
+    }
+
+    createReturn() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            return m;
+        `));
+    }
+
+    createWorkerInvocation() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            m -> worker1 ;
+        `));
+    }
+
+    createWorkerReceive() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            m <- worker1 ;
+        `));
+    }
+
+    // FIXME
+    createTransaction() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            transaction {
+                
+            }
+        `));
+    }
+
+    createAbort() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            abort;
+        `));
+    }
+
+    // FIXME
+    createRetry() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            retry m;
+        `));
+    }
+
+    createForkJoin() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            fork {
+
+            };
+        `));
+    }
+
+    createXmlQname() {
+        return getNodeForFragment(FragmentUtils.createStatementFragment(`
+            xmlns "namespace.uri" as xn;
+        `));
     }
 
 }

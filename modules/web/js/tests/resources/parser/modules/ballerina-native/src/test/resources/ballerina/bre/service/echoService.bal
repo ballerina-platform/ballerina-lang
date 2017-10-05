@@ -8,7 +8,7 @@ service<http> echo {
         path:"/message"
     }
     resource echo (message m) {
-        reply m;
+        response:send(m);
     }
 
 }

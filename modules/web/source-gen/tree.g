@@ -13,12 +13,26 @@ Action
    | action <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    ;
 
+Annotation
+   : annotation <name.value> { <attributes-suffixed-by-;>* }
+   | annotation <name.value> attach resource { }
+   ;
+
 AnnotationAttachment
-   : @ { <attributes-joined-by,>* }
+   : @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
+   ;
+
+AnnotationAttachmentAttribute
+   : <name> : <value.source>
    ;
 
 AnnotationAttachmentAttributeValue
    : <value.source>
+   | [ <valueArray-joined-by,>+ ]
+   ;
+
+AnnotationAttribute
+   : <typeNode.source> <name.value>
    ;
 
 ArrayLiteralExpr
@@ -49,7 +63,6 @@ Break
 
 BuiltInRefType
    : <typeKind>
-   | message
    ;
 
 Comment
@@ -57,8 +70,8 @@ Comment
    ;
 
 Connector
-   : connector <name.value> ( ) { <variableDefs>* <actions>* }
-   | connector <name.value> ( ) { <actions>* }
+   : connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
+   | connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
    ;
 
 ConnectorInitExpr
@@ -121,11 +134,15 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* <parameters-joined-by,>* { <body.source> }
+   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    ;
 
 Return
    : return <expressions-joined-by-,>* ;
+   ;
+
+Service
+   : <annotationAttachments>* service < <protocolPackageIdentifier.value> > <name.value> { <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -142,8 +159,7 @@ Throw
    ;
 
 Transform
-   : <body.source>
-   | 
+   : transform { <body.source> }
    ;
 
 TypeCastExpr
@@ -170,10 +186,9 @@ ValueType
 
 Variable
    : <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   | <typeNode.source> <name.value> = <initialExpression.source> <global?;>
    | <typeNode.source> <name.value> = <initialExpression.source>
-   | <typeNode.source> <initialExpression.source> int <name.value> = ;
    | <typeNode.source> <name.value>
-   | <initialExpression.source> <name.value> =
    | <typeNode.source>
    ;
 
@@ -220,7 +235,7 @@ XmlPiLiteral
    ;
 
 XmlQname
-   : </ <localname> >
+   : </ <localname.value> >
    | 
    ;
 

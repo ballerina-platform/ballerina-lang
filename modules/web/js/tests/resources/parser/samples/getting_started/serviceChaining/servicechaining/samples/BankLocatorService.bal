@@ -24,6 +24,6 @@ service<http> Banklocator {
             
         }
         messages:setJsonPayload(response, payload);
-        reply response;
+        response:send(response);
     }
 }

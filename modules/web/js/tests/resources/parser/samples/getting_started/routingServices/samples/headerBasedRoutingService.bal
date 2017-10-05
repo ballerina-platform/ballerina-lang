@@ -22,7 +22,7 @@ service<http> headerBasedRouting {
         else {
             response = nasdaqEP.post("/stocks", m);
         }
-        reply response;
+        response:send(response);
         
     }
     

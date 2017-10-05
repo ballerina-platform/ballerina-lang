@@ -21,7 +21,7 @@ service<http> session {
         //Binds a string attribute to this session with a key(string).
         http:setAttribute(session, key, "Session sample");
         messages:setStringPayload(response, result);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -39,7 +39,7 @@ service<http> session {
             attributeValue = "Session unavailable";
         }
         messages:setStringPayload(response, attributeValue);
-        reply response;
+        response:send(response);
     }
 
     @http:resourceConfig {
@@ -58,7 +58,7 @@ service<http> session {
         } else {
             messages:setStringPayload(response, "Session unavailable");
         }
-        reply response;
+        response:send(response);
     }
 }
 

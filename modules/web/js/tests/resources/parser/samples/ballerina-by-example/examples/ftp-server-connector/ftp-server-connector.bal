@@ -41,6 +41,6 @@ service<ftp> ftpServerConnector {
         // Write that content to another remote location.
         c.write(output, target);
 
-        reply m;
+        response:send(m);
     }
 }

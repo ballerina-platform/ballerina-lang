@@ -420,4 +420,6 @@ public class BLangJSONModelConstants {
     public static final String RETURN_PARAMETERS = "returnParameters";
     public static final String ACTIONS = "actions";
     public static final String RESOURCES = "resources";
+
+    public static final String WORKERS = "workers";
 }

@@ -83,15 +83,6 @@ class SuggestionsText extends React.Component {
     }
 
     /**
-     * When the svg component unmounts the html component in the overlay should also be removed
-     * This is done by rendering a noscript tag
-     * @override
-     */
-    componentWillUnmount() {
-        ReactDOM.render(<noscript />, this.context.getOverlayContainer());
-    }
-
-    /**
      * Called when a value is typed or pasted in the input box
      * @param {Object} event - the input change event
      */

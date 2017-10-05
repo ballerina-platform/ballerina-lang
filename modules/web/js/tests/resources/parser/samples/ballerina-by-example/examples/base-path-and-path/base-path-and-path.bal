@@ -14,6 +14,6 @@ service<http> echo {
         // A util method that can convert the request to a response.
         http:convertToResponse(m);
         // Send back the response to the client.
-        reply m;
+        response:send(m);
     }
 }

@@ -24,6 +24,6 @@ service<http> Bankinfo {
             
         }
         messages:setJsonPayload(response, payload);
-        reply response;   
+        response:send(response);   
     }
 }

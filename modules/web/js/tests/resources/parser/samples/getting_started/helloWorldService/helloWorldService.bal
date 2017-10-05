@@ -11,7 +11,7 @@ service<http> helloWorld {
     resource sayHello (message m) {
         message response = {};
         messages:setStringPayload(response, "Hello, World!");
-        reply response;
+        response:send(response);
     
     }
     

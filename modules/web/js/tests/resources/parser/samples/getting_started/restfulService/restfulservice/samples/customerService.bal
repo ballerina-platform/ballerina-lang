@@ -23,7 +23,7 @@ service<http> CustomerMgtService {
         }
         message response = {};
         messages:setJsonPayload(response, payload);
-        reply response;
+        response:send(response);
 
     }
 
