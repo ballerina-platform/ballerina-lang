@@ -1,5 +1,3 @@
-import ballerina.lang.errors;
-
 struct Person {
     string name;
     int age;
@@ -23,9 +21,9 @@ function testGetConstraintJson() (json) {
     return j;
 }
 
-function testJSONToConstraintJsonUnsafeCast() (json, errors:TypeCastError) {
+function testJSONToConstraintJsonUnsafeCast() (json, TypeCastError) {
     json<Person> j;
-    errors:TypeCastError err;
+    TypeCastError err;
     j,err = (json<Person>)getPlainJson();
     return j,err;
 }
