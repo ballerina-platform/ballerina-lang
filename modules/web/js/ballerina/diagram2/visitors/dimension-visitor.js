@@ -19,6 +19,7 @@
 import log from 'log';
 import _ from 'lodash';
 import { getDimentionVisitor, getDesigner } from '../diagram-util.js';
+import SimpleBBox from './../../model/view/simple-bounding-box';
 
 class DimensionVisitor {
 
@@ -33,6 +34,8 @@ class DimensionVisitor {
 
     endVisit(node) {
         if (_.isFunction(this.util[`size${node.getKind()}Node`])) {
+            // We clear out the view state bBox before the dimention calc.
+            node.viewState.bBox = new SimpleBBox();
             this.util[`size${node.getKind()}Node`](node);
         }
         return undefined;

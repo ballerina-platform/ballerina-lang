@@ -132,23 +132,15 @@ class SizingUtil {
         // Set the default block node height
         height = this.config.blockNode.height;
         width = this.config.blockNode.width;
-        let stH = 0;
+        let stH = this.config.statement.gutter.v;
         nodes.forEach((element) => {
-            const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
-                undefined : undefined;
-            if (initialExpression && element.viewState.bBox.w > width) {
-                if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
-                    width = element.viewState.bBox.w;
-                }
-            }
-            if (initialExpression) {
-                stH += !TreeUtil.isConnectorInitExpr(initialExpression) ? element.viewState.bBox.h : 0;
-            } else {
+            // if the statement is a connector declaration we will not count the height.
+            if (!TreeUtil.isConnectorDeclaration(element)) {
                 stH += element.viewState.bBox.h;
             }
         });
-        if (stH + this.config.statement.gutter.v >= height) {
-            height = stH + this.config.statement.gutter.v;
+        if (stH >= height) {
+            height = stH;
         }
         viewState.bBox.w = width + (this.config.statement.gutter.h * 2);
         viewState.bBox.h = height;
@@ -338,17 +330,12 @@ class SizingUtil {
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
-        const connectorDecls = _.filter(statements, (statement) => {
-            const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
-                undefined : undefined;
-            return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
-        });
-
-        connectorDecls.forEach((conNode) => {
-            const declaration = conNode.variable.initialExpression;
-            declaration.viewState.bBox.w = node.viewState.components.defaultWorker.w;
-            declaration.viewState.bBox.h = node.viewState.components.defaultWorker.h;
-        });
+        if (statements instanceof Array) {
+            statements.forEach((statement) => {
+                statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+            });
+        }
     }
 
     /**

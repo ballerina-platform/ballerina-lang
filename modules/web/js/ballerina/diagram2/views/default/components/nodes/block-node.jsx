@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import './block-node.css';
 import BlockNodeModel from '../../../../../model/tree/block-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * Class to represent block node in tree.
@@ -32,7 +33,9 @@ class BlockNode extends React.Component {
      */
     render() {
         const model = this.props.model;
-        const statements = getComponentForNodeArray(model.getStatements(), this.context.mode);
+        const withoutConnectors = model.statements
+            .filter((element) => { return !TreeUtil.isConnectorDeclaration(element); });
+        const statements = getComponentForNodeArray(withoutConnectors, this.context.mode);
         return (
             <g className="block-node">
                 {statements}
