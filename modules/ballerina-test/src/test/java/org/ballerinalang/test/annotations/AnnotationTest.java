@@ -26,13 +26,14 @@ package org.ballerinalang.test.annotations;
 //import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-//import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.BTestUtils;
+//import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.test.utils.TestHTTPServiceDispatcher;
 
+//import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 //import org.ballerinalang.util.exceptions.SemanticException;
-//import org.testng.Assert;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,18 +48,15 @@ public class AnnotationTest {
     public void setup() {
         ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
         DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
-        compileResult = BTestUtils.compile("test-src/annotations/foo");
+        //compileResult = BTestUtils.compile("lang/annotations/foo");
     }
 
     @Test(description = "Test function annotation")
     public void testFunctionAnnotation() {
-        compileResult.getProgFile().getEntryPackage();
+//        AnnotationAttributeInfo info = compileResult.getProgFile().getEntryPackage().getFunctionInfoEntries()[1].getAttributeInfoEntries()[0]
 //
-//
-
-
-//        AnnotationAttachment[] annottations = compileResult.getProgFile().
-// getEntryPackage().getFunctions()[0].getAnnotations();
+//        compileResult.getProgFile();
+//        AnnotationAttachment[] annottations = compileResult.getProgFile().getEntryPackage().getFunctionInfoEntries()[1].getAttributeInfoEntries()[0];
 //
 //        String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
 //        Assert.assertEquals(attributeValue, "This is a test function");
@@ -165,149 +163,150 @@ public class AnnotationTest {
 //
 //    }
 //
-//    @Test(description = "Test annotation attachment package valdation")
-//    public void testValidAnnoatationAttachmentPackage() {
-//        BTestUtils.parseBalFile("lang/annotations/pkg/valid");
-//    }
-//
-//    @Test(description = "Test constant as annotation attribute value")
-//    public void testConstAsAttributeValue() {
-//        BTestUtils.compile("lang/annotations/constant-as-attribute-value.bal");
-//
-//    }
-//
-//    // Negative tests
-//
-//    @Test(description = "Test child annotation from a wrong package",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-child-annotation.bal:3: incompatible types: expected " +
-//                    "'lang.annotations.doc:Args', found 'Args'")
-//    public void testInvalidChildAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-child-annotation.bal");
-//    }
-//
-//    @Test(description = "Test array value for a non-array type attribute",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-array-valued-attribute.bal:3: incompatible types: expected" +
-//                    " a 'string', found an array")
-//    public void testInvalidArrayValuedAttribute() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-array-valued-attribute.bal");
-//    }
-//
-//    @Test(description = "Test non-array value for a array type attribute",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-single-valued-attribute.bal:3: incompatible types: expected " +
-//                    "'lang.annotations.doc:QueryParam\\[\\]', found 'lang.annotations.doc:QueryParam'")
-//    public void testInvalidSingleValuedAttribute() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-single-valued-attribute.bal");
-//    }
-//
-//    @Test(description = "Test multi-typed attribute value array",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "multityped-attribute-array.bal:3: incompatible types: expected " +
-//                    "'lang.annotations.doc:QueryParam', found 'string'")
-//    public void testMultiTypedAttributeArray() {
-//        BTestUtils.parseBalFile("lang/annotations/multityped-attribute-array.bal");
-//    }
-//
-//    @Test(description = "Test an annotation attached in a wrong point",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "wrongly-attached-annot.bal:7: annotation 'Bar' is not allowed in" +
-//                    " function")
-//    public void testWronglyAttachedAnnot() {
-//        BTestUtils.parseBalFile("lang/annotations/wrongly-attached-annot.bal");
-//    }
-//
-//    @Test(description = "Test child annotation with an invalid attribute value",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-inner-attributes.bal:4: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidInnerAttribute() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-inner-attributes.bal");
-//    }
-//
-//    @Test(description = "Test an invalid service annotation",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-service-annotation.bal:4: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidServiceAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-service-annotation.bal");
-//    }
-//
-//    @Test(description = "Test an invalid resource annotation",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-resource-annotation.bal:12: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidResourceAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-resource-annotation.bal");
-//    }
-//
-//    @Test(description = "Test an invalid connector annotation",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-connector-annotation.bal:3: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidConnectorAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-connector-annotation.bal");
-//    }
-//
-//    @Test(description = "Test an invalid action annotation",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-action-annotation.bal:6: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidActionAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-action-annotation.bal");
-//    }
-//
-//    @Test(description = "Test an invalid struct annotation",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-struct-annotation.bal:3: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidStructAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-struct-annotation.bal");
-//    }
-//
-//    @Test(description = "Test an invalid constant annotation",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "invalid-constant-annotation.bal:3: incompatible types: expected " +
-//                    "'string', found 'int'")
-//    public void testInvalidConstantAnnotation() {
-//        BTestUtils.parseBalFile("lang/annotations/invalid-constant-annotation.bal");
-//    }
-//
-//    @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
-//            "for given protocol package",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "lang/annotations/pkg/error1/invalid-service1.bal:6: annotation " +
-//                    "'lang.annotations.pkg.first:Sample' is not allowed in service<lang.annotations.pkg.second>")
-//    public void testInvalidAttachmentInServiceWithDifferentProtocolPkg() {
-//        BTestUtils.parseBalFile("lang/annotations/pkg/error1");
-//    }
-//
-//    @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
-//            "for annotation def protocol package",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "lang/annotations/pkg/error2/invalid-service2.bal:5: annotation " +
-//                    "'lang.annotations.pkg.first:SampleConfigSecond' is not " +
-//                    "allowed in service<lang.annotations.pkg.first>")
-//    public void testInvalidAttachmentInServiceWhenAttachPointIsDifferentPkg() {
-//        BTestUtils.parseBalFile("lang/annotations/pkg/error2");
-//    }
-//
-//    @Test(description = "Test global variable as annotation attribute value",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "variable-as-attribute-value.bal:4: annotation attribute " +
-//                    "value should be either constant reference or a basic literal")
-//    public void testVariableAsAttributeValue() {
-//        BTestUtils.parseBalFile("lang/annotations/variable-as-attribute-value.bal");
-//    }
-//
-//    @Test(description = "Test type mismatch in annotation attribute value",
-//            expectedExceptions = {SemanticException.class},
-//            expectedExceptionsMessageRegExp = "attribute-value-type-mismatch.bal:4: incompatible types: " +
-//                    "expected 'string', found 'int'")
-//    public void testTypeMismatchInAttributeValue() {
-//        BTestUtils.parseBalFile("lang/annotations/attribute-value-type-mismatch.bal");
-//    }
+    @Test(description = "Test annotation attachment package valdation")
+    public void testValidAnnoatationAttachmentPackage() {
+        Assert.assertNotNull(BTestUtils.compile("lang/annotations/pkg/valid").getProgFile());
+    }
+
+    @Test(description = "Test constant as annotation attribute value")
+    public void testConstAsAttributeValue() {
+        Assert.assertNotNull(BTestUtils.compile("lang/annotations/constant-as-attribute-value.bal").getProgFile());
+    }
+
+    // Negative tests
+
+    @Test(description = "Test child annotation from a wrong package")
+    public void testInvalidChildAnnotation() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/invalid-child-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'lang.annotations.doc:Args', " +
+                "found 'Args'", 3, 23);
+    }
+
+    @Test(description = "Test array value for a non-array type attribute")
+    public void testInvalidArrayValuedAttribute() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/invalid-array-valued-attribute.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected a 'string', found an array", 3, 0);
+    }
+
+    @Test(description = "Test non-array value for a array type attribute")
+    public void testInvalidSingleValuedAttribute() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/invalid-single-valued-attribute.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'lang.annotations.doc:QueryParam[]', " +
+                        "found 'lang.annotations.doc:QueryParam'", 3, 34);
+    }
+
+    @Test(description = "Test multi-typed attribute value array")
+    public void testMultiTypedAttributeArray() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/multityped-attribute-array.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'lang.annotations.doc:QueryParam', found 'string'", 5, 41);
+
+    }
+
+    @Test(description = "Test an annotation attached in a wrong point")
+    public void testWronglyAttachedAnnot() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/wrongly-attached-annot.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "annotation 'Bar' is not allowed in function", 7, 0);
+    }
+
+    @Test(description = "Test child annotation with an invalid attribute value")
+    public void testInvalidInnerAttribute() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/invalid-inner-attributes.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 4, 15);
+    }
+
+    @Test(description = "Test an invalid service annotation")
+    public void testInvalidServiceAnnotation() {
+        CompileResult resultNegative = BTestUtils.compile("lang/annotations/invalid-service-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 5, 23);
+    }
+
+    @Test(description = "Test an invalid resource annotation")
+    public void testInvalidResourceAnnotation() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/invalid-resource-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 13, 27);
+    }
+
+    @Test(description = "Test an invalid connector annotation")
+    public void testInvalidConnectorAnnotation() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/invalid-connector-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 3, 23);
+    }
+
+    @Test(description = "Test an invalid action annotation")
+    public void testInvalidActionAnnotation() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/invalid-action-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 6, 27);
+    }
+
+    @Test(description = "Test an invalid struct annotation")
+    public void testInvalidStructAnnotation() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/invalid-struct-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 3, 23);
+    }
+
+    @Test(description = "Test an invalid constant annotation")
+    public void testInvalidConstantAnnotation() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/invalid-constant-annotation.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 3, 23);
+    }
+
+    @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
+            "for given protocol package")
+    public void testInvalidAttachmentInServiceWithDifferentProtocolPkg() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/pkg/error1");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative,
+                0, "annotation 'lang.annotations.pkg.first:Sample' is not allowed in " +
+                        "service<lang.annotations.pkg.second>", 6, 0);
+    }
+
+    @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
+            "for annotation def protocol package")
+    public void testInvalidAttachmentInServiceWhenAttachPointIsDifferentPkg() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/pkg/error2");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative,
+                0, "annotation 'lang.annotations.pkg.first:SampleConfigSecond' is not allowed in " +
+                        "service<lang.annotations.pkg.first>", 5, 0);
+    }
+
+    @Test(description = "Test global variable as annotation attribute value")
+    public void testVariableAsAttributeValue() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/variable-as-attribute-value.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "annotation attribute value should be either constant reference or a basic literal", 4, 0);
+    }
+
+    @Test(description = "Test type mismatch in annotation attribute value")
+    public void testTypeMismatchInAttributeValue() {
+        CompileResult resultNegative =  BTestUtils.compile("lang/annotations/attribute-value-type-mismatch.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0,
+                "incompatible types: expected 'string', found 'int'", 4, 14);
+    }
 //
 //    @Test(description = "Test default values for annotation")
 //    public void testDefaultValues() {

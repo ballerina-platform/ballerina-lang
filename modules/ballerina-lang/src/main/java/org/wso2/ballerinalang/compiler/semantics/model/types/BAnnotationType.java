@@ -36,4 +36,9 @@ public class BAnnotationType extends BType {
     public TypeKind getKind() {
         return TypeKind.ANNOTATION;
     }
+
+    @Override
+    public String toString() {
+        return this.tsymbol.toString();
+    }
 }

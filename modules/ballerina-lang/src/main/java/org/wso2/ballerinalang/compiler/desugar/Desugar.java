@@ -92,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
@@ -198,6 +197,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         serviceNode.resources = rewrite(serviceNode.resources);
         serviceNode.vars = rewrite(serviceNode.vars);
+        serviceNode.initFunction = rewrite(serviceNode.initFunction);
         result = serviceNode;
     }
 
@@ -260,7 +260,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        assignNode.varRefs.removeIf(varRef -> varRef.type.tag == TypeTags.NONE);
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -296,11 +295,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         returnNode.exprs = rewriteExprs(returnNode.exprs);
         result = returnNode;
-    }
-
-    @Override
-    public void visit(BLangReply replyNode) {
-        result = replyNode;
     }
 
     @Override
@@ -552,6 +546,18 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
+                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.FLOAT) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.rhsExpr.type.tag == TypeTags.FLOAT) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }

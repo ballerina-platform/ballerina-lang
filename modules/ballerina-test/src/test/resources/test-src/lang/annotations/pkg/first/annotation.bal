@@ -2,14 +2,14 @@ package lang.annotations.pkg.first;
 
 import lang.annotations.pkg.second;
 
-annotation Sample attach service<>, resource {
+public annotation Sample attach service<>, resource {
     string value;
 }
 
-annotation SampleConfig attach service<> {
+public annotation SampleConfig attach service<> {
     string value;
 }
 
-annotation SampleConfigSecond attach service<second> {
+public annotation SampleConfigSecond attach service<second> {
     string value;
 }

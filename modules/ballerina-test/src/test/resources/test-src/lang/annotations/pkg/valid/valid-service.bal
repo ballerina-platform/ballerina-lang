@@ -5,14 +5,12 @@ import lang.annotations.pkg.second;
 
 @first:Sample {value:"sample value"}
 service<first> sampleService {
-    resource abc (message m) {
-        reply m;
+    resource abc (string s) {
     }
 }
 
 @first:SampleConfigSecond{value:"sample value"}
 service<second> SampleServiceTwo {
-    resource cde (message m) {
-        reply m;
+    resource cde (string s) {
     }
 }

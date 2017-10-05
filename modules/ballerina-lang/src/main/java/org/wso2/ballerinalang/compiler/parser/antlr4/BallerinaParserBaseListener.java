@@ -1036,18 +1036,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReplyStatement(BallerinaParser.ReplyStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}

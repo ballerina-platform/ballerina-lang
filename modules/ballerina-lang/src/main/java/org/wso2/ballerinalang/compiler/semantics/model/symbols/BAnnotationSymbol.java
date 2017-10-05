@@ -36,7 +36,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public List<BAnnotationAttributeSymbol> attributes;
     public List<BLangAnnotationAttachmentPoint> attachmentPoints;
 
-    public BAnnotationSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+    public BAnnotationSymbol(Name name, int flags, PackageID pkgID, BType type, BSymbol owner) {
         super(ANNOTATION, flags, name, pkgID, type, owner);
         attributes = new ArrayList<>();
         attachmentPoints =  new ArrayList<>();
@@ -51,4 +51,9 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
         return attachmentPoints;
     }
 
+    @Override
+    public String toString() {
+        return pkgID != null && !pkgID.toString().equals(".") ?
+                pkgID.toString() + ":" + this.name : this.name.toString();
+    }
 }

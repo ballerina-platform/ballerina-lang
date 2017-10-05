@@ -25,27 +25,25 @@ annotation Args {
     string value;
 }
 
-
 @doc:Description{value:"Pizza service"}
 service<http> PizzaService {
-    
+
     @doc:Description{value:"Order pizza"}
-    resource orderPizza(@Args{value:"input parameter for oderPizza resource"} message m) {
-        reply m;
+    resource orderPizza(@Args{value:"input parameter for oderPizza resource"} string s) {
     }
-    
+
     @doc:Description{value:"Check order status"}
-    resource checkStatus(message m) {
-        reply m;
+    resource checkStatus(string s) {
     }
+
 }
 
 @doc:Description{value:"Test connector"}
 connector TestConnector (string url) {
     
     @doc:Description{value:"Test action of test connector"}
-    action testAction() (message) {
-        message m = {};
+    action testAction() (http:Response) {
+        http:Response m = {};
         return m;
     }
 }

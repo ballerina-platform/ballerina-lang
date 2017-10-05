@@ -4,8 +4,8 @@ import lang.annotations.doc;
 connector TestConnector (string url) {
     
     @doc:Description{value:"Test action of test connector"}
-    action testAction() (message) {
-        message m = {};
-        return m;
+    action testAction() (boolean) {
+        boolean value;
+        return value;
     }
 }

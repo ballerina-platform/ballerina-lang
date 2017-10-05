@@ -204,9 +204,16 @@ public class BLangPackageBuilder {
     }
 
     public void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint,
-                               String pkgPath) {
-        BLangAnnotationAttachmentPoint attachmentPoint =
-                new BLangAnnotationAttachmentPoint(attachPoint, pkgPath);
+                               String pkgIdentifier) {
+        BLangAnnotationAttachmentPoint attachmentPoint;
+        if (pkgIdentifier == null) {
+            attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(attachPoint, null);
+        } else {
+            attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(attachPoint, null);
+            attachmentPoint.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
+        }
         attachmentPointStack.push(attachmentPoint);
     }
 
@@ -871,7 +878,7 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-
+        attachAnnotations(var);
         this.compUnit.addTopLevelNode(var);
     }
 
@@ -1533,8 +1540,12 @@ public class BLangPackageBuilder {
         return expressions;
     }
 
-    public void endParameterList(Set<Whitespace> ws) {
-        //this.invokableNodeStack.peek().addWS(ws);
+    public void endCallableParamList(Set<Whitespace> ws) {
+        this.invokableNodeStack.peek().addWS(ws);
+    }
+
+    public void endConnectorParamList(Set<Whitespace> ws) {
+        this.connectorNodeStack.peek().addWS(ws);
     }
 
     private Set<Whitespace> removeFirst(Set<Whitespace> ws) {

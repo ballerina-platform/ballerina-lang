@@ -18,24 +18,27 @@ package org.ballerinalang.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -48,7 +51,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  */
 public class BTestUtils {
 
-    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+    private static Path resourceDir;
+    private static String TEST_RESOURCE_DIR = "test-src";
 
     /**
      * Compile and return the semantic errors.
@@ -69,38 +73,54 @@ public class BTestUtils {
      */
     public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
         try {
-            resourceDir = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath().concat("test-src"));
-        } catch (Exception ex) {
+            resourceDir = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource()
+                    .getLocation().toURI().getPath().concat(TEST_RESOURCE_DIR));
+            Path sourcePath = Paths.get(sourceFilePath);
+            String effectiveSource;
+            if (Files.isDirectory(sourcePath)) {
+                String[] pkgParts = sourceFilePath.split(File.separator);
+                List<Name> pkgNameComps = Arrays.stream(pkgParts)
+                        .map(part -> {
+                            if (part.equals("")) {
+                                return Names.EMPTY;
+                            } else if (part.equals("_")) {
+                                return Names.EMPTY;
+                            }
+                            return new Name(part);
+                        })
+                        .collect(Collectors.toList());
 
+                PackageID pkgId = new PackageID(pkgNameComps, Names.DEFAULT_VERSION);
+                effectiveSource = pkgId.getName().getValue();
+            } else {
+                effectiveSource = sourceFilePath;
+            }
+
+            CompilerContext context = new CompilerContext();
+            CompilerOptions options = CompilerOptions.getInstance(context);
+            options.put(SOURCE_ROOT, resourceDir.toString());
+            options.put(COMPILER_PHASE, compilerPhase.toString());
+            options.put(PRESERVE_WHITESPACE, "false");
+
+            CompileResult comResult = new CompileResult();
+
+            // catch errors
+            DiagnosticListener listener = diagnostic -> comResult.addDiagnostic(diagnostic);
+            context.put(DiagnosticListener.class, listener);
+
+            // compile
+            Compiler compiler = Compiler.getInstance(context);
+            compiler.compile(effectiveSource);
+            org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+
+            if (programFile != null) {
+                comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+            }
+
+            return comResult;
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
-
-
-        Path sourcePath = Paths.get(sourceFilePath);
-        String sourceFile = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        sourceFile = "lang.annotations.foo";
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.toString());
-        options.put(COMPILER_PHASE, compilerPhase.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = diagnostic -> comResult.addDiagnostic(diagnostic);
-        context.put(DiagnosticListener.class, listener);
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(sourceFile);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
-        if (programFile != null) {
-            comResult.setProgFile(getExecutableProgram(programFile));
-        }
-
-        return comResult;
     }
 
     /**
@@ -189,37 +209,5 @@ public class BTestUtils {
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
-    }
-
-    private static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
-        ByteArrayInputStream byteIS = null;
-        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-        try {
-            ProgramFileWriter.writeProgram(programFile, byteOutStream);
-
-            // Populate the global scope
-            BLangPrograms.loadBuiltinTypes();
-
-            // Populate the native function/actions
-            BLangPrograms.populateNativeScope();
-
-            ProgramFileReader reader = new ProgramFileReader();
-            byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
-            return reader.readProgram(byteIS);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            if (byteIS != null) {
-                try {
-                    byteIS.close();
-                } catch (IOException ignore) {
-                }
-            }
-
-            try {
-                byteOutStream.close();
-            } catch (IOException ignore) {
-            }
-        }
     }
 }

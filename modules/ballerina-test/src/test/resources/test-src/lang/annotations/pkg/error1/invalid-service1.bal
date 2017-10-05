@@ -5,7 +5,6 @@ import lang.annotations.pkg.second;
 
 @first:Sample {value:"sample value"}
 service<second> sampleService {
-    resource abc (message m) {
-        reply m;
+    resource abc (string m) {
     }
 }
