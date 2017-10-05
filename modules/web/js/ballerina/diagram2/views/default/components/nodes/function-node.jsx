@@ -59,7 +59,33 @@ class FunctionNode extends React.Component {
 
         const argumentParameters = this.props.model.getParameters();
         const returnParameters = this.props.model.getReturnParameters();
+
+
+        // create lifelines for connector declarations.
+        const connectorClasses = {
+            lineClass: 'connector-life-line',
+            polygonClass: 'connector-life-line-polygon',
+        };
+        const connectors = this.props.model.body.statements
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); })
+            .map((statement) => {
+                return (
+                    <LifeLine
+                        title={statement.variable.name.value}
+                        bBox={statement.viewState.bBox}
+                        classes={connectorClasses}
+                        icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
+                        editorOptions={this.editorOptions}
+                        iconColor='#1a8278'
+                    />);
+            });
         /*
+        if (TreeUtil.isConnectorInitExpr(initialExpression)) {
+            const title = model.variable.name.value;
+
+            connectorLifeLine = ();
+        }
+
         const titleComponentData = [{
             isNode: true,
             model: this.props.model.getArgumentParameterDefinitionHolder(),
@@ -120,6 +146,7 @@ class FunctionNode extends React.Component {
                     />
                     {blockNode}
                     {workers}
+                    {connectors}
                 </PanelDecorator>);
        // TODOX }
     }

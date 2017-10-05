@@ -132,23 +132,15 @@ class SizingUtil {
         // Set the default block node height
         height = this.config.blockNode.height;
         width = this.config.blockNode.width;
-        let stH = 0;
+        let stH = this.config.statement.gutter.v;
         nodes.forEach((element) => {
-            const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
-                undefined : undefined;
-            if (initialExpression && element.viewState.bBox.w > width) {
-                if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
-                    width = element.viewState.bBox.w;
-                }
-            }
-            if (initialExpression) {
-                stH += !TreeUtil.isConnectorInitExpr(initialExpression) ? element.viewState.bBox.h : 0;
-            } else {
+            // if the statement is a connector declaration we will not count the height.
+            if (!TreeUtil.isConnectorDeclaration(element)) {
                 stH += element.viewState.bBox.h;
             }
         });
-        if (stH + this.config.statement.gutter.v >= height) {
-            height = stH + this.config.statement.gutter.v;
+        if (stH >= height) {
+            height = stH;
         }
         viewState.bBox.w = width + (this.config.statement.gutter.h * 2);
         viewState.bBox.h = height;
@@ -161,7 +153,12 @@ class SizingUtil {
      *
      */
     sizeActionNode(node) {
-        // Not implemented.
+        // Skip the init action
+        if (node.id !== node.parent.initAction.id) {
+            // Use the same sizing logic used for the functions.
+            // TODO: need to isolate the common logic and plug them out
+            this.sizeFunctionNode(node);
+        }
     }
 
 
@@ -232,7 +229,8 @@ class SizingUtil {
      *
      */
     sizeConnectorNode(node) {
-        // Not implemented.
+        // We use the same logic used for sizing the service nodes
+        this.sizeServiceNode(node);
     }
 
 
@@ -332,17 +330,12 @@ class SizingUtil {
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
-        const connectorDecls = _.filter(statements, (statement) => {
-            const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
-                undefined : undefined;
-            return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
-        });
-
-        connectorDecls.forEach((conNode) => {
-            const declaration = conNode.variable.initialExpression;
-            declaration.viewState.bBox.w = node.viewState.components.defaultWorker.w;
-            declaration.viewState.bBox.h = node.viewState.components.defaultWorker.h;
-        });
+        if (statements instanceof Array) {
+            statements.forEach((statement) => {
+                statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+            });
+        }
     }
 
     /**
@@ -568,7 +561,7 @@ class SizingUtil {
         components.annotation.w = bodyWidth;
         components.transportLine.h = totalResourceHeight;
         // Set initial height to the body
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h - 30;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
         viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
@@ -588,19 +581,21 @@ class SizingUtil {
             viewState.bBox.h += topGutter + topBarHeight + importInputHeight +
                 (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
         }
-        // Set the service height according to the resources
+        // Set the service/connector definition height according to the resources/connector definitions
+        // This is due to the logic re-use by the connector nodes as well
         if (!node.viewState.collapsed) {
-            const resources = node.getResources();
-            if (resources.length > 0) {
-                resources.map((resource, index) => {
-                    const resourcebBox = resources[index].viewState.bBox;
-                    if (!resource.viewState.collapsed) {
-                        viewState.bBox.h += resourcebBox.h + 40;
-                    }
-                });
-            } else {
-                viewState.bBox.h -= 110;
+            let innerPanelItems;
+            if (TreeUtil.isService(node)) {
+                innerPanelItems = node.getResources();
+            } else if (TreeUtil.isConnector(node)) {
+                innerPanelItems = node.getActions();
             }
+            innerPanelItems.map((innerPanelItem, index) => {
+                const innerPanelItemBBox = innerPanelItems[index].viewState.bBox;
+                if (!innerPanelItem.viewState.collapsed) {
+                    viewState.bBox.h += innerPanelItemBBox.h;
+                }
+            });
         }
     }
 
