@@ -467,54 +467,42 @@ class TransformNodeManager {
     }
 
     updateVariable(node, varName, statementString, type) {
-        const variableDefinitionStatement = TransformFactory.createVariableDef(varName, 'string', '');
+        const variableDefinitionStatement = TransformFactory.createVariableDefFromStatement(statementString);
         let varDefNode = node;
         let entities = node.inputs;
         if (type === 'target') {
             varDefNode = node.getParent();
             entities = node.outputs;
         }
-
-        variableDefinitionStatement.setStatementFromString(statementString);
-        if (variableDefinitionStatement.children.length > 0) {
-            const newVarName = variableDefinitionStatement.getVariableDef().getName();
-            _.forEach(varDefNode.getChildren(), (child) => {
-                if (BallerinaASTFactory.isVariableDefinitionStatement(child)
-                      && child.getLeftExpression().getVariableName() === varName) {
-                    const index = varDefNode.getIndexOfChild(child);
-                    varDefNode.removeChild(child, true);
-                    varDefNode.addChild(variableDefinitionStatement, index, true);
-                } else if (BallerinaASTFactory.isAssignmentStatement(child)
-                              && BallerinaASTFactory.isSimpleVariableReferenceExpression(child.getRightExpression())
-                              && child.getRightExpression().getVariableName() === varName) {
-                    child.removeChild(child.children[1], true);
-                    const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-                    variableReferenceExpression.setExpressionFromString(newVarName);
-                    child.addChild(variableReferenceExpression, 1, true);
-                }
-            });
-            _.forEach(entities, (input, i) => {
-                if (input.getVariableName() === varName) {
-                    const variableReferenceExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-                    variableReferenceExpression.setExpressionFromString(newVarName);
-                    entities[i] = variableReferenceExpression;
-                }
-            });
-            if (type === 'target') {
-                node.setOutput(entities);
-            } else {
-                node.setInput(entities);
+        const newVarName = variableDefinitionStatement.getVariableName().value;
+        _.forEach(varDefNode.body.statements, (child) => {
+            if (TreeUtil.isVariableDef(child)
+                  && child.getVariableName().value === varName) {
+                varDefNode.body.replaceStatements(child, variableDefinitionStatement, false);
+            } else if (TreeUtil.isAssignment(child)
+                          && TreeUtil.isSimpleVariableRef(child.expression)
+                          && child.expression.getVariableName().value === varName) {
+                const variableReferenceExpression = TransformFactory.createVariableRefExpression(newVarName);
+                child.setExpression(variableReferenceExpression);
             }
-            node.trigger('tree-modified', {
-                origin: this,
-                type: 'variable-update',
-                title: `Variable update ${varName}`,
-                data: {},
-            });
-            return true;
+        });
+        _.forEach(entities, (input, i) => {
+            if (input === varName) {
+                entities[i] = newVarName;
+            }
+        });
+        if (type === 'target') {
+            node.setOutputs(entities);
         } else {
-            return false;
+            node.setInputs(entities);
         }
+        node.trigger('tree-modified', {
+            origin: node,
+            type: 'variable-update',
+            title: `Variable update ${varName}`,
+            data: {},
+        });
+        return true;
     }
  }
 
