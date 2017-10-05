@@ -149,9 +149,19 @@ class DebugManager extends EventChannel {
             this.publishBreakpoints();
             this.startDebug();
         });
-        this.channel.on('session-ended session-terminated', () => {
+        this.channel.on('session-ended session-terminated connection-closed', () => {
             this.trigger('execution-ended');
         });
+        this.channel.on('session-error', () => {
+            this.trigger('session-error');
+        });
+    }
+    /**
+     * Reconnect to backend
+     * @memberof DebugManager
+     */
+    reConnect() {
+        this.connect(this.endpoint);
     }
     /**
      * @param {String} url - Start debugging with a remote url
