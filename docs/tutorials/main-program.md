@@ -15,6 +15,7 @@ This tutorial consists of the following main sections.
 - [Convert Kelvin to Celcius](#convert-kelvin-to-celcius)
 - [Call the function and print the result](#call-the-function-and-print-the-result)
 - [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api)
+- [Whats Next](#whats-next)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). For more information on the weather forecast API, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
 
@@ -217,3 +218,7 @@ Now that you have got the API key and the country code, you can identify the URL
 Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**) in Kelvin.
 
 ![alt text](../images/PostmanWeather.png)
+
+## Whats Next
+
+Now that you have learnt to write a main program, it is time to learn how to [work with services](passthrough-service.md).
