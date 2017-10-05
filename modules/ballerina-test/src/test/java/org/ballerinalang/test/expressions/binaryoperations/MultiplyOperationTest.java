@@ -97,7 +97,7 @@ public class MultiplyOperationTest {
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 9);
-        BTestUtils.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 8);
+        BTestUtils.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
+        BTestUtils.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
     }
 }
