@@ -2748,6 +2748,7 @@ public class BLangVM {
     private void startWorkers() {
         CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
         BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
+        this.controlStack.currentFrame.workerReturnStack = true;
         ip = -1;
     }
 
