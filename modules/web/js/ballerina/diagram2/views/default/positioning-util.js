@@ -745,9 +745,9 @@ class PositioningUtil {
         let height = 0;
         statements.forEach((element) => {
             if (!TreeUtil.isConnectorDeclaration(element)) {
-                    element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
-                    element.viewState.bBox.y = viewState.bBox.y + height;
-                    height += element.viewState.bBox.h;
+                element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
+                element.viewState.bBox.y = viewState.bBox.y + height;
+                height += element.viewState.bBox.h;
             } else if (TreeUtil.isForkJoin(element)) {
                 element.viewState.bBox.x = viewState.bBox.x;
                 element.viewState.bBox.y = viewState.bBox.y + height;
