@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.websocket;
+package org.ballerinalang.test.net.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BBlob;
@@ -26,12 +26,16 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.net.ws.Constants;
 import org.ballerinalang.net.ws.WebSocketConnectionManager;
-import org.ballerinalang.testutils.ws.MockWebSocketSession;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,6 +50,7 @@ import javax.websocket.CloseReason;
  */
 public class NativeFunctionsTestCase {
 
+    private CompileResult compileResult;
     private ProgramFile programFile;
     private Context context;
     private BStruct wsConnection;
@@ -63,7 +68,15 @@ public class NativeFunctionsTestCase {
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("websocket/nativeFunctionsForConnection.bal");
+        compileResult = BTestUtils.compile("test-src/net/ws/native-functions-for-connection.bal");
+        if (compileResult.getDiagnostics().length > 0) {
+            String errorsStr = "";
+            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+                errorsStr = errorsStr.concat(diagnostic.getMessage() + System.lineSeparator());
+            }
+            Assert.fail("Compilation Errors" + System.lineSeparator() + errorsStr);
+        }
+        programFile = compileResult.getProgFile();
         context = new Context(programFile);
 
         session = new MockWebSocketSession(sessionID);

@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.testutils.ws;
+package org.ballerinalang.test.utils.ws;
 
 import java.io.IOException;
 import java.net.URI;
