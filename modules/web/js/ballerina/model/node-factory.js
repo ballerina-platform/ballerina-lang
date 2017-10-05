@@ -344,7 +344,7 @@ class NodeFactory {
     createAnnotationAttachmentAttribute(json = {}){
         json.kind = 'AnnotationAttachmentAttribute';
         let node = new AnnotationAttachmentAttributeNode();
-        node.value = new AnnotationAttachmentAttributeValueNode();
+        node.value = this.createAnnotationAttachmentAttributeValue();
         node = Object.assign(node, json);
         // Set any aditional default properties below. 
         return node;
@@ -354,7 +354,7 @@ class NodeFactory {
         json.kind = 'AnnotationAttachmentAttributeValue';
         let node = new AnnotationAttachmentAttributeValueNode();
         node.valueArray = [];
-        node.value = new Node();
+        node.value = new LiteralNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;

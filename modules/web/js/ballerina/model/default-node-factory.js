@@ -34,8 +34,6 @@ class DefaultNodeFactory {
         return getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(`
                 service<http> service1 {
-                    resource resource1 (message m) {
-                    }
                 }
             `)
         );
