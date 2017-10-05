@@ -55,7 +55,7 @@ You can build your integrations by creating sequence diagrams, dragging elements
 
     The welcome page of Ballerina Composer appears. 
     
-    ![alt text](images/WelcomePage.png "Welcome page")
+    ![alt text](images/WelcomePage2.png "Welcome page")
     
     Let's open a sample and take a look around. 
 
