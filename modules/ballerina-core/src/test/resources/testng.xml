@@ -85,8 +85,8 @@ under the License.
 
     <test name="ballerina-identifier-literal-test-suite">
         <classes>
-            <class naorg.ballerinalang.test.expressions.identifierliteral.IdentifierLiteralPackageTestTest" />
-            <class naorg.ballerinalang.test.expressions.identifierliteral.IdentifierLiteralTestTest" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
+            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
         </classes>
     </test>
 
