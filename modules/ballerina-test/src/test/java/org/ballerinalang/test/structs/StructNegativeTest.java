@@ -71,12 +71,13 @@ public class StructNegativeTest {
                             "undefined field 'id' in struct 'Department'");
     }
 
-        @Test(description = "Test defining a struct constant")
+    @Test(description = "Test defining a struct constant")
     public void testStructConstant() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs", "constants");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "");
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+                            "missing token {'int', 'float', 'boolean', 'string', 'blob'} before 'Person'");
     }
 
     @Test(description = "Test initializing a struct with undeclared field")
