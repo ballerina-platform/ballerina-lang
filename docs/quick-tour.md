@@ -67,7 +67,7 @@ Once you have accessed the composer, you can have a look around using the availa
 
     The Echo Service program displays in the Composer.
     
-    ![alt text](images/EchoDesign.png "Echo Service program")
+    ![alt text](images/EchoDesign2.png "Echo Service program")
 
     Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
 
