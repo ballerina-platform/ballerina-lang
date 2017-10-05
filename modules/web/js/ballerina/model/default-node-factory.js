@@ -118,7 +118,7 @@ class DefaultNodeFactory {
 
     createWorker() {
         return getNodeForFragment(
-            FragmentUtils.createStatementFragment(`
+            FragmentUtils.createWorkerFragment(`
                 worker worker1 {
                 }
             `)

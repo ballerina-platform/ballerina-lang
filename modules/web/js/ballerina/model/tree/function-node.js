@@ -15,10 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import AbstractFunctionNode from './abstract-tree/function-node';
+import TreeUtil from './../tree-util';
 
 class FunctionNode extends AbstractFunctionNode {
+
+     /**
+     * Indicates whether the given instance of node can be accepted when dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @returns {Boolean} True if can be acceped.
+     */
+    canAcceptDrop(node) {
+        return TreeUtil.isWorker(node);
+    }
+
+    /**
+     * Accept a node which is dropped
+     * on top of this node.
+     *
+     * @param {Node} node Node instance to be dropped
+     * @param {Node} dropBefore Drop before given node
+     *
+     */
+    acceptDrop(node, dropBefore) {
+        if (TreeUtil.isWorker(node)) {
+            const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
+            this.addWorkers(node, index);
+        }
+    }
 
 }
 

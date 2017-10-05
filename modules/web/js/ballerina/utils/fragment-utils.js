@@ -63,6 +63,19 @@ class FragmentUtils {
         };
     }
 
+     /**
+     * Create fragment for worker.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createWorkerFragment(sourceString) {
+        return {
+            expectedNodeType: 'worker',
+            source: sourceString,
+        };
+    }
+
     /**
      * Create fragment for expression.
      *

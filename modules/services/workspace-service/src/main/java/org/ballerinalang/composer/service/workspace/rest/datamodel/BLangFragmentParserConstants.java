@@ -25,6 +25,7 @@ public class BLangFragmentParserConstants {
     public static final String TOP_LEVEL_NODE = "top-level-node";
     public static final String CONNECTOR_ACTION = "connector-action";
     public static final String SERVICE_RESOURCE = "service-resource";
+    public static final String WORKER = "worker";
     public static final String STATEMENT = "statement";
     public static final String EXPRESSION = "expression";
     public static final String JOIN_CONDITION = "join-condition";
