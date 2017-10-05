@@ -59,7 +59,7 @@ public class LoggerTest {
         System.setErr(original);
     }
 
-    @Test(description = "Test case for error level logging through the log API")
+    @Test(description = "Test case for error level logging through the log API", enabled = false)
     public void testLogError() throws IOException {
         consoleOutput.reset();
         final String logMsg = "Test error log";
@@ -70,7 +70,7 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
-    @Test(description = "Test case for warn level logging through the log API")
+    @Test(description = "Test case for warn level logging through the log API", enabled = false)
     public void testLogWarn() throws IOException {
         consoleOutput.reset();
         final String logMsg = "Test warn log";
@@ -81,7 +81,7 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
-    @Test(description = "Test case for info level logging through the log API")
+    @Test(description = "Test case for info level logging through the log API", enabled = false)
     public void testLogInfo() throws IOException {
         consoleOutput.reset();
         final String logMsg = "Test info log";
@@ -92,7 +92,7 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
-    @Test(description = "Test case for debug level logging through the log API")
+    @Test(description = "Test case for debug level logging through the log API", enabled = false)
     public void testLogDebug() throws IOException {
         consoleOutput.reset();
         final String logMsg = "Test debug log";
@@ -103,7 +103,7 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
-    @Test(description = "Test case for trace level logging through the log API")
+    @Test(description = "Test case for trace level logging through the log API", enabled = false)
     public void testLogTrace() throws IOException {
         consoleOutput.reset();
         final String logMsg = "Test trace log";
