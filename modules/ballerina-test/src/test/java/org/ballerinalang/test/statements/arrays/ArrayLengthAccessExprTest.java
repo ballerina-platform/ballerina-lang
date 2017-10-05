@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -190,5 +191,13 @@ public class ArrayLengthAccessExprTest {
         int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 3;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test array length access expression when array is null.",
+          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+    public void testArrayLengthAccessExpArrayNullCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BTestUtils.invoke(compilerResult, "arrayLengthAccessNullArrayCase", args);
     }
 }
