@@ -171,15 +171,16 @@ class TransformExpanded extends React.Component {
             if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
                 TreeUtil.isSimpleVariableRef(expression))) {
                 _.forEach(variables, (variable) => {
-                    const sourceExprString = expression.getSource().trim();
+                    // TODO : remove replace whitespace once its handled from backend
+                    const sourceExprString = expression.getSource().replace(/ /g, '').trim();
                     let sourceId = `${sourceExprString}:${viewId}`;
                     let folded = false;
                     if (!this.sourceElements[sourceId]) {
                         folded = true;
                         sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                     }
-
-                    const targetExprString = variable.getSource().trim();
+                    // TODO : remove replace whitespace once its handled from backend
+                    const targetExprString = variable.getSource().replace(/ /g, '').trim();
                     let targetId = `${targetExprString}:${viewId}`;
                     if (!this.targetElements[targetId]) {
                         folded = true;
@@ -753,7 +754,7 @@ class TransformExpanded extends React.Component {
                 varDeclarationString: varDef.getSource(),
             });
             this.state.vertices.push(varVertex);
-            this.addSource(varDef.getVariableName());
+            this.addSource(varDef.getVariableName().getValue());
         } else {
             this.setState({
                 selectedSource: suggestionValue,
@@ -766,13 +767,13 @@ class TransformExpanded extends React.Component {
         if (suggestionValue === '') {
             const variableDefinitionStatement = this.transformNodeManager.addNewVariable('target');
             const varVertex = ({
-                name: variableDefinitionStatement.getVariableDef().getName(),
-                displayName: variableDefinitionStatement.getVariableDef().getName(),
-                type: variableDefinitionStatement.getVariableDef().getTypeName(),
-                varDeclarationString: variableDefinitionStatement.getStatementString(),
+                name: variableDefinitionStatement.getVariableName().getValue(),
+                displayName: variableDefinitionStatement.getVariableName().getValue(),
+                type: variableDefinitionStatement.getTypeNode().getTypeKind(),
+                varDeclarationString: variableDefinitionStatement.getSource(),
             });
             this.state.vertices.push(varVertex);
-            this.addTarget(variableDefinitionStatement.getVariableDef().getName());
+            this.addTarget(variableDefinitionStatement.getVariableName().getValue());
         } else {
             this.setState({
                 selectedTarget: suggestionValue,
