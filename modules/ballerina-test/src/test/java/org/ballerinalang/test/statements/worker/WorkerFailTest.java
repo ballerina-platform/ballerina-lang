@@ -38,7 +38,7 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
-    //@Test
+    @Test
     public void invalidWorkerSendReceive() {
         CompileResult result = BTestUtils.compile("test-src/workers/invalid-worker-send-receive.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
