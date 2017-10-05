@@ -365,7 +365,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test type to any implicit cast.")
+    @Test(description = "Test type to any implicit cast.")
     public void testTypeToAnyImplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "typeToAnyImplicitCast", args);
@@ -376,7 +376,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[0], returns[1]);
     }
 
-    //@Test(description = "Test type to any explicit cast.")
+    @Test(description = "Test type to any explicit cast.")
     public void testTypeToAnyExplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "typeToAnyExplicitCast", args);
