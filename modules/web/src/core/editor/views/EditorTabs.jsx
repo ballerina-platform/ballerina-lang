@@ -278,7 +278,8 @@ class EditorTabs extends View {
                 primary="second"
                 pane1Style={{
                     width: this.props.width -
-                        (this.state.previewPanelEnabled ? this.state.previewPanelSize : 0),
+                        (this.state.previewPanelEnabled && !(activeEditor instanceof CustomEditor)
+                           ? this.state.previewPanelSize : 0),
                 }}
             >
                 <Tabs
