@@ -42,7 +42,7 @@ public class ResponseNativeFunctionNegativeTest {
     private final String responseStruct = Constants.RESPONSE;
     private final String protocolPackageHttp = Constants.PROTOCOL_PACKAGE_HTTP;
     private String filePath = "test-src/statements/services/nativeimpl/response/responseNativeFunctionNegative.bal";
-    private String filePathNeg = "test-src/statements/services/nativeimpl/nativeFunctionCompileNegative.bal";
+    private String filePathNeg = "test-src/statements/services/nativeimpl/response/responseCompileNegative.bal";
 
     @BeforeClass
     public void setup() {
@@ -52,7 +52,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test when the content length header is not set")
     public void testGetContentLength() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -68,7 +68,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetHeader() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -80,7 +80,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test method without json payload")
     public void testGetJsonPayloadWithoutPayload() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -97,7 +97,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "ballerina";
         BallerinaMessageDataSource dataSource = new StringDataSource(payload);
@@ -119,7 +119,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetProperty() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -133,7 +133,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -146,7 +146,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String payload = "{\"code\":\"123\"}";
         BallerinaMessageDataSource dataSource = new BJSON(payload);
@@ -164,7 +164,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetXmlPayloadNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -181,7 +181,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testRemoveHeaderNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         String expect = "Expect";
         cMsg.setHeader(expect, "100-continue");
@@ -199,7 +199,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testRemoveAllHeadersNegative() {
-        BStruct request = BTestUtils.createAndGetStruct(result, protocolPackageHttp, responseStruct);
+        BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(request, cMsg);
 
@@ -213,17 +213,20 @@ public class ResponseNativeFunctionNegativeTest {
     }
 
     @Test
-    public void testCompilationErrorTestCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        //testSetStatusCodeWithString
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 5, 32);
-        //testGetContentLengthWithString
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 10, 35);
+    public void testGetBinaryPayloadMethod() {
+        //TODO
     }
 
     @Test
-    public void testGetBinaryPayloadMethod() {
-        //TODO
+    public void testCompilationErrorTestCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        //testResponseSetStatusCodeWithString
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 5, 33);
+        //testResponseGetContentLengthWithString
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 10, 36);
+        //testResponseGetMethod
+        BTestUtils.validateError(resultNegative, 2, "undefined function 'getMethod'", 15, 21);
+
     }
 
 }

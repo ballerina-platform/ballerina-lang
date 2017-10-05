@@ -253,14 +253,6 @@ public class BTestUtils {
         return sb.toString();
     }
 
-    public static BStruct createAndGetStruct(CompileResult result, String packagePath, String structName) {
-        ProgramFile programFile = result.getProgFile();
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
-    }
-
     public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
         StructInfo structInfo = structPackageInfo.getStructInfo(structName);
