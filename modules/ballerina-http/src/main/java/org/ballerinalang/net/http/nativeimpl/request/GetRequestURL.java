@@ -48,7 +48,7 @@ public class GetRequestURL extends AbstractNativeFunction {
         BStruct requestStruct  = ((BStruct) getRefArgument(ctx, 0));
         //TODO check below line
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
-        Object requestURLPropertyObject = httpCarbonMessage.getProperty(Constants.REQUEST_URL);
+        Object requestURLPropertyObject = httpCarbonMessage.getProperty(Constants.TO);
         if (requestURLPropertyObject != null) {
             requestURL = requestURLPropertyObject.toString();
         }
