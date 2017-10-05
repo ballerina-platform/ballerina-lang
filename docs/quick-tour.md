@@ -71,13 +71,15 @@ Once you have accessed the composer, you can have a look around using the availa
 
     Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
 
-    Also notice the **Source View** and **Swagger View** buttons in the lower right corner. 
+    Notice the **Source View** button in the lower right corner. Also note the **Swagger Source** button associated with the service.
+    
+    ![alt text](images/EchoSwaggerButton.png "Echo Service program")
    
 2. Click **Source View**. 
 
-    ![alt text](images/EchoSource.png "Source view")
+    ![alt text](images/EchoSource2.png "Source view")
 
-    You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
+    You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. This can be done by clicking **Design View** in the lower right corner.
 
 3. Click **Swagger View**. 
 
