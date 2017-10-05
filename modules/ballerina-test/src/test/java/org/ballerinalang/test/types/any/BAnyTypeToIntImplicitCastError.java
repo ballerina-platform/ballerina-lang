@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.any;
+package org.ballerinalang.test.types.any;
 
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
@@ -31,6 +31,6 @@ public class BAnyTypeToIntImplicitCastError {
     public void testAnyToIntImplicitCast() {
         CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-to-int-implicit-cast.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 15);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 16);
     }
 }

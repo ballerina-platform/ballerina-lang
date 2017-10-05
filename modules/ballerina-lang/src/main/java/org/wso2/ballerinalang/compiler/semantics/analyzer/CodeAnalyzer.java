@@ -419,7 +419,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        /* ignore */
+        List<BType> caughtTypes = new ArrayList<>();
+        for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            if (caughtTypes.contains(bLangCatch.getParameter().type)) {
+                dlog.error(bLangCatch.getParameter().pos, DiagnosticCode.DUPLICATED_ERROR_CATCH,
+                        bLangCatch.getParameter().type);
+            }
+            caughtTypes.add(bLangCatch.getParameter().type);
+        }
+
     }
 
     public void visit(BLangCatch catchNode) {

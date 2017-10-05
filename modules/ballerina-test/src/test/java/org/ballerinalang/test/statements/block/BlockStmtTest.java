@@ -42,14 +42,14 @@ public class BlockStmtTest {
     public void testBlockStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
         //testUnreachableStmtInIfFunction1
-        BTestUtils.validateError(resultNegative, 0, "unreachable code", 9, 4);
+        BTestUtils.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
-        BTestUtils.validateError(resultNegative, 1, "unreachable code", 25, 4);
+        BTestUtils.validateError(resultNegative, 1, "unreachable code", 25, 5);
         //testUnreachableStmtInIfBlock
-        BTestUtils.validateError(resultNegative, 2, "unreachable code", 33, 8);
+        BTestUtils.validateError(resultNegative, 2, "unreachable code", 33, 9);
         //testUnreachableStmtInWhileBlock
-        BTestUtils.validateError(resultNegative, 3, "unreachable code", 46, 12);
+        BTestUtils.validateError(resultNegative, 3, "unreachable code", 46, 13);
         //testCommentAfterReturnStmt
-        BTestUtils.validateError(resultNegative, 4, "unreachable code", 62, 4);
+        BTestUtils.validateError(resultNegative, 4, "unreachable code", 62, 5);
     }
 }

@@ -117,8 +117,8 @@ public class DivisionOperationTest {
     @Test(description = "Test devide statement with errors")
     public void testDivideStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 9);
-        BTestUtils.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 10);
+        BTestUtils.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);
+        BTestUtils.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 11);
     }
 
     @Test
