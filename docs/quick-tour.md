@@ -99,6 +99,10 @@ Once you have accessed the composer, you can have a look around using the availa
 
 1. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
 
+1. You can run your program from the Composer itself. Click the **Run** button on the left of the Composer and choose whether you want to run your program as an **Application** or a **Service**. You can stop the application by clicking **Stop Application**.
+
+    ![alt text](images/RunApplication.png "Swagger view")
+
 1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
 Now that you've had a look around, it's time to take Ballerina for a spin and [write your first Ballerina program](tutorials/first-program.md).
