@@ -443,7 +443,7 @@ class ToolPaletteView extends React.Component {
 
         const searching = this.state.search.length > 0;
         // get the model
-        const model = this.props.model;
+        const model = this.context.astRoot;
         const topLevelNodes = model.getTopLevelNodes() || [];
         // get the environment
         const environment = this.context.environment;
@@ -576,7 +576,6 @@ class ToolPaletteView extends React.Component {
 }
 
 ToolPaletteView.propTypes = {
-    model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     isTransformActive: PropTypes.bool.isRequired,
 };
 
