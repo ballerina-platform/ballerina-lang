@@ -107,10 +107,7 @@ public class ArrayTest {
 
     @Test()
     public void testJSONArrayLength() {
-        BJSON arrayValue = new BJSON("[{ \"test\" : \"1\"}, { \"test\" : \"1\"}]");
-        
-        BValue[] args = {arrayValue};
-        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayLength", args);
+        BValue[] returnVals = BTestUtils.invoke(compileResult, "testJSONArrayLength");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");

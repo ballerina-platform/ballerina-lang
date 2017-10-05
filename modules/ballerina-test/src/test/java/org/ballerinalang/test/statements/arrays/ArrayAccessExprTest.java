@@ -104,13 +104,13 @@ public class ArrayAccessExprTest {
         BTestUtils.invoke(compileResult, "arrayIndexOutOfBoundTest");
     }
 
-    @Test(description = "Test arrays access with a key")
+    @Test(description = "Test arrays access with a key", enabled = false)
     public void testArrayAccessWithKey() {
         CompileResult compileResult = BTestUtils.compile("test-src/statements/arrays/incorrect-array-access.bal");
         BTestUtils.validateError(compileResult, 0, "incompatible types: expected 'int', found 'string'", 4, 19);
     }
 
-    @Test(description = "Test access a primitive as an arrays")
+    @Test(description = "Test access a primitive as an arrays", enabled = false)
     public void testAccessPrimitiveAsArray() {
         CompileResult compileResult = BTestUtils.compile("test-src/statements/arrays/access-primitive-as-array.bal");
         BTestUtils.validateError(compileResult, 0, "invalid operation: type 'string' does not support indexing", 3, 4);

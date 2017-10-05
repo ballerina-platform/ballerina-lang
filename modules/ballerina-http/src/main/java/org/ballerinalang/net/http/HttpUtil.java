@@ -423,7 +423,7 @@ public class HttpUtil {
                     params.put(name, new BString(""));
                     continue;
                 }
-                params.put(name, new BString(name));
+                params.put(name, new BString(value));
             }
         }
         return params;

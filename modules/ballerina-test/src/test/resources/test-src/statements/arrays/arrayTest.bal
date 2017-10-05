@@ -33,7 +33,8 @@ function testXMLArrayLength(xml[] arg)(int, int){
     return lengthof arg , lengthof defined;
 }
 
-function testJSONArrayLength(json[] arg)(int, int){
+function testJSONArrayLength()(int, int){
+    json[] arg = [{"test": 1}, {"test" : 1}];
     json[] defined;
     json v1;
     json v2;
