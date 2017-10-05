@@ -148,6 +148,7 @@ class DesignView extends React.Component {
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
                         mode={this.state.mode}
+                        model={this.props.model}
                     />
                 </div>
                 { /* TODOX REMOVE <div className="top-right-controls-container">
