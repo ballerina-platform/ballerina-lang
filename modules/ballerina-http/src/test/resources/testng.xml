@@ -28,13 +28,6 @@ under the License.
         </packages>
     </test>
 
-    <!-- WebSocket Test Cases -->
-    <test name="websocket-test-cases" parallel="false" enabled="false">
-        <classes>
-            <class name="org.ballerinalang.websocket.NativeFunctionsTestCase"/>
-        </classes>
-    </test>
-
     <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
     <!-- Native Function Related Test Cases. -->
     <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->

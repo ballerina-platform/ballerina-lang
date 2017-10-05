@@ -58,7 +58,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test access global variable within function", enabled = false)
     public void testAccessGlobalVarWithinFunctions() {
-        BValue[] returns = BTestUtils.invoke(result, "accessGlobalVar", null);
+        BValue[] returns = BTestUtils.invoke(result, "accessGlobalVar");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89143);
@@ -78,7 +78,7 @@ public class GlobalVarFunctionTest {
         CompileResult resultGlobalVar = BTestUtils
                 .compile("test-src/types/globalvar/global-var-function.bal");
 
-        BValue[] returnsChanged = BTestUtils.invoke(resultGlobalVar, "getGlobalFloatVar", null);
+        BValue[] returnsChanged = BTestUtils.invoke(resultGlobalVar, "getGlobalFloatVar");
 
         Assert.assertEquals(returnsChanged.length, 1);
         Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
@@ -88,7 +88,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global variable to another global variable", enabled = false)
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        BValue[] returns = BTestUtils.invoke(result, "getGlobalVarFloat1", null);
+        BValue[] returns = BTestUtils.invoke(result, "getGlobalVarFloat1");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -98,7 +98,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global var within a function", enabled = false)
     public void testInitializingGlobalVarWithinFunction() {
-        BValue[] returns = BTestUtils.invoke(result, "initializeGlobalVarSeparately", null);
+        BValue[] returns = BTestUtils.invoke(result, "initializeGlobalVarSeparately");
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BJSON.class);

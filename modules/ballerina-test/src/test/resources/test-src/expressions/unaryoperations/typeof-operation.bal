@@ -246,6 +246,57 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
     }
 }
 
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
+    int temp_int = 2;
+    int temp_int_1 = 5;
+    type temp_int_type = (typeof temp_int);
+    type temp_int_1_type = (typeof temp_int_1);
+
+    if (temp_int_type == temp_int_1_type) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (int) {
+    int temp_int = 2;
+    int temp_int_1 = 5;
+    var temp_int_type = (typeof temp_int);
+    var temp_int_1_type = (typeof temp_int_1);
+
+    if (temp_int_type == temp_int_1_type) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestTypeAsReturnValue() (int) {
+    json json_object = {"dummy":"dummy"};
+    json json_array = [1,2,3];
+    if ((typeof json_object) == getType(json_array)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function getType(any variable)(type){
+    return (typeof variable);
+}
+
+function getTypeStringValue()(type){
+    int value = 4;
+    return (typeof value);
+}
+
+function getStructTypeStringValue()(type){
+    Person jack;
+    jack = {name:"Jack", age:25};
+    return (typeof jack);
+}
+
 struct Person {
     string name;
     int age;
