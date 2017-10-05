@@ -237,7 +237,7 @@ public class IfElseStmtTest {
     public void testElseIfStmtWithIncompatibleTypes() {
         negativeResult = BTestUtils.compile("test-src/statements/ifelse/elseif-stmnt-with-incompatible-types.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BTestUtils.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'string'", 4, 12);
-        BTestUtils.validateError(negativeResult, 1, "this function must return a result", 1, 0);
+        BTestUtils.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'string'", 4, 13);
+        BTestUtils.validateError(negativeResult, 1, "this function must return a result", 1, 1);
     }
 }

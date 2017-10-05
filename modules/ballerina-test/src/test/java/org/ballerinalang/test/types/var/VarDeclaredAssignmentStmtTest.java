@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
@@ -156,19 +155,22 @@ public class VarDeclaredAssignmentStmtTest {
         BTestUtils.compile("test-src/types/var/var-type-variable-def-negative.bal");
     }
 
-    @Test(enabled = false, description = "Test var in global variable def.", expectedExceptions = {ParserException.class})
+    @Test(enabled = false,
+            description = "Test var in global variable def.", expectedExceptions = {ParserException.class})
     public void testVarTypeInGlobalVariableDefStatement() {
         //var type is not not allowed in global variable def statements
         BTestUtils.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
     }
 
-    @Test(enabled = false, description = "Test var in service level var def.", expectedExceptions = {ParserException.class})
+    @Test(enabled = false,
+            description = "Test var in service level var def.", expectedExceptions = {ParserException.class})
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         BTestUtils.compile("test-src/types/var/service-level-variable-def-with-var-type-negative.bal");
     }
 
-    @Test(enabled = false, expectedExceptions = {SemanticException.class }, expectedExceptionsMessageRegExp = ".*invalid usage of var")
+    @Test(enabled = false,
+            expectedExceptions = {SemanticException.class }, expectedExceptionsMessageRegExp = ".*invalid usage of var")
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         //all the expression of LHS of var declaration should be variable references
         BTestUtils.compile("test-src/types/var/var-invalid-usage-struct-field-access.bal");

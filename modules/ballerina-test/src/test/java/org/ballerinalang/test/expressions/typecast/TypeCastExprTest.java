@@ -21,12 +21,9 @@ package org.ballerinalang.test.expressions.typecast;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
-//import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-//import org.ballerinalang.model.values.BJSON;
-//import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -36,12 +33,9 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
-//import org.ballerinalang.util.exceptions.BLangRuntimeException;
-//import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -231,7 +225,7 @@ public class TypeCastExprTest {
 
     @Test(enabled = false)
     public void testSimpleJsonToMap() {
-        BValue[] returns = BTestUtils.invoke(result, "testSimpleJsonToMap",new BValue[]{});
+        BValue[] returns = BTestUtils.invoke(result, "testSimpleJsonToMap", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap map = (BMap) returns[0];
 
@@ -501,7 +495,7 @@ public class TypeCastExprTest {
         BTestUtils.compile("test-src/expressions/cast/struct-to-map.bal");
     }
 
-    @Test(description = "Test casting a map to struct",
+    @Test(enabled = false, description = "Test casting a map to struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
                     "'Person', try conversion")
@@ -691,7 +685,8 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'int' cannot be cast to 'string'");
     }
 
-    @Test (enabled = false, description = "Test any to string casting happens without errors, error struct should be null")
+    @Test (enabled = false,
+            description = "Test any to string casting happens without errors, error struct should be null")
     public void testAnyToStringWithoutErrors() {
         BValue[] returns = BTestUtils.invoke(result, "testAnyToStringWithoutErrors", new BValue[]{});
 
@@ -703,7 +698,8 @@ public class TypeCastExprTest {
         Assert.assertNull(returns[1]);
     }
 
-    @Test (enabled = false, description = "Test any to int casting happens without errors, error struct should be null")
+    @Test (enabled = false,
+            description = "Test any to int casting happens without errors, error struct should be null")
     public void testAnyToIntWithoutErrors() {
         BValue[] returns = BTestUtils.invoke(result, "testAnyToIntWithoutErrors", new BValue[]{});
 
@@ -715,7 +711,8 @@ public class TypeCastExprTest {
         Assert.assertNull(returns[1]);
     }
 
-    @Test (enabled = false, description = "Test any to float casting happens without errors, error struct should be null")
+    @Test (enabled = false,
+            description = "Test any to float casting happens without errors, error struct should be null")
     public void testAnyToFloatWithoutErrors() {
         BValue[] returns = BTestUtils.invoke(result, "testAnyToFloatWithoutErrors", new BValue[]{});
 
@@ -727,7 +724,8 @@ public class TypeCastExprTest {
         Assert.assertNull(returns[1]);
     }
 
-    @Test (enabled = false, description = "Test any to boolean casting happens without errors, error struct should be null")
+    @Test (enabled = false,
+            description = "Test any to boolean casting happens without errors, error struct should be null")
     public void testAnyToBooleanWithoutErrors() {
         BValue[] returns = BTestUtils.invoke(result, "testAnyToBooleanWithoutErrors", new BValue[]{});
 
