@@ -1408,7 +1408,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addIfBlock(getWS(ctx));
+        this.pkgBuilder.addIfBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1437,7 +1437,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addElseIfBlock(getWS(ctx));
+        this.pkgBuilder.addElseIfBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1465,7 +1465,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addElseBlock(getWS(ctx));
+        this.pkgBuilder.addElseBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

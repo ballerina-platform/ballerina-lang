@@ -1265,15 +1265,17 @@ public class BLangPackageBuilder {
         transactionNode.setRetryCount(exprNodeStack.pop());
     }
 
-    public void addIfBlock(Set<Whitespace> ws) {
+    public void addIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode ifNode = ifElseStatementStack.peek();
+        ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
         ifNode.setBody(blockNodeStack.pop());
     }
 
-    public void addElseIfBlock(Set<Whitespace> ws) {
+    public void addElseIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode elseIfNode = ifElseStatementStack.pop();
+        ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
         elseIfNode.setBody(blockNodeStack.pop());
         Set<Whitespace> elseWS = removeFirst(ws);
@@ -1287,13 +1289,14 @@ public class BLangPackageBuilder {
         parentIfNode.setElseStatement(elseIfNode);
     }
 
-    public void addElseBlock(Set<Whitespace> ws) {
+    public void addElseBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode ifNode = ifElseStatementStack.peek();
         while (ifNode.getElseStatement() != null) {
             ifNode = (IfNode) ifNode.getElseStatement();
         }
+        ifNode.addWS(ws);
         BlockNode elseBlock = blockNodeStack.pop();
-        elseBlock.addWS(ws);
+        ((BLangBlockStmt) elseBlock).pos = pos;
         ifNode.setElseStatement(elseBlock);
     }
 
