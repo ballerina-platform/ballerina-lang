@@ -195,29 +195,27 @@ class TransformExpanded extends React.Component {
                 this.drawIntermediateNode(variables, expression, statement, isTemp);
             }
         } else if (TreeUtil.isVariableDef(statement)) {
-            const variables = statement.getVariables();
+            const variable = statement.getVariable();
             const { exp: expression, isTemp } = this.transformNodeManager
-                            .getResolvedExpression(statement.getExpression(), statement);
+                            .getResolvedExpression(statement.variable.getInitialExpression(), statement);
             if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) ||
                 TreeUtil.isSimpleVariableRef(expression))) {
-                _.forEach(variables, (variable) => {
-                    const sourceExprString = expression.getSource().trim();
-                    let sourceId = `${sourceExprString}:${viewId}`;
-                    let folded = false;
-                    if (!this.sourceElements[sourceId]) {
-                        folded = true;
-                        sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
-                    }
+                const sourceExprString = expression.getSource().trim();
+                let sourceId = `${sourceExprString}:${viewId}`;
+                let folded = false;
+                if (!this.sourceElements[sourceId]) {
+                    folded = true;
+                    sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
+                }
 
-                    const targetExprString = variable.getSource().trim();
-                    let targetId = `${targetExprString}:${viewId}`;
-                    if (!this.targetElements[targetId]) {
-                        folded = true;
-                        targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
-                    }
+                const targetExprString = variable.getSource().trim();
+                let targetId = `${targetExprString}:${viewId}`;
+                if (!this.targetElements[targetId]) {
+                    folded = true;
+                    targetId = this.getFoldedEndpointId(targetExprString, viewId, 'target');
+                }
 
-                    this.drawConnection(sourceId, targetId, folded);
-                });
+                this.drawConnection(sourceId, targetId, folded);
             }
             if (TreeUtil.isInvocation(expression)
                     || TreeUtil.isBinaryExpr(expression)

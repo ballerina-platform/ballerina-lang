@@ -98,13 +98,7 @@ class TransformNodeManager {
      * @memberof TransformNodeManager
      */
     getVertexExpression(name, isField) {
-        let expression;
-        if (isField) {
-            expression = TransformFactory.createFieldBasedVarRefExpression(name);
-        } else {
-            expression = TransformFactory.createSimpleVariableRef(name);
-        }
-        return expression;
+        return TransformFactory.createVariableRefExpression(name);
     }
 
     /**
@@ -468,17 +462,17 @@ class TransformNodeManager {
         const varName = variableName + index;
 
         const variableDef = TransformFactory.createVariableDef(varName, 'string', '');
-        node.addStatements(variableDef, newVarIndex, true);
+        node.addStatements(variableDef, newVarIndex, false);
         return variableDef;
     }
 
     updateVariable(node, varName, statementString, type) {
-        const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
+        const variableDefinitionStatement = TransformFactory.createVariableDef(varName, 'string', '');
         let varDefNode = node;
-        let entities = node.getInput();
+        let entities = node.inputs;
         if (type === 'target') {
             varDefNode = node.getParent();
-            entities = node.getOutput();
+            entities = node.outputs;
         }
 
         variableDefinitionStatement.setStatementFromString(statementString);

@@ -464,15 +464,14 @@ class TransformNodeMapper {
         let statementIndex = this._transformStmt.body.getIndexOfStatements(statement);
         statementIndex = (statementIndex === 0) ? 0 : statementIndex - 1;
         nestedNodes.forEach((node) => {
-            const assignmentStmt = TransformFactory
-                    .createAssignmentStatement({ expression: node });
+            const assignmentStmt = TransformFactory.createAssignmentStatement({ expression: node });
             this._transformStmt.body.addStatements(assignmentStmt, statementIndex, true);
         });
 
         if (!parentNode) {
             this._transformStmt.body.removeStatements(statement, true);
         } else if (TreeUtil.isInvocation(parentNode)) {
-            parentNode.replaceArgumentExpressionsByIndex(nodeExpression, TransformFactory.createDefaultExpression(), true);
+            parentNode.replaceArgumentExpressions(nodeExpression, TransformFactory.createDefaultExpression(), true);
         } else if (TreeUtil.isUnaryExpr(parentNode)
                     && (parentNode.getExpression() === nodeExpression)) {
             parentNode.setExpression(TransformFactory.createDefaultExpression(), true);
@@ -574,10 +573,10 @@ class TransformNodeMapper {
      */
     removeInputToFunctionMapping(sourceName, target) {
         const functionInv = target.funcInv;
-        const expression = _.find(functionInv.getChildren(), (child) => {
-            return (this.getMappableExpression(child).getExpressionString().trim() === sourceName);
+        const expression = _.find(functionInv.getArgumentExpressions(), (child) => {
+            return (this.getMappableExpression(child).getSource().trim() === sourceName);
         });
-        functionInv.replaceArgumentExpressionByIndex(TransformFactory.createDefaultExpression(), target.index, true);
+        functionInv.replaceArgumentExpressionsByIndex(target.index, TransformFactory.createDefaultExpression(target.type), true);
 
         // TODO: work on this logic
         // if (expression.getExpressionString().startsWith('__temp')) {
@@ -655,7 +654,7 @@ class TransformNodeMapper {
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         const index = target.funcInv.getIndexOfChild(source.funcInv);
-        target.funcInv.replaceArgumentExpressionByIndex(TransformFactory.createDefaultExpression(), index, true);
+        target.funcInv.replaceArgumentExpressionsByIndex(index, TransformFactory.createDefaultExpression(target.type), true);
 
         const newAssignmentStmt = TransformFactory
             .createAssignmentStatement({ expression: source.funcInv });
@@ -740,7 +739,7 @@ class TransformNodeMapper {
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         const index = target.funcInv.getIndexOfArgumentExpression(source.operator);
-        target.funcInv.replaceArgumentExpressionByIndex(TransformFactory.createDefaultExpression(), index, true);
+        target.funcInv.replaceArgumentExpressionsByIndex(index, TransformFactory.createDefaultExpression(target.type), true);
 
         const newAssignmentStmt = TransformFactory.createAssignmentStatement({ expression: source.operator });
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
@@ -760,8 +759,8 @@ class TransformNodeMapper {
      */
     removeSourceType(type) {
         this._transformStmt.removeInput(type);
-        this._transformStmt
-            .filterChildren(ASTFactory.isAssignmentStatement || ASTFactory.isVariableDefinitionStatement)
+        this._transformStmt.body
+            .filterStatements(TreeUtil.isAssignment || TreeUtil.isVariableDef)
             .forEach((stmt) => {
                 this.removeInputExpressions(stmt, type.name);
             });
@@ -780,10 +779,10 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeInputExpressions(stmt, expStr) {
-        const rightExpression = stmt.getRightExpression();
-        if (ASTFactory.isSimpleVariableReferenceExpression(rightExpression)
-            && (rightExpression.getExpressionString().trim() === expStr)) {
-            this._transformStmt.removeChild(stmt, true);
+        const rightExpression = stmt.getExpression();
+        if (TreeUtil.isSimpleVariableRef(rightExpression)
+            && (rightExpression.getSource().trim() === expStr)) {
+            this._transformStmt.body.removeStatements(stmt, true);
         } else {
             this.removeInputNestedExpressions(rightExpression, expStr);
         }
@@ -797,9 +796,10 @@ class TransformNodeMapper {
      */
     removeInputNestedExpressions(expression, expStr) {
         if (TreeUtil.isInvocation(expression)) {
-            expression.getChildren().forEach((child, index) => {
-                if (child.getExpressionString().trim() === expStr) {
-                    expression.replaceChildByIndex(TransformFactory.createDefaultExpression(), index);
+            expression.getArgumentExpressions().forEach((child, index) => {
+                if (child.getSource().trim() === expStr) {
+                    // TODO: get type here
+                    expression.replaceArgumentExpressionsByIndex(index, TransformFactory.createDefaultExpression(), true);
                 } else {
                     this.removeInputNestedExpressions(child, expStr);
                 }
@@ -817,7 +817,7 @@ class TransformNodeMapper {
             } else {
                 this.removeInputNestedExpressions(expression.getRightExpression(), expStr);
             }
-            if (expression.getLeftExpression().getExpressionString().trim() === expStr) {
+            if (expression.getLeftExpression().getSource().trim() === expStr) {
                 expression.setLeftExpression(TransformFactory.createDefaultExpression());
             } else {
                 this.removeInputNestedExpressions(expression.getLeftExpression(), expStr);
@@ -832,8 +832,8 @@ class TransformNodeMapper {
      */
     removeTargetType(type) {
         this._transformStmt.removeOutput(type);
-        this._transformStmt
-            .filterChildren(ASTFactory.isAssignmentStatement || ASTFactory.isVariableDefinitionStatement)
+        this._transformStmt.body
+            .filterStatements(TreeUtil.isAssignment || TreeUtil.isVariableDef)
             .forEach((stmt) => {
                 this.removeOutputExpressions(stmt, type.name);
             });
@@ -859,9 +859,9 @@ class TransformNodeMapper {
                     // check for temp expressions
                     if (TransformUtils.isTempVariable(this._transformStmt, stmt.getExpression())) {
                         const tempExp = stmt.getExpression();
-                        const tempUsedStmts = TransformUtils.getInputStatements(this._transformStmt, empExp);
+                        const tempUsedStmts = TransformUtils.getInputStatements(this._transformStmt, tempExp);
                         if (tempUsedStmts.length === 1) {
-                            const tempAssignStmt = TransformUtils.getOutputStatement(this._transformStmt, empExp);
+                            const tempAssignStmt = TransformUtils.getOutputStatement(this._transformStmt, tempExp);
                             const tempLeftExp = tempAssignStmt.getVariables().find((ex) => {
                                 return ex.getSource().trim() === tempExp.getSource().trim();
                             });
@@ -873,7 +873,7 @@ class TransformNodeMapper {
                 } else {
                     stmt.setDeclaredWithVar(true, true);
                     const simpleVarRefExpression = TransformFactory.createSimpleVariableRef('__output' + (index + 1));
-                    stmt.replaceVariablesByIndex(simpleVarRefExpression, index, true);
+                    stmt.replaceVariablesByIndex(index, simpleVarRefExpression, true);
                 }
             }
         });

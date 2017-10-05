@@ -50,6 +50,7 @@ class FunctionNode extends React.Component {
         const body = this.props.model.getBody();
         const bodyBBox = body.viewState.bBox;
         const blockNode = getComponentForNodeArray(body, this.context.mode);
+        const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -118,6 +119,7 @@ class FunctionNode extends React.Component {
                         iconColor='#025482'
                     />
                     {blockNode}
+                    {workers}
                 </PanelDecorator>);
        // TODOX }
     }

@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import SimpleBBox from './../../../model/view/simple-bounding-box';
 import TreeUtil from './../../../model/tree-util';
+import { getWorkerMaxHeight } from './../../diagram-util';
 
 class SizingUtil {
 
@@ -255,6 +256,10 @@ class SizingUtil {
         const viewState = node.viewState;
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
+        const workers = node.workers;
+        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2);
+        let maxWorkerHeight = workers.length > 0 ? getWorkerMaxHeight(workers) : -1;
+        maxWorkerHeight = Math.max(maxWorkerHeight, defaultWorkerHeight);
 
         /* Define the sub components */
         cmp.heading = new SimpleBBox();
@@ -265,9 +270,9 @@ class SizingUtil {
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
-        // calculate defult worker
+        // calculate default worker
         cmp.defaultWorker.w = this.config.lifeLine.width;
-        cmp.defaultWorker.h = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2);
+        cmp.defaultWorker.h = maxWorkerHeight;
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -689,13 +694,14 @@ class SizingUtil {
 
 
     /**
-     * Calculate dimention of Worker nodes.
-     *
-     * @param {object} node
-     *
+     * Calculate dimension of Worker nodes.
+     * @param {object} node - worker node
      */
     sizeWorkerNode(node) {
-        // Not implemented.
+        const bBox = node.viewState.bBox;
+        const workerBody = node.body;
+        bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        bBox.w = this.config.lifeLine.width;
     }
 
 

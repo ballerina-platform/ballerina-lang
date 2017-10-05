@@ -22,44 +22,28 @@ import FragmentUtils from '../../../../../utils/fragment-utils';
 import TreeBuilder from '../../../../../model/tree-builder';
 
 class TransformFactory {
-    
-    static createSimpleVariableRef(variableName) {
-        const variableRef = NodeFactory.createSimpleVariableRef({});
-        const identifierNode = NodeFactory.createIdentifier({});
-        identifierNode.setValue(variableName);
-        variableRef.setVariableName(identifierNode);
-        return variableRef;
-    }
-
-    static createVariableDef(name, type, value) {
-        const variableDef = NodeFactory.createVariableDef({});
-        const variable = NodeFactory.createVariable({});
-        const initialExpression = NodeFactory.createLiteral({});
-        initialExpression.setValue(value);
-        variable.setInitialExpression(initialExpression);
-        const typeNode = NodeFactory.createValueType({});
-        typeNode.setTypeKind(type);
-        const identifierNode = NodeFactory.createIdentifier({});
-        identifierNode.setValue(name);
-        variable.setName(identifierNode);
-        variable.setTypeNode(typeNode);
-        variableDef.setVariable(variable);
-
-        // TODO: replace with fragment parser
-
-        // variableDef.setStatementFromString('string ' + varName + ' = ""');
-        return variableDef;
-    }
-
     /**
-     * Create  for FieldBasedVarRefExpression struct fields
+     * Create for expression for fields
      * @param  {string} name expression name
-     * @return {object} FieldBasedVarRefExpression object
+     * @return {object} expression object
      */
-    static createFieldBasedVarRefExpression(name) {
+    static createVariableRefExpression(name) {
         const fragment = FragmentUtils.createExpressionFragment(name);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const refExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return refExpr;
+    }
+    /**
+     * Create for statement for fields
+     * @param  {string} name  variable name
+     * @param  {string} type  variable type
+     * @param  {string} value default value
+     * @return {object} statement object
+     */
+    static createVariableDef(name, type, value) {
+        const fragment = FragmentUtils.createStatementFragment(type + ' ' + name + ' = ' + value + '"";');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const refExpr = TreeBuilder.build(parsedJson);
         return refExpr;
     }
 
@@ -79,10 +63,20 @@ class TransformFactory {
     /**
      * Create default expression based on argument type
      * @static
-     * @param {any} args args
+     * @param {any} type type
      * @memberof TransformFactory
      */
-    static createDefaultExpression(args) {
+    static createDefaultExpression(type) {
+        // TODO : get default values from environment and support other types
+        let fragment = FragmentUtils.createExpressionFragment('""');
+        if (type === 'string') {
+            fragment = FragmentUtils.createExpressionFragment('""');
+        } else if (type === 'int') {
+            fragment = FragmentUtils.createExpressionFragment('0');
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return exp;
         // TODO : create default expression based on argument type
     }
 
