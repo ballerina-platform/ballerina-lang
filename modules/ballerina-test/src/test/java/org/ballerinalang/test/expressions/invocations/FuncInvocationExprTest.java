@@ -107,7 +107,7 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testReturnNativeFuncInvocationWithinNativeFuncInvocation() {
         BValue[] args = {new BFloat(2)};
         BValue[] returns = BTestUtils.invoke(funcInvocationExpResult,
