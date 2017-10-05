@@ -1044,8 +1044,10 @@ public class BLangPackageBuilder {
 
     public void setAnnotationAttachmentName() {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        annotAttachmentStack.peek().setAnnotationName(createIdentifier(nameReference.name.getValue()));
-        annotAttachmentStack.peek().setPackageAlias(createIdentifier(nameReference.pkgAlias.getValue()));
+        AnnotationAttachmentNode annotAttach = annotAttachmentStack.peek();
+        annotAttach.addWS(nameReference.ws);
+        annotAttach.setAnnotationName(nameReference.name);
+        annotAttach.setPackageAlias(nameReference.pkgAlias);
     }
 
     public void createLiteralTypeAttributeValue(DiagnosticPos currentPos, Set<Whitespace> ws) {
