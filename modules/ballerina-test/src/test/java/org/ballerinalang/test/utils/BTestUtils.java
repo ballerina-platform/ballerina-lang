@@ -29,6 +29,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -118,6 +119,36 @@ public class BTestUtils {
         }
 
         return comResult;
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source package/file
+     * @return compiled package node
+     */
+    public static BLangPackage compileAndGetPackage(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+
+        CompileResult comResult = new CompileResult();
+
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.compile(packageName);
+        BLangPackage compiledPkg = (BLangPackage) compiler.getAST();
+
+        return compiledPkg;
     }
 
     /**
