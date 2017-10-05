@@ -47,6 +47,41 @@ class TransformFactory {
         return refExpr;
     }
 
+
+    /**
+     * Create assignment statement from given args
+     * @static
+     * @param {any} args arguments
+     * @param {Expression} args.expression expression for the assignment
+     * @memberof TransformFactory
+     */
+    static createAssignmentStatement(args) {
+        const assignment = NodeFactory.createAssignment({});
+        assignment.setExpression(args.expression);
+        return assignment;
+    }
+
+    /**
+     * Create default expression based on argument type
+     * @static
+     * @param {any} type type
+     * @memberof TransformFactory
+     * @return {object} expression object
+     */
+    static createDefaultExpression(type) {
+        // TODO : get default values from environment and support other types
+        let fragment = FragmentUtils.createExpressionFragment('""');
+        if (type === 'string') {
+            fragment = FragmentUtils.createExpressionFragment('""');
+        } else if (type === 'int') {
+            fragment = FragmentUtils.createExpressionFragment('0');
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
+        return exp;
+        // TODO : create default expression based on argument type
+    }
+
     /**
      * Create for statement from statement
      * @param  {string} statement  statement string
