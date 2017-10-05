@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.any;
+package org.ballerinalang.test.types.any;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;

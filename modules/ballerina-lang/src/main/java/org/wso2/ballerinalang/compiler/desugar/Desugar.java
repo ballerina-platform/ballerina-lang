@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -43,6 +44,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -76,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -110,6 +115,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -158,6 +164,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         pkgNode.imports = rewrite(pkgNode.imports);
+        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList);
         pkgNode.globalVars = rewrite(pkgNode.globalVars);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
@@ -214,6 +221,7 @@ public class Desugar extends BLangNodeVisitor {
         connectorNode.actions = rewrite(connectorNode.actions);
         connectorNode.varDefs = rewrite(connectorNode.varDefs);
         connectorNode.initFunction = rewrite(connectorNode.initFunction);
+        connectorNode.initAction = rewrite(connectorNode.initAction);
         result = connectorNode;
     }
 
@@ -305,9 +313,30 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl);
         result = xmlnsStmtNode;
     }
 
+
+    @Override
+    public void visit(BLangXMLNS xmlnsNode) {
+        BLangXMLNS generatedXMLNSNode;
+        xmlnsNode.namespaceURI = rewriteExpr(xmlnsNode.namespaceURI);
+        BSymbol ownerSymbol = xmlnsNode.symbol.owner;
+
+        // Local namespace declaration in a function/resource/action/worker
+        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            generatedXMLNSNode = new BLangLocalXMLNS();
+        } else {
+            generatedXMLNSNode = new BLangPackageXMLNS();
+        }
+
+        generatedXMLNSNode.namespaceURI = xmlnsNode.namespaceURI;
+        generatedXMLNSNode.prefix = xmlnsNode.prefix;
+        generatedXMLNSNode.symbol = xmlnsNode.symbol;
+        result = generatedXMLNSNode;
+    }
+    
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr = rewriteExpr(exprStmtNode.expr);
@@ -416,6 +445,21 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
+
+        // XML qualified name reference. e.g: ns0:foo
+        if (varRefExpr.pkgSymbol != null && varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+            BLangXMLQName qnameExpr = new BLangXMLQName(varRefExpr.variableName);
+            qnameExpr.nsSymbol = (BXMLNSSymbol) varRefExpr.pkgSymbol;
+            qnameExpr.localname = varRefExpr.variableName;
+            qnameExpr.prefix = varRefExpr.pkgAlias;
+            qnameExpr.namespaceURI = qnameExpr.nsSymbol.namespaceURI;
+            qnameExpr.isUsedInXML = false;
+            qnameExpr.pos = varRefExpr.pos;
+            qnameExpr.type = symTable.stringType;
+            result = qnameExpr;
+            return;
+        }
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 varRefExpr.symbol.type.tag == TypeTags.INVOKABLE) {
@@ -602,8 +646,27 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
         xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
-        xmlElementLiteral.modifiedChildren.forEach(child -> rewriteExpr(child));
-        xmlElementLiteral.attributes.forEach(attribute -> rewriteExpr(attribute));
+        xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
+        xmlElementLiteral.attributes = rewriteExprs(xmlElementLiteral.attributes);
+        
+        // Separate the in-line namepsace declarations and attributes.
+        Iterator<BLangXMLAttribute> attributesItr = xmlElementLiteral.attributes.iterator();
+        while (attributesItr.hasNext()) {
+            BLangXMLAttribute attribute = attributesItr.next();
+            if (!attribute.isNamespaceDeclr) {
+                continue;
+            }
+
+            // Create local namepace declaration for all in-line namespace declarations
+            BLangLocalXMLNS xmlns = new BLangLocalXMLNS();
+            xmlns.namespaceURI = attribute.value.concatExpr;
+            xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
+            xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
+            
+            xmlElementLiteral.inlineNamespaces.add(xmlns);
+            attributesItr.remove();
+        }
+
         result = xmlElementLiteral;
     }
 
@@ -650,6 +713,18 @@ public class Desugar extends BLangNodeVisitor {
         result = workerReceiveNode;
     }
 
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        xmlAttributeAccessExpr.indexExpr = rewrite(xmlAttributeAccessExpr.indexExpr);
+        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
+
+        if (xmlAttributeAccessExpr.indexExpr != null
+                && xmlAttributeAccessExpr.indexExpr.getKind() == NodeKind.XML_QNAME) {
+            ((BLangXMLQName) xmlAttributeAccessExpr.indexExpr).isUsedInXML = true;
+        }
+
+        result = xmlAttributeAccessExpr;
+    }
 
     // Generated expressions. Following expressions are not part of the original syntax
     // tree which is coming out of the parser

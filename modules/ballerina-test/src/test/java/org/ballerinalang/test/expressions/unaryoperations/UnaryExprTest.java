@@ -175,8 +175,8 @@ public class UnaryExprTest {
     @Test(description = "Test uanry statement with errors")
     public void testUnaryStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
-        BTestUtils.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 9);
-        BTestUtils.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 9);
-        BTestUtils.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 9);
+        BTestUtils.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
+        BTestUtils.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
+        BTestUtils.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
     }
 }
