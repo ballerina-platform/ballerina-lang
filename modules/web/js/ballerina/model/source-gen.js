@@ -19,7 +19,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         if (!shouldIndent && wsI !== undefined) {
             return wsI;
         }
-        return defaultWS || ' ';
+        return defaultWS || '';
     }
 
     function a(afterWS) {
@@ -62,7 +62,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + join(node.packageName, pretty, l, w, '', '.') + w() + ';';
         case 'Import':
             return dent() + w(' ') + 'import'
-                 + join(node.packageName, pretty, l, w, '', '.') + w() + ';';
+                 + join(node.packageName, pretty, l, w, ' ', '.') + w() + ';';
         case 'Identifier':
             return w() + node.value;
         case 'Action':
@@ -98,7 +98,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return w() + node.name + w() + ':' + getSourceOf(node.value, pretty, l);
         case 'AnnotationAttachmentAttributeValue':
             if (node.value) {
-            return getSourceOf(node.value, pretty, l);
+                return getSourceOf(node.value, pretty, l);
             } else {
                 return w() + '[' + join(node.valueArray, pretty, l, w, '', ',') + w()
                  + ']';
@@ -124,7 +124,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return getSourceOf(node.leftExpression, pretty, l) + w(' ')
                  + node.operatorKind + getSourceOf(node.rightExpression, pretty, l);
         case 'Block':
-            return join(node.statements, pretty, l, w, '');
+            return join(node.statements, pretty, l, w, ' ');
         case 'Break':
             return dent() + w(' ') + 'break' + w() + ';';
         case 'BuiltInRefType':
@@ -143,7 +143,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                 return dent() + w(' ') + 'connector' + w(' ') + node.name.value + w(' ')
                  + '(' + join(node.parameters, pretty, l, w, '', ',') + w() + ')'
                  + w(' ') + '{' + indent()
-                 + join(node.actions, pretty, l, w, '') + outdent() + w() + '}';
+                 + join(node.actions, pretty, l, w, ' ') + outdent() + w() + '}';
             }
         case 'ConnectorInitExpr':
             if (node.connectorType && node.expressions) {
@@ -165,7 +165,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                  + node.fieldName.value;
         case 'ForkJoin':
             return dent() + w(' ') + 'fork' + w(' ') + '{' + indent()
-                 + join(node.workers, pretty, l, w, '') + outdent() + w() + '}'
+                 + join(node.workers, pretty, l, w, ' ') + outdent() + w() + '}'
                  + getSourceOf(node.joinResultVar, pretty, l);
         case 'Function':
             if (node.annotationAttachments && node.name.value && node.parameters
@@ -213,21 +213,21 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                          && node.argumentExpressions) {
                 return w(' ') + node.packageAlias.value + w(' ') + ':' + w(' ')
                  + node.name.value + w(' ') + '('
-                 + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
+                 + join(node.argumentExpressions, pretty, l, w, ' ', ',') + w() + ')';
             } else if (node.expression && node.name.value && node.argumentExpressions) {
                 return getSourceOf(node.expression, pretty, l) + w(' ') + '.' + w(' ')
                  + node.name.value + w(' ') + '('
-                 + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
+                 + join(node.argumentExpressions, pretty, l, w, ' ', ',') + w() + ')';
             } else {
                 return w(' ') + node.name.value + w(' ') + '('
-                 + join(node.argumentExpressions, pretty, l, w, '', ',') + w() + ')';
+                 + join(node.argumentExpressions, pretty, l, w, ' ', ',') + w() + ')';
             }
         case 'Literal':
             return w(' ') + node.value;
         case 'RecordLiteralExpr':
             if (node.keyValuePairs) {
                 return dent() + w(' ') + '{' + indent()
-                 + join(node.keyValuePairs, pretty, l, w, '', ',') + outdent() + w() + '}';
+                 + join(node.keyValuePairs, pretty, l, w, ' ', ',') + outdent() + w() + '}';
             } else {
                 return dent() + w(' ') + '{' + indent() + outdent() + w() + '}';
             }
@@ -235,14 +235,14 @@ export default function getSourceOf(node, pretty = false, l = 0) {
             return getSourceOf(node.key, pretty, l) + w(' ') + ':'
                  + getSourceOf(node.value, pretty, l);
         case 'Resource':
-            return dent() + join(node.annotationAttachments, pretty, l, w, '')
+            return dent() + join(node.annotationAttachments, pretty, l, w, ' ')
                  + w() + 'resource' + w() + node.name.value + w() + '('
                  + join(node.parameters, pretty, l, w, ' ', ',') + w() + ')' + w(' ') + '{'
                  + indent() + getSourceOf(node.body, pretty, l) + outdent() + w()
                  + '}';
         case 'Return':
             return dent() + w(' ') + 'return'
-                 + join(node.expressions, pretty, l, w, '', ',') + w() + ';';
+                 + join(node.expressions, pretty, l, w, ' ', ',') + w() + ';';
         case 'Service':
             return dent() + join(node.annotationAttachments, pretty, l, w, '') + w()
                  + 'service' + w() + '<' + w()
@@ -329,7 +329,7 @@ export default function getSourceOf(node, pretty = false, l = 0) {
                 return w(' ') + '=';
             }
         case 'XmlCommentLiteral':
-            return join(node.textFragments, pretty, l, w, '');
+            return join(node.textFragments, pretty, l, w, ' ');
         case 'XmlElementLiteral':
             if (node.attributes && node.content && node.endTagName) {
                 return w(' ') + '<' + join(node.attributes, pretty, l, w, ' ') + w(' ')
@@ -342,18 +342,18 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         case 'XmlPiLiteral':
             if (node.target && node.dataTextFragments) {
                 return getSourceOf(node.target, pretty, l)
-                 + join(node.dataTextFragments, pretty, l, w, '');
+                 + join(node.dataTextFragments, pretty, l, w, ' ');
             } else if (node.dataTextFragments) {
-                return join(node.dataTextFragments, pretty, l, w, '');
+                return join(node.dataTextFragments, pretty, l, w, ' ');
             } else {
                 return getSourceOf(node.target, pretty, l);
             }
         case 'XmlQname':
             return w(' ') + '</' + w(' ') + node.localname.value + w(' ') + '>';
         case 'XmlQuotedString':
-            return join(node.textFragments, pretty, l, w, '');
+            return join(node.textFragments, pretty, l, w, ' ');
         case 'XmlTextLiteral':
-            return join(node.textFragments, pretty, l, w, '');
+            return join(node.textFragments, pretty, l, w, ' ');
 
         // auto gen end
         default:
