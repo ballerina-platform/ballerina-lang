@@ -29,6 +29,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -110,11 +111,14 @@ public class BTestUtils {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
-        if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+        org.wso2.ballerinalang.programfile.ProgramFile programFile;
+        try {
+            compiler.compile(packageName);
+            programFile = compiler.getCompiledProgram();
+            if (programFile != null) {
+                comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+            }
+        } catch (BLangParserException ignore) {
         }
 
         return comResult;

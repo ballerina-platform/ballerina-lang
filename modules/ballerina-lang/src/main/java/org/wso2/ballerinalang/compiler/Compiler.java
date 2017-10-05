@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -129,16 +130,15 @@ public class Compiler {
             return null;
         }
 
-        pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
-        if (dlog.errorCount > 0) {
-            pkgNode = null;
+        try {
+            return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
+        } catch (BLangParserException e) {
+            throw new BLangParserException("compilation failed: " + e.getMessage());
         }
-
-        return pkgNode;
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.TYPE_CHECK, pkgNode)) {
+        if (stopCompilation(CompilerPhase.TYPE_CHECK)) {
             return pkgNode;
         }
 
@@ -146,7 +146,7 @@ public class Compiler {
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_ANALYZE, pkgNode)) {
+        if (stopCompilation(CompilerPhase.CODE_ANALYZE)) {
             return pkgNode;
         }
 
@@ -154,7 +154,7 @@ public class Compiler {
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.DESUGAR, pkgNode)) {
+        if (stopCompilation(CompilerPhase.DESUGAR)) {
             return pkgNode;
         }
 
@@ -162,7 +162,7 @@ public class Compiler {
     }
 
     private void gen(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_GEN, pkgNode)) {
+        if (stopCompilation(CompilerPhase.CODE_GEN)) {
             return;
         }
 
@@ -182,9 +182,5 @@ public class Compiler {
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
-    }
-
-    private boolean stopCompilation(CompilerPhase phase, BLangPackage pkgNode) {
-        return pkgNode == null || stopCompilation(phase);
     }
 }
