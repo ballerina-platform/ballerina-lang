@@ -34,8 +34,6 @@ import org.ballerinalang.test.utils.ws.MockWebSocketSession;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,6 +41,7 @@ import org.testng.annotations.Test;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.websocket.CloseReason;
 
 /**

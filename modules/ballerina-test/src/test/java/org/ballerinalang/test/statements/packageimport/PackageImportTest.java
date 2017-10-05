@@ -32,7 +32,7 @@ public class PackageImportTest {
      * Negative tests
      */
     
-    @Test
+    @Test(enabled = false)
     public void testDuplicatePackageImports() {
         CompileResult result = BTestUtils.compile(
                 "test-src/statements/packageimport/duplicate-import-negative.bal");
