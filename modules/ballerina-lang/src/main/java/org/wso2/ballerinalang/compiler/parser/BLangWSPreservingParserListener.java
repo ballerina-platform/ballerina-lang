@@ -5,10 +5,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
@@ -16,7 +15,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 /**
- * Implements the getWS to actually return the whitespaces.
+ * Implements the getWS to actually return the whitespaces (default implementation returns null).
  * 1) Identify the source ranges of each parser context, such that parent's range doesn't overlap the child context.
  *    (Note that, siblings' ranges still may overlap, therefor we have to de-duplicate in step 3)
  * 2) Get whitespace tokens for each context, combine adjacent, insert for non exiting to make sure there is exactly
@@ -80,7 +79,9 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
         }
         wsSinceLastNode.addAll(ws);
 
-        rangesOfRuleContext.peek().add(new TokenRange(rangeEndTokenIndex));
+        if (!rangesOfRuleContext.isEmpty()) {
+            rangesOfRuleContext.peek().add(new TokenRange(rangeEndTokenIndex));
+        }
     }
 
     private void addWSFromRange(Stack<Whitespace> ws, TokenRange range) {
@@ -89,38 +90,64 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
         boolean lastTokenWasHidden = true;
 
         Token previousNonWS = null;
-        for (int j = rangeStart; j < this.tokenStream.size(); j++) {
+        for (int j = rangeEnd - 1; j >= -1; j--) {
+            if (j == -1) {
+                if (!lastTokenWasHidden) {
+                    // capturing (non-exiting) WS at the start of range, if the range starts at 0.
+                    // this happens if the file starts with a non-ws token.
+                    pushWS(ws, previousNonWS, "");
+                }
+                break;
+            }
+
             Token token = this.tokenStream.get(j);
             if (previousNonWS == null && token.getChannel() == Token.HIDDEN_CHANNEL) {
                 continue;
             }
             if (token.getChannel() == Token.DEFAULT_CHANNEL) {
-                // we need to capture dangling WS after end of a range,
-                // therefor only break after next range's first non-WS.
-                if (j >= rangeEnd) {
+                // we need to capture WS before the start of a range,
+                // therefor only break after previous range's first non-WS.
+                if (j < rangeStart) {
                     if (!lastTokenWasHidden) {
-                        // capturing (non-exiting) WS at the end of range (when there is no space between ranges).
-                        ws.push(new Whitespace(previousNonWS.getTokenIndex(), "", previousNonWS.getText()));
+                        pushWS(ws, previousNonWS, "");
+                        // capturing (non-exiting) WS at the start of range (when there is no space between ranges).
                     }
                     break;
                 }
                 // capturing (non-exiting) WS between two default tokens.
                 if (!lastTokenWasHidden) {
-                    ws.push(new Whitespace(previousNonWS.getTokenIndex(), "", previousNonWS.getText()));
+                    pushWS(ws, previousNonWS, "");
                 }
                 lastTokenWasHidden = false;
                 previousNonWS = token;
             } else {
                 if (lastTokenWasHidden) {
                     // merging adjacent WS tokens.
-                    ws.peek().appendWS(token.getText());
+                    ws.peek().prependWS(token.getText());
                 } else {
                     // capturing (non-zero-len) WS.
-                    ws.push(new Whitespace(previousNonWS.getTokenIndex(), token.getText(), previousNonWS.getText()));
+                    pushWS(ws, previousNonWS, token.getText());
                 }
                 lastTokenWasHidden = true;
             }
         }
+    }
+
+    private static boolean isAllUpper(String s) {
+        int len = s.length();
+        for (int i = 0; i < len; ++i) {
+            char ch = s.charAt(i);
+            if (!Character.isUpperCase(ch) && ch != '_') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void pushWS(Stack<Whitespace> whitespaceStack, Token previousNonWS, String wsString) {
+        boolean isStatic = isAllUpper(BallerinaLexer.VOCABULARY.getSymbolicName(previousNonWS.getType()));
+        Whitespace wsToken = new Whitespace(previousNonWS.getTokenIndex(), wsString, previousNonWS.getText(), isStatic);
+        whitespaceStack.push(wsToken);
     }
 
     @Override
@@ -142,20 +169,6 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
 
         wsSinceLastNode = new TreeSet<>();
         return wsForThisNode;
-    }
-
-    @Override
-    public void exitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
-        super.exitCompilationUnit(ctx);
-        // CompilationUnit is special, it's the only element that has WS that is not prefixed by non-ws token
-        // So we have to manually attach it.
-        int i = 0;
-        StringBuilder w = new StringBuilder();
-        Token t;
-        while ((t = this.tokenStream.get(i++)).getChannel() == Token.HIDDEN_CHANNEL) {
-            w.append(t.getText());
-        }
-        compUnit.addWS(Collections.singleton(new Whitespace(-1, w.toString(), null)));
     }
 
     private static class TokenRange {
