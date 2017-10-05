@@ -27,6 +27,7 @@ import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
+import TreeUtil from '../../../../../model/tree-util';
 
 class ResourceNode extends React.Component {
 
@@ -39,13 +40,9 @@ class ResourceNode extends React.Component {
         this.onMouseOut = this.onMouseOut.bind(this);
     }
 
-    canDropToPanelBody(nodeBeingDragged) {
-        /* const nodeFactory = ASTFactory;
-        // IMPORTANT: override default validation logic
-        // Panel's drop zone is for worker and connector declarations only.
-        // Statements should only be allowed on top of resource worker's dropzone.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);*/
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorInitExpr(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -110,7 +107,7 @@ class ResourceNode extends React.Component {
                     bBox={bBox}
                     model={this.props.model}
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
                 >
                     <g>
