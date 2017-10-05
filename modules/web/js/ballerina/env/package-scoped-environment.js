@@ -52,7 +52,7 @@ class PackageScopedEnvironment {
     }
 
     getCurrentPackage() {
-        return this._currentPackage;
+        return this._currentPackage || new Package({ name: 'Current Package' });
     }
 
     resetCurrentPackage() {
