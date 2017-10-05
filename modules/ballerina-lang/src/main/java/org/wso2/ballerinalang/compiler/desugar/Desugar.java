@@ -550,6 +550,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef varRef = new BLangSimpleVarRef();
             varRef.symbol = (BVarSymbol) iExpr.symbol;
             varRef.type = iExpr.symbol.type;
+            varRef = rewriteExpr(varRef);
             genIExpr = new BFunctionPointerInvocation(iExpr, varRef);
         }
 

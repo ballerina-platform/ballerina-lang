@@ -129,6 +129,9 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.regIndexes = parent.regIndexes;
             this.symbol = parent.symbol;
             this.expr = varRef;
+            if (types.size() > 0) {
+                this.type = types.get(0);
+            }
         }
 
         @Override
