@@ -595,7 +595,7 @@ class SizingUtil {
                 resources.map((resource, index) => {
                     const resourcebBox = resources[index].viewState.bBox;
                     if (!resource.viewState.collapsed) {
-                        viewState.bBox.h += resourcebBox.h;
+                        viewState.bBox.h += resourcebBox.h + 40;
                     }
                 });
             } else {

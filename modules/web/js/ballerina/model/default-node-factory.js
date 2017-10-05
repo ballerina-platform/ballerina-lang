@@ -95,13 +95,19 @@ class DefaultNodeFactory {
         );
     }
 
-    createResource() {  
+    createHTTPResource() {
         return getNodeForFragment(
             FragmentUtils.createServiceResourceFragment(`
-                resource echo1 (message m, string foo) {
+                resource echo1 (http:Request req, http:Response res) {
 
                 }
             `)
+        );
+    }
+
+    createWSResource(fragment) {
+        return getNodeForFragment(
+            FragmentUtils.createServiceResourceFragment(fragment)
         );
     }
 

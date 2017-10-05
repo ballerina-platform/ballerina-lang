@@ -35,7 +35,7 @@ class ServiceNodeHelper {
     static getAttributes(environment, pkgIdentifier, annotationDefinitionName) {
         const annotationAttributes = [];
         for (const packageDefintion of environment.getPackages()) {
-            const fullPackageName = environment.getPackageByIdentifier(pkgIdentifier).name;
+            const fullPackageName = environment.getPackageByIdentifier(pkgIdentifier).getName();
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                     if (annotationDefinition.getName() === annotationDefinitionName) {
@@ -48,6 +48,26 @@ class ServiceNodeHelper {
         }
 
         return annotationAttributes;
+    }
+
+    /**
+     * Gets attribute definition.
+     *
+     * @static
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
+     * @param {string} attributeName The name of the attribute.
+     * @param {string} annotationDefinitionFullPackageName The full package name of the annotation definition which the
+     * attribute resides.
+     * @param {string} annotationDefinitionName The name of the annotation definition which the attribute resides.
+     * @returns {AnnotationAttributeDefinition} The matching attribute definition.
+     * @memberof AnnotationHelper
+     */
+    static getAttributeDefinition(environment, attributeName, pkgIdentifier, annotationDefinitionName) {
+        const attributesDefinitions = ServiceNodeHelper.getAttributes(
+            environment, pkgIdentifier, annotationDefinitionName);
+        return attributesDefinitions.filter((attributeDefinition) => {
+            return attributeDefinition.getIdentifier() === attributeName;
+        })[0];
     }
 
 }

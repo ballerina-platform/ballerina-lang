@@ -112,6 +112,7 @@ class ResourceNode extends React.Component {
                     dropTarget={this.props.model}
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     argumentParams={argumentParameters}
+                    packageIdentifier={parentNode.getProtocolPackageIdentifier().value}
                 >
                     <g>
                         <LifeLineDecorator

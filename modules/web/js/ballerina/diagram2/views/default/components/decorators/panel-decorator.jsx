@@ -33,6 +33,7 @@ import './panel-decorator.css';
 import ArgumentParameterDefinitionHolder from './../nodes/argument-parameter-definition-holder';
 import ReturnParameterDefinitionHolder from './../nodes/return-parameter-definition-holder';
 import NodeFactory from './../../../../../model/node-factory';
+import TreeUtils from './../../../../../model/tree-util';
 
 /* TODOX
 import ASTFactory from '../../../../ast/ast-factory';
@@ -53,9 +54,6 @@ class PanelDecorator extends React.Component {
         this.handleProtocolClick = this.handleProtocolClick.bind(this);
         this.handleProtocolBlur = this.handleProtocolBlur.bind(this);
         this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
-
-        // todo : another hack for now we need to move this to correct place and make it dynamic.
-        this.availableProtocols = [{ name: 'http' }, { name: 'ws' }, { name: 'jms' }, { name: 'file' }];
     }
 
     handleProtocolClick() {
@@ -186,7 +184,6 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
 
-        // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const annotations = []; // this.props.model.getChildren().filter(
                               //                          child => ASTFactory.isAnnotationAttachment(child));
         const annotationString = this.getAnnotationsString(annotations);
@@ -207,6 +204,9 @@ class PanelDecorator extends React.Component {
         };
 
         const rightHeadingButtons = this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
+
+        const isResourceDef = TreeUtils.isResource(this.props.model);
+        const wsResourceDef = (isResourceDef && this.props.packageIdentifier === 'ws');
 
         let protocolOffset = 0;
         if (this.props.protocol) {
@@ -234,19 +234,40 @@ class PanelDecorator extends React.Component {
                     height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}
                 />
+                {wsResourceDef && <g>
+                    <rect
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                        width={titleWidth.w}
+                    />
+                    <text
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + 5}
+                        y={bBox.y + titleHeight / 2 + annotationBodyHeight + 5}
+                        className="resourceName"
+                    >{titleWidth.text}</text>
+                </g>}
+                {!wsResourceDef &&
                 <EditableText
                     x={bBox.x + titleHeight + iconSize + protocolOffset}
                     y={bBox.y + titleHeight / 2 + annotationBodyHeight}
-                    width={titleWidth.w - 10}
-                    onBlur={() => { this.onTitleInputBlur(); }}
-                    onClick={() => { this.onTitleClick(); }}
+                    width={titleWidth.w}
+                    onBlur={() => {
+                        this.onTitleInputBlur();
+                    }}
+                    onClick={() => {
+                        this.onTitleClick();
+                    }}
                     editing={this.state.titleEditing}
-                    onChange={(e) => { this.onTitleInputChange(e); }}
+                    onChange={(e) => {
+                        this.onTitleInputChange(e);
+                    }}
                     displayText={titleWidth.text}
-                    onKeyDown={(e) => { this.onTitleKeyDown(e); }}
+                    onKeyDown={(e) => {
+                        this.onTitleKeyDown(e);
+                    }}
                 >
                     {this.state.editingTitle}
-                </EditableText>
+                </EditableText>}
                 {rightHeadingButtons}
                 { this.props.argumentParams &&
                     <ArgumentParameterDefinitionHolder

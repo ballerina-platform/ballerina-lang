@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import ServiceNodeHelper from './../../../../../env/helpers/service-node-helper';
 import './properties-form.css';
 import PropertiesWindow from './property-window';
-import TreeUtils from './../../../../../model/tree-util';
+import NodeFactory from './../../../../../model/node-factory';
 
 /**
  * React component for a server connector properties form
@@ -71,106 +71,117 @@ class ServerConnectorPropertiesForm extends React.Component {
     getDataFromPropertyForm(data) {
         const model = this.props.model.props.model;
 
-        // Check if there is an 'configuration' annotation attachment already
-        if (model.getAnnotationAttachments()) {
+        // Check if there is a 'configuration' annotation attachment already
+        if (model.getAnnotationAttachments().length > 0) {
             model.getAnnotationAttachments().map((annotationAttachment) => {
                 if (!annotationAttachment.getAnnotationName() === 'configuration') {
                     // Create an annotation attachment 'configuration' node
+                    model.addAnnotationAttachments(NodeFactory.createAnnotationAttachment(
+                        { packageAlias: model.getProtocolPackageIdentifier().value,
+                            annotationName: 'configuration' }), model.getAnnotationAttachments().length - 1);
                 }
             });
         } else {
             // If there's no annotation attachment node create a 'configuration'
+            model.addAnnotationAttachments(NodeFactory.createAnnotationAttachment(
+                { packageAlias: model.getProtocolPackageIdentifier().value,
+                    annotationName: 'configuration' }), 0);
         }
 
         // Get the configuration annotation attachment node of the service node
         const annotationAttachments = model.filterAnnotationAttachments((attachment) => {
             return attachment.getAnnotationName().value === 'configuration';
-        });
+        })[0];
 
-        /*
-        const annotationContainer = this.props.model.getChildren()[0];
-        let methodAttribute,
-            methodsValue,
-            getValue;
+        // Iterate over the data entered from the property form
         Object.keys(data).forEach((key) => {
+            // If there are values entered for the attribute
             if (data[key]) {
                 let exists = false;
-                // For Arrays
-                if (this.isArrayTypeConfigurationAttribute(key)) {
-                    Object.keys(annotationContainer.children).forEach((annotationKey) => {
-                        if (annotationContainer.children[annotationKey].getKey() === key) {
+                // For values
+                if (!this.isArrayTypeConfigurationAttribute(key)) {  // /* if no value array*/
+                    // For attributes with values
+                    // Object.keys(annotationAttachments.getAttributes()).map((annotation) => {
+                    annotationAttachments.getAttributes().map((annotation) => {
+                        // If the attribute is already added change the value with the new value
+                        if (annotation.name === key) {
                             exists = true;
-                            const childValues = annotationContainer.children[annotationKey].getChildren()[0]
-                                .getChildren();
+                            annotation.value.getValue().setValue(data[key]);
+                        }
+                    });
+                    // If the value doesnot exists create a new value
+                    if (!exists) {
+                        // Add a new annotation attachment attribute node
+                        const annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
+
+                        // Add a new annotation attachment attribute value
+                        const annotationAttachmentAttrValue = NodeFactory
+                            .createAnnotationAttachmentAttributeValue({ value: data[key] });
+
+                        // Add the annotation attachment attribute value to the annotation attribute
+                        annotationAttachmentAttr.setValue(annotationAttachmentAttrValue);
+
+                        // Add the annotation attachment attribute to the annotation attachment node
+                        // Calculate the index to be added
+                        const index = annotationAttachments.getAttributes().length - 1;
+                        annotationAttachments.addAttributes(annotationAttachmentAttr, index + 1);
+                    }
+                    // For the attributes with value arrays
+                } else {
+                    Object.keys(annotationAttachments.getAttributes()).forEach((annotation) => {
+                        if (annotation.name === key) {
+                            exists = true;
+                            // Get the values from the value array
+                            const childValues = annotation.value.getValueArray();
+                            // Check if there are any values to be entered to the array
                             if (data[key].length > 0) {
                                 data[key].map((value) => {
                                     childValues.map((existingValue) => {
-                                        if (!(data[key].some(item => existingValue.getChildren()[0]
-                                                .getStringValue() === item))) {
-                                            existingValue.getParent().removeChild(existingValue);
+                                        // Remove if there are differences in the values entered newly
+                                        // and the exisiting values
+                                        if (!(data[key].some(item => existingValue.value.getValue().value === item))) {
+                                            // Remove the value from the value array
+                                            annotation.value.removeValueArray(existingValue);
                                         }
                                     });
-
-                                    if (!(childValues.some(item => value === item.getChildren()[0]
-                                            .getStringValue()))) {
-                                        methodsValue = ASTFactory.createAnnotationAttributeValue();
-                                        getValue = ASTFactory.createBValue({
-                                            stringValue: value,
-                                        });
-                                        methodsValue.addChild(getValue);
-                                        annotationContainer.children[annotationKey].getChildren()[0]
-                                            .addChild(methodsValue);
+                                    // Add the newly added values to the array
+                                    if (!(childValues.some(item => value === item.value.getValue().value))) {
+                                        const annotationAttachmentAttrValue = NodeFactory
+                                            .createAnnotationAttachmentAttributeValue({ value });
+                                        // Add new value to value array
+                                        const index = annotation.value.getValueArray.length - 1;
+                                        annotation.value.addValueArray(annotationAttachmentAttrValue, index + 1);
                                     }
                                 });
                             } else {
-                                const node = annotationContainer.children[annotationKey];
-                                node.getParent().removeChild(node);
+                                // If no values are in the value array remove the annotation attachment attribute
+                                annotation.parent.removeAttributes(annotation);
                             }
                         }
                     });
-
+                    // If the value doesnot exists create a new value array
                     if (!exists) {
-                        methodAttribute = ASTFactory.createAnnotationAttribute({
-                            key,
-                        });
-                        methodsValue = ASTFactory.createAnnotationAttributeValue();
+                        // Add a new annotation attachment attribute node
+                        const annotationAttachmentAttr = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
                         const attributes = data[key];
-                        attributes.map((name) => {
-                            const methodsArray = ASTFactory.createAnnotationAttributeValue();
-                            getValue = ASTFactory.createBValue({
-                                stringValue: name,
-                            });
-                            methodsArray.addChild(getValue);
-                            methodsValue.addChild(methodsArray);
+
+                        attributes.map((identifier) => {
+                            // Add a new annotation attachment attribute value
+                            const annotationAttachmentAttrValue = NodeFactory
+                                .createAnnotationAttachmentAttributeValue({ value: identifier });
+                            // Add the new value to the value array
+                            const index = annotationAttachmentAttr.value.getValueArray.length - 1;
+                            annotationAttachmentAttr.addValueArray(annotationAttachmentAttrValue, index + 1);
                         });
-                        methodAttribute.addChild(methodsValue);
-                        annotationContainer.addChild(methodAttribute);
-                    }
-                } else {
-                    // Others
-                    Object.keys(annotationContainer.children).forEach((annotationKey) => {
-                        if (annotationContainer.children[annotationKey].getKey() === key) {
-                            exists = true;
-                            annotationContainer.children[annotationKey].getValue()
-                                .getChildren()[0].setStringValue(data[key]);
-                        }
-                    });
-                    if (!exists) {
-                        methodAttribute = ASTFactory.createAnnotationAttribute({
-                            key,
-                        });
-                        methodsValue = ASTFactory.createAnnotationAttributeValue();
-                        getValue = ASTFactory.createBValue({
-                            type: this.getBTypeOfConfigurationAttribute(key),
-                            stringValue: data[key],
-                        });
-                        methodsValue.addChild(getValue);
-                        methodAttribute.addChild(methodsValue);
-                        annotationContainer.addChild(methodAttribute);
+
+                        // Add the annotation attachment attribute to the annotation attachment node
+                        // Calculate the index to be added
+                        const index = annotationAttachments.getAttributes().length - 1;
+                        annotationAttachments.addAttributes(annotationAttachmentAttr, index + 1);
                     }
                 }
             }
-        });*/
+        });
     }
 
     /**
@@ -183,23 +194,25 @@ class ServerConnectorPropertiesForm extends React.Component {
         const annotationAttachment = model.filterAnnotationAttachments((attachment) => {
             return attachment.getAnnotationName().value === 'configuration';
         });
-        if (annotationAttachment) {
-            const attributes = annotationAttachment[0].attributes;
-            attributes.map((annotation) => {
-                let value;
-                // For array types
-                if ((annotation.value.getValueArray()).length > 0) {
-                    value = [];
-                    annotation.value.getValueArray().map((element) => {
-                        value.push(element.getValue().value);
-                    });
-                } else {
-                    value = annotation.value.getValue().value;
-                }
-                const keyValuePair = { identifier: annotation.name, value };
+        if (annotationAttachment[0]) {
+            if (annotationAttachment[0].attributes) {
+                const attributes = annotationAttachment[0].attributes;
+                attributes.map((annotation) => {
+                    let value;
+                    // For array types
+                    if ((annotation.value.getValueArray()).length > 0) {
+                        value = [];
+                        annotation.value.getValueArray().map((element) => {
+                            value.push(element.getValue().value);
+                        });
+                    } else {
+                        value = annotation.value.getValue().value;
+                    }
+                    const keyValuePair = { identifier: annotation.name, value };
 
-                addedValues.push(keyValuePair);
-            });
+                    addedValues.push(keyValuePair);
+                });
+            }
         }
         return addedValues;
     }
@@ -211,42 +224,24 @@ class ServerConnectorPropertiesForm extends React.Component {
     getSupportedKeys() {
         const props = this.props.model.props;
         const supportedKeysArray = [];
-        // const protocolPkgPath = this.getProtocolPkgPath(props.model.getProtocolPackageIdentifier().value);
-        this.supportedAttributes = ServiceNodeHelper.getAttributes(
+        const supportedAttributes = ServiceNodeHelper.getAttributes(
             props.environment, props.model.getProtocolPackageIdentifier().value, 'configuration');
-        /* const supportedKeysArray = [];
         const addedValues = this.getAddedValues();
-        const protocolPkgPath = this.getProtocolPkgPath(this.props.model.getProtocolPkgName());
-        this.supportedAttributes = AnnotationHelper.getAttributes(
-            this.props.environment, protocolPkgPath, 'configuration');
-
-        this.annotationAttachments = AnnotationHelper.getAnnotationAttachments(
-            this.props.environment, protocolPkgPath, 'configuration');
-
-        this.supportedAttributes.map((attributeDefinition) => {
+        supportedAttributes.map((attributeDefinition) => {
             let value = '';
-            let annotationDesc = '';
             addedValues.map((addedAnnotation) => {
                 if (addedAnnotation.identifier === attributeDefinition.getIdentifier()) {
                     value = addedAnnotation.value;
                 }
             });
-
-            this.annotationAttachments.map((annotationAttachment) => {
-                if (annotationAttachment.getKey().bValue === attributeDefinition.getIdentifier()) {
-                    annotationDesc = annotationAttachment.getValue().bValue;
-                }
-            });
-
             const keyValuePair = {
                 identifier: attributeDefinition.getIdentifier(),
-                bType: (attributeDefinition.isArrayType()) ? 'array' : attributeDefinition.getBType(),
+                bType: (attributeDefinition.getBType().endsWith('[]')) ? 'array' : attributeDefinition.getBType(),
                 value,
-                desc: annotationDesc,
             };
             supportedKeysArray.push(keyValuePair);
         });
-        return supportedKeysArray;*/
+        return supportedKeysArray;
     }
 
     /**
@@ -267,10 +262,11 @@ class ServerConnectorPropertiesForm extends React.Component {
      * @returns {*}
      */
     isArrayTypeConfigurationAttribute(value) {
-        /* const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
-            this.props.environment, value, this.getProtocolPkgPath(this.props.model.getProtocolPkgName()),
-            'configuration');
-        return annotationAttributeDef.isArrayType();*/
+        const props = this.props.model.props;
+        const annotationAttributeDef = ServiceNodeHelper.getAttributeDefinition(
+             props.environment, value, props.model.getProtocolPackageIdentifier().value, 'configuration');
+        // annotationAttributeDef.isArrayType(); --> Now this always returns false
+        return annotationAttributeDef.getBType().endsWith('[]');
     }
     /**
      * Renders the view for a server connector properties window
@@ -279,36 +275,35 @@ class ServerConnectorPropertiesForm extends React.Component {
      * @memberof server connector properties window
      */
     render() {
-        this.getAddedValues();
         const props = this.props.model.props;
         const positionX = (props.bBox.x) + 'px';
         const positionY = (props.bBox.y) + 'px';
-        // const formH = '@' + props.model.getProtocolPkgName() + ': configuration';
-        const formH = '@' + props.model.getKind() + ': configuration';
+        const formH = '@' + props.model.getProtocolPackageIdentifier().value + ': configuration';
         const styles = {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '320px',
+                height: '340px',
+                minWidth: '500px',
             },
             arrowStyle: {
                 top: positionY,
                 left: props.bBox.x + 10 + 'px',
             },
         };
-        /* const supportedKeys = this.getSupportedKeys();
+        const supportedKeys = this.getSupportedKeys();
         if (!supportedKeys.length) {
             return null;
-        }*/
+        }
         return (
             <PropertiesWindow
                 model={props.model}
                 formHeading={formH}
                 key={`servicedefProp/${props.model.id}`}
                 styles={styles}
-                // supportedProps={supportedKeys}
+                supportedProps={supportedKeys}
                 editor={props.editor}
-                // addedValues={this.getDataFromPropertyForm}
+                addedValues={this.getDataFromPropertyForm}
             />);
     }
 }

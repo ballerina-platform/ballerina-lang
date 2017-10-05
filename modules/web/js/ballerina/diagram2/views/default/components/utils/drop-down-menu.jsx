@@ -19,7 +19,9 @@
 import React from 'react';
 import _ from 'lodash';
 import './drop-down-menu.css';
-import TreeUtil from './../../../../../model/tree-util';/**
+import TreeUtil from './../../../../../model/tree-util';
+import DefaultNodeFactory from './../../../../../model/default-node-factory';
+/**
  * React component for a drop down menu
  *
  * @class DropdownMenu
@@ -108,69 +110,51 @@ class DropdownMenu extends React.Component {
         return [
             {
                 resourceName: 'onHandshake',
-                parameters: [
-                    {
-                        type: 'ws:HandshakeConnection',
-                        value: 'conn',
-                    },
-                ],
+                fragment: `
+                resource onHandshake(ws:HandshakeConnection conn) {
+
+                }
+            `,
             },
             {
                 resourceName: 'onOpen',
-                parameters: [
-                    {
-                        type: 'ws:Connection',
-                        value: 'conn',
-                    },
-                ],
+                fragment: `
+                resource onOpen(ws:Connection conn) {
+
+                }
+            `,
             },
             {
                 resourceName: 'onTextMessage',
-                parameters: [
-                    {
-                        type: 'ws:Connection',
-                        value: 'conn',
-                    },
-                    {
-                        type: 'ws:TextFrame',
-                        value: 'frame',
-                    },
-                ],
+                fragment: `
+                resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+
+                }
+            `,
             },
             {
                 resourceName: 'onBinaryMessage',
-                parameters: [
-                    {
-                        type: 'ws:Connection',
-                        value: 'conn',
-                    },
-                    {
-                        type: 'ws:BinaryFrame',
-                        value: 'frame',
-                    },
-                ],
+                fragment: `
+                resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
+
+                }
+            `,
             },
             {
                 resourceName: 'onClose',
-                parameters: [
-                    {
-                        type: 'ws:Connection',
-                        value: 'conn',
-                    },
-                    {
-                        type: 'ws:CloseFrame',
-                        value: 'frame',
-                    },
-                ],
+                fragment: `
+                resource onClose(ws:Connection conn, ws:CloseFrame frame) {
+
+                }
+            `,
             },
             {
                 resourceName: 'onIdleTimeOut',
-                parameters: [
-                    {
-                        type: 'Connection',
-                        value: 'conn',
-                    },
-                ],
+                fragment: `
+                resource onIdleTimeOut(Connection conn) {
+
+                }
+            `,
             },
         ];
     }
@@ -180,33 +164,21 @@ class DropdownMenu extends React.Component {
      * @param value
      */
     addResource(value) {
-        console.log('WS resource added');
-        /* this.getWebSocketResourceInfo().map((resource) => {
+        const props = this.props.model.props;
+        this.getWebSocketResourceInfo().map((resource) => {
             if (resource.resourceName === value) {
-                let serviceDef = this.props.model;
+                let serviceDef = props.model;
                 let thisNodeIndex;
-                if (ASTFactory.isResourceDefinition(this.props.model)) {
-                    const resourceDef = this.props.model;
-                    serviceDef = resourceDef.getParent();
-                    thisNodeIndex = serviceDef.getIndexOfChild(resourceDef) + 1;
+                if (TreeUtil.isResource(props.model)) {
+                    const resourceDef = props.model;
+                    serviceDef = resourceDef.parent;
+                    thisNodeIndex = serviceDef.getIndexOfResources(resourceDef) + 1;
                 }
-                const newResourceDef = ASTFactory.createResourceDefinition(resource);
-                if (resource.parameters.length > 0) {
-                    // Define the argument param definition holder
-                    const argumentParameterDefinitionHolder = ASTFactory.createArgumentParameterDefinitionHolder();
-                    resource.parameters.map((parameter) => {
-                        const parameterDef = ASTFactory.createParameterDefinition(resource);
-                        parameterDef.setTypeName(parameter.type);
-                        parameterDef.setName(parameter.value);
-                        argumentParameterDefinitionHolder.addChild(parameterDef);
-                    });
-                    newResourceDef.addChild(argumentParameterDefinitionHolder);
-                }
-                serviceDef.addChild(newResourceDef, thisNodeIndex, undefined, undefined, true);
+                serviceDef.addResources(DefaultNodeFactory.createWSResource(resource.fragment), thisNodeIndex);
             }
         });
-        this.props.model.viewState.overlayContainer = {};
-        this.props.editor.update();*/
+        props.model.viewState.overlayContainer = {};
+        props.editor.update();
     }
 
     /**

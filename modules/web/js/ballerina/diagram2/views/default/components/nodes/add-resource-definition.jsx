@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './service-definition.css';
 import TreeUtil from './../../../../../model/tree-util';
+import DefaultNodeFactory from './../../../../../model/default-node-factory';
 /**
  * Add more resources to a service
  *
@@ -31,28 +32,9 @@ class AddResourceDefinition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.createHttpResource = this.createHttpResource.bind(this);
         this.onAddResourceClick = this.onAddResourceClick.bind(this);
     }
 
-    /**
-     * Create http resources for a service
-     * @returns {{parameters: [*,*]}}
-     */
-    createHttpResource() {
-        return ({
-            parameters: [
-                {
-                    type: 'http:Request',
-                    value: 'req',
-                },
-                {
-                    type: 'http:Response',
-                    value: 'resp',
-                },
-            ],
-        });
-    }
     /**
      * Handles the click event when adding a resource to a service
      */
@@ -64,22 +46,9 @@ class AddResourceDefinition extends React.Component {
             serviceDef = resourceDef.parent;
             thisNodeIndex = serviceDef.getIndexOfResources(resourceDef) + 1;
         }
-        let args = {};
-        switch (serviceDef.getProtocolPackageIdentifier().value) {
-            case 'http':
-                args = this.createHttpResource();
-                break;
-        }
+        // Check if service of http
         if (serviceDef.getProtocolPackageIdentifier().value === 'http') {
-            /* const newResourceDef = NodeFactory.createResource(args);
-            if (args.parameters.length > 0) {
-                // Define the argument param definition holder
-                args.parameters.map((parameter) => {
-                    const parameterDef = NodeFactory.createVariable({name: parameter.value, typeNode: parameter.type});
-                    newResourceDef.addParameters(parameterDef);
-                });
-            }
-            serviceDef.addResources(newResourceDef, thisNodeIndex);*/
+            serviceDef.addResources(DefaultNodeFactory.createHTTPResource(), thisNodeIndex);
         } else if (serviceDef.getProtocolPackageIdentifier().value === 'ws') {
             let bBox;
             // Check if the node is a service
@@ -92,7 +61,6 @@ class AddResourceDefinition extends React.Component {
                     bBox = this.props.model.viewState.bBox;
                 }
             }
-            console.log('WS service invoked');
             const overlayComponents = {
                 kind: 'DropdownMenu',
                 props: {
