@@ -17,10 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -28,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
+    public Set<Flag> flagSet;
 
     public BLangUserDefinedType() {
     }
@@ -45,6 +49,11 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     @Override
     public BLangIdentifier getTypeName() {
         return typeName;
+    }
+
+    @Override
+    public Set<? extends Flag> getFlags() {
+        return flagSet;
     }
 
     @Override

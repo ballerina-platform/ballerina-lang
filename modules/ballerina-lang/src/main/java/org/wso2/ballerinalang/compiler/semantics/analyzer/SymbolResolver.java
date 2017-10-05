@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -53,6 +54,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -403,6 +405,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
             resultType = symTable.errType;
             return;
+        }
+        if (symbol.kind == SymbolKind.CONNECTOR) {
+            userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
         }
         resultType = symbol.type;
     }
