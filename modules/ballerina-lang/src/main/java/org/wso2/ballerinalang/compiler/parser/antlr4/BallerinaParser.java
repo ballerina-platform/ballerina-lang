@@ -126,13 +126,13 @@ public class BallerinaParser extends Parser {
 		"'while'", "'continue'", "'break'", "'fork'", "'join'", "'some'", "'all'", 
 		"'timeout'", "'try'", "'catch'", "'finally'", "'throw'", "'return'", "'reply'", 
 		"'transaction'", "'abort'", "'aborted'", "'committed'", "'failed'", "'retry'", 
-		"'lengthof'", "'typeof'", "'with'", "';'", null, "'.'", "','", "'{'", 
-		"'}'", "'('", "')'", "'['", "']'", "'?'", null, "'+'", "'-'", "'*'", null, 
-		"'^'", "'%'", "'!'", "'=='", "'!='", null, null, "'>='", "'<='", "'&&'", 
-		"'||'", "'->'", "'<-'", "'@'", "'`'", null, null, null, null, "'null'", 
-		null, null, null, null, null, null, null, "'<!--'", null, null, null, 
-		null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'", null, 
-		null, null, "'\"'", "'''"
+		"'lengthof'", "'typeof'", "'with'", "';'", "':'", "'.'", "','", "'{'", 
+		"'}'", "'('", "')'", "'['", "']'", "'?'", "'='", "'+'", "'-'", "'*'", 
+		"'/'", "'^'", "'%'", "'!'", "'=='", "'!='", "'>'", "'<'", "'>='", "'<='", 
+		"'&&'", "'||'", "'->'", "'<-'", "'@'", "'`'", null, null, null, null, 
+		"'null'", null, null, null, null, null, null, null, "'<!--'", null, null, 
+		null, null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'", 
+		null, null, null, "'\"'", "'''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "PACKAGE", "IMPORT", "AS", "PUBLIC", "NATIVE", "SERVICE", "RESOURCE", 

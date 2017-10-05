@@ -150,25 +150,25 @@ public class AssignStmtTest {
     public void testAssignmentNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         //testIncompatibleTypeAssign
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 8);
+        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 9);
         //testAssignCountMismatch1
-        BTestUtils.validateError(resultNegative, 1, "assignment count mismatch: 2 != 3", 11, 14);
+        BTestUtils.validateError(resultNegative, 1, "assignment count mismatch: 2 != 3", 11, 15);
         //testAssignCountMismatch2
-        BTestUtils.validateError(resultNegative, 2, "assignment count mismatch: 4 != 3", 21, 20);
+        BTestUtils.validateError(resultNegative, 2, "assignment count mismatch: 4 != 3", 21, 21);
         //testAssignTypeMismatch1
-        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 17);
-        BTestUtils.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 11);
+        BTestUtils.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 18);
+        BTestUtils.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 12);
         //testAssignTypeMismatch2
-        BTestUtils.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 17);
-        BTestUtils.validateError(resultNegative, 6, "incompatible types: expected 'string', found 'int'", 44, 14);
+        BTestUtils.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 18);
+        BTestUtils.validateError(resultNegative, 6, "incompatible types: expected 'string', found 'int'", 44, 15);
         //testVarRepeatedReturn1
-        BTestUtils.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 17);
-        BTestUtils.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 20);
+        BTestUtils.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 18);
+        BTestUtils.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 21);
         //testVarRepeatedReturn2
-        BTestUtils.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 17);
-        BTestUtils.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 20);
+        BTestUtils.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 18);
+        BTestUtils.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 21);
 
-        BTestUtils.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 4);
-        BTestUtils.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 4);
+        BTestUtils.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 5);
+        BTestUtils.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 5);
     }
 }

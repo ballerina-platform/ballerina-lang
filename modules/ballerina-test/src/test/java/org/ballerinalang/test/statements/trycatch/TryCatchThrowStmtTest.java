@@ -147,25 +147,25 @@ public class TryCatchThrowStmtTest {
     @Test()
     public void testDuplicateExceptionVariable() {
         CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/duplicate-var-try-catch.bal");
-        BTestUtils.validateError(compile, 0, "redeclared symbol 'e'", 5, 8);
+        BTestUtils.validateError(compile, 0, "redeclared symbol 'e'", 5, 9);
     }
 
     @Test()
     public void testInvalidThrow() {
         CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/invalid-throw.bal");
-        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 3, 10);
+        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 3, 11);
     }
 
     @Test()
     public void testInvalidFunctionThrow() {
         CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/invalid-function-throw.bal");
-        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 2, 10);
+        BTestUtils.validateError(compile, 0, "incompatible types: expected 'error', found 'int'", 2, 11);
     }
 
     @Test()
     public void testDuplicateCatchBlock() {
         CompileResult compile = BTestUtils.compile("test-src/statements/trycatch/duplicate-catch-block.bal");
-        BTestUtils.validateError(compile, 0, "error 'TestError' already caught in catch block", 16, 13);
+        BTestUtils.validateError(compile, 0, "error 'TestError' already caught in catch block", 16, 14);
     }
 
 }

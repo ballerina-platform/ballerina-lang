@@ -109,7 +109,14 @@ public enum DiagnosticCode {
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
     NO_SUCH_ATTRIBUTE("no.such.attribute"),
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
-    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found")
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
+    
+    // Parser error diagnostic codes
+    INVALID_TOKEN("invalid.token"),
+    MISSING_TOKEN("missing.token"),
+    EXTRANEOUS_INPUT("extraneous.input"),
+    MISMATCHED_INPUT("mismatched.input"),
+    FAILED_PREDICATE("failed.predicate")
     ;
 
     private String value;

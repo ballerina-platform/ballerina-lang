@@ -126,8 +126,8 @@ public class NotEqualOperationTest {
     @Test(description = "Test not equal expression statement with errors")
     public void testNotEqualStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
-        BTestUtils.validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 4, 11);
-        BTestUtils.validateError(resultNegative, 1, "operator '==' not defined for 'json' and 'json'", 13, 11);
-        BTestUtils.validateError(resultNegative, 2, "operator '!=' not defined for 'json' and 'json'", 22, 11);
+        BTestUtils.validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 4, 12);
+        BTestUtils.validateError(resultNegative, 1, "operator '==' not defined for 'json' and 'json'", 13, 12);
+        BTestUtils.validateError(resultNegative, 2, "operator '!=' not defined for 'json' and 'json'", 22, 12);
     }
 }
