@@ -269,7 +269,7 @@ class SizingUtil {
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
         // calculate default worker
-        cmp.defaultWorker.w = this.config.lifeLine.width;
+        cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
         // set the max worker height to other workers. 
         workers.forEach((worker) => { worker.viewState.bBox.h = maxWorkerHeight; });
@@ -334,8 +334,10 @@ class SizingUtil {
         const statements = node.body.statements;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
-                statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
-                statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                if (TreeUtil.isConnectorDeclaration(statement)) {
+                    statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                    statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                }
             });
         }
     }
