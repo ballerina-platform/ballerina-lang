@@ -2,7 +2,6 @@ import React from 'react';
 import log from 'log';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import 'react-tippy/dist/tippy.css';
 import { getPathSeperator } from 'api-client/api-client';
 import classnames from 'classnames';
 import ContextMenuTrigger from './../context-menu/ContextMenuTrigger';
