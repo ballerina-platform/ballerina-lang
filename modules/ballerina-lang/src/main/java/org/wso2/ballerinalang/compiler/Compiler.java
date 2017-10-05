@@ -167,6 +167,10 @@ public class Compiler {
     }
 
     private boolean stopCompilation(CompilerPhase phase) {
+        if (compilerPhase.compareTo(phase) < 0) {
+            return true;
+        }
+
         return (phase == CompilerPhase.TYPE_CHECK ||
                 phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
