@@ -857,6 +857,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ignoredCount++;
                 simpleVarRef.type = this.symTable.noType;
                 expTypes.add(symTable.noType);
+                typeChecker.checkExpr(simpleVarRef, env);
                 continue;
             }
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
