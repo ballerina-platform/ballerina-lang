@@ -86,6 +86,8 @@ public enum DiagnosticCode {
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
 
+    DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
+
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.to.constant"),
@@ -107,7 +109,14 @@ public enum DiagnosticCode {
     INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
     NO_SUCH_ATTRIBUTE("no.such.attribute"),
     ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
-    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found")
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
+    
+    // Parser error diagnostic codes
+    INVALID_TOKEN("invalid.token"),
+    MISSING_TOKEN("missing.token"),
+    EXTRANEOUS_INPUT("extraneous.input"),
+    MISMATCHED_INPUT("mismatched.input"),
+    FAILED_PREDICATE("failed.predicate")
     ;
 
     private String value;

@@ -34,7 +34,7 @@ public class IfStmtSemanticTest {
     @Test
     public void ifStmtNegativeTest() {
         Assert.assertEquals(result.getErrorCount(), 1);
-        BTestUtils.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 6);
+        BTestUtils.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 7);
     }
 
     // TODO : Fix this properly

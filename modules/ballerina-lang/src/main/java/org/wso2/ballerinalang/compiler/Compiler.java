@@ -129,11 +129,16 @@ public class Compiler {
             return null;
         }
 
-        return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
+        pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
+        if (dlog.errorCount > 0) {
+            pkgNode = null;
+        }
+
+        return pkgNode;
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.TYPE_CHECK)) {
+        if (stopCompilation(CompilerPhase.TYPE_CHECK, pkgNode)) {
             return pkgNode;
         }
 
@@ -141,7 +146,7 @@ public class Compiler {
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_ANALYZE)) {
+        if (stopCompilation(CompilerPhase.CODE_ANALYZE, pkgNode)) {
             return pkgNode;
         }
 
@@ -149,7 +154,7 @@ public class Compiler {
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.DESUGAR)) {
+        if (stopCompilation(CompilerPhase.DESUGAR, pkgNode)) {
             return pkgNode;
         }
 
@@ -157,7 +162,7 @@ public class Compiler {
     }
 
     private void gen(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_GEN)) {
+        if (stopCompilation(CompilerPhase.CODE_GEN, pkgNode)) {
             return;
         }
 
@@ -177,5 +182,9 @@ public class Compiler {
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
+    }
+
+    private boolean stopCompilation(CompilerPhase phase, BLangPackage pkgNode) {
+        return pkgNode == null || stopCompilation(phase);
     }
 }
