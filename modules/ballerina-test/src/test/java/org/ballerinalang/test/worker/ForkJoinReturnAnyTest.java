@@ -15,14 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.core.lang.worker;
+package org.ballerinalang.test.worker;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,26 +30,16 @@ import org.testng.annotations.Test;
  * Test case for fork join.
  */
 public class ForkJoinReturnAnyTest {
-    private ProgramFile bProgramFile;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-return-any.bal");
+        result = BTestUtils.compile("test-src/workers/fork-join-return-any.bal");
     }
 
-
-//    @Test(description = "Test Fork Join With workers returning any type")
-//    public void testForkJoinReturnAnyType() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinReturnAnyType");
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertTrue(returns[0] instanceof BInteger);
-//        Assert.assertTrue(returns[1] instanceof BString);
-//        //Assert.assertEquals(((BMap) returns[0]).size(), 4);
-//    }
-
-    @Test(description = "Test Fork Join With workers returning any type")
+    @Test(description = "Test Fork Join With workers returning any type", enabled = false)
     public void testForkJoinReturnAnyType() {
-        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinReturnAnyType");
+        BValue[] returns = BTestUtils.invoke(result, "testForkJoinReturnAnyType");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);
