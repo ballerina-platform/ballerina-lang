@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { Collapse } from 'react-bootstrap';
 import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import 'react-tippy/dist/tippy.css';
 import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
 import './styles.scss';
 
