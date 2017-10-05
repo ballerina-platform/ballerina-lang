@@ -47,6 +47,7 @@ class TransformFactory {
         return refExpr;
     }
 
+
     /**
      * Create assignment statement from given args
      * @static
@@ -65,6 +66,7 @@ class TransformFactory {
      * @static
      * @param {any} type type
      * @memberof TransformFactory
+     * @return {object} expression object
      */
     static createDefaultExpression(type) {
         // TODO : get default values from environment and support other types
@@ -78,6 +80,18 @@ class TransformFactory {
         const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
         return exp;
         // TODO : create default expression based on argument type
+    }
+
+    /**
+     * Create for statement from statement
+     * @param  {string} statement  statement string
+     * @return {object} statement object
+     */
+    static createVariableDefFromStatement(statement) {
+        const fragment = FragmentUtils.createStatementFragment(statement + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const refExpr = TreeBuilder.build(parsedJson);
+        return refExpr;
     }
 
 }
