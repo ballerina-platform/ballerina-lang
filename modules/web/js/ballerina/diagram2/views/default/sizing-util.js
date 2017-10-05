@@ -1062,7 +1062,21 @@ class SizingUtil {
      *
      */
     sizeForkJoinNode(node) {
-        // Not implemented.
+        this.sizeCompoundNode(node);
+
+        let nodeHeight = node.viewState.bBox.h;
+        const joinStmt = node.joinBody;
+
+        if (joinStmt.viewState.bBox.w > node.viewState.bBox.w) {
+            node.viewState.bBox.w = joinStmt.viewState.bBox.w;
+        }
+
+        if (TreeUtil.isBlock(node.parent)) {
+            nodeHeight += joinStmt.viewState.bBox.h;
+        }
+
+        node.viewState.bBox.h = nodeHeight;
+        this.sizeCompoundNode(joinStmt);
     }
 
     /**
@@ -1334,7 +1348,8 @@ class SizingUtil {
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
         const nodeBodyViewState = TreeUtil.isBlock(node) ? node.viewState :
-            (TreeUtil.isTransaction(node) ? node.transactionBody.viewState : node.body.viewState);
+            (TreeUtil.isTransaction(node) ? node.transactionBody.viewState :
+                (TreeUtil.isForkJoin(node) ? node.viewState : node.body.viewState));
         components.body = new SimpleBBox();
 
         viewState.components['drop-zone'] = new SimpleBBox();
