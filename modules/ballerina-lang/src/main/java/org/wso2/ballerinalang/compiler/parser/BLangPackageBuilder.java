@@ -1563,6 +1563,10 @@ public class BLangPackageBuilder {
         return expressions;
     }
 
+    public void endCompilationUnit(Set<Whitespace> ws) {
+        compUnit.addWS(ws);
+    }
+
     public void endCallableParamList(Set<Whitespace> ws) {
         this.invokableNodeStack.peek().addWS(ws);
     }

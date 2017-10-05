@@ -92,6 +92,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+         this.pkgBuilder.endCompilationUnit(getWS(ctx));
     }
 
     /**
