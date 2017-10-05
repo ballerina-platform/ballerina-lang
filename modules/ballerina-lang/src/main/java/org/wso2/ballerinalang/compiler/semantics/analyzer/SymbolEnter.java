@@ -68,12 +68,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -168,6 +170,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope);
         packageEnvs.put(pSymbol, pkgEnv);
 
+        createPackageInitFunction(pkgNode);
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
@@ -239,7 +242,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         // Create import package symbol
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(importPkgNode.pkgNameComps, importPkgNode.version);
+        BPackageSymbol pkgSymbol = resolveImportPackage(importPkgNode);
         importPkgNode.symbol = pkgSymbol;
         this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
     }
@@ -722,9 +725,25 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
-        BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
+    private BLangExpressionStmt createInitFunctionInvocationStatemt(BLangImportPackage importPackage,
+                                                                    BPackageSymbol pkgSymbol) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = importPackage.pos;
+        invocationNode.addWS(importPackage.getWS());
+        BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        funcName.value = pkgSymbol.initFunctionSymbol.name.value;
+        invocationNode.name = funcName;
+        invocationNode.pkgAlias = importPackage.alias;
 
+        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.pos = importPackage.pos;
+        exprStmt.addWS(importPackage.getWS());
+        exprStmt.expr = invocationNode;
+        return exprStmt;
+    }
+
+    private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
+        BLangFunction initFunction = pkgNode.initFunction;
         // Add package level namespace declarations to the init function
         pkgNode.xmlnsList.forEach(xmlns -> {
             initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
@@ -735,13 +754,19 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v)));
 
         addInitReturnStatement(initFunction.body);
-        pkgNode.initFunction = initFunction;
         defineNode(pkgNode.initFunction, env);
+        pkgNode.symbol.initFunctionSymbol = pkgNode.initFunction.symbol;
+    }
+
+    private void createPackageInitFunction(BLangPackage pkgNode) {
+        BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
+        pkgNode.initFunction = initFunction;
     }
 
     private BLangFunction createInitFunction(DiagnosticPos pos, String name) {
         BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         initFunction.setName(createIdentifier(name + Names.INIT_FUNCTION_SUFFIX.getValue()));
+        initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         initFunction.pos = pos;
         //Create body of the init function
         BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -808,5 +833,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             return names.fromString(funcNode.receiver.type + "." + funcNode.name.value);
         }
         return names.fromIdNode(funcNode.name);
+    }
+
+    private BPackageSymbol resolveImportPackage(BLangImportPackage importPkgNode) {
+        List<Name> nameComps = importPkgNode.pkgNameComps.stream()
+                .map(identifier -> names.fromIdNode(identifier))
+                .collect(Collectors.toList());
+        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
+        BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
+        if (pkgSymbol == null) {
+            BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
+            pkgSymbol = pkgNode.symbol;
+            ((BLangPackage) env.node).initFunction.body
+                    .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
+        }
+        return pkgSymbol;
     }
 }
