@@ -271,6 +271,8 @@ class SizingUtil {
         // calculate default worker
         cmp.defaultWorker.w = this.config.lifeLine.width;
         cmp.defaultWorker.h = maxWorkerHeight;
+        // set the max worker height to other workers. 
+        workers.forEach((worker) => { worker.viewState.bBox.h = maxWorkerHeight; });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -696,7 +698,7 @@ class SizingUtil {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
         bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
-        bBox.w = this.config.lifeLine.width;
+        bBox.w = workerBody.viewState.bBox.w;
     }
 
 
