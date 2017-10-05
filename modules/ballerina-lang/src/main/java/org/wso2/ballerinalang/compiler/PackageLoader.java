@@ -118,16 +118,12 @@ public class PackageLoader {
         return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
     }
 
-    public BPackageSymbol loadPackageSymbol(List<BLangIdentifier> pkgNameComps, BLangIdentifier version) {
-        List<Name> nameComps = pkgNameComps.stream()
-                .map(identifier -> names.fromIdNode(identifier))
-                .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(version));
-        if (packages.containsKey(pkgID)) {
-            return packages.get(pkgID);
-        }
-        BLangPackage pkgNode = loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
-        return pkgNode.symbol;
+    public BPackageSymbol getPackageSymbol(PackageID pkgId) {
+        return packages.get(pkgId);
+    }
+
+    public BLangPackage loadPackageNode(PackageID pkgId) {
+        return loadPackage(pkgId, this.packageRepo.loadPackage(pkgId));
     }
 
     private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
