@@ -279,11 +279,13 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (host == null) {
                     return null;
                 }
+
+                int defaultPort = getDefaultPort(protocol);
                 Integer port = originalRequest != null ?
                         originalRequest.getProperty(Constants.PORT) != null ?
                                 (Integer) originalRequest.getProperty(Constants.PORT) :
-                                Constants.DEFAULT_HTTP_PORT :
-                        Constants.DEFAULT_HTTP_PORT;
+                                defaultPort :
+                        defaultPort;
 
                 String newPath =
                         requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
@@ -358,14 +360,20 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
-        httpCarbonRequest.setProperty(Constants.PORT, locationUrl.getPort());
+        httpCarbonRequest.setProperty(Constants.PORT,
+                locationUrl.getPort() != -1 ? locationUrl.getPort() : getDefaultPort(locationUrl.getProtocol()));
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectState.get(Constants.HTTP_METHOD));
         httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
         httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
 
-        httpCarbonRequest.setHeader(Constants.HOST, locationUrl.getHost() + Constants.COLON + locationUrl.getPort());
+        StringBuffer host = new StringBuffer(locationUrl.getHost());
+        if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
+                && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
+            host.append(Constants.COLON).append(locationUrl.getPort());
+        }
+        httpCarbonRequest.setHeader(Constants.HOST, host.toString());
         httpCarbonRequest.setEndOfMsgAdded(true);
         return httpCarbonRequest;
     }
@@ -387,8 +395,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
 
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap clientBootstrap = new Bootstrap();
-        clientBootstrap.group(group).channel(NioSocketChannel.class)
-                .remoteAddress(new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort())).handler(
+        clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
+                new InetSocketAddress(redirectUrl.getHost(), redirectUrl.getPort() != -1 ?
+                        redirectUrl.getPort() :
+                        getDefaultPort(redirectUrl.getProtocol()))).handler(
                 new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
                         maxRedirectCount));
         ChannelFuture channelFuture = clientBootstrap.connect();
@@ -419,6 +429,20 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Get default port based on the protocol.
+     *
+     * @param protocol http protocol
+     * @return default port as an int
+     */
+    private int getDefaultPort(String protocol) {
+        int defaultPort = Constants.HTTPS_SCHEME.equals(protocol) ?
+                Constants.DEFAULT_HTTPS_PORT :
+                Constants.DEFAULT_HTTP_PORT;
+
+        return defaultPort;
     }
 
     @Override
