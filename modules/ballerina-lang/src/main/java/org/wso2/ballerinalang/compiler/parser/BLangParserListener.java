@@ -1258,6 +1258,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                ctx.Identifier().getText(), ctx.ASSIGN() != null);
+    }
+
+    @Override
     public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
