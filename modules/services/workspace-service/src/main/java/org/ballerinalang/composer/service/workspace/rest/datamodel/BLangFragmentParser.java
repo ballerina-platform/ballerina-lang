@@ -76,6 +76,10 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.CONNECTOR_ACTION:
                 fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ACTIONS).get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.WORKER:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.WORKERS)
+                                    .get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.EXPRESSION:
                 // 0th child is the var ref expression of var def stmt
                 fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
@@ -146,6 +150,10 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.CONNECTOR_ACTION:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.CONNECTOR_BODY_ACTION_WRAPPER, sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.WORKER:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, sourceFragment.getSource());
                 break;
             case BLangFragmentParserConstants.EXPRESSION:
                 parsableText = getFromTemplate(

@@ -19,6 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLineDecorator from './../decorators/lifeline.jsx';
 import PanelDecorator from './../decorators/panel-decorator';
 import ResourceTransportLink from './resource-transport-link';
@@ -27,6 +28,7 @@ import { lifeLine } from './../../designer-defaults';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
 import AddResourceDefinition from './add-resource-definition';
+import TreeUtil from '../../../../../model/tree-util';
 
 class ResourceNode extends React.Component {
 
@@ -39,13 +41,9 @@ class ResourceNode extends React.Component {
         this.onMouseOut = this.onMouseOut.bind(this);
     }
 
-    canDropToPanelBody(nodeBeingDragged) {
-        /* const nodeFactory = ASTFactory;
-        // IMPORTANT: override default validation logic
-        // Panel's drop zone is for worker and connector declarations only.
-        // Statements should only be allowed on top of resource worker's dropzone.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);*/
+    canDropToPanelBody(dragSource) {
+        return TreeUtil.isConnectorInitExpr(dragSource)
+            || TreeUtil.isWorker(dragSource);
     }
 
     /**
@@ -68,14 +66,15 @@ class ResourceNode extends React.Component {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getName().value;
         const parentNode = this.props.model.parent;
-        const statementContainerBBox = this.props.model.body.viewState.bBox;
+        const body = this.props.model.body;
+        const bodyBBox = this.props.model.body.viewState.bBox;
         // const connectorOffset = this.props.model.viewState.components.statementContainer.expansionW;
         // lets calculate function worker lifeline bounding box.
         const resource_worker_bBox = {};
-        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
-        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
+        resource_worker_bBox.x = bodyBBox.x + (bodyBBox.w - lifeLine.width) / 2;
+        resource_worker_bBox.y = bodyBBox.y - lifeLine.head.height;
         resource_worker_bBox.w = lifeLine.width;
-        resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
+        resource_worker_bBox.h = bodyBBox.h + lifeLine.head.height * 2;
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -110,10 +109,19 @@ class ResourceNode extends React.Component {
                     bBox={bBox}
                     model={this.props.model}
                     dropTarget={this.props.model}
-                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
                 >
                     <g>
+                        <StatementDropZone
+                            x={bodyBBox.x}
+                            y={bodyBBox.y}
+                            width={bodyBBox.w}
+                            height={bodyBBox.h}
+                            baseComponent="rect"
+                            dropTarget={body}
+                            enableDragBg
+                        />
                         <LifeLineDecorator
                             title="default"
                             bBox={resource_worker_bBox}
