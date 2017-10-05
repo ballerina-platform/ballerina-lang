@@ -15,21 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.types;
-
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.IdentifierNode;
-
-import java.util.Set;
+package org.wso2.ballerinalang.compiler.parser;
 
 /**
- * foo:Person
- * @since 0.94
+ * Class for capturing syntax errors and handle them gracefully.
  */
-public interface UserDefinedTypeNode extends ReferenceTypeNode {
-    IdentifierNode getPackageAlias();
+public class BLangParserException extends RuntimeException {
 
-    IdentifierNode getTypeName();
+    private static final long serialVersionUID = 1L;
 
-    Set<? extends Flag> getFlags();
+    /**
+     * Constructs a new {@link BLangParserException} with the specified detail message.
+     *
+     * @param message Error Message
+     */
+    public BLangParserException(String message) {
+        super(message);
+    }
 }

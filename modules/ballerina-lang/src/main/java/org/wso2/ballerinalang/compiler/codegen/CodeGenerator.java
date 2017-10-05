@@ -1474,6 +1474,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         localVarAttrInfo.localVars.add(localVarInfo);
     }
 
+    private void visitConnectorNodeVariable(BVarSymbol variableSymbol, LocalVariableAttributeInfo localVarAttrInfo) {
+        variableSymbol.varIndex = getNextIndex(variableSymbol.type.tag, fieldIndexes);
+        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableSymbol);
+        localVarAttrInfo.localVars.add(localVarInfo);
+    }
+
     private void visitServiceAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
                                                   AnnotationAttributeInfo annotationAttributeInfo) {
         AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
@@ -1734,14 +1740,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add connector level variables
         int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
         LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
-        connectorNode.params.forEach(var -> visitServiceNodeVariable(var.symbol, localVarAttributeInfo));
-        connectorNode.varDefs.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
+        connectorNode.params.forEach(var -> visitConnectorNodeVariable(var.symbol, localVarAttributeInfo));
+        connectorNode.varDefs.forEach(var -> visitConnectorNodeVariable(var.var.symbol, localVarAttributeInfo));
         connectorInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
         // Create variable count attribute info
-        prepareIndexes(pvIndexes);
-        int[] fieldCount = new int[]{pvIndexes.tInt, pvIndexes.tFloat,
-                pvIndexes.tString, pvIndexes.tBoolean, pvIndexes.tBlob, pvIndexes.tRef};
+        prepareIndexes(fieldIndexes);
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, connectorInfo, fieldCount);
 
         // Create the init function info
@@ -1751,7 +1757,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create action info entries for all actions
         connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
         createActionInfoEntry(connectorNode.initAction, connectorInfo);
-        pvIndexes = new VariableIndex();
+        fieldIndexes = new VariableIndex();
     }
 
     private void createActionInfoEntry(BLangAction actionNode, ConnectorInfo connectorInfo) {
