@@ -70,7 +70,12 @@ class BottomPanel extends React.Component {
                         panelTitle,
                     },
                   } = viewDef;
-            const { width, height } = this.props;
+            const { width, height, panelResizeInProgress } = this.props;
+            const viewProps = {
+                width,
+                height: height - panelTitleHeight,
+                panelResizeInProgress,
+            };
             tabs.push((
                 <TabPane
                     tab={
@@ -81,7 +86,7 @@ class BottomPanel extends React.Component {
                     data-extra="tabpane"
                     key={`${id}`}
                 >
-                    {createViewFromViewDef(viewDef, { width, height: height - panelTitleHeight })}
+                    {createViewFromViewDef(viewDef, viewProps)}
                 </TabPane>
             ));
         });
@@ -133,6 +138,7 @@ BottomPanel.propTypes = {
     onToggleMaximizedState: PropTypes.func.isRequired,
     onActiveViewChange: PropTypes.func.isRequired,
     views: PropTypes.arrayOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

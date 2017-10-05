@@ -51,6 +51,14 @@ class TreeNode extends React.Component {
     /**
      * @inheritdoc
      */
+    shouldComponentUpdate(nextProps, nextState) {
+        return (nextProps.panelResizeInProgress && nextProps.node.active)
+            || !nextProps.panelResizeInProgress;
+    }
+
+    /**
+     * @inheritdoc
+     */
     componentDidUpdate(prevProps, prevState) {
         if (!_.isNil(this.nameInput) && this.state.inputValue === this.props.node.label) {
             this.nameInput.focus();
@@ -309,9 +317,11 @@ TreeNode.propTypes = {
     children: PropTypes.node,
     onClick: PropTypes.func,
     onDoubleClick: PropTypes.func,
+    panelResizeInProgress: PropTypes.bool,
 };
 
 TreeNode.defaultProps = {
+    panelResizeInProgress: false,
     enableContextMenu: false,
     onNodeDelete: () => {},
     onNodeUpdate: () => {},

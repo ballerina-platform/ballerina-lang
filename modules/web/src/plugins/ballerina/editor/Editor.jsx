@@ -31,7 +31,7 @@ class Editor extends React.Component {
      * @inheritdoc
      */
     shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.isActive;
+        return nextProps.isActive && !nextProps.panelResizeInProgress;
     }
 
     /**
@@ -70,6 +70,7 @@ class Editor extends React.Component {
 Editor.propTypes = {
     editorModel: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.objectOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     isActive: PropTypes.bool.isRequired,
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
