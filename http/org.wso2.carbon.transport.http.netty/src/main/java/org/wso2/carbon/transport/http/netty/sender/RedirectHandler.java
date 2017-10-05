@@ -20,11 +20,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -34,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -62,6 +66,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private SSLEngine sslEngine;
     private boolean httpTraceLogEnabled;
     private int maxRedirectCount;
+    private HTTPCarbonMessage targetRespMsg;
 
     public RedirectHandler(ChannelHandlerContext originalChannelContext, SSLEngine sslEngine,
             boolean httpTraceLogEnabled, int maxRedirectCount) {
@@ -95,7 +100,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         if (originalChannelContext == null) {
             originalChannelContext = ctx;
         }
-
         if (msg instanceof HttpResponse) {
             handleRedirectState(ctx, (HttpResponse) msg);
         } else {
@@ -106,7 +110,13 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             } else {
                 //Content is still flowing through the channel and when it's not a redirect, pass it to the next handler
                 if (!isRedirect) {
-                    originalChannelContext.fireChannelRead(msg);
+                    if (originalChannelContext.channel().isActive()) {
+                        originalChannelContext.fireChannelRead(msg);
+                    } else {
+                        //If the original channel is not active add the response content to target message.
+                        HttpContent httpContent = (HttpContent) msg;
+                        targetRespMsg.addHttpContent(httpContent);
+                    }
                 }
             }
         }
@@ -130,7 +140,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Send redirect request using a new channel");
                     }
-                    writeContentToNewChannel(locationUrl, httpCarbonRequest, httpRequest);
+                    writeContentToNewChannel(ctx, locationUrl, httpCarbonRequest, httpRequest);
                 } else {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Use existing channel to send the redirect request");
@@ -147,7 +157,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 originalChannelContext.fireExceptionCaught(e);
             }
         } else {
-            originalChannelContext.fireChannelRead(msg);
+            if (originalChannelContext.channel().isActive()) {
+                originalChannelContext.fireChannelRead(msg);
+            } else {
+                //If the original channel is not active mark the end of the target message.
+                HttpContent httpContent = (HttpContent) msg;
+                targetRespMsg.addHttpContent(httpContent);
+                targetRespMsg.setEndOfMsgAdded(true);
+                targetRespMsg = null;
+            }
         }
     }
 
@@ -199,14 +217,34 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     originalChannelContext.fireChannelRead(msg);
                 }
             } else {
-                //Fire next handler in the original channel
+               /* Fire next handler in the original channel if it's still alive. Else send the response directly to
+                client using the original future.*/
                 isRedirect = false;
-                originalChannelContext.fireChannelRead(msg);
+                if (originalChannelContext.channel().isActive()) {
+                    originalChannelContext.fireChannelRead(msg);
+                } else {
+                    HttpResponseFuture responseFuture = ctx.channel()
+                            .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+                    responseFuture.notifyHttpListener(setUpCarbonMessage(msg));
+                }
             }
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error occurred when deciding whether a redirection is required", e);
             originalChannelContext.fireExceptionCaught(e);
         }
+    }
+
+    private HTTPCarbonMessage setUpCarbonMessage(Object msg) {
+        targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeAtTargetResponseReceiving(targetRespMsg);
+        }
+        targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        HttpResponse httpResponse = (HttpResponse) msg;
+        targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
+        return targetRespMsg;
     }
 
     /**
@@ -386,8 +424,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      *                          used with the next redirect if need be
      * @param httpRequest       HttpRequest that send through the newly created channel
      */
-    private void writeContentToNewChannel(URL redirectUrl, HTTPCarbonMessage httpCarbonRequest,
-            HttpRequest httpRequest) {
+    private void writeContentToNewChannel(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
+            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
 
         if (Constants.HTTP_SCHEME.equals(redirectUrl.getProtocol())) {
             sslEngine = null;
@@ -401,11 +439,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                         getDefaultPort(redirectUrl.getProtocol()))).handler(
                 new RedirectChannelInitializer(originalChannelContext, sslEngine, httpTraceLogEnabled,
                         maxRedirectCount));
+        clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
         ChannelFuture channelFuture = clientBootstrap.connect();
         channelFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) {
                 if (future.isSuccess() && future.isDone()) {
+                    HttpResponseFuture responseFuture = channelHandlerContext.channel()
+                            .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
+                    future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
                     future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
                     future.channel().write(httpRequest);
                     future.channel().writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
@@ -448,8 +490,15 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (ctx != null && ctx.channel().isActive()) {
-            originalChannelContext.fireExceptionCaught(cause);
+            if (originalChannelContext.channel().isActive()) {
+                originalChannelContext.fireExceptionCaught(cause);
+            } else {
+                HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
+                        .get();
+                responseFuture.notifyHttpListener(cause);
+            }
             ctx.close();
         }
     }
 }
+

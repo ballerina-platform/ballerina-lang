@@ -91,6 +91,8 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                             if (isValidateChannel(channelFuture)) {
                                 targetChannel.setChannel(channelFuture.channel());
                                 channelFuture.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
+                                channelFuture.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL)
+                                        .set(httpResponseFuture);
 
                                 targetChannel.configTargetHandler(httpCarbonRequest, httpResponseFuture);
                                 targetChannel.setEndPointTimeout(socketIdleTimeout);

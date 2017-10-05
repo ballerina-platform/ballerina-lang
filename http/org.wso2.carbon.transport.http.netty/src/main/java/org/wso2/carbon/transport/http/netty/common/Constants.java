@@ -16,6 +16,7 @@
 package org.wso2.carbon.transport.http.netty.common;
 
 import io.netty.util.AttributeKey;
+import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -271,6 +272,10 @@ public final class Constants {
             ("REDIRECT_COUNT");
     public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.<HTTPCarbonMessage>valueOf
             ("ORIGINAL_REQUEST");
+
+    public static final AttributeKey<HttpResponseFuture> RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL = AttributeKey
+            .<HttpResponseFuture>valueOf
+            ("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
