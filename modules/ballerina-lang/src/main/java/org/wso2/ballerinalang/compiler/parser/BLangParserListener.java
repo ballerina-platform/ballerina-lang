@@ -991,7 +991,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
 
-        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), paramsAvail, paramsTypeOnly, retParamsAvail,
+        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, paramsTypeOnly, retParamsAvail,
                 retParamTypeOnly, returnsKeywordExists);
     }
 
@@ -2362,8 +2362,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.endProcessingTypeNodeList(ctx.typeName().size());
+        ParserRuleContext parent = ctx.getParent();
+        boolean inFuncTypeSig = parent instanceof BallerinaParser.FunctionTypeNameContext ||
+                parent instanceof BallerinaParser.ReturnParametersContext &&
+                        parent.parent instanceof BallerinaParser.FunctionTypeNameContext;
+        if (inFuncTypeSig) {
+            this.pkgBuilder.endProcessingTypeNodeList(getWS(ctx), ctx.typeName().size());
+        } else {
+            this.pkgBuilder.endProcessingTypeNodeList(ctx.typeName().size());
+        }
     }
 
     /**
@@ -2378,10 +2385,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         // This attaches WS of the commas to the def.
-        if (!(ctx.getParent() instanceof BallerinaParser.ConnectorDefinitionContext)) {
-            this.pkgBuilder.endCallableParamList(getWS(ctx));
-        } else {
+        ParserRuleContext parent = ctx.getParent();
+        boolean inFuncTypeSig = parent instanceof BallerinaParser.FunctionTypeNameContext ||
+                parent instanceof BallerinaParser.ReturnParametersContext &&
+                        parent.parent instanceof BallerinaParser.FunctionTypeNameContext;
+        if (parent instanceof BallerinaParser.ConnectorDefinitionContext) {
             this.pkgBuilder.endConnectorParamList(getWS(ctx));
+        } else if (inFuncTypeSig) {
+            this.pkgBuilder.endFuncTypeParamList(getWS(ctx));
+        } else {
+            this.pkgBuilder.endCallableParamList(getWS(ctx));
         }
     }
 

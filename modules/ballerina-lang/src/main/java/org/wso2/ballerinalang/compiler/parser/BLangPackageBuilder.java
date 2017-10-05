@@ -273,7 +273,7 @@ public class BLangPackageBuilder {
         addType(constrainedType);
     }
 
-    public void addFunctionType(DiagnosticPos pos, boolean paramsAvail, boolean paramsTypeOnly,
+    public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,
                                 boolean retParamsAvail, boolean retParamTypeOnly, boolean returnsKeywordExists) {
         // TODO : Fix function main ()(boolean , function(string x)(float, int)){} issue
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
@@ -281,6 +281,7 @@ public class BLangPackageBuilder {
         functionTypeNode.returnsKeywordExists = returnsKeywordExists;
 
         if (retParamsAvail) {
+            functionTypeNode.addWS(commaWsStack.pop());
             if (retParamTypeOnly) {
                 functionTypeNode.returnParamTypeNodes.addAll(this.typeNodeListStack.pop());
             } else {
@@ -288,6 +289,7 @@ public class BLangPackageBuilder {
             }
         }
         if (paramsAvail) {
+            functionTypeNode.addWS(commaWsStack.pop());
             if (paramsTypeOnly) {
                 functionTypeNode.paramTypeNodes.addAll(this.typeNodeListStack.pop());
             } else {
@@ -295,6 +297,7 @@ public class BLangPackageBuilder {
             }
         }
 
+        functionTypeNode.addWS(ws);
         addType(functionTypeNode);
     }
 
@@ -1000,6 +1003,11 @@ public class BLangPackageBuilder {
         }
     }
 
+    public void endProcessingTypeNodeList(Set<Whitespace> ws, int size) {
+        commaWsStack.push(ws);
+        endProcessingTypeNodeList(size);
+    }
+
     public void startAnnotationDef(DiagnosticPos pos) {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
@@ -1571,6 +1579,10 @@ public class BLangPackageBuilder {
 
     public void endCallableParamList(Set<Whitespace> ws) {
         this.invokableNodeStack.peek().addWS(ws);
+    }
+
+    public void endFuncTypeParamList(Set<Whitespace> ws) {
+        this.commaWsStack.push(ws);
     }
 
     public void endConnectorParamList(Set<Whitespace> ws) {
