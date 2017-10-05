@@ -157,8 +157,9 @@ public class WorkspaceUtils {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
 
         CompilerContext context = prepareCompilerContext("", "");
+        PackageRepository packageRepository = context.get(PackageRepository.class);
         PackageLoader packageLoader = PackageLoader.getInstance(context);
-        Set<PackageID> packages = packageLoader.listPackages();
+        Set<PackageID> packages = packageRepository.listPackages();
         packages.stream().forEach(pkg -> {
             Name version = pkg.getPackageVersion();
             BLangIdentifier bLangIdentifier = new BLangIdentifier();
