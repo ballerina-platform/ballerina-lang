@@ -17,7 +17,10 @@
 package org.ballerinalang.composer.service.workspace.langserver.model;
 
 import org.ballerinalang.model.AnnotationAttachmentPoint;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,29 +45,31 @@ public class AnnotationDef {
      * @param annotationDef The model to be converted.
      * @return Converted model.
      */
-    public static AnnotationDef convertToPackageModel(org.ballerinalang.model.AnnotationDef annotationDef) {
+    public static AnnotationDef convertToPackageModel(BLangAnnotation annotationDef) {
         AnnotationDef tempAnnotation = new AnnotationDef();
-        tempAnnotation.setPackagePath(annotationDef.getPkgPath());
-        tempAnnotation.setName(annotationDef.getName());
+        //tempAnnotation.setPackagePath(annotationDef.getPkgPath());
+        tempAnnotation.setName(annotationDef.getName().getValue());
         ArrayList<String> attachmentPoints = new ArrayList<String>();
-        AnnotationAttachmentPoint[] attachmentPointsList = annotationDef.getAttachmentPoints();
-        for (AnnotationAttachmentPoint annotationAttachmentPoint : attachmentPointsList) {
-            attachmentPoints.add(annotationAttachmentPoint.getAttachmentPoint().getValue());
-        }
+        List<BLangAnnotationAttachmentPoint> attachmentPointsList = annotationDef.getAttachmentPoints();
+        attachmentPointsList.forEach((annotationAttachmentPoint) -> attachmentPoints.add(annotationAttachmentPoint
+                .getAttachmentPoint().getValue()));
         tempAnnotation.setAttachmentPoints(attachmentPoints);
+
         //Annotation Definitions
-        for (org.ballerinalang.model.AnnotationAttributeDef annotationAttributeDef : annotationDef.getAttributeDefs()) {
-            AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef.convertToPackageModel(
-                                                                                                annotationAttributeDef);
+        List<BLangAnnotAttribute> annotationAttributes = annotationDef.getAttributes();
+        annotationAttributes.forEach((annotationAttribute) -> {
+            AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef
+                    .convertToPackageModel(annotationAttribute);
             tempAnnotation.getAnnotationAttributeDefs().add(tempAnnotationAttributeDef);
-        }
+        });
+
         //Annotation Attachments
-        for (AnnotationAttachmentPoint annotationAttachment
-                : annotationDef.getAttachmentPoints()) {
-            AnnotationAttachment tempAnnotationAttachment = AnnotationAttachment.convertToPackageModel(
-                    annotationAttachment);
+        List<BLangAnnotationAttachmentPoint> annotationAttachmentpoints = annotationDef.getAttachmentPoints();
+        annotationAttachmentpoints.forEach((annotationAttachmentpoint) -> {
+            AnnotationAttachment tempAnnotationAttachment = AnnotationAttachment
+                    .convertToPackageModel(annotationAttachmentpoint);
             tempAnnotation.getAnnotationAttachments().add(tempAnnotationAttachment);
-        }
+        });
         return tempAnnotation;
     }
     

@@ -42,6 +42,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.NativeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -236,12 +237,11 @@ public class WorkspaceUtils {
     public static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
                                        Map<String, ModelPackage> packages) {
         if (pkg != null) {
-           // Stream.of(pkg.getAnnotations()).forEach((annotationDef) -> extractAnnotationDefs(packages,
-           //         "", annotationDef));
            // Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, "",
            //         connector));
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
             pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
+            pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
         }
     }
 
@@ -267,19 +267,19 @@ public class WorkspaceUtils {
     /**
      * Extract annotations from ballerina lang
      * @param packages packages to send
-     * @param annotationDef annotationDef
+     * @param annotation annotation
      * */
-    private static void extractAnnotationDefs(Map<String, ModelPackage> packages, String packagePath,
-                                              org.ballerinalang.model.AnnotationDef annotationDef) {
+    private static void extractAnnotation(Map<String, ModelPackage> packages, String packagePath,
+                                          BLangAnnotation annotation) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
         
-            modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotationDef));
+            modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
         
-            modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotationDef));
+            modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
             packages.put(packagePath, modelPackage);
         }
     }
