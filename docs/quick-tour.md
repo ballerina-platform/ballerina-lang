@@ -105,4 +105,4 @@ Once you have accessed the composer, you can have a look around using the availa
 
 1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
-Now that you've had a look around, it's time to take Ballerina for a spin and [write your first Ballerina program](tutorials/first-program.md).
+Now that you've had a look around, it's time to start using Ballerina and [write your first Ballerina program](tutorials/first-program.md).
