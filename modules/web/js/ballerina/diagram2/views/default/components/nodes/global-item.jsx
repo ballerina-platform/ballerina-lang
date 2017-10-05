@@ -141,6 +141,9 @@ export default class GlobalDefinitionItem extends React.Component {
             className = 'global-definition-item-hightlighted';
         }
 
+        debugger;
+        this.props.getValue(this.props.globalDec);
+
         return (
 
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>

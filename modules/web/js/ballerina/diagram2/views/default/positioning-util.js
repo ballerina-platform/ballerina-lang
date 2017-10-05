@@ -87,7 +87,12 @@ class PositioningUtil {
      * @param {object} node Action object
      */
     positionActionNode(node) {
-        // Not implemented.
+        // Here we skip the init action
+        if (node.id !== node.parent.initAction.id) {
+            // We use the same logic used for positioning the resources
+            // TODO: need to isolate the common logic and plug them out
+            this.positionResourceNode(node);
+        }
     }
 
 
@@ -142,7 +147,7 @@ class PositioningUtil {
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
             return TreeUtil.isPackageDeclaration(child) || TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child);
+                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child);
         });
 
         children.forEach((child) => {
@@ -175,7 +180,7 @@ class PositioningUtil {
      * @param {object} node Connector object
      */
     positionConnectorNode(node) {
-        // Not implemented.
+        this.positionServiceNode(node);
     }
 
 
@@ -484,26 +489,32 @@ class PositioningUtil {
         transportLine.x = viewState.bBox.x - 5;
         transportLine.y = viewState.bBox.y + 30;
 
-        // Position the resources
-        const resources = node.getResources();
-        resources.map((resource, index) => {
-            const resourcebBox = resources[index].viewState.bBox;
-            resourcebBox.x = viewState.bBox.x + 50;
+        let innerPanelItems;
+
+        if (TreeUtil.isService(node)) {
+            innerPanelItems = node.getResources();
+        } else if (TreeUtil.isConnector(node)) {
+            innerPanelItems = node.getActions();
+        }
+        // Position the inner panel items
+        innerPanelItems.map((innerPanelItem, index) => {
+            const innerPanelItemBBox = innerPanelItems[index].viewState.bBox;
+            innerPanelItemBBox.x = viewState.bBox.x + 50;
             if (index === 0) {
                 // Positioning the first resource
-                resourcebBox.y = viewState.bBox.y + 150;
+                innerPanelItemBBox.y = viewState.bBox.y + 150;
             } else {
-                const previousResource = resources[index - 1];
-                const previousResourceBBox = previousResource.viewState.bBox;
+                const previousInnerPanelItem = innerPanelItems[index - 1];
+                const previousInnerPanelItemBBox = previousInnerPanelItem.viewState.bBox;
                 // Check if resource is collapsed
-                let height = previousResourceBBox.h;
-                if (previousResource.viewState.collapsed) {
+                let height = previousInnerPanelItemBBox.h;
+                if (previousInnerPanelItem.viewState.collapsed) {
                     height = 0;
                 }
-                resourcebBox.y = previousResourceBBox.y + height +
+                innerPanelItemBBox.y = previousInnerPanelItemBBox.y + height +
                     this.config.panel.wrapper.gutter.v;
             }
-            resourcebBox.w = resource.parent.viewState.bBox.w - 100;
+            innerPanelItemBBox.w = innerPanelItem.parent.viewState.bBox.w - 100;
         });
     }
 
