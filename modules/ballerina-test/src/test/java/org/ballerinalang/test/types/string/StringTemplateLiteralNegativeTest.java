@@ -20,7 +20,6 @@ package org.ballerinalang.test.types.string;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -30,19 +29,22 @@ public class StringTemplateLiteralNegativeTest {
 
     private CompileResult resultNegative;
 
-    @BeforeClass
-    public void setup() {
-        resultNegative = BTestUtils.compile("test-src/types/string/string-template-literal-negative.bal");
-    }
-
     @Test(description = "Test string template literal with errors")
     public void testStringTemplateLiteralNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        resultNegative = BTestUtils.compile("test-src/types/string/string-template-literal-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testUndefinedSymbol
-        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 31);
+        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 32);
         //testIncompatibleTypes
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'string', found 'json'", 8, 31);
-        //testMismatchedInputs
-        BTestUtils.validateError(resultNegative, 2, "this function must return a result", 12, 0);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'string', found 'json'", 8, 32);
+    }
+
+    @Test(description = "Test string template literal syntax errors")
+    public void testStringTemplateLiteralSyntaxNegativeCases() {
+        resultNegative = BTestUtils.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BTestUtils.validateError(resultNegative, 0, "mismatched input '}'. expecting {'?', '+', " +
+                "'-', '*', '/', '^', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', ExpressionEnd}", 4, 71);
+        BTestUtils.validateError(resultNegative, 1, "mismatched input ';'. expecting {'[', Identifier}", 5, 13);
     }
 }

@@ -40,7 +40,6 @@ public class VariableDefinitionTest {
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/statements/variabledef/variable-definition-stmt.bal");
-        resultNegative = BTestUtils.compile("test-src/statements/variabledef/variable-definition-stmt-negative.bal");
     }
 
     @Test
@@ -149,25 +148,49 @@ public class VariableDefinitionTest {
         Assert.assertEquals(f, v5, DELTA);
     }
 
-    //TODO fix this once compliation error is addressed. Errors should not come to desugar
     @Test(description = "Test variable definition negative test cases with errors")
-    public void testVariableDefNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        //testDuplicateConstVariables
-        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 19, 4);
-        //testDuplicateVariables
-        BTestUtils.validateError(resultNegative, 1, "redeclared symbol 'b'", 5, 4);
-        //testUndeclaredVariables
-        BTestUtils.validateError(resultNegative, 2, "undefined symbol 'a'", 11, 15);
-        //testUnsupportedTypeVariable
-        BTestUtils.validateError(resultNegative, 3, "unknown type 'Foo'", 15, 8);
+    public void testUnsupportedTypeVariable() {
+        resultNegative = BTestUtils
+                .compile("test-src/statements/variabledef/variable-def-unsupported-variables-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "unknown type 'Foo'", 2, 5);
     }
 
-    //TODO Fix below after syntax error parser merged
+    @Test(description = "Test variable definition negative test cases with errors")
+    public void testDuplicateConstVariables() {
+        resultNegative = BTestUtils
+                .compile("test-src/statements/variabledef/variable-def-duplicate-constant-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 1);
+    }
+
+    @Test(description = "Test variable definition negative test cases with errors")
+    public void testDuplicateVariables() {
+        resultNegative = BTestUtils
+                .compile("test-src/statements/variabledef/variable-def-duplicate-variables-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "redeclared symbol 'b'", 5, 5);
+    }
+
+    @Test(description = "Test variable definition negative test cases with errors")
+    public void testUndeclaredVariables() {
+        resultNegative = BTestUtils
+                .compile("test-src/statements/variabledef/variable-def-undeclared-variables-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "undefined symbol 'a'", 2, 12);
+    }
+
     @Test(description = "Test defining a constant from an arrays type")
     public void testArrayTypeConstant() {
-        result = BTestUtils.compile("test-src/statements/variabledef/array-type-constants.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BTestUtils.validateError(result, 0, "mismatched input '\\\\['. Expecting one of Identifier", 1, 0);
+        resultNegative = BTestUtils.compile("test-src/statements/variabledef/variable-def-array-type-constants.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        BTestUtils.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
+
+        BTestUtils.validateError(resultNegative, 1, "mismatched input '='. expecting {'[', Identifier}", 1, 15);
+
+        BTestUtils.validateError(resultNegative, 2, "mismatched input '('. expecting ';'", 3, 14);
+
+        BTestUtils.validateError(resultNegative, 3, "mismatched input ')'. expecting ';'", 3, 25);
+
     }
 }
