@@ -31,29 +31,70 @@ class ForkJoinNode extends React.Component {
             active: 'hidden',
         };
 
-        this.conditionEditorOptions = {
+        this.joinConditionEditorOptions = {
             propertyType: 'text',
-            key: 'join condition',
-            model: props.model.joinBody,
+            key: 'Join condition',
+            model: props.model.getJoinBody(),
             getterMethod: props.model.getJoinType,
             setterMethod: props.model.setJoinType,
         };
 
-        this.parameterEditorOptions = {
+        this.timeoutConditionEditorOptions = {
+            propertyType: 'text',
+            key: 'Timeout condition',
+            model: props.model.getTimeoutBody(),
+            getterMethod: props.model.getTimeOutExpression,
+            setterMethod: props.model.setTimeOutExpression,
+        };
+
+        this.joinParameterEditorOptions = {
             propertyType: 'text',
             key: 'Join parameter',
-            value: ' ',
-            model: props.model.joinBody,
+            value: props.model.getJoinResultVar().getSource(),
+            model: props.model.getJoinBody(),
             getterMethod: props.model.getJoinResultVar,
             setterMethod: props.model.setJoinResultVar,
         };
+
+        this.timeoutParameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Timeout parameter',
+            value: props.model.getTimeOutVariable().getSource(),
+            model: props.model.getTimeoutBody(),
+            getterMethod: props.model.getTimeOutVariable,
+            setterMethod: props.model.setTimeOutVariable,
+        };
     }
 
-    render(){
+    render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
+        const dropZone = model.viewState.components['drop-zone'];
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
+        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
+
+        const forkLineHiderBottom = model.getJoinBody() ? model.getJoinBody().viewState.bBox.y :
+            (model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y : bBox.getBottom());
+        const joinLineHiderBottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y :
+            (model.getJoinBody() ? model.getJoinBody().viewState.bBox.getBottom() : 0);
+        const timeoutLineHiderbottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.getBottom()
+            : 0;
+
         return (
             <g>
+                <rect
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    className={dropZoneClassName}
+                    {...fill}
+                    onMouseOver={this.onDropZoneActivate}
+                    onMouseOut={this.onDropZoneDeactivate}
+                />
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
@@ -61,15 +102,57 @@ class ForkJoinNode extends React.Component {
                     model={model}
                     body={model.workers}
                 />
-                <CompoundStatementDecorator
-                    dropTarget={model.joinBody}
-                    bBox={model.joinBody.viewState.bBox}
-                    expression={{ text: 'all' }}
-                    title={'Join'}
-                    model={model.joinBody}
-                    body={model.joinBody.body}
-                    editorOptions={this.conditionEditorOptions}
+                <line
+                    x1={bBox.getCenterX()}
+                    y1={bBox.y}
+                    x2={bBox.getCenterX()}
+                    y2={forkLineHiderBottom}
+                    className="life-line-hider"
                 />
+                {model.joinBody &&
+                <CompoundStatementDecorator
+                    dropTarget={model.getJoinBody()}
+                    bBox={model.getJoinBody().viewState.bBox}
+                    expression={{text: model.getJoinType()}}
+                    title={'Join'}
+                    model={model.getJoinBody()}
+                    body={model.getJoinBody().body}
+                    parameterBbox={model.getJoinBody().viewState.components.param}
+                    parameterEditorOptions={this.joinParameterEditorOptions}
+                    editorOptions={this.joinConditionEditorOptions}
+                />
+                }
+                {model.joinBody &&
+                <line
+                    x1={model.getJoinBody().viewState.bBox.getCenterX()}
+                    y1={model.getJoinBody().viewState.bBox.y}
+                    x2={model.getJoinBody().viewState.bBox.getCenterX()}
+                    y2={joinLineHiderBottom}
+                    className='life-line-hider'
+                />
+                }
+                {model.timeoutBody &&
+                <CompoundStatementDecorator
+                    dropTarget={model.getTimeoutBody()}
+                    bBox={model.getTimeoutBody().viewState.bBox}
+                    parameterBbox={model.getTimeoutBody().viewState.components.param}
+                    expression={{text: model.getTimeOutExpression().getSource()}}
+                    title={'Timeout'}
+                    model={model.getTimeoutBody()}
+                    body={model.getTimeoutBody().body}
+                    parameterEditorOptions={this.timeoutParameterEditorOptions}
+                    editorOptions={this.timeoutConditionEditorOptions}
+                />
+                }
+                {model.getTimeoutBody() &&
+                <line
+                    x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
+                    y1={model.getTimeoutBody().viewState.bBox.y}
+                    x2={model.getTimeoutBody().viewState.bBox.getCenterX()}
+                    y2={timeoutLineHiderbottom}
+                    className='life-line-hider'
+                />
+                }
             </g>
         );
     }

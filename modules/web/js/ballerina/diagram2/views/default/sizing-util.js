@@ -1062,21 +1062,56 @@ class SizingUtil {
      *
      */
     sizeForkJoinNode(node) {
+        const joinStmt = node.getJoinBody();
+        const timeoutStmt = node.getTimeoutBody();
         this.sizeCompoundNode(node);
+        this.sizeCompoundNode(joinStmt);
+        this.sizeCompoundNode(timeoutStmt);
+
+        joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinType());
+        timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
+
+        joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource());
+        timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
 
         let nodeHeight = node.viewState.bBox.h;
-        const joinStmt = node.joinBody;
+        let nodeWidth = 0;
 
-        if (joinStmt.viewState.bBox.w > node.viewState.bBox.w) {
+        //
+        if (joinStmt.viewState.bBox.w > node.viewState.bBox.w &&
+            timeoutStmt.viewState.bBox.w < joinStmt.viewState.bBox.w) {
             node.viewState.bBox.w = joinStmt.viewState.bBox.w;
+        } else if (timeoutStmt.viewState.bBox.w > node.viewState.bBox.w &&
+            joinStmt.viewState.bBox.w < timeoutStmt.viewState.bBox.w) {
+            nodeWidth = timeoutStmt.viewState.bBox.w;
+        } else if (timeoutStmt.viewState.bBox.w > node.viewState.bBox.w &&
+            timeoutStmt.viewState.bBox.w === joinStmt.viewState.bBox.w) {
+            nodeWidth = timeoutStmt.viewState.bBox.w;
         }
 
         if (TreeUtil.isBlock(node.parent)) {
-            nodeHeight += joinStmt.viewState.bBox.h;
+            if (joinStmt) {
+                nodeHeight += joinStmt.viewState.bBox.h;
+            }
+            if (timeoutStmt) {
+                nodeHeight += timeoutStmt.viewState.bBox.h;
+            }
+        }
+
+        if (joinStmt.viewState.components.parameter.w > timeoutStmt.viewState.components.parameter.w) {
+            nodeWidth += joinStmt.viewState.components.parameter.w;
+        } else {
+            nodeWidth += timeoutStmt.viewState.components.parameter.w;
+        }
+
+        if (joinStmt.viewState.components.expression.w > timeoutStmt.viewState.components.expression.w) {
+            nodeWidth += joinStmt.viewState.components.expression.w;
+        } else {
+            nodeWidth += timeoutStmt.viewState.components.expression.w;
         }
 
         node.viewState.bBox.h = nodeHeight;
-        this.sizeCompoundNode(joinStmt);
+        node.viewState.bBox.w = nodeWidth;
     }
 
     /**
@@ -1094,7 +1129,7 @@ class SizingUtil {
         // If the else statement's width is greater than the node's width, we increase the node width
         // Eventually the top most if node ends up with the max width. During the positioning, increase the width to the
         // bottom most node
-        if (elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
+        if (elseStmt && elseStmt.viewState.bBox.w > node.viewState.bBox.w) {
             node.viewState.bBox.w = elseStmt.viewState.bBox.w;
         }
         if (TreeUtil.isBlock(node.parent)) {
