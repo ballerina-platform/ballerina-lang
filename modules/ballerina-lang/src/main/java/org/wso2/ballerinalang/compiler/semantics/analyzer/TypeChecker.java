@@ -336,6 +336,13 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
                     checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+                } else {
+                    indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.noType)).get(0);
+                    if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
+                        dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
+                                indexExprType);
+                        break;
+                    }
                 }
                 actualType = symTable.jsonType;
                 break;
