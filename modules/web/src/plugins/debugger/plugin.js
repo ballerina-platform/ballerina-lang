@@ -30,6 +30,7 @@ import { PLUGIN_ID, VIEWS as VIEW_IDS, DIALOG_IDS, COMMANDS as COMMAND_IDS, TOOL
 import DebuggerPanel from './views/DebuggerPanel';
 import DebuggerConsole from './views/DebugConsole';
 import LauncherConfigDialog from './views/LauncherConfigDialog';
+import RemoteDebugDialog from './views/RemoteDebugDialog';
 
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
@@ -162,6 +163,15 @@ class DebuggerPlugin extends Plugin {
                         };
                     },
                 },
+                {
+                    id: DIALOG_IDS.REMOTE_DEBUG,
+                    component: RemoteDebugDialog,
+                    propsProvider: () => {
+                        return {
+                            debuggerPlugin: this,
+                        };
+                    },
+                },
             ],
             [TOOLS]: [
                 {
@@ -251,13 +261,5 @@ class DebuggerPlugin extends Plugin {
 
 
 }
-
-
-    // STEP_OVER: 'step-over',
-    // RESUME: 'resume',
-    // STEP_IN: 'step-in',
-    // STEP_OUT: 'step-out',
-    // STOP: 'stop',
-    // SHOW_LAUNCHER_CONFIG_DIALOG: 'show-launcher-config-dialog',
 
 export default DebuggerPlugin;

@@ -20,10 +20,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import View from 'core/view/view';
 import { VIEWS, COMMANDS } from './../constants';
-import './DebuggerPanel.css';
+import './DebuggerPanel.scss';
 import Toolbar from '../views/Toolbar';
 import Frames from '../views/Frames';
 import { processFrames } from '../views/Frames/utils';
+import { Button } from 'react-bootstrap';
 
 /**
  * Debugger
@@ -38,11 +39,16 @@ class DebuggerPanel extends View {
         this.startApplication = this.startApplication.bind(this);
         this.startDebug = this.startDebug.bind(this);
         this.stopApplication = this.stopApplication.bind(this);
+        this.showRemoteDebugDialog = this.showRemoteDebugDialog.bind(this);
+        this.reConnect = this.reConnect.bind(this);
+        this.cancelReconnect = this.cancelReconnect.bind(this);
         this.state = {
             active: false,
             navigation: false,
             isDebugging: false,
             message: { frames: [] },
+            connecting: false,
+            showRetry: false,
         };
     }
 
@@ -56,23 +62,48 @@ class DebuggerPanel extends View {
             this.setState({
                 active: false,
                 isDebugging: false,
+                connecting: false,
             });
         });
         this.props.DebugManager.on('debugging-started', () => {
             this.setState({
                 isDebugging: true,
+                connecting: false,
+                showRetry: false,
             });
         });
         this.props.DebugManager.on('debug-hit', (message) => {
             this.setState({
                 navigation: true,
+                isDebugging: true,
                 message: processFrames(message),
             });
         });
+
+        this.props.DebugManager.on('execution-ended', () => {
+            this.setState({
+                active: false,
+                isDebugging: false,
+            });
+        });
+
         this.props.DebugManager.on('resume-execution', () => {
             this.setState({
                 navigation: false,
+                isDebugging: false,
                 message: { frames: [] },
+            });
+        });
+
+        this.props.DebugManager.on('connecting', () => {
+            this.setState({
+                connecting: true,
+                showRetry: false,
+            });
+        });
+        this.props.DebugManager.on('session-error', () => {
+            this.setState({
+                showRetry: true,
             });
         });
     }
@@ -94,11 +125,52 @@ class DebuggerPanel extends View {
     stopApplication() {
         this.props.commandProxy.dispatch(COMMANDS.STOP);
     }
+    showRemoteDebugDialog() {
+        this.props.commandProxy.dispatch(COMMANDS.SHOW_REMOTE_DEBUG_DIALOG);
+    }
+    reConnect() {
+        this.props.DebugManager.reConnect();
+    }
+    cancelReconnect() {
+        this.setState({
+            showRetry: false,
+            connecting: false,
+        });
+    }
 
     /**
      * @inheritdoc
      */
     render() {
+        if (this.state.showRetry) {
+            return (
+                <div className="reconnect-container">
+                    <div className="debug-panel-header">
+                        <span className="tool-group-header-title">Could not connect to debugger</span>
+                    </div>
+                    <Button
+                        onClick={this.reConnect}
+                        title="Reconnect"
+                        className="btn-retry"
+                    >
+                        <i className="fw fw-refresh" />Retry
+                    </Button>
+                    <Button
+                        onClick={this.cancelReconnect}
+                        title="Reconnect"
+                    >
+                        <i className="fw fw-cancel" />Cancel
+                    </Button>
+                </div>
+            );
+        }
+        if (this.state.connecting) {
+            return (
+                <div className="debug-panel-header">
+                    <span className="tool-group-header-title">Waiting for debugger to connect ...</span>
+                </div>
+            );
+        }
         if (this.state.isDebugging) {
             return (
                 <div>
@@ -136,7 +208,7 @@ class DebuggerPanel extends View {
                             type="button"
                             id="run_application"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Start Application"
+                            title="Run Program"
                             onClick={this.startApplication}
                         >
                             <span className="launch-label">Run</span>
@@ -145,10 +217,19 @@ class DebuggerPanel extends View {
                             type="button"
                             id="start_debug"
                             className="btn text-left btn-debug-activate col-xs-12"
-                            title="Start Application"
+                            title="Start Debugging"
                             onClick={this.startDebug}
                         >
                             <span className="launch-label">Debug</span>
+                        </div>
+                        <div
+                            type="button"
+                            id="start_debug"
+                            className="btn text-left btn-debug-activate col-xs-12"
+                            title="Start Application"
+                            onClick={this.showRemoteDebugDialog}
+                        >
+                            <span className="launch-label">Remote Debug</span>
                         </div>
                     </div>
                 </div>
