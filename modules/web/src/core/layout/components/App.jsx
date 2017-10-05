@@ -246,7 +246,8 @@ class App extends React.Component {
                                 }
                             }
                             views={this.getViewsForRegion(REGIONS.BOTTOM_PANEL)}
-                            width={this.state.documentWidth - this.state.leftPanelSize}
+                            width={this.state.documentWidth -
+                                (this.state.showLeftPanel ? this.state.leftPanelSize : leftPanelClosedSize)}
                             height={this.state.bottomPanelSize}
                         />
                     </SplitPane>
