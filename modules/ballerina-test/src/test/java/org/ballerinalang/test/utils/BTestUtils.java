@@ -260,4 +260,11 @@ public class BTestUtils {
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
     }
+
+    public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
+        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
+        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
+    }
 }

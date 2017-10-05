@@ -28,6 +28,8 @@ under the License.
             <package name="org.ballerinalang.test.services.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.nativeImpl.*"/>
+            <package name="org.ballerinalang.test.net.*"/>
         </packages>
     </test>
 </suite>
