@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import AbstractTreeUtil from './abstract-tree-util';
 
 class TreeUtil extends AbstractTreeUtil {
@@ -86,7 +86,8 @@ class TreeUtil extends AbstractTreeUtil {
      * @memberof TreeUtil
      */
     isConnectorDeclaration(node) {
-        return false;
+        const expression = _.get(node, 'variable.initialExpression');
+        return (expression && this.isConnectorInitExpr(expression));
     }
 }
 

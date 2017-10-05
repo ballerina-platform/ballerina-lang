@@ -20,9 +20,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import StatementDecorator from '../decorators/statement-decorator';
 import ActiveArbiter from '../decorators/active-arbiter';
-import TreeUtil from './../../../../../model/tree-util';
-import LifeLine from '../decorators/lifeline';
-import ImageUtil from '../../../../image-util';
 
 /**
  * Variable Definition Statement Decorator.
@@ -53,37 +50,15 @@ class VariableDefNode extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.viewState.expression;
-        const initialExpression = TreeUtil.isVariableDef(model) || TreeUtil.isAssignment(model) ?
-            model.variable.initialExpression : undefined;
-        let connectorLifeLine;
 
-        if (TreeUtil.isConnectorInitExpr(initialExpression)) {
-            const classes = {
-                lineClass: 'connector-life-line',
-                polygonClass: 'connector-life-line-polygon',
-            };
-            const title = model.variable.name.value;
-
-            connectorLifeLine = (<LifeLine
-                title={title}
-                bBox={initialExpression.viewState.bBox}
-                classes={classes}
-                icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
-                editorOptions={this.editorOptions}
-                iconColor='#1a8278'
-            />);
-        }
         return (
             <g>
-                {connectorLifeLine}
-                {!connectorLifeLine &&
-                    <StatementDecorator
-                        model={model}
-                        viewState={model.viewState}
-                        expression={expression}
-                        editorOptions={this.editorOptions}
-                    />
-                }
+                <StatementDecorator
+                    model={model}
+                    viewState={model.viewState}
+                    expression={expression}
+                    editorOptions={this.editorOptions}
+                />
             </g>
         );
     }

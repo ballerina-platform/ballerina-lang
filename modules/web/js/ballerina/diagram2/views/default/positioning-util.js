@@ -28,40 +28,14 @@ class PositioningUtil {
 
     positionStatementComponents(node) {
         const viewState = node.viewState;
-        const initialExpression = TreeUtil.isVariableDef(node) || TreeUtil.isAssignment(node) ?
-            undefined : undefined;
-        if (initialExpression && TreeUtil.isConnectorInitExpr(initialExpression)) {
-
-            // Filter the connector declaration statements
-            const connectorDecls = _.filter(node.parent.statements, (statement) => {
-                const initExpr = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
-                    statement.variable.initialExpression : undefined;
-                return TreeUtil.isConnectorInitExpr(initExpr);
-            });
-            const nodeIndex = _.indexOf(connectorDecls, node);
-            const bBox = initialExpression.viewState.bBox;
-            const parentBlockNode = node.parent;
-
-            // Here we only set the x value, since it is based on the other connector Decls. y position is set at the
-            // function node positioning, etc
-            let xVal = parentBlockNode.viewState.bBox.x + parentBlockNode.viewState.bBox.w
-                + this.config.lifeLine.gutter.h;
-            if (nodeIndex > 0) {
-                xVal = connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.x
-                    + connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.w
-                    + this.config.lifeLine.gutter.h;
-            }
-            bBox.x = xVal;
-        } else {
-            viewState.components['drop-zone'].x = viewState.bBox.x;
-            viewState.components['drop-zone'].y = viewState.bBox.y;
-            viewState.components['statement-box'].x = viewState.bBox.x;
-            viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
-            viewState.components.text.x = viewState.components['statement-box'].x +
-                (viewState.components['statement-box'].w / 2);
-            viewState.components.text.y = viewState.components['statement-box'].y +
-                (viewState.components['statement-box'].h / 2);
-        }
+        viewState.components['drop-zone'].x = viewState.bBox.x;
+        viewState.components['drop-zone'].y = viewState.bBox.y;
+        viewState.components['statement-box'].x = viewState.bBox.x;
+        viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
+        viewState.components.text.x = viewState.components['statement-box'].x +
+            (viewState.components['statement-box'].w / 2);
+        viewState.components.text.y = viewState.components['statement-box'].y +
+            (viewState.components['statement-box'].h / 2);
     }
 
     positionCompoundStatementComponents(node) {
@@ -220,6 +194,7 @@ class PositioningUtil {
         body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
                                 this.config.lifeLine.head.height;
 
+        // ========== Header Positioning ==========
         // Positioning argument parameters
         if (node.getParameters()) {
             cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
@@ -267,81 +242,31 @@ class PositioningUtil {
 
             // Positioning the closing bracket component of the parameters.
             cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
-            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-
-            // Set the y position of the connector declarations
-            // Here we only set the y value, since it is based on the default worker position. x position is set at the
-            // block node positioning
-            const statements = node.body.statements;
-            const connectorDecls = _.filter(statements, (statement) => {
-                const initialExpression = TreeUtil.isVariableDef(statement) || TreeUtil.isAssignment(statement) ?
-                    undefined : undefined;
-                return initialExpression ? TreeUtil.isConnectorInitExpr(initialExpression) : false;
-            });
-
-            connectorDecls.forEach((conNode) => {
-                const declaration = conNode.variable.initialExpression;
-                declaration.viewState.bBox.w = node.viewState.components.defaultWorker.w;
-                declaration.viewState.bBox.h = node.viewState.components.defaultWorker.h;
-                declaration.viewState.bBox.y = node.viewState.components.defaultWorker.y;
-
-                const initExp = conNode.variable.initialExpression;
-                const nodeIndex = _.indexOf(connectorDecls, node);
-                const initExpBBox = initExp.viewState.bBox;
-                const blockNode = node.body;
-
-                // Here we only set the x value, since it is based on the other connector Decls.
-                let xVal = blockNode.viewState.bBox.x + blockNode.viewState.bBox.w
-                    + this.config.lifeLine.gutter.h;
-                if (nodeIndex > 0) {
-                    xVal = connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.x
-                        + connectorDecls[nodeIndex - 1].variable.initialExpression.viewState.bBox.w
-                        + this.config.lifeLine.gutter.h;
-                }
-                initExpBBox.x = xVal;
-            });
-
-            // Iterate over the workers and position them
-            for (let itr = 0; itr < workers.length; itr++) {
-                const worker = workers[itr];
-                const workerViewState = worker.viewState;
-                const workerBody = worker.body;
-                const yVal = node.viewState.components.defaultWorker.y;
-                let xVal;
-
-                if (itr === 0) {
-                    // If the worker is the first worker which is positioning
-                    if (connectorDecls.length > 0) {
-                        // If there are connector declarations, position the first worker next to it
-                        const lastConnector = connectorDecls[connectorDecls.length - 1];
-                        xVal = lastConnector.variable.initialExpression.viewState.bBox.x
-                            + lastConnector.variable.initialExpression.viewState.bBox + this.config.lifeLine.gutter.h;
-                    } else {
-                        // If there are no connector declarations, position the first worker
-                        // next to the left panel margin of the function
-                        xVal = node.body.viewState.bBox.x + node.body.viewState.bBox.w + this.config.lifeLine.gutter.h;
-                    }
-                } else {
-                    // If there are workers positioned before, position the new one next to the previous worker
-                    xVal = workers[itr - 1].body.viewState.bBox.x + workers[itr - 1].body.viewState.bBox.w
-                        + this.config.lifeLine.gutter.h;
-                }
-
-                // Set the worker body x position and y position
-                workerBody.viewState.bBox.x = xVal;
-                workerBody.viewState.bBox.y = yVal + this.config.lifeLine.head.height;
-
-                // Set the worker life line x position and y position
-                workerViewState.bBox.x = xVal + ((workerBody.viewState.bBox.w - workerViewState.bBox.w) / 2);
-                workerViewState.bBox.y = yVal;
-
-                // Increase the worker life line's in such a way all the workers including the default worker will take
-                // the same height
-                workerViewState.bBox.h = node.viewState.components.defaultWorker.h;
-                workerBody.viewState.bBox.h = node.viewState.components.defaultWorker.h
-                    - this.config.lifeLine.head.height - this.config.lifeLine.footer.height;
-            }
+            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;            
         }
+
+        // ========== End of Header ==========
+
+
+        let xindex = cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
+        // Position Workers
+        if (workers instanceof Array) {
+            workers.forEach((worker) => {
+                worker.viewState.bBox.x = xindex;
+                worker.viewState.bBox.y = cmp.defaultWorker.y;
+                xindex += worker.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            });
+        }
+
+        // Position Connectors
+        const statements = node.body.statements;
+        statements.forEach((statement) => {
+            if (TreeUtil.isConnectorDeclaration(statement)) {
+                statement.viewState.bBox.x = xindex;
+                statement.viewState.bBox.y = cmp.defaultWorker.y;
+                xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            }
+        });
     }
 
     /**
@@ -545,7 +470,8 @@ class PositioningUtil {
      * @param {object} node Worker object
      */
     positionWorkerNode(node) {
-        // Not implemented.
+        node.body.viewState.bBox.x = node.viewState.bBox.x;
+        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
     }
 
 
@@ -819,15 +745,7 @@ class PositioningUtil {
         const statements = node.getStatements();
         let height = 0;
         statements.forEach((element) => {
-            const initialExpression = TreeUtil.isVariableDef(element) || TreeUtil.isAssignment(element) ?
-                undefined : undefined;
-            if (initialExpression) {
-                if (!TreeUtil.isConnectorInitExpr(initialExpression)) {
-                    element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
-                    element.viewState.bBox.y = viewState.bBox.y + height;
-                    height += element.viewState.bBox.h;
-                }
-            } else {
+            if (!TreeUtil.isConnectorDeclaration(element)) {
                 element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;
