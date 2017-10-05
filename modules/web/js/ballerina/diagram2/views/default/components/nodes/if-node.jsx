@@ -67,7 +67,9 @@ class IfNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const expression = model.viewState.components.expression;
+        const expression = {
+            text: model.getCondition().getSource(),
+        };
         const isElseIfNode = TreeUtil.isIf(model.parent);
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
