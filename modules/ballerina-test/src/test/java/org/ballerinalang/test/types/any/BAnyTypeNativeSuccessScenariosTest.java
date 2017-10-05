@@ -47,7 +47,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
 
     @Test(description = "Test json value in any type get casted to xml in two steps", enabled = false)
     public void testJsonInAnyCastToX() {
-        BValue[] returns = BTestUtils.invoke(result, "successfulXmlCasting");
+        BValue[] returns = BTestUtils.invoke(result, "successfulXmlCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         BXML xmlVal = (BXML) returns[0];
@@ -55,12 +55,13 @@ public class BAnyTypeNativeSuccessScenariosTest {
                           "Invalid xml value returned.");
     }
 
+
     @Test(description = "This tests the finding of best native function when there are no direct match for println")
     public void testAnyPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "printlnAnyVal");
+            BTestUtils.invoke(result, "printlnAnyVal", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
                               "Invalid xml printed");
         } finally {
@@ -74,7 +75,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "printAnyVal");
+            BTestUtils.invoke(result, "printAnyVal", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
                                 "Invalid xml printed");
         } finally {
@@ -88,7 +89,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "findBestNativeFunctionPrintln");
+            BTestUtils.invoke(result, "findBestNativeFunctionPrintln", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "8\n", "Invalid int value printed");
         } finally {
             outContent.close();
@@ -101,7 +102,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BTestUtils.invoke(result, "findBestNativeFunctionPrint");
+            BTestUtils.invoke(result, "findBestNativeFunctionPrint", new BValue[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "7", "Invalid int value printed");
         } finally {
             outContent.close();

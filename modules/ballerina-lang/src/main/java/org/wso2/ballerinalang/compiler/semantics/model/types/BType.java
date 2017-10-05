@@ -30,6 +30,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPE;
 
 /**
  * @since 0.94
@@ -56,6 +57,8 @@ public class BType implements ValueType {
                 return TypeDescriptor.SIG_BOOLEAN;
             case BLOB:
                 return TypeDescriptor.SIG_BLOB;
+            case TYPE:
+                return TypeDescriptor.SIG_TYPE;
             default:
                 return null;
         }
@@ -78,6 +81,8 @@ public class BType implements ValueType {
                 return TypeKind.BOOLEAN;
             case BLOB:
                 return TypeKind.BLOB;
+            case TYPE:
+                return TypeKind.TYPE;
             default:
                 return TypeKind.OTHER;
         }

@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.programfile.cpentries;
 
 
-import org.wso2.ballerinalang.programfile.ActionInfo;
-
 import java.util.Objects;
 
 /**
@@ -38,8 +36,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     // Index to a valid connector ref index in the constant pool
     private int connectorRefCPIndex;
 
-    private ActionInfo actionInfo;
-
     public ActionRefCPEntry(int packageCPIndex, int connectorRefCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
         this.connectorRefCPIndex = connectorRefCPIndex;
@@ -56,14 +52,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
 
     public int getConnectorRefCPIndex() {
         return connectorRefCPIndex;
-    }
-
-    public ActionInfo getActionInfo() {
-        return actionInfo;
-    }
-
-    public void setActionInfo(ActionInfo actionInfo) {
-        this.actionInfo = actionInfo;
     }
 
     public EntryType getEntryType() {

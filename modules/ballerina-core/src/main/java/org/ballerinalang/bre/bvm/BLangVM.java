@@ -2476,12 +2476,7 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
         BConnector bConnector = new BConnector(connectorInfo.getType());
-//        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
-        if (connectorInfo.getInitAction() != null) {
-            FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(new int[] {0}, new int[0]);
-            invokeNativeAction(connectorInfo.getInitAction(), funcCallCPEntry);
-        }
     }
 
     private void createNewStruct(int[] operands, StackFrame sf) {
@@ -2490,6 +2485,44 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
         BStruct bStruct = new BStruct(structInfo.getType());
+
+        // Populate default values
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            DefaultValueAttributeInfo defaultValueInfo =
+                    (DefaultValueAttributeInfo) fieldInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+            switch (fieldInfo.getFieldType().getTag()) {
+                case TypeTags.INT_TAG:
+                    longRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
+                    }
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    doubleRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setFloatField(doubleRegIndex, defaultValueInfo.getDefaultValue().getFloatValue());
+                    }
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setStringField(stringRegIndex, defaultValueInfo.getDefaultValue().getStringValue());
+                    }
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    booleanRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setBooleanField(booleanRegIndex,
+                                defaultValueInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
+                    }
+                    break;
+            }
+        }
+
         sf.refRegs[i] = bStruct;
     }
 
@@ -2955,68 +2988,70 @@ public class BLangVM {
         WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
 
-        if (nativeAction != null) {
-            // TODO : Remove once we handle this properly for return values
-            BType[] retTypes = actionInfo.getRetParamTypes();
-            BValue[] returnValues = new BValue[retTypes.length];
+        if (nativeAction == null) {
+            return;
+        }
 
-            StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
-            copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                    actionInfo.getParamTypes());
+        // TODO : Remove once we handle this properly for return values
+        BType[] retTypes = actionInfo.getRetParamTypes();
+        BValue[] returnValues = new BValue[retTypes.length];
+
+        StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
+        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                actionInfo.getParamTypes());
 
 
-            controlStack.pushFrame(caleeSF);
+        controlStack.pushFrame(caleeSF);
 
-            try {
-                boolean nonBlocking = !context.disableNonBlocking
-                        && !context.isInTransaction() && nativeAction.isNonBlockingAction();
-                BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
-                if (nonBlocking) {
-                    // Enable non-blocking.
-                    context.setStartIP(ip);
-                    // TODO : Temporary solution to make non-blocking working.
-                    if (caleeSF.packageInfo == null) {
-                        caleeSF.packageInfo = actionInfo.getPackageInfo();
-                    }
-                    context.programFile = programFile;
-                    context.funcCallCPEntry = funcCallCPEntry;
-                    context.actionInfo = actionInfo;
-
-                    ConnectorFuture future = nativeAction.execute(context);
-                    if (future == null) {
-                        throw new BallerinaException("Native action doesn't provide a future object to sync");
-                    }
-                    future.setConnectorFutureListener(listener);
-
-                    ip = -1;
-                    return;
-                } else {
-                    ConnectorFuture future = nativeAction.execute(context);
-                    if (future == null) {
-                        throw new BallerinaException("Native action doesn't provide a future object to sync");
-                    }
-                    future.setConnectorFutureListener(listener);
-                    //default nonBlocking timeout 5 mins
-                    long timeout = 300000;
-                    boolean res = listener.sync(timeout);
-                    if (!res) {
-                        //non blocking execution timed out.
-                        throw new BallerinaException("Action execution timed out, timeout period - " + timeout
-                        + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
-                    }
-                    // Copy return values to the callers stack
-                    controlStack.popFrame();
-                    handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
-
+        try {
+            boolean nonBlocking = !context.disableNonBlocking
+                    && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
+            if (nonBlocking) {
+                // Enable non-blocking.
+                context.setStartIP(ip);
+                // TODO : Temporary solution to make non-blocking working.
+                if (caleeSF.packageInfo == null) {
+                    caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
-            } catch (Throwable e) {
-                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-                handleError();
+                context.programFile = programFile;
+                context.funcCallCPEntry = funcCallCPEntry;
+                context.actionInfo = actionInfo;
+
+                ConnectorFuture future = nativeAction.execute(context);
+                if (future == null) {
+                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+                }
+                future.setConnectorFutureListener(listener);
+
+                ip = -1;
                 return;
+            } else {
+                ConnectorFuture future = nativeAction.execute(context);
+                if (future == null) {
+                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+                }
+                future.setConnectorFutureListener(listener);
+                //default nonBlocking timeout 5 mins
+                long timeout = 300000;
+                boolean res = listener.sync(timeout);
+                if (!res) {
+                    //non blocking execution timed out.
+                    throw new BallerinaException("Action execution timed out, timeout period - " + timeout
+                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
+                }
+                if (context.getError() != null) {
+                    handleError();
+                }
+                // Copy return values to the callers stack
+                controlStack.popFrame();
+                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
             }
-        } else {
-            // Ballerina Action in case of ballerina based filter connector
-            invokeCallableUnit(actionInfo, funcCallCPEntry);
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            handleError();
+            return;
         }
     }
 
