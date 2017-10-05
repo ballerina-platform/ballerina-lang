@@ -83,12 +83,12 @@ Once you have accessed the composer, you can have a look around using the availa
 
 3. Click **Swagger View**. 
 
-    ![alt text](images/EchoSwagger.png "Swagger view")
+    ![alt text](images/EchoSwagger2.png "Swagger view")
 
     If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. This editor allows you to write Swagger definitions to create services. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
 1. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
 
-1. Click the "x" to the right of "untitled" in the tab title to close this sample, and click **Don't Save** when prompted.
+1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 
 Now that you've had a look around, it's time to take Ballerina for a spin and [write your first Ballerina program](tutorials/first-program.md).
