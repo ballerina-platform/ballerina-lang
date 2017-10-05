@@ -242,12 +242,12 @@ class PositioningUtil {
 
             // Positioning the closing bracket component of the parameters.
             cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
-            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;            
+            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
         }
 
         // ========== End of Header ==========
 
-
+           
         let xindex = cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
         // Position Workers
         if (workers instanceof Array) {
@@ -749,6 +749,10 @@ class PositioningUtil {
                 element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;
+            } else if (TreeUtil.isForkJoin(element)) {
+                element.viewState.bBox.x = viewState.bBox.x;
+                element.viewState.bBox.y = viewState.bBox.y + height;
+                height += element.viewState.bBox.h;
             }
         });
     }
@@ -790,7 +794,40 @@ class PositioningUtil {
      * @param {object} node ForkJoin object
      */
     positionForkJoinNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        const bBox = viewState.bBox;
+        const joinStmt = node.joinBody;
+
+        this.positionCompoundStatementComponents(node);
+
+        node.viewState.bBox.x = node.viewState.components['statement-box'].x;
+        node.viewState.bBox.y = node.viewState.components['statement-box'].y
+            + node.viewState.components['block-header'].h;
+
+        const joinX = bBox.x;
+        let joinY = viewState.components['statement-box'].y
+            + viewState.components['statement-box'].h;
+
+        node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+        node.viewState.components['statement-box'].w = node.viewState.bBox.w;
+        node.viewState.components['block-header'].w = node.viewState.bBox.w;
+
+        if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
+            joinStmt.viewState.bBox.w = node.viewState.bBox.w;
+            if(TreeUtil.isBlock(joinStmt)){
+                joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+                joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
+                joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+            }
+        }
+
+        // if(TreeUtil.isBlock(joinStmt)){
+        //     joinY += joinStmt.viewState.components['block-header'].h;
+        // }
+
+        joinStmt.viewState.bBox.y = joinY;
+        joinStmt.viewState.bBox.x = joinX;
+        this.positionCompoundStatementComponents(joinStmt);
     }
 
 
