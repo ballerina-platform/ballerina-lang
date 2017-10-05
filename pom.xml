@@ -438,6 +438,12 @@
                 <groupId>org.wso2.carbon.messaging</groupId>
                 <artifactId>org.wso2.carbon.messaging</artifactId>
                 <version>${carbon.messaging.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
@@ -496,11 +502,6 @@
                 <version>${jaxen.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons.logging.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-activation_1.1_spec</artifactId>
                 <version>${geronimo.activation}</version>
@@ -543,11 +544,6 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
@@ -703,16 +699,6 @@
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
                 <version>${handlebars.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
@@ -969,7 +955,6 @@
         <testng.version>6.9.4</testng.version>
         <commons.io.version>2.5</commons.io.version>
         <handlebars.version>4.0.6</handlebars.version>
-        <log4j.version>2.8</log4j.version>
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
@@ -990,7 +975,6 @@
         <orbit.version.axiom>1.2.20</orbit.version.axiom>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <jaxen.version>1.1.6</jaxen.version>
-        <commons.logging.version>1.2</commons.logging.version>
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
