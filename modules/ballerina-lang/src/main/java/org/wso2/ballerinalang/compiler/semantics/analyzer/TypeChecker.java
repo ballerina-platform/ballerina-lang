@@ -208,7 +208,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         BType actualType = symTable.errType;
         int expTypeTag = expTypes.get(0).tag;
-        if (expTypeTag == TypeTags.NONE) {
+        if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
             // var a = {}
             // Change the expected type to map
             expTypes = Lists.of(symTable.mapType);
@@ -216,7 +216,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (expTypeTag == TypeTags.JSON ||
                 expTypeTag == TypeTags.MAP ||
-                expTypeTag == TypeTags.STRUCT) {
+                expTypeTag == TypeTags.STRUCT || 
+                expTypeTag == TypeTags.NONE || 
+                expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
             actualType = expTypes.get(0);

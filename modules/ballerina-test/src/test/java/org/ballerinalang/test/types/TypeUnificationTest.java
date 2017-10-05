@@ -39,10 +39,10 @@ public class TypeUnificationTest {
     @BeforeClass
     public void setup() {
         // Todo - Fix any type issue
-        //        compileResult = BTestUtils.compile("test-src/types/map-struct-json-unified.bal");
+        compileResult = BTestUtils.compile("test-src/types/map-struct-json-unified.bal");
     }
 
-    //    @Test(description = "Test inline initializing of a struct and its fields")
+    @Test(description = "Test inline initializing of a struct and its fields")
     public void testMultiValuedStructInlineInit() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testMultiValuedStructInlineInit");
 
@@ -70,7 +70,7 @@ public class TypeUnificationTest {
         Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
     }
 
-    //    @Test
+    @Test
     public void testAccessJsonInStruct() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testAccessJsonInStruct");
 
@@ -84,7 +84,7 @@ public class TypeUnificationTest {
         Assert.assertEquals(returns[2].stringValue(), "married");
     }
 
-    //    @Test
+    @Test
     public void testAccessMapInStruct() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testAccessMapInStruct");
 
@@ -101,7 +101,7 @@ public class TypeUnificationTest {
         Assert.assertEquals(returns[3].stringValue(), "Colombo");
     }
 
-    //    @Test
+    @Test
     public void testAccessArrayInStruct() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testAccessArrayInStruct");
 
@@ -112,7 +112,7 @@ public class TypeUnificationTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 72);
     }
 
-    //    @Test
+    @Test
     public void testMapInitWithAnyType() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testMapInitWithAnyType");
 
@@ -123,7 +123,7 @@ public class TypeUnificationTest {
         Assert.assertEquals(((BMap<String, BString>) returns[1]).get("name").stringValue(), "Supun");
     }
 
-    //    @Test
+    @Test
     public void testSetValueToJsonInStruct() {
         BValue[] returns = BTestUtils.invoke(compileResult, "testSetValueToJsonInStruct");
         Assert.assertTrue(returns[0] instanceof BJSON);
