@@ -41,7 +41,7 @@ public class UriTemplateBestMatchTest {
     @BeforeClass()
     public void setup() {
         application = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/uri-template-matching.bal");
+                .setupProgramFile("test-src/services/dispatching/uri-template-matching.bal");
     }
 
     @Test(description = "Test dispatching with URL. /hello/world/echo2?regid=abc")

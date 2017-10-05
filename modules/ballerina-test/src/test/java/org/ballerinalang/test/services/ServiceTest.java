@@ -43,7 +43,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = EnvironmentInitializer.setupProgramFile("test-src/statements/services/echoService.bal");
+        compileResult = EnvironmentInitializer.setupProgramFile("test-src/services/echoService.bal");
     }
 
     @Test

@@ -43,7 +43,7 @@ public class HTTPSessionEssentialMethodsTest {
     @BeforeClass
     public void setup() {
         compileResult = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/session/httpSessionTest.bal");
+                .setupProgramFile("test-src/services/session/httpSessionTest.bal");
     }
 
     @Test(description = "Test for getting a session at first time")

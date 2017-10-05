@@ -40,7 +40,7 @@ public class ProducesConsumesAnnotationTest {
     @BeforeClass()
     public void setup() {
         compileResult = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/producesConsumesTest.bal");
+                .setupProgramFile("test-src/services/dispatching/producesConsumesTest.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")

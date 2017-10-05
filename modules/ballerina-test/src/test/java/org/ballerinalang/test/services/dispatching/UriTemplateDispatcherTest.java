@@ -42,7 +42,7 @@ public class UriTemplateDispatcherTest {
     @BeforeClass()
     public void setup() {
         application = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/uri-template.bal");
+                .setupProgramFile("test-src/services/dispatching/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
