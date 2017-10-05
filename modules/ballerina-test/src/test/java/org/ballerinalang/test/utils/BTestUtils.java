@@ -122,7 +122,7 @@ public class BTestUtils {
     }
 
     /**
-     * Compile and return the semantic errors.
+     * Compile and return the compiled package node.
      *
      * @param sourceFilePath Path to source package/file
      * @return compiled package node
