@@ -15,14 +15,12 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.model.statements;
+package org.ballerinalang.test.statements.continuestatement;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.SemanticException;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,17 +31,18 @@ import org.testng.annotations.Test;
  * @since 0.89
  */
 public class ContinueStmtTest {
-    private ProgramFile programFile;
+
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/statements/continue-stmt.bal");
+        compileResult = BTestUtils.compile("test-src/statements/continuestatement/continue-stmt.bal");
     }
 
     @Test(description = "Test continue statement in a while loop.")
     public void testContinueStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -56,7 +55,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
     public void testContinueStmtConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -69,7 +68,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedContinueStmt", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "nestedContinueStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -82,7 +81,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedContinueStmt", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "nestedContinueStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -92,16 +91,22 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check invalid continue statement location.", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*continue statement is not allowed here*")
+    @Test(description = "Check invalid continue statement location.")
     public void testNegative() {
-        BTestUtils.getProgramFile("lang/statements/continue-stmt-negative.bal");
+        CompileResult compileResult = BTestUtils.compile(
+                "test-src/statements/continuestatement/continue-stmt-negative.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+                            "continue cannot be used outside of a loop");
     }
 
-    @Test(description = "Check not reachable statements.", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*continue-stmt-unreachable.bal:11.*.*unreachable statement*")
+    @Test(description = "Check not reachable statements.", enabled = false)
     public void testNegativeUnreachable() {
-        BTestUtils.getProgramFile("lang/statements/continue-stmt-unreachable.bal");
+        CompileResult compileResult = BTestUtils.compile(
+                "test-src/statements/continuestatement/continue-stmt-unreachable.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "");
     }
-
 }
