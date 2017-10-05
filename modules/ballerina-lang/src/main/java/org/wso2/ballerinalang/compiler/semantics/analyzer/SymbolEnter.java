@@ -242,17 +242,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         // Create import package symbol
-        List<Name> nameComps = importPkgNode.pkgNameComps.stream()
-                .map(identifier -> names.fromIdNode(identifier))
-                .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
-        BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
-        if (pkgSymbol == null) {
-            BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
-            pkgSymbol = pkgNode.symbol;
-            ((BLangPackage) env.node).initFunction.body
-                    .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
-        }
+        BPackageSymbol pkgSymbol = resolveImportPackage(importPkgNode);
         importPkgNode.symbol = pkgSymbol;
         this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
     }
@@ -843,5 +833,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             return names.fromString(funcNode.receiver.type + "." + funcNode.name.value);
         }
         return names.fromIdNode(funcNode.name);
+    }
+
+    private BPackageSymbol resolveImportPackage(BLangImportPackage importPkgNode) {
+        List<Name> nameComps = importPkgNode.pkgNameComps.stream()
+                .map(identifier -> names.fromIdNode(identifier))
+                .collect(Collectors.toList());
+        PackageID pkgID = new PackageID(nameComps, names.fromIdNode(importPkgNode.version));
+        BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
+        if (pkgSymbol == null) {
+            BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
+            pkgSymbol = pkgNode.symbol;
+            ((BLangPackage) env.node).initFunction.body
+                    .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));
+        }
+        return pkgSymbol;
     }
 }

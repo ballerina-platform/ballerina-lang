@@ -252,7 +252,8 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
         } else {
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            BSymbol symbol = symResolver.lookupSymbol(varRefExpr.pos, env,
+                    names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             } else {
