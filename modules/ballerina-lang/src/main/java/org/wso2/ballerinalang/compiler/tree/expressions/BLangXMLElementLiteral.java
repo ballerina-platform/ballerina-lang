@@ -26,9 +26,10 @@ import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,8 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     public BLangExpression endTagName;
     public List<BLangXMLAttribute> attributes;
     public List<BLangExpression> children;
-    public Map<Name, BXMLNSSymbol> namespaces;
+    public Map<Name, BXMLNSSymbol> namespacesInScope;
+    public List<BLangXMLNS> inlineNamespaces;
     public BXMLNSSymbol defaultNsSymbol;
     public boolean isRoot;
     public Scope scope;
@@ -50,7 +52,8 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
     public BLangXMLElementLiteral() {
         attributes = new ArrayList<BLangXMLAttribute>();
         children = new ArrayList<BLangExpression>();
-        namespaces = new HashMap<Name, BXMLNSSymbol>();
+        namespacesInScope = new LinkedHashMap<Name, BXMLNSSymbol>();
+        inlineNamespaces = new ArrayList<BLangXMLNS>();
     }
 
     @Override
@@ -95,12 +98,12 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
 
     @Override
     public Map<Name, ? extends Symbol> getNamespaces() {
-        return namespaces;
+        return namespacesInScope;
     }
 
     @Override
     public void addNamespace(Name prefix, Symbol namespaceUri) {
-        this.namespaces.put(prefix, (BXMLNSSymbol) namespaceUri);
+        this.namespacesInScope.put(prefix, (BXMLNSSymbol) namespaceUri);
     }
 
     @Override

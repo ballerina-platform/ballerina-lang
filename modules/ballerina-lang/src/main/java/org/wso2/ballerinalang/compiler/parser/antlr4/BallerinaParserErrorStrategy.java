@@ -24,81 +24,87 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Error Handling strategy for {@link BallerinaParser}.
  */
 public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
+
+    private DiagnosticLog dlog;
+    private BDiagnosticSource diagnosticSrc;
     
-    @Override
-    public void recover(Parser parser, RecognitionException e) {
-        Token missingSymbol = parser.getCurrentToken();
-        int line = missingSymbol.getLine();
-        int position = missingSymbol.getCharPositionInLine();
-        String mismatchedToken = getTokenErrorDisplay(missingSymbol);
-        String msg = getSourceLocation(parser, line, position) + "invalid token " + mismatchedToken + ". " +
-                e.getMessage();
-        setContextException(parser);
-        throw new ParseCancellationException(msg);
+    public BallerinaParserErrorStrategy(CompilerContext context, BDiagnosticSource diagnosticSrc) {
+        this.dlog = DiagnosticLog.getInstance(context);
+        this.diagnosticSrc = diagnosticSrc;
     }
 
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
-        int line = getMissingSymbol(parser).getLine();
-        int position = getMissingSymbol(parser).getCharPositionInLine();
-        String mismatchedToken = getTokenErrorDisplay(e.getOffendingToken());
+        setContextException(parser);
+        Token offendingToken = e.getOffendingToken();
+        String mismatchedToken = getTokenErrorDisplay(offendingToken);
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
-        String msg = getSourceLocation(parser, line, position) + "mismatched input " + mismatchedToken +
-                ". Expecting one of " + expectedToken;
-        setContextException(parser);
-        throw new ParseCancellationException(msg);
+        DiagnosticPos pos = getPosition(offendingToken);
+        dlog.error(pos, DiagnosticCode.MISMATCHED_INPUT, mismatchedToken, expectedToken);
     }
-    
-    @Override
-    public void reportMissingToken(Parser parser) {
-        Token token = parser.getCurrentToken();
-        IntervalSet expecting = getExpectedTokens(parser);
-        int line = getMissingSymbol(parser).getLine();
-        int position = getMissingSymbol(parser).getCharPositionInLine();
-        String missingToken = expecting.toString(parser.getVocabulary());
-        String msg = getSourceLocation(parser, line, position) + "missing " + missingToken + " before " +
-                getTokenErrorDisplay(token);
-        setContextException(parser);
-        throw new ParseCancellationException(msg);
-    }
-    
+
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
-        Token token = parser.getCurrentToken();
-        int line = getMissingSymbol(parser).getLine();
-        int position = getMissingSymbol(parser).getCharPositionInLine();
-        String msg = getSourceLocation(parser, line, position) + "invalid identifier " + getTokenErrorDisplay(token);
         setContextException(parser);
-        throw new ParseCancellationException(msg);
+        TokenStream tokens = parser.getInputStream();
+        String offendingToken = tokens.getText(e.getStartToken(), e.getOffendingToken());
+        DiagnosticPos pos = getPosition(getMissingSymbol(parser));
+        dlog.error(pos, DiagnosticCode.INVALID_TOKEN, escapeWSAndQuote(offendingToken));
     }
-    
-    @Override
-    public void reportUnwantedToken(Parser parser) {
-        Token token = parser.getCurrentToken();
-        int line = getMissingSymbol(parser).getLine();
-        int position = getMissingSymbol(parser).getCharPositionInLine();
-        String msg = getSourceLocation(parser, line, position) + "unwanted token " + getTokenErrorDisplay(token);
-        setContextException(parser);
-        throw new ParseCancellationException(msg);
-    }
-    
+
     @Override
     public void reportFailedPredicate(Parser parser, FailedPredicateException e) {
-        int line = getMissingSymbol(parser).getLine();
-        int position = getMissingSymbol(parser).getCharPositionInLine();
         setContextException(parser);
-        throw new ParseCancellationException(getSourceLocation(parser, line, position) + e.getMessage());
+        DiagnosticPos pos = getPosition(getMissingSymbol(parser));
+        dlog.error(pos, DiagnosticCode.FAILED_PREDICATE, e.getMessage());
     }
-    
-    
+
+    @Override
+    public void reportMissingToken(Parser parser) {
+        if (parser.getContext().exception != null || inErrorRecoveryMode(parser)) {
+            return;
+        }
+        beginErrorCondition(parser);
+        
+        setContextException(parser);
+        Token token = parser.getCurrentToken();
+        IntervalSet expecting = getExpectedTokens(parser);
+        String missingToken = expecting.toString(parser.getVocabulary());
+        DiagnosticPos pos = getPosition(getMissingSymbol(parser));
+        dlog.error(pos, DiagnosticCode.MISSING_TOKEN, missingToken, getTokenErrorDisplay(token));
+    }
+
+    @Override
+    public void reportUnwantedToken(Parser parser) {
+        if (parser.getContext().exception != null || inErrorRecoveryMode(parser)) {
+            return;
+        }
+        beginErrorCondition(parser);
+
+        setContextException(parser);
+        Token token = parser.getCurrentToken();
+        DiagnosticPos pos = getPosition(getMissingSymbol(parser));
+        dlog.error(pos, DiagnosticCode.EXTRANEOUS_INPUT, getTokenErrorDisplay(token));
+    }
+
     public void reportError(Parser parser, RecognitionException e) {
+        if (inErrorRecoveryMode(parser)) {
+            return;
+        }
+        beginErrorCondition(parser);
+
         if (e instanceof NoViableAltException) {
             reportNoViableAlternative(parser, (NoViableAltException) e);
         } else if (e instanceof InputMismatchException) {
@@ -106,29 +112,31 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         } else if (e instanceof FailedPredicateException) {
             reportFailedPredicate(parser, (FailedPredicateException) e);
         } else {
-            int line = getMissingSymbol(parser).getLine();
-            int position = getMissingSymbol(parser).getCharPositionInLine();
             setContextException(parser);
-            throw new ParseCancellationException(getSourceLocation(parser, line, position) + e.getMessage());
+            DiagnosticPos pos = getPosition(getMissingSymbol(parser));
+            dlog.error(pos, DiagnosticCode.INVALID_TOKEN, e.getMessage());
         }
     }
-    
+
     /**
      * Set an exception in the parser context. This is later used at {@link BLangAntlr4Listener} level
      * to determine whether the parse exception has occured and is in error state.
      * 
-     * @param parser    Current parser
+     * @param parser Current parser
      */
     private void setContextException(Parser parser) {
-        // Here the type of the exception is not important. 
+        // Here the type of the exception is not important.
         InputMismatchException e = new InputMismatchException(parser);
         for (ParserRuleContext context = parser.getContext(); context != null; context = context.getParent()) {
             context.exception = e;
         }
     }
-    
-    private String getSourceLocation(Parser parser, int line, int position) {
-        return parser.getSourceName() + ":"+ line + ":" + position + ": ";
+
+    private DiagnosticPos getPosition(Token token) {
+        int startLine = token.getLine();
+        int startCol = token.getCharPositionInLine() + 1;
+        int endLine = -1;
+        int endCol = -1;
+        return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
     }
-    
 }

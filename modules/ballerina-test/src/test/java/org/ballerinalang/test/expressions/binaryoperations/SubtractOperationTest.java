@@ -107,7 +107,7 @@ public class SubtractOperationTest {
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 8);
-        BTestUtils.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 9);
+        BTestUtils.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
+        BTestUtils.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
     }
 }

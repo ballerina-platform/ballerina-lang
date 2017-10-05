@@ -94,6 +94,34 @@ public class FuncInvocationExprTest {
     }
 
     @Test
+    public void testReturnFuncInvocationWithinFuncInvocation() {
+        BValue[] args = {new BInteger(2), new BInteger(3)};
+        BValue[] returns =
+                BTestUtils.invoke(funcInvocationExpResult, "testReturnFuncInvocationWithinFuncInvocation", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 8;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(enabled = false)
+    public void testReturnNativeFuncInvocationWithinNativeFuncInvocation() {
+        BValue[] args = {new BFloat(2)};
+        BValue[] returns = BTestUtils.invoke(funcInvocationExpResult,
+                                             "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = 2;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
     public void testNativeInvocation() {
         BValue[] args = {new BFloat(2), new BFloat(2)};
         BValue[] returns = BTestUtils.invoke(funcInvocationExpResult, "getPowerOfN", args);
@@ -108,7 +136,7 @@ public class FuncInvocationExprTest {
     public void testUnaryStmtNegativeCases() {
         Assert.assertEquals(funcInvocationNegative.getErrorCount(), 2);
         BTestUtils
-                .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 22);
-        BTestUtils.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 4);
+                .validateError(funcInvocationNegative, 0, "incompatible types: expected 'int', found 'string'", 3, 23);
+        BTestUtils.validateError(funcInvocationNegative, 1, "undefined function 'foo'", 11, 5);
     }
 }

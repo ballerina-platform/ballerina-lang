@@ -608,6 +608,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#connectorDeclarationStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#connectorDeclarationStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#mapStructLiteral}.
 	 * @param ctx the parse tree
 	 */

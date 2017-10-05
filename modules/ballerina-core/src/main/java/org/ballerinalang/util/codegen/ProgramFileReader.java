@@ -466,9 +466,10 @@ public class ProgramFileReader {
                 if (nativeAction) {
                     AbstractNativeAction nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
                             actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
-                    if (nativeActionObj == null) {
+                    if (nativeActionObj == null && !actionInfo.name.equals("<init>")) {
                         throw new BLangRuntimeException("native action not available " +
-                                actionInfo.getPkgPath() + ":" + actionName);
+                                actionInfo.getPkgPath() + ":" + actionInfo
+                                .getConnectorInfo().getName() + "." +  actionName);
                     }
                     actionInfo.setNativeAction(nativeActionObj);
                 }
@@ -476,8 +477,6 @@ public class ProgramFileReader {
                 // Read attributes of the struct info
                 readAttributeInfoEntries(dataInStream, packageInfo, actionInfo);
             }
-
-            loadNativeInitActionIfAny(connectorInfo);
 
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
@@ -495,30 +494,6 @@ public class ProgramFileReader {
                 break;
             }
         }
-    }
-
-    private void loadNativeInitActionIfAny(ConnectorInfo connectorInfo) {
-        ActionInfo actionInfo = new ActionInfo(-1, connectorInfo.getPackagePath(),
-                -1, "<init>", connectorInfo);
-        actionInfo.setPackageInfo(connectorInfo.getPackageInfo());
-        AbstractNativeAction nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
-                actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
-        if (nativeActionObj == null) {
-            return;
-        }
-        WorkerInfo defaultWorkerInfo = new WorkerInfo(-1, "default");
-        CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
-        codeAttributeInfo.setAttributeNameIndex(-1);
-        codeAttributeInfo.setCodeAddrs(-1);
-        codeAttributeInfo.setMaxRefLocalVars(1); //Only connector object will be copied to the stack
-        defaultWorkerInfo.setCodeAttributeInfo(codeAttributeInfo);
-
-        BType type = new BConnectorType(connectorInfo.name, connectorInfo.packagePath);
-        actionInfo.paramTypes = new BType[] {type};
-        actionInfo.setRetParamTypes(new BType[0]);
-        actionInfo.setDefaultWorkerInfo(defaultWorkerInfo);
-        actionInfo.setNativeAction(nativeActionObj);
-        connectorInfo.setInitAction(actionInfo);
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,

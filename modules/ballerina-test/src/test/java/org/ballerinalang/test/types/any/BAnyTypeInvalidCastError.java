@@ -34,9 +34,9 @@ public class BAnyTypeInvalidCastError {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
 
         BTestUtils.validateError(resultNegative, 0,
-                                 "unsafe cast from 'any' to 'float', use multi-return cast expression", 3, 14);
+                                 "unsafe cast from 'any' to 'float', use multi-return cast expression", 3, 15);
         BTestUtils.validateError(resultNegative, 1, "unsafe cast from 'any' to 'int', use multi-return cast expression",
-                                 14, 10);
+                                 14, 11);
         //TODO: This needs to have another error, for casting a null value. Add that check when it's fixed.
     }
 }
