@@ -32,17 +32,19 @@ import org.testng.annotations.Test;
  */
 public class ContinueStmtTest {
 
-    private CompileResult compileResult;
+    private CompileResult positiveCompileResult;
+    private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/continuestatement/continue-stmt.bal");
+        positiveCompileResult = BTestUtils.compile("test-src/statements/continuestatement/continue-stmt.bal");
+        negativeCompileResult = BTestUtils.compile("test-src/statements/continuestatement/continue-stmt-negative.bal");
     }
 
     @Test(description = "Test continue statement in a while loop.")
     public void testContinueStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,7 +57,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
     public void testContinueStmtConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -68,7 +70,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "nestedContinueStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedContinueStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -81,7 +83,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "nestedContinueStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedContinueStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -91,22 +93,10 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check invalid continue statement location.")
+    @Test(description = "Check invalid continue statement location.", enabled = false)
     public void testNegative() {
-        CompileResult compileResult = BTestUtils.compile(
-                "test-src/statements/continuestatement/continue-stmt-negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "continue cannot be used outside of a loop");
-    }
-
-    @Test(description = "Check not reachable statements.", enabled = false)
-    public void testNegativeUnreachable() {
-        CompileResult compileResult = BTestUtils.compile(
-                "test-src/statements/continuestatement/continue-stmt-unreachable.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "");
+        BTestUtils.validateError(negativeCompileResult, 0, "continue cannot be used outside of a loop", 14, 5);
+        // Todo - Fix unreachable statement
+        BTestUtils.validateError(negativeCompileResult, 1, "", 0, 0);
     }
 }

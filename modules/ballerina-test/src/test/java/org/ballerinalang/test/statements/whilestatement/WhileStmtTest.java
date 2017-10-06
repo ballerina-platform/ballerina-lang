@@ -33,17 +33,19 @@ import org.testng.annotations.Test;
  */
 public class WhileStmtTest {
 
-    private CompileResult compileResult;
+    private CompileResult positiveCompileResult;
+    private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/whilestatement/while-stmt.bal");
+        positiveCompileResult = BTestUtils.compile("test-src/statements/whilestatement/while-stmt.bal");
+        negativeCompileResult = BTestUtils.compile("test-src/statements/whilestatement/while-stmt-negative.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtConditionTrue() {
         BValue[] args = {new BInteger(10), new BInteger(1)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testWhileStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -56,7 +58,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to false")
     public void testWhileStmtConditionFalse() {
         BValue[] args = {new BInteger(10), new BInteger(11)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testWhileStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -69,14 +71,14 @@ public class WhileStmtTest {
     @Test(description = "Check the scope managing in while block")
     public void testWhileBlockScopes() {
         BValue[] args = {new BInteger(1)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "testWhileScope", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
 
         args = new BValue[]{new BInteger(2)};
-        returns = BTestUtils.invoke(compileResult, "testWhileScope", args);
+        returns = BTestUtils.invoke(positiveCompileResult, "testWhileScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
@@ -85,7 +87,7 @@ public class WhileStmtTest {
 
     @Test(description = "Check the scope managing in while block with ifelse")
     public void testWhileBlockScopesWithIf() {
-        BValue[] returns = BTestUtils.invoke(compileResult, "testWhileScopeWithIf");
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileScopeWithIf");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type of return param1 mismatched");
         Assert.assertSame(returns[1].getClass(), BFloat.class, "Class type of return param2 mismatched");
@@ -98,11 +100,7 @@ public class WhileStmtTest {
     @Test(description = "Test while statement with incompatible types",
           dependsOnMethods = {"testWhileStmtConditionFalse", "testWhileStmtConditionTrue"})
     public void testMapAccessWithIndex() {
-        CompileResult compileResult = BTestUtils.compile(
-                "test-src/statements/whilestatement/while-stmnt-with-incompatible-types.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "incompatible types: expected 'boolean', found 'string'");
+        BTestUtils.validateError(negativeCompileResult, 0, "incompatible types: expected 'boolean', found 'string'", 2,
+                                 9);
     }
 }

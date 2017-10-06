@@ -32,17 +32,20 @@ import org.testng.annotations.Test;
  */
 public class BreakStmtTest {
 
-    private CompileResult compileResult;
+    private CompileResult positiveCompileResult;
+    private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt.bal");
+        positiveCompileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt.bal");
+        // Todo - Fix empty stack error
+//        negativeCompileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt-negative.bal");
     }
 
     @Test(description = "Test break statement in a while loop.")
     public void testBreakStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,7 +58,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop, where break in a ")
     public void testBreakStmtConditionElseIf() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -68,7 +71,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop, where break not hits")
     public void testBreakStmtConditionFalse() {
         BValue[] args = {new BInteger(8), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "calculateExp1", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -81,7 +84,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a nested while loop.")
     public void testBreakStmtInNestedWhile() {
         BValue[] args = {new BInteger(12), new BInteger(8)};
-        BValue[] returns = BTestUtils.invoke(compileResult, "nestedBreakStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedBreakStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -91,20 +94,11 @@ public class BreakStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check invalid break statement location.", enabled = false)
-    public void testNegative() {
-        CompileResult compileResult = BTestUtils.compile("test-src/statements/breakstatement/break-stmt-negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "");
-    }
-
     @Test(description = "Check not reachable statements.", enabled = false)
-    public void testNegativeUnreachable() {
-        CompileResult compileResult = BTestUtils.compile(
-                "test-src/statements/breakstatement/break-stmt-unreachable.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "");
+    public void testNegative() {
+        // Todo - break outside of a loop
+        BTestUtils.validateError(negativeCompileResult, 0, "", 0, 0);
+        // Todo - unreachable statement
+        BTestUtils.validateError(negativeCompileResult, 1, "", 0, 0);
     }
 }
