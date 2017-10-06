@@ -157,3 +157,7 @@
     font-size: 13px;
     margin-left: 4px;
 }
+
+.variable-edit-button {
+    padding-right: 60px;
+}
