@@ -60,11 +60,11 @@ export default class TransformUtils {
             });
         });
 
-        function sortNumber(a,b) {
+        function sortNumber(a, b) {
             return a - b;
         }
         tempVarSuffixes.sort(sortNumber);
-        let index = tempVarSuffixes[tempVarSuffixes.length - 1] + 1;
+        const index = tempVarSuffixes[tempVarSuffixes.length - 1] || 0 + 1;
         return varPrefix + index;
     }
 

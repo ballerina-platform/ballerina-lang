@@ -53,14 +53,15 @@ class ConnectorHelper {
      * @param fullPackageName of the connector
      * @returns {Array}
      */
-    static getConnectorParameters(environment, fullPackageName) {
+    static getConnectorParameters(environment, pkgAlias) {
         const connectorParameters = [];
         for (const packageDefintion of environment.getPackages()) {
+            const fullPackageName = environment.getPackageByIdentifier(pkgAlias).getName();
             if (packageDefintion.getName() === fullPackageName) {
                 for (const connector of packageDefintion.getConnectors()) {
                     // Get Connection Properties
                     connector.getParams().map((parameter) => {
-                        let structFields = null;
+                        /* let structFields = null;
                         if (parameter.type === 'ConnectionProperties') {
                             for (const structDef of packageDefintion.getStructDefinitions()) {
                                 if (structDef.getName() === parameter.type) {
@@ -74,14 +75,14 @@ class ConnectorHelper {
                                     });
                                 }
                             }
-                        }
+                        }*/
 
                         // Check the bType of each attribute and set the default values accordingly
                         const keyValuePair = {
                             identifier: parameter.name,
                             bType: parameter.type,
                             desc: parameter.name,
-                            fields: structFields,
+                            // fields: structFields,
                             value: this.getDefaultValuesAccordingToBType(parameter.type),
                         };
                         connectorParameters.push(keyValuePair);

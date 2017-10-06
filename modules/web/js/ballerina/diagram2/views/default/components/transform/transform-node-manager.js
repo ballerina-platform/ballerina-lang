@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import Mapper from './transform-node-mapper';
-import TransformFactory from './transform-factory';
+import TransformFactory from '../../../../../model/transform-factory';
 import TransformUtils, { VarPrefix, ExpressionType } from '../../../../../utils/transform-utils';
 
 /**
@@ -248,7 +248,19 @@ class TransformNodeManager {
     getFunctionVertices(functionInvocationExpression) {
         const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
         const funPackage = this._environment.getPackageByName(fullPackageName);
+
+        if (!funPackage) {
+            log.error('Cannot find package definition for ' + fullPackageName);
+            return;
+        }
+
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+
+        if (!funcDef) {
+            log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
+            return;
+        }
+
         const parameters = [];
         const returnParams = [];
 

@@ -42,8 +42,10 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.NativeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -145,7 +147,8 @@ public class WorkspaceUtils {
         Compiler compiler = Compiler.getInstance(context);
 
         BallerinaFile ballerinaFile = new BallerinaFile();
-        ballerinaFile.setBLangPackage(compiler.compile(fileName));
+        compiler.compile(fileName);
+        ballerinaFile.setBLangPackage((BLangPackage) compiler.getAST());
         ballerinaFile.setDiagnostics(diagnostics);
         return ballerinaFile;
     }
@@ -172,7 +175,14 @@ public class WorkspaceUtils {
             //TODO Remove this if check once other packages are available to load.
             if (!"[ballerina, lang, btype]".equals(pkgNameComps.toString())
                     && !"[ballerina, mock]".equals(pkgNameComps.toString())
-                    && !"[ballerina, test]".equals(pkgNameComps.toString())) {
+                    && !"[ballerina, test]".equals(pkgNameComps.toString())
+                    && !"[ballerina, lang, messages]".equals(pkgNameComps.toString())
+                    && !"[ballerina, net, uri]".equals(pkgNameComps.toString())
+                    && !"[ballerina, net, ws]".equals(pkgNameComps.toString())
+                    && !"[ballerina, utils, logger]".equals(pkgNameComps.toString())
+                    && !"[ballerina, utils]".equals(pkgNameComps.toString())
+                    && !"[ballerina, lang, errors]".equals(pkgNameComps.toString())
+                    && !pkgNameComps.toString().contains("[org, wso2, ballerina, connectors")) {
                 org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
                         .loadPackage(pkgNameComps, bLangIdentifier);
                 loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
@@ -242,6 +252,7 @@ public class WorkspaceUtils {
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
             pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
+            pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
         }
     }
 
@@ -289,39 +300,39 @@ public class WorkspaceUtils {
      * @param packages packages to send
      * @param connector connector
      * */
-//    private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
-//                                  org.ballerinalang.model.BallerinaConnectorDef connector) {
-//        if (packages.containsKey(packagePath)) {
-//            ModelPackage modelPackage = packages.get(packagePath);
-//            List<Parameter> parameters = new ArrayList<>();
-//            addParameters(parameters, connector.getParameterDefs());
-//
-//            List<AnnotationAttachment> annotations = new ArrayList<>();
-//            addAnnotations(annotations, connector.getAnnotations());
-//
-//            List<Action> actions = new ArrayList<>();
-//            addActions(actions, connector.getActions());
-//
-//            modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
-//                    annotations, actions, parameters, null));
-//        } else {
-//            ModelPackage modelPackage = new ModelPackage();
-//            modelPackage.setName(packagePath);
-//
-//            List<Parameter> parameters = new ArrayList<>();
-//            addParameters(parameters, connector.getParameterDefs());
-//
-//            List<AnnotationAttachment> annotations = new ArrayList<>();
-//            addAnnotations(annotations, connector.getAnnotations());
-//
-//            List<Action> actions = new ArrayList<>();
-//            addActions(actions, connector.getActions());
-//
-//            modelPackage.addConnectorsItem(createNewConnector(connector.getName(),
-//                    annotations, actions, parameters, null));
-//            packages.put(packagePath, modelPackage);
-//        }
-//    }
+    private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
+                                  BLangConnector connector) {
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            List<Parameter> parameters = new ArrayList<>();
+            addParameters(parameters, connector.getParameters());
+
+            List<AnnotationAttachment> annotations = new ArrayList<>();
+            addAnnotations(annotations, connector.getAnnotationAttachments());
+
+            List<Action> actions = new ArrayList<>();
+            addActions(actions, connector.getActions());
+
+            modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
+                    annotations, actions, parameters, null));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+
+            List<Parameter> parameters = new ArrayList<>();
+            addParameters(parameters, connector.getParameters());
+
+            List<AnnotationAttachment> annotations = new ArrayList<>();
+            addAnnotations(annotations, connector.getAnnotationAttachments());
+
+            List<Action> actions = new ArrayList<>();
+            addActions(actions, connector.getActions());
+
+            modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
+                    annotations, actions, parameters, null));
+            packages.put(packagePath, modelPackage);
+        }
+    }
 
     /**
      * Extract Functions from ballerina lang.
@@ -409,27 +420,26 @@ public class WorkspaceUtils {
      * @param actionsList action list to be sent
      * @param actions native actions retrieve from the connector
      * */
-//    private static void addActions(List<Action> actionsList, BallerinaAction[] actions) {
-//        Stream.of(actions)
-//                .forEach(action -> actionsList.add(extractAction(action)));
-//    }
+    private static void addActions(List<Action> actionsList, List<BLangAction> actions) {
+        actions.forEach(action -> actionsList.add(extractAction(action)));
+    }
 
     /**
      * Extract action details from a connector.
      * @param action action.
      * @return {Action} action
      * */
-//    private static Action extractAction(BallerinaAction action) {
-//        List<Parameter> parameters = new ArrayList<>();
-//        addParameters(parameters, action.getParameterDefs());
-//
-//        List<AnnotationAttachment> annotations = new ArrayList<>();
-//        addAnnotations(annotations, action.getAnnotations());
-//
-//        List<Parameter> returnParameters = new ArrayList<>();
-//        addParameters(returnParameters, action.getReturnParameters());
-//        return createNewAction(action.getName(), parameters, returnParameters, annotations);
-//    }
+    private static Action extractAction(BLangAction action) {
+        List<Parameter> parameters = new ArrayList<>();
+        addParameters(parameters, action.getParameters());
+
+        List<AnnotationAttachment> annotations = new ArrayList<>();
+        addAnnotations(annotations, action.getAnnotationAttachments());
+
+        List<Parameter> returnParameters = new ArrayList<>();
+        addParameters(returnParameters, action.getReturnParameters());
+        return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations);
+    }
 
     /**
      * Create new action

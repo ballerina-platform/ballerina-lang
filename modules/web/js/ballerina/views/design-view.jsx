@@ -27,6 +27,7 @@ import TransformExpanded from '../diagram2/views/default/components/transform/tr
 import MessageManager from './../visitors/message-manager';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
+import { TOOL_PALETTE_WIDTH } from './constants';
 
 class DesignView extends React.Component {
 
@@ -134,6 +135,8 @@ class DesignView extends React.Component {
                             <BallerinaDiagram
                                 model={this.props.model}
                                 mode={this.state.mode}
+                                width={this.props.width - TOOL_PALETTE_WIDTH}
+                                height={this.props.height}
                             />
                         </div>
                     </div>
@@ -148,32 +151,10 @@ class DesignView extends React.Component {
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
                         mode={this.state.mode}
+                        height={this.props.height}
+                        width={TOOL_PALETTE_WIDTH}
                     />
                 </div>
-                { /* TODOX REMOVE <div className="top-right-controls-container">
-                    <div className={`top-right-controls-container-editor-pane
-                            main-action-wrapper import-packages-pane`}
-                    >
-                        <div className="action-content-wrapper">
-                            <div className="action-content-wrapper-heading import-wrapper-heading">
-                                <span>Import :</span>
-                                <input id="import-package-text" type="text" />
-                                <div className="action-icon-wrapper">
-                                    <span className="fw-stack fw-lg">
-                                        <i className="fw fw-square fw-stack-2x" />
-                                        <i className="fw fw-add fw-stack-1x fw-inverse" />
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="action-content-wrapper-body">
-                                <div className="imports-wrapper">
-                                    <span className="font-bold">Current Imports </span>
-                                    <hr />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
                 <div className={cn('bottom-right-controls-container', { hide: this.context.isPreviewViewEnabled })}>
                     <div className="view-source-btn btn-icon">
                         <div className="bottom-label-icon-wrapper">
@@ -214,6 +195,8 @@ DesignView.propTypes = {
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
     }).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 DesignView.contextTypes = {

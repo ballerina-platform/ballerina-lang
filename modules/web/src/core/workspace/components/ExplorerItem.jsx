@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Collapse } from 'react-bootstrap';
 import { getPathSeperator } from 'api-client/api-client';
 import PropTypes from 'prop-types';
+import { COMMANDS } from './../constants';
 import ContextMenuTrigger from './../../view/context-menu/ContextMenuTrigger';
 import './styles.scss';
 
@@ -31,9 +32,27 @@ class ExplorerItem extends React.Component {
                 label: _.last(this.props.folderPath.split(getPathSeperator())),
             },
         };
+        this.fileTree = undefined;
         this.onOpen = this.onOpen.bind(this);
         this.onRemoveProjectFolderClick = this.onRemoveProjectFolderClick.bind(this);
         this.onRefreshProjectFolderClick = this.onRefreshProjectFolderClick.bind(this);
+        this.refresh = this.refresh.bind(this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const { command: { on } } = this.context;
+        on(COMMANDS.REFRESH_EXPLORER, this.refresh);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    componentWillUnmount() {
+        const { command: { off } } = this.context;
+        off(COMMANDS.REFRESH_EXPLORER, this.refresh);
     }
 
     /**
@@ -59,8 +78,18 @@ class ExplorerItem extends React.Component {
      * On Refresh Project Folder
      */
     onRefreshProjectFolderClick(e) {
+        this.refresh();
         e.stopPropagation();
         e.preventDefault();
+    }
+
+    /**
+     * Refresh file tree
+     */
+    refresh() {
+        if (this.fileTree) {
+            this.fileTree.loadData();
+        }
     }
 
     /**
@@ -119,6 +148,10 @@ class ExplorerItem extends React.Component {
                 <Collapse in={!this.state.node.collapsed}>
                     <div className="file-tree">
                         <FileTree
+                            ref={(ref) => {
+                                this.fileTree = ref;
+                            }
+                            }
                             enableContextMenu
                             onLoadData={(data) => {
                                 this.state.node.children = data;
