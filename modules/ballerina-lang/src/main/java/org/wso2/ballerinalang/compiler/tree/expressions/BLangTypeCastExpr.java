@@ -60,7 +60,7 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     }
 
     public boolean isMultiReturnExpr() {
-        // Unsafe casts/conversions are multi return expressions
+        // Unsafe casts/conversion are multi return expressions
         if (castSymbol.kind == SymbolKind.CAST_OPERATOR) {
             return !((BCastOperatorSymbol) castSymbol).safe;
         } else if (castSymbol.kind == SymbolKind.CONVERSION_OPERATOR) {
