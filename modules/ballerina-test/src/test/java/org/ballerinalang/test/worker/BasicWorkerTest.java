@@ -17,6 +17,7 @@
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
@@ -73,6 +74,15 @@ public class BasicWorkerTest {
         BValue[] vals = BTestUtils.invoke(result, "forkJoinWithMultipleForkMessages", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
+    }
+    
+    @Test
+    public void forkJoinWithSomeJoin() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeJoin", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 15);
     }
     
 }
