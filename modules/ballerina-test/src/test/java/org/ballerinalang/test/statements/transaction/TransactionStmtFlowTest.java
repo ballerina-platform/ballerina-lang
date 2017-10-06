@@ -57,7 +57,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx abort inAbt end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmt3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testTransactionStmt", args);
@@ -94,7 +94,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx abort end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testOptionalAborted3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testOptionalAborted", args);
@@ -130,7 +130,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx abort inAbt end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testOptionalCommittedStmt3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testOptionalCommitted", args);
@@ -168,7 +168,7 @@ public class TransactionStmtFlowTest {
                 "start inOuterTrx inInnerTrx abort innerAborted endOuterTrx inOuterCmt  end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNestedTransaction3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testNestedTransaction", args);
@@ -191,7 +191,7 @@ public class TransactionStmtFlowTest {
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNestedTransactionWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testNestedTransactionWithFailed", args);
@@ -215,7 +215,7 @@ public class TransactionStmtFlowTest {
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmtWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testTransactionStmtWithFailed", args);
@@ -252,7 +252,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx success endTrx inCmt end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmtWithRetryOff() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testTransactionStmtWithRetryOff", args);
@@ -261,7 +261,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed inAbt err end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmtWithoutFailed() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BTestUtils.invoke(programFile, "testTransactionStmtWithoutFailed", args);
@@ -270,7 +270,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx inTrx inTrx err end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmtConstRetry() {
         BValue[] returns = BTestUtils.invoke(programFile, "testTransactionStmtConstRetry");
 
@@ -296,7 +296,7 @@ public class TransactionStmtFlowTest {
                 + "inFirstTrxEnd inSecTrxBlockBegin inSecTrxBlockEnd inSecCmt inFSecTrxEnd end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleTransactionStmtError() {
         BValue[] returns = BTestUtils.invoke(programFile, "testMultipleTransactionStmtError");
 
