@@ -7,6 +7,7 @@ export const COMMANDS = {
     SAVE_FILE_AS: 'save-as-file',
     SHOW_FILE_OPEN_WIZARD: 'show-file-open-wizard',
     SHOW_FOLDER_OPEN_WIZARD: 'show-folder-open-wizard',
+    REFRESH_EXPLORER: 'refresh-explorer',
 };
 
 export const EVENTS = {

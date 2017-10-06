@@ -249,6 +249,12 @@ class TransformNodeManager {
         const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
         const funPackage = this._environment.getPackageByName(fullPackageName);
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+
+        if (!funcDef) {
+            log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
+            return;
+        }
+
         const parameters = [];
         const returnParams = [];
 

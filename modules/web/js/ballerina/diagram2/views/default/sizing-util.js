@@ -62,7 +62,7 @@ class SizingUtil {
             let possibleCharactersCount = 0;
             for (let i = (text.length - 1); i > 1; i--) {
                 if ((this.config.statement.padding.left + this.textElement.getSubStringLength(0, i)
-                        + this.config.statement.padding.right) < maxWidth) {
+                    + this.config.statement.padding.right) < maxWidth) {
                     possibleCharactersCount = i;
                     break;
                 }
@@ -79,13 +79,13 @@ class SizingUtil {
     }
 
     /**
-     * Returns the width of a given string when rendered as svg text according to given options
-     * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
-     * @param {string} text - The string of which the length is measured
-     * @param {Object} options - Options to be used for the rendering
-     * @param {number} options.fontSize - Font size the text should be rendered for measuring width
-     * @return {number} Width of the text in pixels
-     * */
+    * Returns the width of a given string when rendered as svg text according to given options
+    * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
+    * @param {string} text - The string of which the length is measured
+    * @param {Object} options - Options to be used for the rendering
+    * @param {number} options.fontSize - Font size the text should be rendered for measuring width
+    * @return {number} Width of the text in pixels
+    * */
     getOnlyTextWidth(text, options = {}) {
         const { fontSize } = options;
         this.textElement.innerHTML = _.escape(text);
@@ -137,6 +137,9 @@ class SizingUtil {
             // if the statement is a connector declaration we will not count the height.
             if (!TreeUtil.isConnectorDeclaration(element)) {
                 stH += element.viewState.bBox.h;
+                if (width < element.viewState.bBox.w) {
+                    width = element.viewState.bBox.w;
+                }
             }
         });
         if (stH >= height) {
@@ -262,6 +265,7 @@ class SizingUtil {
         /* Define the sub components */
         cmp.heading = new SimpleBBox();
         cmp.defaultWorker = new SimpleBBox();
+        cmp.defaultWorkerLine = new SimpleBBox();
         cmp.panelBody = new SimpleBBox();
         cmp.argParameters = new SimpleBBox();
         cmp.returnParameters = new SimpleBBox();
@@ -271,9 +275,15 @@ class SizingUtil {
         // calculate default worker
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
+        // we add the default worker line as a seperate component.
+        cmp.defaultWorkerLine.w = this.config.lifeLine.width;
+        cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
         // set the max worker height to other workers. 
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
+            worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
+                                             - this.config.lifeLine.footer.height;
+            worker.viewState.components.lifeLine.h = maxWorkerHeight;
         });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
@@ -327,21 +337,22 @@ class SizingUtil {
         }
         cmp.heading.w += viewState.titleWidth + 100;
 
-        // Get the largest among component heading width and component body width.
-        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
-
-        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
-
         // Set the size of the connector declarations
         const statements = node.body.statements;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
                 if (TreeUtil.isConnectorDeclaration(statement)) {
-                    statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                    statement.viewState.bBox.w = this.config.lifeLine.width;
+                    // add the connector width to panel body width.
+                    cmp.panelBody.w += this.config.lifeLine.width;
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
         }
+        // Get the largest among component heading width and component body width.
+        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
+
+        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
     }
 
     /**
@@ -615,7 +626,6 @@ class SizingUtil {
             }
         });
     }
-
     /**
      * Calculate dimention of Struct nodes.
      *
@@ -691,7 +701,7 @@ class SizingUtil {
         paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;
 
-        // Creating component for delete icon.
+            // Creating component for delete icon.
         paramViewState.components.deleteIcon = {};
         paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
         paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
@@ -707,6 +717,11 @@ class SizingUtil {
         const workerBody = node.body;
         bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
         bBox.w = workerBody.viewState.bBox.w;
+        // set the size of the lifeline.
+        const cmp = node.viewState.components;
+        cmp.lifeLine = new SimpleBBox();
+        cmp.lifeLine.w = this.config.lifeLine.width;
+        cmp.lifeLine.h = bBox.h;
     }
 
 
@@ -1075,7 +1090,6 @@ class SizingUtil {
         // Get the sub blocks, join and timeout blocks
         const joinStmt = node.getJoinBody();
         const timeoutStmt = node.getTimeoutBody();
-
         // Set default width and height to Node;
         node.viewState.bBox.h = this.config.blockNode.height;
         node.viewState.bBox.w = this.config.blockNode.width;
@@ -1110,7 +1124,6 @@ class SizingUtil {
             timeoutStmt.viewState.bBox.w === joinStmt.viewState.bBox.w) {
             nodeWidth = timeoutStmt.viewState.bBox.w;
         }
-
         // Get the total of join and timeout block heights.
         let joinTimeoutBlockHeight = 0;
 
@@ -1122,7 +1135,6 @@ class SizingUtil {
                 joinTimeoutBlockHeight += timeoutStmt.viewState.bBox.h;
             }
         }
-
         // Get the condition box max width for join and timeout blocks.
         let conditionBoxWidth = 0;
 

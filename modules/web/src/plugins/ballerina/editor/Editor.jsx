@@ -80,6 +80,8 @@ Editor.propTypes = {
     isPreviewViewEnabled: PropTypes.bool.isRequired,
     ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     onUndoableOperation: PropTypes.func.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 Editor.defaultProps = {

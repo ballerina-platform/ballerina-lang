@@ -185,9 +185,7 @@ class BallerinaEnvironment extends EventChannel {
         _.each(builtinTypes, (builtinType) => {
             if (!_.isNil(builtinType)) {
                 this._types.push(builtinType.name);
-                if (builtinType.defaultValue) {
-                    this._defaultValues[builtinType.name] = builtinType.defaultValue;
-                }
+                this._defaultValues[builtinType.name] = builtinType.defaultValue;
             }
         });
         this._types = _.sortBy(this._types, [function (type) {

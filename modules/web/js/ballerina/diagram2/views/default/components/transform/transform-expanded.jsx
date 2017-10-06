@@ -25,7 +25,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import log from 'log';
 import TransformRender from './transform-render';
 import TransformNodeManager from './transform-node-manager';
-import TransformFactory from './transform-factory';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
 import ASTNode from '../../../../../ast/node';
 import Tree from './tree';
