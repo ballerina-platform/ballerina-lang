@@ -29,16 +29,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This represents a Java class based {@link PackageRepository}, which can either
+ * This represents a Java classpath based {@link PackageRepository}, which can either
  * represent a .jar file or a file system directory.
  *
  * @since 0.94
  */
-public class ClassPathPackageRepository extends GeneralFSPackageRepository {
+public class ClasspathPackageRepository extends GeneralFSPackageRepository {
     
     private static final String JAR_URI_SCHEME = "jar";
 
-    public ClassPathPackageRepository(Class<? extends Object> providerClassRef, String basePath) {
+    public ClasspathPackageRepository(Class<? extends Object> providerClassRef, String basePath) {
         super(generatePath(providerClassRef, basePath));
     }
     
