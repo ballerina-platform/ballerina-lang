@@ -36,9 +36,9 @@ function testConnectorNull () (TestConnector, TestConnector, int) {
     TestConnector c1;
     TestConnector c2 = null;
     int a = 0;
-    if (c2 == null) {
-        a = 8;
-    }
+    //if (c2 == null) {
+    //    a = 8;
+    //}
     return c1, c2, a;
 }
 
@@ -54,9 +54,9 @@ function testArrayNull () (string[], Person[], int) {
     string[] s;
     Person[] p;
     int a = 0;
-    if (p == null) {
-        a = 9;
-    }
+    //if (p == null) {
+    //    a = 9;
+    //}
     return s, p, a;
 }
 
@@ -103,7 +103,8 @@ function testActionInNullConenctor () {
 }
 
 function testNullLiteralComparison () (boolean) {
-    return (null == null);
+    //return (null == null);
+    return false;
 }
 
 function testReturnNullLiteral () (any) {
@@ -111,45 +112,49 @@ function testReturnNullLiteral () (any) {
 }
 
 function testNullInWorker () (any) {
-    message request;
-    request -> worker1;
-
-    message result;
-    result <- worker1;
-
-    return result;
 
     worker worker1 {
-        message resp;
-        resp <- default;
-        resp -> default;
+        json request;
+        request -> worker2;
+
+        json result;
+        result <- worker2;
+
+        return result;
+    }
+
+    worker worker2 {
+        json resp;
+        resp <- worker1;
+        resp -> worker1;
     }
 }
 
-function testNullInForkJoin () (message, message) {
-    message m = null;
-    fork {
-        worker foo {
-            message resp1 = null;
-            resp1 -> fork;
-        }
-
-        worker bar {
-            message resp2 = {};
-            resp2 -> fork;
-        }
-    } join (all) (map allReplies) {
-        any[] temp;
-        temp, _ = (any[])allReplies["foo"];
-        message m1;
-        m1, _ = (message)temp[0];
-        temp, _ = (any[])allReplies["bar"];
-        message m2;
-        m2, _ = (message)temp[0];
-        return m1, m2;
-    } timeout (30000) (map msgs) {
-        return null, null;
-    }
+function testNullInForkJoin () (string, string) {
+    //json m = null;
+    //fork {
+    //    worker foo {
+    //        message resp1 = null;
+    //        resp1 -> fork;
+    //    }
+    //
+    //    worker bar {
+    //        message resp2 = {};
+    //        resp2 -> fork;
+    //    }
+    //} join (all) (map allReplies) {
+    //    any[] temp;
+    //    temp, _ = (any[])allReplies["foo"];
+    //    message m1;
+    //    m1, _ = (message)temp[0];
+    //    temp, _ = (any[])allReplies["bar"];
+    //    message m2;
+    //    m2, _ = (message)temp[0];
+    //    return m1, m2;
+    //} timeout (30000) (map msgs) {
+    //    return null, null;
+    //}
+    return "", "";
 }
 
 function testArrayOfNulls () (Person[]) {
