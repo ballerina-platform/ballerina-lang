@@ -16,29 +16,19 @@
  * under the License.
  */
 
-export const COMMANDS = {
-    OPEN_REFRENCE: 'help-open-refrence',
-    REPORT_ISSUE: 'help-report-issue',
-    SHOW_ABOUT: 'help-about',
-};
+import { COMMANDS } from './constants';
 
-export const MENUS = {
-    HELP_MENU: 'composer.menu.help',
-    REFERENCE_MENU: 'composer.menu.help.reference',
-    REPORT_MENU: 'composer.menu.report',
-    ABOUT_MENU: 'composer.menu.about',
-};
-
-export const LABELS = {
-    HELP: 'Help',
-    WELCOME: 'Welcome',
-    REFERENCE: 'Ballerina by Example',
-    REPORT: 'Report Issue',
-    ABOUT: 'About',
-};
-
-export const DIALOG = {
-    ABOUT: 'composer.dialog.about',
-};
-
-export const PLUGIN_ID = 'import.swagger';
+/**
+ * Provides command definitions of help plugin.
+ * @returns {Object[]} command definitions.
+ */
+export function getCommandDefinitions(plugin) {
+    return [
+        {
+            id: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
+        },
+        {
+            id: COMMANDS.IMPORT_SWAGGER_DEFINITION,
+        },
+    ];
+}

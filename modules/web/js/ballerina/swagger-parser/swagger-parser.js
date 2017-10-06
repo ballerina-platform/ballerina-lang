@@ -507,9 +507,9 @@ class SwaggerParser {
             httpMethodsBValues.push(singleHttpMethod);
         } else {
             httpMethodJsonObject['x-METHODS'].forEach((httpMethod) => {
-                const httpMethod = NodeFactory.createLiteral();
-                httpMethod.setValueAsString(httpMethod.toUpperCase());
-                httpMethodsBValues.push(httpMethod);
+                const httpMethodLiteral = NodeFactory.createLiteral();
+                httpMethodLiteral.setValueAsString(httpMethod.toUpperCase());
+                httpMethodsBValues.push(httpMethodLiteral);
             });
         }
         SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'methods', httpMethodsBValues);

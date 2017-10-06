@@ -17,28 +17,20 @@
  */
 
 export const COMMANDS = {
-    OPEN_REFRENCE: 'help-open-refrence',
-    REPORT_ISSUE: 'help-report-issue',
-    SHOW_ABOUT: 'help-about',
+    SHOW_IMPORT_SWAGGER_DIALOG: 'import-swagger-show-dialog',
+    IMPORT_SWAGGER_DEFINITION: 'import-swagger-definition',
 };
 
 export const MENUS = {
-    HELP_MENU: 'composer.menu.help',
-    REFERENCE_MENU: 'composer.menu.help.reference',
-    REPORT_MENU: 'composer.menu.report',
-    ABOUT_MENU: 'composer.menu.about',
+    IMPORT_SWAGGER_MENU: 'composer.menu.import.swagger',
 };
 
 export const LABELS = {
-    HELP: 'Help',
-    WELCOME: 'Welcome',
-    REFERENCE: 'Ballerina by Example',
-    REPORT: 'Report Issue',
-    ABOUT: 'About',
+    IMPORT_SWAGGER_MENU_TITLE: 'Import Swagger',
 };
 
 export const DIALOG = {
-    ABOUT: 'composer.dialog.about',
+    IMPORT_SWAGGER: 'composer.dialog.import.swagger',
 };
 
 export const PLUGIN_ID = 'import.swagger';
