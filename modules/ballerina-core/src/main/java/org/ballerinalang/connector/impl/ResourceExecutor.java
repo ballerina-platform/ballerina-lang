@@ -57,12 +57,9 @@ public class ResourceExecutor {
      *
      * @param resource to be executed.
      * @param connectorFuture to notify.
+     * @param properties to be passed to context.
      * @param bValues for parameters.
      */
-    public static void execute(Resource resource, ConnectorFuture connectorFuture, BValue... bValues) {
-        //TODO
-    }
-
     public static void execute(Resource resource, BServerConnectorFuture connectorFuture,
                                Map<String, Object> properties, BValue... bValues) {
 // engage Service interceptors.
@@ -199,6 +196,8 @@ public class ResourceExecutor {
             debugManager.setDebuggerContext(context);
         }
         bLangVM.run(context);
-        connectorFuture.notifySuccess();
+        if (!context.isNonBlockingActionCall()) {
+            connectorFuture.notifySuccess();
+        }
     }
 }

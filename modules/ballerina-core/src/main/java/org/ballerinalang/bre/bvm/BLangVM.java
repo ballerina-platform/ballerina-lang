@@ -3010,6 +3010,7 @@ public class BLangVM {
             if (nonBlocking) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
+                context.setNonBlockingActionCall(true);
                 // TODO : Temporary solution to make non-blocking working.
                 if (caleeSF.packageInfo == null) {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
