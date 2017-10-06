@@ -173,6 +173,7 @@ import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WrkrInteractionArgsCPEntry;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2183,7 +2184,13 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
-        /* ignore */
+        StructInfo structInfo = currentPkgInfo.getStructInfo(structNode.getName().getValue());
+
+        int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
+        AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
+        structNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        structInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
     }
 
     public void visit(BLangEnum enumNode) {
