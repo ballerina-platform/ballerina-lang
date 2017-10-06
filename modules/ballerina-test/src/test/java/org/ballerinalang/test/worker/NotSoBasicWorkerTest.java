@@ -106,4 +106,68 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(map.get("x").intValue(), 12);
     }
     
+    @Test
+    public void forkJoinWithSomeSelectedJoin1() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 15);
+        Assert.assertEquals(map.get("y").intValue(), 5);
+    }
+    
+    @Test
+    public void forkJoinWithSomeSelectedJoin2() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin2", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 320);
+    }
+    
+    @Test
+    public void forkJoinWithSomeSelectedJoin3() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin3", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 160);
+    }
+    
+    @Test
+    public void forkJoinWithSomeSelectedJoin4() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin4", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 10);
+    }
+    
+    @Test
+    public void forkJoinWithSomeSelectedJoin5() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithSomeSelectedJoin5", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 555);
+    }
+    
+    @Test
+    public void forkJoinWithAllSelectedJoin1() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithAllSelectedJoin1", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 33);
+    }
+    
+    @Test
+    public void forkJoinWithAllSelectedJoin2() {
+        BValue[] vals = BTestUtils.invoke(result, "forkJoinWithAllSelectedJoin2", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        @SuppressWarnings("unchecked")
+        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
+        Assert.assertEquals(map.get("x").intValue(), 777);
+    }
+    
 }
