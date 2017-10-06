@@ -272,6 +272,8 @@ class WorkspacePlugin extends Plugin {
                                     return true;
                                 },
                                 handleAction: () => {
+                                    const { command: { dispatch } } = this.appContext;
+                                    dispatch(COMMAND_IDS.REFRESH_EXPLORER, {});
                                 },
                             },
                             {
