@@ -248,6 +248,12 @@ class TransformNodeManager {
     getFunctionVertices(functionInvocationExpression) {
         const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
         const funPackage = this._environment.getPackageByName(fullPackageName);
+
+        if (!funPackage) {
+            log.error('Cannot find package definition for ' + fullPackageName);
+            return;
+        }
+
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
 
         if (!funcDef) {
