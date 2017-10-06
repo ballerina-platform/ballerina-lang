@@ -214,7 +214,7 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testGetRequestURL() {
         BStruct request = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, requestStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(true);
