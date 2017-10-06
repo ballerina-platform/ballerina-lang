@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
-import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -73,7 +72,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Test map access with an index")
     public void testMapAccessWithIndex() {
-        CompileResult incorrectCompileResult = BTestUtils.compile("test-src/types/map/incorrect-map-access.bal");
+        CompileResult incorrectCompileResult = BTestUtils.compile("test-src/types/map/map-access-negative.bal");
         Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 1);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
                             "incompatible types: expected 'string', found 'int'");
