@@ -162,7 +162,8 @@ public class Types {
         if (actualType.tag == expType.tag && isValueType(actualType)) {
             return true;
         } else if (actualType.tag == expType.tag &&
-                !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
+                !isUserDefinedType(actualType) && !isConstrainedType(actualType) &&
+                actualType.tag != TypeTags.ANNOTATION) {
             return true;
         } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.ARRAY) {
             return checkArrayEquivalent(actualType, expType);

@@ -26,6 +26,7 @@ public enum DiagnosticCode {
 
     UNDEFINED_PACKAGE("undefined.package"),
     UNUSED_IMPORT_PACKAGE("unused.import.package"),
+    PACKAGE_NOT_FOUND("package.not.found"),
     REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
