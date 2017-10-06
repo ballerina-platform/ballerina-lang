@@ -39,6 +39,10 @@
             <includes>
                 <include>dist/**</include>
             </includes>
+            <excludes>
+                <exclude>dist/**/*.js.map</exclude>
+                <exclude>dist/**/*.css.map</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 </assembly>
