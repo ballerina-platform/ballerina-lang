@@ -22,8 +22,10 @@ import TransformUtils, { VarPrefix } from '../../utils/transform-utils';
 
 class TransformNode extends AbstractTransformNode {
     acceptDrop(node) {
-        const tempVarName = TransformUtils.getNewTempVarName(this, VarPrefix.OUTPUT);
-        node.getVariables()[0].getVariableName().setValue(tempVarName);
+        node.getVariables().forEach((variable) => {
+            const tempVarName = TransformUtils.getNewTempVarName(this, VarPrefix.OUTPUT);
+            variable.getVariableName().setValue(tempVarName);
+        });
         this.getBody().addStatements(node);
     }
 
