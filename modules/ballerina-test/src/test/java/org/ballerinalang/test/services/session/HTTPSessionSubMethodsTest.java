@@ -43,7 +43,7 @@ public class HTTPSessionSubMethodsTest {
     @BeforeClass
     public void setup() {
         compileResult = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/session/httpSessionTest.bal");
+                .setupProgramFile("test-src/services/session/httpSessionTest.bal");
     }
 
     @Test(description = "Test for GetId Function")
@@ -69,7 +69,7 @@ public class HTTPSessionSubMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         String error = stringDataSource.getValue().substring(0, 56);
-        Assert.assertEquals(error, "ballerina.lang.errors:Error, message: argument 0 is null");
+        Assert.assertTrue(error.contains("message: argument 0 is null"));
     }
 
     @Test(description = "Test for isNew Function")
@@ -140,7 +140,7 @@ public class HTTPSessionSubMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         String error = stringDataSource.getValue().substring(38, 94);
-        Assert.assertEquals(error, "failed to get creation time: No such session in progress");
+        Assert.assertTrue(error.contains("No such session in progress"));
     }
 
     @Test(description = "Test for GetLastAccessedTime Function")
@@ -177,7 +177,7 @@ public class HTTPSessionSubMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         String error = stringDataSource.getValue().substring(38, 99);
-        Assert.assertEquals(error, "failed to get last accessed time: No such session in progress");
+        Assert.assertTrue(error.contains("No such session in progress"));
     }
 
     @Test(description = "Test for setMaxInactiveInterval and getMaxInactiveInterval Function")
@@ -214,7 +214,7 @@ public class HTTPSessionSubMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         String error = stringDataSource.getValue().substring(38, 98);
-        Assert.assertEquals(error, "failed to set max time interval: No such session in progress");
+        Assert.assertTrue(error.contains("No such session in progress"));
     }
 
     @Test(description = "Test for negative timeout setMaxInactiveInterval")

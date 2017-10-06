@@ -43,8 +43,8 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
         isPublic = true
 )
 public class GetRequestURL extends AbstractNativeFunction {
-    String requestURL = "";
     public BValue[] execute(Context ctx) {
+        String requestURL = "";
         BStruct requestStruct  = ((BStruct) getRefArgument(ctx, 0));
         //TODO check below line
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
