@@ -19,13 +19,13 @@ package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
-import org.ballerinalang.model.BLangPackage;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -36,16 +36,20 @@ import java.util.Scanner;
  */
 public class HtmlDocumentWriterTest {
 
-    private static PrintStream out = System.out;
+    private String testResourceRoot;
+    private String sourceRoot;
+
+    @BeforeClass()
+    public void setup() {
+        testResourceRoot =
+                BallerinaFunctionDocGenTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        sourceRoot = testResourceRoot + "balFiles/htmlWriter";
+    }
 
     @Test(description = "HTML generation test")
     public void testHtmlGeneration() throws Exception {
 
-        String userDir = System.getProperty("user.dir");
-        String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
-                + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
-        String outputPath =  userDir + File.separator + "target" + File.separator +
-                "api-docs1";
+        String outputPath = testResourceRoot + "api-docs1";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
         String outputFilePath3 = outputPath + File.separator + "foo.bar.xyz.str.html";
@@ -57,7 +61,7 @@ public class HtmlDocumentWriterTest {
         try {
             // Generate HTML file
             Map<String, BLangPackage> packageMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(balPackagePath);
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, sourceRoot);
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(packageMap.values());
 
@@ -73,9 +77,9 @@ public class HtmlDocumentWriterTest {
 
             // Assert function definitions
             String content1 = new Scanner(htmlFile1).useDelimiter("\\Z").next();
-            Assert.assertTrue(content1.contains("function addHeader(<a href=\"#message\">message</a> m, "
+            Assert.assertTrue(content1.contains("function addHeader(<a href=\"#string\">string</a> m, "
                     + "<a href=\"#string\">string</a> key, <a href=\"#string\">string</a> value)"));
-            Assert.assertTrue(content1.contains("function getHeader(<a href=\"#message\">message</a> m, "
+            Assert.assertTrue(content1.contains("function getHeader(<a href=\"#string\">string</a> m, "
                     + "<a href=\"#string\">string</a> key) (string )"));
             Assert.assertTrue(content1.contains("Functions"));
             Assert.assertTrue(content1.contains("Connectors"));
@@ -101,7 +105,7 @@ public class HtmlDocumentWriterTest {
                     .contains("<td>msg</td><td><a href=\"#string\">string</a></td><td>a string message</td>"));
             // asserting action @return description
             Assert.assertTrue(content1
-                    .contains("<td>response</td><td><a href=\"#message\">message</a></td><td>response object</td>"));
+                    .contains("<td>response</td><td><a href=\"#string\">string</a></td><td>response object</td>"));
             // asserting struct content
             Assert.assertTrue(content1.contains("struct Argument"));
             Assert.assertTrue(content1
@@ -130,11 +134,7 @@ public class HtmlDocumentWriterTest {
     @Test(description = "HTML generation package exclusion test")
     public void testPackageExclusion() throws Exception {
 
-        String userDir = System.getProperty("user.dir");
-        String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
-                + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
-        String outputPath =  userDir + File.separator + "target" + File.separator +
-                "api-docs2";
+        String outputPath = testResourceRoot + "api-docs2";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
         String indexOutputFilePath = outputPath + File.separator + "index.html";
@@ -145,7 +145,7 @@ public class HtmlDocumentWriterTest {
 
             // Generate HTML file
             Map<String, BLangPackage> packageMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(balPackagePath, "foo.bar.xyz");
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, sourceRoot, "foo.bar.xyz");
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(packageMap.values());
 

@@ -18,10 +18,10 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
-import org.ballerinalang.model.BLangPackage;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.util.Map;
@@ -35,8 +35,10 @@ public class BallerinaDocGenTest {
     @Test(description = "Test Single Bal file")
     public void testSingleBalFile() {
         try {
+            String sourceRoot = BallerinaDocGenTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+//            String path = ClassLoader.getSystemResource("balFiles/helloWorld.bal").getPath();
             Map<String, BLangPackage> docsMap = BallerinaDocGenerator
-                    .generatePackageDocsFromBallerina("src/test/resources/balFiles/helloWorld.bal");
+                    .generatePackageDocsFromBallerina(sourceRoot + "balFiles", "helloWorld.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
         } catch (IOException e) {
@@ -49,8 +51,10 @@ public class BallerinaDocGenTest {
     @Test(description = "Test a folder with Bal files")
     public void testFolderWithBalFile() {
         try {
+            String sourceRoot = BallerinaDocGenTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String path = ClassLoader.getSystemResource("balFiles/balFolder").getPath();
             Map<String, BLangPackage> docsMap = BallerinaDocGenerator
-                    .generatePackageDocsFromBallerina("src/test/resources/balFiles/balFolder");
+                    .generatePackageDocsFromBallerina(path, path);
             Assert.assertNotNull(docsMap);
             // this folder has 3 bal files. 2 bal files out of those are in same package.
             Assert.assertEquals(docsMap.size(), 2);
