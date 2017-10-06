@@ -801,6 +801,8 @@ class PositioningUtil {
         const joinStmt = node.getJoinBody();
         const timeoutStmt = node.getTimeoutBody();
 
+        this.positionCompoundStatementComponents(node);
+
         // Set the node x and y using statement box.
         node.viewState.bBox.x = node.viewState.components['statement-box'].x;
         node.viewState.bBox.y = node.viewState.components['statement-box'].y
@@ -813,7 +815,7 @@ class PositioningUtil {
 
         // Create a bbox for parameter of join.
         joinStmt.viewState.components.param =
-            new SimpleBBox(joinX + joinStmt.viewState.components['expression'].w, 0, 0, 0, 0, 0)
+            new SimpleBBox(joinX + joinStmt.viewState.components['expression'].w, 0, 0, 0, 0, 0);
 
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
@@ -826,6 +828,10 @@ class PositioningUtil {
                 joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
                 joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
             }
+        }
+
+        if (joinStmt && TreeUtil.isBlock(joinStmt)) {
+            joinY += joinStmt.viewState.components['block-header'].h;
         }
 
         joinStmt.viewState.bBox.y = joinY;
