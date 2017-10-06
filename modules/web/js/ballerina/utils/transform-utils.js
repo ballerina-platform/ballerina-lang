@@ -64,7 +64,7 @@ export default class TransformUtils {
             return a - b;
         }
         tempVarSuffixes.sort(sortNumber);
-        const index = tempVarSuffixes[tempVarSuffixes.length - 1] || 0 + 1;
+        const index = (tempVarSuffixes[tempVarSuffixes.length - 1] || 0) + 1;
         return varPrefix + index;
     }
 

@@ -19,6 +19,7 @@
 import FragmentUtils from '../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
 import Environment from '../env/environment';
+import { VarPrefix } from '../utils/transform-utils';
 
 class TransformFactory {
     /**
@@ -77,6 +78,34 @@ class TransformFactory {
         return refExpr;
     }
 
+    static createFunctionInvocationAssignmentStatement(args) {
+        const { functionDef, packageName, fullPackageName } = args;
+
+        let functionInvokeString = '';
+        if (packageName) {
+            functionInvokeString = `${packageName}:`;
+        }
+        const functionParams = functionDef.getParameters().map((param) => {
+            return Environment.getDefaultValue(param.type);
+        });
+        const paramString = functionParams.join(', ')
+
+        functionInvokeString = `${functionInvokeString}${functionDef.getName()}(${paramString})`;
+
+        const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
+            return VarPrefix.OUTPUT + index + 1;
+        });
+        let varRefListString = '';
+        if (varRefNames.length > 0) {
+            varRefListString = `var ${varRefNames.join(', ')}`;
+        }
+
+        functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+
+        const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        return TreeBuilder.build(parsedJson);
+    };
 }
 
 export default TransformFactory;
