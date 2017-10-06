@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import log from 'log';
 import NodeFactory from '../../../../../model/node-factory';
 import FragmentUtils from '../../../../../utils/fragment-utils';
 import TreeBuilder from '../../../../../model/tree-builder';
+import Environment from '../../../../../env/environment';
 
 class TransformFactory {
     /**
@@ -57,7 +57,9 @@ class TransformFactory {
      */
     static createAssignmentStatement(args) {
         const assignment = NodeFactory.createAssignment({});
-        assignment.setExpression(args.expression);
+        if (args.expression) {
+            assignment.setExpression(args.expression);
+        }
         return assignment;
     }
 
@@ -69,17 +71,18 @@ class TransformFactory {
      * @return {object} expression object
      */
     static createDefaultExpression(type) {
-        // TODO : get default values from environment and support other types
-        let fragment = FragmentUtils.createExpressionFragment('""');
-        if (type === 'string') {
-            fragment = FragmentUtils.createExpressionFragment('""');
-        } else if (type === 'int') {
-            fragment = FragmentUtils.createExpressionFragment('0');
+        const defaultValue = Environment.getDefaultValue(type);
+        let fragment = FragmentUtils.createExpressionFragment('null');
+        if (defaultValue !== undefined) {
+            if (type === 'string') {
+                fragment = FragmentUtils.createExpressionFragment('"' + defaultValue + '"');
+            } else {
+                fragment = FragmentUtils.createExpressionFragment(defaultValue);
+            }
         }
         const parsedJson = FragmentUtils.parseFragment(fragment);
         const exp = TreeBuilder.build(parsedJson.variable.initialExpression);
         return exp;
-        // TODO : create default expression based on argument type
     }
 
     /**
