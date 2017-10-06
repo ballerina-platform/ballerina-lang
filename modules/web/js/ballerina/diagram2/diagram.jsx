@@ -77,10 +77,9 @@ class Diagram extends React.Component {
         // 3 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.viewState;
-
         viewState.container = {
-            width: $(this.context.getDiagramContainer()).width(),
-            height: $(this.context.getDiagramContainer()).height(),
+            width: this.props.width,
+            height: this.props.height,
         };
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
@@ -129,6 +128,8 @@ class Diagram extends React.Component {
 Diagram.propTypes = {
     model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     mode: PropTypes.string,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 Diagram.contextTypes = {

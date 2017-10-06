@@ -221,7 +221,7 @@ class SizingUtil {
      *
      */
     sizeCompilationUnitNode(node) {
-        // Not implemented.
+        // Compilation unit height will be calculated by the postion util.
     }
 
 
