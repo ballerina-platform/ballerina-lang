@@ -134,6 +134,13 @@ public class Symbols {
         return new BInvokableSymbol(kind, flags, name, pkgID, type, owner);
     }
 
+    public static BXMLNSSymbol createXMLNSSymbol(Name name,
+                                                String nsURI,
+                                                PackageID pkgID,
+                                                BSymbol owner) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner);
+    }
+
     public static boolean isNative(BSymbol sym) {
         return (sym.flags & Flags.NATIVE) == Flags.NATIVE;
     }

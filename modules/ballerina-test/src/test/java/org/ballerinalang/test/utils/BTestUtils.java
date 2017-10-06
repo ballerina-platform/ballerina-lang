@@ -18,8 +18,12 @@ package org.ballerinalang.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -28,6 +32,10 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -104,7 +112,6 @@ public class BTestUtils {
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(packageName);
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
@@ -207,5 +214,48 @@ public class BTestUtils {
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().startColumn(), expectedErrCol, "incorrect column position:");
+    }
+
+    public static String readFileAsString(String path) {
+        InputStream is = ClassLoader.getSystemResourceAsStream(path);
+        InputStreamReader inputStreamREader = null;
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            inputStreamREader = new InputStreamReader(is);
+            br = new BufferedReader(inputStreamREader);
+            String content = br.readLine();
+            if (content == null) {
+                return sb.toString();
+            }
+
+            sb.append(content);
+
+            while ((content = br.readLine()) != null) {
+                sb.append("\n" + content);
+            }
+        } catch (IOException ignore) {
+        } finally {
+            if (inputStreamREader != null) {
+                try {
+                    inputStreamREader.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
+        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
+        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
     }
 }

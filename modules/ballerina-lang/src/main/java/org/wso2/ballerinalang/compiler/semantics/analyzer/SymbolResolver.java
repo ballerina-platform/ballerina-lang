@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -53,7 +54,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -152,6 +154,14 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
+        return resolvePkgSymbol(pos, env, pkgAlias, SymTag.PACKAGE);
+    }
+
+    public BSymbol resolveImportSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
+        return resolvePkgSymbol(pos, env, pkgAlias, SymTag.IMPORT);
+    }
+
+    private BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, int symTag) {
 
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -159,7 +169,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // Lookup for an imported package
-        BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, SymTag.PACKAGE);
+        BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, symTag);
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias.value);
         }
@@ -321,7 +331,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return Map of namespace symbols visible to the given environment
      */
     public Map<Name, BXMLNSSymbol> resolveAllNamespaces(SymbolEnv env) {
-        Map<Name, BXMLNSSymbol> namespaces = new HashMap<Name, BXMLNSSymbol>();
+        Map<Name, BXMLNSSymbol> namespaces = new LinkedHashMap<Name, BXMLNSSymbol>();
         addNamespacesInScope(namespaces, env);
         return namespaces;
     }
@@ -396,6 +406,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
+        if (symbol.kind == SymbolKind.CONNECTOR) {
+            userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
+        }
         resultType = symbol.type;
     }
 
@@ -460,7 +473,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         env.scope.entries.forEach((name, scopeEntry) -> {
             if (scopeEntry.symbol.kind == SymbolKind.XMLNS) {
                 BXMLNSSymbol nsSymbol = (BXMLNSSymbol) scopeEntry.symbol;
-                namespaces.put(name, nsSymbol);
+                // Skip if the namespace is already added, by a child scope. That means it has been overridden.
+                if (!namespaces.containsKey(name)) {
+                    namespaces.put(name, nsSymbol);
+                }
             }
         });
         addNamespacesInScope(namespaces, env.enclEnv);

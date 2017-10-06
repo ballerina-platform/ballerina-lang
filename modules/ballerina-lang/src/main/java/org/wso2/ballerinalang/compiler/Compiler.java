@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -78,23 +79,31 @@ public class Compiler {
 
     public void compile(String sourcePkg) {
         loadBuiltInPackage();
-        switch (compilerPhase) {
-            case DEFINE:
-                define(sourcePkg);
-                break;
-            case TYPE_CHECK:
-                typeCheck(define(sourcePkg));
-                break;
-            case CODE_ANALYZE:
-                codeAnalyze(typeCheck(define(sourcePkg)));
-                break;
-            case DESUGAR:
-                desugar(codeAnalyze(typeCheck(define(sourcePkg))));
-                break;
-            default:
-                gen(desugar(codeAnalyze(typeCheck(define(sourcePkg)))));
-                break;
+        if (this.stopCompilation(CompilerPhase.DEFINE)) {
+            return;
         }
+
+        BLangPackage pkg = define(sourcePkg);
+        if (this.stopCompilation(CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
+
+        pkg = typeCheck(pkg);
+        if (this.stopCompilation(CompilerPhase.CODE_ANALYZE)) {
+            return;
+        }
+
+        pkg = codeAnalyze(pkg);
+        if (this.stopCompilation(CompilerPhase.DESUGAR)) {
+            return;
+        }
+
+        pkg = desugar(pkg);
+        if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
+            return;
+        }
+
+        gen(pkg);
     }
 
     private void loadBuiltInPackage() {
@@ -125,42 +134,26 @@ public class Compiler {
     // private methods
 
     private BLangPackage define(String sourcePkg) {
-        if (stopCompilation(CompilerPhase.DEFINE)) {
+        try {
+            return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
+        } catch (BLangParserException e) {
             return null;
         }
-
-        return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.TYPE_CHECK)) {
-            return pkgNode;
-        }
-
         return semAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_ANALYZE)) {
-            return pkgNode;
-        }
-
         return codeAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.DESUGAR)) {
-            return pkgNode;
-        }
-
         return desugar.perform(pkgNode);
     }
 
     private void gen(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_GEN)) {
-            return;
-        }
-
         programFile = this.codeGenerator.generate(pkgNode);
     }
 
@@ -174,7 +167,12 @@ public class Compiler {
     }
 
     private boolean stopCompilation(CompilerPhase phase) {
-        return (phase == CompilerPhase.DESUGAR ||
+        if (compilerPhase.compareTo(phase) < 0) {
+            return true;
+        }
+
+        return (phase == CompilerPhase.TYPE_CHECK ||
+                phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
     }
