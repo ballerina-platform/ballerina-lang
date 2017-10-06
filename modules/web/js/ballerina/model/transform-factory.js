@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import NodeFactory from '../../../../../model/node-factory';
-import FragmentUtils from '../../../../../utils/fragment-utils';
-import TreeBuilder from '../../../../../model/tree-builder';
-import Environment from '../../../../../env/environment';
+import NodeFactory from './node-factory';
+import FragmentUtils from '../utils/fragment-utils';
+import TreeBuilder from './tree-builder';
+import Environment from '../env/environment';
 
 class TransformFactory {
     /**
@@ -33,6 +33,7 @@ class TransformFactory {
         const refExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
         return refExpr;
     }
+
     /**
      * Create for statement for fields
      * @param  {string} name  variable name

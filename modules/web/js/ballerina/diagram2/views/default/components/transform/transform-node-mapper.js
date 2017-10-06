@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import NodeFactory from '../../../../../model/node-factory';
-import TransformFactory from './transform-factory';
+import TransformFactory from '../../../../../model/transform-factory';
 import TransformUtils, { ExpressionType, VarPrefix } from '../../../../../utils/transform-utils';
 
 /**
@@ -717,7 +717,7 @@ class TransformNodeMapper {
         }
 
         const newAssignmentStmt = TransformFactory.createAssignmentStatement({ expression: source.funcInv });
-        
+
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
