@@ -86,6 +86,29 @@ class Node extends EventChannel {
         visitor.endVisit(this);
     }
 
+    sync(visitor, newTree) {
+        visitor.beginVisit(this, newTree);
+        // eslint-disable-next-line guard-for-in
+        for (const childName in this) {
+            if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
+                const child = this[childName];
+                const child2 = newTree[childName];
+                if (child instanceof Node && child.kind) {
+                    child.sync(visitor, child2);
+                } else if (child instanceof Array) {
+                    for (let i = 0; i < child.length; i++) {
+                        const childItem = child[i];
+                        const childItem2 = child2[i];
+                        if (childItem instanceof Node && childItem.kind) {
+                            childItem.sync(visitor, childItem2);
+                        }
+                    }
+                }
+            }
+        }
+        visitor.endVisit(this, newTree);
+    }
+
     getKind() {
         return this.kind;
     }

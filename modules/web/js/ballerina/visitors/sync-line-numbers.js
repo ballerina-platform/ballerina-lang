@@ -25,47 +25,19 @@ import ASTVisitor from './ast-visitor';
  */
 class FindLineNumbers extends ASTVisitor {
     /**
-     * Creates an instance of FindLineNumbers.
-     */
-    constructor() {
-        super();
-        this.nodeTolineNumbers = {};
-    }
-    /**
      * @inheritdoc
      */
-    beginVisit(node) {
+    beginVisit(node, newNode) {
         if (!node.position) {
             return;
         }
-        const { position } = node;
-        const pathVector = [];
-        node.getPathToNode(node, pathVector);
-        const nodePath = this.stringfifyPathNode(pathVector);
-        if (nodePath === '' || nodePath === undefined || nodePath === null) {
-            throw new Error('node path not found');
-        }
-        this.nodeToLineNumbers = this.nodeToLineNumbers || {};
-        this.nodeToLineNumbers[nodePath] = position;
+        node.position = newNode.position;
     }
     /**
      * @inheritdoc
      */
     canVisit() {
         return true;
-    }
-
-    /**
-     * @param {array} pathVector
-     * @returns {string} path vector string
-     * @memberof FindLineNumbers
-     */
-    stringfifyPathNode(pathVector = []) {
-        return pathVector.join('-');
-    }
-
-    getLineNumbers() {
-        return this.nodeToLineNumbers;
     }
 }
 
