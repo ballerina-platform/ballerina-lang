@@ -1,9 +1,9 @@
-package lang.structs.constants;
+package constants;
 
 const Person p = 10;
 
-function main(string[] i) {
-	return;
+function main (string[] i) {
+    return;
 }
 
 struct Person {
