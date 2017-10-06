@@ -148,6 +148,7 @@ class DesignView extends React.Component {
                         getContainer={this.getToolPaletteContainer}
                         isTransformActive={isTransformActive}
                         mode={this.state.mode}
+                        containerHeight={this.props.height}
                     />
                 </div>
                 { /* TODOX REMOVE <div className="top-right-controls-container">
@@ -214,6 +215,8 @@ DesignView.propTypes = {
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
     }).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 DesignView.contextTypes = {
