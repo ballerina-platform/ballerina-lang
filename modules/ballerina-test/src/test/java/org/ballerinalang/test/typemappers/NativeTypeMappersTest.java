@@ -15,16 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.typemappers;
+package org.ballerinalang.test.typemappers;
 
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,17 +32,18 @@ import org.testng.annotations.Test;
  * Test cases for native type mappers.
  */
 public class NativeTypeMappersTest {
-    private ProgramFile programFile;
+
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/typeMapperTest.bal");
+        compileResult = BTestUtils.compile("test-src/typemappers/typeMapperTest.bal");
     }
 
     @Test
     public void testXMLToJSON() {
         BValue[] args = {new BXMLItem("<name>chanaka</name>")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "xmltojson", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "xmltojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -52,7 +52,7 @@ public class NativeTypeMappersTest {
     @Test
     public void testJSONToXML() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "jsontoxml", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<root><name>chanaka</name></root>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
@@ -61,7 +61,7 @@ public class NativeTypeMappersTest {
     @Test
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringtojson", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "stringtojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -69,11 +69,10 @@ public class NativeTypeMappersTest {
 
     @Test
     public void testMultiRootedJSONToXML() {
-        BValue[] args = { new BJSON("{\"name\":\"chanaka\", \"company\":\"wso2\"}") };
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "jsontoxml", args);
+        BValue[] args = {new BJSON("{\"name\":\"chanaka\", \"company\":\"wso2\"}")};
+        BValue[] returns = BTestUtils.invoke(compileResult, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<root><name>chanaka</name><company>wso2</company></root>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
     }
-
 }

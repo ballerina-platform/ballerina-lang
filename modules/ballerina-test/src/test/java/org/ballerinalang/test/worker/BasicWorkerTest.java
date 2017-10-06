@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.statements.worker;
+package org.ballerinalang.test.worker;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
