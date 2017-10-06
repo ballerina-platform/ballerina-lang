@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -47,6 +48,7 @@ public class Parser {
     private static final CompilerContext.Key<Parser> PARSER_KEY = new CompilerContext.Key<>();
     private final boolean preserveWhitespace;
 
+    private DefaultErrorStrategy customErrorStratergy;
     private CompilerContext context;
     private DiagnosticLog dlog;
 
@@ -55,6 +57,8 @@ public class Parser {
         if (parser == null) {
             parser = new Parser(context);
         }
+
+        parser.customErrorStratergy = context.get(DefaultErrorStrategy.class);
 
         return parser;
     }
@@ -90,6 +94,12 @@ public class Parser {
             BallerinaLexer lexer = new BallerinaLexer(ais);
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             BallerinaParser parser = new BallerinaParser(tokenStream);
+
+            // If there is already defined custom error listener, set the error handler
+            if (this.customErrorStratergy != null) {
+                parser.setErrorHandler(this.customErrorStratergy);
+            }
+
             parser.setErrorHandler(new BallerinaParserErrorStrategy(context, diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
