@@ -13,11 +13,12 @@ class EditorArea extends React.Component {
      * @inheritdoc
      */
     render() {
-        const { width, height } = this.props;
+        const { width, height, panelResizeInProgress } = this.props;
+        const viewProps = { width, height, panelResizeInProgress };
         return (
             <div className="editor-area" >
                 {this.props.views.map((viewDef) => {
-                    return createViewFromViewDef(viewDef, { width, height });
+                    return createViewFromViewDef(viewDef, viewProps);
                 })}
             </div>
         );
@@ -25,6 +26,7 @@ class EditorArea extends React.Component {
 }
 
 EditorArea.propTypes = {
+    panelResizeInProgress: PropTypes.bool.isRequired,
     views: PropTypes.arrayOf(Object).isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,

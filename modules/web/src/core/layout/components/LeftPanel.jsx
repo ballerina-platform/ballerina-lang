@@ -10,7 +10,7 @@ import { createViewFromViewDef } from './utils';
 
 
 const activityBarWidth = 42;
-const panelTitleHeight = 37;
+const panelTitleHeight = 36;
 
 /**
  * React component for LeftPanel Region.
@@ -72,6 +72,10 @@ class LeftPanel extends React.Component {
                 width: this.props.width - activityBarWidth,
                 height: this.props.height - panelTitleHeight,
             };
+            const viewProps = {
+                ...dimensions,
+                panelResizeInProgress: this.props.panelResizeInProgress,
+            };
             panes.push((
                 <Tab.Pane key={id} eventKey={id}>
                     <div>
@@ -86,7 +90,7 @@ class LeftPanel extends React.Component {
                         >
                             <div className="panel-content">
                                 {
-                                    createViewFromViewDef(viewDef, dimensions)
+                                    createViewFromViewDef(viewDef, viewProps)
                                 }
                             </div>
                         </Scrollbars>
@@ -130,6 +134,7 @@ class LeftPanel extends React.Component {
 LeftPanel.propTypes = {
     onActiveViewChange: PropTypes.func.isRequired,
     views: PropTypes.arrayOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

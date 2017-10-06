@@ -136,6 +136,7 @@ class FileTree extends React.Component {
                         this.forceUpdate();
                     }}
                     parentNode={parentNode}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
                 >
                     {
                         node.children
@@ -161,6 +162,7 @@ class FileTree extends React.Component {
 }
 
 FileTree.propTypes = {
+    panelResizeInProgress: PropTypes.bool,
     enableContextMenu: PropTypes.bool,
     onLoadData: PropTypes.func,
     onOpen: PropTypes.func,
@@ -169,6 +171,7 @@ FileTree.propTypes = {
 };
 
 FileTree.defaultProps = {
+    panelResizeInProgress: false,
     enableContextMenu: false,
     onLoadData: () => {},
     onOpen: () => {},

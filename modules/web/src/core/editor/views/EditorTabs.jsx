@@ -62,6 +62,7 @@ class EditorTabs extends View {
 
         // Setting view states.
         this.state = {
+            panelResizeInProgress: false,
             previewPanelEnabled,
             previewPanelSize,
         };
@@ -155,6 +156,7 @@ class EditorTabs extends View {
                         {...customPropsProvider()}
                         isPreviewViewEnabled={this.state.previewPanelEnabled}
                         {...dimensions}
+                        panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
                     />
                 </TabPane>
             );
@@ -182,6 +184,7 @@ class EditorTabs extends View {
                         isActive={activeEditorID === id}
                         {...propsProvider()}
                         {...dimensions}
+                        panelResizeInProgress={this.props.panelResizeInProgress || this.state.panelResizeInProgress}
                     />
                 </TabPane>
             );
@@ -267,14 +270,21 @@ class EditorTabs extends View {
                 }
                 maxSize={this.props.width * 0.75}
                 onChange={(previewViewSize) => {
+                    this.state.panelResizeInProgress = true;
                     this.setPreviewPanelState(true, previewViewSize);
+                }}
+                onDragFinished={() => {
                     if (!_.isNil(this.previewSplitRef)) {
                         this.previewSplitRef.setState({
                             resized: false,
                             draggedSize: undefined,
                         });
                     }
-                }}
+                    this.setState({
+                        panelResizeInProgress: false,
+                    });
+                }
+                }
                 primary="second"
                 pane1Style={{
                     width: this.props.width -
@@ -320,6 +330,7 @@ class EditorTabs extends View {
 
 EditorTabs.propTypes = {
     editorPlugin: PropTypes.objectOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

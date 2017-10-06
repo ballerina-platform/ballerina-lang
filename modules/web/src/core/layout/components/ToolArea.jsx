@@ -13,12 +13,20 @@ class ToolArea extends React.Component {
     /**
      * @inheritdoc
      */
+    shouldComponentUpdate(nextProps, nextState) {
+        return !nextProps.panelResizeInProgress;
+    }
+
+    /**
+     * @inheritdoc
+     */
     render() {
-        const { width, height } = this.props;
+        const { width, height, panelResizeInProgress } = this.props;
+        const viewProps = { width, height, panelResizeInProgress };
         return (
             <div className="tool-area">
                 {this.props.views.map((viewDef) => {
-                    return createViewFromViewDef(viewDef, { width, height });
+                    return createViewFromViewDef(viewDef, viewProps);
                 })}
             </div>
         );
@@ -27,6 +35,7 @@ class ToolArea extends React.Component {
 
 ToolArea.propTypes = {
     views: PropTypes.arrayOf(Object).isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };
