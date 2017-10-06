@@ -15,15 +15,13 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.model.statements;
+package org.ballerinalang.test.statements.whilestatement;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.SemanticException;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,17 +32,20 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class WhileStmtTest {
-    private ProgramFile programFile;
+
+    private CompileResult positiveCompileResult;
+    private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/statements/while-stmt.bal");
+        positiveCompileResult = BTestUtils.compile("test-src/statements/whilestatement/while-stmt.bal");
+        negativeCompileResult = BTestUtils.compile("test-src/statements/whilestatement/while-stmt-negative.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtConditionTrue() {
         BValue[] args = {new BInteger(10), new BInteger(1)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testWhileStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -57,7 +58,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to false")
     public void testWhileStmtConditionFalse() {
         BValue[] args = {new BInteger(10), new BInteger(11)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testWhileStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -69,15 +70,15 @@ public class WhileStmtTest {
 
     @Test(description = "Check the scope managing in while block")
     public void testWhileBlockScopes() {
-        BValue[] args = { new BInteger(1) };
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testWhileScope", args);
+        BValue[] args = {new BInteger(1)};
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
 
-        args = new BValue[] { new BInteger(2) };
-        returns = BLangFunctions.invokeNew(programFile, "testWhileScope", args);
+        args = new BValue[]{new BInteger(2)};
+        returns = BTestUtils.invoke(positiveCompileResult, "testWhileScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
@@ -86,7 +87,7 @@ public class WhileStmtTest {
 
     @Test(description = "Check the scope managing in while block with ifelse")
     public void testWhileBlockScopesWithIf() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testWhileScopeWithIf");
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "testWhileScopeWithIf");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type of return param1 mismatched");
         Assert.assertSame(returns[1].getClass(), BFloat.class, "Class type of return param2 mismatched");
@@ -97,11 +98,9 @@ public class WhileStmtTest {
     }
 
     @Test(description = "Test while statement with incompatible types",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "while-stmnt-with-incompatible-types.bal:2: incompatible types: " +
-                    "expected 'boolean', found 'string'", dependsOnMethods = {"testWhileStmtConditionFalse",
-            "testWhileStmtConditionTrue"})
+          dependsOnMethods = {"testWhileStmtConditionFalse", "testWhileStmtConditionTrue"})
     public void testMapAccessWithIndex() {
-        BTestUtils.getProgramFile("lang/statements/while-stmnt-with-incompatible-types.bal");
+        BTestUtils.validateError(negativeCompileResult, 0, "incompatible types: expected 'boolean', found 'string'", 2,
+                                 9);
     }
 }

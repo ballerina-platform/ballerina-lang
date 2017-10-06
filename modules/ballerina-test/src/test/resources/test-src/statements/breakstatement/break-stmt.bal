@@ -1,11 +1,11 @@
-function calculateExp1(int x, int y) (int) {
+function calculateExp1 (int x, int y) (int) {
     int z;
-    while(x >= y) {
+    while (x >= y) {
         y = y + 1;
-        if(y == 10){
+        if (y == 10) {
             z = 100;
             break;
-        } else if( y > 20){
+        } else if (y > 20) {
             z = 1000;
             break;
         }
@@ -14,16 +14,16 @@ function calculateExp1(int x, int y) (int) {
     return z;
 }
 
-function nestedBreakStmt(int x, int y) (int) {
+function nestedBreakStmt (int x, int y) (int) {
     int z = 10;
-    while(x >= y) {
+    while (x >= y) {
         y = y + 1;
-        if(y >= 10){
+        if (y >= 10) {
             z = z + 100;
             break;
         }
         z = z + 10;
-        while(y < x) {
+        while (y < x) {
             z = z + 10;
             y = y + 1;
             if (z >= 40) {
