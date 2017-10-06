@@ -12,11 +12,17 @@ public class Whitespace implements Comparable<Whitespace> {
     private final int index;
     // Previous non-ws token's kept here for debugging reasons, no functional value.
     private final String previous;
+    private final boolean isStatic;
 
-    public Whitespace(int index, String ws, String previous) {
+    public String getPrevious() {
+        return previous;
+    }
+
+    public Whitespace(int index, String ws, String previous, boolean isStatic) {
         this.index = index;
         this.ws = ws;
         this.previous = previous;
+        this.isStatic = isStatic;
     }
 
     public String getWs() {
@@ -28,8 +34,8 @@ public class Whitespace implements Comparable<Whitespace> {
         return index - o.index;
     }
 
-    public void appendWS(String text) {
-        ws = ws + text;
+    public void prependWS(String text) {
+        ws = text + ws;
     }
 
     @Override
@@ -52,5 +58,13 @@ public class Whitespace implements Comparable<Whitespace> {
             return "null";
         }
         return '"' + string.replace("\n", "\\n").replace("\"", "\\\"") + '"';
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }
