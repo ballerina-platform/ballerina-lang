@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.lang.constant;
+package org.ballerinalang.test.types.constant;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -36,7 +36,7 @@ public class ConstantAccessTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/lang/constant/access", "main");
+        compileResult = BTestUtils.compile("test-src/types/constant/access", "main");
     }
 
     @Test(description = "Test accessing constant from other packages")

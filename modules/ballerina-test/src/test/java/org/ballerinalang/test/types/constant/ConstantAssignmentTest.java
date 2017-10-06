@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.lang.constant;
+package org.ballerinalang.test.types.constant;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -39,8 +39,8 @@ public class ConstantAssignmentTest {
 
     @BeforeClass
     public void setup() {
-        positiveCompileResult = BTestUtils.compile("test-src/lang/constant/constant-assignment.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/lang/constant/constant-assignment-negative.bal");
+        positiveCompileResult = BTestUtils.compile("test-src/types/constant/constant-assignment.bal");
+        negativeCompileResult = BTestUtils.compile("test-src/types/constant/constant-assignment-negative.bal");
     }
 
     @Test(description = "Test accessing constant evaluated by an expression.")
