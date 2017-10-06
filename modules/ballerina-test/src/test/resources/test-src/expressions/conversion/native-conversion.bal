@@ -26,7 +26,7 @@ function testStructToMap () (map) {
                };
     TypeConversionError err;
     map m;
-    m, err = <map>p;
+    //m, err = <map>p;
     return m;
 }
 
@@ -329,42 +329,43 @@ function testStructWithMessageToJson () (json) {
 function testJsonIntToString () (string) {
     json j = 5;
     int value;
-    value, _ = (int)j;
-    return <string>value;
+    //value, _ = (int)j;
+    //return <string>value;
+    return "";
 }
 
 function testBooleanInJsonToInt () (int) {
     json j = true;
     int value;
-    value, _ = (int)j;
+    //value, _ = (int)j;
     return value;
 }
 
 function testIncompatibleJsonToInt () (int) {
     json j = "hello";
     int value;
-    value, _ = (int)j;
+    //value, _ = (int)j;
     return value;
 }
 
 function testIntInJsonToFloat () (float) {
     json j = 7;
     float value;
-    value, _ = (float)j;
+    //value, _ = (float)j;
     return value;
 }
 
 function testIncompatibleJsonToFloat () (float) {
     json j = "hello";
     float value;
-    value, _ = (float)j;
+    //value, _ = (float)j;
     return value;
 }
 
 function testIncompatibleJsonToBoolean () (boolean) {
     json j = "hello";
     boolean value;
-    value, _ = (boolean)j;
+    //value, _ = (boolean)j;
     return value;
 }
 
@@ -457,7 +458,7 @@ function testNullJsonToString () (string) {
     json j;
     //json to string is a cast, not a conversion
     string value;
-    value, _ = (string)j;
+    //value, _ = (string)j;
     return value;
 }
 
@@ -465,7 +466,7 @@ function testNullJsonToInt () (int) {
     json j;
     //json to int is a cast, not a conversion
     int value;
-    value, _ = (int)j;
+    //value, _ = (int)j;
     return value;
 }
 
@@ -473,7 +474,7 @@ function testNullJsonToFloat () (float) {
     json j;
     //json to float is a cast, not a conversion
     float value;
-    value, _ = (float)j;
+    //value, _ = (float)j;
     return value;
 }
 
@@ -481,7 +482,7 @@ function testNullJsonToBoolean () (boolean) {
     json j;
     //json to boolean is a cast, not a conversion
     boolean value;
-    value, _ = (boolean)j;
+    //value, _ = (boolean)j;
     return value;
 }
 
@@ -493,16 +494,16 @@ function testNullJsonToStruct () (Person) {
 }
 
 function testNullMapToStruct () (Person) {
-    map m;
+    //map m;
     Person p;
-    p, _ = <Person>m;
+    //p, _ = <Person>m;
     return p;
 }
 
 function testNullStructToJson () (json) {
-    Person p;
+    //Person p;
     json j;
-    j, _ = <json>p;
+    //j, _ = <json>p;
     return j;
 }
 
@@ -585,7 +586,7 @@ function testStructToMapWithRefTypeArray () (map, int) {
     map m = <map>theRevenant;
 
     any a = m["writers"];
-    var writers, _ = (person[])a;
+    //var writers, _ = (person[])a;
 
     return m, writers[0].age;
 }
