@@ -75,7 +75,7 @@ public class StructNegativeTest {
 
     @Test(description = "Test accessing an field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitField() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -85,7 +85,7 @@ public class StructNegativeTest {
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitArrayField() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -95,7 +95,7 @@ public class StructNegativeTest {
 
     @Test(description = "Test accessing the field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitLastField() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -105,7 +105,7 @@ public class StructNegativeTest {
 
     @Test(description = "Test setting an field of a noninitialized child struct",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitField() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -115,7 +115,7 @@ public class StructNegativeTest {
 
     @Test(description = "Test setting the field of a noninitialized root struct",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitLastField() {
         CompileResult compileResult = BTestUtils.compile("test-src/structs/struct.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);

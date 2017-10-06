@@ -36,13 +36,13 @@ public class BJSONValueNegativeTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetFromNull() {
         BTestUtils.invoke(compileResult, "testGetFromNull");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testAddToNull() {
         BTestUtils.invoke(compileResult, "testAddToNull");
     }
