@@ -34,7 +34,7 @@ class PropertiesWindow extends React.Component {
         super(props);
         const data = {};
         // TEST //
-        this.supportedProps = [{ identifier: 'port', value: '', bType: 'int' },
+        /* this.supportedProps = [{ identifier: 'port', value: '', bType: 'int' },
             { identifier: 'host', value: '', bType: 'int' }, { identifier: 'allow', value: '', bType: 'boolean' },
             { identifier: 'file', value: '', bType: 'string' }, { identifier: 'folder', value: '', bType: 'string' },
             { identifier: 'methods', value: '', bType: 'array' }, { identifier: 'http', value: 56, bType: 'int' }];
@@ -42,12 +42,12 @@ class PropertiesWindow extends React.Component {
         this.supportedProps.map((addedAnnotation) => {
             const key = addedAnnotation.identifier;
             data[key] = addedAnnotation.value;
-        });
+        });*/
         // TEST //
-       /* this.props.supportedProps.map((addedAnnotation) => {
+        this.props.supportedProps.map((addedAnnotation) => {
             const key = addedAnnotation.identifier;
             data[key] = addedAnnotation.value;
-        });*/
+        });
 
         this.state = { data,
             pageOfItems: [],
@@ -129,8 +129,7 @@ class PropertiesWindow extends React.Component {
      * Hanldes the dismiss/cancel event of the prop window
      */
     handleDismiss() {
-        // this.props.addedValues(this.state.data);
-        // this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
+        this.props.addedValues(this.state.data);
         this.props.model.viewState.overlayContainer = {};
         this.props.editor.update();
     }
@@ -367,7 +366,7 @@ class PropertiesWindow extends React.Component {
                             </form>
                         </div>
                     </div>
-                    <Pagination items={this.supportedProps} onChangePage={this.onChangePage} />
+                    <Pagination items={this.props.supportedProps} onChangePage={this.onChangePage} />
                 </div>
             </div>);
     }

@@ -561,7 +561,7 @@ class SizingUtil {
         components.annotation.w = bodyWidth;
         components.transportLine.h = totalResourceHeight;
         // Set initial height to the body
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h - 30;
         viewState.components = components;
         viewState.components.heading.w += viewState.titleWidth + 100;
         viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
@@ -593,9 +593,12 @@ class SizingUtil {
             innerPanelItems.map((innerPanelItem, index) => {
                 const innerPanelItemBBox = innerPanelItems[index].viewState.bBox;
                 if (!innerPanelItem.viewState.collapsed) {
-                    viewState.bBox.h += innerPanelItemBBox.h;
+                    viewState.bBox.h += innerPanelItemBBox.h + 50;
                 }
             });
+            if (node.getResources()) {
+                viewState.bBox.h -= 110;
+            }
         }
     }
 

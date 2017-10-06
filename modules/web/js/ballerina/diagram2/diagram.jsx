@@ -110,7 +110,6 @@ class Diagram extends React.Component {
         if (overlayCompRender.getOverlayComponents()) {
             overlayComponents = getOverlayComponent(overlayCompRender.getOverlayComponents(), this.props.mode);
         }
-
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 

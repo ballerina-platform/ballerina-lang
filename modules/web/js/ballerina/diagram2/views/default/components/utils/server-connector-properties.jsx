@@ -38,8 +38,6 @@ class ServerConnectorProperties extends React.Component {
      * Show the property window
      */
     handleShowModal() {
-        console.log('Handle show modal clicked   * * *** **');
-        console.log(this.props.model.getID());
         const node = this.props.model;
         const bBox = Object.assign({}, node.viewState.bBox);
         const titleHeight = 30;
@@ -49,12 +47,12 @@ class ServerConnectorProperties extends React.Component {
         bBox.y = bBox.y + annotationBodyHeight + titleHeight;
         const overlayComponents = {
             kind: 'ServerConnectorPropertiesForm',
-            // kind: 'ConnectorPropertiesForm',
             props: {
                 key: node.getID(),
                 model: node,
                 bBox,
                 editor: this.context.editor,
+                environment: this.context.environment,
             },
         };
         node.viewState.overlayContainer = overlayComponents;
@@ -100,4 +98,5 @@ export default ServerConnectorProperties;
 
 ServerConnectorProperties.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
