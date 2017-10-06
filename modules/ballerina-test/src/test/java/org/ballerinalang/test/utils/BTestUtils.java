@@ -114,7 +114,6 @@ public class BTestUtils {
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(packageName);
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
