@@ -21,54 +21,47 @@ import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test cases for user defined struct types in ballerina.
  */
 public class StructNegativeTest {
-
-    @Test(description = "Test defining structs with duplicate name")
-    public void testDuplicateStructDefinitions() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/duplicate-structs.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "redeclared symbol 'Department'");
-        Assert.assertEquals(compileResult.getDiagnostics()[1].getMessage(), "unknown type 'Person'");
+    CompileResult result;
+    
+    @BeforeClass
+    public void setup() {
+        result = BTestUtils.compile("test-src/structs/structs-negative.bal");
     }
 
-    @Test(description = "Test defining structs with duplicate fields")
-    public void testStructWithDuplicateFields() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/duplicate-fields.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "redeclared symbol 'id'");
-        Assert.assertEquals(compileResult.getDiagnostics()[1].getMessage(), "unknown type 'Person'");
-    }
+    @Test
+    public void testStructNegative() {
+        // test duplicate struct definitions
+        BTestUtils.validateError(result, 0, "redeclared symbol 'Department'", 6, 1);
 
-    @Test(description = "Test initializing an undeclraed structs")
-    public void testUndeclaredStructInit() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/undeclared-struct-init.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "unknown type 'Department'");
-    }
+        // test struct with duplicate fields
+        BTestUtils.validateError(result, 1, "redeclared symbol 'id'", 14, 5);
 
-    @Test(description = "Test accessing an undeclared struct")
-    public void testUndeclaredStructAccess() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/undeclared-struct-access.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(), "undefined symbol 'dpt1'");
-    }
+        // test undeclared struct init
+        BTestUtils.validateError(result, 2, "unknown type 'Department123'", 18, 5);
 
-    @Test(description = "Test accessing an undeclared field of a struct")
-    public void testUndeclaredFieldAccess() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/undeclared-attribute-access.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "undefined field 'id' in struct 'Department'");
+        // test undeclared struct access
+        BTestUtils.validateError(result, 3, "undefined symbol 'dpt1'", 23, 5);
+
+        // test undeclared struct-field access
+        BTestUtils.validateError(result, 4, "undefined field 'id' in struct 'Department'", 29, 5);
+
+        // test undeclared field init
+        BTestUtils.validateError(result, 5, "undefined field 'age' in struct 'Department'", 34, 37);
+
+        // test field init with mismatching type
+        BTestUtils.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
+
+        // test struct init with invalid field name
+        BTestUtils.validateError(result, 7,
+                "invalid field name in 'struct' literal, identifier or string literal expected", 44, 23);
+
     }
 
     @Test(description = "Test defining a struct constant")
@@ -78,33 +71,6 @@ public class StructNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
                             "missing token {'int', 'float', 'boolean', 'string', 'blob'} before 'Person'");
-    }
-
-    @Test(description = "Test initializing a struct with undeclared field")
-    public void testUndeclareFieldInit() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/undeclared-attribute-init.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "undefined field 'age' in struct 'Department'");
-    }
-
-    @Test(description = "Test initializing a struct with mismatching field type")
-    public void testMismatchingTypeFieldInit() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/invalid-type-attribute-init.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "incompatible types: expected 'map', found 'int'");
-    }
-
-    @Test(description = "Test initializing a struct with invalid field name")
-    public void testInvalidFieldNameInit() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/invalid-field-name-init.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "invalid field name in 'struct' literal, identifier or string literal expected");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

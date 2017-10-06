@@ -54,6 +54,9 @@ public class Compiler {
     private ProgramFile programFile;
     private BLangPackage pkgNode;
 
+    // TODO: separate the 'parse' and 'define' phases to properly fix this
+    private boolean containsSyntaxErrors = false;
+
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
         if (compiler == null) {
@@ -137,6 +140,7 @@ public class Compiler {
         try {
             return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
         } catch (BLangParserException e) {
+            containsSyntaxErrors = true;
             return null;
         }
     }
@@ -171,8 +175,11 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.TYPE_CHECK ||
-                phase == CompilerPhase.DESUGAR ||
+        if (containsSyntaxErrors) {
+            return true;
+        }
+
+        return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
     }

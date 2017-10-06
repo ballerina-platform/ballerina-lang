@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,10 +34,12 @@ import org.testng.annotations.Test;
 public class StructAccessWithIndexTest {
 
     private CompileResult compileResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/structs/struct-with-indexed-access.bal");
+        compileResult = BTestUtils.compile("test-src/structs/struct-access-with-index.bal");
+        negativeResult = BTestUtils.compile("test-src/structs/struct-access-with-index-negative.bal");
     }
 
     @Test(description = "Test Basic struct operations")
@@ -113,5 +116,61 @@ public class StructAccessWithIndexTest {
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
+    }
+    
+    // Negative tests
+
+    @Test(description = "Test accessing an undeclared struct")
+    public void testUndeclaredStructAccess() {
+        BTestUtils.validateError(negativeResult, 0, "undefined symbol 'dpt1'", 3, 5);
+    }
+
+    @Test(description = "Test accessing an undeclared field of a struct")
+    public void testUndeclaredFieldAccess() {
+        BTestUtils.validateError(negativeResult, 1, "undefined field 'id' in struct 'Department'", 9, 5);
+    }
+
+    @Test(description = "Test accesing a struct with a dynamic index")
+    public void testExpressionAsStructIndex() {
+        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct-access-with-dynamic-index.bal");
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
+                "invalid index expression: expected string literal");
+    }
+
+    @Test(description = "Test accessing an field of a noninitialized struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+    public void testGetNonInitField() {
+        BTestUtils.invoke(compileResult, "testGetNonInitAttribute");
+    }
+
+    @Test(description = "Test accessing an arrays field of a noninitialized struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+    public void testGetNonInitArrayField() {
+        BTestUtils.invoke(compileResult, "testGetNonInitArrayAttribute");
+    }
+
+    @Test(description = "Test accessing the field of a noninitialized struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+    public void testGetNonInitLastField() {
+        BTestUtils.invoke(compileResult, "testGetNonInitLastAttribute");
+    }
+
+    @Test(description = "Test setting an field of a noninitialized child struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+    public void testSetNonInitField() {
+        BTestUtils.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
+    }
+
+    @Test(description = "Test setting the field of a noninitialized root struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+    public void testSetNonInitLastField() {
+        BTestUtils.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }
 }
