@@ -23,7 +23,7 @@ import { blockStatement, statement, actionBox } from '../../../../../configs/des
 import ASTNode from '../../../../../ast/node';
 import SimpleBBox from '../../../../../ast/simple-bounding-box';
 import './compound-statement-decorator.css';
-// import ExpressionEditor from '../../../../../expression-editor/expression-editor-utils';
+import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
 // import ActionBox from './action-box';
 // import ActiveArbiter from './active-arbiter';
 // import Breakpoint from './breakpoint';

@@ -242,11 +242,10 @@ class PositioningUtil {
 
             // Positioning the closing bracket component of the parameters.
             cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
-            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;            
+            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
         }
 
         // ========== End of Header ==========
-
 
         let xindex = cmp.defaultWorker.x + cmp.defaultWorker.w + this.config.lifeLine.gutter.h;
         // Position Workers
@@ -256,7 +255,7 @@ class PositioningUtil {
                 worker.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += worker.viewState.bBox.w + this.config.lifeLine.gutter.h;
             });
-        }
+         }
 
         // Position Connectors
         const statements = node.body.statements;
@@ -749,6 +748,10 @@ class PositioningUtil {
                 element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;
+            } else if (TreeUtil.isForkJoin(element)) {
+                element.viewState.bBox.x = viewState.bBox.x;
+                element.viewState.bBox.y = viewState.bBox.y + height;
+                height += element.viewState.bBox.h;
             }
         });
     }
@@ -790,7 +793,58 @@ class PositioningUtil {
      * @param {object} node ForkJoin object
      */
     positionForkJoinNode(node) {
-        // Not implemented.
+        const viewState = node.viewState;
+        const bBox = viewState.bBox;
+        const joinStmt = node.getJoinBody();
+        const timeoutStmt = node.getTimeoutBody();
+
+        this.positionCompoundStatementComponents(node);
+
+        node.viewState.bBox.x = node.viewState.components['statement-box'].x;
+        node.viewState.bBox.y = node.viewState.components['statement-box'].y
+            + node.viewState.components['block-header'].h;
+
+        const joinX = bBox.x;
+        let joinY = viewState.components['statement-box'].y
+            + viewState.components['statement-box'].h;
+        joinStmt.viewState.components.param =
+            new SimpleBBox(joinX + joinStmt.viewState.components['expression'].w, 0, 0, 0, 0, 0)
+
+        node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+        node.viewState.components['statement-box'].w = node.viewState.bBox.w;
+        node.viewState.components['block-header'].w = node.viewState.bBox.w;
+
+        if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
+            joinStmt.viewState.bBox.w = node.viewState.bBox.w;
+            if(TreeUtil.isBlock(joinStmt)){
+                joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+                joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
+                joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+            }
+        }
+
+        joinStmt.viewState.bBox.y = joinY;
+        joinStmt.viewState.bBox.x = joinX;
+        this.positionCompoundStatementComponents(joinStmt);
+        const timeoutX = bBox.x;
+        let timeoutY = joinStmt.viewState.bBox.y
+            + joinStmt.viewState.bBox.h;
+
+        timeoutStmt.viewState.components.param =
+            new SimpleBBox(timeoutX + timeoutStmt.viewState.components['expression'].w, 0, 0, 0, 0);
+
+        if (node.viewState.bBox.w > timeoutStmt.viewState.bBox.w) {
+            timeoutStmt.viewState.bBox.w = node.viewState.bBox.w;
+            if (TreeUtil.isBlock(joinStmt)) {
+                timeoutStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
+                timeoutStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
+                timeoutStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
+            }
+        }
+
+        timeoutStmt.viewState.bBox.y = timeoutY;
+        timeoutStmt.viewState.bBox.x = timeoutX;
+        this.positionCompoundStatementComponents(timeoutStmt);
     }
 
 
@@ -823,7 +877,7 @@ class PositioningUtil {
         node.viewState.components['statement-box'].w = newWidth;
         node.viewState.components['block-header'].w = newWidth;
 
-        if (node.viewState.bBox.w > elseStatement.viewState.bBox.w) {
+        if (elseStatement && node.viewState.bBox.w > elseStatement.viewState.bBox.w) {
             elseStatement.viewState.bBox.w = newWidth;
             if (TreeUtil.isBlock(elseStatement)) {
                 elseStatement.viewState.components['drop-zone'].w = newWidth;
@@ -831,12 +885,14 @@ class PositioningUtil {
                 elseStatement.viewState.components['block-header'].w = newWidth;
             }
         }
-        if (TreeUtil.isBlock(elseStatement)) {
+        if (elseStatement && TreeUtil.isBlock(elseStatement)) {
             elseY += elseStatement.viewState.components['block-header'].h;
         }
-        elseStatement.viewState.bBox.x = elseX;
-        elseStatement.viewState.bBox.y = elseY;
-        this.positionCompoundStatementComponents(elseStatement);
+        if (elseStatement) {
+            elseStatement.viewState.bBox.x = elseX;
+            elseStatement.viewState.bBox.y = elseY;
+            this.positionCompoundStatementComponents(elseStatement);
+        }
     }
 
     /**
