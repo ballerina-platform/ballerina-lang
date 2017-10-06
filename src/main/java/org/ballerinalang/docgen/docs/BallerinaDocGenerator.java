@@ -18,13 +18,15 @@
 
 package org.ballerinalang.docgen.docs;
 
-import org.ballerinalang.BLangASTBuilder;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -38,6 +40,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Main class to generate a ballerina documentation
@@ -107,9 +113,10 @@ public class BallerinaDocGenerator {
      * @param packagePath should point either to a ballerina file or a folder with ballerina files.
      * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
      */
-    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath) throws IOException {
-        return generatePackageDocsFromBallerina(packagePath, null);
-    }
+//    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(
+//            String packagePath) throws IOException {
+//        return generatePackageDocsFromBallerina(packagePath, null);
+//    }
 
     /**
      * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
@@ -118,10 +125,11 @@ public class BallerinaDocGenerator {
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
      */
-    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
-            String packageFilter) throws IOException {
-        return generatePackageDocsFromBallerina(packagePath, packageFilter, false);
-    }
+//    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(
+//            String packagePath,
+//            String packageFilter) throws IOException {
+//        return generatePackageDocsFromBallerina(packagePath, packageFilter, false);
+//    }
     
     /**
      * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
@@ -131,15 +139,15 @@ public class BallerinaDocGenerator {
      * @param isNative whether the given packages are native or not.
      * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
      */
-    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
-            String packageFilter, boolean isNative) throws IOException {
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(
+            String packagePath, String packageFilter, boolean isNative) throws IOException {
         Path pkgPath = Paths.get(packagePath);
         final List<Path> packagePaths = new ArrayList<>();
         if (Files.isDirectory(pkgPath)) {
             BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(pkgPath, packagePaths);
             Files.walkFileTree(pkgPath, subPackageVisitor);
         } else {
-            packagePaths.add(Paths.get(""));
+            packagePaths.add(Paths.get("."));
         }
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
@@ -149,17 +157,89 @@ public class BallerinaDocGenerator {
         }
 
         for (Path path : packagePaths) {
-            BLangProgram bLangProgram;
-            if (isNative) {
-                bLangProgram = new BLangASTBuilder().disableSemanticAnalyzer().build(pkgPath, path);
-            } else {
-                bLangProgram = new BLangASTBuilder().build(pkgPath, path);
-            }
-            if (bLangProgram == null) {
+            CompilerContext context = new CompilerContext();
+            CompilerOptions options = CompilerOptions.getInstance(context);
+            options.put(SOURCE_ROOT, pkgPath.toString());
+            options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+            options.put(PRESERVE_WHITESPACE, "false");
+
+            // compile
+            Compiler compiler = Compiler.getInstance(context);
+            compiler.compile(path.toString().replaceAll("/", "."));
+
+            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
+
+            if (bLangPackage == null) {
                 out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
             } else {
-                BLangPackage bLangPackage = bLangProgram.getEntryPackage();
-                String packageName = bLangPackage.getPackagePath();
+//                BLangPackage bLangPackage = bLangProgram.getEntryPackage();
+                String packageName = bLangPackage.symbol.pkgID.name.value;
+                if (isFilteredPackage(packageName, packageFilter)) {
+                    if (BallerinaDocUtils.isDebugEnabled()) {
+                        out.println("Package " + packageName + " excluded");
+                    }
+                    continue;
+                }
+                dataHolder.getPackageMap().put(packageName, bLangPackage);
+            }
+        }
+        return dataHolder.getPackageMap();
+    }
+
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String sourceRoot, String packagePath)
+            throws IOException {
+        return generatePackageDocsFromBallerina(sourceRoot, packagePath, null);
+    }
+
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String sourceRoot, String packagePath,
+                                                                                String packageFilter)
+            throws IOException {
+        return generatePackageDocsFromBallerina(sourceRoot, packagePath, packageFilter, false);
+    }
+
+    /**
+     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
+     *
+     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
+     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
+     * @param isNative      whether the given packages are native or not.
+     * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
+     */
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String sourceRoot, String packagePath,
+                                                                                String packageFilter, boolean isNative)
+            throws IOException {
+        Path pkgPath = Paths.get(packagePath);
+        final List<Path> packagePaths = new ArrayList<>();
+        if (Files.isDirectory(pkgPath)) {
+            BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(pkgPath, packagePaths);
+            Files.walkFileTree(pkgPath, subPackageVisitor);
+        } else {
+            packagePaths.add(pkgPath);
+        }
+
+        BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
+        if (!isNative) {
+            // This is necessary to be true in order to Ballerina to work properly
+            System.setProperty("skipNatives", "true");
+        }
+
+        for (Path path : packagePaths) {
+            CompilerContext context = new CompilerContext();
+            CompilerOptions options = CompilerOptions.getInstance(context);
+            options.put(SOURCE_ROOT, sourceRoot);
+            options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+            options.put(PRESERVE_WHITESPACE, "false");
+
+            // compile
+            Compiler compiler = Compiler.getInstance(context);
+            compiler.compile(path.toString().replaceAll("/", "."));
+
+            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
+
+            if (bLangPackage == null) {
+                out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
+            } else {
+                String packageName = bLangPackage.symbol.pkgID.name.value;
                 if (isFilteredPackage(packageName, packageFilter)) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
                         out.println("Package " + packageName + " excluded");
