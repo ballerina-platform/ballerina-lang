@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.repository.fs;
 
+import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,15 +39,25 @@ public class JARPackageRepository extends GeneralFSPackageRepository {
     
     private static final String JAR_URI_SCHEME = "jar";
 
-    public JARPackageRepository(Object obj, String basePath) {
-        super(generatePath(obj, basePath));
+    public JARPackageRepository(SystemPackageRepositoryProvider sprp, String basePath) {
+        super(generatePath(sprp, basePath));
     }
     
-    private static Path generatePath(Object obj, String basePath) {
+    private static Path generatePath(SystemPackageRepositoryProvider sprp, String basePath) {
         try {
-            URI uri = obj.getClass().getResource(basePath).toURI();
-            initFS(uri);
-            Path result = Paths.get(uri);
+            URI classURI = sprp.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+            String classPath = classURI.getPath();
+            URI pathUri;
+            if (classPath.endsWith(".jar")) {
+                pathUri = URI.create("jar:file:" + classPath + "!" + basePath);
+            } else {
+                if (classPath.endsWith(File.separator)) {
+                    classPath = classPath.substring(0, classPath.length() - 1);
+                }
+                pathUri = URI.create("file:" + classPath + basePath);
+            }
+            initFS(pathUri);
+            Path result = Paths.get(pathUri);
             return result;
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
