@@ -75,7 +75,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(responseMsg.getHeader(headerName), headerValue);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCloneMethod() {
         BStruct response = BTestUtils.createAndGetStruct(result.getProgFile(), protocolPackageHttp, responseStruct);
         HTTPCarbonMessage cMsg = HttpUtil.createHttpCarbonMessage(false);

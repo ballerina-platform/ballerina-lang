@@ -54,6 +54,9 @@ public class Compiler {
     private ProgramFile programFile;
     private BLangPackage pkgNode;
 
+    // TODO: separate the 'parse' and 'define' phases to properly fix this
+    private boolean containsSyntaxErrors = false;
+
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
         if (compiler == null) {
@@ -83,27 +86,27 @@ public class Compiler {
             return;
         }
 
-        BLangPackage pkg = define(sourcePkg);
+        pkgNode = define(sourcePkg);
         if (this.stopCompilation(CompilerPhase.TYPE_CHECK)) {
             return;
         }
 
-        pkg = typeCheck(pkg);
+        pkgNode = typeCheck(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
 
-        pkg = codeAnalyze(pkg);
+        pkgNode = codeAnalyze(pkgNode);
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
 
-        pkg = desugar(pkg);
+        pkgNode = desugar(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
             return;
         }
 
-        gen(pkg);
+        gen(pkgNode);
     }
 
     private void loadBuiltInPackage() {
@@ -135,8 +138,9 @@ public class Compiler {
 
     private BLangPackage define(String sourcePkg) {
         try {
-            return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
+            return pkgLoader.loadEntryPackage(sourcePkg);
         } catch (BLangParserException e) {
+            containsSyntaxErrors = true;
             return null;
         }
     }
@@ -171,8 +175,11 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.TYPE_CHECK ||
-                phase == CompilerPhase.DESUGAR ||
+        if (containsSyntaxErrors) {
+            return true;
+        }
+
+        return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;
     }
