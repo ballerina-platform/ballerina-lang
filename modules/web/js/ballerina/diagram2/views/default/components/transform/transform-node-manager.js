@@ -197,7 +197,15 @@ class TransformNodeManager {
      * @memberof TransformNodeManager
      */
     removeIntermediateNode(expression, parentNode, statement) {
-        this._mapper.removeNode(expression, parentNode, statement);
+        if (parentNode) {
+            let parentDef;
+            if (TreeUtil.isInvocation(parentNode)) {
+                parentDef = this.getFunctionVertices(parentNode);
+            }
+            this._mapper.removeNode(expression, statement, parentNode, parentDef);
+        } else {
+            this._mapper.removeNode(expression, statement);
+        }
     }
 
     removeSourceType(type) {
