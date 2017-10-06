@@ -189,7 +189,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expTypeTag == TypeTags.NONE) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
 
-        } else if (expTypeTag == TypeTags.JSON) {
+        } else if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
             checkExprs(arrayLiteral.exprs, this.env, expTypes.get(0));
             actualType = expTypes.get(0);
 
@@ -216,8 +216,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (expTypeTag == TypeTags.JSON ||
                 expTypeTag == TypeTags.MAP ||
-                expTypeTag == TypeTags.STRUCT || 
-                expTypeTag == TypeTags.NONE || 
+                expTypeTag == TypeTags.STRUCT ||
+                expTypeTag == TypeTags.NONE ||
                 expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));

@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.lang.errors;
 import ballerina.lang.strings;
 import ballerina.net.http.request;
 import ballerina.net.http.response;
@@ -97,7 +96,7 @@ service<http> sample {
     resource echo6 (http:Request req, http:Response res) {
 
         string myName = "chamil";
-        errors:TypeCastError err;
+        TypeCastError err;
         http:Session session1 = http:createSessionIfAbsent(req);
         http:Session session2 = http:createSessionIfAbsent(req);
         http:setAttribute(session1, "name", "wso2");
@@ -115,7 +114,7 @@ service<http> sample {
     }
     resource hello (http:Request req, http:Response res) {
 
-        errors:TypeCastError err;
+        TypeCastError err;
         string result = request:getStringPayload(req);
         http:Session session = http:createSessionIfAbsent(req);
         any attribute = http:getAttribute(session, "name");
@@ -139,7 +138,7 @@ service<http> counter {
     resource echoCount (http:Request req, http:Response res) {
 
         int sessionCounter;
-        errors:TypeCastError err;
+        TypeCastError err;
         http:Session ses = http:createSessionIfAbsent(req);
         if (http:getAttribute(ses, "Counter") == null) {
             sessionCounter = 0;
@@ -159,7 +158,7 @@ service<http> counter {
     resource echoCount2 (http:Request req, http:Response res) {
 
         int sessionCounter;
-        errors:TypeCastError err;
+        TypeCastError err;
         http:Session ses = http:getSession(req);
         if (http:getAttribute(ses, "Counter") == null) {
             sessionCounter = 0;
@@ -180,7 +179,7 @@ service<http> sample2 {
     }
     resource echoName (http:Request req, http:Response res) {
         string myName = "wso2";
-        errors:TypeCastError err;
+        TypeCastError err;
         http:Session Session = http:createSessionIfAbsent(req);
         any attribute = http:getAttribute(Session, "name");
         if (attribute != null) {
@@ -197,12 +196,12 @@ service<http> sample2 {
     resource myStruct (http:Request req, http:Response res) {
 
         string result = request:getStringPayload(req);
-        errors:TypeCastError err;
+        TypeCastError err;
         Data d = {name:result};
         http:Session Session = http:createSessionIfAbsent(req);
         any attribute = http:getAttribute(Session, "nameStruct");
         if (attribute != null) {
-            d, err = (Data)attribute;
+            //d, err = (Data)attribute;
         } else {
             http:setAttribute(Session, "nameStruct", d);
         }
@@ -220,7 +219,7 @@ service<http> sample2 {
         http:setAttribute(ses, "Counter", "1");
         http:setAttribute(ses, "Name", "chamil");
         string[] arr = http:getAttributeNames(ses);
-        int arrsize = arr.length;
+        int arrsize = lengthof arr;
         response:setStringPayload(res, "arraysize:" + arrsize);
         response:send(res);
     }
@@ -252,7 +251,7 @@ service<http> sample2 {
         http:setAttribute(ses, "Name", "chamil");
         http:removeAttribute(ses, "Name");
         string[] arr = http:getAttributeNames(ses);
-        int arrsize = arr.length;
+        int arrsize = lengthof arr;
         response:setStringPayload(res, strings:valueOf(arrsize));
         response:send(res);
     }
@@ -269,7 +268,7 @@ service<http> sample2 {
         http:removeAttribute(ses, "Name");
         http:invalidate(ses);
         string[] arr = http:getAttributeNames(ses);
-        int arrsize = arr.length;
+        int arrsize = lengthof arr;
         response:setStringPayload(res, strings:valueOf(arrsize));
         response:send(res);
     }
@@ -282,7 +281,7 @@ service<http> sample2 {
 
         http:Session ses = http:createSessionIfAbsent(req);
         string[] arr = http:getAttributeNames(ses);
-        int arrsize = arr.length;
+        int arrsize = lengthof arr;
         response:setStringPayload(res, strings:valueOf(arrsize));
         response:send(res);
     }
@@ -297,7 +296,7 @@ service<http> sample2 {
         http:setAttribute(ses, "location", "colombo");
         http:removeAttribute(ses, "Name");
         string[] arr = http:getAttributeNames(ses);
-        int arrsize = arr.length;
+        int arrsize = lengthof arr;
         response:setStringPayload(res, strings:valueOf(arrsize));
         response:send(res);
     }
