@@ -17,7 +17,6 @@
  */
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import $ from 'jquery';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import DefaultTools from './item-provider/default-tools';
@@ -27,6 +26,8 @@ import DefaultASTFactory from '../ast/default-ast-factory';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import {binaryOpTools, unaryOpTools} from './item-provider/operator-tools';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
+
+const searchBoxHeight = 30;
 
 class ToolsPanel extends React.Component {
 
@@ -532,10 +533,7 @@ class ToolPaletteView extends React.Component {
             });
         }
 
-        // calculate the height of the tool.
-        // this is a hack need to find a better approch.
-        // let scrollHeight = window.innerHeight - 176;
-        const scrollHeight = $(this.props.getContainer()).height() - 30;
+        const scrollHeight = this.props.containerHeight - searchBoxHeight;
 
         constructs.collapsed = true;
         constructs = this.searchTools(this.state.search, constructs);
@@ -577,6 +575,7 @@ class ToolPaletteView extends React.Component {
 
 ToolPaletteView.propTypes = {
     isTransformActive: PropTypes.bool.isRequired,
+    containerHeight: PropTypes.number.isRequired,
 };
 
 ToolPaletteView.contextTypes = {

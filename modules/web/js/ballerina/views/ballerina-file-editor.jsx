@@ -501,6 +501,8 @@ class BallerinaFileEditor extends React.Component {
                     show={showDesignView}
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
+                    width={this.props.width}
+                    height={this.props.height}
                 />
                 <SourceView
                     displayErrorList={popupErrorListInSourceView}
@@ -531,6 +533,8 @@ BallerinaFileEditor.propTypes = {
         dispatch: PropTypes.func.isRequired,
     }).isRequired,
     isPreviewViewEnabled: PropTypes.bool,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
 };
 
 BallerinaFileEditor.defaultProps = {
