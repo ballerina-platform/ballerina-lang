@@ -87,22 +87,22 @@ const config = [{
             jQuery: 'jquery',
         }),
         new webpack.WatchIgnorePlugin([path.resolve(__dirname, './font/dist/')]),
-        // new WebfontPlugin({
-        //     files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
-        //     css: true,
-        //     cssTemplateFontPath: '../fonts/',
-        //     fontName: 'font-ballerina',
-        //     fontHeight: 1000,
-        //     normalize: true,
-        //     cssTemplateClassName: 'fw', // TODO: map with proper class name
-        //     template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
-        //     dest: {
-        //         fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
-        //         stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
-        //         outputFilename: 'font-ballerina.css',
-        //     },
-        //     hash: new Date().getTime(),
-        // }),
+        new WebfontPlugin({
+            files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
+            css: true,
+            cssTemplateFontPath: '../fonts/',
+            fontName: 'font-ballerina',
+            fontHeight: 1000,
+            normalize: true,
+            cssTemplateClassName: 'fw', // TODO: map with proper class name
+            template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
+            dest: {
+                fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
+                stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
+                outputFilename: 'font-ballerina.css',
+            },
+            hash: new Date().getTime(),
+        }),
         /*
         new CircularDependencyPlugin({
             exclude: /a\.css|node_modules/,
