@@ -269,8 +269,10 @@ class SizingUtil {
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
         // calculate default worker
-        cmp.defaultWorker.w = this.config.lifeLine.width;
+        cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
+        // set the max worker height to other workers. 
+        workers.forEach((worker) => { worker.viewState.bBox.h = maxWorkerHeight; });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -332,8 +334,10 @@ class SizingUtil {
         const statements = node.body.statements;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
-                statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
-                statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                if (TreeUtil.isConnectorDeclaration(statement)) {
+                    statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                    statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                }
             });
         }
     }
@@ -699,7 +703,7 @@ class SizingUtil {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
         bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
-        bBox.w = this.config.lifeLine.width;
+        bBox.w = workerBody.viewState.bBox.w;
     }
 
 
