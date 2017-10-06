@@ -1,6 +1,5 @@
 import ballerina.net.http;
 import ballerina.net.http.request;
-import ballerina.net.http.response;
 
 function testGetContentLength (http:Request req) (int) {
     int length = request:getContentLength(req);
@@ -88,35 +87,4 @@ function testSetStringPayload (http:Request req, string value) (http:Request) {
 function testSetXmlPayload (http:Request req, xml value) (http:Request) {
     request:setXmlPayload(req, value);
     return req;
-}
-
-@http:configuration{basePath:"/hello"}
-service<http> helloServer {
-
-    @http:resourceConfig {
-        path:"/11"
-    }
-    resource echo1 (http:Request req, http:Response res) {
-        string method = request:getMethod(req);
-        response:setStringPayload(res, method);
-        response:send(res);
-    }
-
-    @http:resourceConfig {
-        path:"/12"
-    }
-    resource echo2 (http:Request req, http:Response res) {
-        string url = request:getRequestURL(req);
-        response:setStringPayload(res, url);
-        response:send(res);
-    }
-
-    @http:resourceConfig {
-        path:"/13"
-    }
-    resource echo3 (http:Request req, http:Response res) {
-        string url = request:getRequestURL(req);
-        response:setStringPayload(res, url);
-        response:send(res);
-    }
 }
