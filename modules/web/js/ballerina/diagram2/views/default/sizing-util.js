@@ -281,6 +281,8 @@ class SizingUtil {
         // set the max worker height to other workers.
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
+            worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
+                                             - this.config.lifeLine.footer.height;
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
         });
         // calculate panel body
