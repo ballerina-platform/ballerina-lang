@@ -36,6 +36,29 @@ class PositioningUtil {
             (viewState.components['statement-box'].w / 2);
         viewState.components.text.y = viewState.components['statement-box'].y +
             (viewState.components['statement-box'].h / 2);
+
+        //
+        if (TreeUtil.variableDefIsInvocation(node)) {
+            // Set the view state property to manipulate at the statement decorator
+            viewState.isActionInvocation = true;
+            const arrowStartBBox = new SimpleBBox();
+            const arrowEndBBox = new SimpleBBox();
+            const variableRefName = node.variable.initialExpression.expression.variableName.value;
+            const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
+            arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
+            arrowStartBBox.y = viewState.components['statement-box'].y
+                + (viewState.components['statement-box'].h / 2) - 3;
+            viewState.components.invocation = {
+                start: undefined,
+                end: undefined,
+            };
+            viewState.components.invocation.start = arrowStartBBox;
+            if (connectorDeclaration) {
+                arrowEndBBox.x = connectorDeclaration.viewState.bBox.x + (connectorDeclaration.viewState.bBox.w / 2);
+                arrowEndBBox.y = arrowStartBBox.y;
+                viewState.components.invocation.end = arrowEndBBox;
+            }
+        }
     }
 
     positionCompoundStatementComponents(node) {

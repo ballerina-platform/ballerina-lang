@@ -89,6 +89,41 @@ class TreeUtil extends AbstractTreeUtil {
         const expression = _.get(node, 'variable.initialExpression');
         return (expression && this.isConnectorInitExpr(expression));
     }
+
+    /**
+     * Check whether the node is an action invocation expression
+     * @param {object} node - variable def node object
+     * @returns {boolean} - whether the node is an invocation node
+     */
+    variableDefIsInvocation(node) {
+        const initialExpression = _.get(node, 'variable.initialExpression');
+        return (initialExpression && this.isInvocation(initialExpression));
+    }
+
+    /**
+     * Get the variable definition by traversing the parent nodes
+     * @param {object} parent - parent block node
+     * @param {string} name - variable name
+     * @return {object} variable definition node
+     */
+    getVariableDefByName(parent, name) {
+        if (!parent) {
+            return undefined;
+        }
+        const variableDef = _.find(parent.statements, (statement) => {
+            if (this.isVariableDef(statement)) {
+                return statement.variable.name.value === name;
+            } else {
+                return false;
+            }
+        });
+
+        if (!variableDef) {
+            return this.getVariableDefByName(parent.parent, name);
+        }
+
+        return variableDef;
+    }
 }
 
 export default new TreeUtil();

@@ -27,6 +27,7 @@ import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
+import ArrowDecorator from './arrow-decorator';
 
 
 /**
@@ -202,6 +203,12 @@ class StatementDecorator extends React.Component {
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                 />
+                {viewState.isActionInvocation &&
+                    <ArrowDecorator
+                        start={viewState.components.invocation.start}
+                        end={viewState.components.invocation.end}
+                    />
+                }
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);

@@ -27,19 +27,6 @@ import MessageManager from './../../../../../visitors/message-manager';
  * @extends {React.Component}
  */
 class Arrow extends React.Component {
-    /**
-     * Creates an instance of Arrow.
-     * @param {any} props React properties.
-     * @param {any} context React context.
-     * @memberof Arrow
-     */
-    constructor(props, context) {
-        super(props);
-        this.state = { enable: true, drawOnMouseMoveFlag: -1 };
-        if (this.props.moveWithMessageManager) {
-            context.messageManager.setArrowDecorator(this);
-        }
-    }
 
     /**
      * Gets the angle of the arrow.
@@ -65,43 +52,36 @@ class Arrow extends React.Component {
      * @memberof Arrow
      */
     render() {
-        const { start, end, dashed, arrowSize } = this.props;
-        const enable = this.props.enable;
-        const drawOnMouseMove = this.state.drawOnMouseMoveFlag;
-        const messageManager = this.context.messageManager;
-        let arrowStart;
-        let arrowEnd;
-
-        if (drawOnMouseMove > -1) {
-            arrowStart = messageManager.getMessageStart();
-            arrowEnd = messageManager.getMessageEnd();
-        } else {
-            arrowStart = start;
-            arrowEnd = end;
-        }
+        const { start, end, dashed, arrowSize, description } = this.props;
+        const descriptionX = (start.x + end.x) / 2;
+        const descriptionY = start.y - 3;
 
         let className = 'action-arrow';
         if (dashed) {
             className = 'action-arrow action-dash-line';
         }
-        return (<g >
-            {enable &&
-            <line
-                x1={arrowStart.x}
-                x2={arrowEnd.x}
-                y1={arrowStart.y}
-                y2={arrowEnd.y}
-                className={className}
-            /> }
-            {enable &&
-            <polygon
-                points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
-                transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
-                            rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
-                className="action-arrow-head"
-            />
-            }
-        </g>);
+        return (
+            <g >
+                <text
+                    x={descriptionX}
+                    y={descriptionY}
+                >
+                    {description}
+                </text>
+                <line
+                    x1={start.x}
+                    x2={end.x}
+                    y1={start.y}
+                    y2={end.y}
+                    className={className}
+                />
+                <polygon
+                    points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
+                    transform={`translate(${end.x}, ${end.y})
+                                rotate(${this.getArrowAngle(start, start)}, 0, 0)`}
+                    className="action-arrow-head"
+                />
+            </g>);
     }
 }
 
@@ -110,7 +90,6 @@ Arrow.contextTypes = {
 };
 
 Arrow.propTypes = {
-    moveWithMessageManager: PropTypes.bool,
     start: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
@@ -121,16 +100,15 @@ Arrow.propTypes = {
     }),
     dashed: PropTypes.bool,
     arrowSize: PropTypes.number,
-    enable: PropTypes.bool,
+    description: PropTypes.string,
 };
 
 Arrow.defaultProps = {
-    moveWithMessageManager: false,
     start: undefined,
     end: undefined,
     dashed: false,
     arrowSize: 5,
-    enable: false,
+    description: '',
 };
 
 export default Arrow;
