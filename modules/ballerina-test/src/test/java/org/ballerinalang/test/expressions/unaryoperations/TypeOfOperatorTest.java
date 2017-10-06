@@ -389,7 +389,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[1], returns[2]);
     }
 
-    //@Test(description = "Test any to type explicit cast.")
+    @Test(description = "Test any to type explicit cast.", enabled = false)
     public void testAnyToTypeExplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "anyToTypeExplicitCast", args);

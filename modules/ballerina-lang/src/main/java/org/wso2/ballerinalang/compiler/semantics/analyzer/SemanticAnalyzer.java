@@ -481,12 +481,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             ((BLangVariableReference) varRef).lhsVar = true;
             expTypes.add(typeChecker.checkExpr(varRef, env).get(0));
-            checkConstantAssignment(varRef, expTypes);
+            checkConstantAssignment(varRef);
         }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
 
-    private void checkConstantAssignment(BLangExpression varRef, List<BType> expTypes) {
+    private void checkConstantAssignment(BLangExpression varRef) {
         if (varRef.type == symTable.errType) {
             return;
         }
