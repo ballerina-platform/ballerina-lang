@@ -1,20 +1,22 @@
-import ballerina.lang.errors;
 
 struct testError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string code;
 }
 
 struct testDataError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string data;
 }
 
 struct testInputError {
     string msg;
-    errors:Error cause;
+    error cause;
+    stackFrame[] stackTrace;
     string input;
 }
 
@@ -53,7 +55,7 @@ function testTryCatch(int value)(string){
             path = path + "innerFinally ";
         }
         path = path + "endInsideTry ";
-    } catch (errors:Error e){
+    } catch (error e){
         path = path + "ErrorCatch ";
     } catch (testError ex){
         path = path + "TestErrorCatch ";
@@ -70,7 +72,7 @@ function testFunctionThrow (int arg)(boolean, string){
         a = a + "1";
         int b = testThrow(arg);
         a = a + "2";
-    } catch (errors:Error b){
+    } catch (error b){
         a = a + "3";
         return true, a;
     }
@@ -84,8 +86,11 @@ function testThrow(int a)(int) {
 }
 
 function testNestedThrow(int a)(int){
-    errors:Error e  = {msg : "test message"};
-    throw e;
+    error e  = {msg : "test message"};
+    if (e != null) {
+        throw e;
+    }
+    return 7;
 }
 
 function mockFunction ()(string) {
@@ -95,7 +100,7 @@ function mockFunction ()(string) {
 function testMethodCallInFinally ()(string) {
     string s = "start";
     try {
-        errors:Error e = {msg:"test"};
+        error e = {msg:"test"};
         throw e;
     }finally {
          s = s + mockFunction();
@@ -107,7 +112,7 @@ function scopeIssueTest () (int) {
     int i = 0;
     while (i < 10) {
         try {
-        } catch (errors:Error e) {
+        } catch (error e) {
         }
         i = i + 1;
     }

@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.debug;
+package org.ballerinalang.test.debugger;
 
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.testng.annotations.AfterClass;
@@ -32,11 +32,6 @@ import java.io.PrintStream;
  */
 public class VMDebuggerScenarioTest {
 
-    private static final String STEP_IN = "1";
-    private static final String STEP_OVER = "2";
-    private static final String STEP_OUT = "3";
-    private static final String RESUME = "5";
-    private static final String EXIT = "0";
     private PrintStream original;
 
     @BeforeClass
@@ -55,10 +50,10 @@ public class VMDebuggerScenarioTest {
     public void testWhileStatementResume() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "while-statement.bal", 5, 5, 5, 5, 5);
-        String[] debugCommand = {RESUME, RESUME, RESUME, RESUME, RESUME};
+        Step[] debugCommand = {Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME, Step.RESUME};
         BreakPointDTO[] expectedBreakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
                 "while-statement.bal", 5, 5, 5, 5, 5);
-        VMDebuggerUtil.startDebug("lang/debug/while-statement.bal", breakPoints,
+        VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints,
                 expectedBreakPoints, debugCommand);
     }
 }
