@@ -139,7 +139,7 @@ class FunctionNode extends React.Component {
                     />
                     <LifeLine
                         title="default"
-                        bBox={this.props.model.viewState.components.defaultWorker}
+                        bBox={this.props.model.viewState.components.defaultWorkerLine}
                         classes={classes}
                         icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                         iconColor='#025482'

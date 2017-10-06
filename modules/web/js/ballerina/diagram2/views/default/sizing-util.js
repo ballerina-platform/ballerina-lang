@@ -137,6 +137,9 @@ class SizingUtil {
             // if the statement is a connector declaration we will not count the height.
             if (!TreeUtil.isConnectorDeclaration(element)) {
                 stH += element.viewState.bBox.h;
+                if (width < element.viewState.bBox.w) {
+                    width = element.viewState.bBox.w;
+                }
             }
         });
         if (stH >= height) {
@@ -262,6 +265,7 @@ class SizingUtil {
         /* Define the sub components */
         cmp.heading = new SimpleBBox();
         cmp.defaultWorker = new SimpleBBox();
+        cmp.defaultWorkerLine = new SimpleBBox();
         cmp.panelBody = new SimpleBBox();
         cmp.argParameters = new SimpleBBox();
         cmp.returnParameters = new SimpleBBox();
@@ -271,8 +275,14 @@ class SizingUtil {
         // calculate default worker
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
-        // set the max worker height to other workers. 
-        workers.forEach((worker) => { worker.viewState.bBox.h = maxWorkerHeight; });
+        // we add the default worker line as a seperate component.
+        cmp.defaultWorkerLine.w = this.config.lifeLine.width;
+        cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
+        // set the max worker height to other workers.
+        workers.forEach((worker) => {
+            worker.viewState.bBox.h = maxWorkerHeight;
+            worker.viewState.components.lifeLine.h = maxWorkerHeight;
+        });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -325,21 +335,25 @@ class SizingUtil {
         }
         cmp.heading.w += viewState.titleWidth + 100;
 
-        // Get the largest among component heading width and component body width.
-        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
-
-        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
-
         // Set the size of the connector declarations
         const statements = node.body.statements;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
                 if (TreeUtil.isConnectorDeclaration(statement)) {
-                    statement.viewState.bBox.w = node.viewState.components.defaultWorker.w;
+                    statement.viewState.bBox.w = this.config.lifeLine.width;
+                    // add the connector width to panel body width.
+                    cmp.panelBody.w += this.config.lifeLine.width;
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
         }
+
+        // Get the largest among component heading width and component body width.
+        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
+
+        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
+
+
     }
 
     /**
@@ -704,6 +718,11 @@ class SizingUtil {
         const workerBody = node.body;
         bBox.h = workerBody.viewState.bBox.h + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
         bBox.w = workerBody.viewState.bBox.w;
+        // set the size of the lifeline.
+        const cmp = node.viewState.components;
+        cmp.lifeLine = new SimpleBBox();
+        cmp.lifeLine.w = this.config.lifeLine.width;
+        cmp.lifeLine.h = bBox.h;
     }
 
 
