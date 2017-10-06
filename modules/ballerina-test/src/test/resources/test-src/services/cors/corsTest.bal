@@ -19,7 +19,6 @@ service<http> echo1 {
          allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
     }
     resource info1 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"resCors"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -30,7 +29,6 @@ service<http> echo1 {
          path : "/test2"
     }
     resource info2 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"serCors"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -43,7 +41,6 @@ service<http> echo1 {
         allowCredentials : true
     }
     resource info3 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"moreOrigins"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -59,7 +56,6 @@ service<http> hello2 {
          exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
     resource info1 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"resOnlyCors"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -73,7 +69,6 @@ service<http> hello2 {
         exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
     resource info2 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"optionsOnly"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -94,26 +89,9 @@ service<http> echo3 {
         methods:["POST", "PUT"]
     }
     resource info1 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"cors"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
-    }
-
-    @http:resourceConfig {
-        methods:["GET"]
-    }
-    resource info2 (http:Request req, http:Response res) {
-        //message result = {};
-        res -> sampleWorker;
-        res <- sampleWorker;
-        response:send(res);
-        worker sampleWorker {
-            res <- default;
-            json responseJson = {"echo":"worker"};
-            response:setJsonPayload(res, responseJson);
-            res -> default;
-        }
     }
 }
 
@@ -122,7 +100,6 @@ service<http> echo4 {
         methods:["POST"]
     }
     resource info1 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"noCors"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
@@ -132,7 +109,6 @@ service<http> echo4 {
         methods:["OPTIONS"]
     }
     resource info2 (http:Request req, http:Response res) {
-        message response = {};
         json responseJson = {"echo":"noCorsOPTIONS"};
         response:setJsonPayload(res, responseJson);
         response:send(res);
