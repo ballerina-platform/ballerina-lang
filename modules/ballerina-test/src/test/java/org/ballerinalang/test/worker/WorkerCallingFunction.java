@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.core.lang.worker;
+package org.ballerinalang.test.worker;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,27 +29,18 @@ import org.testng.annotations.Test;
  * Test cases for calling worker in functions.
  */
 public class WorkerCallingFunction {
-    private ProgramFile bProgramFile;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        bProgramFile = BTestUtils.getProgramFile("samples/worker-calling-function.bal");
+        this.result = BTestUtils.compile("test-src/workers/worker-calling-function.bal");
     }
-
-//    @Test(description = "Test worker calling function")
-//    public void testWorkerCallingFunction() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorker");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BMessage);
-//        final String expected = "{\"name\":\"chanaka\"}";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
 
     @Test(description = "Test worker calling function")
     public void testWorkerCallingFunction() {
-        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInVM");
+        BValue[] returns = BTestUtils.invoke(result, "testWorkerInVM");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 120);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
     }
 }
