@@ -208,7 +208,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         BType actualType = symTable.errType;
         int expTypeTag = expTypes.get(0).tag;
-        if (expTypeTag == TypeTags.NONE) {
+        if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
             // var a = {}
             // Change the expected type to map
             expTypes = Lists.of(symTable.mapType);
@@ -216,7 +216,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (expTypeTag == TypeTags.JSON ||
                 expTypeTag == TypeTags.MAP ||
-                expTypeTag == TypeTags.STRUCT) {
+                expTypeTag == TypeTags.STRUCT || 
+                expTypeTag == TypeTags.NONE || 
+                expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
             actualType = expTypes.get(0);
@@ -334,6 +336,13 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
                     checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+                } else {
+                    indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.noType)).get(0);
+                    if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
+                        dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
+                                indexExprType);
+                        break;
+                    }
                 }
                 actualType = symTable.jsonType;
                 break;
