@@ -24,6 +24,7 @@ import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import { lifeLine } from './../../designer-defaults';
 import ExpressionEditor from 'expression_editor_utils';
 import * as DesignerDefaults from './../../designer-defaults';
+import TreeUtils from './../../../../../model/tree-util';
 
 
 class LifeLine extends React.Component {
@@ -33,7 +34,7 @@ class LifeLine extends React.Component {
         const bBox = this.props.bBox;
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, lifeLine.head.height);
         this.state = { active: 'hidden' };
-        this.handlePropertyForm = this.handlePropertyForm.bind(this);
+        this.handleConnectorProps = this.handleConnectorProps.bind(this);
     }
 
     onDelete() {
@@ -61,12 +62,12 @@ class LifeLine extends React.Component {
         }
     }
 
-    handlePropertyForm() {
+    handleConnectorProps() {
         // Check if the model is a connector declaration
-        /* if (ASTFactory.isConnectorDeclaration(this.props.model)) {
-            this.props.model.getViewState().showPropertyForm = !this.props.model.getViewState().showPropertyForm;
+        if (this.props.connectorProps) {
+            this.props.model.viewState.overlayContainer = this.props.connectorProps;
             this.context.editor.update();
-        }*/
+        }
     }
     render() {
         const bBox = this.props.bBox;
@@ -98,15 +99,16 @@ class LifeLine extends React.Component {
         const imageYTop = bBox.y + (DesignerDefaults.iconForTool.height / 4);
         const imageYBottom = y2 - titleBoxH + (DesignerDefaults.iconForTool.height / 4);
         if (this.props.icon) {
-            modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width + DesignerDefaults.iconForTool.padding.left;
+            modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width +
+                DesignerDefaults.iconForTool.padding.left;
         }
 
         let iconColor = this.props.iconColor;
-        /*if (ASTFactory.isConnectorDeclaration(this.props.model)) {
-            if (this.props.model.getViewState().showPropertyForm) {
+        if (this.props.connectorProps) {
+            if (!_.isEmpty(this.props.model.viewState.overlayContainer)) {
                 iconColor = '#6f7b96';
             }
-        }*/
+        }
         return (<g
             className="life-line-group"
         >
@@ -140,7 +142,7 @@ class LifeLine extends React.Component {
             />
 
             {this.props.icon &&
-            <g onClick={this.handlePropertyForm}>
+            <g onClick={this.handleConnectorProps}>
                 <rect
                     x={bBox.x}
                     y={bBox.y}
@@ -204,7 +206,7 @@ class LifeLine extends React.Component {
                 dominantBaseline="central"
                 className="life-line-text genericT unhoverable"
             >{this.props.title}</text>
-            {/*this.props.onDelete &&
+            {/* this.props.onDelete &&
                 <ActionBox
                     show={this.state.active}
                     bBox={actionBbox}
