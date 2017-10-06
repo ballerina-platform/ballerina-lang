@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for ballerina null value.
  */
+@Test(enabled = false)
 public class BNullValueTest {
 
     private CompileResult compileResult;
