@@ -67,7 +67,7 @@ public class TimeTest {
         //Assert.assertEquals(((BInteger) returns[2]).intValue(), 19800);
     }
 
-    //@Test(description = "Test create time with no zone info provided.")
+    @Test(description = "Test create time with no zone info provided.")
     public void testCreateTimeWithNullZone() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testCreateTimeWithNullZone", args);

@@ -51,4 +51,9 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
         return attachmentPoints;
     }
 
+    @Override
+    public String toString() {
+        return pkgID != null && !pkgID.toString().equals(".") ?
+                pkgID.toString() + ":" + this.name : this.name.toString();
+    }
 }

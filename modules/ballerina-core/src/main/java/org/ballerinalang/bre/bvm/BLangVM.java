@@ -65,7 +65,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -152,12 +151,12 @@ public class BLangVM {
         }
     }
 
-    public void run(Context context) {
-        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+    public void run(Context ctx) {
+        StackFrame currentFrame = ctx.getControlStackNew().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
-        this.context = context;
+        this.context = ctx;
         this.controlStack = context.getControlStackNew();
         this.ip = context.getStartIP();
 
@@ -515,6 +514,12 @@ public class BLangVM {
 
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
+                    break;
+                case InstructionCodes.WRKSTART:
+                    startWorkers();
+                    break;
+                case InstructionCodes.WRKRETURN:
+                    handleWorkerReturn();
                     break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
@@ -2589,9 +2594,6 @@ public class BLangVM {
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
     }
 
     public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
@@ -2622,8 +2624,6 @@ public class BLangVM {
         Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
             Context workerContext = new Context(programFile);
-            WorkerCallback workerCallback = new WorkerCallback(workerContext);
-            workerContext.setBalCallback(workerCallback);
 
             StackFrame callerSF = controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
@@ -2745,6 +2745,38 @@ public class BLangVM {
         return result;
     }
 
+    private void startWorkers() {
+        CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
+        this.controlStack.currentFrame.workerReturnStack = true;
+        ip = -1;
+    }
+
+    private void handleWorkerReturn() {
+        WorkerContext workerContext = (WorkerContext) this.context;
+        if (workerContext.parentSF.workerReturned.compareAndSet(false, true)) {
+            StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
+            workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
+
+            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
+            StackFrame parentSF = workerContext.parentSF;
+            StackFrame parentCallersSF = parentControlStack.getStack()[parentControlStack.fp - 1];
+
+            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            // Switch to parent context
+            this.context = workerContext.parent;
+            this.controlStack = this.context.getControlStackNew();
+            controlStack.popFrame();
+            this.constPool = this.controlStack.getCurrentFrame().packageInfo.getConstPoolEntries();
+            this.code = this.controlStack.getCurrentFrame().packageInfo.getInstructions();
+            ip = parentSF.retAddrs;
+        } else {
+            String msg = workerContext.parentSF.returnedWorker + " already returned.";
+            context.setError(BLangVMErrors.createIllegalStateException(context, ip, msg));
+            handleError();
+        }
+    }
+
     public void replyWorker(WorkerDataChannelInfo workerDataChannel,
                             WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
 
@@ -2854,42 +2886,13 @@ public class BLangVM {
 
     }
 
-    public static void copyArgValuesWorker(StackFrame callerSF, StackFrame calleeSF,
-                                           int[] argRegs, BType[] paramTypes) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
-                    break;
-                default:
-                    if (callerSF.refRegs[argReg] instanceof BMessage) {
-                        calleeSF.refLocalVars[++refRegIndex] = ((BMessage) callerSF.refRegs[argReg]).clone();
-                    } else {
-                        calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
-                    }
-            }
-        }
+    public static void copyValues(StackFrame parent, StackFrame workerSF) {
+        System.arraycopy(parent.longLocalVars, 0, workerSF.longLocalVars, 0, parent.longLocalVars.length);
+        System.arraycopy(parent.doubleLocalVars, 0, workerSF.doubleLocalVars, 0, parent.doubleLocalVars.length);
+        System.arraycopy(parent.intLocalVars, 0, workerSF.intLocalVars, 0, parent.intLocalVars.length);
+        System.arraycopy(parent.stringLocalVars, 0, workerSF.stringLocalVars, 0, parent.stringLocalVars.length);
+        System.arraycopy(parent.byteLocalVars, 0, workerSF.byteLocalVars, 0, parent.byteLocalVars.length);
+        System.arraycopy(parent.refLocalVars, 0, workerSF.refLocalVars, 0, parent.refLocalVars.length);
     }
 
 
@@ -2935,6 +2938,41 @@ public class BLangVM {
             this.code = callersSF.packageInfo.getInstructions();
         }
         ip = currentSF.retAddrs;
+    }
+
+    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+        int callersRetRegIndex;
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+        BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            callersRetRegIndex = parentsSF.retRegIndexes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    parentCallersSF.longRegs[callersRetRegIndex] = workerCallerSF.longRegs[longRegCount++];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    parentCallersSF.doubleRegs[callersRetRegIndex] = workerCallerSF.doubleRegs[doubleRegCount++];
+                    break;
+                case TypeTags.STRING_TAG:
+                    parentCallersSF.stringRegs[callersRetRegIndex] = workerCallerSF.stringRegs[stringRegCount++];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    parentCallersSF.intRegs[callersRetRegIndex] = workerCallerSF.intRegs[intRegCount++];
+                    break;
+                case TypeTags.BLOB_TAG:
+                    parentCallersSF.byteRegs[callersRetRegIndex] = workerCallerSF.byteRegs[byteRegCount++];
+                    break;
+                default:
+                    parentCallersSF.refRegs[callersRetRegIndex] = workerCallerSF.refRegs[refRegCount++];
+                    break;
+            }
+        }
     }
 
     private String getOperandsLine(int[] operands) {
