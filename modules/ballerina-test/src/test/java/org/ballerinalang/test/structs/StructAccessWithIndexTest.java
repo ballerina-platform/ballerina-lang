@@ -141,35 +141,35 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accessing an field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitField() {
         BTestUtils.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitArrayField() {
         BTestUtils.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testGetNonInitLastField() {
         BTestUtils.invoke(compileResult, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitField() {
         BTestUtils.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSetNonInitLastField() {
         BTestUtils.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }
