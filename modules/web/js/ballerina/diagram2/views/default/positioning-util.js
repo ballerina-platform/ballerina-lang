@@ -134,14 +134,18 @@ class PositioningUtil {
             child.viewState.bBox.y = height + this.config.panel.wrapper.gutter.h;
             height = this.config.panel.wrapper.gutter.h + child.viewState.bBox.h + height;
         });
-
+        // add the padding for the width
+        width += this.config.panel.wrapper.gutter.h * 2;
+        // set the height of the canvas.
         height = (height > node.viewState.container.height) ? height : node.viewState.container.height;
-        width = (width > node.viewState.container.width) ? width : node.viewState.container.width;
 
         // re-adjust the width of each node to fill the container.
-        children.forEach((child) => {
-            child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
-        });
+        if (width < node.viewState.container.width) {
+            width = node.viewState.container.width;
+            children.forEach((child) => {
+                child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
+            });
+        }
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = width;
