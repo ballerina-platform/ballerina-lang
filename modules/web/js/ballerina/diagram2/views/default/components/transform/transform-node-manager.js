@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import TreeUtil from '../../../../../model/tree-util';
 import Mapper from './transform-node-mapper';
-import TransformFactory from './transform-factory';
+import TransformFactory from '../../../../../model/transform-factory';
 import TransformUtils, { VarPrefix, ExpressionType } from '../../../../../utils/transform-utils';
 
 /**
