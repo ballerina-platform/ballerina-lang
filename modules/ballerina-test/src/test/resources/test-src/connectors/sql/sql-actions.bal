@@ -1,6 +1,5 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
-import ballerina.lang.errors;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -27,8 +26,8 @@ struct ResultArrayType {
 }
 
 function testInsertTableData () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
     int insertCount = testDB.update ("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -38,8 +37,8 @@ function testInsertTableData () (int) {
 }
 
 function testCreateTable () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
     int returnValue = testDB.update ("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
@@ -49,8 +48,8 @@ function testCreateTable () (int) {
 }
 
 function testUpdateTableData () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
     int updateCount = testDB.update ("Update Customers set country = 'UK' where registrationID = 1", parameters);
@@ -59,8 +58,8 @@ function testUpdateTableData () (int) {
 }
 
 function testGeneratedKeyOnInsert () (string) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     int insertCount;
     string[] generatedID;
@@ -74,8 +73,8 @@ function testGeneratedKeyOnInsert () (string) {
 }
 
 function testGeneratedKeyWithColumn () (string) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     int insertCount;
     string[] generatedID;
@@ -89,102 +88,10 @@ function testGeneratedKeyWithColumn () (string) {
     return generatedID[0];
 }
 
-function testSelectData () (string firstName) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    errors:TypeCastError err;
-    ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, err = (ResultCustomers) dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close ();
-    return;
-}
-
-function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter[] parameters = [];
-    errors:TypeCastError err;
-    ResultDataType rs;
-    datatable dt = testDB.select ("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
-                                   where row_id = 1", parameters);
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, err = (ResultDataType) dataStruct;
-        int_type = rs.INT_TYPE;
-        long_type = rs.LONG_TYPE;
-        float_type = rs.FLOAT_TYPE;
-        double_type = rs.DOUBLE_TYPE;
-    }
-    testDB.close ();
-    return;
-}
-
-function testCallProcedure () (string firstName) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter[] parameters = [];
-    testDB.call ("{call InsertPersonData(100,'James')}", parameters);
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 100", parameters);
-    errors:TypeCastError err;
-    ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, err = (ResultCustomers) dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close ();
-    return;
-}
-
-function testCallProcedureWithResultSet () (string firstName) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.call ("{call SelectPersonData()}", parameters);
-    errors:TypeCastError err;
-    ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, err = (ResultCustomers) dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close ();
-    return;
-}
-
-function testQueryParameters () (string firstName) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
-    sql:Parameter[] parameters = [para1];
-    datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = ?", parameters);
-    errors:TypeCastError err;
-    ResultCustomers rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, err = (ResultCustomers) dataStruct;
-        firstName = rs.FIRSTNAME;
-    }
-    testDB.close ();
-    return;
-}
 
 function testInsertTableDataWithParameters () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
     sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
@@ -200,9 +107,8 @@ function testInsertTableDataWithParameters () (int) {
 }
 
 function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter paraID = {sqlType:"integer", value:"1", direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:1};
@@ -230,9 +136,8 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 }
 
 function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter paraID = {sqlType:"integer", value:"2", direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:1};
@@ -260,9 +165,8 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
 }
 
 function testINParameters () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter paraID = {sqlType:"integer", value:3, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", value:1, direction:0};
@@ -290,9 +194,8 @@ function testINParameters () (int) {
 }
 
 function testNullINParameters () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:0};
@@ -320,9 +223,8 @@ function testNullINParameters () (int) {
 }
 
 function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter paraID = {sqlType:"integer", value:5, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", value:10, direction:2};
@@ -351,9 +253,8 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 
 function testNullINOutParameters ()
 (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter paraID = {sqlType:"integer", value:"6", direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:2};
@@ -381,9 +282,8 @@ function testNullINOutParameters ()
 }
 
 function testEmptySQLType () (int) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter para1 = {value:"Anne", direction:0};
     sql:Parameter[] parameters = [para1];
@@ -392,63 +292,9 @@ function testEmptySQLType () (int) {
     return insertCount;
 }
 
-function testCloseConnectionPool () (int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
-    sql:Parameter[] parameters = [];
-    datatable dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", parameters);
-    errors:TypeCastError err;
-    ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, err = (ResultCount) dataStruct;
-        count = rs.COUNTVAL;
-    }
-    testDB.close();
-    return;
-}
-
-function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
-                                   map boolean_arr, map float_arr) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter para1 = {sqlType:"integer", value:2, direction:0};
-    sql:Parameter para2 = {sqlType:"array", value:"1", direction:0, structuredType:"integer"};
-    sql:Parameter para3 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:0, structuredType:"bigint"};
-    sql:Parameter para4 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"float"};
-    sql:Parameter para5 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"double"};
-    sql:Parameter para6 = {sqlType:"array", value:"TRUE, FALSE, TRUE", direction:0, structuredType:"boolean"};
-    sql:Parameter para7 = {sqlType:"array", value:"Hello,Ballerina", direction:0, structuredType:"varchar"};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
-
-    insertCount = testDB.update ("INSERT INTO ArrayTypes (row_id, int_array, long_array,
-        float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
-
-    sql:Parameter[] params = [];
-    datatable dt = testDB.select ("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", params);
-    ResultArrayType rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, _ = (ResultArrayType) dataStruct;
-        int_arr = rs.INT_ARRAY;
-        long_arr = rs.LONG_ARRAY;
-        double_arr = rs.DOUBLE_ARRAY;
-        boolean_arr = rs.BOOLEAN_ARRAY;
-        string_arr = rs.STRING_ARRAY;
-        float_arr = rs.FLOAT_ARRAY;
-    }
-    testDB.close ();
-    return;
-}
-
 function testArrayOutParameters () (any, any, any, any, any, any) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     string firstName;
     sql:Parameter para1 = {sqlType:"array", direction:1};
@@ -464,9 +310,8 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
 }
 
 function testArrayInOutParameters () (any, any, any, any, any, any, any) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter para1 = {sqlType:"integer", value:3, direction:0};
     sql:Parameter para2 = {sqlType:"integer", direction:1};
@@ -484,9 +329,8 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 }
 
 function testBatchUpdate () (int[]) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     //Batch 1
     sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
@@ -513,9 +357,8 @@ function testBatchUpdate () (int[]) {
 }
 
 function testDateTimeInParameters () (int[]) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     int[] returnValues = [];
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter para2 = {sqlType:"date", value:"2017-01-30-08:01", direction:0};
@@ -543,42 +386,9 @@ function testDateTimeInParameters () (int[]) {
 }
 
 
-function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
-                                                            "TEST_SQL_CONNECTOR", "SA", "", properties);
-
-    sql:Parameter para1 = {sqlType:"integer", value:10, direction:0};
-    sql:Parameter para2 = {sqlType:"date", value:date, direction:0};
-    sql:Parameter para3 = {sqlType:"time", value:time, direction:0};
-    sql:Parameter para4 = {sqlType:"timestamp", value:timestamp, direction:0};
-    sql:Parameter para5 = {sqlType:"datetime", value:timestamp, direction:0};
-
-    sql:Parameter para6 = {sqlType:"date", direction:1};
-    sql:Parameter para7 = {sqlType:"time", direction:1};
-    sql:Parameter para8 = {sqlType:"timestamp", direction:1};
-    sql:Parameter para9 = {sqlType:"datetime", direction:1};
-
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
-
-    testDB.call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
-
-    sql:Parameter[] emptyParam = [];
-    datatable dt = testDB.select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", emptyParam);
-    ResultCount rs;
-    while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
-        rs, _ = (ResultCount)dataStruct;
-        count = rs.COUNTVAL;
-    }
-    testDB.close();
-    return;
-}
-
 function testInvalidDBType () (string firstName) {
-    sql:ConnectionProperties properties = {maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector("TESTDB", "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA",
-                                                            "", properties);
+    sql:ClientConnector testDB = create sql:ClientConnector("TESTDB", "./target/tempdb/",
+                                                            0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
     testDB.update ("Insert into Customers(firstName) values ('James')",parameters);

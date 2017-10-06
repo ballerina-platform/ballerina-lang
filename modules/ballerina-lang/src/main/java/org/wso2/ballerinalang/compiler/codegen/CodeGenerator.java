@@ -2339,8 +2339,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(transactionNode.retryCount, this.env);
             retryCountAvailable = 1;
         }
-        //TODO:Add below error handling code
-        //ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+
+        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Instruction gotoEndOfTransactionBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
         Instruction gotoStartOfAbortedBlock = InstructionFactory.get(InstructionCodes.GOTO, -1);
         abortInstructions.push(gotoStartOfAbortedBlock);
@@ -2396,9 +2396,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         emit(InstructionFactory.get(InstructionCodes.THROW, -1));
         gotoEndOfTransactionBlock.setOperand(0, nextIP());
-        //TODO:Add below error handling code
-        //ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
-        //errorTable.addErrorTableEntry(errorTableEntry);
+
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        errorTable.addErrorTableEntry(errorTableEntry);
         emit(InstructionFactory.get(InstructionCodes.TR_END, 1));
     }
 

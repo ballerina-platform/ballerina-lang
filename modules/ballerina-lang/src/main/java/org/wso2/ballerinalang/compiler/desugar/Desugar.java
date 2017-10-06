@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -797,6 +798,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
         jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
         result = jsonArrayLiteral;
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
+        result = retryNode;
     }
 
     // private functions
