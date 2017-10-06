@@ -164,19 +164,19 @@ public class BNullValueTest {
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testNullArrayAccess() {
         BTestUtils.invoke(positiveCompileResult, "testNullArrayAccess", new BValue[]{});
     }
 
     @Test(description = "Test accessing an element in a null map", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testNullMapAccess() {
         BTestUtils.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     void testActionInNullConenctor() {
         BTestUtils.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }
