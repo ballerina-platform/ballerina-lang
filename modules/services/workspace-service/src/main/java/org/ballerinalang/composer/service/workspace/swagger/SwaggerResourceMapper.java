@@ -41,7 +41,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.nativeimpl.actions.http.Constants;
+import org.ballerinalang.net.http.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;

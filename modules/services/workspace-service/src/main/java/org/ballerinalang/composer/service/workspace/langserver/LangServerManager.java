@@ -511,7 +511,8 @@ public class LangServerManager {
 
             Compiler compiler = Compiler.getInstance(compilerContext);
             // here we need to compile the whole package
-            BLangPackage bLangPackage = compiler.compile("temp.bal");
+            compiler.compile("temp.bal");
+            BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
 
             // Visit the package to resolve the symbols
             TreeVisitor treeVisitor = new TreeVisitor(compilerContext, symbols, position, filterDataModel);
