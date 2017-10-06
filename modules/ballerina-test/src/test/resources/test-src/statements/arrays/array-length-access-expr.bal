@@ -121,6 +121,14 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) (int) {
     }
 }
 
+function arrayLengthAccessNullArrayCase(int x, int y) (int) {
+    int z = x + y;
+    int[] arr;
+    int length;
+    length = lengthof arr;
+    return length;
+}
+
 struct Person {
     string name;
     int[] days;
