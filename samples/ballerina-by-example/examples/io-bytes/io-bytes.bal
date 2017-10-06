@@ -1,0 +1,38 @@
+import ballerina.lang.files;
+import ballerina.io;
+
+function getFileChannel (string filePath, string permission) (io:ByteChannel) {
+    files:File src = {path:filePath};
+    files:openAsync(src, permission);
+    io:ByteChannel channel = io:toByteChannel(src);
+    return channel;
+}
+
+function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
+    blob bytes;
+    int numberOfBytesRead;
+    bytes, numberOfBytesRead = io:readBytes(channel, numberOfBytes);
+    return bytes, numberOfBytesRead;
+}
+
+function writeBytes (io:ByteChannel channel, blob content, int startOffset) (int) {
+    int numberOfBytesWritten = io:writeBytes(channel, content, startOffset);
+    return numberOfBytesWritten;
+}
+
+function copy (io:ByteChannel src, io:ByteChannel dst) {
+    int bytesChunk = 10000;
+    blob readContent;
+    int readCount = -1;
+
+    while (readCount != 0) {
+        readContent,readCount = readBytes(src, bytesChunk);
+        writeBytes(dst, readContent, 0);
+    }
+}
+
+function main (string[] args) {
+    io:ByteChannel sourceChannel = getFileChannel("/tmp/ballerina.png", "r");
+    io:ByteChannel destinationChannel = getFileChannel("/tmp/ballerinadup.png", "w");
+    copy(sourceChannel, destinationChannel);
+}

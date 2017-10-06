@@ -46,6 +46,10 @@ public native function write (blob content, File file);
 @doc:Param { value:"file: Path of the file" }
 public native function writeln (blob content, File file);
 
+@doc:Description {value:"Retrieves the stream from a local file"}
+@doc:Param {value:"file: The file to be opened"}
+native function openAsync (File file, string accessMode);
+
 public struct File {
     string path;
 }

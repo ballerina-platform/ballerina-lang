@@ -114,6 +114,12 @@
                 <version>${ballerina.version}</version>
                 <type>zip</type>
             </dependency>
+            <!-- NOT FOR COMMIT -->
+            <dependency>
+               <groupId>org.wso2.carbon.transport</groupId>
+               <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+               <version>6.0.21-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
