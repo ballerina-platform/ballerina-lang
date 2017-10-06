@@ -44,7 +44,8 @@ public class BLangVMErrors {
 
     public static final String BUILTIN_PACKAGE = "ballerina.builtin";
     public static final String STRUCT_GENERIC_ERROR = "error";
-    public static final String STRUCT_NULL_REF_ERROR = "NullReferenceError";
+    public static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
+    public static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_TYPE_CAST_ERROR = "TypeCastError";
     public static final String STRUCT_TYPE_CONVERSION_ERROR = "TypeConversionError";
     public static final String STRUCT_FRAME = "stackFrame";
@@ -89,15 +90,15 @@ public class BLangVMErrors {
     }
 
     /**
-     * Create NullReferenceError.
+     * Create NullReferenceException.
      *
      * @param context current Context
      * @param ip      current instruction pointer
-     * @return created NullReferenceError
+     * @return created NullReferenceException
      */
     public static BStruct createNullRefError(Context context, int ip) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_ERROR);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         BStruct error = createBStruct(errorStructInfo);
         // Set StackTrace.
         error.setRefField(1, generateStackTraceItems(context, ip - 1));
@@ -172,6 +173,22 @@ public class BLangVMErrors {
         return error;
     }
 
+    /**
+     * Create IllegalStateException.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @param msg     message of the exception
+     * @return created IllegalStateException
+     */
+    public static BStruct createIllegalStateException(Context context, int ip, String msg) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
+        BStruct error = createBStruct(errorStructInfo, msg);
+        // Set StackTrace.
+        error.setRefField(1, generateStackTraceItems(context, ip - 1));
+        return error;
+    }
 
     /**
      * Create Error struct from given Struct type.

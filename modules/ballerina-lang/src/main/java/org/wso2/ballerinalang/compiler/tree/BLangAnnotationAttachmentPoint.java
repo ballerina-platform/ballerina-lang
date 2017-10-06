@@ -23,8 +23,9 @@ package org.wso2.ballerinalang.compiler.tree;
  */
 public class BLangAnnotationAttachmentPoint {
 
-    private String pkgPath;
-    private AttachmentPoint attachmentPoint;
+    public String pkgPath;
+    public BLangIdentifier pkgAlias;
+    public AttachmentPoint attachmentPoint;
 
     public BLangAnnotationAttachmentPoint(AttachmentPoint attachmentPoint, String pkgPath) {
         this.attachmentPoint = attachmentPoint;

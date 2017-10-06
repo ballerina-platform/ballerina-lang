@@ -16,26 +16,46 @@
  */
 package org.ballerinalang.test.statements.comment;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.test.utils.BTestUtils;
 import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+
+import java.util.List;
 
 public class CommentStmtTest {
 
     CompileResult result;
     CompileResult resultNegative;
+    BLangPackage compiledPackage;
 
     @BeforeClass
     public void setup() {
         result = BTestUtils.compile("test-src/statements/comment/comment-stmt.bal");
-        //resultNegative = BTestUtils.compile("test-src/statements/comment/comment-stmt-negative.bal");
+        compiledPackage = BTestUtils.compileAndGetPackage("test-src/statements/comment/comment-stmt.bal");
+        resultNegative = BTestUtils.compile("test-src/statements/comment/comment-stmt-negative.bal");
     }
 
     @Test
     public void commentStmtTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
-       // Assert.assertEquals(result.getProgFile().getEntryPackage().getFunctionInfoEntries()[0], 0);
+        List<BLangStatement> statements = compiledPackage.functions.get(0).body.getStatements();
+        Assert.assertNotNull(statements, "statements not found");
+        Assert.assertEquals(statements.size(), 4, "statement count mismatched");
+        Assert.assertEquals(statements.get(0).getKind(), NodeKind.COMMENT, "1st statement is not a comment statement");
+        Assert.assertEquals(statements.get(2).getKind(), NodeKind.COMMENT, "1st statement is not a comment statement");
+        Assert.assertEquals(((BLangComment) statements.get(0)).getComment(), "//comment1");
+        Assert.assertEquals(((BLangComment) statements.get(2)).getComment(), "//comment2");
+    }
+
+    @Test(description = "Test comment statement with errors")
+    public void testCommentStmtNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BTestUtils.validateError(resultNegative, 0, "extraneous input '//invalid location to have a comments'", 1, 1);
     }
 }

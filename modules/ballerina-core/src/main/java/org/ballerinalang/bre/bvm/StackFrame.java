@@ -26,6 +26,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * {@code StackFrame} represents frame in a control stack.
@@ -66,6 +67,11 @@ public class StackFrame {
     // TODO Refactor this when native function and action invocations are improved.
     public BValue[] argValues;
     public BValue[] returnValues;
+
+    // To support worker return.
+    final AtomicBoolean workerReturned = new AtomicBoolean();
+    String returnedWorker = "";
+    boolean workerReturnStack;
 
     public StackFrame(PackageInfo packageInfo, int retAddrs, int[] retRegIndexes) {
         this.packageInfo = packageInfo;
@@ -240,5 +246,9 @@ public class StackFrame {
 
     public void setErrorThrown(BStruct errorThrown) {
         this.errorThrown = errorThrown;
+    }
+
+    public boolean isWorkerReturned() {
+        return this.workerReturnStack && workerReturned.get();
     }
 }

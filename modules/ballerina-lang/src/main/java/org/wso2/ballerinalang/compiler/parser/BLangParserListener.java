@@ -622,8 +622,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, null);
+        String pkgPath = null;
+        if (ctx.getChildCount() == 4) {
+            pkgPath = ctx.Identifier().getText();
+        } else if (ctx.getChildCount() == 3) {
+            pkgPath = "";
+        }
+        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, pkgPath);
     }
 
     /**

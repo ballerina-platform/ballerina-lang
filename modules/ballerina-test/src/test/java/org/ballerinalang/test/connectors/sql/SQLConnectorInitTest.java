@@ -24,7 +24,7 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 import java.io.File;
 
@@ -40,7 +40,7 @@ public class SQLConnectorInitTest {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
-    //@Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testConnectorWithDataSource() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testConnectorWithDataSource", args);
@@ -49,7 +49,7 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    //@Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest" , enabled = false)
     public void testConnectionPoolProperties() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testConnectionPoolProperties", args);
