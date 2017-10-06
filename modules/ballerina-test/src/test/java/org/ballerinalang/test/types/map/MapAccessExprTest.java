@@ -53,6 +53,19 @@ public class MapAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test map access expression")
+    public void testAccessThroughVar() {
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(compileResult, "testAccessThroughVar", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String expectedStr = "x:a, y:b, z:c, ";
+        String actualStr = returns[0].stringValue();
+        Assert.assertEquals(actualStr, expectedStr);
+    }
+
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
