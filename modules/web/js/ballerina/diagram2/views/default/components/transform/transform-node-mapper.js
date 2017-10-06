@@ -765,7 +765,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeSourceType(type) {
-        this._transformStmt.removeInput(type);
+        _.remove(this._transformStmt.inputs, (input) => {
+            return type.name === input;
+        });
         this._transformStmt.body
             .filterStatements(TreeUtil.isAssignment || TreeUtil.isVariableDef)
             .forEach((stmt) => {
@@ -787,8 +789,10 @@ class TransformNodeMapper {
      */
     removeInputExpressions(stmt, expStr) {
         const rightExpression = stmt.getExpression();
-        if (TreeUtil.isSimpleVariableRef(rightExpression)
-            && (rightExpression.getSource().trim() === expStr)) {
+        if ((TreeUtil.isSimpleVariableRef(rightExpression)
+              && rightExpression.variableName.getValue() === expStr) ||
+            (TreeUtil.isFieldBasedAccessExpr(rightExpression)
+              && rightExpression.expression.variableName.getValue() === expStr)) {
             this._transformStmt.body.removeStatements(stmt, true);
         } else {
             this.removeInputNestedExpressions(rightExpression, expStr);
@@ -838,7 +842,9 @@ class TransformNodeMapper {
      * @memberof TransformNodeMapper
      */
     removeTargetType(type) {
-        this._transformStmt.removeOutput(type);
+        _.remove(this._transformStmt.outputs, (output) => {
+            return type.name === output;
+        });
         this._transformStmt.body
             .filterStatements(TreeUtil.isAssignment || TreeUtil.isVariableDef)
             .forEach((stmt) => {
