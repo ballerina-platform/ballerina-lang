@@ -331,6 +331,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        if (pkgEnv == null) {
+            return;
+        }
+
         pkgEnv.node.accept(this);
     }
 

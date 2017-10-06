@@ -105,6 +105,10 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
 
     @Override
     public String toString() {
+        return "import " + getQualifiedPackageName();
+    }
+    
+    public String getQualifiedPackageName() {
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
@@ -119,6 +123,6 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
             aliasStr = " as " + aliasStr;
         }
 
-        return "import " + pkgName + versionStr + aliasStr;
+        return pkgName + versionStr + aliasStr;
     }
 }

@@ -164,6 +164,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        if (pkgEnv == null) {
+            return;
+        }
+
         analyzeDef(pkgEnv.node, pkgEnv);
     }
 
