@@ -69,6 +69,7 @@ public class ConstantAccessTest {
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), -3343.88);
     }
 
+    // Todo - Fix issue in global variables
     @Test(description = "Test assigning float to int in constants", enabled = false)
     public void floatIntConversion() {
         BValue[] returns = BTestUtils.invoke(compileResult, "main", "floatIntConversion");
