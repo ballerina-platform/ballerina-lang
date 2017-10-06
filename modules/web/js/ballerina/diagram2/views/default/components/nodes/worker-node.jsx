@@ -65,7 +65,7 @@ class WorkerNode extends React.Component {
             <g>
                 <LifeLine
                     title={title}
-                    bBox={model.viewState.bBox}
+                    bBox={model.viewState.components.lifeLine}
                     classes={classes}
                     icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                     iconColor='#0380c6'

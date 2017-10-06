@@ -180,13 +180,16 @@ class PositioningUtil {
         const cmp = viewState.components;
         const workers = node.workers;
 
-        // position the components.
+        // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
         funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top
             + this.config.lifeLine.head.height;
-
-        cmp.defaultWorker.x = funcBodyViewState.bBox.x + ((funcBodyViewState.bBox.w - this.config.lifeLine.width) / 2);
-        cmp.defaultWorker.y = funcBodyViewState.bBox.y - this.config.lifeLine.head.height;
+        // position the default worker.
+        cmp.defaultWorker.x = viewState.bBox.x + this.config.panel.body.padding.left;
+        cmp.defaultWorker.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
+        // position default worker line.
+        cmp.defaultWorkerLine.x = cmp.defaultWorker.x + ((cmp.defaultWorker.w - cmp.defaultWorkerLine.w) / 2);
+        cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
 
         // position the children
         const body = node.getBody();
@@ -255,7 +258,7 @@ class PositioningUtil {
                 worker.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += worker.viewState.bBox.w + this.config.lifeLine.gutter.h;
             });
-         }
+        }
 
         // Position Connectors
         const statements = node.body.statements;
@@ -471,6 +474,10 @@ class PositioningUtil {
     positionWorkerNode(node) {
         node.body.viewState.bBox.x = node.viewState.bBox.x;
         node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
+
+        const cmp = node.viewState.components;
+        cmp.lifeLine.x = node.viewState.bBox.x + ((node.viewState.bBox.w - cmp.lifeLine.w) / 2);
+        cmp.lifeLine.y = node.viewState.bBox.y;
     }
 
 
