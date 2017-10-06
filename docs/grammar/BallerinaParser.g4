@@ -63,7 +63,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? NATIVE FUNCTION  callableUnitSignature SEMICOLON
+    :   (PUBLIC)? NATIVE FUNCTION (LT parameter GT)? callableUnitSignature SEMICOLON
     |   (PUBLIC)? FUNCTION (LT parameter GT)? callableUnitSignature callableUnitBody
     ;
 
