@@ -116,7 +116,7 @@ class ForkJoinNode extends React.Component {
                     expression={{text: model.getJoinType()}}
                     title={'Join'}
                     model={model.getJoinBody()}
-                    body={model.getJoinBody().body}
+                    body={model.getJoinBody()}
                     parameterBbox={model.getJoinBody().viewState.components.param}
                     parameterEditorOptions={this.joinParameterEditorOptions}
                     editorOptions={this.joinConditionEditorOptions}
@@ -139,7 +139,7 @@ class ForkJoinNode extends React.Component {
                     expression={{text: model.getTimeOutExpression().getSource()}}
                     title={'Timeout'}
                     model={model.getTimeoutBody()}
-                    body={model.getTimeoutBody().body}
+                    body={model.getTimeoutBody()}
                     parameterEditorOptions={this.timeoutParameterEditorOptions}
                     editorOptions={this.timeoutConditionEditorOptions}
                 />

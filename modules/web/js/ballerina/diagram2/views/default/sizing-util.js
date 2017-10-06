@@ -62,7 +62,7 @@ class SizingUtil {
             let possibleCharactersCount = 0;
             for (let i = (text.length - 1); i > 1; i--) {
                 if ((this.config.statement.padding.left + this.textElement.getSubStringLength(0, i)
-                    + this.config.statement.padding.right) < maxWidth) {
+                        + this.config.statement.padding.right) < maxWidth) {
                     possibleCharactersCount = i;
                     break;
                 }
@@ -79,13 +79,13 @@ class SizingUtil {
     }
 
     /**
-    * Returns the width of a given string when rendered as svg text according to given options
-    * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
-    * @param {string} text - The string of which the length is measured
-    * @param {Object} options - Options to be used for the rendering
-    * @param {number} options.fontSize - Font size the text should be rendered for measuring width
-    * @return {number} Width of the text in pixels
-    * */
+     * Returns the width of a given string when rendered as svg text according to given options
+     * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
+     * @param {string} text - The string of which the length is measured
+     * @param {Object} options - Options to be used for the rendering
+     * @param {number} options.fontSize - Font size the text should be rendered for measuring width
+     * @return {number} Width of the text in pixels
+     * */
     getOnlyTextWidth(text, options = {}) {
         const { fontSize } = options;
         this.textElement.innerHTML = _.escape(text);
@@ -272,7 +272,9 @@ class SizingUtil {
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
         // set the max worker height to other workers. 
-        workers.forEach((worker) => { worker.viewState.bBox.h = maxWorkerHeight; });
+        workers.forEach((worker) => {
+            worker.viewState.bBox.h = maxWorkerHeight;
+        });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
@@ -613,6 +615,7 @@ class SizingUtil {
             }
         });
     }
+
     /**
      * Calculate dimention of Struct nodes.
      *
@@ -688,7 +691,7 @@ class SizingUtil {
         paramViewState.w = this.getTextWidth(node.getSource(), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;
 
-            // Creating component for delete icon.
+        // Creating component for delete icon.
         paramViewState.components.deleteIcon = {};
         paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
         paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
@@ -1069,22 +1072,34 @@ class SizingUtil {
      *
      */
     sizeForkJoinNode(node) {
+        // Get the sub blocks, join and timeout blocks
         const joinStmt = node.getJoinBody();
         const timeoutStmt = node.getTimeoutBody();
+
+        // Set default width and height to Node;
+        node.viewState.bBox.h = this.config.blockNode.height;
+        node.viewState.bBox.w = this.config.blockNode.width;
+
+        // Set the compound node default sizing values.
         this.sizeCompoundNode(node);
         this.sizeCompoundNode(joinStmt);
         this.sizeCompoundNode(timeoutStmt);
 
+        // Calculate join and timeout expression lengths.
         joinStmt.viewState.components.expression = this.getTextWidth(node.getJoinType());
         timeoutStmt.viewState.components.expression = this.getTextWidth(node.getTimeOutExpression().getSource());
 
+        // Calculate join and timeout parameter expression lengths.
         joinStmt.viewState.components.parameter = this.getTextWidth(node.getJoinResultVar().getSource());
         timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
 
+        // Set the node height as available in the node if not set the default.
         let nodeHeight = node.viewState.bBox.h;
-        let nodeWidth = 0;
 
-        //
+        // Set the node width to default.
+        let nodeWidth = node.viewState.bBox.w;
+
+        // Set the compound box width as to the max width from all the blocks.
         if (joinStmt.viewState.bBox.w > node.viewState.bBox.w &&
             timeoutStmt.viewState.bBox.w < joinStmt.viewState.bBox.w) {
             node.viewState.bBox.w = joinStmt.viewState.bBox.w;
@@ -1096,29 +1111,52 @@ class SizingUtil {
             nodeWidth = timeoutStmt.viewState.bBox.w;
         }
 
+        // Get the total of join and timeout block heights.
+        let joinTimeoutBlockHeight = 0;
+
         if (TreeUtil.isBlock(node.parent)) {
             if (joinStmt) {
-                nodeHeight += joinStmt.viewState.bBox.h;
+                joinTimeoutBlockHeight += joinStmt.viewState.bBox.h;
             }
             if (timeoutStmt) {
-                nodeHeight += timeoutStmt.viewState.bBox.h;
+                joinTimeoutBlockHeight += timeoutStmt.viewState.bBox.h;
             }
         }
 
+        // Get the condition box max width for join and timeout blocks.
+        let conditionBoxWidth = 0;
+
         if (joinStmt.viewState.components.parameter.w > timeoutStmt.viewState.components.parameter.w) {
-            nodeWidth += joinStmt.viewState.components.parameter.w;
+            conditionBoxWidth += joinStmt.viewState.components.parameter.w;
         } else {
-            nodeWidth += timeoutStmt.viewState.components.parameter.w;
+            conditionBoxWidth += timeoutStmt.viewState.components.parameter.w;
         }
 
         if (joinStmt.viewState.components.expression.w > timeoutStmt.viewState.components.expression.w) {
-            nodeWidth += joinStmt.viewState.components.expression.w;
+            conditionBoxWidth += joinStmt.viewState.components.expression.w;
         } else {
-            nodeWidth += timeoutStmt.viewState.components.expression.w;
+            conditionBoxWidth += timeoutStmt.viewState.components.expression.w;
         }
 
-        node.viewState.bBox.h = nodeHeight;
-        node.viewState.bBox.w = nodeWidth;
+        // Get the forkJoin node width
+        nodeWidth = nodeWidth > conditionBoxWidth ? nodeWidth : conditionBoxWidth;
+
+        // Calculate the dimensions of workers.
+        let maxHeightOfWorkers = 0;
+        let maxWidthOfWorkers = 0;
+        node.workers.forEach((worker) => {
+            if (worker.viewState.bBox.h > maxHeightOfWorkers) {
+                maxHeightOfWorkers = worker.viewState.bBox.h;
+            }
+
+            maxWidthOfWorkers += worker.viewState.bBox.w;
+        });
+
+        // Set the statement box height.
+        node.viewState.components['statement-box'].h = maxHeightOfWorkers === 0 ? nodeHeight : maxHeightOfWorkers;
+
+        node.viewState.bBox.h = nodeHeight + maxHeightOfWorkers + joinTimeoutBlockHeight;
+        node.viewState.bBox.w = nodeWidth > maxWidthOfWorkers ? nodeWidth : maxWidthOfWorkers;
     }
 
     /**
@@ -1417,7 +1455,7 @@ class SizingUtil {
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
-        if (expression !== undefined) {
+        if (!expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.blockStatement.heading.width - 10;
             components.expression = this.getTextWidth(expression, 0, available);

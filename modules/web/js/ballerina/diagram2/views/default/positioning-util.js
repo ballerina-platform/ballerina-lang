@@ -748,10 +748,6 @@ class PositioningUtil {
                 element.viewState.bBox.x = viewState.bBox.x + ((viewState.bBox.w - element.viewState.bBox.w) / 2);
                 element.viewState.bBox.y = viewState.bBox.y + height;
                 height += element.viewState.bBox.h;
-            } else if (TreeUtil.isForkJoin(element)) {
-                element.viewState.bBox.x = viewState.bBox.x;
-                element.viewState.bBox.y = viewState.bBox.y + height;
-                height += element.viewState.bBox.h;
             }
         });
     }
@@ -798,15 +794,17 @@ class PositioningUtil {
         const joinStmt = node.getJoinBody();
         const timeoutStmt = node.getTimeoutBody();
 
-        this.positionCompoundStatementComponents(node);
-
+        // Set the node x and y using statement box.
         node.viewState.bBox.x = node.viewState.components['statement-box'].x;
         node.viewState.bBox.y = node.viewState.components['statement-box'].y
             + node.viewState.components['block-header'].h;
 
+        // Calculate join block x and y.
         const joinX = bBox.x;
         let joinY = viewState.components['statement-box'].y
             + viewState.components['statement-box'].h;
+
+        // Create a bbox for parameter of join.
         joinStmt.viewState.components.param =
             new SimpleBBox(joinX + joinStmt.viewState.components['expression'].w, 0, 0, 0, 0, 0)
 
@@ -816,7 +814,7 @@ class PositioningUtil {
 
         if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
             joinStmt.viewState.bBox.w = node.viewState.bBox.w;
-            if(TreeUtil.isBlock(joinStmt)){
+            if (TreeUtil.isBlock(joinStmt)) {
                 joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
                 joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
                 joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
@@ -826,10 +824,13 @@ class PositioningUtil {
         joinStmt.viewState.bBox.y = joinY;
         joinStmt.viewState.bBox.x = joinX;
         this.positionCompoundStatementComponents(joinStmt);
+
+        // Calculate timeout block x and y.
         const timeoutX = bBox.x;
         let timeoutY = joinStmt.viewState.bBox.y
             + joinStmt.viewState.bBox.h;
 
+        // Create a bbox for parameter of timeout.
         timeoutStmt.viewState.components.param =
             new SimpleBBox(timeoutX + timeoutStmt.viewState.components['expression'].w, 0, 0, 0, 0);
 
