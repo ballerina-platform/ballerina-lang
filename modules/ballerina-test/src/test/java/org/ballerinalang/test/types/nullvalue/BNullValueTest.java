@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.types;
+package org.ballerinalang.test.types.nullvalue;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
@@ -88,7 +88,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(9));
     }
 
-    //    @Test(description = "Test null value of a map")
+    @Test(description = "Test null value of a map")
     public void testMapNull() {
         BValue[] vals = BTestUtils.invoke(positiveCompileResult, "testMapNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
