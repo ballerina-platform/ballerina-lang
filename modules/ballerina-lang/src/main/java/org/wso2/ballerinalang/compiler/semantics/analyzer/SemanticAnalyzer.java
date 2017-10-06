@@ -90,9 +90,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -364,11 +362,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                        BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
             BLangAnnotAttachmentAttribute[] attributeArrray =
-                    new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
+                    new BLangAnnotAttachmentAttribute[annAttachmentNode.getAttributes().size()];
             // Traverse through Annotation Attachment attributes and find whether current
             // Annotation Definition attribute is present
             Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
-                    .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
+                    .stream(annAttachmentNode.getAttributes().toArray(attributeArrray))
                     .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
                     .findAny();
             // If no matching attribute is present populate with default value
@@ -837,7 +835,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         int ignoredCount = 0;
         int createdSymbolCount = 0;
 
-        Map<Integer, BLangSimpleVarRef> newVariablesMap = new HashMap<>();
+        List<Name> newVariables = new ArrayList<Name>();
 
         List<BType> expTypes = new ArrayList<>();
         // Check each LHS expression.
@@ -863,7 +861,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
                 createdSymbolCount++;
-                newVariablesMap.put(i, simpleVarRef);
+                newVariables.add(varName);
                 expTypes.add(symTable.noType);
             } else {
                 expTypes.add(symbol.type);
@@ -876,14 +874,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Check RHS expressions with expected type list.
         final List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
 
-        // define new variables
-        newVariablesMap.keySet().forEach(i -> {
+        // visit all lhs expressions
+        for (int i = 0; i < assignNode.varRefs.size(); i++) {
             BType actualType = rhsTypes.get(i);
-            BLangSimpleVarRef simpleVarRef = newVariablesMap.get(i);
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) assignNode.varRefs.get(i);
             Name varName = names.fromIdNode(simpleVarRef.variableName);
-            this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), actualType, varName, env);
+            if (newVariables.contains(varName)) {
+                // define new variables
+                this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), actualType, varName, env);
+            }
             typeChecker.checkExpr(simpleVarRef, env);
-        });
+        }
     }
 
     @Override
