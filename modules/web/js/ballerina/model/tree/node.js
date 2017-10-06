@@ -16,6 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
+import uuid from 'uuid/v1';
 import EventChannel from 'event_channel';
 import SimpleBBox from '../view/simple-bounding-box';
 import getSourceOf from '../source-gen';
@@ -252,16 +253,5 @@ class Node extends EventChannel {
         return this.isExpression;
     }
 }
-
-
-const uuid = function () {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
-};
 
 export default Node;
