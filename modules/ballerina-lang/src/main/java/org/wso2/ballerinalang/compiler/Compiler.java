@@ -86,27 +86,27 @@ public class Compiler {
             return;
         }
 
-        BLangPackage pkg = define(sourcePkg);
+        pkgNode = define(sourcePkg);
         if (this.stopCompilation(CompilerPhase.TYPE_CHECK)) {
             return;
         }
 
-        pkg = typeCheck(pkg);
+        pkgNode = typeCheck(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
 
-        pkg = codeAnalyze(pkg);
+        pkgNode = codeAnalyze(pkgNode);
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
 
-        pkg = desugar(pkg);
+        pkgNode = desugar(pkgNode);
         if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
             return;
         }
 
-        gen(pkg);
+        gen(pkgNode);
     }
 
     private void loadBuiltInPackage() {
@@ -138,7 +138,7 @@ public class Compiler {
 
     private BLangPackage define(String sourcePkg) {
         try {
-            return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
+            return pkgLoader.loadEntryPackage(sourcePkg);
         } catch (BLangParserException e) {
             containsSyntaxErrors = true;
             return null;
