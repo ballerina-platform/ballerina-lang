@@ -249,8 +249,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
         if (pkgSymbol == null) {
             BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
-            pkgSymbol = pkgNode.symbol;
-            populateInitFunctionInvocation(importPkgNode, pkgSymbol);
+            if (pkgNode == null) {
+                dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
+                        importPkgNode.getQualifiedPackageName());
+            } else {
+                pkgSymbol = pkgNode.symbol;
+                populateInitFunctionInvocation(importPkgNode, pkgSymbol);
+            }
         }
         importPkgNode.symbol = pkgSymbol;
         this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
