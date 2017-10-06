@@ -1,6 +1,6 @@
-package lang.jsontype.pkg.structdef;
+package structdef;
 
-struct Person {
+public struct Person {
     string name;
     int age;
     string address;
