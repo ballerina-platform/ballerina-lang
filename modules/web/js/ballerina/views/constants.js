@@ -12,3 +12,5 @@ export const CLASSES = {
         DESIGN_VIEW: 'ballerina-design-view',
     },
 };
+
+export const TOOL_PALETTE_WIDTH = 243;

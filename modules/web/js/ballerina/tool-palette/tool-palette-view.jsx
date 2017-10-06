@@ -533,7 +533,7 @@ class ToolPaletteView extends React.Component {
             });
         }
 
-        const scrollHeight = this.props.containerHeight - searchBoxHeight;
+        const scrollHeight = this.props.height - searchBoxHeight;
 
         constructs.collapsed = true;
         constructs = this.searchTools(this.state.search, constructs);
@@ -543,7 +543,7 @@ class ToolPaletteView extends React.Component {
                 <ToolSearch onTextChange={this.onSearchTextChange} />
                 <Scrollbars
                     style={{
-                        width: 243,
+                        width: this.props.width,
                         height: scrollHeight,
                     }}
                     autoHide // Hide delay in ms
@@ -575,7 +575,8 @@ class ToolPaletteView extends React.Component {
 
 ToolPaletteView.propTypes = {
     isTransformActive: PropTypes.bool.isRequired,
-    containerHeight: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
 };
 
 ToolPaletteView.contextTypes = {
