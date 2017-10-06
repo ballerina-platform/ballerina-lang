@@ -13,5 +13,15 @@ service<http> |sample service| {
         response:setJsonPayload(res, responseJson);
         response:send(res);
     }
+
+    @http:resourceConfig {
+        methods:["GET"],
+        path:"/resource2"
+    }
+    resource |sample resource2| (http:Request req, http:Response res) {
+        string |a a| = "hello";
+        response:setStringPayload(res, |a a|);
+        response:send(res);
+    }
 }
 

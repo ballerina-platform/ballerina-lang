@@ -1,6 +1,6 @@
-package lang.identifierliteral.pkg.main;
+package pkg.main;
 
-import lang.identifierliteral.pkg.variable;
+import pkg.variable;
 
 function getVarsInOtherPkg() (int, string, float, any) {
     return variable:|Variable Int|, variable:|Variable String|, variable:|Variable Float|, variable:|Variable Any|;
