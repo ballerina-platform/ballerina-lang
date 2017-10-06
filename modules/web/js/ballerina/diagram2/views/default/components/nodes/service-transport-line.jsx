@@ -50,9 +50,9 @@ class ServiceTransportLine extends React.Component {
                         bBox={this.props.bBox}
                     />
                     <line
-                        x1={bBox.x + 26}
+                        x1={bBox.x + 30}
                         y1={bBox.y2 - 65}
-                        x2={bBox.x + 26}
+                        x2={bBox.x + 30}
                         y2={yPosition}
                         strokeDasharray="5, 5"
                         strokeWidth="3"
@@ -60,9 +60,9 @@ class ServiceTransportLine extends React.Component {
                     />
                 </g> }
                 {this.props.resources.length && <line
-                    x1={bBox.x + 26}
+                    x1={bBox.x + 30}
                     y1={bBox.y + 50}
-                    x2={bBox.x + 26}
+                    x2={bBox.x + 30}
                     y2={bBox.y2 - 80}
                     stroke="black"
                     strokeWidth="3"
@@ -75,9 +75,9 @@ class ServiceTransportLine extends React.Component {
                         bBox={this.props.bBox}
                     />
                     <line
-                        x1={bBox.x + 25}
+                        x1={bBox.x + 30}
                         y1={bBox.y + 50}
-                        x2={bBox.x + 25}
+                        x2={bBox.x + 30}
                         y2={bBox.y + 125}
                         stroke="black"
                         strokeWidth="3"
@@ -85,7 +85,7 @@ class ServiceTransportLine extends React.Component {
                     />
                 </g> }
                 <line
-                    x1={bBox.x + 25}
+                    x1={bBox.x + 30}
                     y1={bBox.y + 52}
                     x2={bBox.x + 60}
                     y2={bBox.y + 15}
