@@ -43,6 +43,7 @@ class PositioningUtil {
             viewState.isActionInvocation = true;
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
+            const dropDown = new SimpleBBox();
             const variableRefName = node.variable.initialExpression.expression.variableName.value;
             const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
@@ -52,6 +53,11 @@ class PositioningUtil {
                 start: undefined,
                 end: undefined,
             };
+
+            dropDown.x = arrowStartBBox.x;
+            dropDown.y = viewState.components['statement-box'].y
+                + (viewState.components['statement-box'].h / 2);
+            viewState.components.dropDown = dropDown;
             viewState.components.invocation.start = arrowStartBBox;
             if (connectorDeclaration) {
                 arrowEndBBox.x = connectorDeclaration.viewState.bBox.x + (connectorDeclaration.viewState.bBox.w / 2);

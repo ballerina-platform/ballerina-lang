@@ -124,6 +124,24 @@ class TreeUtil extends AbstractTreeUtil {
 
         return variableDef;
     }
+
+    getAllVisibleConnectorDeclarations(parent) {
+        if (!parent) {
+            return [];
+        }
+        let filteredItems = [];
+        const statements = parent.statements;
+        if (statements) {
+            filteredItems = _.filter(statements, (stmt) => {
+                return this.isConnectorDeclaration(stmt);
+            });
+        }
+        return filteredItems.concat(this.getAllVisibleConnectorDeclarations(parent.parent));
+    }
+
+    updateActionInvocation() {
+        console.log("TESTTTTT");
+    }
 }
 
 export default new TreeUtil();
