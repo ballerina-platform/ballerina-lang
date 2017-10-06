@@ -171,6 +171,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangXMLNS xmlnsNode) {
         xmlnsNode.type = symTable.stringType;
+
+        // Namespace node already having the symbol means we are inside an init-function,
+        // and the symbol has already been declared by the original statement.
+        if (xmlnsNode.symbol != null) {
+            return;
+        }
+
         symbolEnter.defineNode(xmlnsNode, env);
         typeChecker.checkExpr(xmlnsNode.namespaceURI, env, Lists.of(symTable.stringType));
     }
@@ -394,11 +401,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                        BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
             BLangAnnotAttachmentAttribute[] attributeArrray =
-                    new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
+                    new BLangAnnotAttachmentAttribute[annAttachmentNode.getAttributes().size()];
             // Traverse through Annotation Attachment attributes and find whether current
             // Annotation Definition attribute is present
             Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
-                    .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
+                    .stream(annAttachmentNode.getAttributes().toArray(attributeArrray))
                     .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
                     .findAny();
             // If no matching attribute is present populate with default value
@@ -529,10 +536,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkConstantAssignment(BLangExpression varRef, List<BType> expTypes) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
         if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
+
         BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+        if (simpleVarRef.pkgSymbol != null && simpleVarRef.pkgSymbol.tag == SymTag.XMLNS) {
+            dlog.error(varRef.pos, DiagnosticCode.XML_QNAME_UPDATE_NOT_ALLOWED);
+            return;
+        }
+
         Name varName = names.fromIdNode(simpleVarRef.variableName);
         if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
@@ -578,6 +595,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
+        this.analyzeDef(connectorNode.initAction, connectorEnv);
     }
 
     public void visit(BLangAction actionNode) {

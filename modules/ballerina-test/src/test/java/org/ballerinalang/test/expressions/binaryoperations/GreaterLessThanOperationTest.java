@@ -131,13 +131,13 @@ public class GreaterLessThanOperationTest {
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
-        BTestUtils.validateError(resultNegative, 0, "operator '>' not defined for 'json' and 'json'", 7, 11);
-        BTestUtils.validateError(resultNegative, 1, "operator '>=' not defined for 'json' and 'json'", 16, 11);
-        BTestUtils.validateError(resultNegative, 2, "operator '<' not defined for 'json' and 'json'", 26, 11);
-        BTestUtils.validateError(resultNegative, 3, "operator '<=' not defined for 'json' and 'json'", 35, 11);
-        BTestUtils.validateError(resultNegative, 4, "operator '>' not defined for 'int' and 'string'", 41, 11);
-        BTestUtils.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 11);
-        BTestUtils.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 11);
-        BTestUtils.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 11);
+        BTestUtils.validateError(resultNegative, 0, "operator '>' not defined for 'json' and 'json'", 7, 12);
+        BTestUtils.validateError(resultNegative, 1, "operator '>=' not defined for 'json' and 'json'", 16, 12);
+        BTestUtils.validateError(resultNegative, 2, "operator '<' not defined for 'json' and 'json'", 26, 12);
+        BTestUtils.validateError(resultNegative, 3, "operator '<=' not defined for 'json' and 'json'", 35, 12);
+        BTestUtils.validateError(resultNegative, 4, "operator '>' not defined for 'int' and 'string'", 41, 12);
+        BTestUtils.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 12);
+        BTestUtils.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 12);
+        BTestUtils.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 12);
     }
 }

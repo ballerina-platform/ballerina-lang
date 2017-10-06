@@ -41,4 +41,10 @@ public enum Flag {
      * Indicates Flagged Node executes in parallel workers.
      */
     PARALLEL,
+    /**
+     * Indicates Flagged Node is a connector node.
+     * TODO need to fix this in a better way.
+     * this is needed for composer to identify whether user defined type is a connector or not.
+     */
+    CONNECTOR
 }

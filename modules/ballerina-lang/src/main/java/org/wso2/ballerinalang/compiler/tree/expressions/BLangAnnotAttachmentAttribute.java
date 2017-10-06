@@ -62,7 +62,7 @@ public class BLangAnnotAttachmentAttribute extends BLangExpression implements An
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE;
+        return NodeKind.ANNOTATION_ATTACHMENT_ATTRIBUTE;
     }
 
     @Override

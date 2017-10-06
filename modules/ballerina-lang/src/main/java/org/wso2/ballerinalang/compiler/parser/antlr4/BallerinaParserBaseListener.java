@@ -712,6 +712,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}

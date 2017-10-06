@@ -41,7 +41,7 @@ public class AnnotationTest {
     public void setup() {
         ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
         DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
-        compileResult = BTestUtils.compile("lang/annotations/foo");
+        compileResult = BTestUtils.compile("test-src", "lang/annotations/foo");
     }
 
     @Test(description = "Test function annotation")
