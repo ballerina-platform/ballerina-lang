@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.repository.fs;
 
-import org.ballerinalang.spi.SystemPackageRepositoryProvider;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -31,21 +29,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This represents a jar file based {@link PackageRepository}.
+ * This represents a Java class based {@link PackageRepository}, which can either
+ * represent a .jar file or a file system directory.
  *
  * @since 0.94
  */
-public class JARPackageRepository extends GeneralFSPackageRepository {
+public class ClassPathPackageRepository extends GeneralFSPackageRepository {
     
     private static final String JAR_URI_SCHEME = "jar";
 
-    public JARPackageRepository(SystemPackageRepositoryProvider sprp, String basePath) {
-        super(generatePath(sprp, basePath));
+    public ClassPathPackageRepository(Class<? extends Object> providerClassRef, String basePath) {
+        super(generatePath(providerClassRef, basePath));
     }
     
-    private static Path generatePath(SystemPackageRepositoryProvider sprp, String basePath) {
+    private static Path generatePath(Class<? extends Object> providerClassRef, String basePath) {
         try {
-            URI classURI = sprp.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+            URI classURI = providerClassRef.getProtectionDomain().getCodeSource().getLocation().toURI();
             String classPath = classURI.getPath();
             URI pathUri;
             if (classPath.endsWith(".jar")) {
