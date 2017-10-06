@@ -38,4 +38,5 @@ public interface HandshakeListener {
      * @param t error occurred during handshake.
      */
     public void onError(Throwable t);
+
 }
