@@ -196,8 +196,8 @@ public class IdentifierLiteralTest {
     //Error scenarios
     @Test(description = "Test error message when trying to access undefined global var with identifier literal")
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
-        CompileResult resultNeg = BTestUtils
-                .compile("test-src/expressions/identifierliteral/identifier-literal-undefined-variable.bal");
+        CompileResult resultNeg = BTestUtils.compile("test-src/expressions/identifierliteral" +
+                "/identifier-literal-undefined-variable-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 1);
         BTestUtils.validateError(resultNeg, 0, "undefined symbol '|global v \" ar|'", 5, 12);
 
@@ -205,8 +205,8 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test wrong character in identifier literal")
     public void testIdentifierLiteralWithWrongCharacter() {
-        CompileResult resultNeg = BTestUtils
-                .compile("test-src/expressions/identifierliteral/identifier-literal-wrong-character.bal");
+        CompileResult resultNeg = BTestUtils.compile("test-src/expressions/identifierliteral" +
+                "/identifier-literal-wrong-character-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 3);
         BTestUtils.validateError(resultNeg, 0, "missing token ';' before 'var'", 3, 22);
         BTestUtils.validateError(resultNeg, 1, "extraneous input 'return'", 4, 5);
