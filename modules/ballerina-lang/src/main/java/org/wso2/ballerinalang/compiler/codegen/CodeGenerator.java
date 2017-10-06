@@ -842,12 +842,22 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(jsonAccessExpr.indexExpr, this.env);
         int keyRegIndex = jsonAccessExpr.indexExpr.regIndex;
 
-        if (variableStore) {
-            emit(InstructionCodes.JSONSTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+        if (jsonAccessExpr.indexExpr.type.tag == TypeTags.INT) {
+            if (variableStore) {
+                emit(InstructionCodes.JSONASTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes.tRef;
+                emit(InstructionCodes.JSONALOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
+                jsonAccessExpr.regIndex = mapValueRegIndex;
+            }
         } else {
-            int mapValueRegIndex = ++regIndexes.tRef;
-            emit(InstructionCodes.JSONLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
-            jsonAccessExpr.regIndex = mapValueRegIndex;
+            if (variableStore) {
+                emit(InstructionCodes.JSONSTORE, varRefRegIndex, keyRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes.tRef;
+                emit(InstructionCodes.JSONLOAD, varRefRegIndex, keyRegIndex, mapValueRegIndex);
+                jsonAccessExpr.regIndex = mapValueRegIndex;
+            }
         }
 
         this.varAssignment = variableStore;
@@ -2239,8 +2249,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             assignNode.varRefs.stream()
                     .filter(v -> v.type.tag != TypeTags.NONE)
                     .forEach(v -> {
-                        v.regIndex = getNextIndex(v.type.tag, lvIndexes);
                         BLangVariableReference varRef = (BLangVariableReference) v;
+                        varRef.symbol.varIndex = getNextIndex(v.type.tag, lvIndexes);
                         LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varRef.symbol);
                         localVarAttrInfo.localVars.add(localVarInfo);
                     });
