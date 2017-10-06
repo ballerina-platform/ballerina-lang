@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
@@ -47,6 +48,7 @@ public class Parser {
     private final boolean preserveWhitespace;
 
     private CompilerContext context;
+    private DiagnosticLog dlog;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -63,6 +65,7 @@ public class Parser {
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
+        this.dlog = DiagnosticLog.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource) {
@@ -90,6 +93,11 @@ public class Parser {
             parser.setErrorHandler(new BallerinaParserErrorStrategy(context, diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
+
+            if (dlog.errorCount > 0) {
+                throw new BLangParserException("syntax errors in: " + entryName);
+            }
+
             return compUnit;
         } catch (IOException e) {
             throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);

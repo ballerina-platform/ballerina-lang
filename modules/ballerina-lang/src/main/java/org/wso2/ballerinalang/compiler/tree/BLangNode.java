@@ -55,7 +55,7 @@ public abstract class BLangNode implements Node {
     public void addWS(Set<Whitespace> whitespaces) {
         if (this.ws == null) {
             this.ws = whitespaces;
-        } else {
+        } else if (whitespaces != null) {
             this.ws.addAll(whitespaces);
         }
     }

@@ -15,27 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
-
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
-
-import java.util.List;
+package org.wso2.ballerinalang.compiler.parser;
 
 /**
- * @since 0.94
+ * Class for capturing syntax errors and handle them gracefully.
  */
-public interface AnnotationAttachmentNode extends Node {
+public class BLangParserException extends RuntimeException {
 
-    IdentifierNode getPackageAlias();
+    private static final long serialVersionUID = 1L;
 
-    void setPackageAlias(IdentifierNode pkgAlias);
-
-    IdentifierNode getAnnotationName();
-
-    void setAnnotationName(IdentifierNode name);
-
-    List<? extends AnnotationAttachmentAttributeNode> getAttributes();
-
-    void addAttribute(String attrName, AnnotationAttachmentAttributeValueNode value);
+    /**
+     * Constructs a new {@link BLangParserException} with the specified detail message.
+     *
+     * @param message Error Message
+     */
+    public BLangParserException(String message) {
+        super(message);
+    }
 }

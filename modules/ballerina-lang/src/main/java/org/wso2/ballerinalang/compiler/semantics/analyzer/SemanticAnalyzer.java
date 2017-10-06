@@ -364,11 +364,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                        BAnnotationSymbol annotationSymbol) {
         for (BAnnotationAttributeSymbol defAttribute : annotationSymbol.attributes) {
             BLangAnnotAttachmentAttribute[] attributeArrray =
-                    new BLangAnnotAttachmentAttribute[annAttachmentNode.geAttributes().size()];
+                    new BLangAnnotAttachmentAttribute[annAttachmentNode.getAttributes().size()];
             // Traverse through Annotation Attachment attributes and find whether current
             // Annotation Definition attribute is present
             Optional<BLangAnnotAttachmentAttribute> matchingAttribute = Arrays
-                    .stream(annAttachmentNode.geAttributes().toArray(attributeArrray))
+                    .stream(annAttachmentNode.getAttributes().toArray(attributeArrray))
                     .filter(attribute -> attribute.name.equals(defAttribute.name.getValue()))
                     .findAny();
             // If no matching attribute is present populate with default value
