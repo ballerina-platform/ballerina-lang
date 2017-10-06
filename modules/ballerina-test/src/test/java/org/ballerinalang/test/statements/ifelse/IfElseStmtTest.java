@@ -240,4 +240,11 @@ public class IfElseStmtTest {
         BTestUtils.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'string'", 4, 13);
         BTestUtils.validateError(negativeResult, 1, "this function must return a result", 1, 1);
     }
+
+    @Test
+    public void ifStmtNegativeTest() {
+        negativeResult = BTestUtils.compile("test-src/statements/ifelse/if-stmt-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        BTestUtils.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'int'", 2, 7);
+    }
 }
