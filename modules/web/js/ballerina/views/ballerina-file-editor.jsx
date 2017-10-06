@@ -35,8 +35,7 @@ import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
-import FindLineNumbersVisiter from './../visitors/find-line-numbers';
-import UpdateLineNumbersVisiter from './../visitors/update-line-numbers';
+import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
@@ -218,13 +217,8 @@ class BallerinaFileEditor extends React.Component {
      * @param {ASTNode} newAST A new AST with up-to-date position
      */
     syncASTs(currentAST, newAST) {
-        /* TODOX const findLineNumbersVisiter = new FindLineNumbersVisiter(newAST);
-        newAST.accept(findLineNumbersVisiter);
-        const lineNumbers = findLineNumbersVisiter.getLineNumbers();
-
-        const updateLineNumbersVisiter = new UpdateLineNumbersVisiter(currentAST);
-        updateLineNumbersVisiter.setLineNumbers(lineNumbers);
-        currentAST.accept(updateLineNumbersVisiter);*/
+        const syncLineNumbersVisitor = new SyncLineNumbersVisitor(newAST);
+        currentAST.sync(syncLineNumbersVisitor, newAST);
     }
 
     /**

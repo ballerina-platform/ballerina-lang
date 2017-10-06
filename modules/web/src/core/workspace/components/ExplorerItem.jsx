@@ -126,6 +126,7 @@ class ExplorerItem extends React.Component {
                             root={this.props.folderPath}
                             onOpen={this.onOpen}
                             onSelect={this.props.onSelect}
+                            panelResizeInProgress={this.props.panelResizeInProgress}
                         />
                     </div>
                 </Collapse>
@@ -135,6 +136,7 @@ class ExplorerItem extends React.Component {
 }
 
 ExplorerItem.propTypes = {
+    panelResizeInProgress: PropTypes.bool.isRequired,
     onSelect: PropTypes.func,
     folderPath: PropTypes.string.isRequired,
     workspaceManager: PropTypes.objectOf(Object).isRequired,

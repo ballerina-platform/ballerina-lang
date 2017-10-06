@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import GlobalExpanded from './globals-expanded';
@@ -105,7 +106,7 @@ class ServiceNode extends React.Component {
      * Handles the mouse leave event on the service definition
      */
     onMouseLeave() {
-        if (!this.props.model.viewState.showWebSocketMethods) {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
             this.setState({ style: 'hideResourceGroup' });
         }
     }

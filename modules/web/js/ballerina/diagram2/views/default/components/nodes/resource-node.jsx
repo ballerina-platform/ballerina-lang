@@ -57,7 +57,7 @@ class ResourceNode extends React.Component {
      * Handles the mouse leave event on the service definition
      */
     onMouseOut() {
-        if (!this.props.model.viewState.showWebSocketMethods) {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
             this.setState({ style: 'hideResourceGroup' });
         }
     }
@@ -111,6 +111,7 @@ class ResourceNode extends React.Component {
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
                     argumentParams={argumentParameters}
+                    packageIdentifier={parentNode.getProtocolPackageIdentifier().value}
                 >
                     <g>
                         <StatementDropZone
