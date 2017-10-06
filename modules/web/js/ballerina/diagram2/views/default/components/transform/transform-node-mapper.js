@@ -889,6 +889,9 @@ class TransformNodeMapper {
                     const simpleVarRefExpression = TransformFactory.createVariableRefExpression(outputVarName);
                     stmt.replaceVariablesByIndex(index, simpleVarRefExpression, true);
                 }
+            } else if (TreeUtil.isFieldBasedAccessExpr(stmt.getVariables()[0])
+                        && stmt.getVariables()[0].getExpression().getVariableName().getValue() === expStr) {
+                this._transformStmt.body.removeStatements(stmt, true);
             }
         });
     }
