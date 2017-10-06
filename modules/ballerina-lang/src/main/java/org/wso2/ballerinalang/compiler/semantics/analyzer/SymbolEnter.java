@@ -243,6 +243,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         // Create import package symbol
         BPackageSymbol pkgSymbol = resolveImportPackage(importPkgNode);
+        if (pkgSymbol == null) {
+            dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND, importPkgNode.getQualifiedPackageName());
+        }
         importPkgNode.symbol = pkgSymbol;
         this.env.scope.define(names.fromIdNode(importPkgNode.alias), pkgSymbol);
     }
@@ -843,6 +846,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         BPackageSymbol pkgSymbol = pkgLoader.getPackageSymbol(pkgID);
         if (pkgSymbol == null) {
             BLangPackage pkgNode = pkgLoader.loadPackageNode(pkgID);
+            if (pkgNode == null) {
+                return null;
+            }
+
             pkgSymbol = pkgNode.symbol;
             ((BLangPackage) env.node).initFunction.body
                     .addStatement(createInitFunctionInvocationStatemt(importPkgNode, pkgSymbol));

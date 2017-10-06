@@ -131,6 +131,9 @@ public class PackageLoader {
         BPackageSymbol pSymbol;
 
         // TODO Handle pkgEntity 
+        if (pkgEntity == null) {
+            return null;
+        }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);
