@@ -405,7 +405,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        serviceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        serviceNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentServiceInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.env);
@@ -418,7 +418,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        resourceNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        resourceNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv resourceEnv = SymbolEnv
@@ -432,7 +432,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        funcNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        funcNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
         visitInvokableNode(funcNode, currentCallableUnitInfo, funcEnv);
     }
@@ -1475,7 +1475,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         localVarAttrInfo.localVars.add(localVarInfo);
     }
 
-    private void visitServiceAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
+    private void visitAnnotationAttachment(BLangAnnotationAttachment annotationAttachment,
                                                   AnnotationAttributeInfo annotationAttributeInfo) {
         AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
         annotationAttributeInfo.attachmentList.add(attachmentInfo);
@@ -2179,7 +2179,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        connectorNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        connectorNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentConnectorInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, this.env);
@@ -2194,7 +2194,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        actionNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        actionNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
 
         SymbolEnv actionEnv = SymbolEnv
@@ -2208,7 +2208,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
-        structNode.annAttachments.forEach(annt -> visitServiceAnnotationAttachment(annt, attributeInfo));
+        structNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         structInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
     }
 
