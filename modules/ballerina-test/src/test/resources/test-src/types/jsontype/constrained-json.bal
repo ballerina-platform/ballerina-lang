@@ -1,5 +1,3 @@
-import ballerina.lang.errors;
-
 struct Person {
     string name;
     int age;
@@ -13,6 +11,22 @@ struct Student {
     string class;
 }
 
+function testJsonStructConstraint() (json, json, json, string, int, string) {
+    json<Person> j = {};
+    j.name = "John Doe";
+    j.age = 30;
+    j.address = "London";
+    var name, _ = (string) j.name;
+    var age, _ = (int) j.age;
+    var address, _ = (string) j.address;
+    return j.name, j.age, j.address, name, age, address;
+}
+
+function testJsonInitializationWithStructConstraint() (json, json, json){
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    return j.name, j.age, j.address;
+}
+
 function testGetPlainJson() (json) {
     json j = getPlainJson();
     return j;
@@ -20,24 +34,6 @@ function testGetPlainJson() (json) {
 
 function testGetConstraintJson() (json) {
     json<Person> j = getPerson();
-    return j;
-}
-
-function testJSONToConstraintJsonUnsafeCast() (json, errors:TypeCastError) {
-    json<Person> j;
-    errors:TypeCastError err;
-    j,err = (json<Person>)getPlainJson();
-    return j,err;
-}
-
-function testJSONToConstraintJsonUnsafeCastPositive() (json) {
-    json<Person> j;
-    j,_ = (json<Person>)getPersonEquivalentPlainJson();
-    return j;
-}
-
-function testConstraintJSONToConstraintJsonAssignment() (json) {
-    json<Person> j = (json<Person>)getStudent();
     return j;
 }
 

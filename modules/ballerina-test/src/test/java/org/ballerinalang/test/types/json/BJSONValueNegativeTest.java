@@ -15,38 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.values;
+package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test class for ballerina map.
  */
-public class BJSONValueTest {
+public class BJSONValueNegativeTest {
 
-    private ProgramFile programFile;
-    private static final double DELTA = 0.01;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/values/json-value.bal");
+        compileResult = BTestUtils.compile("test-src/types/jsontype/json-value-negative.bal");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
     public void testGetFromNull() {
-        BLangFunctions.invokeNew(programFile, "testGetFromNull");
+        BTestUtils.invoke(compileResult, "testGetFromNull");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
+          expectedExceptionsMessageRegExp = "error: NullReferenceError.*")
     public void testAddToNull() {
-        BLangFunctions.invokeNew(programFile, "testAddToNull");
+        BTestUtils.invoke(compileResult, "testAddToNull");
     }
-
 }
