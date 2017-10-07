@@ -32,7 +32,7 @@ class TypeLattice {
 
     /**
      * Initialize type lattice from json
-     * @param {any} typeLattice type lattice
+     * @param {any} typeLatticeJson type lattice
      * @memberof TypeLattice
      */
     initFromJson(typeLatticeJson) {
