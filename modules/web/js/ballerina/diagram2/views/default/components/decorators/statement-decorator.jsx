@@ -27,6 +27,9 @@ import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
+import ArrowDecorator from './arrow-decorator';
+import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
+import TreeUtil from '../../../../../model/tree-util';
 
 
 /**
@@ -160,6 +163,20 @@ class StatementDecorator extends React.Component {
             tooltip = (<title>{this.props.viewState.fullExpression}</title>);
         }
 
+        let dropDownItems;
+        const dropDownItemMeta = [];
+        if (viewState.isActionInvocation) {
+            dropDownItems = TreeUtil.getAllVisibleConnectorDeclarations(this.props.model.parent);
+            dropDownItems.forEach((item) => {
+                const meta = {
+                    text: _.get(item, 'variable.name.value'),
+                    callback: TreeUtil.updateActionInvocation,
+                };
+                dropDownItemMeta.push(meta);
+            });
+            this.props.model.getSource();
+        }
+
         return (
             <g
                 className="statement"
@@ -202,6 +219,22 @@ class StatementDecorator extends React.Component {
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                 />
+                {viewState.isActionInvocation &&
+                (
+                    <g>
+                        <ArrowDecorator
+                            start={viewState.components.invocation.start}
+                            end={viewState.components.invocation.end}
+                        />
+                        <StatementPropertyItemSelector
+                            model={this.props.model}
+                            bBox={this.props.model.viewState.components.dropDown}
+                            itemsMeta={dropDownItemMeta}
+                        />
+                    </g>
+                )
+
+                }
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);
