@@ -48,9 +48,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,6 +78,8 @@ public class HTTPClientRedirectTestCase {
     public static final int REDIRECT_DESTINATION_PORT1 = 9091;
     public static final int REDIRECT_DESTINATION_PORT2 = 9092;
     public static final String ABSOLUTE_REDIRECT_URL = "http://localhost:9092/redirect2";
+    public static final String URL1 = "http://www.mocky.io/v2/59d590762700000a049cd694";
+    public static final String URL2 = "http://www.mocky.io/v3/59d590762700000a049cd694";
 
     private String testValue = "Test Message";
     private String testValueForLoopRedirect = "Test Loop";
@@ -128,6 +133,124 @@ public class HTTPClientRedirectTestCase {
         embeddedChannel.writeInbound(response);
         embeddedChannel.writeInbound(LastHttpContent.EMPTY_LAST_CONTENT);
         assertNull(embeddedChannel.readOutbound());
+    }
+
+    /**
+     * Unit test for redirect code 303.
+     */
+    @Test
+    public void unitTestFor303() {
+        try {
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            Map<String, String> returnValue = (Map<String, String>) method
+                    .invoke(redirectHandler, FINAL_DESTINATION, HttpResponseStatus.SEE_OTHER.code(),
+                            createHttpRequest(Constants.HTTP_POST_METHOD, FINAL_DESTINATION));
+            assertEquals(Constants.HTTP_GET_METHOD, returnValue.get(Constants.HTTP_METHOD));
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running unitTestFor300", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running unitTestFor300", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running unitTestFor300", e);
+        }
+    }
+
+    /**
+     * This unit test is applicable to redirect status codes 300, 305, 307 ans 308.
+     */
+    @Test
+    public void unitTestForOriginalMethod() {
+        try {
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            Map<String, String> returnValue = (Map<String, String>) method
+                    .invoke(redirectHandler, FINAL_DESTINATION, HttpResponseStatus.TEMPORARY_REDIRECT.code(),
+                            createHttpRequest(Constants.HTTP_HEAD_METHOD, FINAL_DESTINATION));
+            assertEquals(Constants.HTTP_HEAD_METHOD, returnValue.get(Constants.HTTP_METHOD));
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running unitTestForOriginalMethod", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running unitTestForOriginalMethod", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running unitTestForOriginalMethod", e);
+        }
+    }
+
+    /**
+     * This unit test is applicable to redirect status codes 301 and 302.
+     */
+    @Test
+    public void unitTestForAlwaysGet() {
+        try {
+            RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getRedirectState", String.class, Integer.TYPE, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            Map<String, String> returnValue = (Map<String, String>) method
+                    .invoke(redirectHandler, FINAL_DESTINATION, HttpResponseStatus.MOVED_PERMANENTLY.code(),
+                            createHttpRequest(Constants.HTTP_HEAD_METHOD, FINAL_DESTINATION));
+            assertEquals(Constants.HTTP_GET_METHOD, returnValue.get(Constants.HTTP_METHOD));
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running unitTestForAlwaysGet", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running unitTestForAlwaysGet", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running unitTestForAlwaysGet", e);
+        }
+    }
+
+    /**
+     * Original request and the redirect request goes to two different domains.
+     */
+    @Test
+    public void unitTestToDetermineCrossDomainURLs() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            boolean isCrossDomainURL = (boolean) method.invoke(redirectHandler, ABSOLUTE_REDIRECT_URL,
+                    createHttpRequest(Constants.HTTP_HEAD_METHOD, URL1));
+            assertEquals(true, isCrossDomainURL);
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running unitTestToDetermineCrossDomainURLs",
+                    e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException(
+                    "InvocationTargetException occurred while running unitTestToDetermineCrossDomainURLs", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running unitTestToDetermineCrossDomainURLs",
+                    e);
+        }
+
+    }
+
+    /**
+     * Original request and the redirect request uses the same domain.
+     */
+    @Test
+    public void unitTestForSameDomain() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("isCrossDomain", String.class, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            boolean isCrossDomainURL = (boolean) method
+                    .invoke(redirectHandler, URL1, createHttpRequest(Constants.HTTP_HEAD_METHOD, URL2));
+            assertEquals(false, isCrossDomainURL);
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running unitTestForSameDomain", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running unitTestForSameDomain", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running unitTestForSameDomain", e);
+        }
+
     }
 
     /**
