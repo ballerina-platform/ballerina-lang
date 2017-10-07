@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -218,7 +219,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             forkJoin.timeoutBody.accept(this);
             this.resetStatementReturns();
         }
+        this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
+    }
+    
+    private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
+        if (forkJoin.joinType == ForkJoinNode.JoinType.SOME) {
+            int wc = forkJoin.joinedWorkers.size();
+            if (wc == 0) {
+                wc = forkJoin.workers.size();
+            }
+            if (forkJoin.joinedWorkerCount > wc) {
+                this.dlog.error(forkJoin.pos, DiagnosticCode.FORK_JOIN_INVALID_WORKER_COUNT);
+            }
+        }
     }
     
     @Override

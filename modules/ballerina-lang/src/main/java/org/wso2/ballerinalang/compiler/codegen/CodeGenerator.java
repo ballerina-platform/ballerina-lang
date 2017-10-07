@@ -2092,6 +2092,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
+        forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
         this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
     }
