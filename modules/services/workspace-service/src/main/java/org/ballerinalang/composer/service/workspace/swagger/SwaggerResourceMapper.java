@@ -281,8 +281,8 @@ public class SwaggerResourceMapper {
                 if (responsesValues.size() > 0) {
                     Map<String, Response> responses = new HashMap<>();
                     for (AnnotationAttachmentAttributeValueNode responsesValue : responsesValues) {
-                        AnnotationAttachmentNode responseAnnotationAttachment =
-                                                                    (AnnotationAttachmentNode)responsesValue.getValue();
+                        AnnotationAttachmentNode responseAnnotationAttachment = (AnnotationAttachmentNode)
+                                responsesValue.getValue();
                         Map<String, AnnotationAttachmentAttributeValueNode>
                                 responseAttributes = this.listToMap
                                 (responseAnnotationAttachment);
@@ -315,7 +315,7 @@ public class SwaggerResourceMapper {
             List<? extends  AnnotationAttachmentAttributeValueNode> headersValueArray =
                                                                             annotationAttributeValue.getValueArray();
             for (AnnotationAttachmentAttributeValueNode headersValue : headersValueArray) {
-                AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode)headersValue;
+                AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode) headersValue;
                 Map<String, Property> headers = new HashMap<>();
                 Map<String, AnnotationAttachmentAttributeValueNode> headersAttributes =
                         this.listToMap(headerAnnotationAttachment);
@@ -385,7 +385,7 @@ public class SwaggerResourceMapper {
                 if (parameterAnnotation.getAttributes().size() > 0) {
                     AnnotationAttachmentAttributeValueNode attrValue = parameterAnnotation.getAttributes().get(0)
                             .getValue();
-                    parameterName = (String)((LiteralNode)attrValue.getValue()).getValue();
+                    parameterName = (String) ((LiteralNode) attrValue.getValue()).getValue();
                 }
     
                 if ((parameterName == null) || parameterName.isEmpty()) {
@@ -415,7 +415,7 @@ public class SwaggerResourceMapper {
                 if (parameterAnnotation.getAttributes().size() > 0) {
                     AnnotationAttachmentAttributeValueNode attrValue = parameterAnnotation.getAttributes().get(0)
                             .getValue();
-                    parameterName = (String)((LiteralNode)attrValue.getValue()).getValue();
+                    parameterName = (String) ((LiteralNode) attrValue.getValue()).getValue();
                 }
                 
                 if ((parameterName == null) || parameterName.isEmpty()) {
@@ -455,7 +455,7 @@ public class SwaggerResourceMapper {
                         infoAttributes.get("value").getValueArray();
                 for (AnnotationAttachmentAttributeValueNode parametersInfoValue : parametersInfoValues) {
                     AnnotationAttachmentNode parameterInfoAnnotation =
-                                                            (AnnotationAttachmentNode)parametersInfoValue.getValue();
+                                                            (AnnotationAttachmentNode) parametersInfoValue.getValue();
                     Map<String, AnnotationAttachmentAttributeValueNode>
                             parameterAttributes = this.listToMap(parameterInfoAnnotation);
                     if (parameterAttributes.containsKey("name")) {
@@ -511,7 +511,7 @@ public class SwaggerResourceMapper {
                                          Operation operation) {
         if (null != annotationAttributeValue) {
             AnnotationAttachmentNode externalDocAnnotationAttachment =
-                                                                    (AnnotationAttachmentNode)annotationAttributeValue;
+                                                                    (AnnotationAttachmentNode) annotationAttributeValue;
             ExternalDocs externalDocs = new ExternalDocs();
     
             Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
@@ -648,6 +648,6 @@ public class SwaggerResourceMapper {
      * @return The string value.
      */
     private String getStringLiteralValue(AnnotationAttachmentAttributeValueNode valueNode) {
-        return ((LiteralNode)valueNode.getValue()).getValue().toString();
+        return ((LiteralNode) valueNode.getValue()).getValue().toString();
     }
 }

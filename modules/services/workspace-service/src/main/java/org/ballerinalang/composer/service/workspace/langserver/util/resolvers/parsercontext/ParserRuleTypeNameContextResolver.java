@@ -23,12 +23,9 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.langserver.util.filters.StatementTemplateFilter;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parser Rule based item resolver for Type Name Context

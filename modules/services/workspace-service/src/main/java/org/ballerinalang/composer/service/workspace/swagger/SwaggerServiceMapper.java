@@ -152,7 +152,7 @@ public class SwaggerServiceMapper {
             Map<String, SecuritySchemeDefinition> securitySchemeDefinitionMap = new HashMap<>();
             for (AnnotationAttachmentAttributeValueNode authorizationValues :
                                                                             annotationAttributeValue.getValueArray()) {
-                AnnotationAttachmentNode authAnnotationAttachment = (AnnotationAttachmentNode)authorizationValues;
+                AnnotationAttachmentNode authAnnotationAttachment = (AnnotationAttachmentNode) authorizationValues;
                 Map<String, AnnotationAttachmentAttributeValueNode> authAttributes =
                         this.listToMap(authAnnotationAttachment);
                 if (authAttributes.containsKey("name") &&
@@ -201,7 +201,7 @@ public class SwaggerServiceMapper {
                                                      OAuth2Definition oAuth2Definition) {
         Map<String, String> scopes = new HashMap<>();
         for (AnnotationAttachmentAttributeValueNode authScopeValue : authorizationScopes.getValueArray()) {
-            AnnotationAttachmentNode authScopeAnnotationAttachment = (AnnotationAttachmentNode)authScopeValue;
+            AnnotationAttachmentNode authScopeAnnotationAttachment = (AnnotationAttachmentNode) authScopeValue;
             Map<String, AnnotationAttachmentAttributeValueNode> authScopeAttributes =
                     this.listToMap(authScopeAnnotationAttachment);
             String name = this.getStringLiteralValue(authScopeAttributes.get("name"));
@@ -284,7 +284,7 @@ public class SwaggerServiceMapper {
     private void createOrganizationModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
             AnnotationAttachmentNode organizationAnnotationAttachment =
-                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+                                                        (AnnotationAttachmentNode) annotationAttributeValue.getValue();
             
             Map<String, AnnotationAttachmentAttributeValueNode> organizationAttributes =
                     this.listToMap(organizationAnnotationAttachment);
@@ -335,7 +335,7 @@ public class SwaggerServiceMapper {
                                                                                                     Swagger swagger) {
         if (null != annotationAttributeValue) {
             AnnotationAttachmentNode externalDocAnnotationAttachment =
-                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+                                                        (AnnotationAttachmentNode) annotationAttributeValue.getValue();
             Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
                     this.listToMap(externalDocAnnotationAttachment);
             ExternalDocs externalDocs = new ExternalDocs();
@@ -358,7 +358,7 @@ public class SwaggerServiceMapper {
     private void createContactModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
             AnnotationAttachmentNode contactAnnotationAttachment =
-                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+                                                        (AnnotationAttachmentNode) annotationAttributeValue.getValue();
             
             Map<String, AnnotationAttachmentAttributeValueNode> contactAttributes =
                     this.listToMap(contactAnnotationAttachment);
@@ -385,7 +385,7 @@ public class SwaggerServiceMapper {
     private void createLicenseModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
         if (null != annotationAttributeValue) {
             AnnotationAttachmentNode licenseAnnotationAttachment =
-                                                        (AnnotationAttachmentNode)annotationAttributeValue.getValue();
+                                                        (AnnotationAttachmentNode) annotationAttributeValue.getValue();
             Map<String, AnnotationAttachmentAttributeValueNode> licenseAttributes =
                     this.listToMap(licenseAnnotationAttachment);
             License license = new License();
@@ -477,6 +477,6 @@ public class SwaggerServiceMapper {
      * @return The string value.
      */
     private String getStringLiteralValue(AnnotationAttachmentAttributeValueNode valueNode) {
-        return ((LiteralNode)valueNode.getValue()).getValue().toString();
+        return ((LiteralNode) valueNode.getValue()).getValue().toString();
     }
 }

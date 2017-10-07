@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class BallerinaFile {
 
-    private BLangPackage BLangPackage;
+    private BLangPackage bLangPackage;
     private List<Diagnostic> diagnostics;
 
     public List<Diagnostic> getDiagnostics() {
@@ -33,11 +33,11 @@ public class BallerinaFile {
     }
 
     public org.wso2.ballerinalang.compiler.tree.BLangPackage getBLangPackage() {
-        return BLangPackage;
+        return bLangPackage;
     }
 
-    public void setBLangPackage(BLangPackage BLangPackage) {
-        this.BLangPackage = BLangPackage;
+    public void setBLangPackage(BLangPackage bLangPackage) {
+        this.bLangPackage = bLangPackage;
     }
 
     public void setDiagnostics(List<Diagnostic> diagnostics) {

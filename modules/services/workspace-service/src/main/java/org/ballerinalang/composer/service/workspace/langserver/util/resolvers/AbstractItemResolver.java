@@ -24,17 +24,14 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemData;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NativeUnit;
-import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
-import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -125,7 +122,9 @@ public abstract class AbstractItemResolver {
      */
     CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
-        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symbolInfo.getScopeEntry().symbol;
+        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+        assert bSymbol instanceof BInvokableSymbol;
+        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) bSymbol;
         if (bInvokableSymbol.getName().getValue().equals(".<init>") ||
                 bInvokableSymbol.getName().getValue().equals("main")) {
             return null;
@@ -240,20 +239,9 @@ public abstract class AbstractItemResolver {
         int i = 0;
         // TODO: Finalize
         String initString = "";
-//        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
-//            signature.append(initString).append(simpleTypeName.getName()).append(" ").
-//                    append(nativeUnit.getArgumentNames()[i]);
-//            ++i;
-//            initString = ", ";
-//        }
         signature.append(")");
         initString = "(";
         String endString = "";
-//        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
-//            signature.append(initString).append(simpleTypeName.getName());
-//            initString = ", ";
-//            endString = ")";
-//        }
         signature.append(endString);
         return signature.toString();
     }
@@ -288,7 +276,7 @@ public abstract class AbstractItemResolver {
 
         List<BType> returnTypes = bInvokableSymbol.type.getReturnTypes();
         List<BVarSymbol> returnParams = bInvokableSymbol.getReturnParameters();
-        for (int itr = 0; itr < returnTypes.size(); itr ++) {
+        for (int itr = 0; itr < returnTypes.size(); itr++) {
             signature.append(initString).append(returnTypes.get(itr).toString());
             if (returnParams.size() > itr) {
                 signature.append(" ").append(returnParams.get(itr).getName());

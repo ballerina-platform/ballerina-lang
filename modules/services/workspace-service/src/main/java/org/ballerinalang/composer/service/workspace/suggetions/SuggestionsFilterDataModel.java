@@ -24,7 +24,6 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.composer.service.workspace.langserver.model.ModelPackage;
 import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.SymbolScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
