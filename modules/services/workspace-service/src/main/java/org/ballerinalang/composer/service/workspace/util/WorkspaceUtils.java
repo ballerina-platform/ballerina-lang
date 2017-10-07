@@ -31,9 +31,6 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPacka
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.expressions.BasicLiteral;
-import org.ballerinalang.model.statements.VariableDefStmt;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.repository.PackageRepository;
@@ -51,7 +48,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -61,9 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +65,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -89,7 +82,7 @@ public class WorkspaceUtils {
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFile(String filePath, String fileName){
+    public static BallerinaFile getBallerinaFile(String filePath, String fileName) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
@@ -107,7 +100,8 @@ public class WorkspaceUtils {
      * @param compilerPhase - This will tell up to which point(compiler phase) we should process the model
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFileForContent(String fileName, String source, CompilerPhase compilerPhase){
+    public static BallerinaFile getBallerinaFileForContent(String fileName, String source,
+                                                           CompilerPhase compilerPhase) {
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
@@ -123,7 +117,7 @@ public class WorkspaceUtils {
      * @param source - Ballerina source content that needs to be parsed.
      * @return CompilerContext
      */
-    private static CompilerContext prepareCompilerContext(String fileName, String source){
+    private static CompilerContext prepareCompilerContext(String fileName, String source) {
         CompilerContext context = new CompilerContext();
         List<Name> names = new ArrayList<>();
         names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
@@ -140,7 +134,7 @@ public class WorkspaceUtils {
      * @param context - CompilerContext
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context){
+    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         ComposerDiagnosticListener composerDiagnosticListener = new ComposerDiagnosticListener(diagnostics);
         context.put(DiagnosticListener.class, composerDiagnosticListener);
@@ -206,39 +200,6 @@ public class WorkspaceUtils {
     };
 
     /**
-     * Get a resolved package map for a given package names array
-     * @param bLangProgram to get package map
-     * @param packagesArray packages array
-     * @return packages map
-     */
-//    public static Map<String, ModelPackage> getResolvedPackagesMap(BLangProgram bLangProgram, String[] packagesArray) {
-//        final Map<String, ModelPackage> packages = new HashMap<>();
-//        ProgramDirRepository fileRepo = BLangPrograms.initProgramDirRepository(Paths.get("."));
-//        // this is just a dummy FileSystemPackageRepository instance. Paths.get(".") has no meaning here
-//        // turn off skipping native function parsing
-//        System.setProperty("skipNatives", "false");
-//
-//        // process each package separately
-//        for (String builtInPkg : packagesArray) {
-//            Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
-//            org.wso2.ballerinalang.compiler.tree.BLangPackage pkg = null;
-//            BLangSymbol bLangSymbol = bLangProgram.resolve(new SymbolName(builtInPkg));
-//            if (bLangSymbol == null) {
-//                // load package
-//                pkg = BLangPackages.loadPackage(packagePath, fileRepo, bLangProgram);
-//                loadPackageMap(pkg, packages);
-//            } else {
-//                if (bLangSymbol instanceof BLangPackage) {
-//                    pkg = (BLangPackage) bLangSymbol;
-//                    loadPackageMap(pkg, packages);
-//                }
-//            }
-//        }
-//        return packages;
-//    }
-
-
-    /**
      * Add connectors, functions, annotations etc. to packages.
      * @param packageName package name
      * @param pkg BLangPackage instance
@@ -247,33 +208,12 @@ public class WorkspaceUtils {
     public static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
                                        Map<String, ModelPackage> packages) {
         if (pkg != null) {
-           // Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, "",
-           //         connector));
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
             pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
         }
     }
-
-//    /**
-//     * Add connectors, functions, annotations etc. to packages.
-//     * @param pkg BLangPackage instance
-//     * @param packages packages map
-//     */
-//    private static void loadPackageMap(final BLangPackage pkg, Map<String, ModelPackage> packages) {
-//        if (pkg != null) {
-//            Stream.of(pkg.getAnnotationDefs()).forEach((annotationDef) -> extractAnnotationDefs(packages,
-//                    pkg.getPackagePath(), annotationDef));
-//            Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, pkg.getPackagePath(),
-//                    connector));
-//            pkg.getFunctions()
-//            Stream.of(pkg.getFunctions()).forEach((function) -> extractFunction(packages, pkg.getPackagePath(),
-//                    function));
-//            Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
-//                    structDef));
-//        }
-//    }
 
     /**
      * Extract annotations from ballerina lang

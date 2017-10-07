@@ -16,7 +16,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util;
 
-import com.google.gson.JsonArray;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.consts.SymbolKind;
 import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;

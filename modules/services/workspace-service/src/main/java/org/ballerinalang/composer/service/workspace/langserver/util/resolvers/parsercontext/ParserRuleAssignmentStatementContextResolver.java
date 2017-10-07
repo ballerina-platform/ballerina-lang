@@ -30,7 +30,7 @@ import java.util.HashMap;
 /**
  * assignment statement context resolver for the completion items
  */
-public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver{
+public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
