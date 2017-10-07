@@ -170,7 +170,7 @@ class StatementDecorator extends React.Component {
             dropDownItems.forEach((item) => {
                 const meta = {
                     text: _.get(item, 'variable.name.value'),
-                    callback: TreeUtil.updateActionInvocation,
+                    callback: (newEp) => { TreeUtil.changeInvocationEndpoint(this.props.model, newEp); },
                 };
                 dropDownItemMeta.push(meta);
             });

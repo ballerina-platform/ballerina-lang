@@ -31,6 +31,7 @@ class AbstractDropdown extends React.Component {
     constructor(props) {
         super(props);
         this.handleOutsideClick = this.handleOutsideClick.bind(this);
+        this.handleOnItemClick = this.handleOnItemClick.bind(this);
     }
 
     componentDidMount() {
@@ -67,6 +68,17 @@ class AbstractDropdown extends React.Component {
     }
 
     /**
+     * Handle the on click method on a drop down item
+     * @param {function} callback - callback function to be called
+     */
+    handleOnItemClick(callback) {
+        const props = this.props.model.props;
+        callback();
+        props.model.viewState.overlayContainer = {};
+        props.editor.update();
+    }
+
+    /**
      * Renders the view for a drop down menu
      *
      * @returns {ReactElement} The view.
@@ -75,7 +87,7 @@ class AbstractDropdown extends React.Component {
     render() {
         const dropDownBBox = this.props.model.props.dropDownBBox;
         const style = {
-            display: !_.isEmpty(this.props.model.viewState.overlayContainer) ? 'block' : 'none',
+            display: !_.isEmpty(this.props.model.props.model.viewState.overlayContainer) ? 'block' : 'none',
             top: dropDownBBox.y,
             left: dropDownBBox.x,
         };
@@ -85,9 +97,10 @@ class AbstractDropdown extends React.Component {
                 id="myDropdown"
                 className="dropdown-content"
                 style={style}
+                ref={(node) => { this.node = node; }}
             >
                 {metaInfoList.map((meta) => {
-                    return (<a onClick={e => meta.callback()}>{meta.text}</a>);
+                    return (<a onClick={e => this.handleOnItemClick(() => meta.callback(meta.text))}>{meta.text}</a>);
                 })}
             </div>);
     }

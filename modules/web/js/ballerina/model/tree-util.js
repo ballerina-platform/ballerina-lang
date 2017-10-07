@@ -139,8 +139,14 @@ class TreeUtil extends AbstractTreeUtil {
         return filteredItems.concat(this.getAllVisibleConnectorDeclarations(parent.parent));
     }
 
-    updateActionInvocation() {
-        console.log("TESTTTTT");
+    /**
+     * Change the invocation endpoint. This is the callback function for endpoint dropdown click
+     * @param {object} node - invocation node
+     * @param {string} newEp - new endpoint string
+     */
+    changeInvocationEndpoint(node, newEp) {
+        // TODO: will be replaced accordingly with the new set source
+        _.set(node, 'variable.initialExpression.expression.variableName.value', newEp);
     }
 }
 
