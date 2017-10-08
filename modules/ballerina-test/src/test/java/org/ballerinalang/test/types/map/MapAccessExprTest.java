@@ -53,7 +53,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test map access expression")
+    @Test(description = "Test map access through var keyword")
     public void testAccessThroughVar() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(compileResult, "testAccessThroughVar", args);
