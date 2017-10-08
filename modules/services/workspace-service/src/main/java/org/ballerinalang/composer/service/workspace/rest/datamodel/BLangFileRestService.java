@@ -203,15 +203,6 @@ public class BLangFileRestService {
         return result.toString();
     }
 
-    private static String generateJSONString(Node node) {
-        try {
-            return generateJSON(node).toString();
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            // This should never occur.
-            throw new AssertionError("Error while serializing source to JSON.");
-        }
-    }
-
     public static JsonElement generateJSON(Node node) throws InvocationTargetException, IllegalAccessException {
         if (node == null) {
             return JsonNull.INSTANCE;
@@ -349,10 +340,6 @@ public class BLangFileRestService {
         JsonObject result = new JsonObject();
         result.add("errors", diagnosticsJson);
         return result;
-    }
-
-    private java.nio.file.Path deriveFilePath(String fileName, String filePath) {
-        return Paths.get(filePath + File.separator + fileName);
     }
 
 }
