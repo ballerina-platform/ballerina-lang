@@ -41,6 +41,7 @@ import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import './../utils/react-try-catch-batching-strategy';
 import { parseContent } from '../../api-client/api-client';
+import FragmentUtils from '../utils/fragment-utils';
 
 /**
  * React component for BallerinaFileEditor.
@@ -200,13 +201,10 @@ class BallerinaFileEditor extends React.Component {
             return;
         }
 
-        const value = 'import ' + fullPackageName + ';\n';
-        parseContent(value)
-            .then((jsonTree) => {
-                if (jsonTree.model.topLevelNodes[0]) {
-                    this.state.model.addImport(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
-                }
-            });
+        const importString = 'import ' + fullPackageName + ';\n';
+        const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.state.model.addImport(TreeBuilder.build(parsedJson));
     }
 
     /**
