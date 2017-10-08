@@ -252,12 +252,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.failedBlockCount++;
             transactionNode.failedBody.accept(this);
             this.failedBlockCount--;
+            this.resetStatementReturns();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
+            this.resetStatementReturns();
         }
         if (transactionNode.abortedBody != null) {
             transactionNode.abortedBody.accept(this);
+            this.resetStatementReturns();
         }
     }
 
@@ -269,9 +272,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRetry abortNode) {
+    public void visit(BLangRetry retryNode) {
         if (this.failedBlockCount == 0) {
-            this.dlog.error(abortNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
+            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
         }
     }
 
@@ -295,6 +298,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangReturn returnStmt) {
+        this.checkUnreachableCode(returnStmt);
         this.statementReturns = true;
     }
     
@@ -320,6 +324,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangContinue continueNode) {
+        this.checkUnreachableCode(continueNode);
         if (this.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
         }
@@ -417,10 +422,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangBreak breakNode) {
+        this.checkUnreachableCode(breakNode);
         /* ignore */
     }
 
     public void visit(BLangThrow throwNode) {
+        this.checkUnreachableCode(throwNode);
         /* ignore */
     }
 
@@ -437,6 +444,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        this.checkUnreachableCode(tryNode);
         List<BType> caughtTypes = new ArrayList<>();
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             if (caughtTypes.contains(bLangCatch.getParameter().type)) {

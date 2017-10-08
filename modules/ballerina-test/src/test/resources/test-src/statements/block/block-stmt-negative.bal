@@ -62,3 +62,50 @@ function testCommentAfterReturnStmt()(int) {
     int x = 10;
     return x;
 }
+
+function testUnreachableTryCatch()(string){
+    string a;
+    if (2 > 1) {
+        return "one";
+    } else {
+        return "two";
+    }
+    try {
+        a = "abc";
+    } catch (error e) {
+        return "catch1";
+    }
+    return a;
+}
+
+function testUnreachableContinue()(string){
+    while (true) {
+        return "unreachable continue";
+        continue;
+    }
+    return "done";
+}
+
+function testUnreachableBreak()(string){
+    if (true) {
+        return "unreachable break";
+        break;
+    }
+    return "done";
+}
+
+struct testError {
+    string msg;
+    error cause;
+    stackFrame[] stackTrace;
+    string code;
+}
+
+function testUnreachableThrow (int value) (string) {
+    if (value > 10) {
+        testError error = {msg:"error", code:"test"};
+        return "unreachable throw";
+        throw error;
+    }
+    return "done";
+}
