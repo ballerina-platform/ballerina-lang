@@ -103,7 +103,8 @@ class TreeUtil extends AbstractTreeUtil {
             invocationExpression = _.get(node, 'variable.initialExpression');
         }
 
-        return (invocationExpression && this.isInvocation(invocationExpression));
+        return (invocationExpression && this.isInvocation(invocationExpression)
+        && invocationExpression.invocationType === 'ACTION');
     }
 
     /**
