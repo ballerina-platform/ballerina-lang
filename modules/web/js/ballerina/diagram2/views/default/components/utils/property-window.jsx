@@ -33,24 +33,20 @@ class PropertiesWindow extends React.Component {
     constructor(props) {
         super(props);
         const data = {};
-        // TEST //
-        /* this.supportedProps = [{ identifier: 'port', value: '', bType: 'int' },
-            { identifier: 'host', value: '', bType: 'int' }, { identifier: 'allow', value: '', bType: 'boolean' },
-            { identifier: 'file', value: '', bType: 'string' }, { identifier: 'folder', value: '', bType: 'string' },
-            { identifier: 'methods', value: '', bType: 'array' }, { identifier: 'http', value: 56, bType: 'int' }];
-
-        this.supportedProps.map((addedAnnotation) => {
-            const key = addedAnnotation.identifier;
-            data[key] = addedAnnotation.value;
-        });*/
-        // TEST //
         this.props.supportedProps.map((addedAnnotation) => {
-            const key = addedAnnotation.identifier;
+            let key = addedAnnotation.identifier;
             data[key] = addedAnnotation.value;
+            if (addedAnnotation.fields) {
+                addedAnnotation.fields.map((field) => {
+                    key = addedAnnotation.identifier + ':' + (field.getName());
+                    data[key] = field.getDefaultValue();
+                });
+            }
         });
 
         this.state = { data,
             pageOfItems: [],
+            expandProperties: false,
         };
         this.onChange = this.onChange.bind(this);
         this.onTagsAdded = this.onTagsAdded.bind(this);
@@ -62,6 +58,7 @@ class PropertiesWindow extends React.Component {
         this.renderBooleanInputs = this.renderBooleanInputs.bind(this);
         this.renderTagInputs = this.renderTagInputs.bind(this);
         this.onChangePage = this.onChangePage.bind(this);
+        this.toggleStructProperties = this.toggleStructProperties.bind(this);
     }
 
     componentDidMount() {
@@ -158,27 +155,41 @@ class PropertiesWindow extends React.Component {
     }
 
     /**
+     *
+     */
+    toggleStructProperties() {
+        if (this.state.expandProperties) {
+            this.setState({
+                expandProperties: false,
+            });
+        } else {
+            this.setState({
+                expandProperties: true,
+            });
+        }
+    }
+    /**
      * Renders text input for form
      * @param key
      * @returns {XML}
      */
-    renderTextInputs(key) {
+    renderTextInputs(key, identifier) {
         return (
             <div key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
-                    className='col-sm-3 property-dialog-label'
+                    className='col-sm-4 property-dialog-label'
                 >
                     {key.identifier}</label>
-                <div className='col-sm-8'>
+                <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
                         id={key.identifier}
                         name={key.identifier}
                         type='text'
                         placeholder={key.identifier}
-                        value={this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, key.identifier)}
+                        value={this.state.data[identifier] || this.state.data[key.identifier]}
+                        onChange={event => this.onChange(event, identifier || key.identifier)}
                     />
                 </div>
             </div>);
@@ -189,23 +200,23 @@ class PropertiesWindow extends React.Component {
      * @param key
      * @returns {XML}
      */
-    renderNumericInputs(key) {
+    renderNumericInputs(key, identifier) {
         return (
             <div key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
-                    className='col-sm-3 property-dialog-label'
+                    className='col-sm-4 property-dialog-label'
                 >
                     {key.identifier}</label>
-                <div className='col-sm-8'>
+                <div className='col-sm-7'>
                     <input
                         className='property-dialog-form-control'
                         id={key.identifier}
                         name={key.identifier}
                         type='number'
                         placeholder={key.identifier}
-                        value={this.state.data[key.identifier]}
-                        onChange={event => this.onChange(event, key.identifier)}
+                        value={this.state.data[identifier] || this.state.data[key.identifier]}
+                        onChange={event => this.onChange(event, identifier || key.identifier)}
                     />
                 </div>
             </div>);
@@ -217,21 +228,21 @@ class PropertiesWindow extends React.Component {
      * @param booleanValue
      * @returns {XML}
      */
-    renderBooleanInputs(key, booleanValue) {
+    renderBooleanInputs(key, booleanValue, identifier) {
         return (
             <div key={key.identifier} className="form-group">
                 <label
                     htmlFor={key.identifier}
-                    className='col-sm-3 property-dialog-label'
+                    className='col-sm-4 property-dialog-label'
                 >
                     {key.identifier}</label>
-                <div className='col-sm-8 properties-checkbox'>
+                <div className='col-sm-7 properties-checkbox'>
                     <input
                         className="toggle"
                         type="checkbox"
                         id={key.identifier}
                         checked={booleanValue}
-                        onChange={event => this.onChange(event, key.identifier)}
+                        onChange={event => this.onChange(event, identifier || key.identifier)}
                     />
                 </div>
             </div>);
@@ -242,18 +253,18 @@ class PropertiesWindow extends React.Component {
      * @param key
      * @returns {XML}
      */
-    renderTagInputs(key) {
+    renderTagInputs(key, identifier) {
         return (<div key={key.identifier} className="form-group">
             <label
-                className="col-sm-3 property-dialog-label"
+                className="col-sm-4 property-dialog-label"
                 htmlFor="tags"
             >{key.identifier}</label>
-            <div className='col-sm-8 properties-tags'>
+            <div className='col-sm-7 properties-tags'>
                 <TagInput
                     id={key.identifier}
-                    taggedElements={this.state.data[key.identifier]}
+                    taggedElements={this.state.data[identifier] || this.state.data[key.identifier]}
                     onTagsAdded={event =>
-                        this.onTagsAdded(event, key.identifier)}
+                        this.onTagsAdded(event, identifier || key.identifier)}
                     removeTagsAdded={this.removeTagsAdded}
                     placeholder={key.identifier}
                     ref={(node) => { this.node = node; }}
@@ -268,46 +279,62 @@ class PropertiesWindow extends React.Component {
      * @returns {XML}
      */
     renderStructs(key) {
-        const dataTarget = '#' + key.identifier;
-        return (<div className="structsContainer" id="accordion">
-            <div className="panel panel-default" id="panel">
-                <div className="collapsiblePanelHeaderDiv panel-heading">
-                    <h4 className="collapsibleTitle">
-                        <a
-                            data-toggle="collapse"
-                            data-target={dataTarget}
-                            href="#"
-                        >
-                            {key.bType}
-                        </a>
-                    </h4>
+        return (<div className="structsContainer">
+            <div id='optionGroup' key={key.identifier} className="form-group">
+                <label
+                    htmlFor={key.identifier}
+                    className='col-sm-4 property-dialog-label'
+                >
+                    {key.identifier}</label>
+                <div className='col-sm-7'>
+                    <input
+                        className='property-dialog-form-control'
+                        id={key.identifier}
+                        name={key.identifier}
+                        type='text'
+                        placeholder='Specify a defined option object or a method'
+                        value={this.state.data[key.identifier]}
+                        onChange={event => this.onChange(event, key.identifier)}
+                        disabled={!!this.state.expandProperties}
+                    />
                 </div>
-                <div id={key.identifier} className="panel-collapse collapse">
-                    <div className="collapsiblePanelBody panel-body">
-                        { key.fields.map((field) => {
-                            const fieldName = { identifier: field.getName() };
-                            switch (field.getType()) {
-                                case 'string':
-                                    return this.renderTextInputs(fieldName);
-                                    break;
-                                case 'int':
-                                    return this.renderNumericInputs(fieldName);
-                                    break;
-                                case 'boolean':
-                                    let booleanValue = false;
-                                    if (this.state.data[fieldName.identifier]) {
-                                        booleanValue = JSON.parse(this.state.data[fieldName.identifier]);
-                                    }
-                                    return this.renderBooleanInputs(fieldName, booleanValue);
-                                    break;
-                                case 'array':
-                                    return this.renderTagInputs(fieldName);
-                                    break;
-                            }
-                        })}
-                    </div>
-                </div>
+                {(key.fields !== null) &&
+                <div className='col-sm-1'>
+                    <input id='viewOptionParams' type='button' value='+' onClick={this.toggleStructProperties} />
+                </div> }
             </div>
+            {(key.fields !== null) &&
+            <div
+                id={key.identifier}
+                className="optionsDiv"
+                style={{ display: this.state.expandProperties ? 'block' : 'none' }}
+            >
+                <div className="collapsiblePanelBody" style={{ paddingLeft: '3px' }}>
+                    <label> Specify the Option attributes</label>
+                    { key.fields.map((field) => {
+                        const fieldName = { identifier: field.getName() };
+                        const identifier = (key.identifier) + ':' + fieldName.identifier;
+                        switch (field.getType()) {
+                            case 'string':
+                                return this.renderTextInputs(fieldName, identifier);
+                                break;
+                            case 'int':
+                                return this.renderNumericInputs(fieldName, identifier);
+                                break;
+                            case 'boolean':
+                                let booleanValue = false;
+                                if (this.state.data[identifier]) {
+                                    booleanValue = JSON.parse(this.state.data[identifier]);
+                                }
+                                return this.renderBooleanInputs(fieldName, booleanValue, identifier);
+                                break;
+                            case 'array':
+                                return this.renderTagInputs(fieldName, identifier);
+                                break;
+                        }
+                    })}
+                </div>
+            </div> }
         </div>);
     }
     /**
@@ -361,6 +388,8 @@ class PropertiesWindow extends React.Component {
                                         return this.renderBooleanInputs(key, booleanValue);
                                     } else if (key.bType === 'array') {
                                         return this.renderTagInputs(key);
+                                    } else {
+                                        return this.renderStructs(key);
                                     }
                                 })}
                             </form>

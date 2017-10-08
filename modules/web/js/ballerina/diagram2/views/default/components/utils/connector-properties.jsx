@@ -18,10 +18,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// import ConnectorHelper from '../../../../env/helpers/connector-helper';
+import ConnectorHelper from './../../../../../env/helpers/connector-helper';
 import './properties-form.css';
-// import ASTFactory from '../../../../ast/ast-factory';
 import PropertiesWindow from './property-window';
+import TreeUtils from './../../../../../model/tree-util';
+import NodeFactory from './../../../../../model/node-factory';
 /**
  * React component for a connector prop window
  *
@@ -37,7 +38,6 @@ class ConnectorPropertiesForm extends React.Component {
         this.setDataToConnectorInitArgs = this.setDataToConnectorInitArgs.bind(this);
         this.getConnectorInstanceString = this.getConnectorInstanceString.bind(this);
         this.getAddedValueOfProp = this.getAddedValueOfProp.bind(this);
-        this.getFullPkgPath = this.getFullPkgPath.bind(this);
     }
 
     /**
@@ -46,88 +46,13 @@ class ConnectorPropertiesForm extends React.Component {
      * @returns {string}
      */
     getAddedValueOfProp(node) {
-       /* let value = '';
-        if (ASTFactory.isBasicLiteralExpression(node)) {
-            value = node.getBasicLiteralValue();
-        } else if (ASTFactory.isSimpleVariableReferenceExpression(node)) {
-            value = node.getVariableName();
+        let value = '';
+        if (TreeUtils.isLiteral(node)) { // If its a direct value
+            value = node.getValue();
+        } else if (TreeUtils.isSimpleVariableRef(node)) { // If its a reference variable
+            value = node.getVariableName().value;
         }
-        return value;*/
-    }
-
-    /**
-     * Get full package path of connector
-     * @param pkgName
-     * @returns {string}
-     */
-    getFullPkgPath(pkgName) {
-        let pkgPath = '';
-        switch (pkgName) {
-            case 'twitter':
-                pkgPath = 'org.wso2.ballerina.connectors.twitter';
-                break;
-            case 'googlespreadsheet':
-                pkgPath = 'org.wso2.ballerina.connectors.googlespreadsheet';
-                break;
-            case 'amazonlambda':
-                pkgPath = 'org.wso2.ballerina.connectors.amazonlambda';
-                break;
-            case 'medium':
-                pkgPath = 'org.wso2.ballerina.connectors.medium';
-                break;
-            case 'facebook':
-                pkgPath = 'org.wso2.ballerina.connectors.facebook';
-                break;
-            case 'basicauth':
-                pkgPath = 'org.wso2.ballerina.connectors.basicauth';
-                break;
-            case 'jira':
-                pkgPath = 'org.wso2.ballerina.connectors.jira';
-                break;
-            case 'gmail':
-                pkgPath = 'org.wso2.ballerina.connectors.gmail';
-                break;
-            case 'http':
-                pkgPath = 'ballerina.net.http';
-                break;
-            case 'salesforcerest':
-                pkgPath = 'org.wso2.ballerina.connectors.salesforcerest';
-                break;
-            case 'ftp':
-                pkgPath = 'ballerina.net.ftp';
-                break;
-            case 'amazons3':
-                pkgPath = 'org.wso2.ballerina.connectors.amazons3';
-                break;
-            case 'linkedin':
-                pkgPath = 'org.wso2.ballerina.connectors.linkedin';
-                break;
-            case 'oauth2':
-                pkgPath = 'org.wso2.ballerina.connectors.oauth2';
-                break;
-            case 'amazonauth':
-                pkgPath = 'org.wso2.ballerina.connectors.amazonauth';
-                break;
-            case 'sql':
-                pkgPath = 'ballerina.data.sql';
-                break;
-            case 'salesforcesoap':
-                pkgPath = 'org.wso2.ballerina.connectors.salesforcesoap';
-                break;
-            case 'etcd':
-                pkgPath = 'org.wso2.ballerina.connectors.etcd';
-                break;
-            case 'ws':
-                pkgPath = 'ballerina.net.ws';
-                break;
-            case 'jms':
-                pkgPath = 'ballerina.net.jms';
-                break;
-            case 'soap':
-                pkgPath = 'org.wso2.ballerina.connectors.soap';
-                break;
-        }
-        return pkgPath;
+        return value;
     }
 
     /**
@@ -135,16 +60,58 @@ class ConnectorPropertiesForm extends React.Component {
      * @returns {*}
      */
     getSupportedProps() {
-        /*const fullPkgPath = this.getFullPkgPath(this.props.model.getDeclarationStatement().getRightExpression()
-            .getConnectorName().getPackageName());
-        const connectorProps = ConnectorHelper.getConnectorParameters(this.props.environment, fullPkgPath);
+        const props = this.props.model.props;
+        // Get the pkg alias
+        const pkgAlias = props.model.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value;
+        const connectorProps = ConnectorHelper.getConnectorParameters(props.environment, pkgAlias);
         const addedValues = this.getDataAddedToConnectorInit();
         connectorProps.map((property, index) => {
-            if (addedValues.length > 0) {
-                property.value = this.getAddedValueOfProp(addedValues[index]);
+            if (addedValues.length > 0 && (index <= addedValues.length - 1)) {
+                // Check for the connection properties
+                if (property.identifier === 'connectorOptions') {
+                    if (TreeUtils.isSimpleVariableRef(addedValues[index])) {
+                        property.value = this.getAddedValueOfProp(addedValues[index]);
+                    } else {
+                        // Check the field values given
+                        if (property.fields) {
+                            if (TreeUtils.isRecordLiteralExpr(addedValues[index])) { // If its a map
+                                // Get all the key-value pairs
+                                if (addedValues[index].getKeyValuePairs()) {
+                                    addedValues[index].getKeyValuePairs().map((element) => {
+                                        if (TreeUtils.isRecordLiteralKeyValue(element)) {
+                                            const key = element.getKey().getVariableName().value;
+                                                // Get the value
+                                            if (element.getValue()) {
+                                                // Iterate over the property fields until the key matches the field name
+                                                property.fields.map((field) => {
+                                                    if (field.getName() === key) {
+                                                        field.setDefaultValue(this
+                                                            .getAddedValueOfProp(element.getValue()));
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    property.value = this.getAddedValueOfProp(addedValues[index]);
+                }
             }
         });
-        return connectorProps;*/
+        return connectorProps;
+    }
+
+    /**
+     * Add quotation for strings
+     */
+    addQuotationForStringValues(value) {
+        if (!value.startsWith('"')) {
+            value = '"' + value + '"';
+        }
+        return value;
     }
 
     /**
@@ -154,40 +121,95 @@ class ConnectorPropertiesForm extends React.Component {
      * @returns {string}
      */
     getConnectorInstanceString(connectorInit, data) {
-        /*let spacesBeforeNameRef = '';
-        let spacesNameRefToArgStart = '';
-
-        if (connectorInit.getIsFilterConnectorInitExpr()) {
-            spacesBeforeNameRef = connectorInit.whiteSpace.useDefault ? ' ' : connectorInit.getWSRegion(0);
-            spacesNameRefToArgStart = connectorInit.whiteSpace.useDefault ? ' ' : connectorInit.getWSRegion(1);
-        } else {
-            spacesBeforeNameRef = connectorInit.whiteSpace.useDefault ? ' ' : connectorInit.getWSRegion(1);
-            spacesNameRefToArgStart = connectorInit.whiteSpace.useDefault ? ' ' : connectorInit.getWSRegion(2);
-        }
-
-        let connectorInstanceString = spacesBeforeNameRef +
-            connectorInit.getConnectorName().toString().trim()
-            + spacesNameRefToArgStart
-            + '(';
-
-        Object.keys(data).forEach((key, index) => {
-            if (index !== 0) {
-                connectorInstanceString += ', ';
+        // Set the expressions to null
+        connectorInit.setExpressions([], true);
+        const optionProps = {};
+        // Filter all values in the connection option struct
+        Object.keys(data).forEach((key) => {
+            if (key.startsWith('connectorOptions:')) {
+                const propName = key.replace('connectorOptions:', '');
+                optionProps[propName] = data[key];
             }
+        });
+        // According to the values added, construct the nodes again
+        Object.keys(data).forEach((key) => {
+            // We need the supported props to preserve the order of the entered params
             this.getSupportedProps().map((property) => {
                 if (key === property.identifier) {
-                    switch (property.bType) {
-                        case 'string':
-                            connectorInstanceString += JSON.stringify(data[key]);
-                            break;
-                        default:
-                            connectorInstanceString += data[key];
+                    // Check for options
+                    if (key === 'connectorOptions') {
+                        if (data[key]) {
+                            // Create an identifier node
+                            const variableNameNode = NodeFactory.createIdentifier({ value: data[key] });
+                            // Create a SimpleVarDef Node
+                            const simpleVarDefNode = NodeFactory.createSimpleVariableRef({
+                                variableName: variableNameNode });
+                            let index = connectorInit.getExpressions().length - 1;
+                            if (index === -1) {
+                                index = 0;
+                            }
+                            connectorInit.addExpressions(simpleVarDefNode, index + 1);
+                        } else {
+                            // No reference value, then add the values for the fields
+                            // Create a RecordLiteralExprNode
+                            const recordLiteralExprNode = NodeFactory.createRecordLiteralExpr();
+                            // Iterate over the connector options
+                            Object.keys(optionProps).forEach((prop) => {
+                                // Check if there are value
+                                if (optionProps[prop]) {
+                                    // Iterate over the property fields of the struct to preserve the
+                                    // order and to get the bType
+                                    if (property.fields) {
+                                        property.fields.map((field) => {
+                                            if (prop === field.getName()) {
+                                                // Get value of property
+                                                let value = optionProps[prop];
+                                                // Get type of the prop field
+                                                if (field.getType() === 'string') {
+                                                    value = this.addQuotationForStringValues(value);
+                                                }
+                                                // Create a SimpleVarDef Node for the key
+                                                const variableNameNode = NodeFactory.createIdentifier({ value: prop });
+                                                const simpleVarDefNode = NodeFactory.createSimpleVariableRef({
+                                                    variableName: variableNameNode });
+                                                // Create a Literal Node for the value
+                                                const literalNode = NodeFactory.createLiteral({ value });
+                                                // Create a Record Literal Value Node
+                                                const recordLiteralKeyValueNode = NodeFactory.createRecordLiteralKeyValue({ key: simpleVarDefNode, value: literalNode });
+                                                let index = recordLiteralExprNode.getKeyValuePairs().length - 1;
+                                                if (index === -1) {
+                                                    index = 0;
+                                                }
+                                                // Add the key-value pair node to the RecordLiteralExpr node
+                                                recordLiteralExprNode.addKeyValuePairs(recordLiteralKeyValueNode, index + 1);
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                            // Add the RecordLiteralExpr Node to the connector init expression
+                            let index = connectorInit.getExpressions().length - 1;
+                            if (index === -1) {
+                                index = 0;
+                            }
+                            connectorInit.addExpressions(recordLiteralExprNode, index + 1);
+                        }
+                    } else {
+                        // Assuming for the literals user can only give that type variables
+                        let value = data[key];
+                        if (property.bType === 'string') {
+                            value = this.addQuotationForStringValues(value);
+                        }
+                        const literalNode = NodeFactory.createLiteral({ value });
+                        let index = connectorInit.getExpressions().length - 1;
+                        if (index === -1) {
+                            index = 0;
+                        }
+                        connectorInit.addExpressions(literalNode, index + 1);
                     }
                 }
             });
         });
-
-        return connectorInstanceString + ')';*/
     }
 
     /**
@@ -195,9 +217,9 @@ class ConnectorPropertiesForm extends React.Component {
      * @param data
      */
     setDataToConnectorInitArgs(data) {
-        /*const connectorInit = this.props.model.getDeclarationStatement().getRightExpression();
-        const expr = 'create' + this.getConnectorInstanceString(connectorInit, data);
-        connectorInit.setExpressionFromString(expr);*/
+        const props = this.props.model.props;
+        const connectorInit = props.model.getVariable().getInitialExpression();
+        this.getConnectorInstanceString(connectorInit, data);
     }
 
     /**
@@ -205,7 +227,8 @@ class ConnectorPropertiesForm extends React.Component {
      * @returns {Expression[]}
      */
     getDataAddedToConnectorInit() {
-        // return this.props.model.getDeclarationStatement().getRightExpression().getArgs();
+        const props = this.props.model.props;
+        return props.model.getVariable().getInitialExpression().getExpressions();
     }
 
     /**
@@ -215,6 +238,7 @@ class ConnectorPropertiesForm extends React.Component {
      * @memberof connector properties window
      */
     render() {
+        // this.getSupportedProps();
         const props = this.props.model.props;
         const positionX = (props.bBox.x) - 8 + 'px';
         const positionY = (props.bBox.y) + 'px';
@@ -223,23 +247,27 @@ class ConnectorPropertiesForm extends React.Component {
             popover: {
                 top: props.bBox.y + 10 + 'px',
                 left: positionX,
-                height: '280px',
+                height: '340px',
+                minWidth: '500px',
             },
             arrowStyle: {
                 top: positionY,
                 left: props.bBox.x + 'px',
             },
         };
-
+        const supportedProps = this.getSupportedProps();
+        if (!supportedProps.length) {
+            return null;
+        }
         return (
             <PropertiesWindow
                 model={props.model}
                 formHeading='Connector Properties'
                 key={`connectorProp/${props.model.id}`}
                 styles={styles}
-                // supportedProps={this.getSupportedProps()}
+                supportedProps={this.getSupportedProps()}
                 editor={props.editor}
-                // addedValues={this.setDataToConnectorInitArgs}
+                addedValues={this.setDataToConnectorInitArgs}
             />);
     }
 }

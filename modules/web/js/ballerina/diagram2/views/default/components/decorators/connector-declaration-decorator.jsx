@@ -41,7 +41,7 @@ class ConnectorDeclarationDecorator extends React.Component {
         const bBox = Object.assign({}, node.viewState.bBox);
         const statementContainerBBox = node.viewState.bBox;
         bBox.x = statementContainerBBox.x + ((statementContainerBBox.w - 120) / 2);
-        bBox.y = statementContainerBBox.y;
+        bBox.y = statementContainerBBox.y + 30;
         const overlayComponents = {
             kind: 'ConnectorPropertiesForm',
             props: {
