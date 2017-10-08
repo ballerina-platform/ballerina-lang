@@ -38,17 +38,21 @@ class PositioningUtil {
             (viewState.components['statement-box'].h / 2);
 
         //
-        if (TreeUtil.variableDefIsInvocation(node)) {
+        if (TreeUtil.statementIsInvocation(node)) {
             // Set the view state property to manipulate at the statement decorator
             viewState.isActionInvocation = true;
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
             const dropDown = new SimpleBBox();
-            const variableRefName = node.variable.initialExpression.expression.variableName.value;
+            let variableRefName;
+            if (TreeUtil.isAssignment(node)) {
+                variableRefName = node.expression.expression.variableName.value;
+            } else {
+                variableRefName = node.variable.initialExpression.expression.variableName.value;
+            }
             const connectorDeclaration = TreeUtil.getVariableDefByName(node.parent, variableRefName);
             arrowStartBBox.x = viewState.bBox.x + viewState.bBox.w;
-            arrowStartBBox.y = viewState.components['statement-box'].y
-                + (viewState.components['statement-box'].h / 2) - 3;
+            arrowStartBBox.y = viewState.components['statement-box'].y + 5;
             viewState.components.invocation = {
                 start: undefined,
                 end: undefined,

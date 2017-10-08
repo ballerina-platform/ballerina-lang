@@ -165,6 +165,8 @@ class StatementDecorator extends React.Component {
 
         let dropDownItems;
         const dropDownItemMeta = [];
+        let backwardArrowStart;
+        let backwardArrowEnd;
         if (viewState.isActionInvocation) {
             dropDownItems = TreeUtil.getAllVisibleConnectorDeclarations(this.props.model.parent);
             dropDownItems.forEach((item) => {
@@ -175,6 +177,11 @@ class StatementDecorator extends React.Component {
                 dropDownItemMeta.push(meta);
             });
             this.props.model.getSource();
+            backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
+            backwardArrowStart.y = viewState.components['statement-box'].y
+                + viewState.components['statement-box'].h - 5;
+            backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
+            backwardArrowEnd.y = backwardArrowStart.y;
         }
 
         return (
@@ -225,6 +232,12 @@ class StatementDecorator extends React.Component {
                         <ArrowDecorator
                             start={viewState.components.invocation.start}
                             end={viewState.components.invocation.end}
+                        />
+                        <ArrowDecorator
+                            start={backwardArrowStart}
+                            end={backwardArrowEnd}
+                            dashed
+                            backward
                         />
                         <StatementPropertyItemSelector
                             model={this.props.model}
