@@ -166,6 +166,7 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize type lattice
      */
     initializeTypeLattice() {
+        // TODO: return the getTypeLattice() promise here after the hardcoded json is removed.
         return new Promise((resolve, reject) => {
             getTypeLattice()
                 .then((typeLatticeJson) => {
@@ -185,6 +186,7 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize operator lattice
      */
     initializeOperatorLattice() {
+        // TODO: return the getOperatorLattice() promise here after the hardcoded json is removed.
         return new Promise((resolve, reject) => {
             getOperatorLattice()
                 .then((operatorLatticeJson) => {
