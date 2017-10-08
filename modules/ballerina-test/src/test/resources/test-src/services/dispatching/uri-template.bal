@@ -56,7 +56,8 @@ service<http> Ecommerce {
     resource productsInfo4 (http:Request req, http:Response res, string productId) {
         json responseJson;
         map params = request:getQueryParams(req);
-        var rID, _ = (string)params.regID;
+        string rID;
+        rID, _ = (string)params.regID;
         system:println("Product ID " + productId);
         system:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
@@ -72,8 +73,10 @@ service<http> Ecommerce {
     resource productsInfo6 (http:Request req, http:Response res) {
         json responseJson;
         map params = request:getQueryParams(req);
-        var prdID, _ = (string)params.prodId;
-        var rID, _ = (string)params.regID;
+        string prdID;
+        string rID;
+        prdID, _ = (string)params.prodID;
+        rID, _ = (string)params.regID;
         system:println ("Product ID " + prdID);
         system:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
@@ -89,7 +92,8 @@ service<http> Ecommerce {
     resource productsInfo5 (http:Request req, http:Response res, string productId) {
         json responseJson;
         map params = request:getQueryParams(req);
-        var rID, _ = (string)params.regID;
+        string rID;
+        rID, _ = (string)params.regID;
         system:println("Product ID " + productId);
         system:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};

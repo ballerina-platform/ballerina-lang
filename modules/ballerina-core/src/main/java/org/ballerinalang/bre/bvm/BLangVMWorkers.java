@@ -35,13 +35,13 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 
 /**
  * This class contains helper functions to invoke workers.
@@ -67,7 +67,8 @@ public class BLangVMWorkers {
 
             BLangVM bLangVM = new BLangVM(programFile);
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo);
+            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
+                    new ConcurrentLinkedQueue<>());
             executor.submit(workerRunner);
         }
 
@@ -126,24 +127,27 @@ public class BLangVMWorkers {
         return index;
     }
 
+    static class WorkerExecutor implements Runnable {
 
-    static class WorkerExecutor implements Callable<WorkerResult> {
-
-        private static final Logger log = LoggerFactory.getLogger(WorkerExecutor.class);
         private static PrintStream outStream = System.out;
 
         private BLangVM bLangVM;
         private Context bContext;
         private WorkerInfo workerInfo;
+        private Queue<WorkerResult> resultHolder;
+        private Semaphore resultCounter;
 
-        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo) {
+        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo, 
+                Queue<WorkerResult> resultHolder) {
             this.bLangVM = bLangVM;
             this.bContext = bContext;
             this.workerInfo = workerInfo;
+            this.resultHolder = resultHolder;
         }
 
+        @SuppressWarnings("rawtypes")
         @Override
-        public WorkerResult call() throws BallerinaException {
+        public void run() throws BallerinaException {
             BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
             bLangVM.execWorker(bContext, workerInfo.getCodeAttributeInfo().getCodeAddrs());
             if (bContext.getError() != null) {
@@ -178,8 +182,16 @@ public class BLangVMWorkers {
                 }
             }
 
-            return new WorkerResult(workerInfo.getWorkerName(), bRefValueArray);
+            this.resultHolder.add(new WorkerResult(workerInfo.getWorkerName(), bRefValueArray));
+            if (this.resultCounter != null) {
+                this.resultCounter.release();
+            }
         }
+        
+        public void setResultCounterSemaphore(Semaphore resultCounter) {
+            this.resultCounter = resultCounter;
+        }
+        
     }
 
     static class WorkerReturnIndex {

@@ -584,7 +584,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        BType etype = ((BArrayType) arrayLiteral.type).eType;
+        BType etype;
+        if (arrayLiteral.type.tag == TypeTags.ANY) {
+            etype = arrayLiteral.type;
+        } else {
+            etype = ((BArrayType) arrayLiteral.type).eType;
+        }
 
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, arrayLiteral.type.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
@@ -2087,6 +2092,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
+        forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
         this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv);
         this.processTimeoutBlock(forkJoin, forkjoinInfo, forkJoinEnv);
     }

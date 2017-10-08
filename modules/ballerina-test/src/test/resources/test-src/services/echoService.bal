@@ -76,8 +76,10 @@ service<http> echo {
     }
     resource getFormParams (http:Request req, http:Response res) {
         map params = request:getFormParams(req);
-        var name,_ = (string)params.firstName;
-        var team,_ = (string)params.team;
+        string name;
+        name,_ = (string)params.firstName;
+        string team;
+        team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
         response:setJsonPayload(res, responseJson);
         response:send(res);

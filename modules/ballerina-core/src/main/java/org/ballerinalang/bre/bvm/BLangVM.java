@@ -104,20 +104,22 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class executes Ballerina instruction codes.
@@ -126,12 +128,12 @@ import java.util.concurrent.TimeoutException;
  */
 public class BLangVM {
 
+    private static final String JOIN_TYPE_SOME = "some";
     private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
     private Context context;
     private ControlStackNew controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
-    private boolean isForkJoinTimedOut;
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
@@ -2613,136 +2615,76 @@ public class BLangVM {
     public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
         ForkjoinInfo forkjoinInfo = forkJoinCPEntry.getForkjoinInfo();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
-        List<WorkerResult> resultMsgs = new ArrayList<>();
-        //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
-        //BRefValueArray resultInvokeAny = null;
-        long timeout = 60; // Default timeout value is 60 seconds
+        long timeout = Long.MAX_VALUE;
         if (forkjoinInfo.isTimeoutAvailable()) {
-            timeout = controlStack.getCurrentFrame().getLongRegs()[0];
+            timeout = this.controlStack.getCurrentFrame().getLongRegs()[0];
         }
-
-        Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
+        Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
+        Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context(programFile);
-
-            StackFrame callerSF = controlStack.getCurrentFrame();
+            Context workerContext = new Context(this.programFile);
+            StackFrame callerSF = this.controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
-
             ControlStackNew workerControlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
+            StackFrame calleeSF = new StackFrame(this.controlStack.getCurrentFrame().getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             workerControlStack.pushFrame(calleeSF);
-
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
-
-
-            // Copy arg values from the current StackFrame to the new StackFrame
-            // TODO fix this. Move the copyArgValues method to another util function
-            // BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-            BLangVM bLangVM = new BLangVM(programFile);
-            //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+            BLangVM bLangVM = new BLangVM(this.programFile);
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                    workerContext, workerInfo);
+                    workerContext, workerInfo, resultMsgs);
             workerRunnerList.add(workerRunner);
-            triggeredWorkers.put(workerInfo.getWorkerName(), workerRunner);
+            workers.put(workerInfo.getWorkerName(), workerRunner);
         }
-
-        if (forkjoinInfo.getJoinType().equalsIgnoreCase("some")) {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
-            if (joinWorkerNames.length == 0) {
-                // If there are no workers specified, wait for any of all the workers
-                WorkerResult wr = invokeAnyWorker(workerRunnerList, timeout);
-                if (wr != null) {
-                    resultMsgs.add(wr);
-                }
-            } else {
-                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
-                for (String workerName : joinWorkerNames) {
-                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
-                }
-                WorkerResult wr = invokeAnyWorker(workerRunnersSpecified, timeout);
-                if (wr != null) {
-                    resultMsgs.add(wr);
-                }
-            }
-        } else {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
-            if (joinWorkerNames.length == 0) {
-                // If there are no workers specified, wait for all of all the workers
-                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
-            } else {
-                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
-                for (String workerName : joinWorkerNames) {
-                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
-                }
-                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
-            }
+        Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
+        if (joinWorkerNames.isEmpty()) {
+            /* if no join workers are specified, that means, all should be considered */
+            joinWorkerNames.addAll(workers.keySet());
         }
-
-        if (isForkJoinTimedOut) {
-            ip = forkjoinInfo.getTimeoutIp();
-            // Execute the timeout block
-            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
-            BMap<String, BRefValueArray> mbMap = new BMap<>();
-            for (WorkerResult workerResult : resultMsgs) {
-                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
-            }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
-
-            isForkJoinTimedOut = false;
-
+        int workerCount;
+        if (forkjoinInfo.getJoinType().equalsIgnoreCase(JOIN_TYPE_SOME)) {
+            workerCount = forkjoinInfo.getWorkerCount();
         } else {
-            ip = forkjoinInfo.getJoinIp();
-            // Assign values to join block message arrays
+            workerCount = joinWorkerNames.size();
+        }
+        boolean success = this.invokeJoinWorkers(workers, joinWorkerNames, workerCount, timeout);
+        if (success) {
+            this.ip = forkjoinInfo.getJoinIp();
+            /* assign values to join block message arrays */
             int offsetJoin = forkjoinInfo.getJoinMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
-        }
+            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+        } else {
+            /* timed out */
+            this.ip = forkjoinInfo.getTimeoutIp();
+            /* execute the timeout block */
+            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
+            }
+            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
+        }     
     }
-
-    private WorkerResult invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
-        ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        WorkerResult result;
+    
+    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers, 
+            Set<String> joinWorkerNames, int joinCount, long timeout) {
+        ExecutorService exec = Executors.newWorkStealingPool();
+        Semaphore resultCounter = new Semaphore(-joinCount + 1);
+        workers.forEach((k, v) -> {
+            if (joinWorkerNames.contains(k)) {
+                v.setResultCounterSemaphore(resultCounter);
+            }
+            exec.submit(v);
+        });
         try {
-            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
-            return null;
-        } catch (TimeoutException e) {
-            isForkJoinTimedOut = true;
-            return null;
+            return resultCounter.tryAcquire(timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException ignore) {
+            return false;
         }
-        return result;
-    }
-
-    private List<WorkerResult> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList,
-                                                long timeout) {
-        ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<WorkerResult> result = new ArrayList<>();
-        try {
-            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
-                try {
-                    return bMessageFuture.get();
-                } catch (CancellationException e) {
-                    // This means task has been timedout and cancelled by system.
-                    isForkJoinTimedOut = true;
-                    return null;
-                } catch (Exception e) {
-                    return null;
-                }
-
-            }).forEach((WorkerResult b) -> {
-                if (b != null) {
-                    result.add(b);
-                }
-            });
-        } catch (InterruptedException e) {
-            return result;
-        }
-        return result;
     }
 
     private void startWorkers() {

@@ -1,30 +1,29 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- * <p>
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.test.utils.BTestUtils;
+import org.ballerinalang.test.utils.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -36,17 +35,17 @@ import org.testng.annotations.Test;
  */
 public class MapInitializerExprTest {
 
-    private ProgramFile programFile;
+    private CompileResult compileResult;
 
     @BeforeTest
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/expressions/map-initializer-expr.bal");
+        compileResult = BTestUtils.compile("test-src/types/map/map-initializer-expr.bal");
     }
 
     @Test(description = "Test map initializer expression")
     public void testMapInitExpr() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "mapInitTest", args);
+        BValue[] returns = BTestUtils.invoke(compileResult, "mapInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
@@ -61,12 +60,12 @@ public class MapInitializerExprTest {
 
     @Test(description = "Test map initializing with different types")
     public void testMultiTypeMapInit() {
-        BTestUtils.getProgramFile("lang/expressions/multi-type-map-initializer.bal");
+        BTestUtils.compile("test-src/types/map/multi-type-map-initializer.bal");
     }
     
     @Test
     public void testNestedMapInit() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedMapInit", new BValue[] {});
+        BValue[] returns = BTestUtils.invoke(compileResult, "testNestedMapInit", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
@@ -81,7 +80,7 @@ public class MapInitializerExprTest {
     
     @Test
     public void testMapInitWithJson() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMapInitWithJson", new BValue[] {});
+        BValue[] returns = BTestUtils.invoke(compileResult, "testMapInitWithJson", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
@@ -95,7 +94,7 @@ public class MapInitializerExprTest {
     
     @Test
     public void testComplexMapInit() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testComplexMapInit", new BValue[] {});
+        BValue[] returns = BTestUtils.invoke(compileResult, "testComplexMapInit", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
