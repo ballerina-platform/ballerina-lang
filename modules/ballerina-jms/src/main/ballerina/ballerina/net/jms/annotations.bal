@@ -11,5 +11,6 @@ public annotation configuration attach service<> {
     string clientId;
     string configFilePath;
     string connectionFactoryNature;
+    string concurrentConsumers;
     string[] properties;
 }
