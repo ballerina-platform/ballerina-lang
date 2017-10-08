@@ -134,14 +134,18 @@ class PositioningUtil {
             child.viewState.bBox.y = height + this.config.panel.wrapper.gutter.h;
             height = this.config.panel.wrapper.gutter.h + child.viewState.bBox.h + height;
         });
-
+        // add the padding for the width
+        width += this.config.panel.wrapper.gutter.h * 2;
+        // set the height of the canvas.
         height = (height > node.viewState.container.height) ? height : node.viewState.container.height;
-        width = (width > node.viewState.container.width) ? width : node.viewState.container.width;
 
         // re-adjust the width of each node to fill the container.
-        children.forEach((child) => {
-            child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
-        });
+        if (width < node.viewState.container.width) {
+            width = node.viewState.container.width;
+            children.forEach((child) => {
+                child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
+            });
+        }
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = width;
@@ -845,7 +849,7 @@ class PositioningUtil {
 
         // Create a bbox for parameter of timeout.
         timeoutStmt.viewState.components.param =
-            new SimpleBBox(timeoutX + timeoutStmt.viewState.components['expression'].w, 0, 0, 0, 0);
+            new SimpleBBox(timeoutX + timeoutStmt.viewState.components.expression.w, 0, 0, 0, 0);
 
         if (node.viewState.bBox.w > timeoutStmt.viewState.bBox.w) {
             timeoutStmt.viewState.bBox.w = node.viewState.bBox.w;
@@ -859,6 +863,17 @@ class PositioningUtil {
         timeoutStmt.viewState.bBox.y = timeoutY;
         timeoutStmt.viewState.bBox.x = timeoutX;
         this.positionCompoundStatementComponents(timeoutStmt);
+
+        // Position Workers
+        let xIndex = bBox.x + this.config.fork.padding.left + this.config.fork.lifeLineGutterH;
+        const yIndex = bBox.y + this.config.fork.padding.top;
+        if (node.workers instanceof Array) {
+            node.workers.forEach((worker) => {
+                worker.viewState.bBox.x = xIndex;
+                worker.viewState.bBox.y = yIndex;
+                xIndex += this.config.fork.lifeLineGutterH + worker.viewState.bBox.w;
+            });
+        }
     }
 
 

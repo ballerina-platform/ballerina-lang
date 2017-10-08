@@ -25,6 +25,7 @@ import LifeLine from '../decorators/lifeline';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
+import ConnectorDeclarationDecorator from '../decorators/connector-declaration-decorator';
 
 class FunctionNode extends React.Component {
 
@@ -60,23 +61,13 @@ class FunctionNode extends React.Component {
         const argumentParameters = this.props.model.getParameters();
         const returnParameters = this.props.model.getReturnParameters();
 
-
-        // create lifelines for connector declarations.
-        const connectorClasses = {
-            lineClass: 'connector-life-line',
-            polygonClass: 'connector-life-line-polygon',
-        };
         const connectors = this.props.model.body.statements
-            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); })
-            .map((statement) => {
+            .filter((element) => { return TreeUtil.isConnectorDeclaration(element); }).map((statement) => {
                 return (
-                    <LifeLine
+                    <ConnectorDeclarationDecorator
+                        model={statement}
                         title={statement.variable.name.value}
                         bBox={statement.viewState.bBox}
-                        classes={connectorClasses}
-                        icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
-                        editorOptions={this.editorOptions}
-                        iconColor='#1a8278'
                     />);
             });
         /*
@@ -117,37 +108,37 @@ class FunctionNode extends React.Component {
                 {statemnts}
             </g>);
         } else {*/
-            return (
-                <PanelDecorator
-                    bBox={bBox}
-                    title={name}
-                    model={this.props.model}
-                    icon={icons}
-                    dropTarget={this.props.model}
-                    canDrop={this.canDropToPanelBody}
-                    argumentParams={argumentParameters}
-                    returnParams={returnParameters}
-                >
-                    <StatementDropZone
-                        x={bodyBBox.x}
-                        y={bodyBBox.y}
-                        width={bodyBBox.w}
-                        height={bodyBBox.h}
-                        baseComponent="rect"
-                        dropTarget={body}
-                        enableDragBg
-                    />
-                    <LifeLine
-                        title="default"
-                        bBox={this.props.model.viewState.components.defaultWorkerLine}
-                        classes={classes}
-                        icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
-                        iconColor='#025482'
-                    />
-                    {blockNode}
-                    {workers}
-                    {connectors}
-                </PanelDecorator>);
+        return (
+            <PanelDecorator
+                bBox={bBox}
+                title={name}
+                model={this.props.model}
+                icon={icons}
+                dropTarget={this.props.model}
+                canDrop={this.canDropToPanelBody}
+                argumentParams={argumentParameters}
+                returnParams={returnParameters}
+            >
+                <StatementDropZone
+                    x={bodyBBox.x}
+                    y={bodyBBox.y}
+                    width={bodyBBox.w}
+                    height={bodyBBox.h}
+                    baseComponent="rect"
+                    dropTarget={body}
+                    enableDragBg
+                />
+                <LifeLine
+                    title="default"
+                    bBox={this.props.model.viewState.components.defaultWorkerLine}
+                    classes={classes}
+                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
+                    iconColor='#025482'
+                />
+                {blockNode}
+                {workers}
+                {connectors}
+            </PanelDecorator>);
        // TODOX }
     }
 }

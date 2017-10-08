@@ -221,7 +221,7 @@ class SizingUtil {
      *
      */
     sizeCompilationUnitNode(node) {
-        // Not implemented.
+        // Compilation unit height will be calculated by the postion util.
     }
 
 
@@ -275,15 +275,17 @@ class SizingUtil {
         // calculate default worker
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
-        // we add the default worker line as a seperate component.
+        // We add the default worker line as a seperate component.
         cmp.defaultWorkerLine.w = this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
-        // set the max worker height to other workers. 
+        // set the max worker height to other workers.
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
                                              - this.config.lifeLine.footer.height;
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
+            // now add the worker width to panelBody width.
+            cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
         });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
@@ -344,15 +346,16 @@ class SizingUtil {
                 if (TreeUtil.isConnectorDeclaration(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
                     // add the connector width to panel body width.
-                    cmp.panelBody.w += this.config.lifeLine.width;
+                    cmp.panelBody.w += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
         }
-        // Get the largest among component heading width and component body width.
-        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
+        // add panel gutter to panelBody
+        cmp.panelBody.w += cmp.defaultWorker.w + (this.config.panel.wrapper.gutter.h * 2);
 
-        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
+        // Get the largest among component heading width and component body width.
+        viewState.bBox.w = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
     }
 
     /**
@@ -1158,17 +1161,21 @@ class SizingUtil {
         let maxWidthOfWorkers = 0;
         node.workers.forEach((worker) => {
             if (worker.viewState.bBox.h > maxHeightOfWorkers) {
-                maxHeightOfWorkers = worker.viewState.bBox.h;
+                maxHeightOfWorkers = worker.viewState.bBox.h + this.config.fork.padding.top
+                    + this.config.fork.padding.bottom + node.viewState.components['block-header'].h;
             }
 
-            maxWidthOfWorkers += worker.viewState.bBox.w;
+            maxWidthOfWorkers += worker.viewState.bBox.w + this.config.fork.lifeLineGutterH;
         });
 
         // Set the statement box height.
         node.viewState.components['statement-box'].h = maxHeightOfWorkers === 0 ? nodeHeight : maxHeightOfWorkers;
 
-        node.viewState.bBox.h = nodeHeight + maxHeightOfWorkers + joinTimeoutBlockHeight;
-        node.viewState.bBox.w = nodeWidth > maxWidthOfWorkers ? nodeWidth : maxWidthOfWorkers;
+        // Set the whole fork join compound box dimensions.
+        node.viewState.bBox.h = nodeHeight + maxHeightOfWorkers + joinTimeoutBlockHeight
+            + this.config.fork.padding.top + this.config.fork.padding.bottom;
+        node.viewState.bBox.w = (nodeWidth > maxWidthOfWorkers ? nodeWidth : maxWidthOfWorkers)
+            + this.config.fork.padding.left + this.config.fork.padding.right;
     }
 
     /**
