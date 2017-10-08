@@ -82,11 +82,16 @@ class TransformFactory {
         const { functionDef, packageName, fullPackageName } = args;
 
         let functionInvokeString = '';
-        if (packageName) {
+        if (packageName && packageName !== 'Current Package') {
             functionInvokeString = `${packageName}:`;
         }
         const functionParams = functionDef.getParameters().map((param) => {
-            return Environment.getDefaultValue(param.type);
+            let dfv = Environment.getDefaultValue(param.type);
+            if (dfv == null) {
+                dfv = 'null';
+            }
+
+            return dfv;
         });
         const paramString = functionParams.join(', ')
 
@@ -95,16 +100,16 @@ class TransformFactory {
         const varRefNames = args.functionDef.getReturnParams().map((param, index) => {
             return VarPrefix.OUTPUT + index + 1;
         });
-        let varRefListString = '';
+
         if (varRefNames.length > 0) {
-            varRefListString = `var ${varRefNames.join(', ')}`;
+            const varRefListString = `var ${varRefNames.join(', ')}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
         }
-
-        functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
-
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
-        return TreeBuilder.build(parsedJson);
+        const assignmentNode = TreeBuilder.build(parsedJson);
+        assignmentNode.getExpression().setFullPackageName(fullPackageName);
+        return assignmentNode;
     };
 }
 
