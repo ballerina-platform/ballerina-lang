@@ -384,3 +384,7 @@ span { cursor: pointer; }
     margin-left: -12px;
     margin-top: 6px;
 }
+
+.structsContainer input:disabled{
+    cursor: not-allowed;
+}

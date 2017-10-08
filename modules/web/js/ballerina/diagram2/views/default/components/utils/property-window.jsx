@@ -279,6 +279,15 @@ class PropertiesWindow extends React.Component {
      * @returns {XML}
      */
     renderStructs(key) {
+        // Filter all struct field values and check if they have values
+        let atleastOneFieldValuExists = true;
+        Object.keys(this.state.data).forEach((key) => {
+            if (key.startsWith('connectorOptions:')) {
+                if (!this.state.data[key]) {
+                    atleastOneFieldValuExists = false;
+                }
+            }
+        });
         return (<div className="structsContainer">
             <div id='optionGroup' key={key.identifier} className="form-group">
                 <label
@@ -295,10 +304,11 @@ class PropertiesWindow extends React.Component {
                         placeholder='Specify a defined option object or a method'
                         value={this.state.data[key.identifier]}
                         onChange={event => this.onChange(event, key.identifier)}
-                        disabled={!!this.state.expandProperties}
+                        disabled={((this.state.expandProperties ||
+                        (!this.state.data[key.identifier] && atleastOneFieldValuExists)))}
                     />
                 </div>
-                {(key.fields !== null) &&
+                {(key.fields !== null && (!this.state.data[key.identifier])) &&
                 <div className='col-sm-1'>
                     <input
                         id='viewOptionParams'
