@@ -22,5 +22,5 @@ function testStructToStruct() (Person) {
                   marks:[24, 81]
                 };
     Person p = s;
-    return s;
+    return p;
 }

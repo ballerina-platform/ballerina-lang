@@ -1,5 +1,3 @@
-import ballerina.lang.errors;
-
 struct A {
     string x;
     int y;
@@ -13,6 +11,6 @@ function testCastingWithTooManyReturns() {
     B b = {x: "x-valueof-b"};
     A a;
     int i;
-    errors:TypeCastError err;
+    TypeCastError err;
     a, err, i = (A) b;
 }

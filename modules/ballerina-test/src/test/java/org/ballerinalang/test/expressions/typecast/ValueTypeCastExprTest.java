@@ -178,15 +178,14 @@ public class ValueTypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BBoolean);
     }
 
-    //failing
-//    @Test
-//    public void testBooleanAppendToString() {
-//        BValue[] args = {new BBoolean(true)};
-//        BValue[] returns = BTestUtils.invoke(result, "booleanappendtostring", args);
-//        Assert.assertTrue(returns[0] instanceof BString);
-//        final String expected = "true-append-true";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
+    @Test
+    public void testBooleanAppendToString() {
+        BValue[] args = {new BBoolean(true)};
+        BValue[] returns = BTestUtils.invoke(result, "booleanappendtostring", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        final String expected = "true-append-true";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
 
     @Test
     public void testBlobToAny() {
