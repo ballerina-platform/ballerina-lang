@@ -44,14 +44,14 @@ public class BLangFragmentParser {
         try {
             String parsableString = getParsableString(sourceFragment);
             JsonElement jsonElement = getJsonModel(parsableString);
-            if(jsonElement instanceof JsonObject){
-                JsonObject jsonModel = (JsonObject)jsonElement;
+            if (jsonElement instanceof JsonObject) {
+                JsonObject jsonModel = (JsonObject) jsonElement;
                 if (jsonModel.getAsJsonArray(SYNTAX_ERRORS) != null) {
                     return jsonModel.toString();
                 }
                 JsonObject jsonNodeForFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
                 return jsonNodeForFragment.toString();
-            }else{
+            } else {
                 throw new Exception("Incorrect format of the generated JSON");
             }
         } catch (Exception e) {
@@ -105,10 +105,14 @@ public class BLangFragmentParser {
                 fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS)
+                        .get(0)
+                        .getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS)
+                        .get(0)
+                        .getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
                 fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)

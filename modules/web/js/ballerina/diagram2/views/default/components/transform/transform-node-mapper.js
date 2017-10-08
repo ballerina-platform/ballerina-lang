@@ -325,12 +325,8 @@ class TransformNodeMapper {
         // remove the source assignment statement since it is now included in the target assignment statement.
         this._transformStmt.body.removeStatements(assignmentStmtSource, true);
 
-        const currentChild = target.funcInv.getArgumentExpressions()[target.index];
-        if (currentChild) {
-            target.funcInv.removeArgumentExpressions(currentChild, true);
-        }
+        target.funcInv.replaceArgumentExpressionsByIndex(target.index, source.funcInv, true);
 
-        target.funcInv.addArgumentExpression(source.funcInv, target.index, true);
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-created',
@@ -386,7 +382,7 @@ class TransformNodeMapper {
             target.funcInv.removeArgumentExpressions(currentChild, true);
         }
 
-        target.funcInv.addArgumentExpression(source.operator, target.index, true);
+        target.funcInv.addArgumentExpressions(source.operator, target.index, true);
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
@@ -434,10 +430,11 @@ class TransformNodeMapper {
      * they are moved to a new assignment statement.
      * @param {any} nodeExpression node expression
      * @param {any} parentNode parent node
+     * @param {any} parentDef parent node definition
      * @param {any} statement enclosing statement
      * @memberof TransformNodeMapper
      */
-    removeNode(nodeExpression, parentNode, statement) {
+    removeNode(nodeExpression, statement, parentNode, parentDef) {
         const nestedNodes = [];
         let nodeName;
         if (TreeUtil.isInvocation(nodeExpression)) {
@@ -461,26 +458,35 @@ class TransformNodeMapper {
             }
         }
 
-        let statementIndex = this._transformStmt.body.getIndexOfStatements(statement);
-        statementIndex = (statementIndex === 0) ? 0 : statementIndex - 1;
+        const statementIndex = this._transformStmt.body.getIndexOfStatements(statement);
         nestedNodes.forEach((node) => {
-            const assignmentStmt = TransformFactory.createAssignmentStatement({ expression: node });
+            const assignmentStmt = this.createNewAssignment(node);
             this._transformStmt.body.addStatements(assignmentStmt, statementIndex, true);
         });
 
         if (!parentNode) {
             this._transformStmt.body.removeStatements(statement, true);
-        } else if (TreeUtil.isInvocation(parentNode)) {
-            parentNode.replaceArgumentExpressions(nodeExpression, TransformFactory.createDefaultExpression(), true);
-        } else if (TreeUtil.isUnaryExpr(parentNode)
-                    && (parentNode.getExpression() === nodeExpression)) {
-            parentNode.setExpression(TransformFactory.createDefaultExpression(), true);
-        } else if (TreeUtil.isBinaryExpr(parentNode)
-                    && (parentNode.getRightExpression() === nodeExpression)) {
-            parentNode.setRightExpression(TransformFactory.createDefaultExpression(), true);
-        } else if (TreeUtil.isBinaryExpr(parentNode)
-                    && (parentNode.getLeftExpression() === nodeExpression)) {
-            parentNode.setLeftExpression(TransformFactory.createDefaultExpression(), true);
+        } else {
+            let defaultExp = TransformFactory.createDefaultExpression();
+            if (TreeUtil.isInvocation(parentNode)) {
+                if (parentDef) {
+                    const index = parentNode.getIndexOfArgumentExpressions(nodeExpression);
+                    defaultExp = TransformFactory.createDefaultExpression(parentDef.parameters[index].type);
+                }
+                parentNode.replaceArgumentExpressions(nodeExpression, defaultExp, true);
+            } else if (TreeUtil.isUnaryExpr(parentNode)
+                        && (parentNode.getExpression() === nodeExpression)) {
+                defaultExp = TransformFactory.createDefaultExpression('string');
+                parentNode.setExpression(defaultExp, true);
+            } else if (TreeUtil.isBinaryExpr(parentNode)
+                        && (parentNode.getRightExpression() === nodeExpression)) {
+                defaultExp = TransformFactory.createDefaultExpression('string');
+                parentNode.setRightExpression(defaultExp, true);
+            } else if (TreeUtil.isBinaryExpr(parentNode)
+                        && (parentNode.getLeftExpression() === nodeExpression)) {
+                defaultExp = TransformFactory.createDefaultExpression('string');
+                parentNode.setLeftExpression(defaultExp, true);
+            }
         }
 
         this._transformStmt.trigger('tree-modified', {
@@ -653,12 +659,12 @@ class TransformNodeMapper {
         const assignmentStmt = this.getParentAssignmentStmt(target.funcInv);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
-        const index = target.funcInv.getIndexOfChild(source.funcInv);
-        target.funcInv.replaceArgumentExpressionsByIndex(index, TransformFactory.createDefaultExpression(target.type), true);
+        target.funcInv.replaceArgumentExpressions(source.funcInv,
+            TransformFactory.createDefaultExpression(target.type), true);
 
-        const newAssignmentStmt = TransformFactory
-            .createAssignmentStatement({ expression: source.funcInv });
+        const newAssignmentStmt = this.createNewAssignment(source.funcInv);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
+
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-removed',
@@ -678,20 +684,22 @@ class TransformNodeMapper {
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
         if (TreeUtil.isUnaryExpr(target.operator)) {
-            target.operator.setExpression(TransformFactory.createDefaultExpression(), true);
+            target.operator.setExpression(TransformFactory.createDefaultExpression(target.type), true);
         } else if (TreeUtil.isBinaryExpr(target.operator) && source.index === 0) {
-            target.operator.setLeftExpression(TransformFactory.createDefaultExpression(), true);
+            target.operator.setLeftExpression(TransformFactory.createDefaultExpression(target.type), true);
         } else if (TreeUtil.isBinaryExpr(target.operator) && source.index === 1) {
-            target.operator.setRightExpression(TransformFactory.createDefaultExpression(), true);
+            target.operator.setRightExpression(TransformFactory.createDefaultExpression(target.type), true);
+        } else {
+            return;
         }
 
-        const newAssignmentStmt = TransformFactory.createAssignmentStatement({ expression: source.operator });
+        const newAssignmentStmt = this.createNewAssignment(source.operator);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
             origin: this._transformStmt,
             type: 'transform-connection-removed',
-            title: `Remove mapping ${source.operator.getOperator()} to ${target.operator.getOperator()}`,
+            title: `Remove mapping ${source.operator.getOperatorKind()} to ${target.operator.getOperatorKind()}`,
             data: {},
         });
     }
@@ -716,8 +724,7 @@ class TransformNodeMapper {
             target.operator.setRightExpression(TransformFactory.createDefaultExpression(), true);
         }
 
-        const newAssignmentStmt = TransformFactory.createAssignmentStatement({ expression: source.funcInv });
-
+        const newAssignmentStmt = this.createNewAssignment(source.funcInv);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
@@ -738,10 +745,10 @@ class TransformNodeMapper {
         const assignmentStmt = this.getParentAssignmentStmt(target.funcInv);
         const newAssignIndex = this._transformStmt.body.getIndexOfStatements(assignmentStmt);
 
-        const index = target.funcInv.getIndexOfArgumentExpression(source.operator);
-        target.funcInv.replaceArgumentExpressionsByIndex(index, TransformFactory.createDefaultExpression(target.type), true);
+        target.funcInv.replaceArgumentExpressions(source.operator,
+            TransformFactory.createDefaultExpression(target.type), true);
 
-        const newAssignmentStmt = TransformFactory.createAssignmentStatement({ expression: source.operator });
+        const newAssignmentStmt = this.createNewAssignment(source.operator);
         this._transformStmt.body.addStatements(newAssignmentStmt, newAssignIndex, true);
 
         this._transformStmt.trigger('tree-modified', {
@@ -882,6 +889,21 @@ class TransformNodeMapper {
 
     // **** UTILITY FUNCTIONS ***** //
 
+
+    /**
+     * Create a new assignment statement with the given expression
+     * @param {any} expression expression for the assignment
+     * @memberof TransformNodeMapper
+     */
+    createNewAssignment(expression) {
+        const assignment = NodeFactory.createAssignment({ expression });
+        const variableExp = TransformFactory.createVariableRefExpression(
+            TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT));
+        assignment.addVariables(variableExp);
+        assignment.setDeclaredWithVar(true);
+        return assignment;
+    }
+
     /**
      * Get assignment statement containing the given right expression
      * @param {Expression} expression right expression
@@ -978,7 +1000,7 @@ class TransformNodeMapper {
         });
         const tempVarName = TransformUtils.getNewTempVarName(this._transformStmt, VarPrefix.OUTPUT);
         const outputVar = TransformFactory.createVariableRefExpression(tempVarName);
-        assignmentStmt.replaceVariable(varExp, outputVar, true);
+        assignmentStmt.replaceVariables(varExp, outputVar, true);
     }
 
     /**

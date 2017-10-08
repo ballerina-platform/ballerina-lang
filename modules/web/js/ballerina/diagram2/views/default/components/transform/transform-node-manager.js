@@ -197,7 +197,15 @@ class TransformNodeManager {
      * @memberof TransformNodeManager
      */
     removeIntermediateNode(expression, parentNode, statement) {
-        this._mapper.removeNode(expression, parentNode, statement);
+        if (parentNode) {
+            let parentDef;
+            if (TreeUtil.isInvocation(parentNode)) {
+                parentDef = this.getFunctionVertices(parentNode);
+            }
+            this._mapper.removeNode(expression, statement, parentNode, parentDef);
+        } else {
+            this._mapper.removeNode(expression, statement);
+        }
     }
 
     removeSourceType(type) {
@@ -248,6 +256,12 @@ class TransformNodeManager {
     getFunctionVertices(functionInvocationExpression) {
         const fullPackageName = TreeUtil.getFullPackageName(functionInvocationExpression);
         const funPackage = this._environment.getPackageByName(fullPackageName);
+
+        if (!funPackage) {
+            log.error('Cannot find package definition for ' + fullPackageName);
+            return;
+        }
+
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
 
         if (!funcDef) {

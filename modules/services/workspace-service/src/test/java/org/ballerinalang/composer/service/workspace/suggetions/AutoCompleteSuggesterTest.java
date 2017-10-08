@@ -18,13 +18,7 @@
 
 package org.ballerinalang.composer.service.workspace.suggetions;
 
-import org.ballerinalang.composer.service.workspace.langserver.CompletionItemAccumulator;
-import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
-import org.ballerinalang.model.BallerinaFile;
-
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Tests for the auto complete suggester

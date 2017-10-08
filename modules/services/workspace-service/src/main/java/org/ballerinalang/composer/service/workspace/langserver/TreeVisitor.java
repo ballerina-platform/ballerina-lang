@@ -22,8 +22,6 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -63,13 +61,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +86,8 @@ public class TreeVisitor extends BLangNodeVisitor {
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
 
-    public TreeVisitor(CompilerContext compilerContext, List<SymbolInfo> symbolInfoList, Position pos, SuggestionsFilterDataModel filterDataModel) {
+    public TreeVisitor(CompilerContext compilerContext,
+                       List<SymbolInfo> symbolInfoList, Position pos, SuggestionsFilterDataModel filterDataModel) {
         this.symTable = SymbolTable.getInstance(compilerContext);
         this.symbolEnter = SymbolEnter.getInstance(compilerContext);
         this.symbolResolver = SymbolResolver.getInstance(compilerContext);
@@ -144,7 +141,6 @@ public class TreeVisitor extends BLangNodeVisitor {
         BSymbol structSymbol = structNode.symbol;
         this.symbolEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
         Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-        System.out.println(Collections.singletonList(visibleSymbolEntries));
         this.populateSymbols(visibleSymbolEntries);
         this.terminateVisitor = true;
     }
@@ -179,7 +175,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        if(!isCursorBeforeStatement(varDefNode.getPosition(), varDefNode)) {
+        if (!isCursorBeforeStatement(varDefNode.getPosition(), varDefNode)) {
             this.acceptNode(varDefNode.var, symbolEnv);
         }
     }
@@ -304,14 +300,6 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangRetry retryNode) {
     }
 
-    private boolean isJoinResultType(BLangVariable var) {
-        BLangType type = var.typeNode;
-        if (type instanceof BuiltInReferenceTypeNode) {
-            return ((BuiltInReferenceTypeNode) type).getTypeKind() == TypeKind.MAP;
-        }
-        return false;
-    }
-
     private BLangVariableDef createVarDef(BLangVariable var) {
         BLangVariableDef varDefNode = new BLangVariableDef();
         varDefNode.var = var;
@@ -391,9 +379,7 @@ public class TreeVisitor extends BLangNodeVisitor {
      * @return all visible symbols for current scope
      */
     private Map<Name, Scope.ScopeEntry> resolveAllVisibleSymbols(SymbolEnv symbolEnv) {
-        Map<Name, Scope.ScopeEntry> visibleSymbolEntries = symbolResolver.lookupAllVisibleSymbols(symbolEnv);
-        System.out.println(visibleSymbolEntries);
-        return  visibleSymbolEntries;
+        return symbolResolver.lookupAllVisibleSymbols(symbolEnv);
     }
 
     /**
@@ -455,7 +441,6 @@ public class TreeVisitor extends BLangNodeVisitor {
                 (isLastStatement && (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                         (line > nodeELine || (line == nodeELine && col > nodeECol)))) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-            System.out.println(Collections.singletonList(visibleSymbolEntries));
             this.populateSymbols(visibleSymbolEntries);
             this.terminateVisitor = true;
             return true;

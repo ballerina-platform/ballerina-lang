@@ -130,8 +130,8 @@ class EditorTabs extends View {
         const { activeEditorID } = this.props.editorPlugin;
         const dimensions = {
             width: this.props.width -
-                (_.isNumber(this.state.previewViewSize)
-                    ? this.state.previewViewSize : 0),
+                (this.state.previewPanelEnabled
+                    ? this.state.previewPanelSize : 0),
             height: this.props.height - tabTitleHeight,
         };
         if (editor instanceof Editor) {
@@ -201,7 +201,7 @@ class EditorTabs extends View {
     renderPreviewTab() {
         const editor = this.props.editorPlugin.appContext.editor.getActiveEditor();
         const dimensions = {
-            width: this.state.previewViewSize,
+            width: this.state.previewPanelSize,
             height: this.props.height - tabTitleHeight,
         };
         if (!_.isNil(editor) && !(editor instanceof CustomEditor)) {
@@ -269,9 +269,9 @@ class EditorTabs extends View {
                         : 0
                 }
                 maxSize={this.props.width * 0.75}
-                onChange={(previewViewSize) => {
+                onChange={(previewPanelSize) => {
                     this.state.panelResizeInProgress = true;
-                    this.setPreviewPanelState(true, previewViewSize);
+                    this.setPreviewPanelState(true, previewPanelSize);
                 }}
                 onDragFinished={() => {
                     if (!_.isNil(this.previewSplitRef)) {

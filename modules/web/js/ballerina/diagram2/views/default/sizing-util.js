@@ -272,10 +272,12 @@ class SizingUtil {
         cmp.annotation = new SimpleBBox();
         cmp.argParameterHolder = {};
         cmp.returnParameterHolder = {};
+
         // calculate default worker
         cmp.defaultWorker.w = node.body.viewState.bBox.w;
         cmp.defaultWorker.h = maxWorkerHeight;
-        // we add the default worker line as a seperate component.
+
+        // We add the default worker line as a seperate component.
         cmp.defaultWorkerLine.w = this.config.lifeLine.width;
         cmp.defaultWorkerLine.h = cmp.defaultWorker.h;
         // set the max worker height to other workers.
@@ -284,6 +286,8 @@ class SizingUtil {
             worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
                                              - this.config.lifeLine.footer.height;
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
+            // now add the worker width to panelBody width.
+            cmp.panelBody.w += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
         });
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
@@ -344,18 +348,16 @@ class SizingUtil {
                 if (TreeUtil.isConnectorDeclaration(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
                     // add the connector width to panel body width.
-                    cmp.panelBody.w += this.config.lifeLine.width;
+                    cmp.panelBody.w += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                     statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 }
             });
         }
+        // add panel gutter to panelBody
+        cmp.panelBody.w += cmp.defaultWorker.w + (this.config.panel.wrapper.gutter.h * 2);
 
         // Get the largest among component heading width and component body width.
-        const componentWidth = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
-
-        viewState.bBox.w = componentWidth + (this.config.panel.wrapper.gutter.h * 2) + 30;
-
-
+        viewState.bBox.w = cmp.heading.w > cmp.panelBody.w ? cmp.heading.w : cmp.panelBody.w;
     }
 
     /**

@@ -282,8 +282,7 @@ public class BLangFileRestService {
                     if (listPropItem instanceof Node) {
                         listPropJson.add(generateJSON((Node) listPropItem));
                     } else {
-
-                        System.err.println(" " + prop);
+                        logger.error(" " + prop);
                     }
                 }
 
@@ -338,7 +337,7 @@ public class BLangFileRestService {
      * @param bFile - Object which holds data about Ballerina content.
      * @return List of errors if any
      */
-    private JsonObject validate(BFile bFile){
+    private JsonObject validate(BFile bFile) {
         String fileName = "untitled";
         String content = bFile.getContent();
         List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
