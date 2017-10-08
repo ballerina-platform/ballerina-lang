@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,7 +37,6 @@ class OperatorLattice {
      * @memberof OperatorLattice
      */
     initFromJson(operatorLatticeJson) {
-        debugger;
         const unaryLattice = {};
         const binaryLattice = {};
 
@@ -82,14 +81,31 @@ class OperatorLattice {
 
     /**
      * Get operator compatibility for given types
-     * @param {any} source source type
-     * @param {any} target target type
-     * @returns {Object} cast or conversion type and safety
-     * @memberof TypeLattice
+     * @param {string} operator operator
+     * @param {string} lhType left hand type
+     * @param {string} rhType right hand type
+     * @param {string} retType return type
+     * @returns {[string]} compatible types
+     * @memberof OperatorLattice
      */
-    getCompatibility(source, target) {
-        if (this._typeLattice[source]) {
-            return this._typeLattice[source][target];
+    getCompatibleBinaryTypes(operator, lhType, rhType, retType) {
+        if (lhType && rhType && !retType) {
+            return this._binaryLattice[operator][lhType][rhType];
+        }
+        return undefined;
+    }
+
+    /**
+     * Get operator compatibility for given types
+     * @param {string} operator operator
+     * @param {string} rhType right hand type
+     * @param {string} retType return type
+     * @returns {[string]} compatible types
+     * @memberof OperatorLattice
+     */
+    getCompatibleUnaryTypes(operator, rhType, retType) {
+        if (rhType && !retType) {
+            return this._unaryLattice[operator][rhType];
         }
         return undefined;
     }
