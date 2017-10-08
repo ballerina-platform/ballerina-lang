@@ -252,12 +252,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.failedBlockCount++;
             transactionNode.failedBody.accept(this);
             this.failedBlockCount--;
+            this.resetStatementReturns();
         }
         if (transactionNode.committedBody != null) {
             transactionNode.committedBody.accept(this);
+            this.resetStatementReturns();
         }
         if (transactionNode.abortedBody != null) {
             transactionNode.abortedBody.accept(this);
+            this.resetStatementReturns();
         }
     }
 
@@ -274,7 +277,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_FAILED_BLOCK);
         }
     }
-
 
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
