@@ -300,7 +300,12 @@ class PropertiesWindow extends React.Component {
                 </div>
                 {(key.fields !== null) &&
                 <div className='col-sm-1'>
-                    <input id='viewOptionParams' type='button' value='+' onClick={this.toggleStructProperties} />
+                    <input
+                        id='viewOptionParams'
+                        type='button'
+                        value={this.state.expandProperties ? '-' : '+'}
+                        onClick={this.toggleStructProperties}
+                    />
                 </div> }
             </div>
             {(key.fields !== null) &&
