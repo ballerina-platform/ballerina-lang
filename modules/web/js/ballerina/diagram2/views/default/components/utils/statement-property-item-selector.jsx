@@ -62,10 +62,9 @@ class StatementPropertyItemSelector extends React.Component {
      */
     render() {
         const bBox = this.props.bBox;
-        const dropDownItems = this.props.items;
         return (
             <g id='serviceDefProps' onClick={this.handleShowDropDown}>
-                <circle cx={bBox.x} cy={bBox.y} r="7" stroke="black" strokeWidth="3" fill="red" />
+                <circle cx={bBox.x} cy={bBox.y} r="7" stroke="black" strokeWidth="1" fill="black" />
             </g>
         );
     }

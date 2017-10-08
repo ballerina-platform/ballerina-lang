@@ -41,8 +41,7 @@ class Arrow extends React.Component {
         const deltaY = end.y - start.y;
         const rad = Math.atan2(deltaY, deltaX);
         const deg = rad * (180 / Math.PI);
-
-        return deg;
+        return deg - this.props.backward ? 180 : 0;
     }
 
     /**
@@ -101,6 +100,7 @@ Arrow.propTypes = {
     dashed: PropTypes.bool,
     arrowSize: PropTypes.number,
     description: PropTypes.string,
+    backward: PropTypes.bool,
 };
 
 Arrow.defaultProps = {
@@ -109,6 +109,7 @@ Arrow.defaultProps = {
     dashed: false,
     arrowSize: 5,
     description: '',
+    backward: false,
 };
 
 export default Arrow;

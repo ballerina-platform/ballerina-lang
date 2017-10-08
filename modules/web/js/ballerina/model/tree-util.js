@@ -95,9 +95,15 @@ class TreeUtil extends AbstractTreeUtil {
      * @param {object} node - variable def node object
      * @returns {boolean} - whether the node is an invocation node
      */
-    variableDefIsInvocation(node) {
-        const initialExpression = _.get(node, 'variable.initialExpression');
-        return (initialExpression && this.isInvocation(initialExpression));
+    statementIsInvocation(node) {
+        let invocationExpression;
+        if (this.isAssignment(node)) {
+            invocationExpression = _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            invocationExpression = _.get(node, 'variable.initialExpression');
+        }
+
+        return (invocationExpression && this.isInvocation(invocationExpression));
     }
 
     /**
@@ -139,8 +145,18 @@ class TreeUtil extends AbstractTreeUtil {
         return filteredItems.concat(this.getAllVisibleConnectorDeclarations(parent.parent));
     }
 
-    updateActionInvocation() {
-        console.log("TESTTTTT");
+    /**
+     * Change the invocation endpoint. This is the callback function for endpoint dropdown click
+     * @param {object} node - invocation node
+     * @param {string} newEp - new endpoint string
+     */
+    changeInvocationEndpoint(node, newEp) {
+        // TODO: will be replaced accordingly with the new set source
+        if (this.isVariableDef(node)) {
+            _.set(node, 'variable.initialExpression.expression.variableName.value', newEp);
+        } else if (this.isAssignment(node)) {
+            _.set(node, 'expression.expression.variableName.value', newEp);
+        }
     }
 }
 
