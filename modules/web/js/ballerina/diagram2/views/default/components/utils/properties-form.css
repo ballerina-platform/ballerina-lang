@@ -184,33 +184,33 @@
     content:"\2212";
     float: right;
     color: grey;
-    font-size: 19px;
+    font-size: 14px;
     font-weight: bolder;
 }
 .panel-heading a.collapsed:after {
-    content:"\2b";
-    font-size: 19px;
+        content:"\2b";
+    font-size: 14px;
     font-weight: bolder;
 }
 
 .collapsibleTitle {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 300;
+    background-color: lightgrey;
 }
 
 .collapsiblePanelHeaderDiv {
-    height: 40px;
-    padding-top: 2px;
     padding-bottom: 2px;
-
+    background-color: lightgrey;
 }
 
 .collapsiblePanelBody {
     padding-top: 10px;
+    background-color: lightgrey;
 }
 
 .structsContainer {
-    margin-left: 24px;
+    background-color: lightgrey;
 }
 
 #popover-arrow {
@@ -375,4 +375,12 @@ span { cursor: pointer; }
 
 #dismissBtn {
     padding-right: 10px;
+}
+
+#viewOptionParams{
+    padding-left: -10px;
+    height: 25px;
+    width: 22px;
+    margin-left: -12px;
+    margin-top: 6px;
 }
