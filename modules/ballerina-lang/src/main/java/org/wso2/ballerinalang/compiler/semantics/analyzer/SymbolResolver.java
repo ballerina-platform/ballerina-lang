@@ -425,15 +425,15 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Lookup all the visible symbols for a given environment scope
+     * Lookup all the visible in-scope symbols for a given environment scope
      * @param env Symbol environment
      * @return all the visible symbols
      */
-    public Map<Name, ScopeEntry> lookupAllVisibleSymbols(SymbolEnv env) {
+    public Map<Name, ScopeEntry> getAllVisibleInScopeSymbols(SymbolEnv env) {
         Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
         visibleEntries.putAll(env.scope.entries);
         if (env.enclEnv != null) {
-            visibleEntries.putAll(lookupAllVisibleSymbols(env.enclEnv));
+            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
         }
         return visibleEntries;
     }
