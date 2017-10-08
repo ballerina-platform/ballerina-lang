@@ -28,15 +28,10 @@ import org.ballerinalang.composer.service.workspace.langserver.model.StructField
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagnosticListener;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
-import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.ballerinalang.util.exceptions.NativeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -52,17 +47,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -476,84 +465,5 @@ public class WorkspaceUtils {
         connector.setAnnotations(annotations);
         connector.setReturnParameters(returnParams);
         return connector;
-    }
-
-    /**
-     * Load constructs
-     * @param globalScope globalScope
-     * @param nativeScope nativeScope
-     * */
-    private static void loadConstructs(GlobalScope globalScope, NativeScope nativeScope) {
-        BTypes.loadBuiltInTypes(globalScope);
-        Iterator<NativeConstructLoader> nativeConstructLoaders =
-                ServiceLoader.load(NativeConstructLoader.class).iterator();
-        while (nativeConstructLoaders.hasNext()) {
-            NativeConstructLoader constructLoader = nativeConstructLoaders.next();
-            try {
-                constructLoader.load(nativeScope);
-            } catch (NativeException e) {
-                throw e;
-            } catch (Throwable t) {
-                throw new NativeException("internal error occured", t);
-            }
-        }
-    }
-    
-    /**
-     * Get program directory
-     * @param filePath    - file path to parent directory of the .bal file
-     * @param packageName - package name
-     * @return
-     */
-    public static java.nio.file.Path gerProgramDirectory(java.nio.file.Path filePath, String packageName) {
-        java.nio.file.Path parentDir = null;
-        if (!".".equals(packageName)) {
-            // find nested directory count using package name
-            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
-                    : 1;
-            // find program directory
-            parentDir = filePath;
-            for (int i = 0; i < directoryCount; ++i) {
-                if (parentDir != null) {
-                    parentDir = parentDir.getParent();
-                }
-            }
-        }
-        return parentDir;
-    }
-
-
-    /**
-     * Recursive method to search for .bal files and add their parent directory paths to the provided List
-     * @param programDirPath - program directory path
-     * @param filePaths - file path list
-     * @param depth - depth of the directory hierarchy which we should search from the program directory
-     */
-    public static void searchFilePathsForBalFiles(java.nio.file.Path programDirPath,
-                                            List<java.nio.file.Path> filePaths, int depth) {
-        // this method is a recursive method. depth is the iteration count and we should return based on the depth count
-        if (depth < 0) {
-            return;
-        }
-        try {
-            DirectoryStream<Path> stream = Files.newDirectoryStream(programDirPath);
-            depth = depth - 1;
-            for (java.nio.file.Path entry : stream) {
-                if (Files.isDirectory(entry)) {
-                    searchFilePathsForBalFiles(entry, filePaths, depth);
-                }
-                java.nio.file.Path file = entry.getFileName();
-                if (file != null) {
-                    String fileName = file.toString();
-                    if (fileName.endsWith(".bal")) {
-                        filePaths.add(entry.getParent());
-                    }
-                }
-            }
-            stream.close();
-        } catch (IOException e) {
-            // we are ignoring any exception and proceed.
-            return;
-        }
     }
 }

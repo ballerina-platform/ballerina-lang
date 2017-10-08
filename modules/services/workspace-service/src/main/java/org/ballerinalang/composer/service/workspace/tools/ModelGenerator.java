@@ -140,7 +140,8 @@ public class ModelGenerator {
                 Method[] methods = clazz.getMethods();
                 for (Method m : methods) {
                     String methodName = m.getName();
-                    if (methodName == "getKind" || methodName == "getWS" || methodName == "getPosition") {
+                    if ("getKind".equals(methodName) || "getWS".equals(methodName) ||
+                            "getPosition".equals(methodName)) {
                         continue;
                     }
                     if (methodName.startsWith("get")) {
@@ -202,7 +203,7 @@ public class ModelGenerator {
 
     private static String getKindForAliasClass(String simpleName) {
         for (Map.Entry<String, String> entry : alias.entrySet()) {
-            if (simpleName == entry.getValue()) {
+            if (simpleName.equals(entry.getValue())) {
                 return entry.getKey();
             }
         }

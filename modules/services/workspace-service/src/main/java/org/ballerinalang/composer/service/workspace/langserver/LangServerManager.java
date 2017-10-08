@@ -79,7 +79,7 @@ public class LangServerManager {
 
     private static LangServerManager langServerManagerInstance;
 
-    private static CompilerOptions options;
+    private CompilerOptions options;
 
     private LangServer langserver;
 
