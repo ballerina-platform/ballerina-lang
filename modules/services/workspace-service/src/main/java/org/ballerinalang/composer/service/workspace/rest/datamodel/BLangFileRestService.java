@@ -40,6 +40,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -305,6 +306,11 @@ public class BLangFileRestService {
                 nodeJson.addProperty(jsonName, prop.toString().toLowerCase());
             } else if (prop instanceof NodeKind) {
                 String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
+                // This is since the invocation symbol abstract method has not currently been exposed from the runtime
+                // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
+                if (kindName.equals("Invocation")) {
+                    nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
+                }
                 nodeJson.addProperty(jsonName, kindName);
             } else if (prop instanceof OperatorKind) {
                 nodeJson.addProperty(jsonName, prop.toString());
