@@ -32,21 +32,34 @@ class DefaultNodeFactory {
 
     createHTTPServiceDef() {
         return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                service<http> service1 {
-                }
-            `)
-        );
+            FragmentUtils.createTopLevelNodeFragment(
+`    
+    service<http> service1 {
+        resource echo1 (http:Request req, http:Response res) {
+
+        }           
+    }
+`
+            ));
     }
 
     createWSServiceDef() {
         return getNodeForFragment(
-            FragmentUtils.createTopLevelNodeFragment(`
-                service<ws> service1 {
-                    
-                }
-            `)
-        );
+            FragmentUtils.createTopLevelNodeFragment(
+`
+    service<ws> service1 {
+        resource onOpen(ws:Connection conn) {
+
+        }
+        resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+
+        }
+        resource onClose(ws:Connection conn, ws:CloseFrame frame) {
+
+        }
+    }
+`
+            ));
     }
 
     /**
