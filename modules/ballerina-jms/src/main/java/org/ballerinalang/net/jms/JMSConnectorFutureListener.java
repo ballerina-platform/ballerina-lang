@@ -32,22 +32,36 @@ import org.wso2.carbon.transport.jms.callback.JMSCallback;
 public class JMSConnectorFutureListener implements ConnectorFutureListener {
     private static final Logger log = LoggerFactory.getLogger(JMSConnectorFutureListener.class);
     private JMSCallback jmsCallback;
+    /** future will get notified by the jms native methods and from the Ballerina engine when the Resource invocation
+     * is over or when an error occurred. This parameter will maintain the state of the JMSConnectorFutureListener
+     * and Callback will notified only if its not already notified
+     * */
+    private boolean isInformedCallback;
 
     public JMSConnectorFutureListener(JMSCallback jmsCallback) {
         this.jmsCallback = jmsCallback;
+        this.isInformedCallback = Boolean.FALSE;
     }
 
     @Override
     public void notifySuccess() {
-        jmsCallback.done(Boolean.TRUE);
+        informCallback(Boolean.TRUE);
     }
 
     @Override
     public void notifyReply(BValue response) {
+        informCallback(Boolean.parseBoolean(response.stringValue()));
     }
 
     @Override
     public void notifyFailure(BallerinaConnectorException ex) {
-        jmsCallback.done(Boolean.FALSE);
+        informCallback(Boolean.FALSE);
+    }
+
+    private void informCallback(boolean status) {
+        if (!isInformedCallback) {
+            isInformedCallback = Boolean.TRUE;
+            jmsCallback.done(status);
+        }
     }
 }

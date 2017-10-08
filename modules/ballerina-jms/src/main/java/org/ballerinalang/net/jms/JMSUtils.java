@@ -27,6 +27,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.impl.JMSConnectorFactoryImpl;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,6 +62,7 @@ public class JMSUtils {
         addStringParamIfPresent(Constants.ALIAS_DURABLE_SUBSCRIBER_ID, jmsConfig, configParams);
         addStringParamIfPresent(Constants.ALIAS_ACK_MODE, jmsConfig, configParams);
         addStringParamIfPresent(Constants.CONFIG_FILE_PATH, jmsConfig, configParams);
+        addStringParamIfPresent(JMSConstants.CONCURRENT_CONSUMERS, jmsConfig, configParams);
 
         processPropertiesArray(jmsConfig, configParams);
         preProcessIfWso2MB(configParams);
