@@ -29,7 +29,7 @@ under the License.
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
-            <package name="org.ballerinalang.test.nativeImpl.*"/>
+            <package name="org.ballerinalang.test.nativeimpl.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.connectors.*"/>
             <package name="org.ballerinalang.test.debugger.*"/>
