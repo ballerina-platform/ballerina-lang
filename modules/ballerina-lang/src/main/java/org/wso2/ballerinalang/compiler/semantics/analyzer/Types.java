@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -135,7 +136,6 @@ public class Types {
             return actualType;
         }
 
-        // TODO: Add invokable actualType compatibility check.
 
         // e.g. incompatible types: expected 'int', found 'string'
         dlog.error(pos, diagCode, expType, actualType);
@@ -171,6 +171,8 @@ public class Types {
         // If the both type tags are equal, then perform following checks.
         if (actualType.tag == expType.tag && isValueType(actualType)) {
             return true;
+        } else if (actualType.tag == expType.tag && actualType.tag == TypeTags.INVOKABLE) {
+            return checkFunctionTypeEquivalent(actualType, expType);
         } else if (actualType.tag == expType.tag &&
                 !isUserDefinedType(actualType) && !isConstrainedType(actualType) &&
                 actualType.tag != TypeTags.ANNOTATION) {
@@ -251,6 +253,18 @@ public class Types {
 
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
         return expType.tag == TypeTags.ANY && !isValueType(actualType);
+    }
+
+    public boolean checkFunctionTypeEquivalent(BType actualType, BType expType) {
+        BInvokableType aType = (BInvokableType) actualType;
+        BInvokableType eType = (BInvokableType) expType;
+        if (aType.paramTypes.size() != eType.paramTypes.size() || aType.retTypes.size() != eType.retTypes.size()) {
+            return false;
+        }
+        if (!aType.paramTypes.equals(eType.paramTypes)) {
+            return false;
+        }
+        return aType.retTypes.equals(eType.retTypes);
     }
 
     public boolean checkArrayEquivalent(BType actualType, BType expType) {
