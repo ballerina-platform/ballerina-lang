@@ -166,19 +166,12 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize type lattice
      */
     initializeTypeLattice() {
-        // TODO: return the getTypeLattice() promise here after the hardcoded json is removed.
-        return new Promise((resolve, reject) => {
-            getTypeLattice()
-                .then((typeLatticeJson) => {
-                    if (typeLatticeJson) {
-                        this._typeLattice.initFromJson(typeLatticeJson);
-                        resolve();
-                    } else {
-                        log.error('Error while fetching type lattice');
-                        resolve();
-                    }
-                })
-                .catch(reject);
+        getTypeLattice().then((typeLatticeJson) => {
+            if (typeLatticeJson) {
+                this._typeLattice.initFromJson(typeLatticeJson);
+            } else {
+                log.error('Error while fetching type lattice');
+            }
         });
     }
 
@@ -186,19 +179,12 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize operator lattice
      */
     initializeOperatorLattice() {
-        // TODO: return the getOperatorLattice() promise here after the hardcoded json is removed.
-        return new Promise((resolve, reject) => {
-            getOperatorLattice()
-                .then((operatorLatticeJson) => {
-                    if (operatorLatticeJson) {
-                        this._operatorLattice.initFromJson(operatorLatticeJson);
-                        resolve();
-                    } else {
-                        log.error('Error while fetching operator lattice');
-                        resolve();
-                    }
-                })
-                .catch(reject);
+        return getOperatorLattice().then((operatorLatticeJson) => {
+            if (operatorLatticeJson) {
+                this._operatorLattice.initFromJson(operatorLatticeJson);
+            } else {
+                log.error('Error while fetching operator lattice');
+            }
         });
     }
 
