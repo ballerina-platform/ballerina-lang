@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
@@ -56,13 +55,11 @@ import org.wso2.carbon.transport.http.netty.message.HttpMessageDataStreamer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -437,11 +434,7 @@ public class HttpUtil {
     public static void startPendingHttpConnectors() throws BallerinaConnectorException {
         try {
             // Starting up HTTP Server connectors
-            PrintStream outStream = System.out;
-            List<ServerConnector> startedHTTPConnectors = HttpConnectionManager.getInstance()
-                    .startPendingHTTPConnectors();
-            startedHTTPConnectors.forEach(serverConnector -> outStream.println("ballerina: started " +
-                    "server connector " + serverConnector));
+            HttpConnectionManager.getInstance().startPendingHTTPConnectors();
         } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException(e);
         }
@@ -503,7 +496,6 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        httpCarbonMessage.setEndOfMsgAdded(true);
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
@@ -665,9 +657,11 @@ public class HttpUtil {
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         } else {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
     }

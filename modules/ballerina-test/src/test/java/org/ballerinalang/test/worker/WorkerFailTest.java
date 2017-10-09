@@ -44,4 +44,10 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
+    @Test
+    public void invalidForkJoinWithReturn() {
+        CompileResult result = BTestUtils.compile("test-src/workers/invalid-forkjoin-with-return.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+    }
+    
 }
