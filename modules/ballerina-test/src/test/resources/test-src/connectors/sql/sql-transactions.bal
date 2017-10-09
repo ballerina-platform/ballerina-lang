@@ -27,7 +27,7 @@ function testLocalTransacton () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -58,7 +58,7 @@ function testTransactonRollback () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -92,7 +92,7 @@ function testTransactonAbort () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -126,7 +126,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -162,7 +162,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where
                                    registrationID = 250", parameters);
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -189,7 +189,7 @@ function testTransactonCommitted () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -233,7 +233,7 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -259,7 +259,7 @@ function testTransactonWithoutHandlers () (int count) {
                                       registrationID = 350", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -299,7 +299,7 @@ function testLocalTransactionFailed () (string, int) {
                                           registrationID = 111", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -346,7 +346,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
     datatable dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }

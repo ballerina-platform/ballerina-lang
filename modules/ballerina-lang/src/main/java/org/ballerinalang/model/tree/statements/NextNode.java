@@ -15,29 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
-
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.ContinueNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+package org.ballerinalang.model.tree.statements;
 
 /**
  * @since 0.94
  */
-public class BLangContinue extends BLangStatement implements ContinueNode {
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.CONTINUE;
-    }
-
-    @Override
-    public String toString() {
-        return "Continue";
-    }
+public interface NextNode extends StatementNode {
 }
