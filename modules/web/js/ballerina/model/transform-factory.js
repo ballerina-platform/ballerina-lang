@@ -86,12 +86,7 @@ class TransformFactory {
             functionInvokeString = `${packageName}:`;
         }
         const functionParams = functionDef.getParameters().map((param) => {
-            let dfv = Environment.getDefaultValue(param.type);
-            if (dfv == null) {
-                dfv = 'null';
-            }
-
-            return dfv;
+            return Environment.getDefaultValue(param.type);;
         });
         const paramString = functionParams.join(', ')
 
@@ -103,7 +98,7 @@ class TransformFactory {
 
         if (varRefNames.length > 0) {
             const varRefListString = `var ${varRefNames.join(', ')}`;
-            functionInvokeString = `${varRefListString} = ${functionInvokeString}`;
+            functionInvokeString = `${varRefListString} = ${functionInvokeString};`;
         }
         const fragment = FragmentUtils.createStatementFragment(functionInvokeString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
