@@ -1379,8 +1379,9 @@ public class BLangPackageBuilder {
         invokableNodeStack.push(resourceNode);
     }
 
-    public void endResourceDef(String resourceName, int annotCount) {
+    public void endResourceDef(Set<Whitespace> ws, String resourceName, int annotCount) {
         ResourceNode resourceNode = (ResourceNode) invokableNodeStack.pop();
+        resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
         attachAnnotations(resourceNode, annotCount);
         varListStack.pop().forEach(resourceNode::addParameter);
