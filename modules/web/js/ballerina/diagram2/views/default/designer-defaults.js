@@ -52,6 +52,7 @@ export const panel = {
             height: 25,
         },
     },
+    buttonWidth: 27.5,
 };
 
 export const innerPanel = {

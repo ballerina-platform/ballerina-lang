@@ -169,16 +169,19 @@ class PositioningUtil {
         });
         // add the padding for the width
         width += this.config.panel.wrapper.gutter.h * 2;
-        // set the height of the canvas.
+        // add the bottom padding to the canvas height.
+        height += this.config.panel.wrapper.gutter.v;
+        // if  the view port is taller we take the height of the view port.
         height = (height > node.viewState.container.height) ? height : node.viewState.container.height;
 
         // re-adjust the width of each node to fill the container.
         if (width < node.viewState.container.width) {
             width = node.viewState.container.width;
-            children.forEach((child) => {
-                child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
-            });
         }
+        // set all the children to same width.
+        children.forEach((child) => {
+            child.viewState.bBox.w = width - (this.config.panel.wrapper.gutter.h * 2);
+        });
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = width;
@@ -380,47 +383,7 @@ class PositioningUtil {
      * @param {object} node Resource object
      */
     positionResourceNode(node) {
-        const viewState = node.viewState;
-        const functionBody = node.body;
-        const funcBodyViewState = functionBody.viewState;
-        const cmp = viewState.components;
-
-        // position the components.
-        funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top
-            + this.config.lifeLine.head.height;
-
-        cmp.defaultWorker.x = funcBodyViewState.bBox.x + ((funcBodyViewState.bBox.w - this.config.lifeLine.width) / 2);
-        cmp.defaultWorker.y = funcBodyViewState.bBox.y - this.config.lifeLine.head.height;
-
-        // position the children
-        const body = node.getBody();
-        body.viewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        body.viewState.bBox.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top +
-            this.config.lifeLine.head.height;
-
-        // Positioning argument parameters
-        if (node.getParameters()) {
-            cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
-                this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding;
-            cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfParameter = cmp.argParameterHolder.openingParameter.x
-                + cmp.argParameterHolder.openingParameter.w;
-            if (node.getParameters().length > 0) {
-                for (let i = 0; i < node.getParameters().length; i++) {
-                    const argument = node.getParameters()[i];
-                    nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
-            cmp.argParameterHolder.closingParameter.y = viewState.bBox.y + cmp.annotation.h;
-        }
+        this.positionFunctionNode(node);
     }
 
 
@@ -441,11 +404,6 @@ class PositioningUtil {
      */
     positionServiceNode(node) {
         const viewState = node.viewState;
-        const cmp = viewState.components;
-
-        // Position the components
-        cmp.defaultWorker.x = viewState.bBox.x + ((viewState.bBox.w - this.config.lifeLine.width) / 2);
-        cmp.defaultWorker.y = viewState.bBox.y - this.config.lifeLine.head.height;
 
         // Position the transport nodes
         const transportLine = !_.isNil(viewState.components.transportLine) ?
@@ -453,32 +411,27 @@ class PositioningUtil {
         transportLine.x = viewState.bBox.x - 5;
         transportLine.y = viewState.bBox.y + 30;
 
-        let innerPanelItems;
+        let children = [];
 
         if (TreeUtil.isService(node)) {
-            innerPanelItems = node.getResources();
+            children = node.getResources();
         } else if (TreeUtil.isConnector(node)) {
-            innerPanelItems = node.getActions();
+            children = node.getActions();
         }
-        // Position the inner panel items
-        innerPanelItems.map((innerPanelItem, index) => {
-            const innerPanelItemBBox = innerPanelItems[index].viewState.bBox;
-            innerPanelItemBBox.x = viewState.bBox.x + 50;
-            if (index === 0) {
-                // Positioning the first resource
-                innerPanelItemBBox.y = viewState.bBox.y + 150;
-            } else {
-                const previousInnerPanelItem = innerPanelItems[index - 1];
-                const previousInnerPanelItemBBox = previousInnerPanelItem.viewState.bBox;
-                // Check if resource is collapsed
-                let height = previousInnerPanelItemBBox.h;
-                if (previousInnerPanelItem.viewState.collapsed) {
-                    height = 0;
-                }
-                innerPanelItemBBox.y = previousInnerPanelItemBBox.y + height +
-                    this.config.panel.wrapper.gutter.v;
-            }
-            innerPanelItemBBox.w = innerPanelItem.parent.viewState.bBox.w - 100;
+
+        let y = viewState.bBox.y + viewState.components.heading.h + viewState.components.initFunction.h;
+        children.forEach((child) => {
+            // set the x of the resource or action.
+            child.viewState.bBox.x = viewState.bBox.x + this.config.innerPanel.wrapper.gutter.h;
+            // add the gutter to y.
+            y += this.config.innerPanel.wrapper.gutter.v;
+            // lets set the y of the resource or action.
+            child.viewState.bBox.y = y;
+            // increase y with the resource body height.
+            // check of the resource is collapsed.
+            y += child.viewState.bBox.h;
+            // expand the resource to match service.
+            child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2);
         });
     }
 

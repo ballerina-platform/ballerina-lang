@@ -290,6 +290,8 @@ class SizingUtil {
         // calculate panel body
         cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
             + this.config.panel.body.padding.bottom;
+        // if function is collapsed set the body height to 0.
+        cmp.panelBody.h = (viewState.collapsed) ? 0 : cmp.panelBody.h;
         // calculate parameters
         cmp.heading.h = this.config.panel.heading.height;
         // calculate annotations
@@ -337,7 +339,8 @@ class SizingUtil {
                 + cmp.returnParameterHolder.closingReturnType.w
                 + this.getParameterTypeWidth(node.getReturnParameters()) + 120;
         }
-        cmp.heading.w += viewState.titleWidth + 100;
+        // here we add the remove and hide button width to the header.
+        cmp.heading.w += viewState.titleWidth + 100 + (this.config.panel.buttonWidth * 2);
 
         // Set the size of the connector declarations
         const statements = node.body.statements;
@@ -547,79 +550,85 @@ class SizingUtil {
      */
     sizeServiceNode(node) {
         const viewState = node.viewState;
-        const components = viewState.components;
-        const totalResourceHeight = 0;
-        // Set the width initial value to the padding left and right
-        const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
-
-        let textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
-            + this.config.panelHeading.iconSize.width;
-        viewState.trimmedTitle = textWidth.text;
         // There are no connectors as well as resources, since we set the default height
-        const bodyHeight = this.config.innerPanel.body.height;
-        components.heading = new SimpleBBox();
-        components.defaultWorker = new SimpleBBox();
-        components.body = new SimpleBBox();
-        components.annotation = new SimpleBBox();
-        components.transportLine = new SimpleBBox();
-        components.heading.h = this.config.panel.heading.height;
-        if (node.viewState.collapsed) {
-            components.body.h = 0;
-        } else {
-            components.body.h = bodyHeight;
+        const cmp = {};
+        cmp.heading = new SimpleBBox();
+        cmp.body = new SimpleBBox();
+        cmp.initFunction = new SimpleBBox();
+        cmp.transportLine = new SimpleBBox();
+
+        // Set the service/connector definition height according to the resources/connector definitions
+        // This is due to the logic re-use by the connector nodes as well
+        let children = [];
+        if (TreeUtil.isService(node)) {
+            children = node.getResources();
+        } else if (TreeUtil.isConnector(node)) {
+            children = node.getActions();
         }
 
-        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
+        let width = 0;
+        // we will start the height with top padding.
+        let height = this.config.innerPanel.wrapper.gutter.h;
+        children.forEach((child) => {
+            // get the max resource width.
+            width = (child.viewState.bBox.w > width) ? child.viewState.bBox.w : width;
+            // set the x of the resource or action.
+            height += child.viewState.bBox.h + this.config.innerPanel.wrapper.gutter.v;
+        });
+        // add side padding to the resource.
+        width += (this.config.innerPanel.wrapper.gutter.h * 2);
+        // calculate the initFunction for service.
+        if (viewState.globalsExpanded) {
+            const topGutter = 10;
+            const topBarHeight = 25;
+            const importInputHeight = 40;
+            const globals = node.getVariables();
+            cmp.initFunction.h = topGutter + topBarHeight + importInputHeight +
+                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
+        } else {
+            cmp.initFunction.h = this.config.variablesPane.headerHeight;
+        }
+        // add the init function height to body.
+        height += cmp.initFunction.h;
+        // if there are no children set the default height.
+        height = (children.length === 0) ? this.config.panel.body.height : height;
+        // if service is collapsed hide the body.
+        height = (node.viewState.collapsed) ? 0 : height;
+        // set the body height and width.
+        cmp.body.h = height;
+        cmp.body.w = width;
+
+        // calculate header related components.
+        const textWidth = this.getTextWidth(node.getName().value);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
+        // set the heading height
+        cmp.heading.h = this.config.panel.heading.height;
+
+        viewState.bBox.w = width;
+        viewState.bBox.h = cmp.body.h + cmp.heading.h;
+        // set the components.
+        viewState.components = cmp;
+
+        // components.annotation = new SimpleBBox();
+        // components.transportLine = new SimpleBBox();
+
+        /* if (_.isUndefined(node.viewState.showAnnotationContainer)) {
             node.viewState.showAnnotationContainer = true;
         }
 
         if (!node.viewState.showAnnotationContainer) {
             components.annotation.h = 0;
         }
-        components.body.w = bodyWidth;
         components.annotation.w = bodyWidth;
         components.transportLine.h = totalResourceHeight;
         // Set initial height to the body
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h - 30;
-        viewState.components = components;
-        viewState.components.heading.w += viewState.titleWidth + 100;
-        viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
-        textWidth = this.getTextWidth(node.getName().value);
-        viewState.titleWidth = textWidth.w;
-        viewState.trimmedTitle = textWidth.text;
-        // calculate defult worker
-        components.defaultWorker.w = this.config.lifeLine.width;
-        components.defaultWorker.h = (this.config.lifeLine.head.height * 2);
 
         // Set the height if globals inside the service node is expanded
         if (viewState.globalsExpanded) {
-            const topGutter = 10;
-            const topBarHeight = 25;
-            const importInputHeight = 40;
-            const globals = node.getVariables();
-            viewState.bBox.h += topGutter + topBarHeight + importInputHeight +
-                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
-        }
-        // Set the service/connector definition height according to the resources/connector definitions
-        // This is due to the logic re-use by the connector nodes as well
-        if (!node.viewState.collapsed) {
-            let innerPanelItems;
-            if (TreeUtil.isService(node)) {
-                innerPanelItems = node.getResources();
-            } else if (TreeUtil.isConnector(node)) {
-                innerPanelItems = node.getActions();
-            }
-            innerPanelItems.map((innerPanelItem, index) => {
-                const innerPanelItemBBox = innerPanelItems[index].viewState.bBox;
-                if (!innerPanelItem.viewState.collapsed) {
-                    viewState.bBox.h += innerPanelItemBBox.h + 50;
-                }
-            });
-            if (node.getResources()) {
-                viewState.bBox.h -= 110;
-            }
-        }
+;
+        }*/
+
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
