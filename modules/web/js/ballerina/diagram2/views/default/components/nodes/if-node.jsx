@@ -30,7 +30,7 @@ class IfNode extends React.Component {
         this.editorOptions = {
             propertyType: 'text',
             key: 'If condition',
-            model: props.model,
+            model: props.model.getCondition(),
         };
         this.state = {
             active: 'hidden',

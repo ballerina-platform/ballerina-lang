@@ -31,9 +31,7 @@ class WhileNode extends React.Component {
         this.editorOptions = {
             propertyType: 'text',
             key: 'While condition',
-            model: props.model,
-            getterMethod: props.model.getConditionString,
-            setterMethod: props.model.setConditionFromString,
+            model: props.model.getCondition(),
         };
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }

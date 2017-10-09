@@ -17,6 +17,8 @@
  */
 import _ from 'lodash';
 import AbstractTreeUtil from './abstract-tree-util';
+import TreeBuilder from './tree-builder';
+import FragmentUtils from '../utils/fragment-utils';
 
 class TreeUtil extends AbstractTreeUtil {
 
@@ -208,6 +210,39 @@ class TreeUtil extends AbstractTreeUtil {
         });
 
         return workerList[index];
+    }
+
+    /**
+     * Set the source of the current node.
+     * @param {Node} node - Node for setting source.
+     * @param {string|array} source - set source for the node.
+     * */
+    setSource(node, source) {
+        /* TODO: handle expression, argument parameter and return parameter. */
+        // check node kind.
+        if (node.isStatement) {
+            // invoke the fragment util for the coresponding kind.
+            const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createStatementFragment(source));
+            const newNode = TreeBuilder.build(parsedJson);
+            // get the parent of the node.
+            const parentNode = node.parent;
+            newNode.parent = parentNode;
+            // replace the old node with new node.
+            parentNode.replaceStatements(node, newNode, false);
+        } else if (node.isExpression) {
+            // invoke the fragment util and get the new node.
+            const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
+            const newNode = TreeBuilder.build(parseJson);
+
+            // Get the parent node.
+            const parentNode = node.parent;
+
+            // Set the parent for new node.
+            newNode.parent(parentNode);
+
+            // Set the condition using new node.
+            parentNode.setCondition(newNode);
+        }
     }
 }
 
