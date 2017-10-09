@@ -1837,7 +1837,7 @@ public class BallerinaPsiImplUtil {
                 return null;
             }
             // Now we get all of the return types from the function.
-            List<PsiElement> returnTypes = getReturnTypes(((FunctionDefinitionNode) parent));
+            List<TypeNameNode> returnTypes = getReturnTypes(((FunctionDefinitionNode) parent));
             // There should be at least 'index+1' amount of elements in the list. If the index is 0, size should be
             // at least 1, etc.
             if (returnTypes.size() <= index) {
@@ -1940,8 +1940,8 @@ public class BallerinaPsiImplUtil {
      * @return return types of the provided {@link FunctionDefinitionNode}.
      */
     @NotNull
-    public static List<PsiElement> getReturnTypes(@NotNull FunctionDefinitionNode functionDefinitionNode) {
-        List<PsiElement> results = new LinkedList<>();
+    public static List<TypeNameNode> getReturnTypes(@NotNull FunctionDefinitionNode functionDefinitionNode) {
+        List<TypeNameNode> results = new LinkedList<>();
         // Parameters are in the ReturnParametersNode. So we first get the ReturnParametersNode from the definition
         // node.
         ReturnParametersNode node = PsiTreeUtil.findChildOfType(functionDefinitionNode, ReturnParametersNode.class);
