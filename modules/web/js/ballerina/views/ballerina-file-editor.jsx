@@ -38,6 +38,7 @@ import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visi
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
+import './../utils/react-try-catch-batching-strategy';
 
 
 /**
