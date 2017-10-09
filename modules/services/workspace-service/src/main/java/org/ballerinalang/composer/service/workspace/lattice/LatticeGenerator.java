@@ -51,7 +51,8 @@ public class LatticeGenerator {
 
         Names names = Names.getInstance(context);
 
-        // TODO: make SymbolTable public to run this.
+        // Note : Make SymbolTable constructor public and define binary, cast and conversion operators in
+        // SymbolTable constructor and initialize with below code
 //        SymbolTable symbolTable = new SymbolTable(context);
         SymbolTable symbolTable = null;
 
@@ -127,6 +128,7 @@ public class LatticeGenerator {
                 SimpleTypeEdge simpleTypeEdge = new SimpleTypeEdge();
                 BCastOperatorSymbol bCastOperatorSymbol = (BCastOperatorSymbol) castEntry.symbol;
                 simpleTypeEdge.setSafe(bCastOperatorSymbol.safe);
+                simpleTypeEdge.setImplicit(bCastOperatorSymbol.implicit);
                 if (bCastOperatorSymbol.type instanceof BInvokableType) {
                     BInvokableType type = (BInvokableType) bCastOperatorSymbol.type;
                     List<BType> paramTypes = type.getParameterTypes();
