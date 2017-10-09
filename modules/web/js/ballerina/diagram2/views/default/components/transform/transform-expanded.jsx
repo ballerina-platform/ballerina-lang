@@ -749,7 +749,7 @@ class TransformExpanded extends React.Component {
             const varVertex = ({
                 name: varDef.getVariableName().getValue(),
                 displayName: varDef.getVariableName().getValue(),
-                type: varDef.getTypeNode().typekind,
+                type: varDef.getTypeNode().getTypeKind(),
                 varDeclarationString: varDef.getSource(),
             });
             this.state.vertices.push(varVertex);

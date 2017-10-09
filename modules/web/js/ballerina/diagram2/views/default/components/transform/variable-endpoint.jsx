@@ -97,7 +97,7 @@ export default class VariableEndpoint extends React.Component {
                         </span>
                         }
                         {this.props.variable.varDeclarationString && !this.state.onEdit &&
-                            <span>
+                            <span className='variable-edit-button'>
                                 <i className='btn fw fw-edit' onClick={this.onEdit} />
                             </span>
                         }
