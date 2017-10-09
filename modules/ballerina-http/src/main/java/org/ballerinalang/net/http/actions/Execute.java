@@ -18,7 +18,7 @@ package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,17 +41,17 @@ import java.util.Locale;
         actionName = "execute",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "httpVerb", type = TypeEnum.STRING),
-                @Argument(name = "path", type = TypeEnum.STRING),
-                @Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "httpVerb", type = TypeKind.STRING),
+                @Argument(name = "path", type = TypeKind.STRING),
+                @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
         },
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Response",
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                @Argument(name = "options", type = TypeEnum.STRUCT, structType = "Options",
+                @Argument(name = "serviceUri", type = TypeKind.STRING),
+                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
                           structPackage = "ballerina.net.http")
         }
 )

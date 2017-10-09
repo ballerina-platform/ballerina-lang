@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -39,9 +39,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getLastAccessedTime",
-        args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
+                          structPackage = "ballerina.net.http")},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 public class GetLastAccessedTime extends AbstractNativeFunction {

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -37,8 +37,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "invalidate",
-        args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http")},
+        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
+                          structPackage = "ballerina.net.http")},
         isPublic = true
 )
 public class Invalidate extends AbstractNativeFunction {

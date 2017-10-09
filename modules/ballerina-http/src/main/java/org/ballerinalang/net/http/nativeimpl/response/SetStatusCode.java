@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -38,9 +38,9 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.http.response",
         functionName = "setStatusCode",
-        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http"),
-                @Argument(name = "statusCode", type = TypeEnum.INT)},
+                @Argument(name = "statusCode", type = TypeKind.INT)},
         isPublic = true
 )
 public class SetStatusCode extends AbstractNativeFunction {

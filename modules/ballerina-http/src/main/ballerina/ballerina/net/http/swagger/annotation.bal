@@ -1,8 +1,8 @@
 package ballerina.net.http.swagger;
 
-annotation ServiceInfo attach service {
+public annotation ServiceInfo attach service {
     string title;
-    string version;
+    string serviceVersion;
     string description;
     string termsOfService;
     Contact contact;
@@ -13,54 +13,54 @@ annotation ServiceInfo attach service {
     Developer[] developers;
 }
 
-annotation Contact {
+public annotation Contact {
     string name;
     string email;
     string url;
 }
 
-annotation License {
+public annotation License {
     string name;
     string url;
 }
 
-annotation ExternalDoc {
+public annotation ExternalDoc {
     string description;
     string url;
 }
 
-annotation Tag {
+public annotation Tag {
     string name;
     string description;
 }
 
-annotation Organization {
+public annotation Organization {
     string name;
     string url;
 }
 
-annotation Developer {
+public annotation Developer {
     string name;
     string email;
 }
 
-annotation Swagger attach service {
-    string version;
+public annotation Swagger attach service {
+    string swaggerVersion;
     SwaggerExtension[] extension;
 }
 
-annotation SwaggerExtension {
+public annotation SwaggerExtension {
     string target;
 }
 
-annotation ServiceConfig attach service {
+public annotation ServiceConfig attach service {
     string host;
     string[] schemes;
     string interface;
     Authorization[] authorizations;
 }
 
-annotation Authorization {
+public annotation Authorization {
     string name;
     string description;
     string authType;
@@ -72,23 +72,23 @@ annotation Authorization {
     AuthorizationScope[] authorizationScopes;
 }
 
-annotation AuthorizationScope {
+public annotation AuthorizationScope {
     string name;
     string description;
 }
 
-annotation ResourceConfig attach resource {
+public annotation ResourceConfig attach resource {
     string[] schemes;
     Authorization[] authorizations;
     string name;
     string[] scopes;
 }
 
-annotation ParametersInfo attach resource {
+public annotation ParametersInfo attach resource {
     ParameterInfo[] value;
 }
 
-annotation ParameterInfo {
+public annotation ParameterInfo {
     string in;
     string name;
     string description;
@@ -100,25 +100,25 @@ annotation ParameterInfo {
     Item[] items;
 }
 
-annotation Item {
+public annotation Item {
     string itemType;
     string format;
     string collectionFormat;
     string items;
 }
 
-annotation ResourceInfo attach resource {
+public annotation ResourceInfo attach resource {
     string[] tags;
     string summary;
     string description;
     ExternalDoc externalDoc;
 }
 
-annotation Responses attach resource {
+public annotation Responses attach resource {
     Response[] value;
 }
 
-annotation Response {
+public annotation Response {
     string code;
     string description;
     string response;
@@ -126,13 +126,13 @@ annotation Response {
     Example[] examples;
 }
 
-annotation Header {
+public annotation Header {
     string name;
     string description;
     string headerType;
 }
 
-annotation Example {
+public annotation Example {
     string exampleType;
     string value;
 }

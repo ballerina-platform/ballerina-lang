@@ -20,7 +20,6 @@ package org.ballerinalang;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
@@ -126,8 +125,6 @@ public class BLangProgramRunner {
         StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = arrayArgs;
-        int[] argRegs = {0};
-        BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);
 
         StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;

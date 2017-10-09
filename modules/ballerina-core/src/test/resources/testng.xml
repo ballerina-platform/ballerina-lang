@@ -22,7 +22,7 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <!-- Ballerina language Test Cases. -->
-    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+    <!--<test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.model.values"/>
             <package name="org.ballerinalang.model.expressions"/>
@@ -32,29 +32,29 @@ under the License.
             <package name="org.ballerinalang.model.annotations"/>
             <package name="org.ballerinalang.model.arraysofarrays"/>
         </packages>
-    </test>
+    </test>-->
 
     <!-- Parser Level Test Cases -->
-    <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
-        <classes>
+    <!--<test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">-->
+        <!--<classes>-->
             <!-- Negative Test cases -->
-            <class name="org.ballerinalang.core.parser.negative.InvalidSyntaxParserTest"/>
+            <!--<class name="org.ballerinalang.core.parser.negative.InvalidSyntaxParserTest"/>-->
             <!-- whitespace capture test cases -->
-            <class name="org.ballerinalang.core.parser.whitespace.WhiteSpaceCaptureTest"/>
-        </classes>
-    </test>
+            <!--<class name="org.ballerinalang.core.parser.whitespace.WhiteSpaceCaptureTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
 
     <!-- Native Function Related Test Cases. -->
-    <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
+    <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.core.nativeimpl.functions"/>
         </packages>
-    </test>
+    </test>-->
 
 
     <!-- Debugger TestCases -->
 
-    <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
+    <!--<test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.core.interpreter.VMDebuggerTest"/>
         </classes>
@@ -63,8 +63,8 @@ under the License.
 
     <test name="ballerina-any-type-test-suite">
         <classes>
-            <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
-            <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
+            <class name="org.ballerinalang.test.types.any.BAnyTypeSuccessScenariosTest"/>
+            <class name="org.ballerinalang.test.types.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
     </test>
 
@@ -101,5 +101,5 @@ under the License.
         <classes>
             <class name="org.ballerinalang.model.json.JSONStructConstraintTest"/>
         </classes>
-    </test>
+    </test>-->
 </suite>

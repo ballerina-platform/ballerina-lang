@@ -9,6 +9,7 @@ lexer grammar BallerinaLexer;
 PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
+PUBLIC      : 'public' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -17,12 +18,14 @@ CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
 ANNOTATION  : 'annotation' ;
+ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
 CONST       : 'const' ;
 TYPEMAPPER  : 'typemapper' ;
 WORKER      : 'worker' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
+VERSION     : 'version';
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -32,7 +35,6 @@ TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
-TYPE_MESSAGE    : 'message' ;
 TYPE_DATATABLE  : 'datatable' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
@@ -80,6 +82,7 @@ LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
+QUESTION_MARK       : '?' ;
 
 // Arithmetic operators
 
@@ -450,7 +453,7 @@ XML_WS
     :   ' '|'\t'|'\r'? '\n'
     ;
 
-XML_TAG_OPEN            :   '<'                             -> pushMode(XML_TAG) ;
+XML_TAG_OPEN            :   LT                              -> pushMode(XML_TAG) ;
 XML_TAG_OPEN_SLASH      :   '</'                            -> pushMode(XML_TAG) ;
 
 XML_TAG_SPECIAL_OPEN
@@ -502,12 +505,12 @@ XMLBracesSequence
 // Everything inside an XML tag
 mode XML_TAG;
 
-XML_TAG_CLOSE           : '>'       -> popMode ;
+XML_TAG_CLOSE           : GT        -> popMode ;
 XML_TAG_SPECIAL_CLOSE   : '?>'      -> popMode ;     // close <?xml...?>
 XML_TAG_SLASH_CLOSE     : '/>'      -> popMode ;
-SLASH                   : '/' ;
-QNAME_SEPARATOR         : ':' ;
-EQUALS                  : '=' ;
+SLASH                   : DIV ;
+QNAME_SEPARATOR         : COLON ;
+EQUALS                  : ASSIGN ;
 DOUBLE_QUOTE            : '"'       -> pushMode(DOUBLE_QUOTED_XML_STRING);
 SINGLE_QUOTE            : '\''      -> pushMode(SINGLE_QUOTED_XML_STRING);
 

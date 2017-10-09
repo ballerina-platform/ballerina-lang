@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -39,10 +39,10 @@ import java.util.IllegalFormatException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setAttribute",
-        args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http"),
-                @Argument(name = "attributeKey", type = TypeEnum.STRING),
-                @Argument(name = "attributeValue", type = TypeEnum.ANY)},
+        args = {@Argument(name = "session", type = TypeKind.STRUCT, structType = "Session",
+                          structPackage = "ballerina.net.http"),
+                @Argument(name = "attributeKey", type = TypeKind.STRING),
+                @Argument(name = "attributeValue", type = TypeKind.ANY)},
         isPublic = true
 )
 public class SetAttribute extends AbstractNativeFunction {

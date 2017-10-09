@@ -21,7 +21,7 @@ package org.ballerinalang.net.ws.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
@@ -51,9 +51,9 @@ import javax.websocket.Session;
         actionName = "connectWithDefault",
         connectorName = Constants.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c", type = TypeEnum.CONNECTOR)
+                @Argument(name = "c", type = TypeKind.CONNECTOR)
         },
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Connection",
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
                                   structPackage = "ballerina.net.ws")}
 )
 public class ConnectWithDefault extends AbstractNativeWsAction {

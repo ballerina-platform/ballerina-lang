@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -37,9 +37,9 @@ import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.http.request",
         functionName = "getMethod",
-        args = {@Argument(name = "req", type = TypeEnum.STRUCT, structType = "Request",
+        args = {@Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                           structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class GetMethod extends AbstractNativeFunction {

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,9 +34,9 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http.response",
         functionName = "getBinaryPayload",
-        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                           structPackage = "ballerina.net.http")},
-        returnType = {@ReturnType(type = TypeEnum.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
 public class GetBinaryPayload extends AbstractNativeFunction {

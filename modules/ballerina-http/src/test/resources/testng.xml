@@ -28,13 +28,6 @@ under the License.
         </packages>
     </test>
 
-    <!-- WebSocket Test Cases -->
-    <test name="websocket-test-cases" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.websocket.NativeFunctionsTestCase"/>
-        </classes>
-    </test>
-
     <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
     <!-- Native Function Related Test Cases. -->
     <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
@@ -43,7 +36,7 @@ under the License.
         <!--</packages>-->
     <!--</test>-->
 
-    <test name="ballerina-Req/Res-native-functions-unit-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-Req/Res-native-functions-unit-tests" preserve-order="true" parallel="false" enabled="false">
         <packages>
             <package name="org.ballerinalang.net.http.nativeimpl"/>
         </packages>
@@ -57,7 +50,7 @@ under the License.
 
     <!-- Service Related Test Cases -->
 
-    <test name="ballerina-service-unit-tests" preserve-order="false" parallel="false">
+    <test name="ballerina-service-unit-tests" preserve-order="false" parallel="false" enabled="false">
         <classes>
              <!--TODO : Add other testcases. -->
             <class name="org.ballerinalang.service.ServiceTest"/>

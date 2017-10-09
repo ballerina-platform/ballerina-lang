@@ -19,7 +19,7 @@
 package org.ballerinalang.net.ws.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -37,10 +37,10 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMess
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
         functionName = "cancelHandshake",
-        args = {@Argument(name = "conn", type = TypeEnum.STRUCT, structType = "HandshakeConnection",
+        args = {@Argument(name = "conn", type = TypeKind.STRUCT, structType = "HandshakeConnection",
                           structPackage = "ballerina.net.ws"),
-                @Argument(name = "statusCode", type = TypeEnum.INT),
-                @Argument(name = "reason", type = TypeEnum.STRING)},
+                @Argument(name = "statusCode", type = TypeKind.INT),
+                @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true
 )
 public class CancelHandshake extends AbstractNativeFunction {

@@ -213,6 +213,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
+        mnemonics[InstructionCodes.WRKSTART] = "wrkstart";
+        mnemonics[InstructionCodes.WRKRETURN] = "wrkreturn";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
@@ -231,7 +233,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
 
 
-        mnemonics[InstructionCodes.REP] = "rep";
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";
         mnemonics[InstructionCodes.SRET] = "sret";

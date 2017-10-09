@@ -29,7 +29,6 @@ import org.ballerinalang.connector.impl.BClientConnectorFutureListener;
 import org.ballerinalang.connector.impl.BServerConnectorFuture;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -66,7 +65,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -106,20 +104,22 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class executes Ballerina instruction codes.
@@ -128,12 +128,12 @@ import java.util.concurrent.TimeoutException;
  */
 public class BLangVM {
 
+    private static final String JOIN_TYPE_SOME = "some";
     private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
     private Context context;
     private ControlStackNew controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
-    private boolean isForkJoinTimedOut;
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
@@ -153,12 +153,12 @@ public class BLangVM {
         }
     }
 
-    public void run(Context context) {
-        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+    public void run(Context ctx) {
+        StackFrame currentFrame = ctx.getControlStackNew().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
-        this.context = context;
+        this.context = ctx;
         this.controlStack = context.getControlStackNew();
         this.ip = context.getStartIP();
 
@@ -517,6 +517,12 @@ public class BLangVM {
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
                     break;
+                case InstructionCodes.WRKSTART:
+                    startWorkers();
+                    break;
+                case InstructionCodes.WRKRETURN:
+                    handleWorkerReturn();
+                    break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -533,7 +539,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -717,10 +723,6 @@ public class BLangVM {
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
                     sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
-                    break;
-                case InstructionCodes.REP:
-                    //TODO fix
-                    handleReply(operands, sf);
                     break;
                 case InstructionCodes.IRET:
                     i = operands[0];
@@ -2281,7 +2283,7 @@ public class BLangVM {
 
                 xmlVal = (BXML<?>) sf.refRegs[i];
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
-                xmlVal.setChildren(child);
+                xmlVal.addChildren(child);
                 break;
         }
     }
@@ -2475,34 +2477,12 @@ public class BLangVM {
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private void handleReply(int[] operands, StackFrame sf) {
-        //TODO fix, this should just be a notification, just success notification would suffice.
-        // current impl inject reply statement at the end of the resource. That needs to be revisited as well.
-//        int i;
-//        i = operands[0];
-//        BMessage message = null;
-//        if (i >= 0) {
-//            message = (BMessage) sf.refRegs[i];
-//        }
-//        //TODO: This method call is HTTP specific. Move to an HTTP specific location. (Git issue #3242)
-//        generateSessionAndCorsHeaders(message);
-//        context.setError(null);
-//        context.getConnectorFuture().notifyReply(message.value());
-//        if (context.getBalCallback() != null &&
-//                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
-//            context.getBalCallback().done(message.value());
-//        }
-        context.getConnectorFuture().notifySuccess();
-        ip = -1;
-    }
-
     private void createNewConnector(int[] operands, StackFrame sf) {
         int cpIndex = operands[0];
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
         BConnector bConnector = new BConnector(connectorInfo.getType());
-        bConnector.setFilterConnector(connectorInfo.isFilterConnector());
         sf.refRegs[i] = bConnector;
     }
 
@@ -2512,6 +2492,44 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
         BStruct bStruct = new BStruct(structInfo.getType());
+
+        // Populate default values
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
+            DefaultValueAttributeInfo defaultValueInfo =
+                    (DefaultValueAttributeInfo) fieldInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+            switch (fieldInfo.getFieldType().getTag()) {
+                case TypeTags.INT_TAG:
+                    longRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
+                    }
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    doubleRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setFloatField(doubleRegIndex, defaultValueInfo.getDefaultValue().getFloatValue());
+                    }
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setStringField(stringRegIndex, defaultValueInfo.getDefaultValue().getStringValue());
+                    }
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    booleanRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setBooleanField(booleanRegIndex,
+                                defaultValueInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
+                    }
+                    break;
+            }
+        }
+
         sf.refRegs[i] = bStruct;
     }
 
@@ -2561,53 +2579,6 @@ public class BLangVM {
         ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
-        //BType connectorType = paramTypes[0];
-        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
-        ActionInfo newActionInfo = null;
-        ConnectorInfo connectorInfoIncoming;
-        if (connector != null && connector.getConnectorType() != null &&
-                !(callableUnitInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
-            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-                    (BConnectorType) connector.getConnectorType());
-            if (connectorInfoFilter != null) {
-                newActionInfo = connectorInfoFilter.getActionInfo(callableUnitInfo.getName());
-            } else {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                handleError();
-                return;
-            }
-        }
-
-        WorkerInfo defaultWorkerInfo;
-        if (newActionInfo != null) {
-            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-        } else {
-            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        }
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
-
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
-    }
-
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
@@ -2624,9 +2595,6 @@ public class BLangVM {
         this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
 
     }
 
@@ -2647,132 +2615,108 @@ public class BLangVM {
     public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
         ForkjoinInfo forkjoinInfo = forkJoinCPEntry.getForkjoinInfo();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
-        List<WorkerResult> resultMsgs = new ArrayList<>();
-        //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
-        //BRefValueArray resultInvokeAny = null;
-        long timeout = 60; // Default timeout value is 60 seconds
+        long timeout = Long.MAX_VALUE;
         if (forkjoinInfo.isTimeoutAvailable()) {
-            timeout = controlStack.getCurrentFrame().getLongRegs()[0];
+            timeout = this.controlStack.getCurrentFrame().getLongRegs()[0];
         }
-
-        Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
+        Queue<WorkerResult> resultMsgs = new ConcurrentLinkedQueue<>();
+        Map<String, BLangVMWorkers.WorkerExecutor> workers = new HashMap<>();
         for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context(programFile);
-            WorkerCallback workerCallback = new WorkerCallback(workerContext);
-            workerContext.setBalCallback(workerCallback);
-
-            StackFrame callerSF = controlStack.getCurrentFrame();
+            Context workerContext = new Context(this.programFile);
+            StackFrame callerSF = this.controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
-
             ControlStackNew workerControlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
+            StackFrame calleeSF = new StackFrame(this.controlStack.getCurrentFrame().getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             workerControlStack.pushFrame(calleeSF);
-
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
-
-
-            // Copy arg values from the current StackFrame to the new StackFrame
-            // TODO fix this. Move the copyArgValues method to another util function
-            // BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-            BLangVM bLangVM = new BLangVM(programFile);
-            //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+            BLangVM bLangVM = new BLangVM(this.programFile);
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                    workerContext, workerInfo);
+                    workerContext, workerInfo, resultMsgs);
             workerRunnerList.add(workerRunner);
-            triggeredWorkers.put(workerInfo.getWorkerName(), workerRunner);
+            workers.put(workerInfo.getWorkerName(), workerRunner);
         }
-
-        if (forkjoinInfo.getJoinType().equalsIgnoreCase("some")) {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
-            if (joinWorkerNames.length == 0) {
-                // If there are no workers specified, wait for any of all the workers
-                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
-                //resultMsgs.add(res);
-            } else {
-                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
-                for (String workerName : joinWorkerNames) {
-                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
-                }
-                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
-                //resultMsgs.add(res);
-            }
-        } else {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
-            if (joinWorkerNames.length == 0) {
-                // If there are no workers specified, wait for all of all the workers
-                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
-            } else {
-                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
-                for (String workerName : joinWorkerNames) {
-                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
-                }
-                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
-            }
+        Set<String> joinWorkerNames = new LinkedHashSet<>(Lists.of(forkjoinInfo.getJoinWorkerNames()));
+        if (joinWorkerNames.isEmpty()) {
+            /* if no join workers are specified, that means, all should be considered */
+            joinWorkerNames.addAll(workers.keySet());
         }
-
-        if (isForkJoinTimedOut) {
-            ip = forkjoinInfo.getTimeoutIp();
-            // Execute the timeout block
-            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
-            BMap<String, BRefValueArray> mbMap = new BMap<>();
-            for (WorkerResult workerResult : resultMsgs) {
-                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
-            }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
-
-            isForkJoinTimedOut = false;
-
+        int workerCount;
+        if (forkjoinInfo.getJoinType().equalsIgnoreCase(JOIN_TYPE_SOME)) {
+            workerCount = forkjoinInfo.getWorkerCount();
         } else {
-            ip = forkjoinInfo.getJoinIp();
-            // Assign values to join block message arrays
+            workerCount = joinWorkerNames.size();
+        }
+        boolean success = this.invokeJoinWorkers(workers, joinWorkerNames, workerCount, timeout);
+        if (success) {
+            this.ip = forkjoinInfo.getJoinIp();
+            /* assign values to join block message arrays */
             int offsetJoin = forkjoinInfo.getJoinMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+        } else {
+            /* timed out */
+            this.ip = forkjoinInfo.getTimeoutIp();
+            /* execute the timeout block */
+            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
+            }
+            this.controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
+        }     
+    }
+    
+    private boolean invokeJoinWorkers(Map<String, BLangVMWorkers.WorkerExecutor> workers, 
+            Set<String> joinWorkerNames, int joinCount, long timeout) {
+        ExecutorService exec = Executors.newWorkStealingPool();
+        Semaphore resultCounter = new Semaphore(-joinCount + 1);
+        workers.forEach((k, v) -> {
+            if (joinWorkerNames.contains(k)) {
+                v.setResultCounterSemaphore(resultCounter);
+            }
+            exec.submit(v);
+        });
+        try {
+            return resultCounter.tryAcquire(timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException ignore) {
+            return false;
         }
     }
 
-    private WorkerResult invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
-        ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        WorkerResult result;
-        try {
-            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
-            return null;
-        } catch (TimeoutException e) {
-            isForkJoinTimedOut = true;
-            return null;
-        }
-        return result;
+    private void startWorkers() {
+        CallableUnitInfo callableUnitInfo = this.controlStack.currentFrame.callableUnitInfo;
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, this.context);
+        this.controlStack.currentFrame.workerReturnStack = true;
+        ip = -1;
     }
 
-    private List<WorkerResult> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList,
-                                                long timeout) {
-        ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<WorkerResult> result = new ArrayList<>();
-        try {
-            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
-                try {
-                    return bMessageFuture.get();
-                } catch (CancellationException e) {
-                    // This means task has been timedout and cancelled by system.
-                    isForkJoinTimedOut = true;
-                    return null;
-                } catch (Exception e) {
-                    return null;
-                }
+    private void handleWorkerReturn() {
+        WorkerContext workerContext = (WorkerContext) this.context;
+        if (workerContext.parentSF.workerReturned.compareAndSet(false, true)) {
+            StackFrame workerCallerSF = workerContext.getControlStackNew().currentFrame;
+            workerContext.parentSF.returnedWorker = workerCallerSF.workerInfo.getWorkerName();
 
-            }).forEach((WorkerResult b) -> {
-                result.add(b);
-            });
-        } catch (InterruptedException e) {
-            return result;
+            ControlStackNew parentControlStack = workerContext.parent.getControlStackNew();
+            StackFrame parentSF = workerContext.parentSF;
+            StackFrame parentCallersSF = parentControlStack.getStack()[parentControlStack.fp - 1];
+
+            copyWorkersReturnValues(workerCallerSF, parentSF, parentCallersSF);
+            // Switch to parent context
+            this.context = workerContext.parent;
+            this.controlStack = this.context.getControlStackNew();
+            controlStack.popFrame();
+            this.constPool = this.controlStack.getCurrentFrame().packageInfo.getConstPoolEntries();
+            this.code = this.controlStack.getCurrentFrame().packageInfo.getInstructions();
+            ip = parentSF.retAddrs;
+        } else {
+            String msg = workerContext.parentSF.returnedWorker + " already returned.";
+            context.setError(BLangVMErrors.createIllegalStateException(context, ip, msg));
+            handleError();
         }
-        return result;
     }
 
     public void replyWorker(WorkerDataChannelInfo workerDataChannel,
@@ -2803,6 +2747,9 @@ public class BLangVM {
                     boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
                     arguments[i] = new BBoolean(temp);
                     break;
+                case TypeTags.BLOB_TAG:
+                    arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
+                    break;
                 default:
                     arguments[i] = callerSF.refRegs[argReg];
             }
@@ -2815,6 +2762,7 @@ public class BLangVM {
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
+        int blobRegIndex = -1;
         int refRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
@@ -2831,6 +2779,9 @@ public class BLangVM {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.getByteRegs()[++blobRegIndex] = ((BBlob) passedInValues[i]).blobValue();
                     break;
                 default:
                     currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
@@ -2877,42 +2828,13 @@ public class BLangVM {
 
     }
 
-    public static void copyArgValuesWorker(StackFrame callerSF, StackFrame calleeSF,
-                                           int[] argRegs, BType[] paramTypes) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
-                    break;
-                default:
-                    if (callerSF.refRegs[argReg] instanceof BMessage) {
-                        calleeSF.refLocalVars[++refRegIndex] = ((BMessage) callerSF.refRegs[argReg]).clone();
-                    } else {
-                        calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
-                    }
-            }
-        }
+    public static void copyValues(StackFrame parent, StackFrame workerSF) {
+        System.arraycopy(parent.longLocalVars, 0, workerSF.longLocalVars, 0, parent.longLocalVars.length);
+        System.arraycopy(parent.doubleLocalVars, 0, workerSF.doubleLocalVars, 0, parent.doubleLocalVars.length);
+        System.arraycopy(parent.intLocalVars, 0, workerSF.intLocalVars, 0, parent.intLocalVars.length);
+        System.arraycopy(parent.stringLocalVars, 0, workerSF.stringLocalVars, 0, parent.stringLocalVars.length);
+        System.arraycopy(parent.byteLocalVars, 0, workerSF.byteLocalVars, 0, parent.byteLocalVars.length);
+        System.arraycopy(parent.refLocalVars, 0, workerSF.refLocalVars, 0, parent.refLocalVars.length);
     }
 
 
@@ -2958,6 +2880,41 @@ public class BLangVM {
             this.code = callersSF.packageInfo.getInstructions();
         }
         ip = currentSF.retAddrs;
+    }
+
+    private void copyWorkersReturnValues(StackFrame workerCallerSF, StackFrame parentsSF, StackFrame parentCallersSF) {
+        int callersRetRegIndex;
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+        BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            callersRetRegIndex = parentsSF.retRegIndexes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    parentCallersSF.longRegs[callersRetRegIndex] = workerCallerSF.longRegs[longRegCount++];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    parentCallersSF.doubleRegs[callersRetRegIndex] = workerCallerSF.doubleRegs[doubleRegCount++];
+                    break;
+                case TypeTags.STRING_TAG:
+                    parentCallersSF.stringRegs[callersRetRegIndex] = workerCallerSF.stringRegs[stringRegCount++];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    parentCallersSF.intRegs[callersRetRegIndex] = workerCallerSF.intRegs[intRegCount++];
+                    break;
+                case TypeTags.BLOB_TAG:
+                    parentCallersSF.byteRegs[callersRetRegIndex] = workerCallerSF.byteRegs[byteRegCount++];
+                    break;
+                default:
+                    parentCallersSF.refRegs[callersRetRegIndex] = workerCallerSF.refRegs[refRegCount++];
+                    break;
+            }
+        }
     }
 
     private String getOperandsLine(int[] operands) {
@@ -3008,98 +2965,73 @@ public class BLangVM {
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
 
-        BConnector connector = (BConnector) callerSF.refRegs[funcCallCPEntry.getArgRegs()[0]];
-        ActionInfo newActionInfo = null;
-        ConnectorInfo connectorInfoIncoming;
-        if (connector != null && connector.getConnectorType() != null &&
-                !(actionInfo.getConnectorInfo().getType().equals(connector.getConnectorType()))) {
-            connectorInfoIncoming = actionInfo.getConnectorInfo();
-            ConnectorInfo connectorInfoFilter = connectorInfoIncoming.getMethodTypeStructure(
-                    (BConnectorType) connector.getConnectorType());
-            if (connectorInfoFilter != null) {
-                newActionInfo = connectorInfoFilter.getActionInfo(actionInfo.getName());
-            } else {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
-                        connectorInfoIncoming.getName(), connector.getConnectorType().getName());
-                context.setError(BLangVMErrors.createError(context, ip, errorMsg));
-                handleError();
-                return;
-            }
-        }
-
-        WorkerInfo defaultWorkerInfo;
-        if (newActionInfo != null) {
-            actionInfo = newActionInfo;
-            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
-        } else {
-            defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
-        }
-
+        WorkerInfo defaultWorkerInfo = actionInfo.getDefaultWorkerInfo();
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
 
-        if (nativeAction != null) {
-            // TODO : Remove once we handle this properly for return values
-            BType[] retTypes = actionInfo.getRetParamTypes();
-            BValue[] returnValues = new BValue[retTypes.length];
+        if (nativeAction == null) {
+            return;
+        }
 
-            StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
-            copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
-                    actionInfo.getParamTypes());
+        // TODO : Remove once we handle this properly for return values
+        BType[] retTypes = actionInfo.getRetParamTypes();
+        BValue[] returnValues = new BValue[retTypes.length];
+
+        StackFrame caleeSF = new StackFrame(actionInfo, defaultWorkerInfo, ip, null, returnValues);
+        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                actionInfo.getParamTypes());
 
 
-            controlStack.pushFrame(caleeSF);
+        controlStack.pushFrame(caleeSF);
 
-            try {
-                boolean nonBlocking = !context.disableNonBlocking
-                        && !context.isInTransaction() && nativeAction.isNonBlockingAction();
-                BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
-                if (nonBlocking) {
-                    // Enable non-blocking.
-                    context.setStartIP(ip);
-                    // TODO : Temporary solution to make non-blocking working.
-                    if (caleeSF.packageInfo == null) {
-                        caleeSF.packageInfo = actionInfo.getPackageInfo();
-                    }
-                    context.programFile = programFile;
-                    context.funcCallCPEntry = funcCallCPEntry;
-                    context.actionInfo = actionInfo;
-
-                    ConnectorFuture future = nativeAction.execute(context);
-                    if (future == null) {
-                        throw new BallerinaException("Native action doesn't provide a future object to sync");
-                    }
-                    future.setConnectorFutureListener(listener);
-
-                    ip = -1;
-                    return;
-                } else {
-                    ConnectorFuture future = nativeAction.execute(context);
-                    if (future == null) {
-                        throw new BallerinaException("Native action doesn't provide a future object to sync");
-                    }
-                    future.setConnectorFutureListener(listener);
-                    //default nonBlocking timeout 5 mins
-                    long timeout = 300000;
-                    boolean res = listener.sync(timeout);
-                    if (!res) {
-                        //non blocking execution timed out.
-                        throw new BallerinaException("Action execution timed out, timeout period - " + timeout
-                        + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
-                    }
-                    // Copy return values to the callers stack
-                    controlStack.popFrame();
-                    handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
-
+        try {
+            boolean nonBlocking = !context.disableNonBlocking
+                    && !context.isInTransaction() && nativeAction.isNonBlockingAction();
+            BClientConnectorFutureListener listener = new BClientConnectorFutureListener(context, nonBlocking);
+            if (nonBlocking) {
+                // Enable non-blocking.
+                context.setStartIP(ip);
+                // TODO : Temporary solution to make non-blocking working.
+                if (caleeSF.packageInfo == null) {
+                    caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
-            } catch (Throwable e) {
-                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-                handleError();
+                context.programFile = programFile;
+                context.funcCallCPEntry = funcCallCPEntry;
+                context.actionInfo = actionInfo;
+
+                ConnectorFuture future = nativeAction.execute(context);
+                if (future == null) {
+                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+                }
+                future.setConnectorFutureListener(listener);
+
+                ip = -1;
                 return;
+            } else {
+                ConnectorFuture future = nativeAction.execute(context);
+                if (future == null) {
+                    throw new BallerinaException("Native action doesn't provide a future object to sync");
+                }
+                future.setConnectorFutureListener(listener);
+                //default nonBlocking timeout 5 mins
+                long timeout = 300000;
+                boolean res = listener.sync(timeout);
+                if (!res) {
+                    //non blocking execution timed out.
+                    throw new BallerinaException("Action execution timed out, timeout period - " + timeout
+                            + ", Action - " + nativeAction.getPackagePath() + ":" + nativeAction.getName());
+                }
+                if (context.getError() != null) {
+                    handleError();
+                }
+                // Copy return values to the callers stack
+                controlStack.popFrame();
+                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
             }
-        } else {
-            // Ballerina Action in case of ballerina based filter connector
-            invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            handleError();
+            return;
         }
     }
 
@@ -3226,7 +3158,7 @@ public class BLangVM {
         }
 
         for (int i = 0; i < tFields.length; i++) {
-            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
+            if (isAssignable(tFields[i].getFieldType(), sFields[i].getFieldType()) &&
                     tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
                 continue;
             }
@@ -3234,6 +3166,55 @@ public class BLangVM {
         }
 
         return true;
+    }
+
+    private static boolean isAssignable(BType actualType, BType expType) {
+        // First check whether both references points to the same object.
+        if (actualType == expType) {
+            return true;
+        }
+
+        // If the both type tags are equal, then perform following checks.
+        if (actualType.getTag() == expType.getTag() && isValueType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() &&
+                !isUserDefinedType(actualType) && !isConstrainedType(actualType)) {
+            return true;
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayEquivalent(actualType, expType);
+        } else if (actualType.getTag() == expType.getTag() && actualType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) actualType, (BStructType) expType)) {
+            // If both types are structs then check for their equivalency
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isValueType(BType type) {
+        return type.getTag() <= TypeTags.BLOB_TAG;
+    }
+
+    private static boolean isUserDefinedType(BType type) {
+        return type.getTag() == TypeTags.STRUCT_TAG || type.getTag() == TypeTags.CONNECTOR_TAG ||
+                type.getTag() == TypeTags.ENUM_TAG || type.getTag() == TypeTags.ARRAY_TAG;
+    }
+
+    private static boolean isConstrainedType(BType type) {
+        return type.getTag() == TypeTags.JSON_TAG;
+    }
+
+    private static boolean checkArrayEquivalent(BType actualType, BType expType) {
+        if (expType.getTag() == TypeTags.ARRAY_TAG && actualType.getTag() == TypeTags.ARRAY_TAG) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) expType;
+            BArrayType rhsArrayType = (BArrayType) actualType;
+            return checkArrayEquivalent(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+        }
+        // Now one or both types are not array types and they have to be equal
+        if (expType == actualType) {
+            return true;
+        }
+        return false;
     }
 
     private void convertJSONToInt(int[] operands, StackFrame sf) {

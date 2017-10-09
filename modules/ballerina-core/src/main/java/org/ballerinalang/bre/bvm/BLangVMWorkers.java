@@ -31,18 +31,17 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 
 /**
  * This class contains helper functions to invoke workers.
@@ -51,58 +50,104 @@ import java.util.concurrent.ExecutorService;
  */
 public class BLangVMWorkers {
 
-    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                              StackFrame callerSF, int[] argRegs, Map<String, Object> properties) {
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
+    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, Context parent,
+                              Map<String, Object> properties) {
+        StackFrame callerSF = parent.getControlStackNew().currentFrame;
+        WorkerReturnIndex workerReturnIndex = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context(programFile);
-            WorkerCallback workerCallback = new WorkerCallback(workerContext);
-            workerContext.setBalCallback(workerCallback);
+            WorkerContext workerContext = new WorkerContext(programFile, parent);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
 
             if (properties != null) {
-                properties.forEach((property, value) -> workerContext.setProperty(property, value));
+                properties.forEach(workerContext::setProperty);
             }
 
-            ControlStackNew controlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
-            controlStack.pushFrame(calleeSF);
-
-            // Copy arg values from the current StackFrame to the new StackFrame
-            // TODO fix this. Move the copyArgValues method to another util function
-            BLangVM.copyArgValuesWorker(callerSF, calleeSF, argRegs, paramTypes);
+            populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
 
             BLangVM bLangVM = new BLangVM(programFile);
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo);
+            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
+                    new ConcurrentLinkedQueue<>());
             executor.submit(workerRunner);
         }
 
     }
 
-    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, StackFrame callerSF,
-                                                                                                    int[] argRegs) {
-        invoke(programFile, callableUnitInfo, callerSF, argRegs, null);
+    public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, Context parent) {
+        invoke(programFile, callableUnitInfo, parent, parent.getProperties());
     }
 
-    static class WorkerExecutor implements Callable<WorkerResult> {
+    private static void populateWorkerStack(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, Context ctx,
+                                            WorkerReturnIndex returnIndex, StackFrame callerSF) {
+        ControlStackNew controlStack = ctx.getControlStackNew();
+        StackFrame startSF = new StackFrame(callableUnitInfo.getPackageInfo(), -1, new int[0]);
+        controlStack.pushFrame(startSF);
 
-        private static final Logger log = LoggerFactory.getLogger(WorkerExecutor.class);
+        startSF.setLongRegs(new long[returnIndex.longRegCount]);
+        startSF.setDoubleRegs(new double[returnIndex.doubleRegCount]);
+        startSF.setStringRegs(new String[returnIndex.stringRegCount]);
+        startSF.setIntRegs(new int[returnIndex.intRegCount]);
+        startSF.setRefRegs(new BRefType[returnIndex.refRegCount]);
+        startSF.setByteRegs(new byte[returnIndex.byteRegCount][]);
+
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, returnIndex.retRegs);
+        controlStack.pushFrame(calleeSF);
+
+        // Copy values from the current StackFrame to the new StackFrame
+        BLangVM.copyValues(callerSF, calleeSF);
+    }
+
+    private static WorkerReturnIndex calculateWorkerReturnIndex(BType[] retTypes) {
+        WorkerReturnIndex index = new WorkerReturnIndex();
+        index.retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    index.retRegs[i] = index.longRegCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    index.retRegs[i] = index.doubleRegCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    index.retRegs[i] = index.stringRegCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    index.retRegs[i] = index.intRegCount++;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    index.retRegs[i] = index.byteRegCount++;
+                    break;
+                default:
+                    index.retRegs[i] = index.refRegCount++;
+                    break;
+            }
+        }
+        return index;
+    }
+
+    static class WorkerExecutor implements Runnable {
+
         private static PrintStream outStream = System.out;
 
         private BLangVM bLangVM;
         private Context bContext;
         private WorkerInfo workerInfo;
+        private Queue<WorkerResult> resultHolder;
+        private Semaphore resultCounter;
 
-        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo) {
+        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo, 
+                Queue<WorkerResult> resultHolder) {
             this.bLangVM = bLangVM;
             this.bContext = bContext;
             this.workerInfo = workerInfo;
+            this.resultHolder = resultHolder;
         }
 
+        @SuppressWarnings("rawtypes")
         @Override
-        public WorkerResult call() throws BallerinaException {
+        public void run() throws BallerinaException {
             BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
             bLangVM.execWorker(bContext, workerInfo.getCodeAttributeInfo().getCodeAddrs());
             if (bContext.getError() != null) {
@@ -137,7 +182,25 @@ public class BLangVMWorkers {
                 }
             }
 
-            return new WorkerResult(workerInfo.getWorkerName(), bRefValueArray);
+            this.resultHolder.add(new WorkerResult(workerInfo.getWorkerName(), bRefValueArray));
+            if (this.resultCounter != null) {
+                this.resultCounter.release();
+            }
         }
+        
+        public void setResultCounterSemaphore(Semaphore resultCounter) {
+            this.resultCounter = resultCounter;
+        }
+        
+    }
+
+    static class WorkerReturnIndex {
+        int[] retRegs;
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
     }
 }

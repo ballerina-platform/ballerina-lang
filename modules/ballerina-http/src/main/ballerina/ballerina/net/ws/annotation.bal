@@ -1,6 +1,6 @@
 package ballerina.net.ws;
 
-annotation configuration attach service {
+public annotation configuration attach service {
     string basePath;
     string[] subProtocols;
     string host;
@@ -12,5 +12,5 @@ annotation configuration attach service {
     string certPassword;
 }
 
-annotation clientService attach service {
+public annotation clientService attach service {
 }

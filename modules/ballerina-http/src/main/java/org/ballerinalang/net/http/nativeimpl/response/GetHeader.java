@@ -1,7 +1,7 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -15,10 +15,10 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http.response",
         functionName = "getHeader",
-        args = {@Argument(name = "res", type = TypeEnum.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http"),
-                @Argument(name = "headerName", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+                @Argument(name = "headerName", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class GetHeader extends AbstractNativeFunction {
