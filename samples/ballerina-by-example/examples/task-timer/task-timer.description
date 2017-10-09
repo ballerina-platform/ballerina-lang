@@ -1,0 +1,6 @@
+// Timers run on fixed interval with the initial delay and interval.
+
+int delay
+  default value = 0
+
+int interval
