@@ -26,6 +26,7 @@ public class SimpleTypeEdge {
     private String source;
     private String target;
     private boolean safe;
+    private boolean implicit;
 
     public SimpleTypeEdge() {
 
@@ -55,9 +56,11 @@ public class SimpleTypeEdge {
         this.safe = safe;
     }
 
-    public SimpleTypeEdge(String source, String target, boolean safe) {
-        this.source = source;
-        this.target = target;
-        this.safe = safe;
+    public boolean isImplicit() {
+        return implicit;
+    }
+
+    public void setImplicit(boolean implicit) {
+        this.implicit = implicit;
     }
 }

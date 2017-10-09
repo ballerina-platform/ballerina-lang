@@ -29,6 +29,16 @@ class OperatorLattice {
     constructor() {
         this._unaryLattice = [];
         this._binaryLattice = [];
+        this._unaryOperators = [];
+        this._binaryOperators = [];
+    }
+
+    getUnaryOperators() {
+        return this._unaryOperators;
+    }
+
+    getBinaryOperators() {
+        return this._binaryOperators;
     }
 
     /**
@@ -37,46 +47,55 @@ class OperatorLattice {
      * @memberof OperatorLattice
      */
     initFromJson(operatorLatticeJson) {
-        const unaryLattice = {};
-        const binaryLattice = {};
+        this._unaryLattice = [];
+        this._binaryLattice = [];
+        this._unaryOperators = [];
+        this._binaryOperators = [];
 
-        const unaryLatticeJson = operatorLatticeJson.filter(edge => edge.type === 'unary');
-        const binaryLatticeJson = operatorLatticeJson.filter(edge => edge.type === 'binary');
+        Object.keys(operatorLatticeJson).forEach((operator) => {
+            const operatorLatticeList = operatorLatticeJson[operator];
+            const unaryLatticeJson = operatorLatticeList.filter(edge => edge.type === 'unary');
+            const binaryLatticeJson = operatorLatticeList.filter(edge => edge.type === 'binary');
 
-        unaryLatticeJson.forEach((edge) => {
-            if (!edge.visited) {
-                const operator = edge.operator;
-                unaryLattice[operator] = {};
-                if (!edge.visited) {
-                    unaryLatticeJson.forEach((targetEdge) => {
-                        if ((targetEdge.operator === operator) && (!targetEdge.visited)) {
-                            unaryLattice[operator][targetEdge.rhType] = targetEdge.retType;
-                            targetEdge.visited = true;
-                        }
-                    });
-                }
+            if (unaryLatticeJson.length > 0) {
+                this._unaryOperators.push(operator);
             }
-        });
+            if (binaryLatticeJson.length > 0) {
+                this._binaryOperators.push(operator);
+            }
 
-        binaryLatticeJson.forEach((edge) => {
-            if (!edge.visited) {
-                const operator = edge.operator;
-                binaryLattice[operator] = {};
+            unaryLatticeJson.forEach((edge) => {
                 if (!edge.visited) {
-                    binaryLatticeJson.forEach((targetEdge) => {
-                        if ((targetEdge.operator === operator) && (!targetEdge.visited)) {
-                            if (!binaryLattice[operator][targetEdge.lhType]) {
-                                binaryLattice[operator][targetEdge.lhType] = {};
+                    this._unaryLattice[operator] = {};
+                    if (!edge.visited) {
+                        unaryLatticeJson.forEach((targetEdge) => {
+                            if (!targetEdge.visited) {
+                                this._unaryLattice[operator][targetEdge.rhType] = targetEdge.retType;
+                                targetEdge.visited = true;
                             }
-                            binaryLattice[operator][targetEdge.lhType][targetEdge.rhType] = targetEdge.retType;
+                        });
+                    }
+                }
+            });
+    
+            binaryLatticeJson.forEach((edge) => {
+                if (!edge.visited) {
+                    this._binaryLattice[operator] = {};
+                    binaryLatticeJson.forEach((targetEdge) => {
+                        if (!targetEdge.visited) {
+                            if (!this._binaryLattice[operator][targetEdge.lhType]) {
+                                this._binaryLattice[operator][targetEdge.lhType] = {};
+                            }
+                            this._binaryLattice[operator][targetEdge.lhType][targetEdge.rhType] = targetEdge.retType;
                             targetEdge.visited = true;
                         }
                     });
                 }
-            }
+            });
         });
-        this._unaryLattice = unaryLattice;
-        this._binaryLattice = binaryLattice;
+
+        // typeof is a special type that is not a part of the type lattice, hence handled manually
+        this._binaryOperators.push('typeof');
     }
 
     /**
@@ -89,6 +108,10 @@ class OperatorLattice {
      * @memberof OperatorLattice
      */
     getCompatibleBinaryTypes(operator, lhType, rhType, retType) {
+        if (operator === 'typeof') {
+            // typeof is a special binary operator that needs to be handled specially
+            // TODO
+        }
         if (lhType && rhType && !retType) {
             return this._binaryLattice[operator][lhType][rhType];
         }
