@@ -1801,21 +1801,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
         PackageID protocolPkgId = ((BTypeSymbol) serviceNode.symbol).protocolPkgId;
-        String protocolPkg = protocolPkgId.getName().value;
-        int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
-        ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
-        // Add service level variables
-        int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
-        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
-        serviceNode.vars.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
-        serviceInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
-        // Create the init function info
-        BLangFunction serviceInitFunction = (BLangFunction) serviceNode.getInitFunction();
-        createFunctionInfoEntry(serviceInitFunction);
-        serviceInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(serviceInitFunction.name.toString());
-        currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
-        // Create resource info entries for all resources
-        serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
+        if (protocolPkgId != null) {
+            String protocolPkg = protocolPkgId.getName().value;
+            int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
+            ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex, protocolPkgCPIndex);
+            // Add service level variables
+            int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo,
+                                                      AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+            LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
+            serviceNode.vars.forEach(var -> visitServiceNodeVariable(var.var.symbol, localVarAttributeInfo));
+            serviceInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
+            // Create the init function info
+            BLangFunction serviceInitFunction = (BLangFunction) serviceNode.getInitFunction();
+            createFunctionInfoEntry(serviceInitFunction);
+            serviceInfo.initFuncInfo = currentPkgInfo.functionInfoMap.get(serviceInitFunction.name.toString());
+            currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
+            // Create resource info entries for all resources
+            serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
+        }
     }
 
     private void createResourceInfoEntry(BLangResource resourceNode, ServiceInfo serviceInfo) {
@@ -2589,17 +2592,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
-        
+
         genNode(xmlAttributeAccessExpr.expr, this.env);
         int varRefRegIndex = xmlAttributeAccessExpr.expr.regIndex;
-        
+
         if (xmlAttributeAccessExpr.indexExpr == null) {
             int xmlValueRegIndex = ++regIndexes.tRef;
             emit(InstructionCodes.XML2XMLATTRS, varRefRegIndex, xmlValueRegIndex);
             xmlAttributeAccessExpr.regIndex = xmlValueRegIndex;
             return;
         }
-        
+
         BLangExpression indexExpr = xmlAttributeAccessExpr.indexExpr;
         genNode(xmlAttributeAccessExpr.indexExpr, this.env);
         int qnameRegIndex = xmlAttributeAccessExpr.indexExpr.regIndex;
