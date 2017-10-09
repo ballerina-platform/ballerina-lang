@@ -124,19 +124,25 @@ public interface ServerConnectorFuture {
     void setPortBindingEventListener(PortBindingEventListener portBindingEventListener);
 
     /**
-     * Notify the life cycle listener of events related to connector start up
+     * Notify the port binding listener of events related to connector start up
      *
-     * @param host Host address of the connector
-     * @param port Port of the connector
+     * @param serverConnectorId The ID of the server connected related to this port binding event
      */
-    void notifyLifeCycleEventListener(String host, int port);
+    void notifyPortBindingEvent(String serverConnectorId);
 
     /**
-     * Notify the life cycle listener of events related to connector termination
+     * Notify the port binding listener of events related to connector termination
      *
-     * @param serverConnector The server connector instance which just stopped
+     * @param serverConnectorId The ID of the server connected related to this port unbinding event
      */
-    void notifyLifeCycleEventListener(ServerConnector serverConnector) throws ServerConnectorException;
+    void notifyPortUnbindingEvent(String serverConnectorId) throws ServerConnectorException;
+
+    /**
+     * Notify the port binding listener of exceptions thrown during connector startup
+     *
+     * @param throwable Exception thrown during connector startup
+     */
+    void notifyPortBindingError(Throwable throwable);
 
     /**
      * Waits till the port binding is completed.

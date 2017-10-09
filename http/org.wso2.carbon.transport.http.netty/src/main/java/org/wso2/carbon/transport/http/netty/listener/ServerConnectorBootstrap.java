@@ -177,9 +177,9 @@ public class ServerConnectorBootstrap {
             channelFuture.addListener(channelFuture -> {
                 if (channelFuture.isSuccess()) {
                     log.info("HTTP(S) Interface starting on host " + this.getHost() + " and port " + this.getPort());
-                    serverConnectorFuture.notifyLifeCycleEventListener(this.getHost(), this.getPort());
+                    serverConnectorFuture.notifyPortBindingEvent(this.connectorID);
                 } else {
-                    serverConnectorFuture.notifyErrorListener(channelFuture.cause());
+                    serverConnectorFuture.notifyPortBindingError(channelFuture.cause());
                 }
             });
             httpServerChannelInitializer.setServerConnectorFuture(serverConnectorFuture);
@@ -193,7 +193,7 @@ public class ServerConnectorBootstrap {
             try {
                 connectorStopped = serverConnectorBootstrap.unBindInterface(this);
                 if (connectorStopped) {
-                    serverConnectorFuture.notifyLifeCycleEventListener(this);
+                    serverConnectorFuture.notifyPortUnbindingEvent(this.connectorID);
                 }
             } catch (InterruptedException e) {
                 log.error("Couldn't close the port", e);

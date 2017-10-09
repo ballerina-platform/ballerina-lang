@@ -22,7 +22,6 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.contract.PortBindingEventListener;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -41,15 +40,18 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     private HttpConnectorListener httpConnectorListener;
     private WebSocketConnectorListener wsConnectorListener;
     private PortBindingEventListener portBindingEventListener;
-    private ChannelFuture channelFuture;
-    private String connectorHost;
-    private int connectorPort = -1;
+
+    private ChannelFuture nettyChannelFuture;
+
+    private String openingServerConnectorId;
+    private String closingServerConnectorId;
+    private Throwable connectorInitException;
 
     public HttpWsServerConnectorFuture() {
     }
 
-    public HttpWsServerConnectorFuture(ChannelFuture channelFuture) {
-        this.channelFuture = channelFuture;
+    public HttpWsServerConnectorFuture(ChannelFuture nettyChannelFuture) {
+        this.nettyChannelFuture = nettyChannelFuture;
     }
 
     @Override
@@ -128,7 +130,7 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     @Override
     public void sync() throws InterruptedException {
-        channelFuture.sync();
+        nettyChannelFuture.sync();
     }
 
     @Override
@@ -142,29 +144,44 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     @Override
     public void setPortBindingEventListener(PortBindingEventListener portBindingEventListener) {
         this.portBindingEventListener = portBindingEventListener;
-        if (connectorHost != null && connectorPort >= 0) {
-            notifyLifeCycleEventListener(connectorHost, connectorPort);
-            connectorHost = null;
-            connectorPort = -1;
+        if (openingServerConnectorId != null) {
+            notifyPortBindingEvent(openingServerConnectorId);
+            openingServerConnectorId = null;
+        }
+        if (closingServerConnectorId != null) {
+            notifyPortUnbindingEvent(closingServerConnectorId);
+            closingServerConnectorId = null;
+        }
+        if (connectorInitException != null) {
+            notifyPortBindingError(connectorInitException);
+            connectorInitException = null;
         }
     }
 
     @Override
-    public void notifyLifeCycleEventListener(String host, int port) {
+    public void notifyPortBindingEvent(String serverConnectorId) {
         if (portBindingEventListener == null) {
-            this.connectorHost = host;
-            this.connectorPort = port;
+            this.openingServerConnectorId = serverConnectorId;
         } else {
-            portBindingEventListener.onOpen(host, port);
+            portBindingEventListener.onOpen(serverConnectorId);
         }
     }
 
     @Override
-    public void notifyLifeCycleEventListener(ServerConnector serverConnector) throws ServerConnectorException {
+    public void notifyPortUnbindingEvent(String serverConnectorId) {
         if (portBindingEventListener == null) {
-            throw new ServerConnectorException("Connector life cycle listener is not set");
+            this.closingServerConnectorId = serverConnectorId;
         } else {
-            portBindingEventListener.onClose(serverConnector);
+            portBindingEventListener.onClose(serverConnectorId);
+        }
+    }
+
+    @Override
+    public void notifyPortBindingError(Throwable throwable) {
+        if (portBindingEventListener == null) {
+            this.connectorInitException = throwable;
+        } else {
+            portBindingEventListener.onError(throwable);
         }
     }
 }
