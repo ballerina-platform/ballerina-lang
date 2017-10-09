@@ -22,6 +22,7 @@ import CanvasDecorator from './views/default/components/decorators/canvas-decora
 import PositionVisitor from './visitors/position-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
+import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
 import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
 import Clean from './visitors/clean';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
@@ -30,8 +31,9 @@ import {
     getComponentForNodeArray,
     getSizingUtil,
     getPositioningUtil,
-    getOverlayComponent,
     getWorkerInvocationSyncUtil,
+    getInvocationArrowPositionUtil,
+    getOverlayComponent,
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
@@ -54,6 +56,7 @@ class Diagram extends React.Component {
         this.dimentionVisitor = new DimensionVisitor();
         this.positionCalc = new PositionVisitor();
         this.workerInvocationSynVisitor = new WorkerInvocationSyncVisitor();
+        this.invocationArrowPositionVisitor = new InvocationArrowPositionVisitor();
     }
 
     /**
@@ -100,6 +103,12 @@ class Diagram extends React.Component {
         //    in the tree. We will use PositionCalcVisitor for this.
         this.positionCalc.setPositioningUtil(getPositioningUtil(this.props.mode));
         this.props.model.accept(this.positionCalc);
+
+        // 6. Now we need to position the worker invocation arrows
+        this.invocationArrowPositionVisitor
+            .setWorkerInvocationPositionSyncUtil(getInvocationArrowPositionUtil(this.props.mode));
+        this.props.model.accept(this.invocationArrowPositionVisitor);
+
         /* TODOX
         // 2.1 Lets resolve arrow conflicts.
         this.props.model.accept(new ArrowConflictResolver());

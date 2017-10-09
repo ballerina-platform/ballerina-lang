@@ -159,6 +159,56 @@ class TreeUtil extends AbstractTreeUtil {
             _.set(node, 'expression.expression.variableName.value', newEp);
         }
     }
+
+    /**
+     * Get the receiver statement sending data to the given worker
+     * @param {object} worker - worker node
+     * @return {*} index of the statement
+     */
+    getReceiverForSender(worker) {
+        const statements = worker.body.statements;
+        const receiverIndex = _.findIndex(statements, (stmt) => {
+            return this.isWorkerReceive(stmt);
+        });
+
+        if (receiverIndex >= 0) {
+            return statements[receiverIndex];
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Get the sender statement receiving data from the given worker
+     * @param {object} worker - worker node
+     * @return {*} index of the statement
+     */
+    getSenderForReceiver(worker) {
+        const statements = worker.body.statements;
+        const receiverIndex = _.findIndex(statements, (stmt) => {
+            return this.isWorkerSend(stmt);
+        });
+
+        if (receiverIndex >= 0) {
+            return statements[receiverIndex];
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Get the worker by name
+     * @param {string} workerName - worker name
+     * @param {array} workerList - worker list
+     * @return {object} worker node
+     */
+    getWorkerByName(workerName, workerList) {
+        const index = _.findIndex(workerList, (worker) => {
+            return worker.name.value === workerName;
+        });
+
+        return workerList[index];
+    }
 }
 
 export default new TreeUtil();

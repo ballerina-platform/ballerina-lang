@@ -33,9 +33,9 @@ class WorkerInvocationSyncUtil {
             return;
         }
         const workerList = node.parent.parent.parent.workers;
-        const sendTo = this.getWorkerByName(node.workerName.value, workerList);
-        const parentWorker = this.getWorkerByName(node.parent.parent.name.value, workerList);
-        const receiverNode = this.getReceiverForSender(sendTo);
+        const sendTo = TreeUtil.getWorkerByName(node.workerName.value, workerList);
+        const parentWorker = TreeUtil.getWorkerByName(node.parent.parent.name.value, workerList);
+        const receiverNode = TreeUtil.getReceiverForSender(sendTo);
         const heightToCurrentNode = this.getHeightUptoNode(parentWorker.body.statements, node);
         const heightToReceiver = this.getHeightUptoNode(sendTo.body.statements, receiverNode);
 
@@ -56,9 +56,9 @@ class WorkerInvocationSyncUtil {
             return;
         }
         const workerList = node.parent.parent.parent.workers;
-        const receiveFrom = this.getWorkerByName(node.workerName.value, workerList);
-        const parentWorker = this.getWorkerByName(node.parent.parent.name.value, workerList);
-        const senderNode = this.getSenderForReceiver(receiveFrom);
+        const receiveFrom = TreeUtil.getWorkerByName(node.workerName.value, workerList);
+        const parentWorker = TreeUtil.getWorkerByName(node.parent.parent.name.value, workerList);
+        const senderNode = TreeUtil.getSenderForReceiver(receiveFrom);
         const heightToCurrentNode = this.getHeightUptoNode(parentWorker.body.statements, node);
         const heightToSender = this.getHeightUptoNode(receiveFrom.body.statements, senderNode);
 
@@ -74,32 +74,6 @@ class WorkerInvocationSyncUtil {
         senderNode.viewState.dimensionsSynced = true;
     }
 
-    getReceiverForSender(worker) {
-        const statements = worker.body.statements;
-        const receiverIndex = _.findIndex(statements, (stmt) => {
-            return TreeUtil.isWorkerReceive(stmt);
-        });
-
-        if (receiverIndex >= 0) {
-            return statements[receiverIndex];
-        } else {
-            return undefined;
-        }
-    }
-
-    getSenderForReceiver(worker) {
-        const statements = worker.body.statements;
-        const receiverIndex = _.findIndex(statements, (stmt) => {
-            return TreeUtil.isWorkerSend(stmt);
-        });
-
-        if (receiverIndex >= 0) {
-            return statements[receiverIndex];
-        } else {
-            return undefined;
-        }
-    }
-
     getHeightUptoNode(statements, node) {
         let height = 0;
 
@@ -111,14 +85,6 @@ class WorkerInvocationSyncUtil {
         }
 
         return undefined;
-    }
-
-    getWorkerByName(workerName, workerList) {
-        const index = _.findIndex(workerList, (worker) => {
-            return worker.name.value === workerName;
-        });
-
-        return workerList[index];
     }
 
     // Height re-sizing functions
