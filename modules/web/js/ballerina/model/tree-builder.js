@@ -98,12 +98,6 @@ class TreeBuilder {
         node.setChildrenAlias();
         return node;
     }
-
-    static populateDefaultPackageDeclaration(ast) {
-        if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
-            ast.addTopLevelNodes(NodeFactory.createPackageDeclaration({}), 0);
-        }
-    }
 }
 
 export default TreeBuilder;
