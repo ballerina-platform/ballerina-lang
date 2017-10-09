@@ -77,7 +77,7 @@ class PanelDecorator extends React.Component {
     }
 
     onDelete() {
-        this.props.model.parent.removeTopLevelNodes(this.props.model);
+        this.props.model.remove();
     }
 
     onTitleClick() {
