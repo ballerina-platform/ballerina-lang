@@ -35,11 +35,11 @@ class SwaggerParser {
     /**
      * @constructs
      * @param {string|object} swaggerDefintiion - The swagger definition as a string. This can be YAML or JSON.
+     * @param {boolean} [isYaml=false] is the swagger definition a YAML content or not.
      * @param {string} httpPackageAlias The alias used for the ballerina.net.http package.
      * @param {string} swaggerPackageAlias The alias used for the ballerina.net.http.swagger package.
-     * @param {boolean} [isYaml=false] is the swagger definition a YAML content or not.
      */
-    constructor(swaggerDefintiion, httpPackageAlias = 'http', swaggerPackageAlias = 'swagger', isYaml = false) {
+    constructor(swaggerDefintiion, isYaml = false, httpPackageAlias = 'http', swaggerPackageAlias = 'swagger') {
         if (isYaml) {
             this._swaggerJson = JS_YAML.safeLoad(swaggerDefintiion);
         } else {
@@ -58,8 +58,11 @@ class SwaggerParser {
     mergeToService(serviceDefinition) {
         try {
             // Set service name if missing
-            if (_.isNil(serviceDefinition.getServiceName())) {
-                serviceDefinition.setName(this._swaggerJson.info.title.replace(/[^0-9a-z]/gi, ''), true);
+            if (_.isNil(serviceDefinition.getName()) || _.isNil(serviceDefinition.getName().getValue())) {
+                const serviceNameLiteral = NodeFactory.createIdentifier({
+                    value: this._swaggerJson.info.title.replace(/[^0-9a-z]/gi, ''),
+                });
+                serviceDefinition.setName(serviceNameLiteral);
             }
 
             // Creating ServiceInfo annotation.
@@ -78,8 +81,8 @@ class SwaggerParser {
             // Updating/Creating resources using path annotation
             _.forEach(this._swaggerJson.paths, (httpMethodObjects, pathString) => {
                 _.forEach(httpMethodObjects, (operation, httpMethodAsString) => {
-                    let existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
-                        const resourceName = resourceDefinition.getResourceName();
+                    let existingResource = serviceDefinition.getResources().find((resourceDefinition) => {
+                        const resourceName = resourceDefinition.getName().getValue();
                         const operationId = operation.operationId;
                         if (resourceName === operationId) {
                             return true;
@@ -92,7 +95,7 @@ class SwaggerParser {
                     if (_.isNil(existingResource)) {
                         if (httpMethodAsString === 'x-MULTI') {
                             const xMultiObj = operation;
-                            existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
+                            existingResource = serviceDefinition.getResources().find((resourceDefinition) => {
                                 const httpMethods = resourceDefinition.getHttpMethodValues();
                                 let hasSameHttpMethods = false;
                                 if (httpMethods.length === xMultiObj['x-METHODS'].length) {
@@ -108,10 +111,12 @@ class SwaggerParser {
                             });
                             // if operationId exists set it as resource name.
                             if (existingResource && xMultiObj.operationId && xMultiObj.operationId.trim() !== '') {
-                                existingResource.setResourceName(xMultiObj.operationId.replace(/\s/g, ''));
+                                existingResource.setName(NodeFactory.createIdentifier({
+                                    value: xMultiObj.operationId.replace(/\s/g, ''),
+                                }));
                             }
                         } else {
-                            existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
+                            existingResource = serviceDefinition.getResources().find((resourceDefinition) => {
                                 const httpMethods = resourceDefinition.getHttpMethodValues();
                                 const pathValue = resourceDefinition.getPathAnnotationValue();
                                 return httpMethods.length > 0 && !_.isNil(pathValue) &&
@@ -121,7 +126,9 @@ class SwaggerParser {
                             });
                             // if operationId exists set it as resource name.
                             if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
-                                existingResource.setResourceName(operation.operationId.replace(/\s/g, ''));
+                                existingResource.setName(NodeFactory.createIdentifier({
+                                    value: operation.operationId.replace(/\s/g, ''),
+                                }));
                             }
                         }
                     }
@@ -150,7 +157,7 @@ class SwaggerParser {
         const configAnnotation = SwaggerParser.createAnnotationAttachment(httpAlias, 'configuration');
         if (!_.isNil(this._swaggerJson.basePath)) {
             const basePathValue = NodeFactory.createLiteral();
-            basePathValue.setValueAsString(this._swaggerJson.basePath);
+            basePathValue.setValue(`"${this._swaggerJson.basePath}"`);
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathValue);
         }
 
@@ -158,17 +165,20 @@ class SwaggerParser {
             const hostAndPort = this._swaggerJson.host.split(':');
 
             const hostBValue = NodeFactory.createLiteral();
-            hostBValue.setValueAsString(hostAndPort[0]);
+            hostBValue.setValue(`"${hostAndPort[0]}"`);
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'host', hostBValue);
 
-            const portBValue = NodeFactory.createLiteral();
-            portBValue.setValue(hostAndPort[1]);
-            SwaggerParser.setAnnotationAttribute(configAnnotation, 'port', portBValue);
+            if (hostAndPort.length > 1) {
+                const portBValue = NodeFactory.createLiteral();
+                portBValue.setValue(hostAndPort[1]);
+                SwaggerParser.setAnnotationAttribute(configAnnotation, 'port', portBValue);
+            }
         }
 
         const existingConfigurationAnnotation = serviceDefinition.filterAnnotationAttachments(
             (annotationAttachment) => {
-                return annotationAttachment.getAnnotationName() === `${httpAlias}:configuration`;
+                return annotationAttachment.getPackageAlias().getValue() === httpAlias &&
+                            annotationAttachment.getAnnotationName().getValue() === 'configuration';
             });
         if (existingConfigurationAnnotation.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingConfigurationAnnotation[0], configAnnotation);
@@ -191,13 +201,14 @@ class SwaggerParser {
             const consumeValues = [];
             swaggerConsumesDefinitions.forEach((consumeEntry) => {
                 const consumesValue = NodeFactory.createLiteral();
-                consumesValue.setValueAsString(consumeEntry);
+                consumesValue.setValue(`"${consumeEntry}"`);
                 consumeValues.push(consumesValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(consumesAnnotation, 'value', consumeValues);
 
             const existingConsumesAnnotation = astNode.filterAnnotationAttachments((annotationAttachment) => {
-                return annotationAttachment.getAnnotationName() === `${httpAlias}:Consumes`;
+                return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                            annotationAttachment.getAnnotationName().getValue() === 'Consumes';
             });
             if (existingConsumesAnnotation.length > 0) {
                 astNode.replaceAnnotationAttachments(existingConsumesAnnotation[0], consumesAnnotation);
@@ -221,13 +232,14 @@ class SwaggerParser {
             const producesValues = [];
             swaggerProducesDefinitions.forEach((producesEntry) => {
                 const producesValue = NodeFactory.createLiteral();
-                producesValue.setValueAsString(producesEntry);
+                producesValue.setValue(`"${producesEntry}"`);
                 producesValues.push(producesValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(producesAnnotation, 'value', producesValues);
 
             const existingProducesAnnotation = astNode.filterAnnotationAttachments((annotationAttachment) => {
-                return annotationAttachment.getAnnotationName() === `${httpAlias}:Produces`;
+                return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                        annotationAttachment.getAnnotationName().getValue() === 'Produces';
             });
             if (existingProducesAnnotation.length > 0) {
                 astNode.replaceAnnotationAttachments(existingProducesAnnotation[0], producesAnnotation);
@@ -247,25 +259,25 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.info.title)) {
             const titleValue = NodeFactory.createLiteral();
-            titleValue.setValueAsString(this._swaggerJson.info.title);
+            titleValue.setValue(`"${this._swaggerJson.info.title}"`);
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'title', titleValue);
         }
 
         if (!_.isNil(this._swaggerJson.info.version)) {
             const versionValue = NodeFactory.createLiteral();
-            versionValue.setValueAsString(this._swaggerJson.info.version);
-            SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'version', versionValue);
+            versionValue.setValue(`"${this._swaggerJson.info.version}"`);
+            SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'serviceVersion', versionValue);
         }
 
         if (!_.isNil(this._swaggerJson.info.description)) {
             const descriptionValue = NodeFactory.createLiteral();
-            descriptionValue.setValueAsString(this._swaggerJson.info.description);
+            descriptionValue.setValue(`"${this._swaggerJson.info.description}"`);
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'description', descriptionValue);
         }
 
         if (!_.isNil(this._swaggerJson.info.termsOfService)) {
             const termOfServiceValue = NodeFactory.createLiteral();
-            termOfServiceValue.setValueAsString(this._swaggerJson.info.termsOfService);
+            termOfServiceValue.setValue(`"${this._swaggerJson.info.termsOfService}"`);
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'termsOfService', termOfServiceValue);
         }
 
@@ -273,19 +285,19 @@ class SwaggerParser {
             const contactAnnotation = SwaggerParser.createAnnotationAttachment(swaggerAlias, 'Contact');
             if (!_.isNil(this._swaggerJson.info.contact.name)) {
                 const nameValue = NodeFactory.createLiteral();
-                nameValue.setValueAsString(this._swaggerJson.info.contact.name);
+                nameValue.setValue(`"${this._swaggerJson.info.contact.name}"`);
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'name', nameValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.contact.url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValueAsString(this._swaggerJson.info.contact.url);
+                urlValue.setValue(`"${this._swaggerJson.info.contact.url}"`);
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'url', urlValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.contact.email)) {
                 const emailValue = NodeFactory.createLiteral();
-                emailValue.setValueAsString(this._swaggerJson.info.contact.email);
+                emailValue.setValue(`"${this._swaggerJson.info.contact.email}"`);
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'email', emailValue);
             }
 
@@ -297,13 +309,13 @@ class SwaggerParser {
 
             if (!_.isNil(this._swaggerJson.info.license.name)) {
                 const nameValue = NodeFactory.createLiteral();
-                nameValue.setValueAsString(this._swaggerJson.info.license.name);
+                nameValue.setValue(`"${this._swaggerJson.info.license.name}"`);
                 SwaggerParser.setAnnotationAttribute(licenseAnnotation, 'name', nameValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.license.url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValueAsString(this._swaggerJson.info.license.url);
+                urlValue.setValue(`"${this._swaggerJson.info.license.url}"`);
                 SwaggerParser.setAnnotationAttribute(licenseAnnotation, 'url', urlValue);
             }
 
@@ -315,13 +327,13 @@ class SwaggerParser {
 
             if (!_.isNil(this._swaggerJson.externalDocs.description)) {
                 const descriptionValue = NodeFactory.createLiteral();
-                descriptionValue.setValueAsString(this._swaggerJson.externalDocs.description);
+                descriptionValue.setValue(`"${this._swaggerJson.externalDocs.description}"`);
                 SwaggerParser.setAnnotationAttribute(externalDocsAnnotation, 'description', descriptionValue);
             }
 
             if (!_.isNil(this._swaggerJson.externalDocs.url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValueAsString(this._swaggerJson.externalDocs.url);
+                urlValue.setValue(`"${this._swaggerJson.externalDocs.url}"`);
                 SwaggerParser.setAnnotationAttribute(externalDocsAnnotation, 'url', urlValue);
             }
 
@@ -333,13 +345,13 @@ class SwaggerParser {
 
             if (!_.isNil(this._swaggerJson.info['x-organization'].name)) {
                 const nameValue = NodeFactory.createLiteral();
-                nameValue.setValueAsString(this._swaggerJson.info['x-organization'].name);
+                nameValue.setValue(`"${this._swaggerJson.info['x-organization'].name}"`);
                 SwaggerParser.setAnnotationAttribute(organizationAnnotation, 'name', nameValue);
             }
 
             if (!_.isNil(this._swaggerJson.info['x-organization'].url)) {
                 const urlValue = NodeFactory.createLiteral();
-                urlValue.setValueAsString(this._swaggerJson.info['x-organization'].url);
+                urlValue.setValue(`"${this._swaggerJson.info['x-organization'].url}"`);
                 SwaggerParser.setAnnotationAttribute(organizationAnnotation, 'url', urlValue);
             }
 
@@ -353,13 +365,13 @@ class SwaggerParser {
 
                 if (!_.isNil(developer.name)) {
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValueAsString(developer.name);
+                    nameValue.setValue(`"${developer.name}"`);
                     SwaggerParser.setAnnotationAttribute(developerAnnotation, 'name', nameValue);
                 }
 
                 if (!_.isNil(developer.email)) {
                     const emailValue = NodeFactory.createLiteral();
-                    emailValue.setValueAsString(developer.email);
+                    emailValue.setValue(`"${developer.email}"`);
                     SwaggerParser.setAnnotationAttribute(developerAnnotation, 'email', emailValue);
                 }
                 developerBValues.push(developerAnnotation);
@@ -375,13 +387,13 @@ class SwaggerParser {
 
                 if (!_.isNil(tag.name)) {
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValueAsString(tag.name);
+                    nameValue.setValue(`"${tag.name}"`);
                     SwaggerParser.setAnnotationAttribute(tagAnnotation, 'name', nameValue);
                 }
 
                 if (!_.isNil(tag.description)) {
                     const descriptionValue = NodeFactory.createLiteral();
-                    descriptionValue.setValueAsString(tag.description);
+                    descriptionValue.setValue(`"${tag.description}"`);
                     SwaggerParser.setAnnotationAttribute(tagAnnotation, 'description', descriptionValue);
                 }
                 tagBValues.push(tagAnnotation);
@@ -391,7 +403,8 @@ class SwaggerParser {
         }
 
         const existingServiceInfoAnnotation = serviceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-            return annotationAttachment.getAnnotationName() === `${swaggerAlias}:ServiceInfo`;
+            return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                    annotationAttachment.getAnnotationName().getValue() === 'ServiceInfo';
         });
         if (existingServiceInfoAnnotation.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingServiceInfoAnnotation[0], serviceInfoAnnotation);
@@ -410,12 +423,13 @@ class SwaggerParser {
 
         if (!_.isNil(this._swaggerJson.swagger)) {
             const versionValue = NodeFactory.createLiteral();
-            versionValue.setValueAsString(this._swaggerJson.swagger);
-            SwaggerParser.setAnnotationAttribute(swaggerAnnotation, 'version', versionValue);
+            versionValue.setValue(`"${this._swaggerJson.swagger}"`);
+            SwaggerParser.setAnnotationAttribute(swaggerAnnotation, 'swaggerVersion', versionValue);
         }
 
         const existingSwaggerAnnotation = serviceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-            return annotationAttachment.getAnnotationName() === `${swaggerAlias}:Swagger`;
+            return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                    annotationAttachment.getAnnotationName().getValue() === 'Swagger';
         });
         if (existingSwaggerAnnotation.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingSwaggerAnnotation[0], swaggerAnnotation);
@@ -433,11 +447,11 @@ class SwaggerParser {
         const serviceConfigAnnotation = SwaggerParser.createAnnotationAttachment(swaggerAlias, 'ServiceConfig');
 
         if (!_.isNil(this._swaggerJson.host)) {
-            let hostValue;
+            const hostValue = NodeFactory.createLiteral();
             if (!_.isNil(this._swaggerJson.schemes) && this._swaggerJson.schemes.length > 0) {
-                hostValue.setValueAsString(`${this._swaggerJson.schemes[0]}://${this._swaggerJson.host}`);
+                hostValue.setValue(`"${this._swaggerJson.schemes[0]}://${this._swaggerJson.host}"`);
             } else {
-                hostValue.setValueAsString(`http://:${this._swaggerJson.host}`);
+                hostValue.setValue(`"http://:${this._swaggerJson.host}"`);
             }
             SwaggerParser.setAnnotationAttribute(serviceConfigAnnotation, 'host', hostValue);
         }
@@ -446,7 +460,7 @@ class SwaggerParser {
             const schemeBValues = [];
             this._swaggerJson.schemes.forEach((schemeEntry) => {
                 const schemeValue = NodeFactory.createLiteral();
-                schemeValue.setValueAsString(schemeEntry);
+                schemeValue.setValue(`"${schemeEntry}"`);
                 schemeBValues.push(schemeValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(serviceConfigAnnotation, 'schemes', schemeBValues);
@@ -454,7 +468,8 @@ class SwaggerParser {
 
         // TODO: Authorization attribute.
         const existingServiceConfig = serviceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-            return annotationAttachment.getAnnotationName() === `${swaggerAlias}:ServiceConfig`;
+            return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+            annotationAttachment.getAnnotationName() === 'ServiceConfig';
         });
         if (existingServiceConfig.length > 0) {
             serviceDefinition.replaceAnnotationAttachments(existingServiceConfig[0], serviceConfigAnnotation);
@@ -498,17 +513,17 @@ class SwaggerParser {
      */
     createHttpResourceConfigAnnotation(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject,
             silent = DISABLE_EVENT_FIRING) {
-        const resourceConfigAnnotation = SwaggerParser.createAnnotationAttachment(swaggerAlias, 'resourceConfig');
+        const resourceConfigAnnotation = SwaggerParser.createAnnotationAttachment(httpAlias, 'resourceConfig');
 
         const httpMethodsBValues = [];
         if (httpMethodAsString !== 'x-MULTI') {
             const singleHttpMethod = NodeFactory.createLiteral();
-            singleHttpMethod.setValueAsString(httpMethodAsString.toUpperCase());
+            singleHttpMethod.setValue(`"${httpMethodAsString.toUpperCase()}"`);
             httpMethodsBValues.push(singleHttpMethod);
         } else {
             httpMethodJsonObject['x-METHODS'].forEach((httpMethod) => {
                 const httpMethodLiteral = NodeFactory.createLiteral();
-                httpMethodLiteral.setValueAsString(httpMethod.toUpperCase());
+                httpMethodLiteral.setValue(`"${httpMethod.toUpperCase()}"`);
                 httpMethodsBValues.push(httpMethodLiteral);
             });
         }
@@ -516,7 +531,7 @@ class SwaggerParser {
 
         if (!_.isNil(pathString)) {
             const pathBValue = NodeFactory.createLiteral();
-            pathBValue.setValueAsString(pathString);
+            pathBValue.setValue(`"${pathString}"`);
             SwaggerParser.setAnnotationAttribute(resourceConfigAnnotation, 'path', pathBValue);
         }
 
@@ -524,7 +539,7 @@ class SwaggerParser {
             const produceValues = [];
             httpMethodJsonObject.produces.forEach((produceEntry) => {
                 const produceValue = NodeFactory.createLiteral();
-                produceValue.setValueAsString(produceEntry);
+                produceValue.setValue(`"${produceEntry}"`);
                 produceValues.push(produceValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'produces', produceValues);
@@ -534,14 +549,15 @@ class SwaggerParser {
             const consumeValues = [];
             httpMethodJsonObject.consumes.forEach((consumeEntry) => {
                 const consumeValue = NodeFactory.createLiteral();
-                consumeValue.setValueAsString(consumeEntry);
+                consumeValue.setValue(`"${consumeEntry}"`);
                 consumeValues.push(consumeValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'consumes', consumeValues);
         }
 
         const existingResourceConfig = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-            return annotationAttachment.getAnnotationName() === `${httpAlias}:resourceConfig`;
+            return annotationAttachment.getPackageAlias().getValue() === httpAlias &&
+                    annotationAttachment.getAnnotationName().getValue() === 'resourceConfig';
         });
         if (existingResourceConfig.length > 0) {
             resourceDefinition.replaceAnnotationAttachments(existingResourceConfig[0], resourceConfigAnnotation);
@@ -566,7 +582,7 @@ class SwaggerParser {
             const schemeBValues = [];
             this._swaggerJson.schemes.forEach((schemeEntry) => {
                 const schemeValue = NodeFactory.createLiteral();
-                schemeValue.setValueAsString(schemeEntry);
+                schemeValue.setValue(`"${schemeEntry}"`);
                 schemeBValues.push(schemeValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'schemes', schemeBValues);
@@ -575,7 +591,8 @@ class SwaggerParser {
         // TODO : Implement authorization.
 
         const existingResourceConfig = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-            return annotationAttachment.getAnnotationName() === `${swaggerAlias}:ResourceConfig`;
+            return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                        annotationAttachment.getAnnotationName().getValue() === 'ResourceConfig';
         });
 
         if (existingResourceConfig.length > 0) {
@@ -594,8 +611,8 @@ class SwaggerParser {
      */
     createParameterDefs(resourceDefinition, swaggerParameters) {
         if (!_.isNil(swaggerParameters) && swaggerParameters.length > 0) {
-            // Removing existing parameter definitions except for the first one(message m).
-            resourceDefinition.getParameters().splice(1);
+            // Removing existing parameter definitions except for the first two(request and response).
+            resourceDefinition.getParameters().splice(2);
 
             swaggerParameters.forEach((swaggerParameter) => {
                 if ((swaggerParameter.in === 'query' || swaggerParameter.in === 'path') &&
@@ -618,16 +635,17 @@ class SwaggerParser {
                     }
 
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValueAsString(swaggerParameter.name);
+                    nameValue.setValue(`"${swaggerParameter.name}"`);
                     SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameValue);
 
                     const parameter = NodeFactory.createVariable({
                         typeNode: parameterType,
                         name: parameterName,
-                        // TODO : Set Annotation 'paramAnnotation'
+                        annotationAttachments: [paramAnnotation],
+                        initialExpression: undefined,
                     });
 
-                    resourceDefinition.addParameter(parameter);
+                    resourceDefinition.addParameters(parameter);
                 }
             });
         }
@@ -653,19 +671,19 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.in)) {
                     const inValue = NodeFactory.createLiteral();
-                    inValue.setValueAsString(parameter.in);
+                    inValue.setValue(`"${parameter.in}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'in', inValue);
                 }
 
                 if (!_.isNil(parameter.name)) {
                     const nameValue = NodeFactory.createLiteral();
-                    nameValue.setValueAsString(parameter.name);
+                    nameValue.setValue(`"${parameter.name}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'name', nameValue);
                 }
 
                 if (!_.isNil(parameter.description)) {
                     const descriptionValue = NodeFactory.createLiteral();
-                    descriptionValue.setValueAsString(parameter.description);
+                    descriptionValue.setValue(`"${parameter.description}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'description', descriptionValue);
                 }
 
@@ -683,19 +701,19 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.type)) {
                     const typeValue = NodeFactory.createLiteral();
-                    typeValue.setValueAsString(parameter.type);
+                    typeValue.setValue(`"${parameter.type}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'parameterType', typeValue);
                 }
 
                 if (!_.isNil(parameter.format)) {
                     const formatValue = NodeFactory.createLiteral();
-                    formatValue.setValueAsString(parameter.format);
+                    formatValue.setValue(`"${parameter.format}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'format', formatValue);
                 }
 
                 if (!_.isNil(parameter.collectionFormat)) {
                     const collectionFormatValue = NodeFactory.createLiteral();
-                    collectionFormatValue.setValueAsString(parameter.collectionFormat);
+                    collectionFormatValue.setValue(`"${parameter.collectionFormat}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'collectionFormat',
                         collectionFormatValue);
                 }
@@ -706,7 +724,8 @@ class SwaggerParser {
             SwaggerParser.addNodesAsArrayedAttribute(parametersInfoAnnotation, 'value', parameterInfoAnnotations);
 
             const existingParametersInfo = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-                return annotationAttachment.getAnnotationName() === `${swaggerAlias}:ParametersInfo`;
+                return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                            annotationAttachment.getAnnotationName().getValue() === 'ParametersInfo';
             });
 
             if (existingParametersInfo.length > 0) {
@@ -733,7 +752,7 @@ class SwaggerParser {
             const tagValues = [];
             httpMethodJsonObject.tags.forEach((tagEntry) => {
                 const tagValue = NodeFactory.createLiteral();
-                tagValue.setValueAsString(tagEntry);
+                tagValue.setValue(`"${tagEntry}"`);
                 tagValues.push(tagValue);
             });
             SwaggerParser.addNodesAsArrayedAttribute(resourceInfoAnnotation, 'tags', tagValues);
@@ -741,13 +760,13 @@ class SwaggerParser {
 
         if (!_.isNil(httpMethodJsonObject.summary)) {
             const summaryBValue = NodeFactory.createLiteral();
-            summaryBValue.setValueAsString(httpMethodJsonObject.summary);
+            summaryBValue.setValue(`"${httpMethodJsonObject.summary}"`);
             SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'summary', summaryBValue);
         }
 
         if (!_.isNil(httpMethodJsonObject.description)) {
             const descriptionBValue = NodeFactory.createLiteral();
-            descriptionBValue.setValueAsString(httpMethodJsonObject.description);
+            descriptionBValue.setValue(`"${httpMethodJsonObject.description}"`);
             SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'description', descriptionBValue);
         }
 
@@ -756,13 +775,13 @@ class SwaggerParser {
 
             if (!_.isNil(httpMethodJsonObject.externalDocs.description)) {
                 const descriptionBValue = NodeFactory.createLiteral();
-                descriptionBValue.setValueAsString(httpMethodJsonObject.externalDocs.description);
+                descriptionBValue.setValue(`"${httpMethodJsonObject.externalDocs.description}"`);
                 SwaggerParser.setAnnotationAttribute(externalDocAnnotation, 'description', descriptionBValue);
             }
 
             if (!_.isNil(httpMethodJsonObject.externalDocs.url)) {
                 const urlBValue = NodeFactory.createLiteral();
-                urlBValue.setValueAsString(httpMethodJsonObject.externalDocs.url);
+                urlBValue.setValue(`"${httpMethodJsonObject.externalDocs.url}"`);
                 SwaggerParser.setAnnotationAttribute(externalDocAnnotation, 'url', urlBValue);
             }
 
@@ -770,7 +789,8 @@ class SwaggerParser {
         }
 
         const existingResourceInfo = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-            return annotationAttachment.getAnnotationName() === `${swaggerAlias}:ResourceInfo`;
+            return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                    annotationAttachment.getAnnotationName().getValue() === 'ResourceInfo';
         });
 
         if (existingResourceInfo.length > 0) {
@@ -799,13 +819,13 @@ class SwaggerParser {
 
                 if (!_.isNil(code)) {
                     const codeBValue = NodeFactory.createLiteral();
-                    codeBValue.setValueAsString(code);
+                    codeBValue.setValue(`"${code}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'code', codeBValue);
                 }
 
                 if (!_.isNil(code)) {
                     const descriptionBValue = NodeFactory.createLiteral();
-                    descriptionBValue.setValueAsString(codeObj.description);
+                    descriptionBValue.setValue(`"${codeObj.description}"`);
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'description', descriptionBValue);
                 }
                 responseAnnotations.push(responseAnnotation);
@@ -814,7 +834,8 @@ class SwaggerParser {
             SwaggerParser.addNodesAsArrayedAttribute(responsesAnnotation, 'value', responseAnnotations);
 
             const existingResponses = resourceDefinition.filterAnnotationAttachments((annotationAttachment) => {
-                return annotationAttachment.getAnnotationName() === `${swaggerAlias}:ResourceInfo`;
+                return annotationAttachment.getPackageAlias().getValue() === swaggerAlias &&
+                        annotationAttachment.getAnnotationName().getValue() === 'ResourceInfo';
             });
 
             if (existingResponses.length > 0) {
@@ -834,7 +855,7 @@ class SwaggerParser {
      * @param {object} httpMethodJsonObject http method object of the swagger JSON.
      */
     createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
-        const newResourceDefinition = DefaultNodeFactory.createHttpResource(httpAlias);
+        const newResourceDefinition = DefaultNodeFactory.createHTTPResource();
 
         // if an operation id is defined set it as resource name.
         let resourceName;
@@ -853,7 +874,7 @@ class SwaggerParser {
             });
         }
 
-        newResourceDefinition.setResourceName(resourceName);
+        newResourceDefinition.setName(resourceName);
 
         this.mergeToResource(newResourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject);
 
@@ -870,11 +891,13 @@ class SwaggerParser {
      * @memberof SwaggerParser
      */
     static createAnnotationAttachment(packageName, annotationName) {
-        const annotationNameNode = NodeFactory.createIdentifier({
-            value: `${packageName}:${annotationName}`,
-        });
         return NodeFactory.createAnnotationAttachment({
-            annotationName: annotationNameNode,
+            packageAlias: NodeFactory.createLiteral({
+                value: packageName,
+            }),
+            annotationName: NodeFactory.createLiteral({
+                value: annotationName,
+            }),
         });
     }
 
@@ -893,13 +916,16 @@ class SwaggerParser {
         });
 
         if (matchingAttributes.length > 0) {
-            const attributeValue = matchingAttributes[0].getValue();
-            attributeValue.setValue(valueNode, silent);
+            const existingAttributeValue = matchingAttributes[0].getValue();
+            existingAttributeValue.setValue(valueNode, silent);
         } else {
             const attributeValue = NodeFactory.createAnnotationAttachmentAttributeValue();
             attributeValue.setValue(valueNode, silent);
-            const attribute = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
-            annotationAttachment.addAttribute(attribute, silent);
+            const attribute = NodeFactory.createAnnotationAttachmentAttribute({
+                name: key,
+                value: attributeValue,
+            });
+            annotationAttachment.addAttributes(attribute, silent);
         }
     }
 
@@ -919,13 +945,13 @@ class SwaggerParser {
         });
 
         if (matchingAttributes.length > 0) {
-            const attributeValue = matchingAttributes[0].getValue();
-            const arrayValues = nodes.map((node) => {
+            const existingAttributeValue = matchingAttributes[0].getValue();
+            const arrayValuesForExisting = nodes.map((node) => {
                 return NodeFactory.createAnnotationAttachmentAttributeValue({
                     value: node,
                 });
             });
-            attributeValue.setValueArray(arrayValues, silent);
+            existingAttributeValue.setValueArray(arrayValuesForExisting, silent);
         } else {
             const arrayValues = nodes.map((node) => {
                 return NodeFactory.createAnnotationAttachmentAttributeValue({
@@ -933,9 +959,13 @@ class SwaggerParser {
                 });
             });
 
-            const attribute = NodeFactory.createAnnotationAttribute({ key });
-            attribute.setValueArray(arrayValues, silent);
-            annotationAttachment.addAttribute(attribute, silent);
+            const attribute = NodeFactory.createAnnotationAttachmentAttribute({ name: key });
+            const attributeValue = NodeFactory.createAnnotationAttachmentAttributeValue({
+                value: undefined,
+            });
+            attributeValue.setValueArray(arrayValues);
+            attribute.setValue(attributeValue);
+            annotationAttachment.addAttributes(attribute, silent);
         }
     }
 }

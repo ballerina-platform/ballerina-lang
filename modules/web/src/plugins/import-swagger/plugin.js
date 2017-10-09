@@ -19,8 +19,10 @@ import _ from 'lodash';
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { read } from 'core/workspace/fs-util';
+import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
 import SwaggerParser from 'ballerina/swagger-parser/swagger-parser';
 import DefaultNodeFactory from 'ballerina/model/default-node-factory';
+import NodeFactory from 'ballerina/model/node-factory';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
@@ -42,32 +44,123 @@ class ImportSwaggerPlugin extends Plugin {
     }
 
     /**
-         * Opens a file using related editor
-         *
-         * @param {String} filePath Path of the file.
-         * @param {String} type type of the file.
-         * @return {Promise} Resolves or reject with error.
-         */
-    openSwaggerDefinition(filePath, type = 'bal') {
+     * Opens a swagger definition file using related ballerina editor.
+     * @param {string} filePath Path of the file.
+     * @return {Promise} Resolves or reject with error.
+     */
+    openSwaggerDefinition(filePath) {
+        const appContext = this.appContext;
         return new Promise((resolve, reject) => {
             // if not already opened
             read(filePath)
-                .then((file) => {
+                .then((swaggerFile) => {
                     // TODO: Implement
                     // Create a new ast root with the following service node.
+                    const rootNode = NodeFactory.createCompilationUnit();
+
+                    // Adding imports.
+                    const httpImport = NodeFactory.createImport({
+                        alias: NodeFactory.createLiteral({
+                            value: 'http',
+                        }),
+                        packageName: [
+                            NodeFactory.createLiteral({
+                                value: 'ballerina',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'net',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'http',
+                            }),
+                        ],
+                    });
+
+                    const httpRequestImport = NodeFactory.createImport({
+                        alias: NodeFactory.createLiteral({
+                            value: 'request',
+                        }),
+                        packageName: [
+                            NodeFactory.createLiteral({
+                                value: 'ballerina',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'net',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'http',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'request',
+                            }),
+                        ],
+                    });
+
+                    const httpResponseImport = NodeFactory.createImport({
+                        alias: NodeFactory.createLiteral({
+                            value: 'response',
+                        }),
+                        packageName: [
+                            NodeFactory.createLiteral({
+                                value: 'ballerina',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'net',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'http',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'response',
+                            }),
+                        ],
+                    });
+
+                    const swaggerImport = NodeFactory.createImport({
+                        alias: NodeFactory.createLiteral({
+                            value: 'swagger',
+                        }),
+                        packageName: [
+                            NodeFactory.createLiteral({
+                                value: 'ballerina',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'net',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'http',
+                            }),
+                            NodeFactory.createLiteral({
+                                value: 'swagger',
+                            }),
+                        ],
+                    });
+
+                    rootNode.addImport(httpImport);
+                    rootNode.addImport(httpRequestImport);
+                    rootNode.addImport(httpResponseImport);
+                    rootNode.addImport(swaggerImport);
+
                     const serviceNode = DefaultNodeFactory.createHTTPServiceDef();
-                    const parser = new SwaggerParser(file.content);
-                    parser.mergeToService(serviceNode);
+                    rootNode.addTopLevelNodes(serviceNode);
+
+                    let swaggerParser;
+                    if (swaggerFile.extension.toLowerCase() === 'json') {
+                        swaggerParser = new SwaggerParser(JSON.parse(swaggerFile.content));
+                    } else {
+                        swaggerParser = new SwaggerParser(swaggerFile.content, true);
+                    }
+                    swaggerParser.mergeToService(serviceNode);
 
                     // source gen the create ast root and set it to file object.
+                    const { command: { dispatch }, editor } = appContext;
+                    dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE);
 
-                    file.extension = type;
-                    this.openedFiles.push(file);
-                    const { editor } = this.appContext;
-                    editor.open(file);
-                    resolve(file);
+                    const balFile = editor.getActiveEditor().file;
+                    balFile.setContent(rootNode.getSource(), true);
                 })
                 .catch((err) => {
+                    console.log(err);
                     reject(JSON.stringify(err));
                 });
         });
