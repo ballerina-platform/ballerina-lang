@@ -18,11 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import ASTFactory from '../../../../../ast/ast-factory';
-import TreeUtil from './../../../../../model/tree-util';
+import WhileNodeModel from './../../../../../model/tree/while-node';
+import DropZone from './../../../../../drag-drop/DropZone';
 import './try-node.css';
 
 class WhileNode extends React.Component {
@@ -46,9 +45,19 @@ class WhileNode extends React.Component {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
+        const dropZone = model.viewState.components['drop-zone'];
 
         return (
             <g>
+                <DropZone
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    baseComponent="rect"
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                />
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
@@ -64,12 +73,13 @@ class WhileNode extends React.Component {
 }
 
 WhileNode.propTypes = {
+    model: PropTypes.instanceOf(WhileNodeModel).isRequired,
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    }),
+    }).isRequired,
 };
 
 WhileNode.contextTypes = {

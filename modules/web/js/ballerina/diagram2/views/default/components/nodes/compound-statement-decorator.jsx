@@ -19,8 +19,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import { blockStatement, statement, actionBox } from '../../../../../configs/designer-defaults.js';
-// import StatementContainer from './statement-container';
-import ASTNode from '../../../../../ast/node';
+import Node from '../../../../../model/tree/node';
+import DropZone from '../../../../../drag-drop/DropZone';
 import SimpleBBox from '../../../../../ast/simple-bounding-box';
 import './compound-statement-decorator.css';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
@@ -39,7 +39,7 @@ const CLASS_MAP = {
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class BlockStatementDecorator extends React.Component {
+class CompoundStatementDecorator extends React.Component {
 
     /**
      * Initialize the block decorator.
@@ -234,11 +234,12 @@ class BlockStatementDecorator extends React.Component {
         const separatorGapV = titleH / 3;
 
         const body = this.props.body ? getComponentForNodeArray(this.props.body) : undefined;
+        const bodyBBox = this.props.body ? this.props.body.viewState.bBox : {};
 
         return (
             <g
-                onMouseOut={this.setActionVisibilityFalse}
-                onMouseOver={this.setActionVisibilityTrue}
+                // TODOX onMouseOut={this.setActionVisibilityFalse}
+                // TODOX onMouseOver={this.setActionVisibilityTrue}
                 ref={(group) => {
                     this.myRoot = group;
                 }}
@@ -299,12 +300,21 @@ class BlockStatementDecorator extends React.Component {
                     </g>
                 }
                 { isBreakpoint && this.renderBreakpointIndicator() }
+                <DropZone
+                    x={bodyBBox.x}
+                    y={bodyBBox.y}
+                    width={bodyBBox.w}
+                    height={bodyBBox.h}
+                    baseComponent="rect"
+                    dropTarget={this.props.body}
+                    enableDragBg
+                />
                 {body}
             </g>);
     }
 }
 
-BlockStatementDecorator.defaultProps = {
+CompoundStatementDecorator.defaultProps = {
     draggable: null,
     undeletable: false,
     titleWidth: blockStatement.heading.width,
@@ -320,16 +330,16 @@ BlockStatementDecorator.defaultProps = {
     },
 };
 
-BlockStatementDecorator.propTypes = {
+CompoundStatementDecorator.propTypes = {
     draggable: PropTypes.func,
     title: PropTypes.string.isRequired,
-    model: PropTypes.instanceOf(ASTNode).isRequired,
+    model: PropTypes.instanceOf(Node).isRequired,
     children: PropTypes.arrayOf(React.PropTypes.node).isRequired,
     utilities: PropTypes.element,
     bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
     parameterBbox: PropTypes.instanceOf(SimpleBBox),
     undeletable: PropTypes.bool,
-    dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
+    dropTarget: PropTypes.instanceOf(Node).isRequired,
     titleWidth: PropTypes.number,
     expression: PropTypes.shape({
         text: PropTypes.string,
@@ -337,7 +347,7 @@ BlockStatementDecorator.propTypes = {
     editorOptions: PropTypes.shape({
         propertyType: PropTypes.string,
         key: PropTypes.string,
-        model: PropTypes.instanceOf(ASTNode),
+        model: PropTypes.instanceOf(Node),
         getterMethod: PropTypes.func,
         setterMethod: PropTypes.func,
     }),
@@ -345,7 +355,7 @@ BlockStatementDecorator.propTypes = {
         propertyType: PropTypes.string,
         key: PropTypes.string,
         value: PropTypes.string,
-        model: PropTypes.instanceOf(ASTNode),
+        model: PropTypes.instanceOf(Node),
         getterMethod: PropTypes.func,
         setterMethod: PropTypes.func,
     }),
@@ -358,11 +368,11 @@ BlockStatementDecorator.propTypes = {
     }),
 };
 
-BlockStatementDecorator.contextTypes = {
+CompoundStatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
 };
 
-export default breakpointHoc(BlockStatementDecorator);
+export default breakpointHoc(CompoundStatementDecorator);
