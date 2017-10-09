@@ -82,17 +82,20 @@ class Diagram extends React.Component {
         this.dimentionVisitor.setSizingUtil(getSizingUtil(this.props.mode));
         this.props.model.accept(this.dimentionVisitor);
 
-        this.workerInvocationSynVisitor.setWorkerInvocationSyncUtil(getWorkerInvocationSyncUtil(this.props.mode));
+        // 3. We need to re adjust the worker invocation statements.
+        const workerInvocationSyncUtil = getWorkerInvocationSyncUtil(this.props.mode);
+        workerInvocationSyncUtil.setDefaultSizingUtil(getSizingUtil(this.props.mode));
+        this.workerInvocationSynVisitor.setWorkerInvocationSyncUtil(workerInvocationSyncUtil);
         this.props.model.accept(this.workerInvocationSynVisitor);
 
-        // 3 We need to adjest the width of the panel to accomodate width of the screen.
+        // 4 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.viewState;
         viewState.container = {
             width: this.props.width,
             height: this.props.height,
         };
-        // 4. Now we will visit the model again and calculate position of each node
+        // 5. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
         this.positionCalc.setPositioningUtil(getPositioningUtil(this.props.mode));
         this.props.model.accept(this.positionCalc);

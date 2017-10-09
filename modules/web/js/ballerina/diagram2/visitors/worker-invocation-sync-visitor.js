@@ -32,7 +32,9 @@ class PositionVisitor {
     }
 
     endVisit(node) {
-        // do nothing.
+        if (_.isFunction(this.util[`resize${node.getKind()}Node`])) {
+            this.util[`resize${node.getKind()}Node`](node);
+        }
         return undefined;
     }
 }

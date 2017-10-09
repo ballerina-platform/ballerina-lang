@@ -24,6 +24,10 @@ import TreeUtil from './../../../model/tree-util';
  */
 class WorkerInvocationSyncUtil {
 
+    setDefaultSizingUtil(sizingUtil) {
+        this.sizingUtil = sizingUtil;
+    }
+
     syncWorkerSendNode(node) {
         if (node.viewState.dimensionsSynced) {
             return;
@@ -37,8 +41,10 @@ class WorkerInvocationSyncUtil {
 
         if (heightToCurrentNode > heightToReceiver) {
             receiverNode.viewState.components['drop-zone'].h += (heightToCurrentNode - heightToReceiver);
+            receiverNode.viewState.bBox.h += (heightToCurrentNode - heightToReceiver);
         } else {
             node.viewState.components['drop-zone'].h += (heightToReceiver - heightToCurrentNode);
+            node.viewState.bBox.h += (heightToReceiver - heightToCurrentNode);
         }
 
         node.viewState.dimensionsSynced = true;
@@ -58,8 +64,10 @@ class WorkerInvocationSyncUtil {
 
         if (heightToCurrentNode > heightToSender) {
             senderNode.viewState.components['drop-zone'].h += (heightToCurrentNode - heightToSender);
+            senderNode.viewState.bBox.h += (heightToCurrentNode - heightToSender);
         } else {
             node.viewState.components['drop-zone'].h += (heightToSender - heightToCurrentNode);
+            node.viewState.bBox.h += (heightToSender - heightToCurrentNode);
         }
 
         node.viewState.dimensionsSynced = true;
@@ -101,6 +109,8 @@ class WorkerInvocationSyncUtil {
                 return height;
             }
         }
+
+        return undefined;
     }
 
     getWorkerByName(workerName, workerList) {
@@ -109,6 +119,48 @@ class WorkerInvocationSyncUtil {
         });
 
         return workerList[index];
+    }
+
+    // Height re-sizing functions
+
+    resizeFunctionNode(node) {
+        this.sizingUtil.sizeFunctionNode(node);
+    }
+
+    resizeResourceNode(node) {
+        this.sizingUtil.sizeResourceNode(node);
+    }
+
+    resizeServiceNode(node) {
+        this.sizingUtil.sizeServiceNode(node);
+    }
+
+    resizeWorkerNode(node) {
+        this.sizingUtil.sizeWorkerNode(node);
+    }
+
+    resizeBlockNode(node) {
+        this.sizingUtil.sizeBlockNode(node);
+    }
+
+    resizeForkJoinNode(node) {
+        this.sizingUtil.sizeForkJoinNode(node);
+    }
+
+    resizeIfNode(node) {
+        this.sizingUtil.sizeIfNode(node);
+    }
+
+    resizeTransactionNode(node) {
+        this.sizingUtil.sizeTransactionNode(node);
+    }
+
+    resizeTryNode(node) {
+        this.sizingUtil.sizeTryNode(node);
+    }
+
+    resizeWhileNode(node) {
+        this.sizingUtil.sizeWhileNode(node);
     }
 }
 

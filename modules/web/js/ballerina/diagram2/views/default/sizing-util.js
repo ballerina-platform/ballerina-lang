@@ -779,26 +779,7 @@ class SizingUtil {
      *
      */
     sizeConnectorInitExprNode(node) {
-        // const viewState = node.viewState;
-        // const bBox = viewState.bBox;
-        // const components = viewState.components;
-        //
-        // components.header = new SimpleBBox();
-        // components.footer = new SimpleBBox();
-        // components.body = new SimpleBBox();
-        //
-        // components.header.w = this.config.lifeLine.width;
-        // components.header.h = this.config.lifeLine.head.height;
-        //
-        // components.footer.w = this.config.lifeLine.width;
-        // components.footer.h = this.config.lifeLine.footer.height;
-        //
-        // components.body.w = this.config.lifeLine.width;
-        // components.body.h = this.config.lifeLine.line.height;
-        //
-        // bBox.w = this.config.lifeLine.width;
-        // bBox.h = components.header.h + components.footer.h + components.body.h;
-        // components.header.h = this.config.lifeLine.head.height;
+        // Not implemented.
     }
 
 
