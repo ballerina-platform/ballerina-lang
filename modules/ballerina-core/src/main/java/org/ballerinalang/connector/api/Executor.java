@@ -23,7 +23,6 @@ import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
