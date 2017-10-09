@@ -52,14 +52,6 @@ public class SuggestionsFilterDataModel {
     public SuggestionsFilterDataModel(){
     }
 
-    private void init(Parser parser) {
-        if (parser != null) {
-            this.tokenStream = parser.getTokenStream();
-            this.vocabulary = parser.getVocabulary();
-            this.tokenIndex = parser.getCurrentToken().getTokenIndex();
-        }
-    }
-
     public void initParserContext (Parser parser, ParserRuleContext parserRuleContext,
                                    List<PossibleToken> possibleTokenList) {
         this.parserRuleContext = parserRuleContext;
