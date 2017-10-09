@@ -46,26 +46,8 @@ public class ActionInvocationReference extends BallerinaElementReference {
         IdentifierPSINode identifier = getElement();
         PsiElement parent = identifier.getParent();
 
-        //
-        //        ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(parent,
-        //                ConnectorReferenceNode.class);
-        //        PsiReference reference;
-        //        if (connectorReferenceNode != null) {
-        //            reference = connectorReferenceNode.findReferenceAt(connectorReferenceNode.getTextLength());
-        //        } else {
-        //            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
-        //            if (prevVisibleLeaf == null || !".".equals(prevVisibleLeaf.getText())) {
-        //                return null;
-        //            }
-        //
-        //            PsiElement connectorName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-        //            if (connectorName == null || !(connectorName instanceof IdentifierPSINode)) {
-        //                return null;
-        //            }
-        //            reference = connectorName.findReferenceAt(connectorName.getTextLength());
-        //        }
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
-        PsiReference variableReference=null;
+        PsiReference variableReference = null;
         if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
             PsiElement connectorVariable = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
             if (connectorVariable != null) {
@@ -85,24 +67,6 @@ public class ActionInvocationReference extends BallerinaElementReference {
         }
         ConnectorDefinitionNode connectorDefinitionNode =
                 BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinition.getParent());
-
-        //        if (reference == null) {
-        //            return null;
-        //        }
-        //
-        //        PsiElement connectorIdentifier = reference.resolve();
-        //        if (connectorIdentifier == null) {
-        //            return null;
-        //        }
-        //        PsiElement connectorNode = connectorIdentifier.getParent();
-        //        if (connectorNode == null) {
-        //            return null;
-        //        }
-        //        if (connectorNode instanceof VariableDefinitionNode || connectorNode instanceof
-        // CodeBlockParameterNode) {
-        //            connectorNode = BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(connectorNode);
-        //        }
-
         Collection<ActionDefinitionNode> actionDefinitionNodes = PsiTreeUtil.findChildrenOfType(connectorDefinitionNode,
                 ActionDefinitionNode.class);
         for (ActionDefinitionNode actionDefinitionNode : actionDefinitionNodes) {
@@ -134,6 +98,15 @@ public class ActionInvocationReference extends BallerinaElementReference {
                     return new Object[0];
                 }
                 resolvedElement = reference.resolve();
+            } else {
+                PsiElement variableReference = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+                if (variableReference != null) {
+                    PsiReference reference = variableReference.findReferenceAt(variableReference.getTextLength());
+                    if (reference == null) {
+                        return new Object[0];
+                    }
+                    resolvedElement = reference.resolve();
+                }
             }
         } else {
             ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(parent,

@@ -48,6 +48,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.BuiltInReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.CatchClauseNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockBodyNode;
@@ -395,6 +396,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new EnumDefinitionNode(node);
             case BallerinaParser.RULE_enumField:
                 return new EnumFieldNode(node);
+            case BallerinaParser.RULE_builtInReferenceTypeName:
+                return new BuiltInReferenceTypeNameNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

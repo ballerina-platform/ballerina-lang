@@ -76,7 +76,8 @@ public class FunctionReference extends BallerinaElementReference {
         if (containingFile == null) {
             return null;
         }
-        PsiDirectory psiDirectory = containingFile.getParent();
+        PsiFile originalFile = containingFile.getOriginalFile();
+        PsiDirectory psiDirectory = originalFile.getParent();
         if (psiDirectory == null) {
             return null;
         }
