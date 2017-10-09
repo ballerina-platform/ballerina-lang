@@ -35,6 +35,7 @@ import {
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
+import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
 
 /**
  * React component for diagram.
@@ -136,6 +137,7 @@ class Diagram extends React.Component {
             // TODOX annotations={annotations}
         >
             { children }
+            <TopLevelNodes model={this.props.model} />
         </CanvasDecorator>);
     }
 }

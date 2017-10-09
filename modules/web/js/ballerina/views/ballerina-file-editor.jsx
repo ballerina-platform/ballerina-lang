@@ -40,7 +40,6 @@ import TreeUtils from './../model/tree-util';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import './../utils/react-try-catch-batching-strategy';
-import { parseContent } from '../../api-client/api-client';
 import FragmentUtils from '../utils/fragment-utils';
 
 /**
@@ -398,9 +397,6 @@ class BallerinaFileEditor extends React.Component {
                             // get ast from json
 
                             const ast = TreeBuilder.build(jsonTree.model /* , this.props.file*/);
-
-                            // Populate the tree with a package declaration node
-                            TreeBuilder.populateDefaultPackageDeclaration(ast);
                             // TODOX this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {

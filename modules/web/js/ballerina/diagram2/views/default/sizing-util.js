@@ -222,6 +222,7 @@ class SizingUtil {
      */
     sizeCompilationUnitNode(node) {
         // Compilation unit height will be calculated by the postion util.
+        this.sizePackageDeclarationNode(node);
     }
 
 
@@ -435,9 +436,10 @@ class SizingUtil {
         const topGutter = 10;
         const topBarHeight = 25;
         const importInputHeight = 40;
+        viewState.components.topLevelNodes = new SimpleBBox();
 
         let height = 0;
-        const astRoot = node.parent;
+        const astRoot = node;
 
         if (viewState.importsExpanded) {
             const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
@@ -453,8 +455,8 @@ class SizingUtil {
                 (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
         }
 
-        viewState.bBox.h = height;
-        viewState.bBox.w = 0;
+        viewState.components.topLevelNodes.h = height;
+        viewState.components.topLevelNodes.w = 0;
 
         viewState.components = viewState.components || {};
         viewState.components.importDeclaration = this._getImportDeclarationBadgeViewState(node);
@@ -480,8 +482,10 @@ class SizingUtil {
         const importLabelWidth = 48.37;
         const noOfImportsTextPadding = 10;
         const importDecDecoratorWidth = 3;
-
-        const imports = node.parent.filterTopLevelNodes({ kind: 'Import' });
+        if (TreeUtil.isPackageDeclaration(node)) {
+            node = node.parent;
+        }
+        const imports = node.filterTopLevelNodes({ kind: 'Import' });
         const noOfImports = imports.length;
 
         const noOfImportsTextWidth = this.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
@@ -628,7 +632,6 @@ class SizingUtil {
         if (viewState.globalsExpanded) {
 ;
         }*/
-
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
@@ -1101,7 +1104,7 @@ class SizingUtil {
         timeoutStmt.viewState.components.parameter = this.getTextWidth(node.getTimeOutVariable().getSource());
 
         // Set the node height as available in the node if not set the default.
-        let nodeHeight = node.viewState.bBox.h;
+        const nodeHeight = node.viewState.bBox.h;
 
         // Set the node width to default.
         let nodeWidth = node.viewState.bBox.w;

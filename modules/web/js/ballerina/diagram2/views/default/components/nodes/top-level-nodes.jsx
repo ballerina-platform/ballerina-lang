@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { packageDefinition } from '../../designer-defaults';
@@ -26,16 +25,16 @@ import GlobalDefinitions from './global-definitions';
 import GlobalExpanded from './globals-expanded';
 import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
-import PackageDeclarationModel from '../../../../../model/tree/abstract-tree/package-declaration-node';
-import { parseContent } from './../../../../../../api-client/api-client';
+import CompilationUnitNode from '../../../../../model/tree/abstract-tree/compilation-unit-node';
 import TreeBuilder from './../../../../../model/tree-builder';
+import FragmentUtils from './../../../../../../ballerina/utils/fragment-utils';
 
 /**
  * Class representing the package definition and other top level views.
  * This class is responsible for views regarding imports and global variables and constants
  * @extends React.Component
  */
-class PackageDeclarationNode extends React.Component {
+class TopLevelNodes extends React.Component {
 
     /**
      * Called by the global expanded view to get the value displayed for each global constant or variable node
@@ -57,7 +56,7 @@ class PackageDeclarationNode extends React.Component {
         super(props);
         this.state = {
             packageDefExpanded: false,
-            packageDefValue: this.props.model.parent.getPackageName(this.props.model),
+            packageDefValue: this.getPackageName(this.props.model),
             packageNameEditing: false,
         };
 
@@ -69,6 +68,7 @@ class PackageDeclarationNode extends React.Component {
         this.handleDeleteGlobal = this.handleDeleteGlobal.bind(this);
         this.handlePackageIconClick = this.handlePackageIconClick.bind(this);
         this.onPackageInputKeyDown = this.onPackageInputKeyDown.bind(this);
+        this.getPackageName = this.getPackageName.bind(this);
     }
 
     /**
@@ -88,7 +88,24 @@ class PackageDeclarationNode extends React.Component {
                 packageNameEditing: false,
             });
         }
-        this.props.model.setPackageName(this.state.packageDefValue);
+        if (this.state.packageDefValue) {
+            const pkgName = 'package ' + this.state.packageDefValue + ';';
+            const fragment = FragmentUtils.createTopLevelNodeFragment(pkgName);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            // If there's no packageDeclaration node, then create one
+            if (this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
+                this.props.model.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
+            } else {
+                // If a packageDeclaratioNode already exists then remove that node, and add a new one
+                const pkgDeclarationNode = this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+                this.props.model.removeTopLevelNodes(pkgDeclarationNode, true);
+                this.props.model.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
+            }
+        } else if (this.props.model.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
+            this.props.model.removeTopLevelNodes(this.props.model.filterTopLevelNodes(
+                    { kind: 'PackageDeclaration' }));
+        }
+
         this.setState({ packageNameEditing: false });
     }
 
@@ -109,6 +126,19 @@ class PackageDeclarationNode extends React.Component {
             this.onPackageInputBlur(event);
         }
     }
+
+    /**
+     * Get the full package name
+     */
+    getPackageName(model) {
+        // model is the compilation level node
+        if (model.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
+            const pkgDecNode = model.filterTopLevelNodes({ kind: 'PackageDeclaration' });
+            return model.getPackageName(pkgDecNode);
+        }
+        return undefined;
+    }
+
     /**
      * Called when a new global constant or variable is entered
      * @param {string} value - statement for adding the new global
@@ -117,15 +147,10 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
-
         value += ';\n';
-        parseContent(value)
-            .then((jsonTree) => {
-                if (jsonTree.model.topLevelNodes[0]) {
-                    this.props.model.parent.addGlobal(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
-                }
-            })
-            .catch(log.error);
+        const fragment = FragmentUtils.createTopLevelNodeFragment(value);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.props.model.addGlobal(TreeBuilder.build(parsedJson));
     }
 
     /**
@@ -136,19 +161,10 @@ class PackageDeclarationNode extends React.Component {
         if (!value) {
             return;
         }
-        /* if (this.props.model.parent.isExistingPackage(value)) {
-            const errorString = 'Package "' + value + '" is already imported.';
-            log.debug(errorString);
-            return;
-        }*/
         value = 'import ' + value + ';\n';
-        parseContent(value)
-            .then((jsonTree) => {
-                if (jsonTree.model.topLevelNodes[0]) {
-                    this.props.model.parent.addImport(TreeBuilder.build(jsonTree.model.topLevelNodes[0]));
-                }
-            })
-            .catch(log.error);
+        const fragment = FragmentUtils.createTopLevelNodeFragment(value);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.props.model.addImport(TreeBuilder.build(parsedJson));
     }
 
     /**
@@ -156,7 +172,7 @@ class PackageDeclarationNode extends React.Component {
      * @param {object} deletedGlobal - global constant or variable node deleted
      */
     handleDeleteGlobal(deletedGlobal) {
-        this.props.model.parent.removeTopLevelNodes(deletedGlobal);
+        this.props.model.removeTopLevelNodes(deletedGlobal);
     }
 
     /**
@@ -164,7 +180,7 @@ class PackageDeclarationNode extends React.Component {
      * @param {string} value - name of the package deleted
      */
     handleDeleteImport(importDecl) {
-        this.props.model.parent.removeTopLevelNodes(importDecl);
+        this.props.model.removeTopLevelNodes(importDecl);
     }
 
     /**
@@ -199,8 +215,18 @@ class PackageDeclarationNode extends React.Component {
      */
     render() {
         const model = this.props.model;
-        const bBox = model.viewState.bBox;
+        // TODO fix for the model not being parsed properly
+        if (model.viewState.components.topLevelNodes === undefined) {
+            return <g />;
+        }
+        const bBox = model.viewState.components.topLevelNodes;
         const headerHeight = packageDefinition.header.height;
+
+        // TODO fix for the model not being parsed properly
+        if (this.props.model.viewState.components.importDeclaration === undefined ||
+            this.props.model.viewState.components.importsExpanded === undefined) {
+            return <g />;
+        }
         const importsExpanded = this.props.model.viewState.importsExpanded;
         const globalsExpanded = this.props.model.viewState.globalsExpanded;
         const packageDefTextWidth = 275;
@@ -230,7 +256,7 @@ class PackageDeclarationNode extends React.Component {
             y: bBox.y + headerHeight + yGutterSize,
         };
 
-        const astRoot = this.props.model.parent;
+        const astRoot = this.props.model;
         const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
         const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' });
 
@@ -256,7 +282,6 @@ class PackageDeclarationNode extends React.Component {
                 importInputHeight + yGutterSize;
             globalsBbox.x -= (importDecViewState.badgeWidth + xGutterSize);
         }
-
         return (
             <g>
                 <g className="package-definition-head">
@@ -270,41 +295,37 @@ class PackageDeclarationNode extends React.Component {
                         ry={headerHeight / 2}
                         className="package-definition-header"
                     />
-                    {
-                        packageDefExpanded && (
-                        <g>
-                            <rect
-                                x={bBox.x}
-                                y={bBox.y}
-                                width={packageDefTextWidth + headerHeight}
-                                height={headerHeight}
-                                onClick={() => {
-                                    this.onPackageClick();
-                                }}
-                                className="package-definition-header"
-                            />
-                            <EditableText
-                                x={bBox.x + headerHeight}
-                                y={bBox.y + (headerHeight / 2)}
-                                width={packageDefTextWidth - 5}
-                                placeholder="Package Name (eg: org.ballerinalang)"
-                                onBlur={() => {
-                                    this.onPackageInputBlur();
-                                }}
-                                onKeyDown={this.onPackageInputKeyDown}
-                                onClick={() => {
-                                    this.onPackageClick();
-                                }}
-                                editing={this.state.packageNameEditing}
-                                onChange={(e) => {
-                                    this.onPackageInputChange(e);
-                                }}
-                            >
-                                {this.state.packageDefValue || ''}
-                            </EditableText>
-                        </g>
-                        )
-                    }(
+                    <g>
+                        <rect
+                            x={bBox.x}
+                            y={bBox.y}
+                            width={packageDefTextWidth + headerHeight}
+                            height={headerHeight}
+                            onClick={() => {
+                                this.onPackageClick();
+                            }}
+                            className="package-definition-header"
+                        />
+                        <EditableText
+                            x={bBox.x + headerHeight}
+                            y={bBox.y + (headerHeight / 2)}
+                            width={packageDefTextWidth - 5}
+                            placeholder="Package Name (eg: org.ballerinalang)"
+                            onBlur={() => {
+                                this.onPackageInputBlur();
+                            }}
+                            onKeyDown={this.onPackageInputKeyDown}
+                            onClick={() => {
+                                this.onPackageClick();
+                            }}
+                            editing={this.state.packageNameEditing}
+                            onChange={(e) => {
+                                this.onPackageInputChange(e);
+                            }}
+                        >
+                            {this.state.packageDefValue || ''}
+                        </EditableText>
+                    </g>
                     <image
                         width={iconSize}
                         height={iconSize}
@@ -345,7 +366,7 @@ class PackageDeclarationNode extends React.Component {
                             onAddNewValue={this.handleAddGlobal}
                             newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}
-                            getValue={PackageDeclarationNode.getDisplayValue}
+                            getValue={TopLevelNodes.getDisplayValue}
                         /> :
                         <GlobalDefinitions
                             bBox={globalsBbox}
@@ -359,13 +380,13 @@ class PackageDeclarationNode extends React.Component {
     }
 }
 
-PackageDeclarationNode.propTypes = {
-    model: PropTypes.instanceOf(PackageDeclarationModel).isRequired,
+TopLevelNodes.propTypes = {
+    model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
 };
 
-PackageDeclarationNode.contextTypes = {
+TopLevelNodes.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default PackageDeclarationNode;
+export default TopLevelNodes;

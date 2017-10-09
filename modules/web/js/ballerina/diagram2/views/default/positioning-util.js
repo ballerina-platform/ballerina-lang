@@ -149,11 +149,13 @@ class PositioningUtil {
      * @param {object} node CompilationUnit object
      */
     positionCompilationUnitNode(node) {
+        this.positionTopLevelNodes(node);
         let width = 0;
-        let height = 0;
+        // Set the height of the toplevel nodes so that the other nodes would be positioned relative to it
+        let height = node.viewState.components.topLevelNodes.h + 50;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isPackageDeclaration(child) || TreeUtil.isFunction(child) || TreeUtil.isService(child)
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
                 || TreeUtil.isStruct(child) || TreeUtil.isConnector(child);
         });
 
@@ -187,6 +189,15 @@ class PositioningUtil {
         node.viewState.bBox.w = width;
     }
 
+    /**
+     * Position the packageDec, imports and globals
+     * @param node CompilationUnitNode
+     */
+    positionTopLevelNodes(node) {
+        const viewState = node.viewState;
+        viewState.components.topLevelNodes.x = this.config.panel.wrapper.gutter.v;
+        viewState.components.topLevelNodes.y = this.config.panel.wrapper.gutter.h;
+    }
 
     /**
      * Calculate position of Connector nodes.
@@ -805,7 +816,7 @@ class PositioningUtil {
 
         // Create a bbox for parameter of join.
         joinStmt.viewState.components.param =
-            new SimpleBBox(joinX + joinStmt.viewState.components['expression'].w, 0, 0, 0, 0, 0);
+            new SimpleBBox(joinX + joinStmt.viewState.components.expression.w, 0, 0, 0, 0, 0);
 
         node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
         node.viewState.components['statement-box'].w = node.viewState.bBox.w;
@@ -830,7 +841,7 @@ class PositioningUtil {
 
         // Calculate timeout block x and y.
         const timeoutX = bBox.x;
-        let timeoutY = joinStmt.viewState.bBox.y
+        const timeoutY = joinStmt.viewState.bBox.y
             + joinStmt.viewState.bBox.h;
 
         // Create a bbox for parameter of timeout.
