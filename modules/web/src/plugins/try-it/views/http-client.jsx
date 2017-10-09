@@ -330,7 +330,7 @@ class HttpClient extends React.Component {
      */
     renderHeaders() {
         return this.state.requestHeaders.map((header) => {
-            return (<div key={`${header.id}`}>
+            return (<div key={`${header.id}`} className="form-inline">
                 <input
                     key={`key-${header.id}`}
                     ref={(ref) => {
@@ -340,7 +340,7 @@ class HttpClient extends React.Component {
                     }}
                     placeholder='Key'
                     type='text'
-                    className="header-input"
+                    className="header-input form-control"
                     value={header.key}
                     onChange={e => this.onHeaderKeyChange(header.value, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -350,7 +350,7 @@ class HttpClient extends React.Component {
                     key={`value-${header.id}`}
                     placeholder='Value'
                     type='text'
-                    className="header-input"
+                    className="header-input form-control"
                     value={header.value}
                     onChange={e => this.onHeaderValueChange(header.key, e)}
                     onBlur={() => { this.focusTarget = undefined; }}
@@ -368,9 +368,9 @@ class HttpClient extends React.Component {
      */
     renderSendOrCancelButton() {
         if (this.state.waitingForResponse === false) {
-            return (<button onClick={this.onInvoke} className='btn btn-success'>SEND</button>);
+            return (<button onClick={this.onInvoke} className='btn btn-success' type="button">SEND</button>);
         } else {
-            return (<button onClick={this.onInvokeCancel} className='btn btn-danger'>
+            return (<button onClick={this.onInvokeCancel} className='btn btn-danger' type="button">
                 <i className="fw fw-loader5 fw-spin fw-1x" />
                 CANCEL
                 </button>);
@@ -385,127 +385,156 @@ class HttpClient extends React.Component {
     render() {
         const headers = this.renderHeaders();
         const sendOrCancelButton = this.renderSendOrCancelButton();
-        return (<div className='http-client-wrapper'>
-            <div className='http-client-request'>
-                <h3>Request</h3>
-                <hr />
-                <div className='http-client-action-wrapper'>
-                    <AutoSuggest
-                        items={this.getHttpMethods()}
-                        onSuggestionSelected={this.onHttpMethodSelected}
-                        disableAutoFocus
-                        initialValue={this.state.httpMethod}
-                        showAllAtStart
-                    />
-                    <input
-                        className='http-client-path'
-                        placeholder='/v1/pets?id=5'
-                        type='text'
-                        value={this.state.appendUrl}
-                        onChange={this.onAppendUrlChange}
-                    />
-                    {sendOrCancelButton}
-                </div>
-                <div className='http-client-content-type-wrapper'>
-                    <strong>Content-Type</strong> :
-                    <input
-                        className='http-client-content-type'
-                        placeholder='application/json'
-                        type='text'
-                        value={this.state.contentType}
-                        onChange={this.onContentTypeChange}
-                    />
-                </div>
-                <div className='http-client-headers-wrapper'>
-                    <span className="section-header">Headers</span>
-                    <span className='add-header-button' onClick={() => this.onAddNewHeader(true)}>
-                        <i className='fw fw-add' />
-                        Add New
-                    </span>
-                    <hr />
-                    <div className='current-headers'>
-                        {headers}
-                    </div>
-                </div>
-                <div className='http-client-body-wrapper'>
-                    <span className="section-header">Body</span>
-                    <hr />
-                    <div>
-                        <AceEditor
-                            mode={this.getRequestBodyMode()}
-                            theme='monokai'
-                            onChange={this.onRequestBodyChange}
-                            value={this.state.requestBody}
-                            name='RequestBody'
-                            editorProps={{
-                                $blockScrolling: Infinity,
-                            }}
-                            setOptions={{
-                                showLineNumbers: false,
-                            }}
-                            maxLines={Infinity}
-                            minLines={10}
-                            width='auto'
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className='http-client-response'>
-                <h3>Response</h3>
-                <hr />
-                <div className='http-client-response-attributes'>
-                    <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
-                    <br />
-                    <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
-                    <br />
-                    <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
-                </div>
-                <div className='http-client-response-content'>
-                    <ul className='nav nav-pills'>
-                        <li role='presentation' className='active'>
-                            <a href='#headers' aria-controls="home" role="tab" data-toggle="tab">Headers</a>
-                        </li>
-                        <li role='presentation'>
-                            <a href='#body' aria-controls="profile" role="tab" data-toggle="tab">Body</a>
-                        </li>
-                    </ul>
-                    <div className="tab-content">
-                        <div role="tabpanel" className="tab-pane active" id="headers">
-                            <div className='header-content'>
-                                <div className='response-headers'>
-                                    <span className="section-header">Response Headers</span>
-                                    <hr />
-                                    {this.state.responseHeaders}
+        return (<div className="container-fluid">
+                    <div className="row http-client-wrapper">
+                    <div className='col-md-6 http-client-request'>
+                        <h3>Request</h3>
+                        <hr />
+                        <div className="form-horizontal">
+                            <div className='http-client-action-wrapper'>
+                                <AutoSuggest
+                                    items={this.getHttpMethods()}
+                                    onSuggestionSelected={this.onHttpMethodSelected}
+                                    disableAutoFocus
+                                    initialValue={this.state.httpMethod}
+                                    showAllAtStart
+                                    alwaysRenderSuggestions={true}
+                                />
+                                <div className="input-group">
+                                    <input
+                                        className='http-client-path form-control'
+                                        placeholder='/v1/pets?id=5'
+                                        type='text'
+                                        value={this.state.appendUrl}
+                                        onChange={this.onAppendUrlChange}
+                                    />
+                                    <span className="input-group-btn">
+                                            {sendOrCancelButton}
+                                    </span>
                                 </div>
-                                <div className='request-headers'>
-                                    <span className="section-header">Request Headers</span>
-                                    <hr />
-                                    {this.state.returnedRequestHeaders}
+
+                            </div>
+                            <div className='form-group http-client-content-type-wrapper'>
+                                <label className="col-sm-2 control-label">Content-Type : </label>
+                                <div className="col-sm-10">
+                                    <input
+                                        className='http-client-content-type form-control'
+                                        placeholder='application/json'
+                                        type='text'
+                                        value={this.state.contentType}
+                                        onChange={this.onContentTypeChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className='http-client-headers-wrapper'>
+                                <span className="section-header">Headers</span>
+                                <span className='add-header-button' onClick={() => this.onAddNewHeader(true)}>
+                                    <i className='fw fw-add' />
+                                    Add New
+                                </span>
+                                <hr />
+                                <div className='current-headers'>
+                                    {headers}
+                                </div>
+                            </div>
+                            <div className='http-client-body-wrapper'>
+                                <span className="section-header">Body</span>
+                                <hr />
+                                <div>
+                                    <AceEditor
+                                        mode={this.getRequestBodyMode()}
+                                        theme='monokai'
+                                        onChange={this.onRequestBodyChange}
+                                        value={this.state.requestBody}
+                                        name='RequestBody'
+                                        editorProps={{
+                                            $blockScrolling: Infinity,
+                                        }}
+                                        setOptions={{
+                                            showLineNumbers: false,
+                                        }}
+                                        maxLines={Infinity}
+                                        minLines={10}
+                                        width='auto'
+                                    />
                                 </div>
                             </div>
                         </div>
-                        <div role="tabpanel" className="tab-pane" id="body">
-                            <AceEditor
-                                mode={this.getResponseBodyMode()}
-                                theme='monokai'
-                                name='ResponseBody'
-                                value={this.state.responseBody}
-                                editorProps={{
-                                    $blockScrolling: Infinity,
-                                }}
-                                setOptions={{
-                                    showLineNumbers: false,
-                                }}
-                                maxLines={Infinity}
-                                minLines={10}
-                                readOnly
-                                width='auto'
-                            />
+                    </div>
+                    <div className='col-md-6 http-client-response'>
+                        <h3>Response</h3>
+                        <hr />
+                        <div className='http-client-response-attributes'>
+                            <strong>Reponse Code</strong> : <span>{this.state.responseCode} </span>
+                            <br />
+                            <strong>Time Consumed</strong> : <span>{this.state.timeConsumed} ms</span>
+                            <br />
+                            <strong>Request URL</strong> : <span>{this.state.requestUrl}</span>
+                        </div>
+                        <div className='http-client-response-content'>
+                            <ul className="nav nav-tabs" role="tablist">
+                                <li role="presentation" className="active"><a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">Headers</a></li>
+                                <li role="presentation"><a href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a></li>
+                            </ul>
+                            <div className="tab-content">
+                                <div role="tabpanel" className="tab-pane active fade in" id="headers">
+                                    <div className='header-content'>
+                                        <div className='response-headers'>
+                                            <span className="section-header">Response Headers</span>
+                                            <hr />
+                                            {this.state.responseHeaders.length > 0 ? (
+                                                <div>
+                                                {this.state.responseHeaders}
+                                                </div>
+                                            ) : (
+                                                <div className="message message-warning">
+                                                    <h4><i className="icon fw fw-warning"></i>
+                                                        Hit the send button to see the headers.</h4>
+                                                </div>
+                                            )}
+
+                                        </div>
+                                        <div className='request-headers'>
+                                            <span className="section-header">Request Headers</span>
+                                            <hr />
+                                            {this.state.returnedRequestHeaders.length > 0 ? (
+                                                <div>
+                                                    {this.state.returnedRequestHeaders}
+                                                </div>
+                                            ) : (
+                                                <div className="message message-warning">
+                                                    <h4><i className="icon fw fw-warning"></i>
+                                                        Hit the send button to see the headers.</h4>
+
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" className="tab-pane fade" id="body">
+                                    <AceEditor
+                                        mode={this.getResponseBodyMode()}
+                                        theme='monokai'
+                                        name='ResponseBody'
+                                        value={this.state.responseBody}
+                                        editorProps={{
+                                            $blockScrolling: Infinity,
+                                        }}
+                                        setOptions={{
+                                            showLineNumbers: false,
+                                        }}
+                                        maxLines={Infinity}
+                                        minLines={10}
+                                        readOnly='true'
+                                        width='auto'
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>);
+                    </div>
+                </div>);
     }
 }
 

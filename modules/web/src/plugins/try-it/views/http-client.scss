@@ -44,7 +44,7 @@
 
     input[type=text]{
         color: #fff;
-        height: 32px;
+        height: 33px;
         padding: 6px;
         background-color: #575757;
         border: none;
@@ -77,6 +77,8 @@
     }
     .http-client-content-type-wrapper{
         margin-top: 10px;
+        margin-left: 0px;
+        margin-right: 0px;
         .http-client-content-type {
             margin-left: 5px;
             border: .5px solid rgb(51, 51, 51);
@@ -88,15 +90,14 @@
 
 }
 
-.http-client-path {
-    width: 450px;
+.http-client-action-wrapper .input-group-btn .btn, .http-client-action-wrapper .input-group-btn .btn:hover,
+.http-client-action-wrapper .input-group-btn .btn:focus{
+    border-color: rgb(92, 184, 93);
+    border-left: none;
 }
-
 
 .http-client-response {
     padding-left: 20px;
-    float: left;
-    width: 700px;
 
     h3{
         font-size: 18px;
@@ -114,12 +115,14 @@
 
 .http-client-headers-wrapper, .http-client-body-wrapper {
     padding-top: 10px;
+    margin-bottom: 30px;
 }
 
 .http-client-headers-wrapper .fw {
     margin-top: 3px;
     padding: 2px;
     margin-right: 5px;
+    cursor: pointer;
     .fw:hover {
         cursor: pointer;
         opacity: 0.5;
