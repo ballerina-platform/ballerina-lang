@@ -158,6 +158,7 @@ class ImportSwaggerPlugin extends Plugin {
 
                     const balFile = editor.getActiveEditor().file;
                     balFile.setContent(rootNode.getSource(), true);
+                    resolve(balFile);
                 })
                 .catch((err) => {
                     console.log(err);
