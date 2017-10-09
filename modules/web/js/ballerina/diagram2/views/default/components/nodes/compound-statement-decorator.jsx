@@ -24,8 +24,8 @@ import ASTNode from '../../../../../ast/node';
 import SimpleBBox from '../../../../../ast/simple-bounding-box';
 import './compound-statement-decorator.css';
 import ExpressionEditor from '../../../../../../expression-editor/expression-editor-utils';
-// import ActionBox from './action-box';
-// import ActiveArbiter from './active-arbiter';
+import ActionBox from '../decorators/action-box';
+import ActiveArbiter from '../decorators/active-arbiter';
 // import Breakpoint from './breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 
@@ -219,12 +219,12 @@ class BlockStatementDecorator extends React.Component {
         }
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleH);
-        const isCompact = this.context.mode === 'compact';
-        const actionBoxBbox = new SimpleBBox(
-            isCompact ? bBox.x - actionBox.width - 2 : bBox.x + ((bBox.w - actionBox.width) / 2),
-            bBox.y + titleH + actionBox.padding.top,
-            actionBox.width,
-            actionBox.height);
+        const { designer } = this.context;
+        const actionBoxBbox = new SimpleBBox();
+        actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
+        actionBoxBbox.h = designer.config.actionBox.height;
+        actionBoxBbox.x = bBox.x + (bBox.w - actionBoxBbox.w) / 2;
+        actionBoxBbox.y = bBox.y + bBox.h + designer.config.actionBox.padding.top;
         const utilClassName = CLASS_MAP[this.state.active];
 
         let statementRectClass = 'statement-title-rect';
@@ -271,7 +271,14 @@ class BlockStatementDecorator extends React.Component {
                 >
                     {expression.text}
                 </text>}
-
+                <ActionBox
+                    bBox={actionBoxBbox}
+                    show={this.state.active}
+                    isBreakpoint={isBreakpoint}
+                    onDelete={() => this.onDelete()}
+                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
+                    onBreakpointClick={() => this.props.onBreakpointClick()}
+                />
                 {parameterText &&
                 <g>
                     <line
@@ -363,6 +370,8 @@ BlockStatementDecorator.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    designer: PropTypes.instanceOf(Object),
 };
 
 export default breakpointHoc(BlockStatementDecorator);
