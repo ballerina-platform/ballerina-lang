@@ -503,7 +503,6 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        httpCarbonMessage.setEndOfMsgAdded(true);
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
@@ -665,9 +664,11 @@ public class HttpUtil {
         if (isRequest) {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         } else {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+            httpCarbonMessage.setEndOfMsgAdded(true);
         }
         return httpCarbonMessage;
     }
