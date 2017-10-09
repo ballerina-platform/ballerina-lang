@@ -181,12 +181,23 @@ public class WorkspaceUtils {
     static java.util.function.Function<Name, BLangIdentifier> nameToBLangIdentifier =
             new java.util.function.Function<Name, BLangIdentifier>() {
 
-        public BLangIdentifier apply(Name name) {
-            BLangIdentifier bLangIdentifier = new BLangIdentifier();
-            bLangIdentifier.setValue(name.getValue());
-            return bLangIdentifier;
-        }
-    };
+                public BLangIdentifier apply(Name name) {
+                    BLangIdentifier bLangIdentifier = new BLangIdentifier();
+                    bLangIdentifier.setValue(name.getValue());
+                    return bLangIdentifier;
+                }
+            };
+
+    /**
+     * Function to convert org.wso2.ballerinalang.compiler.tree.BLangIdentifier instance to
+     * java.lang.String instance.
+     */
+    public static java.util.function.Function<BLangIdentifier, String> bLangIdentifierToString =
+            new java.util.function.Function<BLangIdentifier, String>() {
+                public String apply(BLangIdentifier name) {
+                    return name.getValue();
+                }
+            };
 
     /**
      * Add connectors, functions, annotations etc. to packages.
