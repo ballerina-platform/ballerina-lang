@@ -61,7 +61,7 @@ sourceNotation
     ;
 
 serviceBody
-    :  connectorVarDefStatement* variableDefinitionStatement* resourceDefinition*
+    :  connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition*
     ;
 
 resourceDefinition
@@ -69,8 +69,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :  connectorVarDefStatement* statement*
-    |  connectorVarDefStatement* workerDeclaration+
+    :  connectorDeclarationStmt* statement*
+    |  connectorDeclarationStmt* workerDeclaration+
     ;
 
 functionDefinition
@@ -87,7 +87,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :  connectorVarDefStatement* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
+    :  connectorDeclarationStmt* variableDefinitionStatement* (annotationAttachment* actionDefinition)*
     ;
 
 actionDefinition
@@ -158,7 +158,7 @@ workerDeclaration
     ;
 
 workerBody
-    :   connectorVarDefStatement* statement*
+    :   connectorDeclarationStmt* statement*
     ;
 
 typeName
@@ -275,7 +275,7 @@ variableDefinitionStatement
     :   typeName Identifier (ASSIGN  expression)? SEMICOLON
     ;
 
-connectorVarDefStatement
+connectorDeclarationStmt
     : nameReference Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 

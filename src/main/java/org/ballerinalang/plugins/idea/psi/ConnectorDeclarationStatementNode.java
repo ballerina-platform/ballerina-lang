@@ -20,9 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class ConnectorVarDefStatementNode extends VariableDefinitionNode {
+public class ConnectorDeclarationStatementNode extends VariableDefinitionNode {
 
-    public ConnectorVarDefStatementNode(@NotNull ASTNode node) {
+    public ConnectorDeclarationStatementNode(@NotNull ASTNode node) {
         super(node);
     }
 }

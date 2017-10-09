@@ -229,7 +229,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return null;
         }
         PsiElement definitionNode = resolvedElement.getParent();
-        if ((definitionNode instanceof ConnectorVarDefStatementNode)) {
+        if ((definitionNode instanceof ConnectorDeclarationStatementNode)) {
             return new ActionInvocationReference(this);
         } else if ((definitionNode instanceof VariableDefinitionNode)) {
 

@@ -132,8 +132,8 @@ public class BallerinaTypes {
     public static final RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(RULE_sourceNotation);
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);
     public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
-    public static final RuleIElementType CONNECTOR_VAR_DEF_STATEMENT =
-            ruleIElementTypes.get(RULE_connectorVarDefStatement);
+    public static final RuleIElementType CONNECTOR_DECLARATION_STATEMENT =
+            ruleIElementTypes.get(RULE_connectorDeclarationStmt);
     public static final RuleIElementType ENUM_FIELD_LIST = ruleIElementTypes.get(RULE_enumFieldList);
 
     // Keywords

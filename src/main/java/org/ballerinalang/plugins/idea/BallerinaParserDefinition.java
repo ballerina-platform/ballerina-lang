@@ -53,7 +53,7 @@ import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorVarDefStatementNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDeclarationStatementNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
@@ -385,8 +385,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TypeCastNode(node);
             case BallerinaParser.RULE_typeConversion:
                 return new TypeConversionNode(node);
-            case BallerinaParser.RULE_connectorVarDefStatement:
-                return new ConnectorVarDefStatementNode(node);
+            case BallerinaParser.RULE_connectorDeclarationStmt:
+                return new ConnectorDeclarationStatementNode(node);
             case BallerinaParser.RULE_xmlContent:
                 return new XmlContentNode(node);
             case BallerinaParser.RULE_invocation:
