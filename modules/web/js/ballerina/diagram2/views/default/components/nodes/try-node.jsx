@@ -18,11 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import ASTFactory from '../../../../../ast/ast-factory';
-import TreeUtil from './../../../../../model/tree-util';
+import TryNodeModel from './../../../../../model/tree/try-node';
+import DropZone from './../../../../../drag-drop/DropZone';
 import './try-node.css';
 
 class TryNode extends React.Component {
@@ -47,9 +46,18 @@ class TryNode extends React.Component {
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const catchViews = getComponentForNodeArray(model.catchBlocks);
-
+        const dropZone = model.viewState.components['drop-zone'];
         return (
             <g>
+                <DropZone
+                    x={dropZone.x}
+                    y={dropZone.y}
+                    width={dropZone.w}
+                    height={dropZone.h}
+                    baseComponent="rect"
+                    dropTarget={model.parent}
+                    dropBefore={model}
+                />
                 <CompoundStatementDecorator
                     dropTarget={model}
                     bBox={bBox}
@@ -73,6 +81,7 @@ class TryNode extends React.Component {
 }
 
 TryNode.propTypes = {
+    model: PropTypes.instanceOf(TryNodeModel).isRequired,
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,

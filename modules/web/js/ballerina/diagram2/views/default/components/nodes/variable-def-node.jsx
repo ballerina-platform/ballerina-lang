@@ -70,7 +70,6 @@ VariableDefNode.propTypes = {
 
 VariableDefNode.contextTypes = {
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
-    designer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default VariableDefNode;

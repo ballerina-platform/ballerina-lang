@@ -15,14 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import ASTFactory from '../../../../../ast/ast-factory';
 import TreeUtil from './../../../../../model/tree-util';
-import SimpleBBox from './../../../../../ast/simple-bounding-box';
+import IfNodeModel from './../../../../../model/tree/if-node';
+import DropZone from './../../../../../drag-drop/DropZone';
 import './if-node.css';
 
 class IfNode extends React.Component {
@@ -33,35 +31,30 @@ class IfNode extends React.Component {
             propertyType: 'text',
             key: 'If condition',
             model: props.model,
-            getterMethod: props.model.getConditionString,
-            setterMethod: props.model.setConditionFromString,
         };
-
         this.state = {
-            innerDropZoneActivated: false,
-            innerDropZoneDropNotAllowed: false,
-            innerDropZoneExist: false,
             active: 'hidden',
         };
         this.onAddElseClick = this.onAddElseClick.bind(this);
     }
 
     onAddElseClick() {
-        const parent = this.props.model.parent;
-        if (parent.getElseStatement()) {
-            const condition = ASTFactory.createBasicLiteralExpression({
-                basicLiteralType: 'boolean',
-                basicLiteralValue: true,
-            });
-            const newElseIfStatement = ASTFactory.createElseIfStatement({
-                condition,
-            });
-            const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
-            this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
-        } else {
-            const newElseStatement = ASTFactory.createElseStatement();
-            this.props.model.parent.addElseStatement(newElseStatement);
-        }
+        // TODOX
+        // const parent = this.props.model.parent;
+        // if (parent.getElseStatement()) {
+        //     const condition = ASTFactory.createBasicLiteralExpression({
+        //         basicLiteralType: 'boolean',
+        //         basicLiteralValue: true,
+        //     });
+        //     const newElseIfStatement = ASTFactory.createElseIfStatement({
+        //         condition,
+        //     });
+        //     const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
+        //     this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
+        // } else {
+        //     const newElseStatement = ASTFactory.createElseStatement();
+        //     this.props.model.parent.addElseStatement(newElseStatement);
+        // }
     }
 
     render() {
@@ -70,31 +63,24 @@ class IfNode extends React.Component {
         const expression = {
             text: model.getCondition().getSource(),
         };
+        // TODOX Fix the else-if check
         const isElseIfNode = TreeUtil.isIf(model.parent);
         const elseComp = model.elseStatement;
         const title = isElseIfNode ? 'Else If' : 'If';
-        const statementBox = model.viewState.components['statement-box'];
         const dropZone = model.viewState.components['drop-zone'];
-        const innerDropZoneActivated = this.state.innerDropZoneActivated;
-        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
-        const IfBBox = new SimpleBBox(statementBox.x, statementBox.y, bBox.w, bBox.h);
-
-        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
 
         return (
             <g>
-                {!isElseIfNode && <rect
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    className={dropZoneClassName}
-                    {...fill}
-                    onMouseOver={this.onDropZoneActivate}
-                    onMouseOut={this.onDropZoneDeactivate}
-                />
+                {!isElseIfNode &&
+                    <DropZone
+                        x={dropZone.x}
+                        y={dropZone.y}
+                        width={dropZone.w}
+                        height={dropZone.h}
+                        baseComponent="rect"
+                        dropTarget={model.parent}
+                        dropBefore={model}
+                    />
                 }
                 <CompoundStatementDecorator
                     dropTarget={model}
@@ -125,6 +111,7 @@ class IfNode extends React.Component {
 }
 
 IfNode.propTypes = {
+    model: PropTypes.instanceOf(IfNodeModel).isRequired,
     bBox: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,

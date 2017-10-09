@@ -35,7 +35,7 @@ import {
     getInvocationArrowPositionUtil,
     getOverlayComponent,
 } from './diagram-util';
-import ActiveArbiter from '../diagram/views/default/components/active-arbiter';
+import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 /**
@@ -68,6 +68,7 @@ class Diagram extends React.Component {
             astRoot: this.props.model,
             activeArbiter: new ActiveArbiter(),
             mode: this.props.mode,
+            designer: getSizingUtil(this.props.mode),
         };
     }
 
@@ -164,6 +165,7 @@ Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     mode: PropTypes.string,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
+    designer: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.defaultProps = {

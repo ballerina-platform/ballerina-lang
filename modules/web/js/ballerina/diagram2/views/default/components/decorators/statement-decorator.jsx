@@ -154,6 +154,12 @@ class StatementDecorator extends React.Component {
 
         const textClassName = 'statement-text';
         const actionBoxBbox = new SimpleBBox();
+
+        const { designer } = this.context;
+        actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
+        actionBoxBbox.h = designer.config.actionBox.height;
+        actionBoxBbox.x = statementBox.x + (statementBox.w - actionBoxBbox.w) / 2;
+        actionBoxBbox.y = statementBox.y + statementBox.h + designer.config.actionBox.padding.top;
         let statementRectClass = 'statement-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;

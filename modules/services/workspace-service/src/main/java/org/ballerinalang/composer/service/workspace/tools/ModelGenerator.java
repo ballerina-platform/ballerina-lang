@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -44,13 +45,11 @@ public class ModelGenerator {
 
     public static void main(String args[]) {
         JsonObject nodes = getContext();
-        JsonArray kinds = new JsonArray();
         for (Map.Entry<String, JsonElement> entry : nodes.entrySet()) {
             JsonObject node = (JsonObject) entry.getValue();
             String lowerHyphenName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, entry.getKey());
             generateSourceFiles(node, "node.hbs" , "tree/" + lowerHyphenName + ".js");
             generateSourceFiles(node, "abstract-node.hbs" , "tree/abstract-tree/" + lowerHyphenName + ".js");
-            kinds.add(node.get("kind"));
         }
         generateSourceFiles(nodes, "abstract-tree-util.hbs" , "abstract-tree-util.js");
         generateSourceFiles(nodes, "node-factory.hbs" , "node-factory.js");
@@ -247,9 +246,8 @@ public class ModelGenerator {
         }
         File scannedDir = new File(scannedUrl.getFile());
         List<Class<?>> classes = new ArrayList<Class<?>>();
-        for (File file : scannedDir.listFiles()) {
-            classes.addAll(find(file, scannedPackage));
-        }
+        File[] files = scannedDir.listFiles();
+        Stream.of(files).forEach((file -> classes.addAll(find(file, scannedPackage))));
         return classes;
     }
 
@@ -257,9 +255,8 @@ public class ModelGenerator {
         List<Class<?>> classes = new ArrayList<Class<?>>();
         String resource = scannedPackage + PKG_SEPARATOR + file.getName();
         if (file.isDirectory()) {
-            for (File child : file.listFiles()) {
-                classes.addAll(find(child, resource));
-            }
+            File[] files = file.listFiles();
+            Stream.of(files).forEach((child -> classes.addAll(find(child, resource))));
         } else if (resource.endsWith(CLASS_FILE_SUFFIX)) {
             int endIndex = resource.length() - CLASS_FILE_SUFFIX.length();
             String className = resource.substring(0, endIndex);
