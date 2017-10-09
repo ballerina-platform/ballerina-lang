@@ -282,7 +282,7 @@ a.tool-palette-add-button:focus, a.tool-palette-add-button:hover{
     width: 29px;
     padding: 6px 9px;
     margin-left: -10px;
-    margin-top: -10px;
+    margin-top: -6px;
 }
 
 .tool-palette-container i.fw-search {
