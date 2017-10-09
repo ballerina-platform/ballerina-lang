@@ -497,7 +497,7 @@ public class LangServerManager {
                     "temp.bal", textContent.getBytes(StandardCharsets.UTF_8));
             compilerContext.put(PackageRepository.class, inMemoryPackageRepository);
 
-            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(position, filterDataModel);
+            CapturePossibleTokenStrategy errStrategy = new CapturePossibleTokenStrategy(compilerContext, position, filterDataModel);
             compilerContext.put(DefaultErrorStrategy.class, errStrategy);
 
             Compiler compiler = Compiler.getInstance(compilerContext);
