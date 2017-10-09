@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import StatementDecorator from '../decorators/statement-decorator';
 import ActiveArbiter from '../decorators/active-arbiter';
+import ArrowDecorator from '../decorators/arrow-decorator';
 
 /**
  * Worker Send Statement Decorator.
@@ -49,14 +50,25 @@ class WorkerSendNode extends React.Component {
     render() {
         const model = this.props.model;
         const expression = model.viewState.expression;
+        const viewState = model.viewState;
+        const arrowStart = viewState.components['invocation-arrow'].start;
+        const arrowEnd = viewState.components['invocation-arrow'].end;
+        const backward = viewState.components['invocation-arrow'].backward;
 
         return (
-            <StatementDecorator
-                model={model}
-                viewState={model.viewState}
-                expression={expression}
-                editorOptions={this.editorOptions}
-            />);
+            <g>
+                <StatementDecorator
+                    model={model}
+                    viewState={model.viewState}
+                    expression={expression}
+                    editorOptions={this.editorOptions}
+                />
+                <ArrowDecorator
+                    start={arrowStart}
+                    end={arrowEnd}
+                    backward={backward}
+                />
+            </g>);
     }
 }
 
