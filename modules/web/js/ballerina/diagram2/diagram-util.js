@@ -6,6 +6,7 @@ import Hidden from './views/action/components/hidden';
 import * as DefaultConfig from './views/default/designer-defaults';
 import DefaultSizingUtil from './views/default/sizing-util';
 import DefaultPositioningUtil from './views/default/positioning-util';
+import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
 
 
 const components = {};
@@ -13,6 +14,7 @@ const components = {};
 // initialize the utils.
 const defaultSizingUtil = new DefaultSizingUtil();
 const defaultPositioningUtil = new DefaultPositioningUtil();
+const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
 
 defaultSizingUtil.config = DefaultConfig;
 defaultPositioningUtil.config = DefaultConfig;
@@ -87,6 +89,13 @@ function getPositioningUtil(mode) {
     return undefined;
 }
 
+function getWorkerInvocationSyncUtil(mode) {
+    if (mode === 'default') {
+        return defaultWorkerInvocationSyncUtil;
+    }
+    return undefined;
+}
+
 function getOverlayComponent(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/utils', true, /\.jsx$/));
@@ -135,6 +144,7 @@ export {
     requireAll,
     getSizingUtil,
     getPositioningUtil,
+    getWorkerInvocationSyncUtil,
     getOverlayComponent,
     getWorkerMaxHeight,
 };
