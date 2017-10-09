@@ -25,7 +25,9 @@ import TreeBuilder from './tree-builder';
  */
 function getNodeForFragment(fragment) {
     const parsedJson = FragmentUtils.parseFragment(fragment);
-    return TreeBuilder.build(parsedJson);
+    const node = TreeBuilder.build(parsedJson);
+    node.clearWS();
+    return node;
 }
 
 class DefaultNodeFactory {
