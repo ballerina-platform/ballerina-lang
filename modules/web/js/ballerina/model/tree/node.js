@@ -252,6 +252,44 @@ class Node extends EventChannel {
     isExpression() {
         return this.isExpression;
     }
+
+    /**
+     * Remove the node from the tree. Currently works only for nodes in a list.
+     *
+     * @memberof Node
+     */
+    remove() {
+        const parent = this.parent;
+        if (this.parent === undefined) {
+            // Unable to remove, this is a root node.
+            return;
+        }
+        // get the parent and iterate till you find the node.
+        for (const key of Object.keys(this.parent)) {
+            const prop = this.parent[key];
+            if (prop instanceof Node && key !== 'parent') {
+                // TODO need to see how we can remove node attributes.
+            } else if (_.isArray(prop) && prop.length > 0 && prop[0] instanceof Node) {
+                let i = 0;
+                for (const propI of prop) {
+                    if (propI.getID() === this.getID()) {
+                        break;
+                    }
+                    i += 1;
+                }
+                prop.splice(i, 1);
+                parent.trigger('tree-modified', {
+                    origin: this,
+                    type: 'child-removed',
+                    title: `Removed ${this.kind}`,
+                    data: {
+                        'node': this,
+                    },
+                });
+                return;
+            }
+        }
+    }
 }
 
 export default Node;
