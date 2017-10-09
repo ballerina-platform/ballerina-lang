@@ -359,7 +359,7 @@ class TopLevelNodes extends React.Component {
                         <GlobalExpanded
                             bBox={expandedGlobalsBbox}
                             globals={globals}
-                            model={this.props.model.parent}
+                            model={this.props.model}
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
                             addText={'+ Add Global'}

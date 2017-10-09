@@ -65,7 +65,7 @@ export default class GlobalExpanded extends React.Component {
     openEditor(bBox) {
         const options = {
             propertyType: 'text',
-            key: 'If condition',
+            key: 'Globals',
             model: this.props.model,
             getterMethod: () => this.props.newValuePlaceholder,
             setterMethod: this.props.onAddNewValue,
