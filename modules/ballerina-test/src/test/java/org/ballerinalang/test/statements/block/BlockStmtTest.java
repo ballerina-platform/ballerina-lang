@@ -53,7 +53,7 @@ public class BlockStmtTest {
         BTestUtils.validateError(resultNegative, 4, "unreachable code", 62, 5);
         //testUnreachableTryCatch
         BTestUtils.validateError(resultNegative, 5, "unreachable code", 73, 5);
-        //testUnreachableContinue
+        //testUnreachableNext
         BTestUtils.validateError(resultNegative, 6, "unreachable code", 84, 9);
         //testUnreachableBreak
         BTestUtils.validateError(resultNegative, 7, "unreachable code", 92, 9);

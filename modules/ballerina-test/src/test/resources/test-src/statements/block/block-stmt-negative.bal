@@ -78,10 +78,10 @@ function testUnreachableTryCatch()(string){
     return a;
 }
 
-function testUnreachableContinue()(string){
+function testUnreachableNext()(string){
     while (true) {
-        return "unreachable continue";
-        continue;
+        return "unreachable next";
+        next;
     }
     return "done";
 }
