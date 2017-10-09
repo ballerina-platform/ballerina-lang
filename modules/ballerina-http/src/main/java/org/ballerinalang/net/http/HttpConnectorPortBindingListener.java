@@ -46,14 +46,22 @@ public class HttpConnectorPortBindingListener implements PortBindingEventListene
     }
 
     @Override
-    public void onOpen(String serverConnectorId) {
-        console.println("ballerina: started server connector " + serverConnectorId);
+    public void onOpen(String serverConnectorId, boolean isHttps) {
+        if (isHttps) {
+            console.println("ballerina: started HTTPS/WSS server connector " + serverConnectorId);
+        } else {
+            console.println("ballerina: started HTTP/WS server connector " + serverConnectorId);
+        }
         connectorStartupSynchronizer.getCountDownLatch().countDown();
     }
 
     @Override
-    public void onClose(String serverConnectorId) {
-        console.println("ballerina: stopped server connector " + serverConnectorId);
+    public void onClose(String serverConnectorId, boolean isHttps) {
+        if (isHttps) {
+            console.println("ballerina: stopped HTTPS/WSS server connector " + serverConnectorId);
+        } else {
+            console.println("ballerina: stopped HTTP/WS server connector " + serverConnectorId);
+        }
     }
 
     @Override
