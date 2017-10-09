@@ -20,7 +20,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -35,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -112,11 +112,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
-        targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                                    .executeAtTargetResponseReceiving(targetRespMsg);
-        }
+        targetRespMsg = new HttpCarbonResponse((HttpResponse) msg);
 
         targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
@@ -128,6 +124,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         targetRespMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, incomingMsg
                 .getProperty(Constants.EXECUTOR_WORKER_POOL));
         //TODO copy mandatory properties from previous message if needed
+
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeAtTargetResponseReceiving(targetRespMsg);
+        }
 
         return targetRespMsg;
     }
@@ -200,7 +201,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private HTTPCarbonMessage createErrorMessage(String payload) {
 
-        HTTPCarbonMessage response = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+        HTTPCarbonMessage response = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
                 HttpResponseStatus.INTERNAL_SERVER_ERROR));
 
         response.addMessageBody(ByteBuffer.wrap(payload.getBytes(Charset.defaultCharset())));
