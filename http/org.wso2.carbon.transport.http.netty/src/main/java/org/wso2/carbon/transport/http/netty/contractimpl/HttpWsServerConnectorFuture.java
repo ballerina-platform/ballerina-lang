@@ -21,7 +21,7 @@ package org.wso2.carbon.transport.http.netty.contractimpl;
 
 import io.netty.channel.ChannelFuture;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.carbon.transport.http.netty.contract.LifeCycleEventListener;
+import org.wso2.carbon.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnectorFuture;
@@ -40,7 +40,7 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     private HttpConnectorListener httpConnectorListener;
     private WebSocketConnectorListener wsConnectorListener;
-    private LifeCycleEventListener lifeCycleEventListener;
+    private PortBindingEventListener portBindingEventListener;
     private ChannelFuture channelFuture;
     private String connectorHost;
     private int connectorPort = -1;
@@ -140,8 +140,8 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void setLifeCycleEventListener(LifeCycleEventListener lifeCycleEventListener) {
-        this.lifeCycleEventListener = lifeCycleEventListener;
+    public void setPortBindingEventListener(PortBindingEventListener portBindingEventListener) {
+        this.portBindingEventListener = portBindingEventListener;
         if (connectorHost != null && connectorPort >= 0) {
             notifyLifeCycleEventListener(connectorHost, connectorPort);
             connectorHost = null;
@@ -151,20 +151,20 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     @Override
     public void notifyLifeCycleEventListener(String host, int port) {
-        if (lifeCycleEventListener == null) {
+        if (portBindingEventListener == null) {
             this.connectorHost = host;
             this.connectorPort = port;
         } else {
-            lifeCycleEventListener.onOpen(host, port);
+            portBindingEventListener.onOpen(host, port);
         }
     }
 
     @Override
     public void notifyLifeCycleEventListener(ServerConnector serverConnector) throws ServerConnectorException {
-        if (lifeCycleEventListener == null) {
+        if (portBindingEventListener == null) {
             throw new ServerConnectorException("Connector life cycle listener is not set");
         } else {
-            lifeCycleEventListener.onClose(serverConnector);
+            portBindingEventListener.onClose(serverConnector);
         }
     }
 }

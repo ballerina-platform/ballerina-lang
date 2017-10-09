@@ -19,9 +19,9 @@
 package org.wso2.carbon.transport.http.netty.contract;
 
 /**
- * An event listener to listen to connector life cycle events.
+ * An event listener to listen to port binding/unbinding events.
  */
-public interface LifeCycleEventListener {
+public interface PortBindingEventListener {
 
     /**
      * Trigger an onOpen event when a connector is successfully up and running.

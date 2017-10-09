@@ -119,9 +119,9 @@ public interface ServerConnectorFuture {
     /**
      * Set life cycle event listener for the HTTP/WS connector
      *
-     * @param lifeCycleEventListener The LifeCycleEventListener implementation
+     * @param portBindingEventListener The PortBindingEventListener implementation
      */
-    void setLifeCycleEventListener(LifeCycleEventListener lifeCycleEventListener);
+    void setPortBindingEventListener(PortBindingEventListener portBindingEventListener);
 
     /**
      * Notify the life cycle listener of events related to connector start up
