@@ -95,13 +95,6 @@ class ForkJoinNode extends React.Component {
                     onMouseOver={this.onDropZoneActivate}
                     onMouseOut={this.onDropZoneDeactivate}
                 />
-                <CompoundStatementDecorator
-                    dropTarget={model}
-                    bBox={bBox}
-                    title={'Fork'}
-                    model={model}
-                    body={model.workers}
-                />
                 <line
                     x1={bBox.getCenterX()}
                     y1={bBox.y}
@@ -109,6 +102,22 @@ class ForkJoinNode extends React.Component {
                     y2={forkLineHiderBottom}
                     className="life-line-hider"
                 />
+                <CompoundStatementDecorator
+                    dropTarget={model}
+                    bBox={bBox}
+                    title={'Fork'}
+                    model={model}
+                    body={model.workers}
+                />
+                {model.joinBody &&
+                <line
+                    x1={model.getJoinBody().viewState.bBox.getCenterX()}
+                    y1={model.getJoinBody().viewState.bBox.y}
+                    x2={model.getJoinBody().viewState.bBox.getCenterX()}
+                    y2={joinLineHiderBottom}
+                    className='life-line-hider'
+                />
+                }
                 {model.joinBody &&
                 <CompoundStatementDecorator
                     dropTarget={model.getJoinBody()}
@@ -116,18 +125,18 @@ class ForkJoinNode extends React.Component {
                     expression={{text: model.getJoinType()}}
                     title={'Join'}
                     model={model.getJoinBody()}
-                    body={model.getJoinBody().body}
+                    body={model.getJoinBody()}
                     parameterBbox={model.getJoinBody().viewState.components.param}
                     parameterEditorOptions={this.joinParameterEditorOptions}
                     editorOptions={this.joinConditionEditorOptions}
                 />
                 }
-                {model.joinBody &&
+                {model.getTimeoutBody() &&
                 <line
-                    x1={model.getJoinBody().viewState.bBox.getCenterX()}
-                    y1={model.getJoinBody().viewState.bBox.y}
-                    x2={model.getJoinBody().viewState.bBox.getCenterX()}
-                    y2={joinLineHiderBottom}
+                    x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
+                    y1={model.getTimeoutBody().viewState.bBox.y}
+                    x2={model.getTimeoutBody().viewState.bBox.getCenterX()}
+                    y2={timeoutLineHiderbottom}
                     className='life-line-hider'
                 />
                 }
@@ -139,18 +148,9 @@ class ForkJoinNode extends React.Component {
                     expression={{text: model.getTimeOutExpression().getSource()}}
                     title={'Timeout'}
                     model={model.getTimeoutBody()}
-                    body={model.getTimeoutBody().body}
+                    body={model.getTimeoutBody()}
                     parameterEditorOptions={this.timeoutParameterEditorOptions}
                     editorOptions={this.timeoutConditionEditorOptions}
-                />
-                }
-                {model.getTimeoutBody() &&
-                <line
-                    x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
-                    y1={model.getTimeoutBody().viewState.bBox.y}
-                    x2={model.getTimeoutBody().viewState.bBox.getCenterX()}
-                    y2={timeoutLineHiderbottom}
-                    className='life-line-hider'
                 />
                 }
             </g>
