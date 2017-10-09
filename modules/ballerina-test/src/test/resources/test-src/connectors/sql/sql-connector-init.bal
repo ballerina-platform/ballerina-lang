@@ -1,5 +1,4 @@
 import ballerina.data.sql;
-import ballerina.lang.errors;
 import ballerina.lang.datatables;
 
 struct ResultCustomers {
@@ -8,18 +7,19 @@ struct ResultCustomers {
 
 
 function testConnectorWithDataSource () (string firstName) {
+    sql:ClientConnector testDB;
     map propertiesMap = {"user":"SA", "password":"", "loginTimeout":0,
                             "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ConnectionProperties properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "", "", properties);
+    testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "", "", properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -29,6 +29,7 @@ function testConnectorWithDataSource () (string firstName) {
 
 
 function testConnectionPoolProperties () (string firstName) {
+    sql:ClientConnector testDB;
     sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                                               driverClassName:"org.hsqldb.jdbcDriver", maximumPoolSize:1,
                                               idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
@@ -37,14 +38,14 @@ function testConnectionPoolProperties () (string firstName) {
                                               connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
                                               transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
                                               connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
-    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties);
+    testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = testDB.select ("SELECT  FirstName from Customers where registrationID = 1", parameters);
-    errors:TypeCastError err;
+    TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }

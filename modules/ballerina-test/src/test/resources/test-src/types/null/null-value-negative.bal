@@ -1,4 +1,4 @@
-function testCompareNullOfDifferentTypes () (boolean, xml, json) {
+function testCompareNullOfDifferentTypes () (int, xml, json) {
     xml x = null;
     json j = null;
     int a = 0;
@@ -6,38 +6,34 @@ function testCompareNullOfDifferentTypes () (boolean, xml, json) {
         a = 11;
     }
 
-    return x, j, a;
+    return a, x, j;
 }
 
-function testNullForValueType () {
-    int a = null;
-}
-
-function testNullForValueType () {
-    string s = (string)null;
-}
-
-function testNullForValueType () {
-    json j = (json)null;
-}
-
-function testInvalidFunctionCallWithNull () (any) {
+function testInvalidFunctionCallWithNull() (any) {
     return foo(null);
 }
 
-function foo (string s) {
+function foo(string s) (string){
     return s;
 }
 
-function testLogicalOperationOnNull () (boolean) {
+function testLogicalOperationOnNull1() (boolean) {
     xml x;
     return (null > x);
 }
 
-function testLogicalOperationOnNull () (any) {
+function testNullForValueType1() {
+    int a = null;
+}
+
+function testLogicalOperationOnNull2() (any) {
     return (null + null);
 }
 
-function testCreateNullTypeVar () {
-    null x;
+function testNullForValueType2() {
+    //string s = (string) null;
+}
+
+function testNullForValueType3() {
+    //json j = (json) null;
 }

@@ -36,7 +36,7 @@ function main (string[] args) {
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         var rs, _ = (Employee)dataStruct;
         system:println("Employee:" + rs.id + "|" + rs.name +
                        "|" + rs.salary + "|" + rs.status +

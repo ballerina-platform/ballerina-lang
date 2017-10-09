@@ -133,7 +133,7 @@ public class TransformStmtTest {
         BTestUtils.validateError(resultNegative, 2, "no statements found in the transform statement body", 28, 5);
 
         resultNegative = BTestUtils
-                .compile("test-src/statements/transform/transform-stmt-negative-cast-and-conversion.bal");
+                .compile("test-src/statements/transform/transform-stmt-cast-and-conversion-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
         BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'string', found 'int'", 25, 15);
         BTestUtils.validateError(resultNegative, 1,
@@ -142,19 +142,19 @@ public class TransformStmtTest {
                 "input and output variables cannot be interchanged in transform statement", 25, 9);
 
         resultNegative = BTestUtils
-                .compile("test-src/statements/transform/transform-stmt-negative-function-invocations.bal");
+                .compile("test-src/statements/transform/transform-stmt-function-invocations-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
                 "input and output variables cannot be interchanged in transform statement", 20, 9);
 
         resultNegative = BTestUtils
-                .compile("test-src/statements/transform/transform-stmt-negative-with-var.bal");
+                .compile("test-src/statements/transform/transform-stmt-with-var-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
                 "input and output variables cannot be interchanged in transform statement", 21, 9);
 
         resultNegative = BTestUtils
-                .compile("test-src/statements/transform/transform-stmt-negative-with-var-def.bal");
+                .compile("test-src/statements/transform/transform-stmt-with-var-def-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BTestUtils.validateError(resultNegative, 0,
                 "input and output variables cannot be interchanged in transform statement", 21, 9);

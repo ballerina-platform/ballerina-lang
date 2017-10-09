@@ -30,19 +30,19 @@ import org.testng.annotations.Test;
  *
  * @since 0.89
  */
-public class ContinueStmtTest {
+public class NextStmtTest {
 
     private CompileResult positiveCompileResult;
     private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
-        positiveCompileResult = BTestUtils.compile("test-src/statements/continuestatement/continue-stmt.bal");
-        negativeCompileResult = BTestUtils.compile("test-src/statements/continuestatement/continue-stmt-negative.bal");
+        positiveCompileResult = BTestUtils.compile("test-src/statements/nextstatement/next-stmt.bal");
+        negativeCompileResult = BTestUtils.compile("test-src/statements/nextstatement/next-stmt-negative.bal");
     }
 
     @Test(description = "Test continue statement in a while loop.")
-    public void testContinueStmtConditionTrue() {
+    public void testNextStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
         BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
@@ -55,7 +55,7 @@ public class ContinueStmtTest {
     }
 
     @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
-    public void testContinueStmtConditionFalse() {
+    public void testNextStmtConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
         BValue[] returns = BTestUtils.invoke(positiveCompileResult, "calculateExp1", args);
 
@@ -68,9 +68,9 @@ public class ContinueStmtTest {
     }
 
     @Test(description = "Test continue statement in a nested while loop.")
-    public void testContinueStmtInNestedWhileConditionTrue() {
+    public void testNextStmtInNestedWhileConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedContinueStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedNextStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -81,9 +81,9 @@ public class ContinueStmtTest {
     }
 
     @Test(description = "Test continue statement in a nested while loop.")
-    public void testContinueStmtInNestedWhileConditionFalse() {
+    public void testNextStmtInNestedWhileConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedContinueStmt", args);
+        BValue[] returns = BTestUtils.invoke(positiveCompileResult, "nestedNextStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

@@ -102,10 +102,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangComment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -1176,8 +1176,8 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(whileNode);
     }
 
-    public void addContinueStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangContinue continueNode = (BLangContinue) TreeBuilder.createContinueNode();
+    public void addNextStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangNext continueNode = (BLangNext) TreeBuilder.createNextNode();
         continueNode.pos = pos;
         continueNode.addWS(ws);
         addStmtToCurrentBlock(continueNode);
