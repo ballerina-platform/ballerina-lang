@@ -35,7 +35,7 @@ public class TestFinallyBlock {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("test-src/statements/trycatch/test_finally.bal");
+        compileResult = BTestUtils.compile("test-src/statements/trycatch/finally-stmt.bal");
     }
 
     @Test

@@ -15,22 +15,32 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.types.any;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
- * Test class for assignment statement.
+ * @since 0.94
  */
-public class BAnyTypeToIntImplicitCastError {
+public class BAnyType extends BBuiltInRefType {
 
-    @Test
-    public void testAnyToIntImplicitCast() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-to-int-implicit-cast-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 16);
+    public BAnyType(int tag, BTypeSymbol tsymbol) {
+        super(tag, tsymbol);
+    }
+
+    public String getDesc() {
+        return TypeDescriptor.SIG_ANY;
+    }
+
+    @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.ANY;
     }
 }

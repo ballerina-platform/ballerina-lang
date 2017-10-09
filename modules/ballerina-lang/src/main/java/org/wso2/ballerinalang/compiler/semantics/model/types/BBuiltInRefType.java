@@ -37,6 +37,7 @@ public class BBuiltInRefType extends BType implements ReferenceType {
         super(tag, tsymbol);
     }
 
+    @Override
     public String getDesc() {
         switch (tag) {
             case JSON:
@@ -49,6 +50,11 @@ public class BBuiltInRefType extends BType implements ReferenceType {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
+        return visitor.visit(this, type);
     }
 
     @Override
