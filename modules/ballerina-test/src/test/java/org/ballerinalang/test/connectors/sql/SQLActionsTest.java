@@ -87,7 +87,7 @@ public class SQLActionsTest {
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testSelectData() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testSelectData", args);
@@ -96,7 +96,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest for int float types", enabled = false)
+    @Test(groups = "ConnectorTest for int float types")
     public   void testSelectIntFloatData() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testSelectIntFloatData", args);
@@ -119,16 +119,15 @@ public class SQLActionsTest {
         Assert.assertEquals(doubleVal.floatValue(), doubleExpected);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testCallProcedure() {
-        BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCallProcedure", args);
+        BValue[] returns = BTestUtils.invoke(result, "testCallProcedure");
         BString retValue = (BString) returns[0];
         final String expected = "James";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testCallProcedureWithResultSet() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testCallProcedureWithResultSet", args);
@@ -137,7 +136,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testQueryParameters() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testQueryParameters", args);
@@ -262,7 +261,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testArrayInParameters() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testArrayInParameters", args);
@@ -347,15 +346,7 @@ public class SQLActionsTest {
         Assert.assertEquals((int) retValue.get(1), 1);
     }
 
-    @Test(dependsOnGroups = "ConnectorTest", enabled = false)
-    public void testCloseConnectionPool() {
-        BValue[] args = {};
-        BValue[] returns = BTestUtils.invoke(result, "testCloseConnectionPool", args);
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
-    }
-
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testDateTimeOutParams() {
         BValue[] args = new BValue[3];
         Calendar cal = Calendar.getInstance();
@@ -393,6 +384,14 @@ public class SQLActionsTest {
     public void testInvalidDBType() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testInvalidDBType", args);
+    }
+
+    @Test(dependsOnGroups = "ConnectorTest")
+    public void testCloseConnectionPool() {
+        BValue[] args = {};
+        BValue[] returns = BTestUtils.invoke(result, "testCloseConnectionPool", args);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @AfterSuite
