@@ -197,4 +197,14 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "white, bob");
     }
+
+    @Test()
+    public void testFunctionPointerNative() {
+        CompileResult result = BTestUtils.compile("test-src/expressions/lambda/function-pointer-native.bal");
+        BValue[] returns = BTestUtils.invoke(result, "test1");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "1500526800000");
+    }
 }
