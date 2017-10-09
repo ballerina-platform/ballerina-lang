@@ -31,6 +31,10 @@ class DropZone extends React.Component {
     render() {
         const { baseComponent, className, connectDropTarget, isOver, isOverCurrent,
             isDragging, dropTarget, dropBefore, canDrop, enableDragBg, ...restProps } = this.props;
+        // render nothing when drag-drop isn't happening
+        if (!isDragging) {
+            return (<g />);
+        }
         const Component = baseComponent;
         let result;
         if (isDragging && enableDragBg && BASE_TYPES.RECT === baseComponent) {
