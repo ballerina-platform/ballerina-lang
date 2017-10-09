@@ -117,7 +117,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveExplicitCastOperator(BType sourceType,
                                                BType targetType) {
-        return resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
+        return types.getCastOperator(sourceType, targetType);
     }
 
     public BSymbol resolveImplicitCastOperator(BType sourceType,
@@ -151,6 +151,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                                         OperatorKind opKind,
                                         BType type) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
+    }
+
+    public BSymbol resolveOperator(Name name, List<BType> types) {
+        ScopeEntry entry = symTable.rootScope.lookup(name);
+        return resolveOperator(entry, types);
     }
 
     public BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
@@ -425,11 +430,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
 
     // private methods
-
-    private BSymbol resolveOperator(Name name, List<BType> types) {
-        ScopeEntry entry = symTable.rootScope.lookup(name);
-        return resolveOperator(entry, types);
-    }
 
     private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
         BSymbol foundSymbol = symTable.notFoundSymbol;

@@ -132,7 +132,7 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accesing a struct with a dynamic index")
     public void testExpressionAsStructIndex() {
-        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct-access-with-dynamic-index.bal");
+        CompileResult compileResult = BTestUtils.compile("test-src/structs/struct-access-dynamic-index-negative.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),

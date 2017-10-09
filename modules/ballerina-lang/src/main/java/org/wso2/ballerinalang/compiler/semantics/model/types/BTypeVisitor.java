@@ -15,22 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.types.any;
-
-import org.ballerinalang.test.utils.BTestUtils;
-import org.ballerinalang.test.utils.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 /**
- * Test class for assignment statement.
+ * @param <R> the return type of the visit methods.
+ * @since 0.94
  */
-public class BAnyTypeToIntImplicitCastError {
+public interface BTypeVisitor<R> {
+    R visit(BType t, BType s);
 
-    @Test
-    public void testAnyToIntImplicitCast() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-to-int-implicit-cast-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BTestUtils.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'any'", 3, 16);
-    }
+    R visit(BBuiltInRefType t, BType s);
+
+    R visit(BAnyType t, BType s);
+
+    R visit(BMapType t, BType s);
+
+    R visit(BJSONType t, BType s);
+
+    R visit(BArrayType t, BType s);
+
+    R visit(BStructType t, BType s);
+
+    R visit(BConnectorType t, BType s);
+
+    R visit(BEnumType t, BType s);
+
+    R visit(BErrorType t, BType s);
 }
