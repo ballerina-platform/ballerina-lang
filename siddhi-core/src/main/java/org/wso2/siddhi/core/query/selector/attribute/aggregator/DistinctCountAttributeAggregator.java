@@ -42,8 +42,8 @@ import java.util.Map;
         description = "Returns the count of distinct occurrences for a given arg.",
         parameters = {
                 @Parameter(name = "arg",
-                           description = "The value that should be counted.",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING})
+                        description = "The value that should be counted.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the count of distinct occurrences for a given arg.",
@@ -66,17 +66,18 @@ public class DistinctCountAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link DistinctCountAttributeAggregator} configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader                 this hold the {@link DistinctCountAttributeAggregator} configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Distinct count aggregator has to have exactly 1 parameter, " +
-                                                             "currently " + attributeExpressionExecutors.length +
-                                                             " parameters provided");
+                    "currently " + attributeExpressionExecutors.length +
+                    " parameters provided");
         }
     }
 
@@ -126,13 +127,8 @@ public class DistinctCountAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public void start() {
-        // Nothing to start.
-    }
-
-    @Override
-    public void stop() {
-        // Nothing to stop.
+    public boolean canDestroy() {
+        return distinctValues.size() == 0;
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -35,20 +36,25 @@ public class InsertIntoTableCallback extends OutputCallback {
     private StreamDefinition outputStreamDefinition;
     private boolean convertToStreamEvent;
     private StreamEventPool streamEventPool;
-    private StreamEventConverter streamEventConvertor;
+    private StreamEventConverter streamEventConverter;
 
     public InsertIntoTableCallback(Table table, StreamDefinition outputStreamDefinition,
                                    boolean convertToStreamEvent, StreamEventPool streamEventPool,
-                                   StreamEventConverter streamEventConvertor) {
+                                   StreamEventConverter streamEventConverter, String queryName) {
+        super(queryName);
         this.table = table;
         this.outputStreamDefinition = outputStreamDefinition;
         this.convertToStreamEvent = convertToStreamEvent;
         this.streamEventPool = streamEventPool;
-        this.streamEventConvertor = streamEventConvertor;
+        this.streamEventConverter = streamEventConverter;
     }
 
     @Override
     public void send(ComplexEventChunk complexEventChunk) {
+        if (getSiddhiDebugger() != null) {
+            getSiddhiDebugger()
+                    .checkBreakPoint(getQueryName(), SiddhiDebugger.QueryTerminal.OUT, complexEventChunk.getFirst());
+        }
         if (convertToStreamEvent) {
             ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(complexEventChunk
                     .isBatch());
@@ -56,7 +62,7 @@ public class InsertIntoTableCallback extends OutputCallback {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent complexEvent = complexEventChunk.next();
                 StreamEvent borrowEvent = streamEventPool.borrowEvent();
-                streamEventConvertor.convertData(
+                streamEventConverter.convertData(
                         complexEvent.getTimestamp(),
                         complexEvent.getOutputData(),
                         complexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT :

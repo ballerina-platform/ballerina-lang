@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -31,7 +30,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
  * Abstract parent class for attribute aggregators. Attribute aggregators are used to perform aggregate operations
  * such as count, average, etc.
  */
-public abstract class AttributeAggregator implements EternalReferencedHolder, Snapshotable {
+public abstract class AttributeAggregator implements Snapshotable {
 
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected SiddhiAppContext siddhiAppContext;
@@ -46,7 +45,6 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
             this.siddhiAppContext = siddhiAppContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
             this.attributeSize = attributeExpressionExecutors.length;
-            siddhiAppContext.addEternalReferencedHolder(this);
             if (elementId == null) {
                 elementId = "AttributeAggregator-" + siddhiAppContext.getElementIdGenerator().createNewId();
             }
@@ -67,7 +65,6 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
             }
             attributeAggregator.elementId = elementId + "-" + key;
             attributeAggregator.initAggregator(innerExpressionExecutors, siddhiAppContext, configReader);
-            attributeAggregator.start();
             return attributeAggregator;
         } catch (Exception e) {
             throw new SiddhiAppRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
@@ -114,8 +111,8 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
      * The initialization method for FunctionExecutor
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader this hold the {@link AttributeAggregator} extensions configuration reader.
-     * @param siddhiAppContext         Siddhi app runtime context
+     * @param configReader                 this hold the {@link AttributeAggregator} extensions configuration reader.
+     * @param siddhiAppContext             Siddhi app runtime context
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                  SiddhiAppContext
@@ -130,6 +127,8 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
     public abstract Object processRemove(Object data);
 
     public abstract Object processRemove(Object[] data);
+
+    public abstract boolean canDestroy();
 
     public abstract Object reset();
 

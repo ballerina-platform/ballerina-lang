@@ -27,6 +27,6 @@ public interface ConfigManager {
 
     ConfigReader generateConfigReader(String namespace, String name);
 
-    Map<String, String> extractStoreConfigs(String name);
+    Map<String, String> extractSystemConfigs(String name);
 
 }

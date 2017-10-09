@@ -20,7 +20,7 @@
     <parent>
         <artifactId>siddhi</artifactId>
         <groupId>org.wso2.siddhi</groupId>
-        <version>4.0.0-M81-SNAPSHOT</version>
+        <version>4.0.0-M99-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -89,6 +89,7 @@
                         <extensionRepository>siddhi-gpl-execution-geo</extensionRepository>
                         <extensionRepository>siddhi-gpl-execution-nlp</extensionRepository>
                         <extensionRepository>siddhi-gpl-execution-r</extensionRepository>
+                        <extensionRepository>siddhi-gpl-execution-streamingml</extensionRepository>
                         <extensionRepository>siddhi-gpl-script-r</extensionRepository>
                     </extensionRepositories>
                 </configuration>

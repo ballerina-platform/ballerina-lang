@@ -256,11 +256,11 @@ public class DefineTableTestCase {
     public void testQuery16() {
         log.info("testTableDefinition16 - Table w/ ref");
 
-        Map<String, String> storeConfigs = new HashMap<>();
-        storeConfigs.put("test1.type", "test");
-        storeConfigs.put("test1.uri", "http://localhost");
-        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test1");
+        Map<String, String> systemConfigs = new HashMap<>();
+        systemConfigs.put("test1.type", "test");
+        systemConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, systemConfigs);
+        inMemoryConfigManager.extractSystemConfigs("test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -271,10 +271,10 @@ public class DefineTableTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         siddhiAppRuntime.shutdown();
 
-        Map<String, String> expectedStoreConfigs = new HashMap<>();
-        expectedStoreConfigs.put("type", "test");
-        expectedStoreConfigs.put("uri", "http://localhost");
-        AssertJUnit.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+        Map<String, String> expectedSystemConfigs = new HashMap<>();
+        expectedSystemConfigs.put("type", "test");
+        expectedSystemConfigs.put("uri", "http://localhost");
+        AssertJUnit.assertEquals("Test store initialization failure", expectedSystemConfigs, TestStore.systemConfigs);
     }
 
     @Test
@@ -289,21 +289,22 @@ public class DefineTableTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         siddhiAppRuntime.shutdown();
 
-        Map<String, String> expectedStoreConfigs = new HashMap<>();
-        expectedStoreConfigs.put("type", "test");
-        expectedStoreConfigs.put("uri", "http://localhost:8080");
-        AssertJUnit.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+        Map<String, String> expectedSystemConfigs = new HashMap<>();
+        expectedSystemConfigs.put("type", "test");
+        expectedSystemConfigs.put("uri", "http://localhost:8080");
+        AssertJUnit.assertEquals("Test store initialization failure", expectedSystemConfigs,
+                TestStore.systemConfigs);
     }
 
     @Test
     public void testQuery18() {
         log.info("testTableDefinition18 - Table w/ ref and additional properties");
 
-        Map<String, String> storeConfigs = new HashMap<>();
-        storeConfigs.put("test1.type", "test");
-        storeConfigs.put("test1.uri", "http://localhost");
-        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test1");
+        Map<String, String> systemConfigs = new HashMap<>();
+        systemConfigs.put("test1.type", "test");
+        systemConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, systemConfigs);
+        inMemoryConfigManager.extractSystemConfigs("test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -314,21 +315,22 @@ public class DefineTableTestCase {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         siddhiAppRuntime.shutdown();
 
-        Map<String, String> expectedStoreConfigs = new HashMap<>();
-        expectedStoreConfigs.put("type", "test");
-        expectedStoreConfigs.put("uri", "http://localhost:8080");
-        expectedStoreConfigs.put("table.name", "Foo");
-        AssertJUnit.assertEquals("Test store initialization failure", expectedStoreConfigs, TestStore.storeConfigs);
+        Map<String, String> expectedSystemConfigs = new HashMap<>();
+        expectedSystemConfigs.put("type", "test");
+        expectedSystemConfigs.put("uri", "http://localhost:8080");
+        expectedSystemConfigs.put("table.name", "Foo");
+        AssertJUnit.assertEquals("Test store initialization failure", expectedSystemConfigs,
+                TestStore.systemConfigs);
     }
 
     @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQuery19() {
         log.info("testTableDefinition19 - Table w/ ref w/o type");
 
-        Map<String, String> storeConfigs = new HashMap<>();
-        storeConfigs.put("test1.uri", "http://localhost");
-        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test1");
+        Map<String, String> systemConfigs = new HashMap<>();
+        systemConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, systemConfigs);
+        inMemoryConfigManager.extractSystemConfigs("test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -344,10 +346,10 @@ public class DefineTableTestCase {
     public void testQuery20() {
         log.info("testTableDefinition20 - Table w/ ref to an undefined store");
 
-        Map<String, String> storeConfigs = new HashMap<>();
-        storeConfigs.put("test1.uri", "http://localhost");
-        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test2");
+        Map<String, String> systemConfigs = new HashMap<>();
+        systemConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, systemConfigs);
+        inMemoryConfigManager.extractSystemConfigs("test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);
@@ -363,11 +365,11 @@ public class DefineTableTestCase {
     public void testQuery21() {
         log.info("testTableDefinition21 - Table w/ ref to an undefined store type");
 
-        Map<String, String> storeConfigs = new HashMap<>();
-        storeConfigs.put("test1.type", "testdb");
-        storeConfigs.put("test1.uri", "http://localhost");
-        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, storeConfigs);
-        inMemoryConfigManager.extractStoreConfigs("test2");
+        Map<String, String> systemConfigs = new HashMap<>();
+        systemConfigs.put("test1.type", "testdb");
+        systemConfigs.put("test1.uri", "http://localhost");
+        InMemoryConfigManager inMemoryConfigManager = new InMemoryConfigManager(null, systemConfigs);
+        inMemoryConfigManager.extractSystemConfigs("test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setConfigManager(inMemoryConfigManager);

@@ -40,9 +40,9 @@ import java.util.List;
 )
 public class ExtensionsIndexGenerationMojo extends AbstractMojo {
     /**
-     * The directory in which the documentation will be generated
+     * The maven project object
      */
-    @Parameter(defaultValue = "${project}", readonly = true)
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
 
     /**

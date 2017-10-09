@@ -65,16 +65,6 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    @Override
     public Map<String, Object> currentState() {
         return null;
     }

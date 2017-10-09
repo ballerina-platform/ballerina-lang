@@ -121,18 +121,13 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
+    public boolean canDestroy() {
+        return false;
+    }
+
+    @Override
     public Object reset() {
         return minForeverAttributeAggregator.reset();
-    }
-
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-        //nothing to stop
     }
 
     @Override

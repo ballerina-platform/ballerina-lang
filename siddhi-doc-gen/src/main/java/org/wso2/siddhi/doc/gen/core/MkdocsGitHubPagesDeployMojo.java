@@ -28,6 +28,9 @@ import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+
+import static org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils.updateAPIPagesInMkdocsConfig;
 
 /**
  * Mojo for deploying mkdocs website on GitHub pages
@@ -39,9 +42,9 @@ import java.io.File;
 )
 public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
     /**
-     * The directory in which the documentation will be generated
+     * The maven project object
      */
-    @Parameter(defaultValue = "${project}", readonly = true)
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
 
     /**
@@ -57,6 +60,20 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
      */
     @Parameter(property = "doc.gen.base.directory")
     private File docGenBaseDirectory;
+
+    /**
+     * The name of the index file
+     * Optional
+     */
+    @Parameter(property = "home.page.file.name")
+    private String homePageFileName;
+
+    /**
+     * The path of the readme file in the base directory
+     * Optional
+     */
+    @Parameter(property = "home.page.template.file")
+    private File homePageTemplateFile;
 
     /**
      * The readme file
@@ -87,18 +104,57 @@ public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
             docGenBasePath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
+        // Setting the home page file name if not set by user
+        File homePageFile;
+        if (homePageFileName == null) {
+            homePageFile = new File(docGenBasePath + File.separator
+                    + Constants.HOMEPAGE_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
+        } else {
+            homePageFile = new File(docGenBasePath + File.separator + homePageFileName);
+        }
+
         // Setting the readme file name if not set by user
         if (readmeFile == null) {
             readmeFile = new File(rootMavenProject.getBasedir() + File.separator
                     + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
         }
 
-        // Updating the API Docs files
+        // Setting the home page template file path if not set by user
+        if (homePageTemplateFile == null) {
+            homePageTemplateFile = new File(rootMavenProject.getBasedir() + File.separator
+                    + Constants.README_FILE_NAME + Constants.MARKDOWN_FILE_EXTENSION);
+        }
+
+
+        DocumentationUtils.updateHeadingsInMarkdownFile(homePageTemplateFile, homePageFile,
+                rootMavenProject.getArtifactId(), mavenProject.getVersion(), null);
+        DocumentationUtils.updateHeadingsInMarkdownFile(readmeFile, readmeFile, rootMavenProject.getArtifactId(),
+                mavenProject.getVersion(), null);
+
+
+        // Delete snapshot files
         DocumentationUtils.removeSnapshotAPIDocs(mkdocsConfigFile, docGenBasePath, getLog());
 
+        // Updating the links in the home page to the mkdocs config
+        try {
+            updateAPIPagesInMkdocsConfig(mkdocsConfigFile, docGenBasePath);
+        } catch (FileNotFoundException e) {
+            getLog().warn("Unable to find mkdocs configuration file: "
+                    + mkdocsConfigFile.getAbsolutePath() + ". Mkdocs configuration file not updated.");
+        }
         // Deploying the documentation
-        DocumentationUtils.deployMkdocsOnGitHubPages(mkdocsConfigFile, mavenProject.getVersion(), getLog());
-        DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
-                mavenProject.getVersion(), getLog());
+        if (DocumentationUtils.generateMkdocsSite(mkdocsConfigFile, getLog())) {
+            // Creating the credential provider fot Git
+            String scmUsername = System.getenv(Constants.SYSTEM_PROPERTY_SCM_USERNAME_KEY);
+            String scmPassword = System.getenv(Constants.SYSTEM_PROPERTY_SCM_PASSWORD_KEY);
+
+            // Deploying documentation
+            DocumentationUtils.updateDocumentationOnGitHub(docGenBasePath, mkdocsConfigFile, readmeFile,
+                    mavenProject.getVersion(), getLog());
+            DocumentationUtils.deployMkdocsOnGitHubPages(mavenProject.getVersion(),
+                    rootMavenProject.getBasedir(), scmUsername, scmPassword, getLog());
+        } else {
+            getLog().warn("Unable to generate documentation. Skipping documentation deployment.");
+        }
     }
 }

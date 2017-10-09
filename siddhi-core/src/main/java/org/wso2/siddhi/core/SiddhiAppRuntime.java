@@ -32,7 +32,7 @@ import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.StoreQueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
+import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -376,22 +376,21 @@ public class SiddhiAppRuntime {
 
     public synchronized SiddhiDebugger debug() {
         siddhiDebugger = new SiddhiDebugger(siddhiAppContext);
-        List<StreamRuntime> streamRuntime = new ArrayList<StreamRuntime>();
-        List<InsertIntoStreamCallback> streamCallbacks = new ArrayList<InsertIntoStreamCallback>();
+        List<StreamRuntime> streamRuntime = new ArrayList<>();
+        List<OutputCallback> streamCallbacks = new ArrayList<>();
         for (QueryRuntime queryRuntime : queryProcessorMap.values()) {
             streamRuntime.add(queryRuntime.getStreamRuntime());
-            streamCallbacks.add((InsertIntoStreamCallback) queryRuntime.getOutputCallback());
+            streamCallbacks.add(queryRuntime.getOutputCallback());
         }
         for (StreamRuntime streamRuntime1 : streamRuntime) {
             for (SingleStreamRuntime singleStreamRuntime : streamRuntime1.getSingleStreamRuntimes()) {
                 singleStreamRuntime.getProcessStreamReceiver().setSiddhiDebugger(siddhiDebugger);
             }
         }
-        for (InsertIntoStreamCallback insertedCallbacks : streamCallbacks) {
-            insertedCallbacks.setSiddhiDebugger(siddhiDebugger);
+        for (OutputCallback callback : streamCallbacks) {
+            callback.setSiddhiDebugger(siddhiDebugger);
         }
         start();
-
         return siddhiDebugger;
     }
 

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -31,8 +32,26 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
  * queries. There are multiple implementation of this which will receive events and perform various tasks.
  */
 public abstract class OutputCallback {
+    private String queryName;
+    private SiddhiDebugger siddhiDebugger;
+
+    OutputCallback(String queryName) {
+        this.queryName = queryName;
+    }
 
     public abstract void send(ComplexEventChunk complexEventChunk);
+
+    SiddhiDebugger getSiddhiDebugger() {
+        return siddhiDebugger;
+    }
+
+    public void setSiddhiDebugger(SiddhiDebugger siddhiDebugger) {
+        this.siddhiDebugger = siddhiDebugger;
+    }
+
+    String getQueryName() {
+        return queryName;
+    }
 
     protected ComplexEventChunk<StateEvent> constructMatchingStateEventChunk(ComplexEventChunk
                                                                                      matchingComplexEventChunk,
@@ -41,16 +60,16 @@ public abstract class OutputCallback {
                                                                              int matchingStreamIndex, StreamEventPool
                                                                                      streamEventPool,
                                                                              StreamEventConverter
-                                                                                     streamEventConvertor) {
+                                                                                     streamEventConverter) {
         ComplexEventChunk<StateEvent> stateEventChunk = new ComplexEventChunk<StateEvent>(matchingComplexEventChunk
-                                                                                                  .isBatch());
+                .isBatch());
         while (matchingComplexEventChunk.hasNext()) {
             ComplexEvent matchingComplexEvent = matchingComplexEventChunk.next();
             matchingComplexEventChunk.remove();
             StateEvent stateEvent = stateEventPool.borrowEvent();
             if (convertToStreamEvent) {
                 StreamEvent borrowEvent = streamEventPool.borrowEvent();
-                streamEventConvertor.convertData(
+                streamEventConverter.convertData(
                         matchingComplexEvent.getTimestamp(),
                         matchingComplexEvent.getOutputData(),
                         matchingComplexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT :
