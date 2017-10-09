@@ -610,8 +610,8 @@ class SizingUtil {
         // set the components.
         viewState.components = cmp;
 
-        // components.annotation = new SimpleBBox();
-        // components.transportLine = new SimpleBBox();
+
+        cmp.annotation = new SimpleBBox();
 
         /* if (_.isUndefined(node.viewState.showAnnotationContainer)) {
             node.viewState.showAnnotationContainer = true;
