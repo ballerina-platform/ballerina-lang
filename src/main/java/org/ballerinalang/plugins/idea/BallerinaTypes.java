@@ -117,6 +117,8 @@ public class BallerinaTypes {
     public static final RuleIElementType ATTACHMENT_POINT = ruleIElementTypes.get(RULE_attachmentPoint);
     public static final RuleIElementType ANNOTATION_ATTRIBUTE_LIST =
             ruleIElementTypes.get(RULE_annotationAttributeList);
+    public static final RuleIElementType ANNOTATION_ATTRIBUTE_VALUE =
+            ruleIElementTypes.get(RULE_annotationAttributeValue);
     public static final RuleIElementType MAP_STRUCT_LITERAL = ruleIElementTypes.get(RULE_mapStructLiteral);
     public static final RuleIElementType MAP_STRUCT_KEY_VALUE = ruleIElementTypes.get(RULE_mapStructKeyValue);
 
@@ -162,7 +164,6 @@ public class BallerinaTypes {
     public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.TYPE_JSON);
     public static final TokenIElementType LENGTHOF = tokenIElementTypes.get(BallerinaLexer.LENGTHOF);
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
-    public static final TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.TYPE_MESSAGE);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static final TokenIElementType PUBLIC = tokenIElementTypes.get(BallerinaLexer.PUBLIC);

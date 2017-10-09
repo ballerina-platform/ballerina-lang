@@ -35,8 +35,7 @@ public class HighlightExitPointsHandlerFactory extends HighlightUsagesHandlerFac
             return null;
         }
         IElementType elementType = ((LeafPsiElement) target).getElementType();
-        if (elementType == BallerinaTypes.RETURN || elementType == BallerinaTypes.REPLY
-                || elementType == BallerinaTypes.THROW) {
+        if (elementType == BallerinaTypes.RETURN || elementType == BallerinaTypes.THROW) {
             return new HighlightExitPointsHandler(editor, file, target);
         }
         return null;
