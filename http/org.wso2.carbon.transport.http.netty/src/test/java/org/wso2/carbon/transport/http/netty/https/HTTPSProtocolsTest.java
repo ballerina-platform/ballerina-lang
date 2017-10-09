@@ -92,11 +92,11 @@ public class HTTPSProtocolsTest {
     public void setup(String clientProtocol, String serverProtocol, boolean hasException, int serverPort)
             throws InterruptedException {
 
-        Parameter clientprotocols = new Parameter("client.ssl.http.protocols", clientProtocol);
+        Parameter clientprotocols = new Parameter("sslEnabledProtocols", clientProtocol);
         List<Parameter> clientParams = new ArrayList<>();
         clientParams.add(clientprotocols);
 
-        Parameter serverProtocols = new Parameter("server.ssl.http.protocols", serverProtocol);
+        Parameter serverProtocols = new Parameter("sslEnabledProtocols", serverProtocol);
         List<Parameter> severParams = new ArrayList<>();
         severParams.add(serverProtocols);
 

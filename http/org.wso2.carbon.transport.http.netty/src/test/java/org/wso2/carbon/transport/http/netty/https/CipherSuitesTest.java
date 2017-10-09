@@ -98,16 +98,12 @@ public class CipherSuitesTest {
     public void setup(String clientCiphers, String serverCiphers, boolean hasException, int serverPort)
             throws InterruptedException {
 
-        Parameter paramClientCiphers = new Parameter("client.ssl.ciphers", clientCiphers);
-        Parameter clientProtocols = new Parameter("server.ssl.http.protocols", "TLSv1,TLSv1.1,TLSv1.2");
+        Parameter paramClientCiphers = new Parameter("ciphers", clientCiphers);
         List<Parameter> clientParams = new ArrayList<>();
         clientParams.add(paramClientCiphers);
-        clientParams.add(clientProtocols);
 
-        Parameter serverProtocols = new Parameter("server.ssl.http.protocols", "TLSv1,TLSv1.1,TLSv1.2");
-        Parameter paramServerCiphers = new Parameter("server.ssl.ciphers", serverCiphers);
+        Parameter paramServerCiphers = new Parameter("ciphers", serverCiphers);
         List<Parameter> serverParams = new ArrayList<>();
-        serverParams.add(serverProtocols);
         serverParams.add(paramServerCiphers);
 
         TransportsConfiguration transportsConfiguration = TestUtil
