@@ -238,8 +238,8 @@ class CompoundStatementDecorator extends React.Component {
 
         return (
             <g
-                // TODOX onMouseOut={this.setActionVisibilityFalse}
-                // TODOX onMouseOver={this.setActionVisibilityTrue}
+                onMouseOut={this.setActionVisibilityFalse}
+                onMouseOver={this.setActionVisibilityTrue}
                 ref={(group) => {
                     this.myRoot = group;
                 }}
