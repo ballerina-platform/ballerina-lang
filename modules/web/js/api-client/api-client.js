@@ -19,7 +19,8 @@ import _ from 'lodash';
 import axios from 'axios';
 import $ from 'jquery';
 import { getLangServerClientInstance } from './../langserver/lang-server-client-controller';
-import hardcodedTypeLattice from './hardcoded-type-lattice'
+import hardcodedTypeLattice from './hardcoded-type-lattice';
+import hardcodedOperatorLattice from './hardcoded-operator-lattice';
 
 // updating this with endpoints upon initial fetchConfigs()
 let endpoints = {};
@@ -266,6 +267,30 @@ export function getTypeLattice() {
 
     // Hard coding type lattice temporary
     return Promise.resolve(hardcodedTypeLattice);
+
+    // TODO: Uncomment when typeLattice endpoint starts working
+    // return new Promise((resolve, reject) => {
+    //     axios.get(endpoint, { headers })
+    //         .then((response) => {
+    //             resolve(response.data);
+    //         }).catch(error => reject(error));
+    // });
+}
+
+/**
+ * Get the type lattice
+ * @export
+ * @returns type lattice response
+ */
+export function getOperatorLattice() {
+    // TODO: add operator lattice to endpoints
+    // const endpoint = getServiceEndpoint('operatorLattice');
+    // const headers = {
+    //     'content-type': 'application/json; charset=utf-8',
+    // };
+
+    // Hard coding type lattice temporary
+    return Promise.resolve(hardcodedOperatorLattice);
 
     // TODO: Uncomment when typeLattice endpoint starts working
     // return new Promise((resolve, reject) => {

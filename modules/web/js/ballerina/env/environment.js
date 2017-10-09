@@ -20,8 +20,9 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import { getBuiltInPackages, getTypeLattice } from './../../api-client/api-client';
+import { getBuiltInPackages, getTypeLattice, getOperatorLattice } from './../../api-client/api-client';
 import TypeLattice from './../../type-lattice/type-lattice';
+import OperatorLattice from './../../type-lattice/operator-lattice';
 
 
 /**
@@ -37,6 +38,7 @@ class BallerinaEnvironment extends EventChannel {
         this.initPending = false;
         this._packages = _.get(args, 'packages', []);
         this._typeLattice = _.get(args, 'typeLattice', TypeLattice);
+        this._operatorLattice = _.get(args, 'operatorLattice', OperatorLattice);
         this._types = _.get(args, 'types', []);
         this._defaultValues = _.get(args, 'defaultValues', []);
         this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
@@ -63,6 +65,7 @@ class BallerinaEnvironment extends EventChannel {
                             Promise.all([
                                 this.initializePackages(),
                                 this.initializeTypeLattice(),
+                                this.initializeOperatorLattice(),
                             ]).then(() => {
                                 this.initialized = true;
                                 this.initPending = false;
@@ -163,18 +166,25 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize type lattice
      */
     initializeTypeLattice() {
-        return new Promise((resolve, reject) => {
-            getTypeLattice()
-                .then((typeLatticeJson) => {
-                    if (typeLatticeJson) {
-                        this._typeLattice.initFromJson(typeLatticeJson);
-                        resolve();
-                    } else {
-                        log.error('Error while fetching type lattice');
-                        resolve();
-                    }
-                })
-                .catch(reject);
+        getTypeLattice().then((typeLatticeJson) => {
+            if (typeLatticeJson) {
+                this._typeLattice.initFromJson(typeLatticeJson);
+            } else {
+                log.error('Error while fetching type lattice');
+            }
+        });
+    }
+
+    /**
+     * Initialize operator lattice
+     */
+    initializeOperatorLattice() {
+        return getOperatorLattice().then((operatorLatticeJson) => {
+            if (operatorLatticeJson) {
+                this._operatorLattice.initFromJson(operatorLatticeJson);
+            } else {
+                log.error('Error while fetching operator lattice');
+            }
         });
     }
 
