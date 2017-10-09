@@ -31,6 +31,7 @@ class Clean {
     beginVisit(node) {
         node.viewState.offSet = 0;
         node.viewState.hidden = false;
+        node.viewState.dimensionsSynced = false;
     }
 
     endVisit(node) {
