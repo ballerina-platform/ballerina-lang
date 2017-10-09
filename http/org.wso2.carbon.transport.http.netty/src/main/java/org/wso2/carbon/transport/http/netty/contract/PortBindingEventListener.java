@@ -27,15 +27,17 @@ public interface PortBindingEventListener {
      * Trigger an onOpen event when a connector is successfully up and running.
      *
      * @param serverConnectorId The ID of the server connecter which just started.
+     * @param isHttps Specifies whether the server connector is using HTTPS.
      */
-    void onOpen(String serverConnectorId);
+    void onOpen(String serverConnectorId, boolean isHttps);
 
     /**
      * Trigger an onClose event when a connector has successfully stopped.
      *
      * @param serverConnectorId The ID of the server connecter which just stopped.
+     * @param isHttps Specifies whether the server connector is using HTTPS.
      */
-    void onClose(String serverConnectorId);
+    void onClose(String serverConnectorId, boolean isHttps);
 
     /**
      * Trigger an onError event when there is an error in starting the connector. This is usually a BindException.

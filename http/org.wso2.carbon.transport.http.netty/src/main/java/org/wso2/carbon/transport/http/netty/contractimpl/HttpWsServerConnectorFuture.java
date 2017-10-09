@@ -44,7 +44,9 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     private ChannelFuture nettyChannelFuture;
 
     private String openingServerConnectorId;
+    private boolean isOpeningSCHttps;
     private String closingServerConnectorId;
+    private boolean isClosingSCHttps;
     private Throwable connectorInitException;
 
     public HttpWsServerConnectorFuture() {
@@ -145,11 +147,11 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     public void setPortBindingEventListener(PortBindingEventListener portBindingEventListener) {
         this.portBindingEventListener = portBindingEventListener;
         if (openingServerConnectorId != null) {
-            notifyPortBindingEvent(openingServerConnectorId);
+            notifyPortBindingEvent(openingServerConnectorId, isOpeningSCHttps);
             openingServerConnectorId = null;
         }
         if (closingServerConnectorId != null) {
-            notifyPortUnbindingEvent(closingServerConnectorId);
+            notifyPortUnbindingEvent(closingServerConnectorId, isClosingSCHttps);
             closingServerConnectorId = null;
         }
         if (connectorInitException != null) {
@@ -159,20 +161,22 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void notifyPortBindingEvent(String serverConnectorId) {
+    public void notifyPortBindingEvent(String serverConnectorId, boolean isHttps) {
         if (portBindingEventListener == null) {
             this.openingServerConnectorId = serverConnectorId;
+            this.isOpeningSCHttps = isHttps;
         } else {
-            portBindingEventListener.onOpen(serverConnectorId);
+            portBindingEventListener.onOpen(serverConnectorId, isHttps);
         }
     }
 
     @Override
-    public void notifyPortUnbindingEvent(String serverConnectorId) {
+    public void notifyPortUnbindingEvent(String serverConnectorId, boolean isHttps) {
         if (portBindingEventListener == null) {
             this.closingServerConnectorId = serverConnectorId;
+            this.isClosingSCHttps = isHttps;
         } else {
-            portBindingEventListener.onClose(serverConnectorId);
+            portBindingEventListener.onClose(serverConnectorId, isHttps);
         }
     }
 
