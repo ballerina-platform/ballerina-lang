@@ -1061,7 +1061,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.setAnnotationAttachmentName();
+        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx));
     }
 
     /**

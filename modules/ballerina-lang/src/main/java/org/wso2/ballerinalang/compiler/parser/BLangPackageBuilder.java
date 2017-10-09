@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -1057,10 +1058,11 @@ public class BLangPackageBuilder {
         annotAttachmentStack.push(annotAttachmentNode);
     }
 
-    public void setAnnotationAttachmentName() {
+    public void setAnnotationAttachmentName(Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         AnnotationAttachmentNode annotAttach = annotAttachmentStack.peek();
         annotAttach.addWS(nameReference.ws);
+        annotAttach.addWS(ws);
         annotAttach.setAnnotationName(nameReference.name);
         annotAttach.setPackageAlias(nameReference.pkgAlias);
     }
@@ -1095,8 +1097,12 @@ public class BLangPackageBuilder {
 
     public void createAnnotAttachmentAttribute(DiagnosticPos pos, Set<Whitespace> ws, String attrName) {
         AnnotationAttachmentAttributeValueNode attributeValueNode = annotAttribValStack.pop();
-        attributeValueNode.addWS(ws);
-        annotAttachmentStack.peek().addAttribute(attrName, attributeValueNode);
+        BLangAnnotAttachmentAttribute attrib =
+                (BLangAnnotAttachmentAttribute) TreeBuilder.createAnnotAttachmentAttributeNode();
+        attrib.name = attrName;
+        attrib.value = (BLangAnnotAttachmentAttributeValue) attributeValueNode;
+        attrib.addWS(ws);
+        annotAttachmentStack.peek().addAttribute(attrib);
     }
 
     private void createAnnotAttribValueFromExpr(DiagnosticPos currentPos, Set<Whitespace> ws) {
