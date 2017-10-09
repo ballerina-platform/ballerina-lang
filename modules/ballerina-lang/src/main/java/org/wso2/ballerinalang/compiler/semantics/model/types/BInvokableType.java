@@ -33,7 +33,7 @@ public class BInvokableType extends BType implements InvokableType {
     public String typeDescriptor;
 
     // This field is only applicable for functions and actions at the moment.
-    public BType receiverType;
+    private BType receiverType;
 
     public BInvokableType(List<BType> paramTypes,
                           List<BType> retTypes, BTypeSymbol tsymbol) {
@@ -55,5 +55,13 @@ public class BInvokableType extends BType implements InvokableType {
     @Override
     public String getDesc() {
         return typeDescriptor;
+    }
+
+    public BType getReceiverType() {
+        return receiverType;
+    }
+
+    public void setReceiverType(BType receiverType) {
+        this.receiverType = receiverType;
     }
 }
