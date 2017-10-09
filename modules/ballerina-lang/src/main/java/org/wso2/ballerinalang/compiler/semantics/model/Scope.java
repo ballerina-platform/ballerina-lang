@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ public class Scope implements org.ballerinalang.model.Scope {
 
     public Scope(BSymbol owner) {
         this.owner = owner;
-        this.entries = new HashMap<>(DEFAULT_SIZE);
+        this.entries = new LinkedHashMap<>(DEFAULT_SIZE);
     }
 
     private Scope(BSymbol owner, Map<Name, ScopeEntry> entries) {

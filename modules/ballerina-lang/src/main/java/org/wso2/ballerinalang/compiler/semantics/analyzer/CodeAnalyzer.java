@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -78,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -168,7 +168,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
 
-        pkgNode.compUnits.forEach(e -> e.accept(this));
+        pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
     
@@ -219,7 +219,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             forkJoin.timeoutBody.accept(this);
             this.resetStatementReturns();
         }
+        this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
+    }
+    
+    private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
+        if (forkJoin.joinType == ForkJoinNode.JoinType.SOME) {
+            int wc = forkJoin.joinedWorkers.size();
+            if (wc == 0) {
+                wc = forkJoin.workers.size();
+            }
+            if (forkJoin.joinedWorkerCount > wc) {
+                this.dlog.error(forkJoin.pos, DiagnosticCode.FORK_JOIN_INVALID_WORKER_COUNT);
+            }
+        }
     }
     
     @Override
@@ -332,6 +345,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        if (pkgEnv == null) {
+            return;
+        }
+
         pkgEnv.node.accept(this);
     }
 
@@ -403,10 +420,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangReply replyNode) {
-        /* ignore */
-    }
-
     public void visit(BLangThrow throwNode) {
         /* ignore */
     }
@@ -424,7 +437,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        /* ignore */
+        List<BType> caughtTypes = new ArrayList<>();
+        for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            if (caughtTypes.contains(bLangCatch.getParameter().type)) {
+                dlog.error(bLangCatch.getParameter().pos, DiagnosticCode.DUPLICATED_ERROR_CATCH,
+                        bLangCatch.getParameter().type);
+            }
+            caughtTypes.add(bLangCatch.getParameter().type);
+        }
+
     }
 
     public void visit(BLangCatch catchNode) {

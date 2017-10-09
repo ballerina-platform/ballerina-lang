@@ -24,7 +24,7 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 
 import java.io.File;
 
@@ -40,7 +40,7 @@ public class SQLTransactionsTest {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testLocalTransacton() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testLocalTransacton", args);
@@ -48,7 +48,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonRollback() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactonRollback", args);
@@ -56,7 +56,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonAbort() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactonAbort", args);
@@ -64,7 +64,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonThrow() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactonErrorThrow", args);
@@ -73,7 +73,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonThrowAndCatch() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactionErrorThrowAndCatch", args);
@@ -82,7 +82,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonCommitted() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactonCommitted", args);
@@ -90,7 +90,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonHandlerOrder() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactonHandlerOrder", args);
@@ -99,14 +99,14 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testTransactonWithoutHandlers() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testTransactonWithoutHandlers", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testLocalTransactonFailed() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testLocalTransactionFailed", args);
@@ -116,7 +116,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test
+    @Test(enabled = false)
     public void testLocalTransactonSuccessWithFailed() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "testLocalTransactonSuccessWithFailed", args);

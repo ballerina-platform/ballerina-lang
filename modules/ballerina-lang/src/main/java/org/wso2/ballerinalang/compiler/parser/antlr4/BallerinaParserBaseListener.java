@@ -712,6 +712,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConnectorDeclarationStmt(BallerinaParser.ConnectorDeclarationStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1031,18 +1043,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterReplyStatement(BallerinaParser.ReplyStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 /**
@@ -27,5 +28,5 @@ public abstract class BLangVariableReference extends BLangExpression implements 
 
     public BVarSymbol symbol;
     public boolean lhsVar = false;
-
+    public BSymbol pkgSymbol;
 }

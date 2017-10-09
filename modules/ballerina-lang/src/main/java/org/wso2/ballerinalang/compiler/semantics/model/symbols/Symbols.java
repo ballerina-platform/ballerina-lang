@@ -47,11 +47,11 @@ public class Symbols {
         return annotationAttributeSymbol;
     }
 
-    public static BAnnotationSymbol createAnnotationSymbol(Name name,
+    public static BAnnotationSymbol createAnnotationSymbol(int flags, Name name,
                                                            PackageID pkgID,
                                                            BType type,
                                                            BSymbol owner) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, pkgID, type, owner);
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, pkgID, type, owner);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -132,6 +132,13 @@ public class Symbols {
                                                          BType type,
                                                          BSymbol owner) {
         return new BInvokableSymbol(kind, flags, name, pkgID, type, owner);
+    }
+
+    public static BXMLNSSymbol createXMLNSSymbol(Name name,
+                                                String nsURI,
+                                                PackageID pkgID,
+                                                BSymbol owner) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner);
     }
 
     public static boolean isNative(BSymbol sym) {

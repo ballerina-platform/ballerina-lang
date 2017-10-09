@@ -62,10 +62,42 @@ public class MultiplyOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test int float multiply expression")
+    public void testIntFloatMultiplyExpr() {
+        int a = 10;
+        float b = 1.5f;
+        BValue[] args = { new BInteger(a), new BFloat(b) };
+        BValue[] returns = BTestUtils.invoke(result, "intFloatMultiply", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = a * b;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test float int multiply expression")
+    public void testFloatIntMultiplyExpr() {
+        float a = 1.5f;
+        int b = 10;
+        BValue[] args = { new BFloat(a), new BInteger(b) };
+        BValue[] returns = BTestUtils.invoke(result, "floatIntMultiply", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = b * a;
+        Assert.assertEquals(actual, expected);
+    }
+
+
+
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 9);
-        BTestUtils.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 8);
+        BTestUtils.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
+        BTestUtils.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
     }
 }

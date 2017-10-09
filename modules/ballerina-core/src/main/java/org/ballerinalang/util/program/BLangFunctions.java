@@ -20,7 +20,6 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.BLangProgram;
@@ -65,6 +64,8 @@ public class BLangFunctions {
     private BLangFunctions() {
     }
 
+    private static final int WORKER_TIMEOUT = 10;
+
     /**
      * Invokes a Ballerina function defined in the given language model.
      *
@@ -74,16 +75,16 @@ public class BLangFunctions {
      */
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName) {
         BValue[] args = {};
-        return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram));
+        return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram), WORKER_TIMEOUT);
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName) {
         BValue[] args = {};
-        return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram));
+        return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram), WORKER_TIMEOUT);
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args, Context bContext) {
-        return invokeNew(bLangProgram, ".", functionName, args, bContext);
+        return invokeNew(bLangProgram, ".", functionName, args, bContext, WORKER_TIMEOUT);
     }
 
     /**
@@ -95,15 +96,15 @@ public class BLangFunctions {
      * @return return values from the function
      */
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args) {
-        return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram));
+        return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram), WORKER_TIMEOUT);
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName, BValue[] args) {
-        return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram));
+        return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram), WORKER_TIMEOUT);
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
-                                     BValue[] args, Context context) {
+                                     BValue[] args, Context context, int timeOut) {
         PackageInfo packageInfo = bLangProgram.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
 
@@ -227,12 +228,23 @@ public class BLangFunctions {
         calleeSF.setByteLocalVars(byteLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
-        // Execute workers
-        BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
+
+        ControlStackNew stack = context.getControlStackNew();
+        int count = 0;
+        while (stack.fp > 1 && !stack.getStack()[stack.fp - 1].isWorkerReturned()) {
+            if (count++ > timeOut) {
+                throw new BLangRuntimeException("error: workers timed out.!");
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // ignore.
+            }
+        }
 
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());

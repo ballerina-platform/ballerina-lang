@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -31,11 +32,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
 import org.wso2.ballerinalang.programfile.ProgramFile;
-import org.wso2.ballerinalang.programfile.ProgramFileWriter;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Paths;
 
 /**
  * @since 0.94
@@ -57,6 +53,9 @@ public class Compiler {
     private CompilerPhase compilerPhase;
     private ProgramFile programFile;
     private BLangPackage pkgNode;
+
+    // TODO: separate the 'parse' and 'define' phases to properly fix this
+    private boolean containsSyntaxErrors = false;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -83,23 +82,31 @@ public class Compiler {
 
     public void compile(String sourcePkg) {
         loadBuiltInPackage();
-        switch (compilerPhase) {
-            case DEFINE:
-                define(sourcePkg);
-                break;
-            case TYPE_CHECK:
-                typeCheck(define(sourcePkg));
-                break;
-            case CODE_ANALYZE:
-                codeAnalyze(typeCheck(define(sourcePkg)));
-                break;
-            case DESUGAR:
-                desugar(codeAnalyze(typeCheck(define(sourcePkg))));
-                break;
-            default:
-                gen(desugar(codeAnalyze(typeCheck(define(sourcePkg)))));
-                break;
+        if (this.stopCompilation(CompilerPhase.DEFINE)) {
+            return;
         }
+
+        pkgNode = define(sourcePkg);
+        if (this.stopCompilation(CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
+
+        pkgNode = typeCheck(pkgNode);
+        if (this.stopCompilation(CompilerPhase.CODE_ANALYZE)) {
+            return;
+        }
+
+        pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.DESUGAR)) {
+            return;
+        }
+
+        pkgNode = desugar(pkgNode);
+        if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
+            return;
+        }
+
+        gen(pkgNode);
     }
 
     private void loadBuiltInPackage() {
@@ -130,51 +137,28 @@ public class Compiler {
     // private methods
 
     private BLangPackage define(String sourcePkg) {
-        if (stopCompilation(CompilerPhase.DEFINE)) {
+        try {
+            return pkgLoader.loadEntryPackage(sourcePkg);
+        } catch (BLangParserException e) {
+            containsSyntaxErrors = true;
             return null;
         }
-
-        return pkgNode = pkgLoader.loadEntryPackage(sourcePkg);
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.TYPE_CHECK)) {
-            return pkgNode;
-        }
-
         return semAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_ANALYZE)) {
-            return pkgNode;
-        }
-
         return codeAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.DESUGAR)) {
-            return pkgNode;
-        }
-
         return desugar.perform(pkgNode);
     }
 
     private void gen(BLangPackage pkgNode) {
-        if (stopCompilation(CompilerPhase.CODE_GEN)) {
-            return;
-        }
-
         programFile = this.codeGenerator.generate(pkgNode);
-
-        try {
-            ProgramFileWriter.writeProgram(programFile, Paths.get("temp.balx"));
-        } catch (IOException e) {
-            // TODO FIX This ASAP
-            PrintStream err = System.err;
-            err.println(e.getMessage());
-        }
     }
 
     private CompilerPhase getCompilerPhase() {
@@ -187,6 +171,14 @@ public class Compiler {
     }
 
     private boolean stopCompilation(CompilerPhase phase) {
+        if (compilerPhase.compareTo(phase) < 0) {
+            return true;
+        }
+
+        if (containsSyntaxErrors) {
+            return true;
+        }
+
         return (phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 dlog.errorCount > 0;

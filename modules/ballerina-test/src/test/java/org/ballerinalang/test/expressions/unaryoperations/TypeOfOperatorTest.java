@@ -47,7 +47,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression trivial equality with type declared as variables")
+    @Test(description = "Test reference type access expression trivial equality with type declared as variables")
     public void testRefTypeAccessExprTrivialEqualityCaseWithTypeDeclared() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result,
@@ -61,7 +61,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression trivial equality with type declared as var")
+    @Test(description = "Test reference type access expression trivial equality with type declared as var")
     public void testRefTypeAccessExprTrivialEqualityCaseWithTypeDeclaredWithVar() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result,
@@ -285,7 +285,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test reference type access expression type as return value")
+    @Test(description = "Test reference type access expression type as return value")
     public void testRefTypeAccessTestTypeAsReturnValue() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "refTypeAccessTestTypeAsReturnValue", args);
@@ -365,7 +365,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //@Test(description = "Test type to any implicit cast.")
+    @Test(description = "Test type to any implicit cast.")
     public void testTypeToAnyImplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "typeToAnyImplicitCast", args);
@@ -376,7 +376,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[0], returns[1]);
     }
 
-    //@Test(description = "Test type to any explicit cast.")
+    @Test(description = "Test type to any explicit cast.")
     public void testTypeToAnyExplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "typeToAnyExplicitCast", args);
@@ -389,7 +389,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[1], returns[2]);
     }
 
-    //@Test(description = "Test any to type explicit cast.")
+    @Test(description = "Test any to type explicit cast.", enabled = false)
     public void testAnyToTypeExplicitCast() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "anyToTypeExplicitCast", args);
@@ -402,7 +402,7 @@ public class TypeOfOperatorTest {
 
     }
 
-    //@Test(description = "Test access string value of a type")
+    @Test(description = "Test access string value of a type")
     public void testTypeStringValue() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "getTypeStringValue", args);
@@ -415,7 +415,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(typeString, typeStringExpected);
     }
 
-    //@Test(description = "Test access string value of a Struct type")
+    @Test(description = "Test access string value of a Struct type")
     public void getStructTypeStringValue() {
         BValue[] args = {};
         BValue[] returns = BTestUtils.invoke(result, "getStructTypeStringValue", args);

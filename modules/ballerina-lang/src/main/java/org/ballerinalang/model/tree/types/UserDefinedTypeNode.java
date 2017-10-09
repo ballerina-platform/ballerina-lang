@@ -17,7 +17,10 @@
 */
 package org.ballerinalang.model.tree.types;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
+
+import java.util.Set;
 
 /**
  * foo:Person
@@ -27,4 +30,6 @@ public interface UserDefinedTypeNode extends ReferenceTypeNode {
     IdentifierNode getPackageAlias();
 
     IdentifierNode getTypeName();
+
+    Set<? extends Flag> getFlags();
 }

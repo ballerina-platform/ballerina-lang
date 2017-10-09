@@ -118,11 +118,22 @@ public class PackageLoader {
         return loadPackage(pkgID, this.packageRepo.loadPackage(pkgID));
     }
 
+    public BPackageSymbol getPackageSymbol(PackageID pkgId) {
+        return packages.get(pkgId);
+    }
+
+    public BLangPackage loadPackageNode(PackageID pkgId) {
+        return loadPackage(pkgId, this.packageRepo.loadPackage(pkgId));
+    }
+
     private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
         BLangPackage pkgNode;
         BPackageSymbol pSymbol;
 
         // TODO Handle pkgEntity 
+        if (pkgEntity == null) {
+            return null;
+        }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             pkgNode = this.sourceCompile((PackageSource) pkgEntity);

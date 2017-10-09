@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 
@@ -36,6 +37,7 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     public BLangIdentifier annotationName;
     public BLangAnnotationAttachmentPoint attachmentPoint;
     public BLangIdentifier pkgAlias;
+    public BAnnotationSymbol annotationSymbol;
 
     public BLangAnnotationAttachment() {
         this.attributes = new ArrayList<>();
@@ -57,7 +59,7 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     }
 
     @Override
-    public List<BLangAnnotAttachmentAttribute> geAttributes() {
+    public List<BLangAnnotAttachmentAttribute> getAttributes() {
         return attributes;
     }
 

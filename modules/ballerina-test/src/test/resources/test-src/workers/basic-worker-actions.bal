@@ -102,3 +102,28 @@ function simpleWorkerMessagePassingTest() {
    }
 }
 
+function forkJoinWithSomeJoin() (map) {
+    map m = {};
+    m["x"] = 25;
+    fork {
+	   worker w1 {
+	     int a = 5;
+	     int b = 0;
+	     m["x"] = a;
+	     system:sleep(1000);
+	   }
+	   worker w2 {
+	     int a = 5;
+	     int b = 15;
+	     system:sleep(1000);
+	     m["x"] = a;
+	   }
+	   worker w3 {
+	     int a = 0;
+	     int b = 15;
+         system:sleep(2);
+	     m["x"] = b;
+	   }
+	} join (some 1) (map results) {  system:println(results);  }
+	return m;
+}

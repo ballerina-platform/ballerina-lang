@@ -33,26 +33,23 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      * Holds the namespace URI for lookup during semantic validations.
      */
     public String namespaceURI;
-    
+
     /**
      * Represent the index of the namespace URI in a memory block of the VM.
      */
     public int nsURIIndex = -1;
-    
-    // TODO: find a better way to represent the level
-    public boolean definedInline;
 
     public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner) {
         super(SymTag.XMLNS, 0, prefix, pkgID, new BNoType(TypeTags.XMLNS), owner);
         this.namespaceURI = namespaceURI;
         this.kind = SymbolKind.XMLNS;
     }
-    
+
     @Override
     public Object getConstValue() {
         return null;
     }
-    
+
     @Override
     public SymbolKind getKind() {
         return SymbolKind.XMLNS;

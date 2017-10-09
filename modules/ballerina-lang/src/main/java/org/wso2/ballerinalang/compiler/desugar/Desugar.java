@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -43,6 +44,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -76,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -92,8 +97,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReply;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -111,6 +117,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -128,6 +135,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
 
     private BLangStatementLink currentLink;
+    private boolean insideAWorker = false;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -159,6 +167,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         pkgNode.imports = rewrite(pkgNode.imports);
+        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList);
         pkgNode.globalVars = rewrite(pkgNode.globalVars);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
@@ -198,6 +207,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         serviceNode.resources = rewrite(serviceNode.resources);
         serviceNode.vars = rewrite(serviceNode.vars);
+        serviceNode.initFunction = rewrite(serviceNode.initFunction);
         result = serviceNode;
     }
 
@@ -214,6 +224,7 @@ public class Desugar extends BLangNodeVisitor {
         connectorNode.actions = rewrite(connectorNode.actions);
         connectorNode.varDefs = rewrite(connectorNode.varDefs);
         connectorNode.initFunction = rewrite(connectorNode.initFunction);
+        connectorNode.initAction = rewrite(connectorNode.initAction);
         result = connectorNode;
     }
 
@@ -225,15 +236,20 @@ public class Desugar extends BLangNodeVisitor {
         // we rewrite it's parameter list to have the receiver variable as the first parameter
         BInvokableSymbol actionSymbol = actionNode.symbol;
         List<BVarSymbol> params = actionSymbol.params;
-        params.add(0, actionNode.symbol.receiverSymbol);
+        BVarSymbol receiverSymbol = actionNode.symbol.receiverSymbol;
+        params.add(0, receiverSymbol);
         BInvokableType actionType = (BInvokableType) actionSymbol.type;
-        actionType.paramTypes.add(0, actionNode.symbol.receiverSymbol.type);
+        if (receiverSymbol != null) {
+            actionType.paramTypes.add(0, receiverSymbol.type);
+        }
         result = actionNode;
     }
 
     @Override
     public void visit(BLangWorker workerNode) {
+        this.insideAWorker = true;
         workerNode.body = rewrite(workerNode.body);
+        this.insideAWorker = false;
         result = workerNode;
     }
 
@@ -260,7 +276,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        assignNode.varRefs.removeIf(varRef -> varRef.type.tag == TypeTags.NONE);
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -295,12 +310,12 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         returnNode.exprs = rewriteExprs(returnNode.exprs);
+        if (insideAWorker) {
+            result = new BLangWorkerReturn(returnNode.exprs);
+            result.pos = returnNode.pos;
+            return;
+        }
         result = returnNode;
-    }
-
-    @Override
-    public void visit(BLangReply replyNode) {
-        result = replyNode;
     }
 
     @Override
@@ -311,7 +326,28 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl);
         result = xmlnsStmtNode;
+    }
+
+
+    @Override
+    public void visit(BLangXMLNS xmlnsNode) {
+        BLangXMLNS generatedXMLNSNode;
+        xmlnsNode.namespaceURI = rewriteExpr(xmlnsNode.namespaceURI);
+        BSymbol ownerSymbol = xmlnsNode.symbol.owner;
+
+        // Local namespace declaration in a function/resource/action/worker
+        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            generatedXMLNSNode = new BLangLocalXMLNS();
+        } else {
+            generatedXMLNSNode = new BLangPackageXMLNS();
+        }
+
+        generatedXMLNSNode.namespaceURI = xmlnsNode.namespaceURI;
+        generatedXMLNSNode.prefix = xmlnsNode.prefix;
+        generatedXMLNSNode.symbol = xmlnsNode.symbol;
+        result = generatedXMLNSNode;
     }
 
     @Override
@@ -422,6 +458,21 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
+
+        // XML qualified name reference. e.g: ns0:foo
+        if (varRefExpr.pkgSymbol != null && varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+            BLangXMLQName qnameExpr = new BLangXMLQName(varRefExpr.variableName);
+            qnameExpr.nsSymbol = (BXMLNSSymbol) varRefExpr.pkgSymbol;
+            qnameExpr.localname = varRefExpr.variableName;
+            qnameExpr.prefix = varRefExpr.pkgAlias;
+            qnameExpr.namespaceURI = qnameExpr.nsSymbol.namespaceURI;
+            qnameExpr.isUsedInXML = false;
+            qnameExpr.pos = varRefExpr.pos;
+            qnameExpr.type = symTable.stringType;
+            result = qnameExpr;
+            return;
+        }
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 varRefExpr.symbol.type.tag == TypeTags.INVOKABLE) {
@@ -478,7 +529,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, 
+            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.ARRAY) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos,
@@ -554,6 +605,18 @@ public class Desugar extends BLangNodeVisitor {
         if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.FLOAT) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.rhsExpr.type.tag == TypeTags.FLOAT) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
+                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
     }
 
@@ -596,8 +659,27 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
         xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
-        xmlElementLiteral.modifiedChildren.forEach(child -> rewriteExpr(child));
-        xmlElementLiteral.attributes.forEach(attribute -> rewriteExpr(attribute));
+        xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
+        xmlElementLiteral.attributes = rewriteExprs(xmlElementLiteral.attributes);
+
+        // Separate the in-line namepsace declarations and attributes.
+        Iterator<BLangXMLAttribute> attributesItr = xmlElementLiteral.attributes.iterator();
+        while (attributesItr.hasNext()) {
+            BLangXMLAttribute attribute = attributesItr.next();
+            if (!attribute.isNamespaceDeclr) {
+                continue;
+            }
+
+            // Create local namepace declaration for all in-line namespace declarations
+            BLangLocalXMLNS xmlns = new BLangLocalXMLNS();
+            xmlns.namespaceURI = attribute.value.concatExpr;
+            xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
+            xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
+
+            xmlElementLiteral.inlineNamespaces.add(xmlns);
+            attributesItr.remove();
+        }
+
         result = xmlElementLiteral;
     }
 
@@ -644,6 +726,18 @@ public class Desugar extends BLangNodeVisitor {
         result = workerReceiveNode;
     }
 
+    @Override
+    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        xmlAttributeAccessExpr.indexExpr = rewrite(xmlAttributeAccessExpr.indexExpr);
+        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
+
+        if (xmlAttributeAccessExpr.indexExpr != null
+                && xmlAttributeAccessExpr.indexExpr.getKind() == NodeKind.XML_QNAME) {
+            ((BLangXMLQName) xmlAttributeAccessExpr.indexExpr).isUsedInXML = true;
+        }
+
+        result = xmlAttributeAccessExpr;
+    }
 
     // Generated expressions. Following expressions are not part of the original syntax
     // tree which is coming out of the parser
@@ -707,6 +801,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
         jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
         result = jsonArrayLiteral;
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
+        result = retryNode;
     }
 
     // private functions

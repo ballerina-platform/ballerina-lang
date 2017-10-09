@@ -2,13 +2,13 @@ package ballerina.net.http;
 
 import ballerina.doc;
 
-struct Request {
+public struct Request {
 }
 
-struct Response {
+public struct Response {
 }
 
-struct Options{
+public struct Options{
     boolean followRedirect = false;
     int maximumRedirectCount = 5;
 	string trustStoreFile;
@@ -17,7 +17,7 @@ struct Options{
 	string keyStorePassword;
 }
 
-connector ClientConnector (string serviceUri, Options connectorOptions) {
+public connector ClientConnector (string serviceUri, Options connectorOptions) {
 
 	@doc:Description { value:"The POST action implementation of the HTTP Connector."}
 	@doc:Param { value:"path: Resource path " }

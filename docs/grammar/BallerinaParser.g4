@@ -49,7 +49,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,7 +57,8 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : LEFT_BRACE statement* workerDeclaration* RIGHT_BRACE
+    : LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
+    | LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
     ;
 
 
@@ -79,7 +80,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :   LEFT_BRACE variableDefinitionStatement* actionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE connectorDeclarationStmt* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
     ;
 
 actionDefinition
@@ -146,7 +147,8 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
+    :   workerDefinition LEFT_BRACE connectorDeclarationStmt* statement* RIGHT_BRACE
+    |   workerDefinition LEFT_BRACE connectorDeclarationStmt* workerDeclaration+ RIGHT_BRACE
     ;
 
 workerDefinition
@@ -179,8 +181,7 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MESSAGE
-    |   TYPE_MAP (LT typeName GT)?
+    :   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_DATATABLE
@@ -237,7 +238,6 @@ statement
     |   tryCatchStatement
     |   throwStatement
     |   returnStatement
-    |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
     |   expressionStmt
@@ -268,7 +268,11 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (connectorInitExpression | expression) )? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    ;
+
+connectorDeclarationStmt
+    : userDefineTypeName Identifier (ASSIGN connectorInitExpression )? SEMICOLON
     ;
 
 mapStructLiteral
@@ -380,11 +384,6 @@ throwStatement
 
 returnStatement
     :   RETURN expressionList? SEMICOLON
-    ;
-
-// below Identifier is only a type of TYPE_MESSAGE
-replyStatement
-    :   REPLY expression SEMICOLON
     ;
 
 workerInteractionStatement

@@ -17,10 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -57,7 +60,13 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     }
 
     public boolean isMultiReturnExpr() {
-        return true;
+        // Unsafe casts/conversion are multi return expressions
+        if (castSymbol.kind == SymbolKind.CAST_OPERATOR) {
+            return !((BCastOperatorSymbol) castSymbol).safe;
+        } else if (castSymbol.kind == SymbolKind.CONVERSION_OPERATOR) {
+            return !((BConversionOperatorSymbol) castSymbol).safe;
+        }
+        return false;
     }
 
     @Override

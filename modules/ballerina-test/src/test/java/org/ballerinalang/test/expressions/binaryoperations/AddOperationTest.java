@@ -106,10 +106,38 @@ public class AddOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
+    @Test(description = "Test int float add expression")
+    public void testIntFloatAddExpr() {
+        int a = 10;
+        float b = 1.5f;
+        BValue[] args = { new BInteger(a), new BFloat(b)};
+
+        BValue[] returns = BTestUtils.invoke(result, "intFloatAdd", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = a + b;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test float int add expression")
+    public void testFloatIntAddExpr() {
+        int a = 10;
+        float b = 1.5f;
+        BValue[] args = { new BFloat(b), new BInteger(a)};
+
+        BValue[] returns = BTestUtils.invoke(result, "floatIntAdd", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        double actual = ((BFloat) returns[0]).floatValue();
+        double expected = a + b;
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BTestUtils.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 9);
-        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 14, 8);
+        BTestUtils.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 10);
+        BTestUtils.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 14, 9);
     }
 }
