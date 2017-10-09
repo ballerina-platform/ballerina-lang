@@ -35,6 +35,7 @@ class TreeNode extends React.Component {
             inputValue: this.props.node.label,
         };
         this.nameInput = undefined;
+        this.focusHighligher = undefined;
         this.onEditName = this.onEditName.bind(this);
         this.onEditComplete = this.onEditComplete.bind(this);
     }
@@ -44,6 +45,12 @@ class TreeNode extends React.Component {
      */
     componentDidMount() {
         if (!_.isNil(this.nameInput)) {
+            // if the node is not visible, scroll down to it. Also increase height of bkground overlay
+            if (!this.props.isDOMElementVisible(this.nameInput)) {
+                this.focusHighligher.style.height = (this.nameInput.offsetTop
+                        + this.focusHighligher.offsetHeight + 250) + 'px';
+                this.nameInput.scrollIntoView(false);
+            }
             this.nameInput.focus();
         }
     }
@@ -143,6 +150,11 @@ class TreeNode extends React.Component {
                     })
                     .catch((error) => {
                         log.error(error.message);
+                        if (_.has(error, 'response.data.Error')) {
+                            this.setState({
+                                editError: error.response.data.Error,
+                            });
+                        }
                     });
             }
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.RENAME) {
@@ -159,6 +171,11 @@ class TreeNode extends React.Component {
                     })
                     .catch((error) => {
                         log.error(error.message);
+                        if (_.has(error, 'response.data.Error')) {
+                            this.setState({
+                                editError: error.response.data.Error,
+                            });
+                        }
                     });
             }
         }
@@ -217,7 +234,15 @@ class TreeNode extends React.Component {
                         )
                     }
                 />
-                {enableEdit && <div className="tree-node-focus-highlighter" onClick={this.onEditComplete} />}
+                {enableEdit &&
+                    <div
+                        className="tree-node-focus-highlighter"
+                        onClick={this.onEditComplete}
+                        ref={(ref) => {
+                            this.focusHighligher = ref;
+                        }}
+                    />
+                }
                 {enableEdit &&
                     <div className={classnames('tree-node-name-input-wrapper', { error: !_.isEmpty(this.state.editError) })} >
                         <input
@@ -317,6 +342,7 @@ TreeNode.propTypes = {
     children: PropTypes.node,
     onClick: PropTypes.func,
     onDoubleClick: PropTypes.func,
+    isDOMElementVisible: PropTypes.func.isRequired,
     panelResizeInProgress: PropTypes.bool,
 };
 
@@ -327,6 +353,7 @@ TreeNode.defaultProps = {
     onNodeUpdate: () => {},
     onNodeRefresh: () => {},
     onClick: () => {},
+    isDOMElementVisible: () => false,
     onDoubleClick: () => {},
 };
 
