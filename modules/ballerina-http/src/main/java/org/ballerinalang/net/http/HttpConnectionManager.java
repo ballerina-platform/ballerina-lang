@@ -155,7 +155,7 @@ public class HttpConnectionManager {
                     new BallerinaHTTPConnectorListener(startupSyncer, serverConnector.getConnectorID()));
             connectorFuture.setWSConnectorListener(
                     new BallerinaWsServerConnectorListener(startupSyncer, serverConnector.getConnectorID()));
-            connectorFuture.setLifeCycleEventListener(new HttpConnectorLifeCycleListener(startupSyncer));
+            connectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener(startupSyncer));
             startedHTTPServerConnectors.put(serverConnector.getConnectorID(), serverConnector);
         }
 

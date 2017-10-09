@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
-import org.wso2.carbon.transport.http.netty.contract.LifeCycleEventListener;
+import org.wso2.carbon.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
 import java.io.PrintStream;
@@ -29,13 +29,13 @@ import java.io.PrintStream;
  *
  * @since 0.94
  */
-public class HttpConnectorLifeCycleListener implements LifeCycleEventListener {
+public class HttpConnectorPortBindingListener implements PortBindingEventListener {
 
     private static final PrintStream console = System.out;
 
     private ConnectorStartupSynchronizer connectorStartupSynchronizer;
 
-    public HttpConnectorLifeCycleListener(ConnectorStartupSynchronizer connectorStartupSynchronizer) {
+    public HttpConnectorPortBindingListener(ConnectorStartupSynchronizer connectorStartupSynchronizer) {
         this.connectorStartupSynchronizer = connectorStartupSynchronizer;
     }
 
