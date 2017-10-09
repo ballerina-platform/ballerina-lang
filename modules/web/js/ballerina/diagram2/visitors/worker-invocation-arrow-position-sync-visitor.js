@@ -18,25 +18,22 @@
 
 import _ from 'lodash';
 
-class WorkerInvocationSyncVisitor {
+class InvocationArrowPositionSyncVisitor {
 
-    setWorkerInvocationSyncUtil(workerInvocationSyncUtil) {
-        this.util = workerInvocationSyncUtil;
+    setWorkerInvocationPositionSyncUtil(invocationPositionSyncUtil) {
+        this.util = invocationPositionSyncUtil;
     }
 
     beginVisit(node) {
-        if (_.isFunction(this.util[`sync${node.getKind()}Node`])) {
-            this.util[`sync${node.getKind()}Node`](node);
+        if (_.isFunction(this.util[`positionArrow${node.getKind()}Node`])) {
+            this.util[`positionArrow${node.getKind()}Node`](node);
         }
         return undefined;
     }
 
     endVisit(node) {
-        if (_.isFunction(this.util[`resize${node.getKind()}Node`])) {
-            this.util[`resize${node.getKind()}Node`](node);
-        }
-        return undefined;
+        // Do nothing
     }
 }
 
-export default WorkerInvocationSyncVisitor;
+export default InvocationArrowPositionSyncVisitor;

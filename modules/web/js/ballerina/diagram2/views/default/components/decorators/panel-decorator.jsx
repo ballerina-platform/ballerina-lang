@@ -291,14 +291,20 @@ class PanelDecorator extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}
                 >
+                    <rect
+                        x={panelBBox.x}
+                        y={panelBBox.y}
+                        width={panelBBox.w}
+                        height={panelBBox.h}
+                        style={panelRectStyles}
+                        className="panel-body-rect"
+                    />
                     {!collapsed &&
                     <DropZone
                         x={panelBBox.x}
                         y={panelBBox.y}
                         width={panelBBox.w}
                         height={panelBBox.h}
-                        className="panel-body-rect"
-                        style={panelRectStyles}
                         baseComponent="rect"
                         dropTarget={this.props.dropTarget}
                         canDrop={this.props.canDrop}

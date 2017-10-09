@@ -341,7 +341,7 @@ class ToolPaletteView extends React.Component {
                 connTool.title = connector.getName();
                 connTool.name = connector.getName();
                 connTool.id = connector.getName();
-                connTool.cssClass = 'icon fw fw-connector';
+                connTool.icon = 'connector';
                 definitions.push(connTool);
 
                 const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -364,7 +364,7 @@ class ToolPaletteView extends React.Component {
 
                     actionTool.title = action.getName();
                     actionTool.name = action.getName();
-                    actionTool.cssClass = 'icon fw fw-dgm-action';
+                    actionTool.icon = 'dgm-action';
                     actionTool.nodeFactoryMethod = DefaultASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     if (action.getReturnParams().length > 0) {
                         actionTool.nodeFactoryMethod = DefaultASTFactory
@@ -404,7 +404,7 @@ class ToolPaletteView extends React.Component {
                         functionTool.title = functionDef.getName();
                         functionTool.name = functionDef.getName();
                         functionTool.id = functionDef.getName();
-                        functionTool.cssClass = 'icon fw fw-function';
+                        functionTool.icon = 'function';
                         functionTool.parameters = functionDef.getParameters();
                         functionTool.returnParams = functionDef.getReturnParams();
                         definitions.push(functionTool);
@@ -421,7 +421,7 @@ class ToolPaletteView extends React.Component {
                     functionTool.title = functionDef.getName();
                     functionTool.name = functionDef.getName();
                     functionTool.id = functionDef.getName();
-                    functionTool.cssClass = 'icon fw fw-function';
+                    functionTool.icon = 'function';
                     functionTool.parameters = functionDef.getParameters();
                     functionTool.returnParams = functionDef.getReturnParams();
                     definitions.push(functionTool);

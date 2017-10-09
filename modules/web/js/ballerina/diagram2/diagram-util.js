@@ -7,6 +7,7 @@ import * as DefaultConfig from './views/default/designer-defaults';
 import DefaultSizingUtil from './views/default/sizing-util';
 import DefaultPositioningUtil from './views/default/positioning-util';
 import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
+import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation-arrow-position-util';
 
 
 const components = {};
@@ -15,6 +16,7 @@ const components = {};
 const defaultSizingUtil = new DefaultSizingUtil();
 const defaultPositioningUtil = new DefaultPositioningUtil();
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
+const defaultInvocationArrowPositionUtil = new WorkerInvocationArrowPositionUtil();
 
 defaultSizingUtil.config = DefaultConfig;
 defaultPositioningUtil.config = DefaultConfig;
@@ -96,6 +98,13 @@ function getWorkerInvocationSyncUtil(mode) {
     return undefined;
 }
 
+function getInvocationArrowPositionUtil(mode) {
+    if (mode === 'default') {
+        return defaultInvocationArrowPositionUtil;
+    }
+    return undefined;
+}
+
 function getOverlayComponent(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/utils', true, /\.jsx$/));
@@ -145,6 +154,7 @@ export {
     getSizingUtil,
     getPositioningUtil,
     getWorkerInvocationSyncUtil,
+    getInvocationArrowPositionUtil,
     getOverlayComponent,
     getWorkerMaxHeight,
 };

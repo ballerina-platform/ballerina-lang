@@ -104,6 +104,10 @@ Function
    | <annotationAttachments>* function <name.value> ( <parameters-joined-by,>* ) { <body.source> }
    ;
 
+FunctionType
+   : function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> ( <returnParamTypeNode>* )
+   ;
+
 If
    : if ( <condition.source> ) { <body.source> } else <elseStatement.source> <ladderParent?>
    | if ( <condition.source> ) { <body.source> } else { <elseStatement.source> }
@@ -118,6 +122,10 @@ Invocation
    : <packageAlias.value> : <name.value> ( <argumentExpressions-joined-by,>* )
    | <expression.source> . <name.value> ( <argumentExpressions-joined-by,>* )
    | <name.value> ( <argumentExpressions-joined-by,>* )
+   ;
+
+Lambda
+   : <functionNode.source>
    ;
 
 Literal

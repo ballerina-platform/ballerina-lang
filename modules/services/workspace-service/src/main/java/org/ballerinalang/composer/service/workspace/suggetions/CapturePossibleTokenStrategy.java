@@ -25,6 +25,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
 /**
  * Capture possible errors from source
  */
-public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
+public class CapturePossibleTokenStrategy extends BallerinaParserErrorStrategy {
 
     protected final Position cursorPosition;
 
@@ -40,7 +42,8 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
 
     private SuggestionsFilterDataModel suggestionsFilterDataModel;
 
-    public CapturePossibleTokenStrategy(Position cursorPosition, SuggestionsFilterDataModel filterDataModel) {
+    public CapturePossibleTokenStrategy(CompilerContext compilerContext, Position cursorPosition, SuggestionsFilterDataModel filterDataModel) {
+        super(compilerContext, null);
         this.cursorPosition = cursorPosition;
         possibleTokens = new LinkedList<>();
         this.suggestionsFilterDataModel = filterDataModel;

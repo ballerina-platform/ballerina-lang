@@ -29,6 +29,8 @@ export default function getSourceOf(node, pretty = false, l = 0) {
         return '';
     }
 
+    const b = a;
+
     function indent() {
         if (shouldIndent) {
             // return '\n' + _.repeat(tab, ++l);

@@ -17,6 +17,8 @@
  */
 import _ from 'lodash';
 import AbstractTreeUtil from './abstract-tree-util';
+import TreeBuilder from './tree-builder';
+import FragmentUtils from '../utils/fragment-utils';
 
 class TreeUtil extends AbstractTreeUtil {
 
@@ -157,6 +159,89 @@ class TreeUtil extends AbstractTreeUtil {
             _.set(node, 'variable.initialExpression.expression.variableName.value', newEp);
         } else if (this.isAssignment(node)) {
             _.set(node, 'expression.expression.variableName.value', newEp);
+        }
+    }
+
+    /**
+     * Get the receiver statement sending data to the given worker
+     * @param {object} worker - worker node
+     * @return {*} index of the statement
+     */
+    getReceiverForSender(worker) {
+        const statements = worker.body.statements;
+        const receiverIndex = _.findIndex(statements, (stmt) => {
+            return this.isWorkerReceive(stmt);
+        });
+
+        if (receiverIndex >= 0) {
+            return statements[receiverIndex];
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Get the sender statement receiving data from the given worker
+     * @param {object} worker - worker node
+     * @return {*} index of the statement
+     */
+    getSenderForReceiver(worker) {
+        const statements = worker.body.statements;
+        const receiverIndex = _.findIndex(statements, (stmt) => {
+            return this.isWorkerSend(stmt);
+        });
+
+        if (receiverIndex >= 0) {
+            return statements[receiverIndex];
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Get the worker by name
+     * @param {string} workerName - worker name
+     * @param {array} workerList - worker list
+     * @return {object} worker node
+     */
+    getWorkerByName(workerName, workerList) {
+        const index = _.findIndex(workerList, (worker) => {
+            return worker.name.value === workerName;
+        });
+
+        return workerList[index];
+    }
+
+    /**
+     * Set the source of the current node.
+     * @param {Node} node - Node for setting source.
+     * @param {string|array} source - set source for the node.
+     * */
+    setSource(node, source) {
+        /* TODO: handle expression, argument parameter and return parameter. */
+        // check node kind.
+        if (node.isStatement) {
+            // invoke the fragment util for the coresponding kind.
+            const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createStatementFragment(source));
+            const newNode = TreeBuilder.build(parsedJson);
+            // get the parent of the node.
+            const parentNode = node.parent;
+            newNode.parent = parentNode;
+            // replace the old node with new node.
+            parentNode.replaceStatements(node, newNode, false);
+        } else if (node.isExpression) {
+            // invoke the fragment util and get the new node.
+            const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
+            const newNode = TreeBuilder.build(parseJson);
+
+            // Get the parent node.
+            const parentNode = node.parent;
+
+            // Set the parent for new node.
+            newNode.parent(parentNode);
+
+            // Set the condition using new node.
+            parentNode.setCondition(newNode);
         }
     }
 }

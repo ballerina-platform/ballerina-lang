@@ -16,27 +16,19 @@
  * under the License.
  */
 
-import _ from 'lodash';
+import { COMMANDS } from './constants';
 
-class WorkerInvocationSyncVisitor {
-
-    setWorkerInvocationSyncUtil(workerInvocationSyncUtil) {
-        this.util = workerInvocationSyncUtil;
-    }
-
-    beginVisit(node) {
-        if (_.isFunction(this.util[`sync${node.getKind()}Node`])) {
-            this.util[`sync${node.getKind()}Node`](node);
-        }
-        return undefined;
-    }
-
-    endVisit(node) {
-        if (_.isFunction(this.util[`resize${node.getKind()}Node`])) {
-            this.util[`resize${node.getKind()}Node`](node);
-        }
-        return undefined;
-    }
+/**
+ * Provides command definitions of help plugin.
+ * @returns {Object[]} command definitions.
+ */
+export function getCommandDefinitions(plugin) {
+    return [
+        {
+            id: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
+        },
+        {
+            id: COMMANDS.IMPORT_SWAGGER_DEFINITION,
+        },
+    ];
 }
-
-export default WorkerInvocationSyncVisitor;

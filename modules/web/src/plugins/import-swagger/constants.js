@@ -16,27 +16,21 @@
  * under the License.
  */
 
-import _ from 'lodash';
+export const COMMANDS = {
+    SHOW_IMPORT_SWAGGER_DIALOG: 'import-swagger-show-dialog',
+    IMPORT_SWAGGER_DEFINITION: 'import-swagger-definition',
+};
 
-class WorkerInvocationSyncVisitor {
+export const MENUS = {
+    IMPORT_SWAGGER_MENU: 'composer.menu.import.swagger',
+};
 
-    setWorkerInvocationSyncUtil(workerInvocationSyncUtil) {
-        this.util = workerInvocationSyncUtil;
-    }
+export const LABELS = {
+    IMPORT_SWAGGER_MENU_TITLE: 'Import Swagger',
+};
 
-    beginVisit(node) {
-        if (_.isFunction(this.util[`sync${node.getKind()}Node`])) {
-            this.util[`sync${node.getKind()}Node`](node);
-        }
-        return undefined;
-    }
+export const DIALOG = {
+    IMPORT_SWAGGER: 'composer.dialog.import.swagger',
+};
 
-    endVisit(node) {
-        if (_.isFunction(this.util[`resize${node.getKind()}Node`])) {
-            this.util[`resize${node.getKind()}Node`](node);
-        }
-        return undefined;
-    }
-}
-
-export default WorkerInvocationSyncVisitor;
+export const PLUGIN_ID = 'import.swagger';

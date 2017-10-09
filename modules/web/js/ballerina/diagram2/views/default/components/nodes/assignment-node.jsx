@@ -32,8 +32,6 @@ class AssignmentNode extends React.Component {
             propertyType: 'text',
             key: 'Assignment',
             model: this.props.model,
-            getterMethod: this.props.model.getSource,
-            setterMethod: this.updateExpression,
         };
     }
 
