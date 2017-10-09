@@ -22,13 +22,11 @@ import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.net.BindException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,15 +36,6 @@ import java.util.Map;
 public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
-
-    private ConnectorStartupSynchronizer connectorStartupSynchronizer;
-    private String serverConnectorId;
-
-    public BallerinaHTTPConnectorListener(ConnectorStartupSynchronizer connectorStartupSynchronizer,
-                                          String serverConnectorId) {
-        this.connectorStartupSynchronizer = connectorStartupSynchronizer;
-        this.serverConnectorId = serverConnectorId;
-    }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
@@ -67,10 +56,5 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     @Override
     public void onError(Throwable throwable) {
         log.error("Error in http server connector", throwable);
-
-        if (throwable instanceof BindException) {
-            connectorStartupSynchronizer.addException(serverConnectorId, (BindException) throwable);
-            connectorStartupSynchronizer.getCountDownLatch().countDown();
-        }
     }
 }

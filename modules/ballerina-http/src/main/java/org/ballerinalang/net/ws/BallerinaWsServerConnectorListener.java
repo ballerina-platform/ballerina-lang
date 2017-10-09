@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketControlM
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.carbon.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.net.BindException;
 import java.util.Map;
 import javax.websocket.Session;
 
@@ -52,15 +50,6 @@ import javax.websocket.Session;
 public class BallerinaWsServerConnectorListener implements WebSocketConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaWsServerConnectorListener.class);
-
-    private ConnectorStartupSynchronizer connectorStartupSynchronizer;
-    private String serverConnectorId;
-
-    public BallerinaWsServerConnectorListener(
-            ConnectorStartupSynchronizer connectorStartSynchronizer, String serverConnectorId) {
-        this.connectorStartupSynchronizer = connectorStartSynchronizer;
-        this.serverConnectorId = serverConnectorId;
-    }
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
@@ -133,11 +122,6 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
     @Override
     public void onError(Throwable throwable) {
         log.error("Unexpected error occurred in WebSocket transport", throwable);
-
-        if (throwable instanceof BindException) {
-            connectorStartupSynchronizer.addException(serverConnectorId, (BindException) throwable);
-            connectorStartupSynchronizer.getCountDownLatch().countDown();
-        }
     }
 
     @Override

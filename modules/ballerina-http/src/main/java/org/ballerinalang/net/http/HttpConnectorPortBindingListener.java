@@ -19,10 +19,12 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.contract.PortBindingEventListener;
-import org.wso2.carbon.transport.http.netty.contract.ServerConnector;
 
 import java.io.PrintStream;
+import java.net.BindException;
 
 /**
  * An implementation of the LifeCycleEventListener. This can be used to listen to the HTTP connector life cycle events.
@@ -31,22 +33,36 @@ import java.io.PrintStream;
  */
 public class HttpConnectorPortBindingListener implements PortBindingEventListener {
 
+    private static final Logger log = LoggerFactory.getLogger(HttpConnectorPortBindingListener.class);
     private static final PrintStream console = System.out;
 
     private ConnectorStartupSynchronizer connectorStartupSynchronizer;
+    private String serverConnectorId;
 
-    public HttpConnectorPortBindingListener(ConnectorStartupSynchronizer connectorStartupSynchronizer) {
+    public HttpConnectorPortBindingListener(ConnectorStartupSynchronizer connectorStartupSynchronizer,
+                                            String serverConnectorId) {
         this.connectorStartupSynchronizer = connectorStartupSynchronizer;
+        this.serverConnectorId = serverConnectorId;
     }
 
     @Override
-    public void onOpen(String host, int port) {
-        console.println("ballerina: started server connector " + host + "-" + port);
+    public void onOpen(String serverConnectorId) {
+        console.println("ballerina: started server connector " + serverConnectorId);
         connectorStartupSynchronizer.getCountDownLatch().countDown();
     }
 
     @Override
-    public void onClose(ServerConnector serverConnector) {
-        console.println("ballerina: stopped server connector " + serverConnector.getConnectorID());
+    public void onClose(String serverConnectorId) {
+        console.println("ballerina: stopped server connector " + serverConnectorId);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        log.error("Error in http server connector", throwable);
+
+        if (throwable instanceof BindException) {
+            connectorStartupSynchronizer.addException(serverConnectorId, (BindException) throwable);
+            connectorStartupSynchronizer.getCountDownLatch().countDown();
+        }
     }
 }
