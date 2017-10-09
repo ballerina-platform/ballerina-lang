@@ -40,14 +40,14 @@ public class ProducesConsumesAnnotationTest {
     @BeforeClass()
     public void setup() {
         compileResult = EnvironmentInitializer
-                .setupProgramFile("test-src/statements/services/dispatching/producesConsumesTest.bal");
+                .setupProgramFile("test-src/services/dispatching/producesConsumesTest.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
     public void testConsumesAnnotation() {
         String path = "/echo66/test1";
         HTTPCarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
-        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "compileResult/xml; charset=ISO-8859-4");
+        cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "application/xml; charset=ISO-8859-4");
         HTTPCarbonMessage response = Services.invokeNew(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");

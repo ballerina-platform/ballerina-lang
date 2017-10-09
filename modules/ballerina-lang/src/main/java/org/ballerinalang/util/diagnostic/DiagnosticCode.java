@@ -26,6 +26,7 @@ public enum DiagnosticCode {
 
     UNDEFINED_PACKAGE("undefined.package"),
     UNUSED_IMPORT_PACKAGE("unused.import.package"),
+    PACKAGE_NOT_FOUND("package.not.found"),
     REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
@@ -52,6 +53,7 @@ public enum DiagnosticCode {
 
     FUNCTION_MUST_RETURN("function.must.return"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
+    FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
     UNREACHABLE_CODE("unreachable.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),

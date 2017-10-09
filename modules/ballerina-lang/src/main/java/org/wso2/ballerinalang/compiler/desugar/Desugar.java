@@ -97,7 +97,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -133,6 +135,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
 
     private BLangStatementLink currentLink;
+    private boolean insideAWorker = false;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -233,15 +236,20 @@ public class Desugar extends BLangNodeVisitor {
         // we rewrite it's parameter list to have the receiver variable as the first parameter
         BInvokableSymbol actionSymbol = actionNode.symbol;
         List<BVarSymbol> params = actionSymbol.params;
-        params.add(0, actionNode.symbol.receiverSymbol);
+        BVarSymbol receiverSymbol = actionNode.symbol.receiverSymbol;
+        params.add(0, receiverSymbol);
         BInvokableType actionType = (BInvokableType) actionSymbol.type;
-        actionType.paramTypes.add(0, actionNode.symbol.receiverSymbol.type);
+        if (receiverSymbol != null) {
+            actionType.paramTypes.add(0, receiverSymbol.type);
+        }
         result = actionNode;
     }
 
     @Override
     public void visit(BLangWorker workerNode) {
+        this.insideAWorker = true;
         workerNode.body = rewrite(workerNode.body);
+        this.insideAWorker = false;
         result = workerNode;
     }
 
@@ -302,6 +310,11 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         returnNode.exprs = rewriteExprs(returnNode.exprs);
+        if (insideAWorker) {
+            result = new BLangWorkerReturn(returnNode.exprs);
+            result.pos = returnNode.pos;
+            return;
+        }
         result = returnNode;
     }
 
@@ -336,7 +349,7 @@ public class Desugar extends BLangNodeVisitor {
         generatedXMLNSNode.symbol = xmlnsNode.symbol;
         result = generatedXMLNSNode;
     }
-    
+
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr = rewriteExpr(exprStmtNode.expr);
@@ -516,7 +529,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, 
+            targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.ARRAY) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos,
@@ -648,7 +661,7 @@ public class Desugar extends BLangNodeVisitor {
         xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
         xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
         xmlElementLiteral.attributes = rewriteExprs(xmlElementLiteral.attributes);
-        
+
         // Separate the in-line namepsace declarations and attributes.
         Iterator<BLangXMLAttribute> attributesItr = xmlElementLiteral.attributes.iterator();
         while (attributesItr.hasNext()) {
@@ -662,7 +675,7 @@ public class Desugar extends BLangNodeVisitor {
             xmlns.namespaceURI = attribute.value.concatExpr;
             xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
             xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
-            
+
             xmlElementLiteral.inlineNamespaces.add(xmlns);
             attributesItr.remove();
         }
@@ -788,6 +801,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
         jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
         result = jsonArrayLiteral;
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
+        result = retryNode;
     }
 
     // private functions

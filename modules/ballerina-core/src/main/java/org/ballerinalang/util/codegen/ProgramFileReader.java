@@ -933,11 +933,13 @@ public class ProgramFileReader {
         forkjoinInfo.setJoinType(joinTypeCPEntry.getValue());
         forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
 
+        int joinWorkerCount = dataInStream.readInt();
+        forkjoinInfo.setWorkerCount(joinWorkerCount);
 
-        int joinWorkerCount = dataInStream.readShort();
-        int[] joinWrkrCPIndexes = new int[joinWorkerCount];
-        String[] joinWrkrNames = new String[joinWorkerCount];
-        for (int i = 0; i < joinWorkerCount; i++) {
+        int joinWrkrCPIndexesLen = dataInStream.readShort();
+        int[] joinWrkrCPIndexes = new int[joinWrkrCPIndexesLen];
+        String[] joinWrkrNames = new String[joinWrkrCPIndexesLen];
+        for (int i = 0; i < joinWrkrCPIndexesLen; i++) {
             int cpIndex = dataInStream.readInt();
             UTF8CPEntry workerNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
             joinWrkrCPIndexes[i] = cpIndex;
@@ -1234,6 +1236,8 @@ public class ProgramFileReader {
             switch (opcode) {
                 case InstructionCodes.HALT:
                 case InstructionCodes.RET:
+                case InstructionCodes.WRKSTART:
+                case InstructionCodes.WRKRETURN:
                     packageInfo.addInstruction(InstructionFactory.get(opcode));
                     break;
 

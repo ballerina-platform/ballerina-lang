@@ -19,7 +19,7 @@ package org.ballerinalang.net;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.repository.fs.JARPackageRepository;
+import org.ballerinalang.repository.fs.ClasspathPackageRepository;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 
 /**
@@ -34,7 +34,7 @@ public class StandardSystemPackageRepositoryProvider implements SystemPackageRep
 
     @Override
     public PackageRepository loadRepository() {
-        return new JARPackageRepository(this, JAR_SYSTEM_LIB_LOCATION);
+        return new ClasspathPackageRepository(this.getClass(), JAR_SYSTEM_LIB_LOCATION);
     }
 
 }

@@ -282,6 +282,19 @@ function refTypeAccessTestTypeAsReturnValue() (int) {
     }
 }
 
+function typeToAnyImplicitCast() (any, type) {
+    int i = 5;
+    type t = (typeof i);
+    any typeOfInt = t;
+    return typeOfInt, t;
+}
+
+function typeToAnyExplicitCast() (any, type, any) {
+    int i = 5;
+    type t = (typeof i);
+    return (any)t, t, t;
+}
+
 function getType(any variable)(type){
     return (typeof variable);
 }

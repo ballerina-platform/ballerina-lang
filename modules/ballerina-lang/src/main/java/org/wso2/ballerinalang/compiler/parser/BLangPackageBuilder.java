@@ -207,9 +207,16 @@ public class BLangPackageBuilder {
     }
 
     public void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint,
-                               String pkgPath) {
-        BLangAnnotationAttachmentPoint attachmentPoint =
-                new BLangAnnotationAttachmentPoint(attachPoint, pkgPath);
+                               String pkgIdentifier) {
+        BLangAnnotationAttachmentPoint attachmentPoint;
+        if (pkgIdentifier == null) {
+            attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(attachPoint, null);
+        } else {
+            attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(attachPoint, null);
+            attachmentPoint.pkgAlias = (BLangIdentifier) createIdentifier(pkgIdentifier);
+        }
         attachmentPointStack.push(attachmentPoint);
     }
 
@@ -883,7 +890,7 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-
+        attachAnnotations(var);
         this.compUnit.addTopLevelNode(var);
     }
 

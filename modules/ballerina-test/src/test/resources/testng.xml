@@ -24,11 +24,17 @@ under the License.
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
+            <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
-            <package name="org.ballerinalang.test.nativeImpl.*"/>
+            <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.nativeimpl.*"/>
             <package name="org.ballerinalang.test.net.*"/>
+            <package name="org.ballerinalang.test.connectors.*"/>
+            <package name="org.ballerinalang.test.debugger.*"/>
+            <package name="org.ballerinalang.test.structs.*"/>
+            <package name="org.ballerinalang.test.services.*"/>
         </packages>
     </test>
 </suite>
