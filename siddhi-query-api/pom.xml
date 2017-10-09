@@ -66,10 +66,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skipTests>false</skipTests>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <basedir>${project.build.outputDirectory}/org/wso2/siddhi/query/api</basedir>
                 </configuration>
             </plugin>
             <plugin>
