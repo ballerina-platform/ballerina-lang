@@ -396,11 +396,6 @@ returnStatement
     :   RETURN expressionList? SEMICOLON
     ;
 
-// below Identifier is only a type of TYPE_MESSAGE
-replyStatement
-    :   REPLY expression SEMICOLON
-    ;
-
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
     :   expressionList RARROW workerReference SEMICOLON #invokeWorker

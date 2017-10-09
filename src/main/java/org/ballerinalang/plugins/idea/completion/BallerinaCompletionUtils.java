@@ -100,7 +100,6 @@ public class BallerinaCompletionUtils {
     // Other keywords
     private static final LookupElementBuilder TYPE_OF;
     private static final LookupElementBuilder LENGTH_OF;
-    private static final LookupElementBuilder REPLY;
     private static final LookupElementBuilder RETURN;
     private static final LookupElementBuilder IF;
     private static final LookupElementBuilder ELSE;
@@ -167,7 +166,6 @@ public class BallerinaCompletionUtils {
 
         TYPE_OF = createKeywordLookupElement("typeof");
         LENGTH_OF = createKeywordLookupElement("lengthof");
-        REPLY = createKeywordLookupElement("reply");
         RETURN = createKeywordLookupElement("return");
         IF = createKeywordLookupElement("if");
         ELSE = createKeywordLookupElement("else");
@@ -450,7 +448,6 @@ public class BallerinaCompletionUtils {
     @NotNull
     static List<LookupElement> getResourceSpecificKeywords() {
         List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(REPLY));
         return lookupElements;
     }
 
