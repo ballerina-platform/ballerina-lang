@@ -19,6 +19,13 @@
 import AbstractInvocationNode from './abstract-tree/invocation-node';
 
 class InvocationNode extends AbstractInvocationNode {
+    setFullPackageName(fullPackageName) {
+        this._fullPackageName = fullPackageName;
+    }
+
+    getFullPackageName(fullPackageName) {
+        return this._fullPackageName;
+    }
 
     getFunctionName() {
         return this.name.value;

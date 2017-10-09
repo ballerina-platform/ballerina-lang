@@ -36,10 +36,12 @@ import { OPEN_SYMBOL_DOCS, GO_TO_POSITION } from './../../constants/commands';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
+import TreeUtils from './../model/tree-util';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import './../utils/react-try-catch-batching-strategy';
-
+import { parseContent } from '../../api-client/api-client';
+import FragmentUtils from '../utils/fragment-utils';
 
 /**
  * React component for BallerinaFileEditor.
@@ -172,6 +174,10 @@ class BallerinaFileEditor extends React.Component {
      * On ast modifications
      */
     onASTModified(evt) {
+        if (evt.type === 'child-added') {
+            this.addAutoImports(evt.data.node)
+        }
+
         const newContent = this.state.model.getSource();
         // set breakpoints to model
         // TODOX this.reCalculateBreakpoints(this.state.model);
@@ -179,6 +185,30 @@ class BallerinaFileEditor extends React.Component {
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
+    }
+
+    /**
+     * Adds relevent imports needed to be automatically imported When a node (eg: a function invocation) is dragged in
+     * @param {Node} node the node added
+     */
+    addAutoImports(node) {
+        let fullPackageName;
+        if (TreeUtils.isAssignment(node) && TreeUtils.isInvocation(node.getExpression())) {
+            fullPackageName = node.getExpression().getFullPackageName();
+        } else if (TreeUtils.isVariableDef(node) && TreeUtils.isInvocation(node.getVariable().getInitialExpression())) {
+            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+        } else {
+            return;
+        }
+
+        if (fullPackageName === 'Current Package') {
+            return;
+        }
+
+        const importString = 'import ' + fullPackageName + ';\n';
+        const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.state.model.addImport(TreeBuilder.build(parsedJson));
     }
 
     /**
