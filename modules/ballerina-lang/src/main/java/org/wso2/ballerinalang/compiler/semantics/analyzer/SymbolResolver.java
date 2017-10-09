@@ -288,7 +288,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (pkgAlias != Names.EMPTY) {
             BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
             if (pkgSymbol == symTable.notFoundSymbol) {
-                dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias);
                 return pkgSymbol;
             }
             return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
