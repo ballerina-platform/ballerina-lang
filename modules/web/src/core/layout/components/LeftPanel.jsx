@@ -87,6 +87,7 @@ class LeftPanel extends React.Component {
                         </div>
                         <Scrollbars
                             style={dimensions}
+                            className="panel-content-scroll-container"
                         >
                             <div className="panel-content">
                                 {
