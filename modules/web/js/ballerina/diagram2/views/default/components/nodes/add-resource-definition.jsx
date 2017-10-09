@@ -62,7 +62,7 @@ class AddResourceDefinition extends React.Component {
                 }
             }
             const overlayComponents = {
-                kind: 'DropdownMenu',
+                kind: 'WebsocketResourceSelect',
                 props: {
                     key: this.props.model.getID(),
                     model: this.props.model,

@@ -115,14 +115,14 @@ class TransformPane extends React.Component {
 
     render() {
         const binaryOpToolGroup = {
-            name: 'binary operators',
+            name: 'Binary Operators',
             id: 'binary-operators-tool-group',
             order: 'horizontal',
             tools: binaryOpTools,
         };
 
         const unaryOpToolGroup = {
-            name: 'unary operators',
+            name: 'Unary Operators',
             id: 'unary-operators-tool-group',
             order: 'horizontal',
             tools: unaryOpTools,

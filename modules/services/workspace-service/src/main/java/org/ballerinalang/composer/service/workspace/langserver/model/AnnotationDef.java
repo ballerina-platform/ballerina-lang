@@ -16,10 +16,8 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.model;
 
-import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 
 import java.util.ArrayList;

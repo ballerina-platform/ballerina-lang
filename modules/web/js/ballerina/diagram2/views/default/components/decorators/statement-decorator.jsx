@@ -27,6 +27,9 @@ import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
+import ArrowDecorator from './arrow-decorator';
+import StatementPropertyItemSelector from './../utils/statement-property-item-selector';
+import TreeUtil from '../../../../../model/tree-util';
 
 
 /**
@@ -160,6 +163,27 @@ class StatementDecorator extends React.Component {
             tooltip = (<title>{this.props.viewState.fullExpression}</title>);
         }
 
+        let dropDownItems;
+        const dropDownItemMeta = [];
+        let backwardArrowStart;
+        let backwardArrowEnd;
+        if (viewState.isActionInvocation) {
+            dropDownItems = TreeUtil.getAllVisibleConnectorDeclarations(this.props.model.parent);
+            dropDownItems.forEach((item) => {
+                const meta = {
+                    text: _.get(item, 'variable.name.value'),
+                    callback: (newEp) => { TreeUtil.changeInvocationEndpoint(this.props.model, newEp); },
+                };
+                dropDownItemMeta.push(meta);
+            });
+            this.props.model.getSource();
+            backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
+            backwardArrowStart.y = viewState.components['statement-box'].y
+                + viewState.components['statement-box'].h - 5;
+            backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
+            backwardArrowEnd.y = backwardArrowStart.y;
+        }
+
         return (
             <g
                 className="statement"
@@ -202,6 +226,28 @@ class StatementDecorator extends React.Component {
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.props.onBreakpointClick()}
                 />
+                {viewState.isActionInvocation &&
+                (
+                    <g>
+                        <ArrowDecorator
+                            start={viewState.components.invocation.start}
+                            end={viewState.components.invocation.end}
+                        />
+                        <ArrowDecorator
+                            start={backwardArrowStart}
+                            end={backwardArrowEnd}
+                            dashed
+                            backward
+                        />
+                        <StatementPropertyItemSelector
+                            model={this.props.model}
+                            bBox={this.props.model.viewState.components.dropDown}
+                            itemsMeta={dropDownItemMeta}
+                        />
+                    </g>
+                )
+
+                }
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);

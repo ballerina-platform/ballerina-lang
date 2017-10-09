@@ -40,6 +40,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -203,15 +204,6 @@ public class BLangFileRestService {
         return result.toString();
     }
 
-    private static String generateJSONString(Node node) {
-        try {
-            return generateJSON(node).toString();
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            // This should never occur.
-            throw new AssertionError("Error while serializing source to JSON.");
-        }
-    }
-
     public static JsonElement generateJSON(Node node) throws InvocationTargetException, IllegalAccessException {
         if (node == null) {
             return JsonNull.INSTANCE;
@@ -282,8 +274,7 @@ public class BLangFileRestService {
                     if (listPropItem instanceof Node) {
                         listPropJson.add(generateJSON((Node) listPropItem));
                     } else {
-
-                        System.err.println(" " + prop);
+                        logger.error(" " + prop);
                     }
                 }
 
@@ -306,6 +297,11 @@ public class BLangFileRestService {
                 nodeJson.addProperty(jsonName, prop.toString().toLowerCase());
             } else if (prop instanceof NodeKind) {
                 String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
+                // This is since the invocation symbol abstract method has not currently been exposed from the runtime
+                // TODO: This is a temporary fix and will be changed accordingly with the new action invocation impl
+                if (kindName.equals("Invocation")) {
+                    nodeJson.addProperty("invocationType", ((BLangInvocation) node).symbol.kind.toString());
+                }
                 nodeJson.addProperty(jsonName, kindName);
             } else if (prop instanceof OperatorKind) {
                 nodeJson.addProperty(jsonName, prop.toString());
@@ -338,7 +334,7 @@ public class BLangFileRestService {
      * @param bFile - Object which holds data about Ballerina content.
      * @return List of errors if any
      */
-    private JsonObject validate(BFile bFile){
+    private JsonObject validate(BFile bFile) {
         String fileName = "untitled";
         String content = bFile.getContent();
         List<Diagnostic> diagnostics = WorkspaceUtils.getBallerinaFileForContent(fileName, content,
@@ -350,10 +346,6 @@ public class BLangFileRestService {
         JsonObject result = new JsonObject();
         result.add("errors", diagnosticsJson);
         return result;
-    }
-
-    private java.nio.file.Path deriveFilePath(String fileName, String filePath) {
-        return Paths.get(filePath + File.separator + fileName);
     }
 
 }

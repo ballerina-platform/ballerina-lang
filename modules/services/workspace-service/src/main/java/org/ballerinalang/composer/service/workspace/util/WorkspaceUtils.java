@@ -28,18 +28,10 @@ import org.ballerinalang.composer.service.workspace.langserver.model.StructField
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.ComposerDiagnosticListener;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPackageRepository;
-import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.expressions.BasicLiteral;
-import org.ballerinalang.model.statements.VariableDefStmt;
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.ballerinalang.util.exceptions.NativeException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -51,27 +43,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -89,7 +71,7 @@ public class WorkspaceUtils {
      * @param fileName - File name. This can be any arbitrary name as as we haven't save the file yet.
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFile(String filePath, String fileName){
+    public static BallerinaFile getBallerinaFile(String filePath, String fileName) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, filePath);
@@ -107,7 +89,8 @@ public class WorkspaceUtils {
      * @param compilerPhase - This will tell up to which point(compiler phase) we should process the model
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFileForContent(String fileName, String source, CompilerPhase compilerPhase){
+    public static BallerinaFile getBallerinaFileForContent(String fileName, String source,
+                                                           CompilerPhase compilerPhase) {
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
@@ -123,7 +106,7 @@ public class WorkspaceUtils {
      * @param source - Ballerina source content that needs to be parsed.
      * @return CompilerContext
      */
-    private static CompilerContext prepareCompilerContext(String fileName, String source){
+    private static CompilerContext prepareCompilerContext(String fileName, String source) {
         CompilerContext context = new CompilerContext();
         List<Name> names = new ArrayList<>();
         names.add(new org.wso2.ballerinalang.compiler.util.Name("."));
@@ -140,7 +123,7 @@ public class WorkspaceUtils {
      * @param context - CompilerContext
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context){
+    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         ComposerDiagnosticListener composerDiagnosticListener = new ComposerDiagnosticListener(diagnostics);
         context.put(DiagnosticListener.class, composerDiagnosticListener);
@@ -206,39 +189,6 @@ public class WorkspaceUtils {
     };
 
     /**
-     * Get a resolved package map for a given package names array
-     * @param bLangProgram to get package map
-     * @param packagesArray packages array
-     * @return packages map
-     */
-//    public static Map<String, ModelPackage> getResolvedPackagesMap(BLangProgram bLangProgram, String[] packagesArray) {
-//        final Map<String, ModelPackage> packages = new HashMap<>();
-//        ProgramDirRepository fileRepo = BLangPrograms.initProgramDirRepository(Paths.get("."));
-//        // this is just a dummy FileSystemPackageRepository instance. Paths.get(".") has no meaning here
-//        // turn off skipping native function parsing
-//        System.setProperty("skipNatives", "false");
-//
-//        // process each package separately
-//        for (String builtInPkg : packagesArray) {
-//            Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
-//            org.wso2.ballerinalang.compiler.tree.BLangPackage pkg = null;
-//            BLangSymbol bLangSymbol = bLangProgram.resolve(new SymbolName(builtInPkg));
-//            if (bLangSymbol == null) {
-//                // load package
-//                pkg = BLangPackages.loadPackage(packagePath, fileRepo, bLangProgram);
-//                loadPackageMap(pkg, packages);
-//            } else {
-//                if (bLangSymbol instanceof BLangPackage) {
-//                    pkg = (BLangPackage) bLangSymbol;
-//                    loadPackageMap(pkg, packages);
-//                }
-//            }
-//        }
-//        return packages;
-//    }
-
-
-    /**
      * Add connectors, functions, annotations etc. to packages.
      * @param packageName package name
      * @param pkg BLangPackage instance
@@ -247,33 +197,12 @@ public class WorkspaceUtils {
     public static void loadPackageMap(String packageName, final org.wso2.ballerinalang.compiler.tree.BLangPackage pkg,
                                        Map<String, ModelPackage> packages) {
         if (pkg != null) {
-           // Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, "",
-           //         connector));
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
             pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
         }
     }
-
-//    /**
-//     * Add connectors, functions, annotations etc. to packages.
-//     * @param pkg BLangPackage instance
-//     * @param packages packages map
-//     */
-//    private static void loadPackageMap(final BLangPackage pkg, Map<String, ModelPackage> packages) {
-//        if (pkg != null) {
-//            Stream.of(pkg.getAnnotationDefs()).forEach((annotationDef) -> extractAnnotationDefs(packages,
-//                    pkg.getPackagePath(), annotationDef));
-//            Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, pkg.getPackagePath(),
-//                    connector));
-//            pkg.getFunctions()
-//            Stream.of(pkg.getFunctions()).forEach((function) -> extractFunction(packages, pkg.getPackagePath(),
-//                    function));
-//            Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
-//                    structDef));
-//        }
-//    }
 
     /**
      * Extract annotations from ballerina lang
@@ -536,84 +465,5 @@ public class WorkspaceUtils {
         connector.setAnnotations(annotations);
         connector.setReturnParameters(returnParams);
         return connector;
-    }
-
-    /**
-     * Load constructs
-     * @param globalScope globalScope
-     * @param nativeScope nativeScope
-     * */
-    private static void loadConstructs(GlobalScope globalScope, NativeScope nativeScope) {
-        BTypes.loadBuiltInTypes(globalScope);
-        Iterator<NativeConstructLoader> nativeConstructLoaders =
-                ServiceLoader.load(NativeConstructLoader.class).iterator();
-        while (nativeConstructLoaders.hasNext()) {
-            NativeConstructLoader constructLoader = nativeConstructLoaders.next();
-            try {
-                constructLoader.load(nativeScope);
-            } catch (NativeException e) {
-                throw e;
-            } catch (Throwable t) {
-                throw new NativeException("internal error occured", t);
-            }
-        }
-    }
-    
-    /**
-     * Get program directory
-     * @param filePath    - file path to parent directory of the .bal file
-     * @param packageName - package name
-     * @return
-     */
-    public static java.nio.file.Path gerProgramDirectory(java.nio.file.Path filePath, String packageName) {
-        java.nio.file.Path parentDir = null;
-        if (!".".equals(packageName)) {
-            // find nested directory count using package name
-            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
-                    : 1;
-            // find program directory
-            parentDir = filePath;
-            for (int i = 0; i < directoryCount; ++i) {
-                if (parentDir != null) {
-                    parentDir = parentDir.getParent();
-                }
-            }
-        }
-        return parentDir;
-    }
-
-
-    /**
-     * Recursive method to search for .bal files and add their parent directory paths to the provided List
-     * @param programDirPath - program directory path
-     * @param filePaths - file path list
-     * @param depth - depth of the directory hierarchy which we should search from the program directory
-     */
-    public static void searchFilePathsForBalFiles(java.nio.file.Path programDirPath,
-                                            List<java.nio.file.Path> filePaths, int depth) {
-        // this method is a recursive method. depth is the iteration count and we should return based on the depth count
-        if (depth < 0) {
-            return;
-        }
-        try {
-            DirectoryStream<Path> stream = Files.newDirectoryStream(programDirPath);
-            depth = depth - 1;
-            for (java.nio.file.Path entry : stream) {
-                if (Files.isDirectory(entry)) {
-                    searchFilePathsForBalFiles(entry, filePaths, depth);
-                }
-                java.nio.file.Path file = entry.getFileName();
-                if (file != null) {
-                    String fileName = file.toString();
-                    if (fileName.endsWith(".bal")) {
-                        filePaths.add(entry.getParent());
-                    }
-                }
-            }
-            stream.close();
-        } catch (IOException e) {
-            // we are ignoring any exception and proceed.
-            return;
-        }
     }
 }

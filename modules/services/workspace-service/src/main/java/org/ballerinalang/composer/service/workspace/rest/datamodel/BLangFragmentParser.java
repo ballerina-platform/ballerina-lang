@@ -44,14 +44,14 @@ public class BLangFragmentParser {
         try {
             String parsableString = getParsableString(sourceFragment);
             JsonElement jsonElement = getJsonModel(parsableString);
-            if(jsonElement instanceof JsonObject){
-                JsonObject jsonModel = (JsonObject)jsonElement;
+            if (jsonElement instanceof JsonObject) {
+                JsonObject jsonModel = (JsonObject) jsonElement;
                 if (jsonModel.getAsJsonArray(SYNTAX_ERRORS) != null) {
                     return jsonModel.toString();
                 }
                 JsonObject jsonNodeForFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
                 return jsonNodeForFragment.toString();
-            }else{
+            } else {
                 throw new Exception("Incorrect format of the generated JSON");
             }
         } catch (Exception e) {
@@ -80,11 +80,6 @@ public class BLangFragmentParser {
                 fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.WORKERS)
                                     .get(0).getAsJsonObject();
                 break;
-            case BLangFragmentParserConstants.EXPRESSION:
-                // 0th child is the var ref expression of var def stmt
-                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
-                            .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
-                break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 // 0 & 1 are function args and return types, 2 is the assignment statement
                 JsonObject assignmentStmt = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
@@ -93,8 +88,11 @@ public class BLangFragmentParser {
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
-                // 0 & 1 are function args and return types, 2 is the statement came from source fragment
+                // For Expression - 0th child is the var ref expression of var def stmt
+                // For Statement - 0 & 1 are function args and return types, 2 is the statement came from source
+                // fragment
                 fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
                         .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
@@ -105,10 +103,14 @@ public class BLangFragmentParser {
                 fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS)
+                        .get(0)
+                        .getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS)
+                        .get(0)
+                        .getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
                 fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
@@ -151,14 +153,11 @@ public class BLangFragmentParser {
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.CONNECTOR_BODY_ACTION_WRAPPER, sourceFragment.getSource());
                 break;
-            case BLangFragmentParserConstants.WORKER:
-                parsableText = getFromTemplate(
-                        BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, sourceFragment.getSource());
-                break;
             case BLangFragmentParserConstants.EXPRESSION:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.VAR_DEF_STMT_EXPR_WRAPPER, sourceFragment.getSource());
                 break;
+            case BLangFragmentParserConstants.WORKER:
             case BLangFragmentParserConstants.STATEMENT:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, sourceFragment.getSource());

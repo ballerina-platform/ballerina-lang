@@ -18,16 +18,16 @@
 
 import React from 'react';
 import _ from 'lodash';
-import './drop-down-menu.css';
+import './websocket-resource-select.css';
 import TreeUtil from './../../../../../model/tree-util';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
 /**
  * React component for a drop down menu
  *
- * @class DropdownMenu
+ * @class WebsocketResourceSelect
  * @extends {React.Component}
  */
-class DropdownMenu extends React.Component {
+class WebsocketResourceSelect extends React.Component {
 
     constructor(props) {
         super(props);
@@ -198,7 +198,7 @@ class DropdownMenu extends React.Component {
      * Renders the view for a drop down menu
      *
      * @returns {ReactElement} The view.
-     * @memberof DropdownMenu
+     * @memberof WebsocketResourceSelect
      */
     render() {
         const props = this.props.model.props;
@@ -235,4 +235,4 @@ class DropdownMenu extends React.Component {
     }
 }
 
-export default DropdownMenu;
+export default WebsocketResourceSelect;

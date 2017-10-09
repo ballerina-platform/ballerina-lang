@@ -89,6 +89,75 @@ class TreeUtil extends AbstractTreeUtil {
         const expression = _.get(node, 'variable.initialExpression');
         return (expression && this.isConnectorInitExpr(expression));
     }
+
+    /**
+     * Check whether the node is an action invocation expression
+     * @param {object} node - variable def node object
+     * @returns {boolean} - whether the node is an invocation node
+     */
+    statementIsInvocation(node) {
+        let invocationExpression;
+        if (this.isAssignment(node)) {
+            invocationExpression = _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            invocationExpression = _.get(node, 'variable.initialExpression');
+        }
+
+        return (invocationExpression && this.isInvocation(invocationExpression));
+    }
+
+    /**
+     * Get the variable definition by traversing the parent nodes
+     * @param {object} parent - parent block node
+     * @param {string} name - variable name
+     * @return {object} variable definition node
+     */
+    getVariableDefByName(parent, name) {
+        if (!parent) {
+            return undefined;
+        }
+        const variableDef = _.find(parent.statements, (statement) => {
+            if (this.isVariableDef(statement)) {
+                return statement.variable.name.value === name;
+            } else {
+                return false;
+            }
+        });
+
+        if (!variableDef) {
+            return this.getVariableDefByName(parent.parent, name);
+        }
+
+        return variableDef;
+    }
+
+    getAllVisibleConnectorDeclarations(parent) {
+        if (!parent) {
+            return [];
+        }
+        let filteredItems = [];
+        const statements = parent.statements;
+        if (statements) {
+            filteredItems = _.filter(statements, (stmt) => {
+                return this.isConnectorDeclaration(stmt);
+            });
+        }
+        return filteredItems.concat(this.getAllVisibleConnectorDeclarations(parent.parent));
+    }
+
+    /**
+     * Change the invocation endpoint. This is the callback function for endpoint dropdown click
+     * @param {object} node - invocation node
+     * @param {string} newEp - new endpoint string
+     */
+    changeInvocationEndpoint(node, newEp) {
+        // TODO: will be replaced accordingly with the new set source
+        if (this.isVariableDef(node)) {
+            _.set(node, 'variable.initialExpression.expression.variableName.value', newEp);
+        } else if (this.isAssignment(node)) {
+            _.set(node, 'expression.expression.variableName.value', newEp);
+        }
+    }
 }
 
 export default new TreeUtil();

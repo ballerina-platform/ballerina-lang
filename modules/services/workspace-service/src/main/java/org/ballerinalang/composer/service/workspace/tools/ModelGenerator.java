@@ -11,10 +11,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.commons.io.FileUtils;
+
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeKind;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -24,12 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.NodeKind;
 
 /**
  * Code generator which will convert java models to javascript.
@@ -110,37 +110,38 @@ public class ModelGenerator {
                 ).collect(Collectors.toList());
 
                 // tag object with supper type
-                if(parents.contains("StatementNode")){
+                if (parents.contains("StatementNode")) {
                     nodeObj.addProperty("isStatement", true);
                     JsonObject imp = new JsonObject();
-                    imp.addProperty("returnType","StatementNode");
-                    imp.addProperty("returnTypeFile","statement-node");
+                    imp.addProperty("returnType", "StatementNode");
+                    imp.addProperty("returnTypeFile", "statement-node");
                     imports.add(imp);
-                }else{
+                } else {
                     nodeObj.addProperty("isStatement", false);
                 }
 
-                if(parents.contains("ExpressionNode")){
+                if (parents.contains("ExpressionNode")) {
                     nodeObj.addProperty("isExpression", true);
                     JsonObject imp = new JsonObject();
-                    imp.addProperty("returnType","ExpressionNode");
-                    imp.addProperty("returnTypeFile","expression-node");
+                    imp.addProperty("returnType", "ExpressionNode");
+                    imp.addProperty("returnTypeFile", "expression-node");
                     imports.add(imp);
-                }else{
+                } else {
                     nodeObj.addProperty("isExpression", false);
                 }
 
-                if(!parents.contains("StatementNode") && !parents.contains("ExpressionNode")){
+                if (!parents.contains("StatementNode") && !parents.contains("ExpressionNode")) {
                     JsonObject imp = new JsonObject();
-                    imp.addProperty("returnType","Node");
-                    imp.addProperty("returnTypeFile","node");
+                    imp.addProperty("returnType", "Node");
+                    imp.addProperty("returnTypeFile", "node");
                     imports.add(imp);
                 }
 
                 Method[] methods = clazz.getMethods();
                 for (Method m : methods) {
                     String methodName = m.getName();
-                    if (methodName == "getKind" || methodName == "getWS" || methodName == "getPosition"){
+                    if ("getKind".equals(methodName) || "getWS".equals(methodName) ||
+                            "getPosition".equals(methodName)) {
                         continue;
                     }
                     if (methodName.startsWith("get")) {
@@ -150,14 +151,15 @@ public class ModelGenerator {
                         attribute.addProperty("methodSuffix", m.getName().substring(3));
                         attribute.addProperty("list", List.class.isAssignableFrom(m.getReturnType()));
                         attribute.addProperty("isNode", Node.class.isAssignableFrom(m.getReturnType()));
-                        if(Node.class.isAssignableFrom(m.getReturnType())){
+                        if (Node.class.isAssignableFrom(m.getReturnType())) {
                             String returnClass = m.getReturnType().getSimpleName();
-                            if(alias.containsValue(m.getReturnType().getSimpleName())){
+                            if (alias.containsValue(m.getReturnType().getSimpleName())) {
                                 returnClass = getKindForAliasClass(m.getReturnType().getSimpleName());
                             }
                             imp.addProperty("returnType", returnClass);
                             attribute.addProperty("returnType", returnClass);
-                            imp.addProperty("returnTypeFile", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
+                            imp.addProperty("returnTypeFile",
+                                    CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
                             if (!imports.contains(imp)) {
                                 imports.add(imp);
                             }
@@ -171,14 +173,15 @@ public class ModelGenerator {
                         attribute.addProperty("methodSuffix", m.getName().substring(2));
                         attribute.addProperty("list", List.class.isAssignableFrom(m.getReturnType()));
                         attribute.addProperty("isNode", Node.class.isAssignableFrom(m.getReturnType()));
-                        if(Node.class.isAssignableFrom(m.getReturnType())){
+                        if (Node.class.isAssignableFrom(m.getReturnType())) {
                             String returnClass = m.getReturnType().getSimpleName();
-                            if(alias.containsValue(m.getReturnType().getSimpleName())){
+                            if (alias.containsValue(m.getReturnType().getSimpleName())) {
                                 returnClass = getKindForAliasClass(m.getReturnType().getSimpleName());
                             }
                             imp.addProperty("returnType", returnClass);
                             attribute.addProperty("returnType", returnClass);
-                            imp.addProperty("returnTypeFile", CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
+                            imp.addProperty("returnTypeFile",
+                                    CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, returnClass));
                             if (!imports.contains(imp)) {
                                 imports.add(imp);
                             }
@@ -199,13 +202,13 @@ public class ModelGenerator {
     }
 
     private static String getKindForAliasClass(String simpleName) {
-        for (Map.Entry<String, String> entry : alias.entrySet())
-        {
-            if (simpleName == entry.getValue())
+        for (Map.Entry<String, String> entry : alias.entrySet()) {
+            if (simpleName.equals(entry.getValue())) {
                 return entry.getKey();
+            }
         }
 
-        throw new AssertionError("Undefined entry :" + simpleName );
+        throw new AssertionError("Undefined entry :" + simpleName);
     }
 
     public static void generateSourceFiles(JsonObject node, String tpl , String name) {

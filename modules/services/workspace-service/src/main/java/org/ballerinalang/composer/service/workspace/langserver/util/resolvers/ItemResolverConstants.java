@@ -18,9 +18,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 /**
  * Constants for Item Resolver
  */

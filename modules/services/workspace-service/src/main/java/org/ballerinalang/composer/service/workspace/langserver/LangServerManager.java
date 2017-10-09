@@ -49,33 +49,24 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.InMemoryPacka
 import org.ballerinalang.composer.service.workspace.suggetions.CapturePossibleTokenStrategy;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.composer.service.workspace.util.WorkspaceUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.PackageLoader;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
@@ -88,7 +79,7 @@ public class LangServerManager {
 
     private static LangServerManager langServerManagerInstance;
 
-    private static CompilerOptions options;
+    private CompilerOptions options;
 
     private LangServer langserver;
 
@@ -551,115 +542,6 @@ public class LangServerManager {
      */
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
         this.packages = packages;
-    }
-
-    /**
-     * Generate a json with packages in program directory
-     *
-     * @param filePath    - file path to parent directory of the .bal file
-     * @param packageName - package name
-     */
-//    private Map<String, ModelPackage> resolveProgramPackages(java.nio.file.Path filePath, String packageName) {
-//        // Filter out Default package scenario
-//        if (!".".equals(packageName)) {
-//            // find nested directory count using package name
-//            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
-//                    : 1;
-//
-//            // find program directory
-//            java.nio.file.Path parentDir = filePath;
-//            for (int i = 0; i < directoryCount; ++i) {
-//                if (parentDir != null) {
-//                    parentDir = parentDir.getParent();
-//                }
-//            }
-//
-//            // we shouldn't proceed if the parent directory is null
-//            if (parentDir == null) {
-//                return null;
-//            }
-//
-//            // get packages in program directory
-//            return getPackagesInProgramDirectory(parentDir);
-//        }
-//        return null;
-//    }
-
-
-    /**
-     * Get packages in program directory
-     *
-     * @param programDirPath
-     * @return a map contains package details
-     * @throws BallerinaException
-     */
-//    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath) {
-//        Map<String, ModelPackage> modelPackageMap = new HashMap();
-//
-//        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
-//        List<java.nio.file.Path> filePaths = new ArrayList<>();
-//        searchFilePathsForBalFiles(programDirPath, filePaths, Constants.DIRECTORY_DEPTH);
-//
-//        // add resolved packages into map
-//        for (java.nio.file.Path filePath : filePaths) {
-//            int compare = filePath.compareTo(programDirPath);
-//            String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
-//                    filePath.toString().length());
-//            try {
-//                BLangProgram bLangProgram = new BLangASTBuilder()
-//                        .build(programDirPath, Paths.get(sourcePath));
-//
-//                //
-//                java.nio.file.Path path = programDirPath.resolve(sourcePath);
-//                programMap.put(path, bLangProgram);
-//
-//                String[] packageNames = {bLangProgram.getEntryPackage().getName()};
-//                modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
-//            } catch (BallerinaException e) {
-//                logger.warn(e.getMessage());
-//                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
-//
-//                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
-//                // those scenarios we still needs to proceed even without package resolving for that particular package.
-//                // Hence ignoring the exception.
-//            }
-//        }
-//        return modelPackageMap;
-//    }
-
-    /**
-     * Recursive method to search for .bal files and add their parent directory paths to the provided List
-     *
-     * @param programDirPath - program directory path
-     * @param filePaths      - file path list
-     * @param depth          - depth of the directory hierarchy which we should search from the program directory
-     */
-    private void searchFilePathsForBalFiles(java.nio.file.Path programDirPath,
-                                            List<java.nio.file.Path> filePaths, int depth) {
-        // this method is a recursive method. depth is the iteration count and we should return based on the depth count
-        if (depth < 0) {
-            return;
-        }
-        try {
-            DirectoryStream<Path> stream = Files.newDirectoryStream(programDirPath);
-            depth = depth - 1;
-            for (java.nio.file.Path entry : stream) {
-                if (Files.isDirectory(entry)) {
-                    searchFilePathsForBalFiles(entry, filePaths, depth);
-                }
-                java.nio.file.Path file = entry.getFileName();
-                if (file != null) {
-                    String fileName = file.toString();
-                    if (fileName.endsWith(".bal")) {
-                        filePaths.add(entry.getParent());
-                    }
-                }
-            }
-            stream.close();
-        } catch (IOException e) {
-            // we are ignoring any exception and proceed.
-            return;
-        }
     }
 
     // End Notification Handlers

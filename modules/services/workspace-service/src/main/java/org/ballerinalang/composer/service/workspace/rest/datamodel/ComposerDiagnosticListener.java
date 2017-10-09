@@ -25,7 +25,7 @@ import java.util.List;
 public class ComposerDiagnosticListener implements DiagnosticListener {
 
     List<Diagnostic> diagnostics;
-    public ComposerDiagnosticListener(List<Diagnostic> diagnostics){
+    public ComposerDiagnosticListener(List<Diagnostic> diagnostics) {
         this.diagnostics = diagnostics;
     }
 

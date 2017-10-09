@@ -28,7 +28,6 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Parser rule based statement context resolver
@@ -48,7 +47,8 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
 
             // Get the action and function list
             ArrayList<SymbolInfo> actionFunctionList = actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null).get(0), dataModel);
+                    .getCompletionItems(actionAndFunctionFilter
+                            .filterItems(dataModel, symbols, null).get(0), dataModel);
 
             // Populate the completion items
             this.populateCompletionItemList(actionFunctionList, completionItems);
@@ -102,3 +102,4 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         }
     }
 }
+

@@ -108,7 +108,7 @@ class ToolGroupView extends React.Component {
         const trigger = (currentStatus) => {
             // Do not show doc icon for Constructs and Current Package
             const canShowDoc = toolGroupName !== 'Constructs' && toolGroupName !== 'Current Package' &&
-                !toolGroupName.includes(' operators');
+                !toolGroupName.includes(' Operators');
             const docIcon = canShowDoc ? (<span className="fw fw-document" />) : '';
 
             return (<div className="tool-group-header">
