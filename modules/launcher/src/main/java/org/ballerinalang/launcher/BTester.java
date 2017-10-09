@@ -54,9 +54,8 @@ public class BTester {
         if (programFile != null) {
             org.ballerinalang.util.codegen.ProgramFile executableProgram = getExecutableProgram(programFile);
 //            traceCode(executableProgram.getEntryPackage());
-            BValue[] returnVals = BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
+            BLangFunctions.invokeNew(executableProgram, executableProgram.getEntryPkgName(),
                                                            "main", new BValue[1]);
-            System.out.printf("");
         }
     }
 
