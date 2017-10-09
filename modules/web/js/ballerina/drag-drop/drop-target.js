@@ -41,8 +41,8 @@ export function withDropEnabled(DropArea) {
             const { dropTarget, canDrop } = props;
             const { dragSource } = monitor.getItem();
             let validDrop = false;
-            // Try to validate drop throguh node methods
-            if (_.isFunction(dropTarget.canAcceptDrop)) {
+            // Try to validate drop through node methods
+            if (!_.isNil(dropTarget) && _.isFunction(dropTarget.canAcceptDrop)) {
                 validDrop = dropTarget.canAcceptDrop(dragSource);
             }
             // give priority to validate callback 

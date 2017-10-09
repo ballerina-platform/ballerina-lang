@@ -79,7 +79,7 @@ WhileNode.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    }).isRequired,
+    }),
 };
 
 WhileNode.contextTypes = {
