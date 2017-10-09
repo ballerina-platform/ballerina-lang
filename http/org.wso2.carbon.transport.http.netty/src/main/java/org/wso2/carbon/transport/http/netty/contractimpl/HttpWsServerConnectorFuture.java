@@ -149,10 +149,12 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
         if (openingServerConnectorId != null) {
             notifyPortBindingEvent(openingServerConnectorId, isOpeningSCHttps);
             openingServerConnectorId = null;
+            isOpeningSCHttps = false;
         }
         if (closingServerConnectorId != null) {
             notifyPortUnbindingEvent(closingServerConnectorId, isClosingSCHttps);
             closingServerConnectorId = null;
+            isClosingSCHttps = false;
         }
         if (connectorInitException != null) {
             notifyPortBindingError(connectorInitException);
