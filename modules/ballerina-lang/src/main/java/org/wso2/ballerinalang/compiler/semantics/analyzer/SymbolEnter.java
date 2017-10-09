@@ -365,7 +365,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             defineNode(funcNode.receiver, invokableEnv);
             funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-            ((BInvokableType) funcSymbol.type).receiverType = funcNode.receiver.symbol.type;
+            ((BInvokableType) funcSymbol.type).setReceiverType(funcNode.receiver.symbol.type);
         }
     }
 
@@ -383,7 +383,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 env.enclPkg.symbol.pkgID, actionSymbol.owner.type, invokableEnv.scope.owner);
 
         actionSymbol.receiverSymbol = varSymbol;
-        ((BInvokableType) actionSymbol.type).receiverType = varSymbol.type;
+        ((BInvokableType) actionSymbol.type).setReceiverType(varSymbol.type);
     }
 
     @Override
