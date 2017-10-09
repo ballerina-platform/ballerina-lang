@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/laf/dev/wso2/ballerina-1/docs/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -23,27 +23,27 @@ public class BallerinaParser extends Parser {
 		VERSION=20, TYPE_INT=21, TYPE_FLOAT=22, TYPE_BOOL=23, TYPE_STRING=24, 
 		TYPE_BLOB=25, TYPE_MAP=26, TYPE_JSON=27, TYPE_XML=28, TYPE_DATATABLE=29, 
 		TYPE_ANY=30, TYPE_TYPE=31, VAR=32, CREATE=33, ATTACH=34, TRANSFORM=35, 
-		IF=36, ELSE=37, ITERATE=38, WHILE=39, CONTINUE=40, BREAK=41, FORK=42, 
-		JOIN=43, SOME=44, ALL=45, TIMEOUT=46, TRY=47, CATCH=48, FINALLY=49, THROW=50, 
-		RETURN=51, REPLY=52, TRANSACTION=53, ABORT=54, ABORTED=55, COMMITTED=56, 
-		FAILED=57, RETRY=58, LENGTHOF=59, TYPEOF=60, WITH=61, SEMICOLON=62, COLON=63, 
-		DOT=64, COMMA=65, LEFT_BRACE=66, RIGHT_BRACE=67, LEFT_PARENTHESIS=68, 
-		RIGHT_PARENTHESIS=69, LEFT_BRACKET=70, RIGHT_BRACKET=71, QUESTION_MARK=72, 
-		ASSIGN=73, ADD=74, SUB=75, MUL=76, DIV=77, POW=78, MOD=79, NOT=80, EQUAL=81, 
-		NOT_EQUAL=82, GT=83, LT=84, GT_EQUAL=85, LT_EQUAL=86, AND=87, OR=88, RARROW=89, 
-		LARROW=90, AT=91, BACKTICK=92, IntegerLiteral=93, FloatingPointLiteral=94, 
-		BooleanLiteral=95, QuotedStringLiteral=96, NullLiteral=97, Identifier=98, 
-		XMLLiteralStart=99, StringTemplateLiteralStart=100, ExpressionEnd=101, 
-		WS=102, NEW_LINE=103, LINE_COMMENT=104, XML_COMMENT_START=105, CDATA=106, 
-		DTD=107, EntityRef=108, CharRef=109, XML_TAG_OPEN=110, XML_TAG_OPEN_SLASH=111, 
-		XML_TAG_SPECIAL_OPEN=112, XMLLiteralEnd=113, XMLTemplateText=114, XMLText=115, 
-		XML_TAG_CLOSE=116, XML_TAG_SPECIAL_CLOSE=117, XML_TAG_SLASH_CLOSE=118, 
-		SLASH=119, QNAME_SEPARATOR=120, EQUALS=121, DOUBLE_QUOTE=122, SINGLE_QUOTE=123, 
-		XMLQName=124, XML_TAG_WS=125, XMLTagExpressionStart=126, DOUBLE_QUOTE_END=127, 
-		XMLDoubleQuotedTemplateString=128, XMLDoubleQuotedString=129, SINGLE_QUOTE_END=130, 
-		XMLSingleQuotedTemplateString=131, XMLSingleQuotedString=132, XMLPIText=133, 
-		XMLPITemplateText=134, XMLCommentText=135, XMLCommentTemplateText=136, 
-		StringTemplateLiteralEnd=137, StringTemplateExpressionStart=138, StringTemplateText=139;
+		IF=36, ELSE=37, ITERATE=38, WHILE=39, NEXT=40, BREAK=41, FORK=42, JOIN=43, 
+		SOME=44, ALL=45, TIMEOUT=46, TRY=47, CATCH=48, FINALLY=49, THROW=50, RETURN=51, 
+		REPLY=52, TRANSACTION=53, ABORT=54, ABORTED=55, COMMITTED=56, FAILED=57, 
+		RETRY=58, LENGTHOF=59, TYPEOF=60, WITH=61, SEMICOLON=62, COLON=63, DOT=64, 
+		COMMA=65, LEFT_BRACE=66, RIGHT_BRACE=67, LEFT_PARENTHESIS=68, RIGHT_PARENTHESIS=69, 
+		LEFT_BRACKET=70, RIGHT_BRACKET=71, QUESTION_MARK=72, ASSIGN=73, ADD=74, 
+		SUB=75, MUL=76, DIV=77, POW=78, MOD=79, NOT=80, EQUAL=81, NOT_EQUAL=82, 
+		GT=83, LT=84, GT_EQUAL=85, LT_EQUAL=86, AND=87, OR=88, RARROW=89, LARROW=90, 
+		AT=91, BACKTICK=92, IntegerLiteral=93, FloatingPointLiteral=94, BooleanLiteral=95, 
+		QuotedStringLiteral=96, NullLiteral=97, Identifier=98, XMLLiteralStart=99, 
+		StringTemplateLiteralStart=100, ExpressionEnd=101, WS=102, NEW_LINE=103, 
+		LINE_COMMENT=104, XML_COMMENT_START=105, CDATA=106, DTD=107, EntityRef=108, 
+		CharRef=109, XML_TAG_OPEN=110, XML_TAG_OPEN_SLASH=111, XML_TAG_SPECIAL_OPEN=112, 
+		XMLLiteralEnd=113, XMLTemplateText=114, XMLText=115, XML_TAG_CLOSE=116, 
+		XML_TAG_SPECIAL_CLOSE=117, XML_TAG_SLASH_CLOSE=118, SLASH=119, QNAME_SEPARATOR=120, 
+		EQUALS=121, DOUBLE_QUOTE=122, SINGLE_QUOTE=123, XMLQName=124, XML_TAG_WS=125, 
+		XMLTagExpressionStart=126, DOUBLE_QUOTE_END=127, XMLDoubleQuotedTemplateString=128, 
+		XMLDoubleQuotedString=129, SINGLE_QUOTE_END=130, XMLSingleQuotedTemplateString=131, 
+		XMLSingleQuotedString=132, XMLPIText=133, XMLPITemplateText=134, XMLCommentText=135, 
+		XMLCommentTemplateText=136, StringTemplateLiteralEnd=137, StringTemplateExpressionStart=138, 
+		StringTemplateText=139;
 	public static final int
 		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_packageName = 2, 
 		RULE_version = 3, RULE_importDeclaration = 4, RULE_definition = 5, RULE_serviceDefinition = 6, 
@@ -66,7 +66,7 @@ public class BallerinaParser extends Parser {
 		RULE_connectorInitExpression = 53, RULE_filterInitExpression = 54, RULE_filterInitExpressionList = 55, 
 		RULE_assignmentStatement = 56, RULE_variableReferenceList = 57, RULE_ifElseStatement = 58, 
 		RULE_ifClause = 59, RULE_elseIfClause = 60, RULE_elseClause = 61, RULE_iterateStatement = 62, 
-		RULE_whileStatement = 63, RULE_continueStatement = 64, RULE_breakStatement = 65, 
+		RULE_whileStatement = 63, RULE_nextStatement = 64, RULE_breakStatement = 65, 
 		RULE_forkJoinStatement = 66, RULE_joinClause = 67, RULE_joinConditions = 68, 
 		RULE_timeoutClause = 69, RULE_tryCatchStatement = 70, RULE_catchClauses = 71, 
 		RULE_catchClause = 72, RULE_finallyClause = 73, RULE_throwStatement = 74, 
@@ -101,7 +101,7 @@ public class BallerinaParser extends Parser {
 		"mapStructKeyValue", "arrayLiteral", "connectorInitExpression", "filterInitExpression", 
 		"filterInitExpressionList", "assignmentStatement", "variableReferenceList", 
 		"ifElseStatement", "ifClause", "elseIfClause", "elseClause", "iterateStatement", 
-		"whileStatement", "continueStatement", "breakStatement", "forkJoinStatement", 
+		"whileStatement", "nextStatement", "breakStatement", "forkJoinStatement", 
 		"joinClause", "joinConditions", "timeoutClause", "tryCatchStatement", 
 		"catchClauses", "catchClause", "finallyClause", "throwStatement", "returnStatement", 
 		"workerInteractionStatement", "triggerWorker", "workerReply", "commentStatement", 
@@ -123,7 +123,7 @@ public class BallerinaParser extends Parser {
 		"'returns'", "'version'", "'int'", "'float'", "'boolean'", "'string'", 
 		"'blob'", "'map'", "'json'", "'xml'", "'datatable'", "'any'", "'type'", 
 		"'var'", "'create'", "'attach'", "'transform'", "'if'", "'else'", "'iterate'", 
-		"'while'", "'continue'", "'break'", "'fork'", "'join'", "'some'", "'all'", 
+		"'while'", "'next'", "'break'", "'fork'", "'join'", "'some'", "'all'", 
 		"'timeout'", "'try'", "'catch'", "'finally'", "'throw'", "'return'", "'reply'", 
 		"'transaction'", "'abort'", "'aborted'", "'committed'", "'failed'", "'retry'", 
 		"'lengthof'", "'typeof'", "'with'", "';'", "':'", "'.'", "','", "'{'", 
@@ -140,7 +140,7 @@ public class BallerinaParser extends Parser {
 		"CONST", "TYPEMAPPER", "WORKER", "XMLNS", "RETURNS", "VERSION", "TYPE_INT", 
 		"TYPE_FLOAT", "TYPE_BOOL", "TYPE_STRING", "TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", 
 		"TYPE_XML", "TYPE_DATATABLE", "TYPE_ANY", "TYPE_TYPE", "VAR", "CREATE", 
-		"ATTACH", "TRANSFORM", "IF", "ELSE", "ITERATE", "WHILE", "CONTINUE", "BREAK", 
+		"ATTACH", "TRANSFORM", "IF", "ELSE", "ITERATE", "WHILE", "NEXT", "BREAK", 
 		"FORK", "JOIN", "SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", 
 		"RETURN", "REPLY", "TRANSACTION", "ABORT", "ABORTED", "COMMITTED", "FAILED", 
 		"RETRY", "LENGTHOF", "TYPEOF", "WITH", "SEMICOLON", "COLON", "DOT", "COMMA", 
@@ -989,7 +989,7 @@ public class BallerinaParser extends Parser {
 				setState(357);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 					{
 					{
 					setState(354);
@@ -2488,7 +2488,7 @@ public class BallerinaParser extends Parser {
 			setState(594);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(591);
@@ -2654,7 +2654,7 @@ public class BallerinaParser extends Parser {
 				setState(620);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 					{
 					{
 					setState(617);
@@ -3694,8 +3694,8 @@ public class BallerinaParser extends Parser {
 		public WhileStatementContext whileStatement() {
 			return getRuleContext(WhileStatementContext.class,0);
 		}
-		public ContinueStatementContext continueStatement() {
-			return getRuleContext(ContinueStatementContext.class,0);
+		public NextStatementContext nextStatement() {
+			return getRuleContext(NextStatementContext.class,0);
 		}
 		public BreakStatementContext breakStatement() {
 			return getRuleContext(BreakStatementContext.class,0);
@@ -3796,7 +3796,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(761);
-				continueStatement();
+				nextStatement();
 				}
 				break;
 			case 7:
@@ -4921,7 +4921,7 @@ public class BallerinaParser extends Parser {
 			setState(913);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(910);
@@ -4999,7 +4999,7 @@ public class BallerinaParser extends Parser {
 			setState(927);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(924);
@@ -5063,7 +5063,7 @@ public class BallerinaParser extends Parser {
 			setState(937);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(934);
@@ -5149,7 +5149,7 @@ public class BallerinaParser extends Parser {
 			setState(953);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(950);
@@ -5224,7 +5224,7 @@ public class BallerinaParser extends Parser {
 			setState(966);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(963);
@@ -5250,31 +5250,31 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ContinueStatementContext extends ParserRuleContext {
-		public TerminalNode CONTINUE() { return getToken(BallerinaParser.CONTINUE, 0); }
+	public static class NextStatementContext extends ParserRuleContext {
+		public TerminalNode NEXT() { return getToken(BallerinaParser.NEXT, 0); }
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
-		public ContinueStatementContext(ParserRuleContext parent, int invokingState) {
+		public NextStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_continueStatement; }
+		@Override public int getRuleIndex() { return RULE_nextStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterContinueStatement(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterNextStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitContinueStatement(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitNextStatement(this);
 		}
 	}
 
-	public final ContinueStatementContext continueStatement() throws RecognitionException {
-		ContinueStatementContext _localctx = new ContinueStatementContext(_ctx, getState());
-		enterRule(_localctx, 128, RULE_continueStatement);
+	public final NextStatementContext nextStatement() throws RecognitionException {
+		NextStatementContext _localctx = new NextStatementContext(_ctx, getState());
+		enterRule(_localctx, 128, RULE_nextStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(971);
-			match(CONTINUE);
+			match(NEXT);
 			setState(972);
 			match(SEMICOLON);
 			}
@@ -5493,7 +5493,7 @@ public class BallerinaParser extends Parser {
 			setState(1007);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1004);
@@ -5729,7 +5729,7 @@ public class BallerinaParser extends Parser {
 			setState(1049);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1046);
@@ -5796,7 +5796,7 @@ public class BallerinaParser extends Parser {
 			setState(1059);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1056);
@@ -5957,7 +5957,7 @@ public class BallerinaParser extends Parser {
 			setState(1085);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1082);
@@ -6021,7 +6021,7 @@ public class BallerinaParser extends Parser {
 			setState(1095);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1092);
@@ -7001,7 +7001,7 @@ public class BallerinaParser extends Parser {
 			setState(1196);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1193);
@@ -7176,7 +7176,7 @@ public class BallerinaParser extends Parser {
 			setState(1227);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1224);
@@ -7240,7 +7240,7 @@ public class BallerinaParser extends Parser {
 			setState(1237);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1234);
@@ -7304,7 +7304,7 @@ public class BallerinaParser extends Parser {
 			setState(1247);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << CONTINUE) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << XMLNS) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_DATATABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE) | (1L << VAR) | (1L << TRANSFORM) | (1L << IF) | (1L << ITERATE) | (1L << WHILE) | (1L << NEXT) | (1L << BREAK) | (1L << FORK) | (1L << TRY) | (1L << THROW) | (1L << RETURN) | (1L << TRANSACTION) | (1L << ABORT) | (1L << RETRY) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 66)) & ~0x3f) == 0 && ((1L << (_la - 66)) & ((1L << (LEFT_BRACE - 66)) | (1L << (LEFT_PARENTHESIS - 66)) | (1L << (LEFT_BRACKET - 66)) | (1L << (ADD - 66)) | (1L << (SUB - 66)) | (1L << (NOT - 66)) | (1L << (LT - 66)) | (1L << (IntegerLiteral - 66)) | (1L << (FloatingPointLiteral - 66)) | (1L << (BooleanLiteral - 66)) | (1L << (QuotedStringLiteral - 66)) | (1L << (NullLiteral - 66)) | (1L << (Identifier - 66)) | (1L << (XMLLiteralStart - 66)) | (1L << (StringTemplateLiteralStart - 66)) | (1L << (LINE_COMMENT - 66)))) != 0)) {
 				{
 				{
 				setState(1244);

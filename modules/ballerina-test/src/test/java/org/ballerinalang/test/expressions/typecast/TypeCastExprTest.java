@@ -293,7 +293,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressNode.get("city").textValue(), "CA");
     }*/
 
-    @Test(enabled = false)
+    @Test
     public void testStructToStruct() {
         BValue[] returns = BTestUtils.invoke(result, "testStructToStruct", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -398,7 +398,7 @@ public class TypeCastExprTest {
         BTestUtils.invoke(result, "testNullJsonToBoolean", new BValue[]{});
     }
 
-    @Test(enabled = false, description = "Test casting a null Struct to Struct")
+    @Test(description = "Test casting a null Struct to Struct")
     public void testNullStructToStruct() {
         BValue[] returns = BTestUtils.invoke(result, "testNullStructToStruct", new BValue[]{});
         Assert.assertEquals(returns[0], null);
@@ -513,7 +513,7 @@ public class TypeCastExprTest {
         BTestUtils.compile("test-src/expressions/typecast/map-to-json-negative.bal");
     }
 
-    @Test(enabled = false, description = "Test casting struct stored as any to struct")
+    @Test(description = "Test casting struct stored as any to struct")
     public void testStructAsAnyToStruct() {
         BValue[] returns = BTestUtils.invoke(result, "testStructAsAnyToStruct", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -542,14 +542,14 @@ public class TypeCastExprTest {
         Assert.assertEquals(score, 0.0);
     }
 
-    @Test(enabled = false, description = "Test casting any to struct",
+    @Test(description = "Test casting any to struct",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
         BTestUtils.invoke(result, "testAnyToStruct" , new BValue[]{});
     }
 
-    @Test(enabled = false, description = "Test casting a null stored as any to struct")
+    @Test(description = "Test casting a null stored as any to struct")
     public void testAnyNullToStruct() {
         BValue[] returns = BTestUtils.invoke(result, "testAnyNullToStruct", new BValue[]{});
         Assert.assertNull(returns[0]);
@@ -561,13 +561,13 @@ public class TypeCastExprTest {
         Assert.assertNull(returns[0]);
     }
 
-    @Test(enabled = false, description = "Test casting a null stored as any to xml")
+    @Test(description = "Test casting a null stored as any to xml")
     public void testAnyNullToXml() {
         BValue[] returns = BTestUtils.invoke(result, "testAnyNullToXml", new BValue[]{});
         Assert.assertNull(returns[0]);
     }
 
-    @Test(enabled = false, description = "Test explicit casting struct to any")
+    @Test(description = "Test explicit casting struct to any")
     public void testStructToAnyExplicit() {
         BValue[] returns = BTestUtils.invoke(result, "testStructToAnyExplicit", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -592,7 +592,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(student.getFloatField(0), 0.0);
     }
 
-    @Test(enabled = false, description = "Test explicit casting struct to any")
+    @Test(description = "Test explicit casting struct to any")
     public void testMapToAnyExplicit() {
         BValue[] returns = BTestUtils.invoke(result, "testMapToAnyExplicit", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
@@ -606,7 +606,7 @@ public class TypeCastExprTest {
         BValue[] returns = BTestUtils.invoke(result, "testCastToStructInDifferentPkg", new BValue[]{});
     }
 
-    @Test(enabled = false)
+    @Test
     public void testCompatibleStructForceCasting() {
         BValue[] returns = BTestUtils.invoke(result, "testCompatibleStructForceCasting", new BValue[]{});
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -645,15 +645,16 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types: " +
                     "expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
-        BTestUtils.compile("test-src/expressions/typecast/multi-return-casting-negative.bal");
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/multi-return-casting-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BTestUtils.validateError(res, 0, "", 0, 0);
     }
 
-    @Test(enabled = false, description = "Test casting with too many returns",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "casting-with-too-many-returns.bal:17: assignment count mismatch: " +
-                    "3 != 2")
+    @Test(description = "Test casting with too many returns")
     public void testCastingWithTooManyReturns() {
-        BTestUtils.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
+        CompileResult res = BTestUtils.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BTestUtils.validateError(res, 0, "assignment count mismatch: 3 != 2", 15, 17);
     }
 
 

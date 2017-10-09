@@ -475,34 +475,34 @@ function transactionWithBreak3 () (string) {
 }
 
 
-function transactionWithContinue1 () (string) {
+function transactionWithNext1 () (string) {
     int i = 0;
     transaction {
         while (i < 5) {
             i = i + 1;
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }
     return "done";
 }
 
-function transactionWithContinue2 () (string) {
+function transactionWithNext2 () (string) {
     int i = 0;
     while (i < 5) {
         transaction {
             i = i + 1;
         } committed {
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }
     return "done";
 }
 
-function transactionWithContinue3 () (string) {
+function transactionWithNext3 () (string) {
     int i = 0;
     while (i < 5) {
         transaction {
@@ -510,7 +510,7 @@ function transactionWithContinue3 () (string) {
             abort;
         } aborted {
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }

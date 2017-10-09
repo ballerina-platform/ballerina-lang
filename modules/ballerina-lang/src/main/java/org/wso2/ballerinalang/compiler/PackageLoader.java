@@ -24,6 +24,7 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.fs.LocalFSPackageRepository;
+import org.ballerinalang.spi.ExtensionPackageRepositoryProvider;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -175,11 +176,17 @@ public class PackageLoader {
     }
 
     private PackageRepository loadExtensionRepository() {
-        return null;
+        ServiceLoader<ExtensionPackageRepositoryProvider> loader = ServiceLoader.load(
+                ExtensionPackageRepositoryProvider.class);
+        AggregatedPackageRepository repo = new AggregatedPackageRepository();
+        loader.forEach(e -> repo.addRepository(e.loadRepository()));
+        return repo;
     }
 
     private PackageRepository loadUserRepository() {
-        this.loadExtensionRepository();
-        return null;
+        /* when the user repository concept is implemented, a new CompositePackageRepository must be
+         * created by making the extension repository the parent and returning it.
+         * For now, we are only having the extension repository */
+        return this.loadExtensionRepository();
     }
 }
