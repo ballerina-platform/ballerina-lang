@@ -53,28 +53,45 @@ stream.once('open', () => {
             const js = [];
             const condition = [];
 
-            const wQuoted = g => {
-                emptyDefaultWS[kind][g] = '';
-                return (nodeWS[g] ? '\'' + nodeWS[g] + '\'' : '');
+            const wQuoted = (g, after) => {
+                emptyDefaultWS[kind]['before ' + g] = nodeWS['before ' + g] || '';
+                emptyDefaultWS[kind]['after ' + g] = nodeWS['after ' + g] || '';
+                let defaultWs;
+                if (after) {
+                    defaultWs = nodeWS['after ' + g];
+                } else {
+                    defaultWs = nodeWS['before ' + g];
+                }
+                return (defaultWs ? '\'' + defaultWs + '\'' : '');
             };
             const wWrapped = g => 'w(' + wQuoted(g) + ') + ';
+            const wAfterWrapped = g => wQuoted(g, true) && ' + a(' + wQuoted(g, true) + ')';
+            const pushWithWS = (jsArr, getter, wsGetter) => {
+                wsGetter = wsGetter || getter;
+                jsArr.push(wWrapped(wsGetter) + getter + wAfterWrapped(wsGetter));
+            };
+
             for (let k = 0; k < rule.length; k++) {
                 const p = rule[k];
                 if (p.match(/^<.*>$/)) {
                     let getter = p.slice(1, -1);
                     if (getter.match(/\.value$/)) {
-                        js.push(wWrapped(getter.slice(0, -6)) + 'node.' + getter);
+                        const getterWithoutVal = getter.slice(0, -6);
+                        js.push(wWrapped(getterWithoutVal) + 'node.' + getter + wAfterWrapped(getterWithoutVal));
                     } else if (getter.match(/\.source$/)) {
                         getter = getter.replace(/\.source$/, '');
+                        if (wQuoted(getter)) {
+                            js.push('b(' + wQuoted(getter) + ')');
+                        }
                         js.push('getSourceOf(node.' + getter + ', pretty, l)');
                     } else if (getter.match(/^[^?]+\?[^?]*$/)) {
                         const parts = getter.split('?');
                         getter = parts[0];
                         if (parts[1]) {
-                            js.push(wWrapped(parts[1]) + '\'' + parts[1] + '\'');
+                            pushWithWS(js, '\'' + parts[1] + '\'', parts[1]);
                         }
                     } else {
-                        js.push(wWrapped(getter) + 'node.' + getter);
+                        pushWithWS(js, 'node.' + getter, getter);
                     }
                     condition.push(getter);
                 } else if (p.match(/^<.*>[*+]$/)) {
@@ -93,11 +110,11 @@ stream.once('open', () => {
                         condition.push(getter + '.length');
                     }
                 } else {
-                    if (p === '}') {
+                    if (p === '}' && kind !== 'RecordLiteralExpr') {
                         js.push('outdent()');
                     }
-                    js.push(wWrapped(p) + '\'' + p + '\'');
-                    if (p === '{') {
+                    js.push(wWrapped(p) + '\'' + p + '\'' + wAfterWrapped(p));
+                    if ((p === '{' && kind !== 'RecordLiteralExpr')) {
                         if (kind === 'If') {
                             // We need to spacial case If to handle 'else if' case correctly.
                             js.unshift('(node.parent.kind === \'If\' ? \'\' : dent())');
@@ -109,6 +126,9 @@ stream.once('open', () => {
                         js.unshift('dent()');
                     }
                 }
+            }
+            if (nodeWS.dent) {
+                js.unshift('dent()');
             }
             const conditionStr = join(condition.map(s => 'node.' + s), ' && ', tab(4));
             const retrunSt = 'return ' + join(js, ' + ', tab(2)) + ';';

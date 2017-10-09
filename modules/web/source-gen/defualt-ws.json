@@ -1,249 +1,566 @@
 {
   "PackageDeclaration": {
-    "package": "",
-    "packageName": "",
-    ";": ""
+    "before package": "",
+    "after package": " ",
+    "before packageName": "",
+    "after packageName": "",
+    "before ;": "",
+    "after ;": ""
   },
   "Import": {
-    "import": "",
-    "packageName": "",
-    ";": ""
+    "before import": "",
+    "after import": " ",
+    "before packageName": "",
+    "after packageName": "",
+    "before ;": "",
+    "after ;": ""
   },
   "Identifier": {
-    "value": ""
+    "before value": "",
+    "after value": ""
   },
   "Action": {
-    "action": "",
-    "name": "",
-    "(": "",
-    "parameters": "",
-    ")": "",
-    "returnParameters": "",
-    "{": "",
-    "}": ""
+    "before action": "",
+    "after action": "",
+    "before name": "",
+    "after name": "",
+    "before (": "",
+    "after (": "",
+    "before parameters": "",
+    "after parameters": "",
+    "before )": "",
+    "after )": "",
+    "before returnParameters": "",
+    "after returnParameters": "",
+    "before {": "",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
+  },
+  "Annotation": {
+    "before annotation": "",
+    "after annotation": "",
+    "before name": "",
+    "after name": "",
+    "before {": "",
+    "after {": "",
+    "before attributes": "",
+    "after attributes": "",
+    "before }": "",
+    "after }": "",
+    "before attach": "",
+    "after attach": "",
+    "before resource": "",
+    "after resource": ""
   },
   "AnnotationAttachment": {
-    "@": "",
-    "{": "",
-    "attributes": "",
-    "}": ""
+    "before @": "",
+    "after @": "",
+    "before packageAlias": "",
+    "after packageAlias": "",
+    "before :": "",
+    "after :": "",
+    "before annotationName": "",
+    "after annotationName": "",
+    "before {": "",
+    "after {": "",
+    "before attributes": "",
+    "after attributes": "",
+    "before }": "",
+    "after }": ""
   },
-  "AnnotationAttachmentAttributeValue": {},
+  "AnnotationAttachmentAttribute": {
+    "before name": "",
+    "after name": "",
+    "before :": "",
+    "after :": "",
+    "before value": "",
+    "after value": ""
+  },
+  "AnnotationAttachmentAttributeValue": {
+    "before value": "",
+    "after value": "",
+    "before [": "",
+    "after [": "",
+    "before valueArray": "",
+    "after valueArray": "",
+    "before ]": "",
+    "after ]": ""
+  },
+  "AnnotationAttribute": {
+    "before typeNode": "",
+    "after typeNode": "",
+    "before name": "",
+    "after name": ""
+  },
   "ArrayLiteralExpr": {
-    "[": "",
-    "expressions": "",
-    "]": ""
+    "before [": "",
+    "after [": "",
+    "before expressions": "",
+    "after expressions": "",
+    "before ]": "",
+    "after ]": ""
   },
   "ArrayType": {
-    "[": "",
-    "]": ""
+    "before elementType": "",
+    "after elementType": "",
+    "before [": "",
+    "after [": "",
+    "before ]": "",
+    "after ]": ""
   },
   "Assignment": {
-    "var": "",
-    "variables": "",
-    "=": "",
-    ";": ""
+    "before var": "",
+    "after var": " ",
+    "before variables": "",
+    "after variables": "",
+    "before =": " ",
+    "after =": " ",
+    "before expression": "",
+    "after expression": "",
+    "before ;": "",
+    "after ;": ""
   },
   "BinaryExpr": {
-    "operatorKind": ""
+    "before leftExpression": "",
+    "after leftExpression": "",
+    "before operatorKind": " ",
+    "after operatorKind": " ",
+    "before rightExpression": "",
+    "after rightExpression": ""
   },
   "Block": {
-    "statements": ""
+    "before statements": "",
+    "after statements": ""
   },
   "Break": {
-    "break": "",
-    ";": ""
+    "before break": "",
+    "after break": "",
+    "before ;": "",
+    "after ;": ""
   },
   "BuiltInRefType": {
-    "typeKind": "",
-    "message": ""
+    "before typeKind": "",
+    "after typeKind": ""
   },
   "Comment": {
-    "comment": ""
+    "before comment": "",
+    "after comment": ""
   },
   "Connector": {
-    "connector": "",
-    "name": "",
-    "(": "",
-    ")": "",
-    "{": "",
-    "variableDefs": "",
-    "actions": "",
-    "}": ""
+    "before connector": "",
+    "after connector": "",
+    "before name": "",
+    "after name": "",
+    "before (": "",
+    "after (": "",
+    "before parameters": "",
+    "after parameters": "",
+    "before )": "",
+    "after )": "",
+    "before {": "",
+    "after {": "",
+    "before variableDefs": "",
+    "after variableDefs": "",
+    "before actions": "",
+    "after actions": "",
+    "before }": "",
+    "after }": ""
   },
   "ConnectorInitExpr": {
-    "create": "",
-    "(": "",
-    "expressions": "",
-    ")": ""
+    "before create": "",
+    "after create": "",
+    "before connectorType": " ",
+    "after connectorType": "",
+    "before (": "",
+    "after (": "",
+    "before expressions": "",
+    "after expressions": "",
+    "before )": "",
+    "after )": ""
   },
   "ConstrainedType": {},
   "Continue": {
-    "continue": "",
-    ";": ""
+    "before continue": "",
+    "after continue": "",
+    "before ;": "",
+    "after ;": ""
   },
   "ExpressionStatement": {
-    ";": ""
+    "before expression": "",
+    "after expression": "",
+    "before ;": "",
+    "after ;": ""
   },
   "FieldBasedAccessExpr": {
-    ".": "",
-    "fieldName": ""
+    "before expression": "",
+    "after expression": "",
+    "before .": "",
+    "after .": "",
+    "before fieldName": "",
+    "after fieldName": ""
   },
   "ForkJoin": {
-    "fork": "",
-    "{": "",
-    "workers": "",
-    "}": ""
+    "before fork": "",
+    "after fork": "",
+    "before {": "",
+    "after {": "",
+    "before workers": "",
+    "after workers": "",
+    "before }": "",
+    "after }": "",
+    "before joinResultVar": "",
+    "after joinResultVar": ""
   },
   "Function": {
-    "annotationAttachments": "",
-    "function": "",
-    "name": "",
-    "(": "",
-    "parameters": "",
-    ")": "",
-    "returnParameters": "",
-    "{": "",
-    "}": ""
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before function": "",
+    "after function": "",
+    "before name": " ",
+    "after name": "",
+    "before (": " ",
+    "after (": "",
+    "before parameters": "",
+    "after parameters": "",
+    "before )": "",
+    "after )": "",
+    "before returnParameters": "",
+    "after returnParameters": " ",
+    "before {": " ",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
+  },
+  "FunctionType": {
+    "before function": "",
+    "after function": "",
+    "before (": "",
+    "after (": "",
+    "before paramTypeNode": "",
+    "after paramTypeNode": "",
+    "before )": "",
+    "after )": "",
+    "before returns": "",
+    "after returns": "",
+    "before returnParamTypeNode": "",
+    "after returnParamTypeNode": ""
   },
   "If": {
-    "if": "",
-    "(": "",
-    ")": "",
-    "{": "",
-    "}": "",
-    "else": ""
+    "before if": "",
+    "after if": "",
+    "before (": " ",
+    "after (": "",
+    "before condition": "",
+    "after condition": "",
+    "before )": "",
+    "after )": "",
+    "before {": " ",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": "",
+    "before else": "",
+    "after else": "",
+    "before elseStatement": "",
+    "after elseStatement": ""
   },
   "IndexBasedAccessExpr": {
-    "[": "",
-    "]": ""
+    "before expression": "",
+    "after expression": "",
+    "before [": "",
+    "after [": "",
+    "before index": "",
+    "after index": "",
+    "before ]": "",
+    "after ]": ""
   },
   "Invocation": {
-    "packageAlias": "",
-    ":": "",
-    "name": "",
-    "(": "",
-    "argumentExpressions": "",
-    ")": "",
-    ".": ""
+    "before packageAlias": "",
+    "after packageAlias": "",
+    "before :": "",
+    "after :": "",
+    "before name": "",
+    "after name": "",
+    "before (": "",
+    "after (": "",
+    "before argumentExpressions": "",
+    "after argumentExpressions": "",
+    "before )": "",
+    "after )": "",
+    "before expression": "",
+    "after expression": "",
+    "before .": "",
+    "after .": ""
+  },
+  "Lambda": {
+    "before functionNode": "",
+    "after functionNode": ""
   },
   "Literal": {
-    "value": ""
+    "before value": "",
+    "after value": ""
   },
   "RecordLiteralExpr": {
-    "{": "",
-    "keyValuePairs": "",
-    "}": ""
+    "before {": "",
+    "after {": "",
+    "before keyValuePairs": "",
+    "after keyValuePairs": "",
+    "before }": "",
+    "after }": ""
   },
   "RecordLiteralKeyValue": {
-    ":": ""
+    "before key": "",
+    "after key": "",
+    "before :": "",
+    "after :": "",
+    "before value": "",
+    "after value": ""
   },
   "Resource": {
-    "annotationAttachments": "",
-    "parameters": "",
-    "{": "",
-    "}": ""
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before resource": "",
+    "after resource": "",
+    "before name": "",
+    "after name": "",
+    "before (": "",
+    "after (": "",
+    "before parameters": "",
+    "after parameters": "",
+    "before )": "",
+    "after )": "",
+    "before {": "",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
   },
   "Return": {
-    "return": "",
-    "expressions": "",
-    ";": ""
+    "before return": "",
+    "after return": " ",
+    "before expressions": " ",
+    "after expressions": "",
+    "before ;": "",
+    "after ;": ""
+  },
+  "Service": {
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before service": "",
+    "after service": "",
+    "before <": "",
+    "after <": "",
+    "before protocolPackageIdentifier": "",
+    "after protocolPackageIdentifier": "",
+    "before >": "",
+    "after >": "",
+    "before name": "",
+    "after name": "",
+    "before {": "",
+    "after {": "",
+    "before variables": "",
+    "after variables": "",
+    "before resources": "",
+    "after resources": "",
+    "before }": "",
+    "after }": ""
   },
   "SimpleVariableRef": {
-    "packageAlias": "",
-    ":": "",
-    "variableName": ""
+    "before packageAlias": "",
+    "after packageAlias": "",
+    "before :": "",
+    "after :": "",
+    "before variableName": "",
+    "after variableName": ""
   },
   "Struct": {
-    "annotationAttachments": "",
-    "struct": "",
-    "name": "",
-    "{": "",
-    "fields": "",
-    "}": ""
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before struct": "",
+    "after struct": "",
+    "before name": "",
+    "after name": "",
+    "before {": "",
+    "after {": "",
+    "before fields": "",
+    "after fields": "",
+    "before }": "",
+    "after }": ""
   },
   "Throw": {
-    "throw": "",
-    ";": ""
+    "before throw": "",
+    "after throw": "",
+    "before expressions": "",
+    "after expressions": "",
+    "before ;": "",
+    "after ;": ""
   },
-  "Transform": {},
+  "Transform": {
+    "before transform": "",
+    "after transform": "",
+    "before {": "",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
+  },
   "TypeCastExpr": {
-    "(": "",
-    ")": ""
+    "before (": "",
+    "after (": "",
+    "before typeNode": "",
+    "after typeNode": "",
+    "before )": "",
+    "after )": "",
+    "before expression": "",
+    "after expression": ""
   },
   "TypeConversionExpr": {
-    "<": "",
-    ">": ""
+    "before <": "",
+    "after <": "",
+    "before typeNode": "",
+    "after typeNode": "",
+    "before >": "",
+    "after >": "",
+    "before expression": "",
+    "after expression": ""
   },
   "UnaryExpr": {
-    "operatorKind": ""
+    "before operatorKind": "",
+    "after operatorKind": "",
+    "before expression": "",
+    "after expression": ""
   },
   "UserDefinedType": {
-    "packageAlias": "",
-    ":": "",
-    "typeName": ""
+    "before packageAlias": "",
+    "after packageAlias": "",
+    "before :": "",
+    "after :": "",
+    "before typeName": "",
+    "after typeName": ""
   },
   "ValueType": {
-    "typeKind": ""
+    "before typeKind": "",
+    "after typeKind": ""
   },
   "Variable": {
-    "const": "",
-    "name": "",
-    "=": "",
-    ";": "",
-    "int": ""
+    "before const": "",
+    "after const": " ",
+    "before typeNode": "",
+    "after typeNode": "",
+    "before name": " ",
+    "after name": "",
+    "before =": " ",
+    "after =": " ",
+    "before initialExpression": "",
+    "after initialExpression": "",
+    "before ;": "",
+    "after ;": ""
   },
   "VariableDef": {
-    ";": ""
+    "before variable": "",
+    "after variable": "",
+    "before ;": "",
+    "after ;": ""
   },
   "While": {
-    "while": "",
-    "(": "",
-    ")": "",
-    "{": "",
-    "}": ""
+    "before while": "",
+    "after while": "",
+    "before (": " ",
+    "after (": "",
+    "before condition": "",
+    "after condition": "",
+    "before )": "",
+    "after )": "",
+    "before {": " ",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
   },
   "Worker": {
-    "{": "",
-    "}": ""
+    "before {": "",
+    "after {": "",
+    "before body": "",
+    "after body": "",
+    "before }": "",
+    "after }": ""
   },
   "WorkerReceive": {
-    "expressions": "",
-    "<-": "",
-    "workerName": "",
-    ";": ""
+    "before expressions": "",
+    "after expressions": "",
+    "before <-": "",
+    "after <-": "",
+    "before workerName": "",
+    "after workerName": "",
+    "before ;": "",
+    "after ;": ""
   },
   "WorkerSend": {
-    "expressions": "",
-    "->": "",
-    "workerName": "",
-    ";": ""
+    "before expressions": "",
+    "after expressions": "",
+    "before ->": "",
+    "after ->": "",
+    "before workerName": "",
+    "after workerName": "",
+    "before ;": "",
+    "after ;": ""
   },
   "XmlAttribute": {
-    "=": ""
+    "before name": "",
+    "after name": "",
+    "before value": "",
+    "after value": "",
+    "before =": "",
+    "after =": ""
   },
   "XmlCommentLiteral": {
-    "textFragments": ""
+    "before textFragments": "",
+    "after textFragments": ""
   },
   "XmlElementLiteral": {
-    "<": "",
-    "attributes": "",
-    ">": "",
-    "content": "",
-    "/>": ""
+    "before <": "",
+    "after <": "",
+    "before attributes": "",
+    "after attributes": "",
+    "before >": "",
+    "after >": "",
+    "before content": "",
+    "after content": "",
+    "before endTagName": "",
+    "after endTagName": "",
+    "before />": "",
+    "after />": ""
   },
   "XmlPiLiteral": {
-    "dataTextFragments": ""
+    "before target": "",
+    "after target": "",
+    "before dataTextFragments": "",
+    "after dataTextFragments": ""
   },
   "XmlQname": {
-    "</": "",
-    "localname": "",
-    ">": ""
+    "before </": "",
+    "after </": "",
+    "before localname": "",
+    "after localname": "",
+    "before >": "",
+    "after >": ""
   },
   "XmlQuotedString": {
-    "textFragments": ""
+    "before textFragments": "",
+    "after textFragments": ""
   },
   "XmlTextLiteral": {
-    "textFragments": ""
+    "before textFragments": "",
+    "after textFragments": ""
   }
 }
+
