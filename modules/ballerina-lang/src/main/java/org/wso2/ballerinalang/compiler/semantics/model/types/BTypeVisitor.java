@@ -17,28 +17,28 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.ConstrainedType;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-
 /**
+ * @param <R> the return type of the visit methods.
  * @since 0.94
  */
-public class BMapType extends BBuiltInRefType implements ConstrainedType {
+public interface BTypeVisitor<R> {
+    R visit(BType t, BType s);
 
-    public BType constraint;
+    R visit(BBuiltInRefType t, BType s);
 
-    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
-        this.constraint = constraint;
-    }
+    R visit(BAnyType t, BType s);
 
-    @Override
-    public BType getConstraint() {
-        return constraint;
-    }
+    R visit(BMapType t, BType s);
 
-    @Override
-    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
-        return visitor.visit(this, type);
-    }
+    R visit(BJSONType t, BType s);
+
+    R visit(BArrayType t, BType s);
+
+    R visit(BStructType t, BType s);
+
+    R visit(BConnectorType t, BType s);
+
+    R visit(BEnumType t, BType s);
+
+    R visit(BErrorType t, BType s);
 }

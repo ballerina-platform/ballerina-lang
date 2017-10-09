@@ -19,9 +19,13 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.util.Lists;
+
+import java.util.List;
 
 /**
  * @since 0.94
@@ -135,10 +139,27 @@ public class Symbols {
     }
 
     public static BXMLNSSymbol createXMLNSSymbol(Name name,
-                                                String nsURI,
-                                                PackageID pkgID,
-                                                BSymbol owner) {
+                                                 String nsURI,
+                                                 PackageID pkgID,
+                                                 BSymbol owner) {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner);
+    }
+
+    public static BCastOperatorSymbol createCastOperatorSymbol(BType sourceType,
+                                                               BType targetType,
+                                                               BType errorType,
+                                                               boolean implicit,
+                                                               boolean safe,
+                                                               int opcode,
+                                                               PackageID pkgID,
+                                                               BSymbol owner) {
+        List<BType> paramTypes = Lists.of(sourceType, targetType);
+        List<BType> retTypes = Lists.of(targetType, errorType);
+        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BCastOperatorSymbol symbol = new BCastOperatorSymbol(pkgID, opType,
+                owner, implicit, safe, opcode);
+        symbol.kind = SymbolKind.CAST_OPERATOR;
+        return symbol;
     }
 
     public static boolean isNative(BSymbol sym) {
