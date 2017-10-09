@@ -128,6 +128,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private int failedBlockCount;
     private boolean statementReturns;
+    private int forkJoinCount;
+    private int workerCount;
     private SymbolEnter symbolEnter;
     private DiagnosticLog dlog;
     private TypeChecker typeChecker;
@@ -211,6 +213,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        this.forkJoinCount++;
         this.initNewWorkerActionSystem();
         this.checkUnreachableCode(forkJoin);
         forkJoin.workers.forEach(e -> e.accept(this));
@@ -221,6 +224,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.checkForkJoinWorkerCount(forkJoin);
         this.finalizeCurrentWorkerActionSystem();
+        this.forkJoinCount--;
+    }
+    
+    private boolean inForkJoin() {
+        return this.forkJoinCount > 0;
     }
     
     private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
@@ -235,11 +243,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
     
+    private boolean inWorker() {
+        return this.workerCount > 0;
+    }
+    
     @Override
     public void visit(BLangWorker worker) {
+        this.workerCount++;
         this.workerActionSystemStack.peek().startWorkerActionStateMachine(worker.name.value, worker.pos);
         worker.body.accept(this);
         this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+        this.workerCount--;
     }
 
     @Override
@@ -295,6 +309,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangReturn returnStmt) {
+        if (this.inForkJoin() && this.inWorker()) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
+            return;
+        }
         this.statementReturns = true;
     }
     
