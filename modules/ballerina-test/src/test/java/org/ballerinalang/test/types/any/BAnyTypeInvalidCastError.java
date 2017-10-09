@@ -29,7 +29,7 @@ public class BAnyTypeInvalidCastError {
 
     @Test
     public void testInvalidAnyCasting() {
-        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-invalid-cast.bal");
+        CompileResult resultNegative = BTestUtils.compile("test-src/types/any/any-type-cast-negative.bal");
 
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
 
