@@ -93,7 +93,9 @@ class ReturnParameterDefinitionHolder extends React.Component {
             propertyType: 'text',
             key: 'ParameterDefinition',
             model: parent,
-            getterMethod: () => {},
+            getterMethod: () => {
+                return '';
+            },
             setterMethod: this.addReturnParameter,
             fontSize: 12,
             isCustomHeight: true,
