@@ -67,9 +67,9 @@ class AddResourceDefinition extends React.Component {
                     key: this.props.model.getID(),
                     model: this.props.model,
                     bBox,
-                    editor: this.context.editor,
                 },
             };
+            this.props.model.viewState.showOverlayContainer = true;
             this.props.model.viewState.overlayContainer = overlayComponents;
             this.context.editor.update();
         }

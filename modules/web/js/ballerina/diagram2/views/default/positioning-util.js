@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import TreeUtil from './../../../model/tree-util';
 import SimpleBBox from './../../../ast/simple-bounding-box';
+import OverlayComponentsRenderingUtil from './../default/components/utils/overlay-component-rendering-util';
 
 class PositioningUtil {
 
@@ -67,6 +68,13 @@ class PositioningUtil {
                 arrowEndBBox.x = connectorDeclaration.viewState.bBox.x + (connectorDeclaration.viewState.bBox.w / 2);
                 arrowEndBBox.y = arrowStartBBox.y;
                 viewState.components.invocation.end = arrowEndBBox;
+                if (connectorDeclaration.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(connectorDeclaration);
+                }
+            }
+        } else if (TreeUtil.isConnectorDeclaration(node)) {
+            if (node.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(node);
             }
         }
     }
@@ -318,6 +326,9 @@ class PositioningUtil {
                 statement.viewState.bBox.x = xindex;
                 statement.viewState.bBox.y = cmp.defaultWorker.y;
                 xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
+                if (statement.viewState.showOverlayContainer) {
+                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
+                }
             }
         });
     }
@@ -444,6 +455,11 @@ class PositioningUtil {
             // expand the resource to match service.
             child.viewState.bBox.w = viewState.bBox.w - (this.config.innerPanel.wrapper.gutter.h * 2);
         });
+
+        // Setting the overlay container if its true
+        if (viewState.showOverlayContainer) {
+            OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
+        }
     }
 
 

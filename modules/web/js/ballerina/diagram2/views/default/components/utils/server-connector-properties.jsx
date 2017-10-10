@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { panel } from '../../designer-defaults';
 import './properties-form.css';
+import OverlayComponentsRenderingUtil from './overlay-component-rendering-util';
 /**
  * React component for a server connector properties handler
  *
@@ -39,23 +40,8 @@ class ServerConnectorProperties extends React.Component {
      */
     handleShowModal() {
         const node = this.props.model;
-        const bBox = Object.assign({}, node.viewState.bBox);
-        const titleHeight = 30;
-        const iconSize = 14;
-        const annotationBodyHeight = node.viewState.components.annotation.h;
-        bBox.x = bBox.x + titleHeight + iconSize;
-        bBox.y = bBox.y + annotationBodyHeight + titleHeight;
-        const overlayComponents = {
-            kind: 'ServerConnectorPropertiesForm',
-            props: {
-                key: node.getID(),
-                model: node,
-                bBox,
-                editor: this.context.editor,
-                environment: this.context.environment,
-            },
-        };
-        node.viewState.overlayContainer = overlayComponents;
+        node.viewState.showOverlayContainer = true;
+        OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
         this.context.editor.update();
     }
 
@@ -98,5 +84,4 @@ export default ServerConnectorProperties;
 
 ServerConnectorProperties.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
-    environment: PropTypes.instanceOf(Object).isRequired,
 };

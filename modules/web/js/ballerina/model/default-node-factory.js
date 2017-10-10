@@ -17,7 +17,7 @@
  */
 import FragmentUtils from './../utils/fragment-utils';
 import TreeBuilder from './tree-builder';
-
+import TreeUtils from './tree-util';
 /**
  * Creates the node instance for given source fragment
  *
@@ -33,7 +33,7 @@ function getNodeForFragment(fragment) {
 class DefaultNodeFactory {
 
     createHTTPServiceDef() {
-        return getNodeForFragment(
+        const node = getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(
 `    
     service<http> service1 {
@@ -43,10 +43,12 @@ class DefaultNodeFactory {
     }
 `
             ));
+        node.viewState.showOverlayContainer = true;
+        return node;
     }
 
     createWSServiceDef() {
-        return getNodeForFragment(
+        const node = getNodeForFragment(
             FragmentUtils.createTopLevelNodeFragment(
 `
     service<ws> service1 {
@@ -62,6 +64,8 @@ class DefaultNodeFactory {
     }
 `
             ));
+        node.viewState.showOverlayContainer = true;
+        return node;
     }
 
     /**
@@ -156,11 +160,23 @@ class DefaultNodeFactory {
     }
 
     createAssignmentStmt() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment('a = b;'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('a = b;'));
+        // Check if the node is a ConnectorDeclaration
+        if (TreeUtils.isConnectorDeclaration(node)) {
+            node.viewState.showOverlayContainer = true;
+            return node;
+        }
+        return node;
     }
 
     createVarDefStmt() {
-        return getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+        const node = getNodeForFragment(FragmentUtils.createStatementFragment('int a = 1;'));
+        // Check if the node is a ConnectorDeclaration
+        if (TreeUtils.isConnectorDeclaration(node)) {
+            node.viewState.showOverlayContainer = true;
+            return node;
+        }
+        return node;
     }
 
     createIf() {
@@ -173,7 +189,7 @@ class DefaultNodeFactory {
 
     createInvocation() {
         return getNodeForFragment(FragmentUtils.createStatementFragment(`
-            callFunction(arg1);
+            callFunction(arg1);cc
         `));
     }
 

@@ -32,7 +32,7 @@ class OverlayComponentsRenderingVisitor {
     }
 
     beginVisit(node) {
-        if (!_.isEmpty(node.viewState.overlayContainer)) {
+        if (node.viewState.showOverlayContainer && !_.isEmpty(node.viewState.overlayContainer)) {
             this.overlayComponents.push(node.viewState.overlayContainer);
         }
         return undefined;
